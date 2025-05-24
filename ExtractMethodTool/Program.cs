@@ -2,7 +2,6 @@
 using ExtractMethodTool;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.MSBuild;
-using Microsoft.CodeAnalysis.Text;
 
 if (args.Length != 1)
 {
@@ -25,16 +24,7 @@ if (document == null)
     return;
 }
 
-var text = await document.GetTextAsync();
-var lines = text.Lines;
-int GetPos(int line, int col) => lines[line - 1].Start + col - 1;
-
-var span = TextSpan.FromBounds(
-    GetPos(plan.Selection.StartLine, plan.Selection.StartColumn),
-    GetPos(plan.Selection.EndLine, plan.Selection.EndColumn)
-);
-
-var newRoot = await ExtractMethod.RewriteAsync(document, span, plan.NewMethodName);
+var newRoot = await ExtractMethod.RewriteAsync(document, plan.NewMethodName, plan.Selection);
 var updatedDoc = document.WithSyntaxRoot(newRoot);
 var newText = await updatedDoc.GetTextAsync();
 

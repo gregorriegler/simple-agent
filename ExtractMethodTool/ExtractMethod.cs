@@ -8,8 +8,19 @@ namespace ExtractMethodTool;
 
 public static class ExtractMethod
 {
-    public static async Task<SyntaxNode> RewriteAsync(Document document, TextSpan span, string newMethodName)
+    public static async Task<SyntaxNode> RewriteAsync(Document document, string newMethodName,
+        CodeSelection planSelection)
     {
+        
+        var text = await document.GetTextAsync();
+        var lines = text.Lines;
+        int GetPos(int line, int col) => lines[line - 1].Start + col - 1;
+
+        var span = TextSpan.FromBounds(
+            GetPos(planSelection.StartLine, planSelection.StartColumn),
+            GetPos(planSelection.EndLine, planSelection.EndColumn)
+        );
+        
         var root = await document.GetSyntaxRootAsync();
         var model = await document.GetSemanticModelAsync();
 

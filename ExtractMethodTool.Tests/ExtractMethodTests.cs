@@ -1,5 +1,4 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ExtractMethodTool.Tests;
@@ -29,11 +28,8 @@ public class Bird
         var document = CreateDocument(code);
 
         // manually locate span of the switch block
-        var root = await document.GetSyntaxRootAsync();
-        var switchNode = root.DescendantNodes().OfType<SwitchStatementSyntax>().First();
-        var span = switchNode.Span;
 
-        var newRoot = await ExtractMethod.RewriteAsync(document, span, "ComputeSpeed");
+        var newRoot = await ExtractMethod.RewriteAsync(document, "ComputeSpeed", null); //TBD
         var formatted = Formatter.Format(newRoot, new AdhocWorkspace());
 
         await Verify(formatted.ToFullString());
