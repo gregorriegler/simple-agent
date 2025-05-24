@@ -1,0 +1,12 @@
+﻿public class Calculator
+{
+    public void Plus()
+    {
+        AddOneWithOne();
+    }
+
+    private void AddOneWithOne()
+    {
+        return 1 + 1;
+    }
+}

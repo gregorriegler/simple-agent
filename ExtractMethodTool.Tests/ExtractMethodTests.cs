@@ -6,6 +6,22 @@ namespace ExtractMethodTool.Tests;
 [TestFixture]
 public class ExtractMethodTests
 {
+    
+    [Test]
+    public async Task CanExtractReturn()
+    {
+        var code = @"
+public class Calculator
+{
+    public void Plus()
+    {
+        return 1+1;
+    }
+}";
+
+        await VerifyExtract(code, "AddOneWithOne", new CodeSelection(6,0,6,19));
+    }
+    
     [Test]
     public async Task CanExtractSimpleSwitchWithReturn()
     {
