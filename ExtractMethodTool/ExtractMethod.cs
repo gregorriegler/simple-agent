@@ -76,21 +76,20 @@ public static class ExtractMethod
         }
         
         var newMethodBody = SyntaxFactory.Block(selectedStatements);
+
+        var invocationExpressionSyntax = SyntaxFactory.InvocationExpression(
+            SyntaxFactory.IdentifierName(newMethodName),
+            SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
+                SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Identifier.Text))))));
+
         StatementSyntax callStatement;
         if (returns.Count == 0 && !allPathsReturnOrThrow)
         {
-            callStatement = SyntaxFactory.ExpressionStatement(
-                SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName(newMethodName),
-                    SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
-                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Identifier.Text)))))));
+            callStatement = SyntaxFactory.ExpressionStatement(invocationExpressionSyntax);
         }
         else if (allPathsReturnOrThrow)
         {
-            callStatement = SyntaxFactory.ReturnStatement(
-                SyntaxFactory.InvocationExpression(
-                    SyntaxFactory.IdentifierName(newMethodName),
-                    SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
-                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Identifier.Text)))))));
+            callStatement = SyntaxFactory.ReturnStatement(invocationExpressionSyntax);
         }
         else if (returns.FirstOrDefault() is { } localReturnSymbol)
         {
@@ -98,11 +97,7 @@ public static class ExtractMethod
 
             if (selectedStatements.Count == 1 && selectedStatements.First() is ReturnStatementSyntax)
             {
-                callStatement = SyntaxFactory.ReturnStatement(
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.IdentifierName(newMethodName),
-                        SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
-                            SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Identifier.Text)))))));
+                callStatement = SyntaxFactory.ReturnStatement(invocationExpressionSyntax);
             }
             else
             {
@@ -110,12 +105,7 @@ public static class ExtractMethod
                     SyntaxFactory.VariableDeclaration(returnType)
                         .WithVariables(SyntaxFactory.SingletonSeparatedList(
                             SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier(localReturnSymbol.Name))
-                                .WithInitializer(SyntaxFactory.EqualsValueClause(
-                                    SyntaxFactory.InvocationExpression(
-                                        SyntaxFactory.IdentifierName(newMethodName),
-                                        SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
-                                            SyntaxFactory.Argument(
-                                                SyntaxFactory.IdentifierName(p.Identifier.Text)))))))))));
+                                .WithInitializer(SyntaxFactory.EqualsValueClause(invocationExpressionSyntax)))));
             }
 
             newMethodBody = newMethodBody.AddStatements(returnStatement);
