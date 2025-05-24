@@ -19,7 +19,6 @@ public class Bird
         switch (kind)
         {
             case 0: return 10;
-            case 1: return 20;
             default: throw new ArgumentOutOfRangeException();
         }
     }
@@ -27,9 +26,7 @@ public class Bird
 
         var document = CreateDocument(code);
 
-        // manually locate span of the switch block
-
-        var newRoot = await ExtractMethod.RewriteAsync(document, "ComputeSpeed", null); //TBD
+        var newRoot = await ExtractMethod.RewriteAsync(document, "ComputeSpeed", new CodeSelection(8,0,12,10)); //TBD
         var formatted = Formatter.Format(newRoot, new AdhocWorkspace());
 
         await Verify(formatted.ToFullString());
