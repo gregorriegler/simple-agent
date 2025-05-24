@@ -17,23 +17,22 @@ public static class ExtractMethodRewriter
         var spanText = root.GetText().ToString(span);
         Console.WriteLine("\n=== Raw Span Content ===\n" + spanText);
         
-        // Find the common block ancestor
-        var block = root.FindNode(span).AncestorsAndSelf().OfType<BlockSyntax>().FirstOrDefault();
-        if (block == null)
-            throw new InvalidOperationException("Selected statements are not inside a block.");
+        // Try to extract selected statements more robustly
+        var selectedNode = root.FindNode(span);
 
-        // Filter direct child statements in the selected span
-        var selectedStatements = block.Statements
-            .Where(stmt => span.OverlapsWith(stmt.Span))
-            .ToList();
+        var selectedStatements = selectedNode is BlockSyntax blockNode
+            ? blockNode.Statements.Where(stmt => span.OverlapsWith(stmt.Span)).ToList()
+            : selectedNode.DescendantNodesAndSelf().OfType<StatementSyntax>()
+                .Where(stmt => span.Contains(stmt.Span)).ToList();
 
         if (!selectedStatements.Any())
             throw new InvalidOperationException("No statements selected for extraction.");
 
-        Console.WriteLine("\n=== Selected Block Statements ===");
-        foreach (var stmt in selectedStatements)
-            Console.WriteLine(stmt.ToFullString());
-        
+        // Find the common block ancestor for editing context
+        var block = selectedNode.AncestorsAndSelf().OfType<BlockSyntax>().FirstOrDefault();
+        if (block == null)
+            throw new InvalidOperationException("Selected statements are not inside a block.");
+
         var editor = new SyntaxEditor(root, document.Project.Solution.Workspace);
 
         // Data flow analysis to determine parameters and return values
@@ -47,13 +46,20 @@ public static class ExtractMethodRewriter
         var returns = dataFlow.DataFlowsOut.Intersect(dataFlow.WrittenInside)
             .OfType<ILocalSymbol>()
             .ToList();
-        
+
         // Decide return type
         TypeSyntax returnType;
         StatementSyntax returnStatement = null;
         StatementSyntax callStatement;
 
-        if (returns.Count == 0)
+        bool allPathsReturnOrThrow = selectedStatements.Count == 1 &&
+            selectedStatements[0] is SwitchStatementSyntax switchStmt &&
+            switchStmt.Sections.All(sec =>
+                sec.Statements.LastOrDefault() is ReturnStatementSyntax or ThrowStatementSyntax);
+
+        var returnSymbol = returns.FirstOrDefault();
+
+        if (returns.Count == 0 && !allPathsReturnOrThrow)
         {
             returnType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
             callStatement = SyntaxFactory.ExpressionStatement(
@@ -61,47 +67,44 @@ public static class ExtractMethodRewriter
                     SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
                         SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Identifier.Text)))))));
         }
-        else if (returns.Count == 1)
+        else if (allPathsReturnOrThrow)
         {
-            var returnSymbol = returns.First();
-            if (returnSymbol is ILocalSymbol localReturnSymbol)
+            returnType = SyntaxFactory.ParseTypeName("double"); // fallback or use semantic model to infer
+            callStatement = SyntaxFactory.ReturnStatement(
+                SyntaxFactory.InvocationExpression(
+                    SyntaxFactory.IdentifierName(newMethodName),
+                    SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
+                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Identifier.Text)))))));
+        }
+        else if (returnSymbol is ILocalSymbol localReturnSymbol)
+        {
+            returnType = SyntaxFactory.ParseTypeName(localReturnSymbol.Type.ToDisplayString());
+            returnStatement = SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName(localReturnSymbol.Name));
+
+            if (selectedStatements.Count == 1 && selectedStatements.First() is ReturnStatementSyntax)
             {
-                returnType = SyntaxFactory.ParseTypeName(localReturnSymbol.Type.ToDisplayString());
-                returnStatement = SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName(localReturnSymbol.Name));
-                callStatement = callStatement = SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.AssignmentExpression(
-                        SyntaxKind.SimpleAssignmentExpression,
-                        SyntaxFactory.IdentifierName(localReturnSymbol.Name),
-                        SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName(newMethodName),
-                            SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
-                                SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Identifier.Text))))))));
+                callStatement = SyntaxFactory.ReturnStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.IdentifierName(newMethodName),
+                        SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
+                            SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Identifier.Text)))))));
             }
             else
             {
-                throw new InvalidOperationException("Unsupported return symbol type.");
+                callStatement = SyntaxFactory.LocalDeclarationStatement(
+                    SyntaxFactory.VariableDeclaration(returnType)
+                        .WithVariables(SyntaxFactory.SingletonSeparatedList(
+                            SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier(localReturnSymbol.Name))
+                                .WithInitializer(SyntaxFactory.EqualsValueClause(
+                                    SyntaxFactory.InvocationExpression(
+                                        SyntaxFactory.IdentifierName(newMethodName),
+                                        SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
+                                            SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Identifier.Text)))))))))));
             }
         }
         else
         {
-            // Return tuple
-            returnType = SyntaxFactory.TupleType(
-                SyntaxFactory.SeparatedList(returns.Select(r =>
-                    SyntaxFactory.TupleElement(SyntaxFactory.ParseTypeName((r as ILocalSymbol)?.Type.ToDisplayString() ?? "object"))
-                        .WithIdentifier(SyntaxFactory.Identifier(r.Name)))));
-
-            returnStatement = SyntaxFactory.ReturnStatement(
-                SyntaxFactory.TupleExpression(
-                    SyntaxFactory.SeparatedList(returns.Select(r =>
-                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(r.Name))))));
-
-            callStatement = SyntaxFactory.ExpressionStatement(
-                SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
-                    SyntaxFactory.TupleExpression(
-                        SyntaxFactory.SeparatedList(returns.Select(r =>
-                            SyntaxFactory.Argument(SyntaxFactory.IdentifierName(r.Name))))),
-                    SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName(newMethodName),
-                        SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
-                            SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Identifier.Text))))))));
+            throw new InvalidOperationException("Unsupported return symbol type.");
         }
 
         // Create method body
