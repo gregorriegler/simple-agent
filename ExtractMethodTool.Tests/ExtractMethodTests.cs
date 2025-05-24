@@ -24,11 +24,14 @@ public class Bird
     }
 }";
 
+        await VerifyExtract(code, "ComputeSpeed", new CodeSelection(8,0,12,10));
+    }
+
+    private static async Task VerifyExtract(string code, string newMethodName, CodeSelection codeSelection)
+    {
         var document = CreateDocument(code);
-
-        var newRoot = await ExtractMethod.RewriteAsync(document, "ComputeSpeed", new CodeSelection(8,0,12,10)); //TBD
+        var newRoot = await ExtractMethod.ExtractAsync(document, newMethodName, codeSelection); //TBD
         var formatted = Formatter.Format(newRoot, new AdhocWorkspace());
-
         await Verify(formatted.ToFullString());
     }
 

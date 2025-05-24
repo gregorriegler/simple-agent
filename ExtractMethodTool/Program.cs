@@ -28,7 +28,7 @@ if (document == null)
     return;
 }
 
-var newRoot = await ExtractMethod.RewriteAsync(document, arguments.NewMethodName, arguments.Selection);
+var newRoot = await ExtractMethod.ExtractAsync(document, arguments.NewMethodName, arguments.Selection);
 var updatedDoc = document.WithSyntaxRoot(newRoot);
 var newText = await updatedDoc.GetTextAsync();
 

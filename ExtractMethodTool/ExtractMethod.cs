@@ -8,7 +8,7 @@ namespace ExtractMethodTool;
 
 public static class ExtractMethod
 {
-    public static async Task<SyntaxNode> RewriteAsync(Document document, string newMethodName, CodeSelection selection)
+    public static async Task<SyntaxNode> ExtractAsync(Document document, string newMethodName, CodeSelection selection)
     {
         var span = await GetSpan(document, selection);
 
