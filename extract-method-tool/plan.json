@@ -1,0 +1,11 @@
+{
+  "ProjectPath": "C:\\Users\\riegl\\code\\Parrot-Refactoring-Kata\\CSharp\\Parrot\\Parrot.csproj",
+  "FileName": "Parrot.cs",
+  "NewMethodName": "ComputeSpeed",
+  "Selection": {
+    "StartLine": 23,
+    "StartColumn": 0,
+    "EndLine": 33,
+    "EndColumn": 14
+  }
+}
