@@ -1,6 +1,6 @@
 ﻿public class Calculator
 {
-    public void Plus()
+    public int Plus()
     {
         AddOneWithOne();
     }

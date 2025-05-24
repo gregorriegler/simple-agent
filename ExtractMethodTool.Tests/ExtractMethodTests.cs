@@ -13,7 +13,7 @@ public class ExtractMethodTests
         var code = @"
 public class Calculator
 {
-    public void Plus()
+    public int Plus()
     {
         return 1+1;
     }
@@ -56,6 +56,22 @@ public class Console
 }";
 
         await VerifyExtract(code, "Write", new CodeSelection(6,0,6,44));
+    }
+    
+    [Test]
+    public async Task CanExtractOnlyAPartThatReturns()
+    {
+        var code = @"
+public class Calculator
+{
+    public void Plus()
+    {
+        var a = 1+1;
+        var b = a+3;
+    }
+}";
+
+        await VerifyExtract(code, "AddOneWithOne", new CodeSelection(6,17,6,21));
     }
 
     private static async Task VerifyExtract(string code, string newMethodName, CodeSelection codeSelection)

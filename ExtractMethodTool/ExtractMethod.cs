@@ -19,24 +19,36 @@ public static class ExtractMethod
         var spanText = root.GetText().ToString(span);
         Console.WriteLine("\n=== Raw Span Content ===\n" + spanText);
 
-        // Try to extract selected statements more robustly
         var selectedNode = root.FindNode(span);
 
-        var selectedStatements = selectedNode is BlockSyntax blockNode
-            ? blockNode.Statements.Where(stmt => span.OverlapsWith(stmt.Span)).ToList()
-            : selectedNode.DescendantNodesAndSelf().OfType<StatementSyntax>()
-                .Where(stmt => span.Contains(stmt.Span)).ToList();
+        // Handle single LocalDeclarationStatementSyntax selections
+        var selectedStatements = new List<StatementSyntax>();
+
+        if (selectedNode is BlockSyntax blockNode)
+        {
+            selectedStatements = blockNode.Statements
+                .Where(stmt => span.OverlapsWith(stmt.Span))
+                .ToList();
+        }
+        else if (selectedNode is StatementSyntax singleStatement && span.OverlapsWith(singleStatement.Span))
+        {
+            selectedStatements.Add(singleStatement);
+        }
+        else
+        {
+            selectedStatements = selectedNode.DescendantNodesAndSelf()
+                .OfType<StatementSyntax>()
+                .Where(stmt => span.OverlapsWith(stmt.Span))
+                .ToList();
+        }
 
         if (selectedStatements.Count == 0)
             throw new InvalidOperationException("No statements selected for extraction.");
 
-        // Find the common block ancestor for editing context
         var block = selectedNode.AncestorsAndSelf().OfType<BlockSyntax>().FirstOrDefault();
         if (block == null)
             throw new InvalidOperationException("Selected statements are not inside a block.");
 
-
-        // Data flow analysis to determine parameters and return values
         var model = await document.GetSemanticModelAsync();
         var dataFlow = model.AnalyzeDataFlow(selectedStatements.First(), selectedStatements.Last());
         if (dataFlow == null)
@@ -55,8 +67,7 @@ public static class ExtractMethod
                                     && switchStatement.Sections.All(sec =>
                                         sec.Statements.LastOrDefault() is ReturnStatementSyntax
                                             or ThrowStatementSyntax);
-        
-        // Decide return type
+
         TypeSyntax returnType;
         if (returns.Count == 0 && !allPathsReturnOrThrow)
         {
@@ -74,7 +85,7 @@ public static class ExtractMethod
         {
             throw new InvalidOperationException("Unsupported return symbol type.");
         }
-        
+
         var newMethodBody = SyntaxFactory.Block(selectedStatements);
 
         var invocationExpressionSyntax = SyntaxFactory.InvocationExpression(
@@ -120,13 +131,11 @@ public static class ExtractMethod
             .WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters)))
             .WithBody(newMethodBody);
 
-        // Replace selected statements with call and insert method at end of class
         var editor = new SyntaxEditor(root, document.Project.Solution.Workspace.Services);
         editor.ReplaceNode(selectedStatements.First(), callStatement);
         foreach (var stmt in selectedStatements.Skip(1))
             editor.RemoveNode(stmt);
 
-        // Insert method after the containing method declaration
         var methodNode = block.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault();
         if (methodNode != null)
         {
@@ -134,7 +143,6 @@ public static class ExtractMethod
         }
         else
         {
-            // fallback: insert after last selected statement
             editor.InsertAfter(selectedStatements.Last(), methodDeclaration);
         }
 
