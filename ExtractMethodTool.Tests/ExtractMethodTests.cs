@@ -26,6 +26,21 @@ public class Bird
 
         await VerifyExtract(code, "ComputeSpeed", new CodeSelection(8,0,12,10));
     }
+    
+    [Test]
+    public async Task CanExtractVoid()
+    {
+        var code = @"
+public class Console
+{
+    public void Write()
+    {
+        Console.WriteLine(""Hello World"");
+    }
+}";
+
+        await VerifyExtract(code, "Write", new CodeSelection(6,0,6,44));
+    }
 
     private static async Task VerifyExtract(string code, string newMethodName, CodeSelection codeSelection)
     {
