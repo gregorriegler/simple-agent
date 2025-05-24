@@ -421,3 +421,4 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 *.received.txt
+claude-api-key.txt
