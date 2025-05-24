@@ -32,7 +32,6 @@ public static class ExtractMethod
         if (block == null)
             throw new InvalidOperationException("Selected statements are not inside a block.");
 
-        var editor = new SyntaxEditor(root, document.Project.Solution.Workspace);
 
         // Data flow analysis to determine parameters and return values
         var model = await document.GetSemanticModelAsync();
@@ -53,9 +52,9 @@ public static class ExtractMethod
         StatementSyntax callStatement;
 
         bool allPathsReturnOrThrow = selectedStatements.Count == 1 &&
-            selectedStatements[0] is SwitchStatementSyntax switchStmt &&
-            switchStmt.Sections.All(sec =>
-                sec.Statements.LastOrDefault() is ReturnStatementSyntax or ThrowStatementSyntax);
+                                     selectedStatements[0] is SwitchStatementSyntax switchStmt &&
+                                     switchStmt.Sections.All(sec =>
+                                         sec.Statements.LastOrDefault() is ReturnStatementSyntax or ThrowStatementSyntax);
 
         var returnSymbol = returns.FirstOrDefault();
 
@@ -118,6 +117,7 @@ public static class ExtractMethod
             .WithBody(newMethodBody);
 
         // Replace selected statements with call and insert method at end of class
+        var editor = new SyntaxEditor(root, document.Project.Solution.Workspace);
         editor.ReplaceNode(selectedStatements.First(), callStatement);
         foreach (var stmt in selectedStatements.Skip(1))
             editor.RemoveNode(stmt);
