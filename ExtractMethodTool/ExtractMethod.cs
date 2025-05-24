@@ -13,9 +13,12 @@ public static class ExtractMethod
         var span = await GetSpan(document, selection);
 
         var root = await document.GetSyntaxRootAsync();
+        if (root == null)
+            throw new InvalidOperationException("SyntaxRoot is null.");
+
         var spanText = root.GetText().ToString(span);
         Console.WriteLine("\n=== Raw Span Content ===\n" + spanText);
-        
+
         // Try to extract selected statements more robustly
         var selectedNode = root.FindNode(span);
 
@@ -24,7 +27,7 @@ public static class ExtractMethod
             : selectedNode.DescendantNodesAndSelf().OfType<StatementSyntax>()
                 .Where(stmt => span.Contains(stmt.Span)).ToList();
 
-        if (!selectedStatements.Any())
+        if (selectedStatements.Count == 0)
             throw new InvalidOperationException("No statements selected for extraction.");
 
         // Find the common block ancestor for editing context
@@ -36,31 +39,46 @@ public static class ExtractMethod
         // Data flow analysis to determine parameters and return values
         var model = await document.GetSemanticModelAsync();
         var dataFlow = model.AnalyzeDataFlow(selectedStatements.First(), selectedStatements.Last());
+        if (dataFlow == null)
+            throw new InvalidOperationException("DataFlow is null.");
 
         var parameters = dataFlow.ReadInside.Except(dataFlow.WrittenInside)
             .OfType<ILocalSymbol>()
             .Select(s => SyntaxFactory.Parameter(SyntaxFactory.Identifier(s.Name))
                 .WithType(SyntaxFactory.ParseTypeName(s.Type.ToDisplayString()))).ToList();
 
-        var returns = dataFlow.DataFlowsOut.Intersect(dataFlow.WrittenInside)
+        var returns = dataFlow.DataFlowsOut.Intersect(dataFlow.WrittenInside, SymbolEqualityComparer.Default)
             .OfType<ILocalSymbol>()
             .ToList();
 
+        var allPathsReturnOrThrow = selectedStatements is [SwitchStatementSyntax switchStatement]
+                                    && switchStatement.Sections.All(sec =>
+                                        sec.Statements.LastOrDefault() is ReturnStatementSyntax
+                                            or ThrowStatementSyntax);
+        
         // Decide return type
         TypeSyntax returnType;
-        StatementSyntax returnStatement = null;
-        StatementSyntax callStatement;
-
-        bool allPathsReturnOrThrow = selectedStatements.Count == 1 &&
-                                     selectedStatements[0] is SwitchStatementSyntax switchStmt &&
-                                     switchStmt.Sections.All(sec =>
-                                         sec.Statements.LastOrDefault() is ReturnStatementSyntax or ThrowStatementSyntax);
-
-        var returnSymbol = returns.FirstOrDefault();
-
         if (returns.Count == 0 && !allPathsReturnOrThrow)
         {
             returnType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
+        }
+        else if (allPathsReturnOrThrow)
+        {
+            returnType = SyntaxFactory.ParseTypeName("double"); // fallback or use semantic model to infer
+        }
+        else if (returns.FirstOrDefault() is { } localReturnSymbol)
+        {
+            returnType = SyntaxFactory.ParseTypeName(localReturnSymbol.Type.ToDisplayString());
+        }
+        else
+        {
+            throw new InvalidOperationException("Unsupported return symbol type.");
+        }
+        
+        var newMethodBody = SyntaxFactory.Block(selectedStatements);
+        StatementSyntax callStatement;
+        if (returns.Count == 0 && !allPathsReturnOrThrow)
+        {
             callStatement = SyntaxFactory.ExpressionStatement(
                 SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName(newMethodName),
                     SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
@@ -68,17 +86,15 @@ public static class ExtractMethod
         }
         else if (allPathsReturnOrThrow)
         {
-            returnType = SyntaxFactory.ParseTypeName("double"); // fallback or use semantic model to infer
             callStatement = SyntaxFactory.ReturnStatement(
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.IdentifierName(newMethodName),
                     SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
                         SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Identifier.Text)))))));
         }
-        else if (returnSymbol is ILocalSymbol localReturnSymbol)
+        else if (returns.FirstOrDefault() is { } localReturnSymbol)
         {
-            returnType = SyntaxFactory.ParseTypeName(localReturnSymbol.Type.ToDisplayString());
-            returnStatement = SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName(localReturnSymbol.Name));
+            StatementSyntax returnStatement = SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName(localReturnSymbol.Name));
 
             if (selectedStatements.Count == 1 && selectedStatements.First() is ReturnStatementSyntax)
             {
@@ -98,18 +114,16 @@ public static class ExtractMethod
                                     SyntaxFactory.InvocationExpression(
                                         SyntaxFactory.IdentifierName(newMethodName),
                                         SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(parameters.Select(p =>
-                                            SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Identifier.Text)))))))))));
+                                            SyntaxFactory.Argument(
+                                                SyntaxFactory.IdentifierName(p.Identifier.Text)))))))))));
             }
+
+            newMethodBody = newMethodBody.AddStatements(returnStatement);
         }
         else
         {
             throw new InvalidOperationException("Unsupported return symbol type.");
         }
-
-        // Create method body
-        var newMethodBody = SyntaxFactory.Block(selectedStatements);
-        if (returnStatement != null)
-            newMethodBody = newMethodBody.AddStatements(returnStatement);
 
         var methodDeclaration = SyntaxFactory.MethodDeclaration(returnType, newMethodName)
             .AddModifiers(SyntaxFactory.Token(SyntaxKind.PrivateKeyword))
@@ -117,7 +131,7 @@ public static class ExtractMethod
             .WithBody(newMethodBody);
 
         // Replace selected statements with call and insert method at end of class
-        var editor = new SyntaxEditor(root, document.Project.Solution.Workspace);
+        var editor = new SyntaxEditor(root, document.Project.Solution.Workspace.Services);
         editor.ReplaceNode(selectedStatements.First(), callStatement);
         foreach (var stmt in selectedStatements.Skip(1))
             editor.RemoveNode(stmt);
