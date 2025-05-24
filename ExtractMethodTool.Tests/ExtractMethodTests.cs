@@ -1,7 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Formatting;
-using ExtractMethodTool;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
+
+namespace ExtractMethodTool.Tests;
 
 [TestFixture]
 public class ExtractMethodTests
