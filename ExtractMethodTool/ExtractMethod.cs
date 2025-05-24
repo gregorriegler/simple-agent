@@ -8,23 +8,11 @@ namespace ExtractMethodTool;
 
 public static class ExtractMethod
 {
-    public static async Task<SyntaxNode> RewriteAsync(Document document, string newMethodName,
-        CodeSelection planSelection)
+    public static async Task<SyntaxNode> RewriteAsync(Document document, string newMethodName, CodeSelection selection)
     {
-        
-        var text = await document.GetTextAsync();
-        var lines = text.Lines;
-        int GetPos(int line, int col) => lines[line - 1].Start + col - 1;
+        var span = await GetSpan(document, selection);
 
-        var span = TextSpan.FromBounds(
-            GetPos(planSelection.StartLine, planSelection.StartColumn),
-            GetPos(planSelection.EndLine, planSelection.EndColumn)
-        );
-        
         var root = await document.GetSyntaxRootAsync();
-        var model = await document.GetSemanticModelAsync();
-
-        // Print raw span content
         var spanText = root.GetText().ToString(span);
         Console.WriteLine("\n=== Raw Span Content ===\n" + spanText);
         
@@ -47,6 +35,7 @@ public static class ExtractMethod
         var editor = new SyntaxEditor(root, document.Project.Solution.Workspace);
 
         // Data flow analysis to determine parameters and return values
+        var model = await document.GetSemanticModelAsync();
         var dataFlow = model.AnalyzeDataFlow(selectedStatements.First(), selectedStatements.Last());
 
         var parameters = dataFlow.ReadInside.Except(dataFlow.WrittenInside)
@@ -146,5 +135,17 @@ public static class ExtractMethod
         }
 
         return editor.GetChangedRoot().NormalizeWhitespace();
+    }
+
+    private static async Task<TextSpan> GetSpan(Document document, CodeSelection selection)
+    {
+        var lines = (await document.GetTextAsync()).Lines;
+        var span = TextSpan.FromBounds(
+            GetPos(selection.StartLine, selection.StartColumn),
+            GetPos(selection.EndLine, selection.EndColumn)
+        );
+        return span;
+
+        int GetPos(int line, int col) => lines[line - 1].Start + col - 1;
     }
 }
