@@ -131,6 +131,6 @@ public static class ExtractMethodRewriter
             editor.InsertAfter(selectedStatements.Last(), methodDeclaration);
         }
 
-        return editor.GetChangedRoot();
+        return editor.GetChangedRoot().NormalizeWhitespace();
     }
 }
