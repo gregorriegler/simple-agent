@@ -1,12 +1,12 @@
-namespace extract_method_tool;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Text;
 
-public static class ExtractMethodRewriter
+namespace ExtractMethodTool;
+
+public static class ExtractMethod
 {
     public static async Task<SyntaxNode> RewriteAsync(Document document, TextSpan span, string newMethodName)
     {

@@ -1,4 +1,4 @@
-namespace extract_method_tool;
+namespace ExtractMethodTool;
 
 public class RefactorPlan
 {

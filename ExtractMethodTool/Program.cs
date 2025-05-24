@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using extract_method_tool;
+using ExtractMethodTool;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.CodeAnalysis.Text;
@@ -34,7 +34,7 @@ var span = TextSpan.FromBounds(
     GetPos(plan.Selection.EndLine, plan.Selection.EndColumn)
 );
 
-var newRoot = await ExtractMethodRewriter.RewriteAsync(document, span, plan.NewMethodName);
+var newRoot = await ExtractMethod.RewriteAsync(document, span, plan.NewMethodName);
 var updatedDoc = document.WithSyntaxRoot(newRoot);
 var newText = await updatedDoc.GetTextAsync();
 
