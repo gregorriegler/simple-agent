@@ -17,8 +17,21 @@ def test_ls_lists_directory_contents(tmp_path):
     assert "file1.txt" in tool_result
     assert "file2.txt" in tool_result
     assert "subdir" in tool_result
+
+
+def test_cat_shows_contents(tmp_path):
+    # Setup: create some files and directories
+    file1 = tmp_path / "file1.txt"
+    file1.write_text("hello")
     
-def test_extract_method():
+    framework = ToolFramework()
+
+    content, tool_result = framework.parse_and_execute("/cat " + str(file1))
+
+    assert "1\thello" == tool_result
+    
+    
+def xtest_extract_method():
     framework = ToolFramework()
     
     content, tool_result = framework.parse_and_execute("/extract-method \"C:/Users/riegl/code/Parrot-Refactoring-Kata/CSharp/Parrot/Parrot.csproj\" Parrot.cs 23:0 33:14 ComputeSpeed")

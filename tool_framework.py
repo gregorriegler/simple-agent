@@ -57,27 +57,24 @@ class ToolFramework:
         return self._run_command('dotnet', ['run', '--'] + arg_list, cwd='ExtractMethodTool')
         
     def parse_and_execute(self, text):
-        """Parse text for tool invocations and execute them."""
-        # Match any registered tool: e.g., /toolname [optional args...]
         pattern = r'^/([\w-]+)(?:\s+(.*))?$'
-        lines = text.splitlines()
         full_output = []
         result_output = []
-
-        for line in lines:
-            match = re.match(pattern, line.strip())
-            if match:
-                cmd, arg = match.groups()
-                tool_fn = self.tools.get(cmd)
-                if tool_fn:
-                    result = tool_fn(arg.strip() if arg else None)
-                    command_output = result['output']
-                    full_output.append(f"{line}\n{command_output}")
-                    result_output.append(command_output)
-                else:
-                    full_output.append(f"{line}\nUnknown command: {cmd}")
-                    result_output.append(f"Unknown command: {cmd}")
+        first_line = text.splitlines()[0].strip()
+        match = re.match(pattern, first_line)
+        if match:
+            cmd, arg = match.groups()
+            tool_fn = self.tools.get(cmd)
+            if tool_fn:
+                result = tool_fn(arg.strip() if arg else None)
+                command_output = result['output']
+                full_output.append(f"{first_line}\n{command_output}")
+                result_output.append(command_output)
             else:
-                full_output.append(line)
+                full_output.append(f"{first_line}\nUnknown command: {cmd}")
+                result_output.append(f"Unknown command: {cmd}")
+        else:
+            full_output.append(first_line)
 
+        
         return "\n".join(full_output), "\n".join(result_output)
