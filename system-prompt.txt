@@ -6,27 +6,23 @@ One tool execution per answer
 
 # Tools
 
-## Read File
+## List Files
+Use this to list files in a path
 
+Syntax: 
+/ls {path} 
+
+## Read File
 Use this to read and understand the code you are refactoring
 
 Syntax: 
-@Use Readfile {path} 
+/readfile {path} 
 
 ## Extract Method
-
 Use this to extract a method
 
 Syntax:
-@Use ExtractMethod 
-{
-  "projectPath": "C:\\Users\\riegl\\code\\Parrot-Refactoring-Kata\\CSharp\\Parrot\\Parrot.csproj",
-  "fileName": "Parrot.cs",
-  "newMethodName": "ComputeSpeed",
-  "selection": {
-    "startLine": 23,
-    "startColumn": 0,
-    "endLine": 33,
-    "endColumn": 14
-  }
-}
+/extract-method {projectPath} {fileName} {startLine}:{startColumn} {endLine}:{endColumn} {newMethodName}
+
+e.g. 
+/extract-method "C:\\Users\\riegl\\code\\Kata\\Kata.csproj" Kata.cs 10:0 13:20 Foo
