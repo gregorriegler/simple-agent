@@ -5,18 +5,14 @@ import json
 import sys
 import os
 import argparse
+from ToolFramework import ToolFramework
+from helpers import *
 
-def read_file(filename):
-    """Read content from a file, handling errors gracefully."""
-    try:
-        with open(filename, 'r') as f:
-            return f.read().strip()
-    except FileNotFoundError:
-        print(f"Error: {filename} not found", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"Error reading {filename}: {e}", file=sys.stderr)
-        sys.exit(1)
+api_key = read_file("claude-api-key.txt")
+model = read_file("claude-model.txt")
+system_prompt = None
+if os.path.exists("system-prompt.txt"):
+    system_prompt = read_file("system-prompt.txt")
 
 def load_session(session_file):
     """Load conversation history from session file."""
@@ -38,7 +34,7 @@ def save_session(session_file, messages):
     except Exception as e:
         print(f"Warning: Could not save session file {session_file}: {e}", file=sys.stderr)
 
-def send_claude_request(api_key, model, messages, system_prompt=None):
+def message_claude(messages):
     """Send a request to the Claude API with conversation history."""
     url = "https://api.anthropic.com/v1/messages"
     
@@ -74,23 +70,14 @@ def main():
     
     args = parser.parse_args()
     
-    # Read API key and model from files
-    api_key = read_file("claude-api-key.txt")
-    model = read_file("claude-model.txt")
-    
-    # Read system prompt if file exists
-    system_prompt = None
-    if os.path.exists("system-prompt.txt"):
-        system_prompt = read_file("system-prompt.txt")
-    
-    # Load or initialize session
+    tools = ToolFramework()
+      
     if args.new_session:
         messages = []
         print(f"Starting new session (cleared {args.session_file})")
     else:
         messages = load_session(args.session_file)
     
-    # Get message from command line argument or stdin
     if args.message:
         message = " ".join(args.message)
     else:
@@ -101,33 +88,41 @@ def main():
         print("Error: No message provided", file=sys.stderr)
         sys.exit(1)
     
-    # Add user message to conversation
     messages.append({
         "role": "user",
         "content": message
     })
     
-    # Send request to Claude API
-    response = send_claude_request(api_key, model, messages, system_prompt)
+    response = message_claude(messages)
     
-    # Extract and print the response content
-    try:
-        content = response["content"][0]["text"]
-        print(content)
+    content = response["content"][0]["text"]
+    
+    content, tool_result = tools.parse_and_execute(content)
+    print(content)
+    messages.append({
+        "role": "assistant", 
+        "content": content
+    })
+    
+    if tool_result:
+        tool_summary = "Tool execution result:\n"
+        tool_summary += tool_result
         
-        # Add Claude's response to conversation history
         messages.append({
-            "role": "assistant",
-            "content": content
+            "role": "user",
+            "content": f"[TOOL_RESULTS]\n{tool_summary}\n"
         })
         
-        # Save updated session
-        save_session(args.session_file, messages)
+        followup_response = message_claude(messages)
+        followup_content = followup_response["content"][0]["text"]
+        print(f"\n--- Claude's follow-up ---\n{followup_content}")
         
-    except (KeyError, IndexError) as e:
-        print(f"Error parsing response: {e}", file=sys.stderr)
-        print(f"Raw response: {json.dumps(response, indent=2)}", file=sys.stderr)
-        sys.exit(1)
+        messages.append({
+            "role": "assistant",
+            "content": followup_content
+        })
+    
+    save_session(args.session_file, messages)
 
 if __name__ == "__main__":
     main()

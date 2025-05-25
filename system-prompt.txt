@@ -6,21 +6,16 @@ One tool execution per answer
 
 # Tools
 
-## List Files
-Use this to list files in a path
-
+## ls
 Syntax: 
 /ls {path} 
 
-## Read File
-Use this to read and understand the code you are refactoring
-
+## cat
 Syntax: 
-/readfile {path} 
+/cat {path} 
 
 ## Extract Method
 Use this to extract a method
-
 Syntax:
 /extract-method {projectPath} {fileName} {startLine}:{startColumn} {endLine}:{endColumn} {newMethodName}
 
