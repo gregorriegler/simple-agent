@@ -422,3 +422,4 @@ fabric.properties
 
 *.received.txt
 claude-api-key.txt
+claude-session.json
