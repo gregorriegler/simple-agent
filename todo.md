@@ -1,0 +1,2 @@
+- extract method within switch case is missing return
+- press any key is in the wrong place

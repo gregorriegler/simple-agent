@@ -29,6 +29,7 @@ class ToolFramework:
             result = subprocess.run(command_line, capture_output=True, text=True, timeout=30, cwd=cwd)
     
             output = result.stdout
+            print(output)
             if result.stderr:
                 output += f"\nSTDERR: {result.stderr}"
     
@@ -55,26 +56,18 @@ class ToolFramework:
     def _extract_method(self, args):
         arg_list = args.split()
         return self._run_command('dotnet', ['run', '--'] + arg_list, cwd='ExtractMethodTool')
-        
+
     def parse_and_execute(self, text):
         pattern = r'^/([\w-]+)(?:\s+(.*))?$'
-        full_output = []
-        result_output = []
-        first_line = text.splitlines()[0].strip()
-        match = re.match(pattern, first_line)
-        if match:
-            cmd, arg = match.groups()
-            tool_fn = self.tools.get(cmd)
-            if tool_fn:
-                result = tool_fn(arg.strip() if arg else None)
-                command_output = result['output']
-                full_output.append(f"{first_line}\n{command_output}")
-                result_output.append(command_output)
-            else:
-                full_output.append(f"{first_line}\nUnknown command: {cmd}")
-                result_output.append(f"Unknown command: {cmd}")
-        else:
-            full_output.append(first_line)
-
-        
-        return "\n".join(full_output), "\n".join(result_output)
+        for line in text.splitlines():
+            line = line.strip()
+            match = re.match(pattern, line)
+            if match:
+                cmd, arg = match.groups()
+                tool_fn = self.tools.get(cmd)
+                if tool_fn:
+                    result = tool_fn(arg.strip() if arg else None)
+                    return f"{line}\n{result['output']}", result['output']
+                else:
+                    return f"{line}\nUnknown command: {cmd}", f"Unknown command: {cmd}"
+        return text.splitlines()[0].strip(), ""

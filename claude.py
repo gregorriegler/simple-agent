@@ -57,7 +57,7 @@ def message_claude(messages):
     try:
         response = requests.post(url, headers=headers, json=data)
         response.raise_for_status()
-        return response.json()
+        return response.json()["content"][0]["text"]
     except requests.exceptions.RequestException as e:
         print(f"API request failed: {e}", file=sys.stderr)
         sys.exit(1)
@@ -77,50 +77,40 @@ def main():
         print(f"Starting new session (cleared {args.session_file})")
     else:
         messages = load_session(args.session_file)
+
+    # Get message from command line argument or stdin
+    if len(sys.argv) > 1:
+        message = " ".join(sys.argv[1:])
+    if args.message:
+        message = " ".join(args.message)
+
+    messages.append({
+        "role": "user",
+        "content": message
+    })
     
     while True:
         try:
-            # Prompt the user for input
-            user_input = input("\nYou: ")
+            input("\nAny key to continue: ")
         except EOFError:
             print("\nExiting...")
             break
     
-        if not user_input.strip():
-            continue
-    
-        messages.append({
-            "role": "user",
-            "content": user_input
-        })
-    
         response = message_claude(messages)
-        content = response["content"][0]["text"]
-    
-        content, tool_result = tools.parse_and_execute(content)
-        print(f"\nClaude: {content}")
+        print(f"\nClaude: {response}")
         messages.append({
             "role": "assistant",
-            "content": content
+            "content": response
         })
+        
+        content, tool_result = tools.parse_and_execute(response)
     
         if tool_result:
-            tool_summary = "Tool execution result:\n" + tool_result
-            print(f"\n[Tool Result]\n{tool_result}")
             messages.append({
                 "role": "user",
-                "content": f"[TOOL_RESULTS]\n{tool_summary}\n"
+                "content": f"[TOOL_RESULTS]\n{tool_result}\n"
             })
-    
-            followup_response = message_claude(messages)
-            followup_content = followup_response["content"][0]["text"]
-            print(f"\nClaude (follow-up): {followup_content}")
-    
-            messages.append({
-                "role": "assistant",
-                "content": followup_content
-            })
-    
+
         save_session(args.session_file, messages)
 
 if __name__ == "__main__":
