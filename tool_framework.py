@@ -50,7 +50,7 @@ class ToolFramework:
         return self._run_command('ls', ['-la', path] if path else ['-la'])
 
     def _cat(self, filename):
-        return self._run_command('cat', [filename])
+        return self._run_command('cat', ['-n', filename])
         
     def _extract_method(self, args):
         arg_list = args.split()
