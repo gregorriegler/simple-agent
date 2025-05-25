@@ -7,22 +7,31 @@ class ToolFramework:
         self.tools = {
             'ls': self._ls,
             'cat': self._cat,
+            'extract-method': self._extract_method,
         }
 
-    def runcommand(self, cmd, args=None):
-        """Safely run a command and return result."""
+    def runcommand(self, cmd, args=None, cwd=None):
         try:
             if args:
                 if isinstance(args, str):
                     args = [args]
-                result = subprocess.run([cmd] + args, capture_output=True, text=True, timeout=30)
+                command_line = [cmd] + args
             else:
-                result = subprocess.run([cmd], capture_output=True, text=True, timeout=30)
-
+                command_line = [cmd]
+    
+            # Show the exact command being run, including cwd
+            cmd_str = ' '.join(command_line)
+            if cwd:
+                print(f"[cwd: {cwd}] $ {cmd_str}")
+            else:
+                print(f"$ {cmd_str}")
+    
+            result = subprocess.run(command_line, capture_output=True, text=True, timeout=30, cwd=cwd)
+    
             output = result.stdout
             if result.stderr:
                 output += f"\nSTDERR: {result.stderr}"
-
+    
             return {
                 'success': result.returncode == 0,
                 'output': output.strip(),
@@ -33,21 +42,24 @@ class ToolFramework:
         except Exception as e:
             return {'success': False, 'output': f'Error: {str(e)}', 'returncode': -1}
 
-    def _run_command(self, cmd, args=None):
-        return self.runcommand(cmd, args)
+
+    def _run_command(self, cmd, args=None, cwd=None):
+        return self.runcommand(cmd, args, cwd=cwd)
 
     def _ls(self, path='.'):
-        """List directory contents."""
         return self._run_command('ls', ['-la', path] if path else ['-la'])
 
     def _cat(self, filename):
-        """Display file contents."""
         return self._run_command('cat', [filename])
-
+        
+    def _extract_method(self, args):
+        arg_list = args.split()
+        return self._run_command('dotnet', ['run', '--'] + arg_list, cwd='ExtractMethodTool')
+        
     def parse_and_execute(self, text):
         """Parse text for tool invocations and execute them."""
         # Match any registered tool: e.g., /toolname [optional args...]
-        pattern = r'^/(\w+)(?:\s+(.*))?$'
+        pattern = r'^/([\w-]+)(?:\s+(.*))?$'
         lines = text.splitlines()
         full_output = []
         result_output = []

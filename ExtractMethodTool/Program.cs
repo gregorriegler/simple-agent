@@ -8,7 +8,7 @@ if (args.Length != 5)
     return;
 }
 
-var projectPath = args[0];
+var projectPath = args[0].Trim('"');;
 var fileName = args[1];
 var startPosition = ParsePosition(args[2]);
 var endPosition = ParsePosition(args[3]);

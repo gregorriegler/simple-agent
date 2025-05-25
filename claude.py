@@ -5,7 +5,7 @@ import json
 import sys
 import os
 import argparse
-from ToolFramework import ToolFramework
+from tool_framework import ToolFramework
 from helpers import *
 
 api_key = read_file("claude-api-key.txt")
@@ -78,51 +78,50 @@ def main():
     else:
         messages = load_session(args.session_file)
     
-    if args.message:
-        message = " ".join(args.message)
-    else:
-        print("Enter your message (Ctrl+D to finish):")
-        message = sys.stdin.read().strip()
+    while True:
+        try:
+            # Prompt the user for input
+            user_input = input("\nYou: ")
+        except EOFError:
+            print("\nExiting...")
+            break
     
-    if not message:
-        print("Error: No message provided", file=sys.stderr)
-        sys.exit(1)
+        if not user_input.strip():
+            continue
     
-    messages.append({
-        "role": "user",
-        "content": message
-    })
-    
-    response = message_claude(messages)
-    
-    content = response["content"][0]["text"]
-    
-    content, tool_result = tools.parse_and_execute(content)
-    print(content)
-    messages.append({
-        "role": "assistant", 
-        "content": content
-    })
-    
-    if tool_result:
-        tool_summary = "Tool execution result:\n"
-        tool_summary += tool_result
-        
         messages.append({
             "role": "user",
-            "content": f"[TOOL_RESULTS]\n{tool_summary}\n"
-        })
-        
-        followup_response = message_claude(messages)
-        followup_content = followup_response["content"][0]["text"]
-        print(f"\n--- Claude's follow-up ---\n{followup_content}")
-        
-        messages.append({
-            "role": "assistant",
-            "content": followup_content
+            "content": user_input
         })
     
-    save_session(args.session_file, messages)
+        response = message_claude(messages)
+        content = response["content"][0]["text"]
+    
+        content, tool_result = tools.parse_and_execute(content)
+        print(f"\nClaude: {content}")
+        messages.append({
+            "role": "assistant",
+            "content": content
+        })
+    
+        if tool_result:
+            tool_summary = "Tool execution result:\n" + tool_result
+            print(f"\n[Tool Result]\n{tool_result}")
+            messages.append({
+                "role": "user",
+                "content": f"[TOOL_RESULTS]\n{tool_summary}\n"
+            })
+    
+            followup_response = message_claude(messages)
+            followup_content = followup_response["content"][0]["text"]
+            print(f"\nClaude (follow-up): {followup_content}")
+    
+            messages.append({
+                "role": "assistant",
+                "content": followup_content
+            })
+    
+        save_session(args.session_file, messages)
 
 if __name__ == "__main__":
     main()
