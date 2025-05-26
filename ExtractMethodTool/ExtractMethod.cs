@@ -168,11 +168,11 @@ public static class ExtractMethod
     {
         var lines = (await document.GetTextAsync()).Lines;
         var span = TextSpan.FromBounds(
-            GetPos(selection.StartLine, selection.StartColumn),
-            GetPos(selection.EndLine, selection.EndColumn)
+            GetPos(selection.Start),
+            GetPos(selection.End)
         );
         return span;
 
-        int GetPos(int line, int col) => lines[line - 1].Start + col - 1;
+        int GetPos(Cursor cursor) => lines[cursor.Line - 1].Start + cursor.Column - 1;
     }
 }

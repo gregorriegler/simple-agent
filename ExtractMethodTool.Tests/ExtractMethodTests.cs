@@ -6,7 +6,6 @@ namespace ExtractMethodTool.Tests;
 [TestFixture]
 public class ExtractMethodTests
 {
-    
     [Test]
     public async Task CanExtractReturn()
     {
@@ -19,9 +18,9 @@ public class Calculator
     }
 }";
 
-        await VerifyExtract(code, "AddOneWithOne", new CodeSelection(6,0,6,19));
+        await VerifyExtract(code, "AddOneWithOne", new CodeSelection(new Cursor(6, 0), new Cursor(6, 19)));
     }
-    
+
     [Test]
     public async Task CanExtractSimpleSwitchWithReturn()
     {
@@ -40,9 +39,9 @@ public class Bird
     }
 }";
 
-        await VerifyExtract(code, "ComputeSpeed", new CodeSelection(8,0,12,10));
+        await VerifyExtract(code, "ComputeSpeed", new CodeSelection(new Cursor(8, 0), new Cursor(12, 10)));
     }
-    
+
     [Test]
     public async Task CanExtractVoid()
     {
@@ -55,9 +54,9 @@ public class Console
     }
 }";
 
-        await VerifyExtract(code, "Write", new CodeSelection(6,0,6,44));
+        await VerifyExtract(code, "Write", new CodeSelection(new Cursor(6, 0), new Cursor(6, 44)));
     }
-    
+
     [Test]
     public async Task CanExtractOnlyAPartThatReturns()
     {
@@ -71,9 +70,9 @@ public class Calculator
     }
 }";
 
-        await VerifyExtract(code, "AddOneWithOne", new CodeSelection(6,17,6,21));
+        await VerifyExtract(code, "AddOneWithOne", new CodeSelection(new Cursor(6, 17), new Cursor(6, 21)));
     }
-    
+
     [Test]
     public async Task CanExtractSwitchBodyWithReturn()
     {
@@ -92,7 +91,7 @@ public class Bird
     }
 }";
 
-        await VerifyExtract(code, "Ten", new CodeSelection(10,21,10,31));
+        await VerifyExtract(code, "Ten", new CodeSelection(new Cursor(10, 21), new Cursor(10, 31)));
     }
 
 

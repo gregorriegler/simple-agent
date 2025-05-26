@@ -4,11 +4,13 @@ using Microsoft.CodeAnalysis.MSBuild;
 
 if (args.Length != 5)
 {
-    Console.WriteLine("Usage: dotnet run -- {projectPath} {fileName} {startLine}:{startColumn} {endLine}:{endColumn} {newMethodName}");
+    Console.WriteLine(
+        "Usage: dotnet run -- {projectPath} {fileName} {startLine}:{startColumn} {endLine}:{endColumn} {newMethodName}");
     return;
 }
 
-var projectPath = args[0].Trim('"');;
+var projectPath = args[0].Trim('"');
+;
 var fileName = args[1];
 var startPosition = ParsePosition(args[2]);
 var endPosition = ParsePosition(args[3]);
@@ -32,12 +34,7 @@ if (document == null)
     return;
 }
 
-var selection = new CodeSelection(
-    startPosition.Value.line,
-    startPosition.Value.column,
-    endPosition.Value.line,
-    endPosition.Value.column
-);
+var selection = new CodeSelection(startPosition, endPosition);
 
 var newDocument = await ExtractMethod.ExtractMethodAsync(document, newMethodName, selection);
 var newSolution = document.Project.Solution.WithDocumentSyntaxRoot(
@@ -48,17 +45,17 @@ workspace.TryApplyChanges(newSolution);
 
 Console.WriteLine($"✅ Extracted method '{newMethodName}' into {fileName}");
 
-static (int line, int column)? ParsePosition(string input)
+static Cursor? ParsePosition(string input)
 {
     var parts = input.Split(':');
     if (parts.Length != 2) return null;
 
     if (int.TryParse(parts[0], out var line) && int.TryParse(parts[1], out var column))
-        return (line, column);
+        return new Cursor(line, column);
 
     return null;
 }
 
-public record CodeSelection(int StartLine, int StartColumn, int EndLine, int EndColumn);
+public record CodeSelection(Cursor Start, Cursor End);
 
 public record Cursor(int Line, int Column);
