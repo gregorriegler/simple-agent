@@ -77,8 +77,8 @@ public class Calculator
     private static async Task VerifyExtract(string code, string newMethodName, CodeSelection codeSelection)
     {
         var document = CreateDocument(code);
-        var newRoot = await ExtractMethod.ExtractAsync(document, newMethodName, codeSelection); //TBD
-        var formatted = Formatter.Format(newRoot, new AdhocWorkspace());
+        var updatedDocument = await ExtractMethod.ExtractAsync(document, newMethodName, codeSelection);
+        var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
         await Verify(formatted.ToFullString());
     }
 

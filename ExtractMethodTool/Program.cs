@@ -1,5 +1,6 @@
 ﻿using ExtractMethodTool;
 using Microsoft.Build.Locator;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
 
 if (args.Length != 5)
@@ -39,7 +40,12 @@ var selection = new CodeSelection(
     endPosition.Value.column
 );
 
-await ExtractMethod.ExtractAsync(document, newMethodName, selection);
+var newDocument = await ExtractMethod.ExtractAsync(document, newMethodName, selection);
+var newSolution = document.Project.Solution.WithDocumentSyntaxRoot(
+    newDocument.Id,
+    (await newDocument.GetSyntaxRootAsync())!
+);
+workspace.TryApplyChanges(newSolution);
 
 Console.WriteLine($"✅ Extracted method '{newMethodName}' into {fileName}");
 

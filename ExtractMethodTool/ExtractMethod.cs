@@ -8,7 +8,7 @@ namespace ExtractMethodTool;
 
 public static class ExtractMethod
 {
-    public static async Task ExtractAsync(Document document, string newMethodName, CodeSelection selection)
+    public static async Task<Document> ExtractAsync(Document document, string newMethodName, CodeSelection selection)
     {
         var span = await GetSpan(document, selection);
 
@@ -148,9 +148,7 @@ public static class ExtractMethod
 
         var newRoot = editor.GetChangedRoot().NormalizeWhitespace();
         
-        var updatedDoc = document.WithSyntaxRoot(newRoot);
-        var newText = await updatedDoc.GetTextAsync();
-        await File.WriteAllTextAsync(document.FilePath!, newText.ToString());
+        return document.WithSyntaxRoot(newRoot);
     }
 
     private static async Task<TextSpan> GetSpan(Document document, CodeSelection selection)
