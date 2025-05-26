@@ -8,7 +8,7 @@ namespace ExtractMethodTool;
 
 public static class ExtractMethod
 {
-    public static async Task<SyntaxNode> ExtractAsync(Document document, string newMethodName, CodeSelection selection)
+    public static async Task ExtractAsync(Document document, string newMethodName, CodeSelection selection)
     {
         var span = await GetSpan(document, selection);
 
@@ -146,7 +146,11 @@ public static class ExtractMethod
             editor.InsertAfter(selectedStatements.Last(), methodDeclaration);
         }
 
-        return editor.GetChangedRoot().NormalizeWhitespace();
+        var newRoot = editor.GetChangedRoot().NormalizeWhitespace();
+        
+        var updatedDoc = document.WithSyntaxRoot(newRoot);
+        var newText = await updatedDoc.GetTextAsync();
+        await File.WriteAllTextAsync(document.FilePath!, newText.ToString());
     }
 
     private static async Task<TextSpan> GetSpan(Document document, CodeSelection selection)

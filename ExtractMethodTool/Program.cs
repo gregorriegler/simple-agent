@@ -39,11 +39,7 @@ var selection = new CodeSelection(
     endPosition.Value.column
 );
 
-var newRoot = await ExtractMethod.ExtractAsync(document, newMethodName, selection);
-var updatedDoc = document.WithSyntaxRoot(newRoot);
-var newText = await updatedDoc.GetTextAsync();
-
-await File.WriteAllTextAsync(document.FilePath!, newText.ToString());
+await ExtractMethod.ExtractAsync(document, newMethodName, selection);
 
 Console.WriteLine($"✅ Extracted method '{newMethodName}' into {fileName}");
 
