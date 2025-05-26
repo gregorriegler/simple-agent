@@ -90,20 +90,23 @@ def main():
     })
     
     while True:
+        answer = message_claude(messages)
+        print(f"\nClaude: {answer}")
+        messages.append({
+            "role": "assistant",
+            "content": answer
+        })
+
         try:
             input("\nAny key to continue: ")
         except EOFError:
             print("\nExiting...")
             break
-    
-        response = message_claude(messages)
-        print(f"\nClaude: {response}")
-        messages.append({
-            "role": "assistant",
-            "content": response
-        })
+        except KeyboardInterrupt:
+            print("\n\nExiting...")
+            break
         
-        content, tool_result = tools.parse_and_execute(response)
+        content, tool_result = tools.parse_and_execute(answer)
     
         if tool_result:
             messages.append({
