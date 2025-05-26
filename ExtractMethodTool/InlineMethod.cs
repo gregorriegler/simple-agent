@@ -6,7 +6,7 @@ namespace ExtractMethodTool;
 
 public static class InlineMethod
 {
-    public static async Task<Document> InlineMethodAsync(Document document, int line, int column)
+    public static async Task<Document> InlineMethodAsync(Document document, Cursor cursor)
     {
         var root = await document.GetSyntaxRootAsync();
         if (root == null) return document;
@@ -14,7 +14,7 @@ public static class InlineMethod
         var semanticModel = await document.GetSemanticModelAsync();
         if (semanticModel == null) return document;
 
-        var position = GetPositionFromLineColumn(root, line, column);
+        var position = GetPositionFromLineColumn(root, cursor);
         var node = root.FindNode(new Microsoft.CodeAnalysis.Text.TextSpan(position, 0));
 
         var invocation = node.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
@@ -43,10 +43,10 @@ public static class InlineMethod
         return document.WithSyntaxRoot(newRoot);
     }
 
-    private static int GetPositionFromLineColumn(SyntaxNode root, int line, int column)
+    private static int GetPositionFromLineColumn(SyntaxNode root, Cursor cursor)
     {
         var text = root.GetText();
-        var linePosition = new Microsoft.CodeAnalysis.Text.LinePosition(line - 1, column - 1);
+        var linePosition = new Microsoft.CodeAnalysis.Text.LinePosition(cursor.Line - 1, cursor.Column - 1);
         return text.Lines.GetPosition(linePosition);
     }
 

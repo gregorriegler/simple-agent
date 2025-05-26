@@ -60,3 +60,5 @@ static (int line, int column)? ParsePosition(string input)
 }
 
 public record CodeSelection(int StartLine, int StartColumn, int EndLine, int EndColumn);
+
+public record Cursor(int Line, int Column);

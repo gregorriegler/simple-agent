@@ -24,13 +24,13 @@ public class Calculator
     }
 }";
 
-        await VerifyInline(code, 6,16);
+        await VerifyInline(code, new Cursor(6,16));
     }
     
-    private static async Task VerifyInline(string code, int line, int column)
+    private static async Task VerifyInline(string code, Cursor cursor)
     {
         var document = CreateDocument(code);
-        var updatedDocument = await InlineMethod.InlineMethodAsync(document, line, column);
+        var updatedDocument = await InlineMethod.InlineMethodAsync(document, cursor);
         var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
         await Verify(formatted.ToFullString());
     }
