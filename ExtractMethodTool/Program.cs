@@ -39,7 +39,7 @@ var selection = new CodeSelection(
     endPosition.Value.column
 );
 
-var newDocument = await ExtractMethod.ExtractAsync(document, newMethodName, selection);
+var newDocument = await ExtractMethod.ExtractMethodAsync(document, newMethodName, selection);
 var newSolution = document.Project.Solution.WithDocumentSyntaxRoot(
     newDocument.Id,
     (await newDocument.GetSyntaxRootAsync())!

@@ -99,7 +99,7 @@ public class Bird
     private static async Task VerifyExtract(string code, string newMethodName, CodeSelection codeSelection)
     {
         var document = CreateDocument(code);
-        var updatedDocument = await ExtractMethod.ExtractAsync(document, newMethodName, codeSelection);
+        var updatedDocument = await ExtractMethod.ExtractMethodAsync(document, newMethodName, codeSelection);
         var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
         await Verify(formatted.ToFullString());
     }

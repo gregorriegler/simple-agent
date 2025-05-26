@@ -1,2 +1,5 @@
-- extract method within switch case is missing return
-- press any key is in the wrong place
+- extract Cursor from CodeSelection
+- make it easier to add new tools
+- a new tool should be automatically added to the system prompt
+- is InlineMethod a new tool, or not?
+- make InlineMethod usable

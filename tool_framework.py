@@ -8,6 +8,7 @@ class ToolFramework:
             'ls': self._ls,
             'cat': self._cat,
             'extract-method': self._extract_method,
+            'inline-method': self._inline_method,
         }
 
     def runcommand(self, cmd, args=None, cwd=None):
@@ -56,6 +57,11 @@ class ToolFramework:
     def _extract_method(self, args):
         arg_list = args.split()
         return self._run_command('dotnet', ['run', '--'] + arg_list, cwd='ExtractMethodTool')
+
+    def _inline_method(self, args):
+        arg_list = args.split()
+        return self._run_command('dotnet', ['run', '--'] + arg_list, cwd='ExtractMethodTool')
+
 
     def parse_and_execute(self, text):
         pattern = r'^/([\w-]+)(?:\s+(.*))?$'
