@@ -21,7 +21,6 @@ public static class ExtractMethod
 
         var selectedNode = root.FindNode(span);
 
-        // Handle single LocalDeclarationStatementSyntax selections
         var selectedStatements = new List<StatementSyntax>();
 
         if (selectedNode is BlockSyntax blockNode)
@@ -63,19 +62,32 @@ public static class ExtractMethod
             .OfType<ILocalSymbol>()
             .ToList();
 
+        var containsReturnStatements = selectedStatements
+            .SelectMany(stmt => stmt.DescendantNodesAndSelf().OfType<ReturnStatementSyntax>())
+            .Any();
+
         var allPathsReturnOrThrow = selectedStatements is [SwitchStatementSyntax switchStatement]
                                     && switchStatement.Sections.All(sec =>
                                         sec.Statements.LastOrDefault() is ReturnStatementSyntax
                                             or ThrowStatementSyntax);
 
         TypeSyntax returnType;
-        if (returns.Count == 0 && !allPathsReturnOrThrow)
+        
+        if (containsReturnStatements || allPathsReturnOrThrow)
+        {
+            var containingMethod = block.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault();
+            if (containingMethod?.ReturnType != null)
+            {
+                returnType = containingMethod.ReturnType;
+            }
+            else
+            {
+                returnType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
+            }
+        }
+        else if (returns.Count == 0)
         {
             returnType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
-        }
-        else if (allPathsReturnOrThrow)
-        {
-            returnType = SyntaxFactory.ParseTypeName("double"); // fallback or use semantic model to infer
         }
         else if (returns.FirstOrDefault() is { } localReturnSymbol)
         {
@@ -94,13 +106,14 @@ public static class ExtractMethod
                 SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Identifier.Text))))));
 
         StatementSyntax callStatement;
-        if (returns.Count == 0 && !allPathsReturnOrThrow)
-        {
-            callStatement = SyntaxFactory.ExpressionStatement(invocationExpressionSyntax);
-        }
-        else if (allPathsReturnOrThrow)
+        
+        if (containsReturnStatements || allPathsReturnOrThrow)
         {
             callStatement = SyntaxFactory.ReturnStatement(invocationExpressionSyntax);
+        }
+        else if (returns.Count == 0)
+        {
+            callStatement = SyntaxFactory.ExpressionStatement(invocationExpressionSyntax);
         }
         else if (returns.FirstOrDefault() is { } localReturnSymbol)
         {

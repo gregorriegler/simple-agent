@@ -1,6 +1,5 @@
 ﻿using ExtractMethodTool;
 using Microsoft.Build.Locator;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
 
 if (args.Length != 5)

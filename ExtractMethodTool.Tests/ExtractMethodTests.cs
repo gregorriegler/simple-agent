@@ -73,6 +73,28 @@ public class Calculator
 
         await VerifyExtract(code, "AddOneWithOne", new CodeSelection(6,17,6,21));
     }
+    
+    [Test]
+    public async Task CanExtractSwitchBodyWithReturn()
+    {
+        var code = @"
+public class Bird
+{
+    private int kind;
+
+    public int GetSpeed()
+    {
+        switch (kind)
+        {
+            case 0: return 10;
+            default: throw new ArgumentOutOfRangeException();
+        }
+    }
+}";
+
+        await VerifyExtract(code, "Ten", new CodeSelection(10,21,10,31));
+    }
+
 
     private static async Task VerifyExtract(string code, string newMethodName, CodeSelection codeSelection)
     {

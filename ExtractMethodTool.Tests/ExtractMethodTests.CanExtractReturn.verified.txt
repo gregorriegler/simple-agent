@@ -2,10 +2,10 @@
 {
     public int Plus()
     {
-        AddOneWithOne();
+        return AddOneWithOne();
     }
 
-    private void AddOneWithOne()
+    private int AddOneWithOne()
     {
         return 1 + 1;
     }
