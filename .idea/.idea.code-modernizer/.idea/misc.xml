@@ -3,4 +3,11 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.13 (code-modernizer)" />
   </component>
+  <component name="ProjectRootManager" version="2" languageLevel="PYTHON39" default="false"
+             project-jdk-name="Python 3.13 (code-modernizer)" project-jdk-type="Python SDK">
+    <output url="file://$PROJECT_DIR$/out" />
+    <content url="file://$PROJECT_DIR$">
+      <sourceFolder url="file://$PROJECT_DIR$" isTestSource="false" />
+    </content>
+  </component>
 </project>

@@ -31,6 +31,7 @@ e.g.
 ## Need
 Use this when you run out of tools but you need a specific tool that does not exist
 Please also explain what it would do, and example with the arguments you would want to provide.
+Note that you can only request tools that transform the code in a safe way that does not break the current behavior.
 
 Syntax:
 /need {your description}
