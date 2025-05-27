@@ -1,4 +1,3 @@
-- extract Cursor from CodeSelection
 - make it easier to add new tools
 - a new tool should be automatically added to the system prompt
 - is InlineMethod a new tool, or not?

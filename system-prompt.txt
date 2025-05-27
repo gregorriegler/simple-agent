@@ -17,7 +17,7 @@ Syntax:
 ## Extract Method
 Use this to extract a method
 Syntax:
-/extract-method {projectPath} {fileName} {startLine}:{startColumn} {endLine}:{endColumn} {newMethodName}
+/extract-method {projectPath} {fileName} {startLine}:{startColumn}-{endLine}:{endColumn} {newMethodName}
 
 e.g. 
-/extract-method "C:\\Users\\riegl\\code\\Kata\\Kata.csproj" Kata.cs 10:0 13:20 Foo
+/extract-method "C:\\Users\\riegl\\code\\Kata\\Kata.csproj" Kata.cs 10:0-13:20 Foo

@@ -1,61 +1,22 @@
 ﻿using ExtractMethodTool;
-using Microsoft.Build.Locator;
-using Microsoft.CodeAnalysis.MSBuild;
 
-if (args.Length != 5)
+var refactoringName = args[0];
+var refactoringArgs = args.Skip(3).ToArray();
+var refactoring = CreateRefactoring(refactoringName, refactoringArgs);
+
+var projectPath = args[1].Trim('"');
+var fileName = args[2];
+var project = new Project(projectPath, fileName);
+
+await project.OpenAndApplyRefactoring(refactoring);
+return;
+
+IRefactoring CreateRefactoring(string name, string[] refactoringArguments)
 {
-    Console.WriteLine(
-        "Usage: dotnet run -- {projectPath} {fileName} {startLine}:{startColumn} {endLine}:{endColumn} {newMethodName}");
-    return;
+    if (name == "extract-method")
+    {
+        return ExtractMethod.Create(refactoringArguments);
+    }
+
+    throw new InvalidOperationException("Unknown refactoring");
 }
-
-var projectPath = args[0].Trim('"');
-;
-var fileName = args[1];
-var startPosition = ParsePosition(args[2]);
-var endPosition = ParsePosition(args[3]);
-var newMethodName = args[4];
-
-if (startPosition == null || endPosition == null)
-{
-    Console.WriteLine("Start and end positions must be in the format line:column (e.g., 10:0)");
-    return;
-}
-
-MSBuildLocator.RegisterDefaults();
-
-using var workspace = MSBuildWorkspace.Create();
-var project = await workspace.OpenProjectAsync(projectPath);
-var document = project.Documents.FirstOrDefault(d => d.Name == fileName);
-
-if (document == null)
-{
-    Console.WriteLine($"File {fileName} not found in project.");
-    return;
-}
-
-var selection = new CodeSelection(startPosition, endPosition);
-
-var newDocument = await ExtractMethod.ExtractMethodAsync(document, newMethodName, selection);
-var newSolution = document.Project.Solution.WithDocumentSyntaxRoot(
-    newDocument.Id,
-    (await newDocument.GetSyntaxRootAsync())!
-);
-workspace.TryApplyChanges(newSolution);
-
-Console.WriteLine($"✅ Extracted method '{newMethodName}' into {fileName}");
-
-static Cursor? ParsePosition(string input)
-{
-    var parts = input.Split(':');
-    if (parts.Length != 2) return null;
-
-    if (int.TryParse(parts[0], out var line) && int.TryParse(parts[1], out var column))
-        return new Cursor(line, column);
-
-    return null;
-}
-
-public record CodeSelection(Cursor Start, Cursor End);
-
-public record Cursor(int Line, int Column);

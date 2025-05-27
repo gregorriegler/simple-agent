@@ -6,9 +6,16 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace ExtractMethodTool;
 
-public static class ExtractMethod
+public class ExtractMethod(CodeSelection selection, string newMethodName) : IRefactoring
 {
-    public static async Task<Document> ExtractMethodAsync(Document document, string newMethodName, CodeSelection selection)
+    public static ExtractMethod Create(string[] args)
+    {
+        var selection = CodeSelection.Parse(args[0]);
+        var newMethodName = args[1];
+        return new ExtractMethod(selection, newMethodName);
+    }
+    
+    public async Task<Document> PerformAsync(Document document)
     {
         var span = await GetSpan(document, selection);
 
@@ -161,6 +168,7 @@ public static class ExtractMethod
 
         var newRoot = editor.GetChangedRoot().NormalizeWhitespace();
         
+        Console.WriteLine($"✅ Extracted method '{newMethodName}'");
         return document.WithSyntaxRoot(newRoot);
     }
 
