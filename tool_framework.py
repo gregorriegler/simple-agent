@@ -56,11 +56,11 @@ class ToolFramework:
         
     def _extract_method(self, args):
         arg_list = args.split()
-        return self._run_command('dotnet', ['run', '--'] + arg_list, cwd='ExtractMethodTool')
+        return self._run_command('dotnet', ['run', '--', 'extract-method'] + arg_list, cwd='ExtractMethodTool')
 
     def _inline_method(self, args):
         arg_list = args.split()
-        return self._run_command('dotnet', ['run', '--'] + arg_list, cwd='ExtractMethodTool')
+        return self._run_command('dotnet', ['run', '--', 'inline-method'] + arg_list, cwd='ExtractMethodTool')
 
 
     def parse_and_execute(self, text):

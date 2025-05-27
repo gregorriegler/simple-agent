@@ -18,13 +18,13 @@ public class Calculator
     }
 }";
 
-        await VerifyExtract(code, "AddOneWithOne", new CodeSelection(new Cursor(6, 0), new Cursor(6, 19)));
+        await VerifyExtract(code, CodeSelection.Parse("6:0-6:19"), "AddOneWithOne");
     }
 
     [Test]
     public async Task CanExtractSimpleSwitchWithReturn()
     {
-        var code = @"
+        const string code = @"
 public class Bird
 {
     private int kind;
@@ -39,13 +39,13 @@ public class Bird
     }
 }";
 
-        await VerifyExtract(code, "ComputeSpeed", new CodeSelection(new Cursor(8, 0), new Cursor(12, 10)));
+        await VerifyExtract(code, CodeSelection.Parse("8:0-12:10"), "ComputeSpeed");
     }
 
     [Test]
     public async Task CanExtractVoid()
     {
-        var code = @"
+        const string code = @"
 public class Console
 {
     public void Write()
@@ -54,13 +54,13 @@ public class Console
     }
 }";
 
-        await VerifyExtract(code, "Write", new CodeSelection(new Cursor(6, 0), new Cursor(6, 44)));
+        await VerifyExtract(code, CodeSelection.Parse("6:0-6:44"), "Write");
     }
 
     [Test]
     public async Task CanExtractOnlyAPartThatReturns()
     {
-        var code = @"
+        const string code = @"
 public class Calculator
 {
     public void Plus()
@@ -70,13 +70,13 @@ public class Calculator
     }
 }";
 
-        await VerifyExtract(code, "AddOneWithOne", new CodeSelection(new Cursor(6, 17), new Cursor(6, 21)));
+        await VerifyExtract(code, CodeSelection.Parse("6:17-6:21"), "AddOneWithOne");
     }
 
     [Test]
     public async Task CanExtractSwitchBodyWithReturn()
     {
-        var code = @"
+        const string code = @"
 public class Bird
 {
     private int kind;
@@ -91,14 +91,15 @@ public class Bird
     }
 }";
 
-        await VerifyExtract(code, "Ten", new CodeSelection(new Cursor(10, 21), new Cursor(10, 31)));
+        await VerifyExtract(code, CodeSelection.Parse("10:21-10:31"), "Ten");
     }
 
 
-    private static async Task VerifyExtract(string code, string newMethodName, CodeSelection codeSelection)
+    private static async Task VerifyExtract(string code, CodeSelection codeSelection, string newMethodName)
     {
         var document = CreateDocument(code);
-        var updatedDocument = await ExtractMethod.ExtractMethodAsync(document, newMethodName, codeSelection);
+        var extractMethod = new ExtractMethod(codeSelection, newMethodName);
+        var updatedDocument = await extractMethod.PerformAsync(document);
         var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
         await Verify(formatted.ToFullString());
     }

@@ -4,9 +4,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ExtractMethodTool;
 
-public static class InlineMethod
+public class InlineMethod(Cursor cursor) : IRefactoring
 {
-    public static async Task<Document> InlineMethodAsync(Document document, Cursor cursor)
+    public async Task<Document> PerformAsync(Document document)
     {
         var root = await document.GetSyntaxRootAsync();
         if (root == null) return document;
@@ -24,19 +24,20 @@ public static class InlineMethod
         var methodSymbol = symbolInfo.Symbol as IMethodSymbol;
         if (methodSymbol == null) return document;
 
-        var methodDeclaration = await FindMethodDeclarationAsync(document.Project.Solution, methodSymbol);
+        var methodDeclaration = await FindMethodDeclarationAsync(methodSymbol);
         if (methodDeclaration == null) return document;
 
-        var methodBody = methodDeclaration.Body ?? 
-                        (methodDeclaration.ExpressionBody != null ? 
-                         SyntaxFactory.Block(SyntaxFactory.ReturnStatement(methodDeclaration.ExpressionBody.Expression)) : 
-                         null);
+        var methodBody = methodDeclaration.Body ??
+                         (methodDeclaration.ExpressionBody != null
+                             ? SyntaxFactory.Block(
+                                 SyntaxFactory.ReturnStatement(methodDeclaration.ExpressionBody.Expression))
+                             : null);
 
         if (methodBody == null) return document;
 
         var parameterMap = CreateParameterMapping(methodDeclaration, invocation);
 
-        var inlinedStatements = InlineMethodBody(methodBody, parameterMap, invocation);
+        var inlinedStatements = InlineMethodBody(methodBody, parameterMap);
 
         var newRoot = ReplaceInvocationWithInlinedCode(root, invocation, inlinedStatements);
 
@@ -50,7 +51,7 @@ public static class InlineMethod
         return text.Lines.GetPosition(linePosition);
     }
 
-    private static async Task<MethodDeclarationSyntax?> FindMethodDeclarationAsync(Solution solution, IMethodSymbol methodSymbol)
+    private static async Task<MethodDeclarationSyntax?> FindMethodDeclarationAsync(IMethodSymbol methodSymbol)
     {
         foreach (var syntaxReference in methodSymbol.DeclaringSyntaxReferences)
         {
@@ -60,11 +61,12 @@ public static class InlineMethod
                 return methodDeclaration;
             }
         }
+
         return null;
     }
 
     private static Dictionary<string, ExpressionSyntax> CreateParameterMapping(
-        MethodDeclarationSyntax methodDeclaration, 
+        MethodDeclarationSyntax methodDeclaration,
         InvocationExpressionSyntax invocation)
     {
         var parameterMap = new Dictionary<string, ExpressionSyntax>();
@@ -83,9 +85,8 @@ public static class InlineMethod
     }
 
     private static List<StatementSyntax> InlineMethodBody(
-        BlockSyntax methodBody, 
-        Dictionary<string, ExpressionSyntax> parameterMap,
-        InvocationExpressionSyntax originalInvocation)
+        BlockSyntax methodBody,
+        Dictionary<string, ExpressionSyntax> parameterMap)
     {
         var inlinedStatements = new List<StatementSyntax>();
 
@@ -110,7 +111,7 @@ public static class InlineMethod
     }
 
     private static StatementSyntax ReplaceParametersInStatement(
-        StatementSyntax statement, 
+        StatementSyntax statement,
         Dictionary<string, ExpressionSyntax> parameterMap)
     {
         var rewriter = new ParameterReplacementRewriter(parameterMap);
@@ -118,34 +119,32 @@ public static class InlineMethod
     }
 
     private static SyntaxNode ReplaceInvocationWithInlinedCode(
-        SyntaxNode root, 
-        InvocationExpressionSyntax invocation, 
+        SyntaxNode root,
+        InvocationExpressionSyntax invocation,
         List<StatementSyntax> inlinedStatements)
     {
         var containingStatement = invocation.FirstAncestorOrSelf<StatementSyntax>();
         if (containingStatement == null) return root;
 
         var newStatements = inlinedStatements.Select(s => s.WithTriviaFrom(containingStatement));
-        
+
         if (inlinedStatements.Count == 1)
         {
             return root.ReplaceNode(containingStatement, newStatements.First());
         }
-        else
+
+        var parent = containingStatement.Parent;
+        if (parent is BlockSyntax block)
         {
-            var parent = containingStatement.Parent;
-            if (parent is BlockSyntax block)
-            {
-                var index = block.Statements.IndexOf(containingStatement);
-                var newBlock = block.WithStatements(
-                    SyntaxFactory.List(
-                        block.Statements.Take(index)
+            var index = block.Statements.IndexOf(containingStatement);
+            var newBlock = block.WithStatements(
+                SyntaxFactory.List(
+                    block.Statements.Take(index)
                         .Concat(newStatements)
                         .Concat(block.Statements.Skip(index + 1))
-                    )
-                );
-                return root.ReplaceNode(block, newBlock);
-            }
+                )
+            );
+            return root.ReplaceNode(block, newBlock);
         }
 
         return root;
@@ -156,8 +155,8 @@ public static class InlineMethod
         public override SyntaxNode? VisitIdentifierName(IdentifierNameSyntax node)
         {
             var identifier = node.Identifier.ValueText;
-            return parameterMap.TryGetValue(identifier, out var replacement) 
-                ? replacement.WithTriviaFrom(node) 
+            return parameterMap.TryGetValue(identifier, out var replacement)
+                ? replacement.WithTriviaFrom(node)
                 : base.VisitIdentifierName(node);
         }
     }

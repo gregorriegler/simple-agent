@@ -34,7 +34,7 @@ def test_cat_shows_contents(tmp_path):
 def xtest_extract_method():
     framework = ToolFramework()
     
-    content, tool_result = framework.parse_and_execute("/extract-method \"C:/Users/riegl/code/Parrot-Refactoring-Kata/CSharp/Parrot/Parrot.csproj\" Parrot.cs 23:0 33:14 ComputeSpeed")
+    content, tool_result = framework.parse_and_execute("/extract-method \"C:/Users/riegl/code/Parrot-Refactoring-Kata/CSharp/Parrot/Parrot.csproj\" Parrot.cs 23:0-33:14 ComputeSpeed")
     
     print(content)
     print(tool_result)

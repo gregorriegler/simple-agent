@@ -10,27 +10,29 @@ public class InlineMethodTests
     [Test]
     public async Task CanInlineSimple()
     {
-        var code = @"
-public class Calculator
-{
-    public int Plus()
-    {
-        return AddOneWithOne();
-    }
+        const string code = """
+                            public class Calculator
+                            {
+                                public int Plus()
+                                {
+                                    return AddOneWithOne();
+                                }
 
-    private int AddOneWithOne()
-    {
-        return 1 + 1;
-    }
-}";
+                                private int AddOneWithOne()
+                                {
+                                    return 1 + 1;
+                                }
+                            }
+                            """;
 
-        await VerifyInline(code, new Cursor(6,16));
+        await VerifyInline(code, new Cursor(5,16));
     }
     
     private static async Task VerifyInline(string code, Cursor cursor)
     {
         var document = CreateDocument(code);
-        var updatedDocument = await InlineMethod.InlineMethodAsync(document, cursor);
+        var inlineMethod = new InlineMethod(cursor);
+        var updatedDocument = await inlineMethod.PerformAsync(document);
         var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
         await Verify(formatted.ToFullString());
     }
