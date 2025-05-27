@@ -2,7 +2,6 @@ import pytest
 from tool_framework import ToolFramework
 
 def test_ls_lists_directory_contents(tmp_path):
-    # Setup: create some files and directories
     file1 = tmp_path / "file1.txt"
     file2 = tmp_path / "file2.txt"
     subdir = tmp_path / "subdir"
