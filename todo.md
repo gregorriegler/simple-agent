@@ -1,10 +1,5 @@
 - a new tool should be automatically added to the system prompt
 
-
-- Give it steps
-
-- let it run tests in between
-
 - cat and ls dont need checking
 
 ## Claudes /needs 

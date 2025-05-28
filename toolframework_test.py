@@ -11,7 +11,7 @@ def test_ls_lists_directory_contents(tmp_path):
 
     framework = ToolFramework()
     
-    content, tool_result = framework.parse_and_execute("/ls " + str(tmp_path))
+    _, tool_result = framework.parse_and_execute("/ls " + str(tmp_path))
     
     assert "file1.txt" in tool_result
     assert "file2.txt" in tool_result
@@ -25,16 +25,22 @@ def test_cat_shows_contents(tmp_path):
     
     framework = ToolFramework()
 
-    content, tool_result = framework.parse_and_execute("/cat " + str(file1))
+    _, tool_result = framework.parse_and_execute("/cat " + str(file1))
 
     assert "1\thello" == tool_result
     
+
+def test_test_runs_test():
+    framework = ToolFramework()
+    
+    _, tool_result = framework.parse_and_execute("/test .")
+    
+    assert "All tests passed" in tool_result
     
 def xtest_extract_method():
     framework = ToolFramework()
     
-    content, tool_result = framework.parse_and_execute("/extract-method \"C:/Users/riegl/code/Parrot-Refactoring-Kata/CSharp/Parrot/Parrot.csproj\" Parrot.cs 23:0-33:14 ComputeSpeed")
+    _, tool_result = framework.parse_and_execute("/extract-method \"C:/Users/riegl/code/Parrot-Refactoring-Kata/CSharp/Parrot/Parrot.csproj\" Parrot.cs 23:0-33:14 ComputeSpeed")
     
-    print(content)
     print(tool_result)
     assert "x" is tool_result

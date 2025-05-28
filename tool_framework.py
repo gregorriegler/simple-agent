@@ -7,6 +7,7 @@ class ToolFramework:
         self.tools = {
             'ls': self._ls,
             'cat': self._cat,
+            'test': self._test,
             'extract-method': self._extract_method,
             'inline-method': self._inline_method,
         }
@@ -20,19 +21,22 @@ class ToolFramework:
             else:
                 command_line = [cmd]
     
-            # Show the exact command being run, including cwd
-            cmd_str = ' '.join(command_line)
-            if cwd:
-                print(f"[cwd: {cwd}] $ {cmd_str}")
-            else:
-                print(f"$ {cmd_str}")
-    
-            result = subprocess.run(command_line, capture_output=True, text=True, timeout=30, cwd=cwd)
+            result = subprocess.run(
+                command_line,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                errors='replace',  # Replace undecodable characters with a replacement character
+                timeout=30,
+                cwd=cwd
+            )
     
             output = result.stdout
-            print(output)
+            print(output, end='')  # Prevent adding extra newline
             if result.stderr:
-                output += f"\nSTDERR: {result.stderr}"
+                stderr = result.stderr
+                print(f"\nSTDERR: {stderr}", end='')
+                output += f"\nSTDERR: {stderr}"
     
             return {
                 'success': result.returncode == 0,
@@ -53,6 +57,9 @@ class ToolFramework:
 
     def _cat(self, filename):
         return self._run_command('cat', ['-n', filename])
+
+    def _test(self, path):
+        return self._run_command('bash', ['./test.sh', path])
         
     def _extract_method(self, args):
         arg_list = args.split()
