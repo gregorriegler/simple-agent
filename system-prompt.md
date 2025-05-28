@@ -27,7 +27,7 @@ Syntax:
 
 ## Test
 Syntax: 
-/test {path}
+/test {directory}
 
 ## Extract Method
 Syntax:
