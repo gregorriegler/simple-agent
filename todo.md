@@ -1,5 +1,12 @@
 - a new tool should be automatically added to the system prompt
 
+
+- Give it steps
+
+- let it run tests in between
+
+- cat and ls dont need checking
+
 ## Claudes /needs 
 I see there are some issues with the previous refactoring. Let me create a new method for Norwegian Blue speed calculation. First, I'll need a tool that doesn't exist.
 

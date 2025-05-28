@@ -12,8 +12,8 @@ from tool_framework import ToolFramework
 api_key = read_file("claude-api-key.txt")
 model = read_file("claude-model.txt")
 system_prompt = None
-if os.path.exists("system-prompt.txt"):
-    system_prompt = read_file("system-prompt.txt")
+if os.path.exists("system-prompt.md"):
+    system_prompt = read_file("system-prompt.md")
 
 def load_session(session_file):
     """Load conversation history from session file."""
