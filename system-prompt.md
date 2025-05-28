@@ -29,6 +29,10 @@ Syntax:
 Syntax: 
 /test {directory}
 
+## Revert
+Syntax: 
+/revert {directory}
+
 ## Extract Method
 Syntax:
 /extract-method {projectPath} {fileName} {startLine}:{startColumn}-{endLine}:{endColumn} {newMethodName}

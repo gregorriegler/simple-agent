@@ -1,4 +1,6 @@
-- revert tool
+- commit tool
+
+- organize tools better, it should be easier to add them
 
 - a new tool should be automatically added to the system prompt
 

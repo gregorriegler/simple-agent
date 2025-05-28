@@ -10,6 +10,7 @@ class ToolFramework:
             'test': self._test,
             'extract-method': self._extract_method,
             'inline-method': self._inline_method,
+            'revert': self._revert,
         }
 
     def runcommand(self, cmd, args=None, cwd=None):
@@ -68,6 +69,9 @@ class ToolFramework:
     def _inline_method(self, args):
         arg_list = args.split()
         return self._run_command('dotnet', ['run', '--', 'inline-method'] + arg_list, cwd='ExtractMethodTool')
+        
+    def _revert(self, directory='.'):
+        return self._run_command('bash', ['./revert.sh', directory])
 
 
     def parse_and_execute(self, text):
