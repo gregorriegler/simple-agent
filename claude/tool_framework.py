@@ -13,6 +13,44 @@ class ToolFramework:
             'inline-method': self._inline_method,
             'revert': self._revert,
         }
+        
+    def parse_and_execute(self, text):
+        pattern = r'^/([\w-]+)(?:\s+(.*))?$'
+        for line in text.splitlines():
+            line = line.strip()
+            match = re.match(pattern, line)
+            if match:
+                cmd, arg = match.groups()
+                tool_fn = self.tools.get(cmd)
+                if tool_fn:
+                    result = tool_fn(arg.strip() if arg else None)
+                    return f"{line}\n{result['output']}", result['output']
+                else:
+                    return f"{line}\nUnknown command: {cmd}", f"Unknown command: {cmd}"
+        return text.splitlines()[0].strip(), ""
+
+
+    def _ls(self, path='.'):
+        return self.runcommand('ls', ['-la', path] if path else ['-la'])
+
+    def _cat(self, filename):
+        return self.runcommand('cat', ['-n', filename])
+
+    def _test(self, path):
+        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test.sh')
+        return self.runcommand('bash', [script_path, path])
+        
+    def _extract_method(self, args):
+        arg_list = args.split()
+        return self.runcommand('dotnet', ['run', '--', 'extract-method'] + arg_list, cwd='ExtractMethodTool')
+
+    def _inline_method(self, args):
+        arg_list = args.split()
+        return self.runcommand('dotnet', ['run', '--', 'inline-method'] + arg_list, cwd='ExtractMethodTool')
+        
+    def _revert(self, directory='.'):
+        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'revert.sh')
+        return self.runcommand('bash', [script_path, directory])
 
     def runcommand(self, cmd, args=None, cwd=None):
         try:
@@ -20,21 +58,19 @@ class ToolFramework:
                 if isinstance(args, str):
                     args = [args]
                 command_line = [cmd] + args
-            else:
-                command_line = [cmd]
     
             result = subprocess.run(
                 command_line,
                 capture_output=True,
                 text=True,
                 encoding='utf-8',
-                errors='replace',  # Replace undecodable characters with a replacement character
+                errors='replace',
                 timeout=30,
                 cwd=cwd
             )
     
             output = result.stdout
-            print(output, end='')  # Prevent adding extra newline
+            print(output, end='')
             if result.stderr:
                 stderr = result.stderr
                 print(f"\nSTDERR: {stderr}", end='')
@@ -50,44 +86,3 @@ class ToolFramework:
         except Exception as e:
             return {'success': False, 'output': f'Error: {str(e)}', 'returncode': -1}
 
-
-    def _run_command(self, cmd, args=None, cwd=None):
-        return self.runcommand(cmd, args, cwd=cwd)
-
-    def _ls(self, path='.'):
-        return self._run_command('ls', ['-la', path] if path else ['-la'])
-
-    def _cat(self, filename):
-        return self._run_command('cat', ['-n', filename])
-
-    def _test(self, path):
-        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test.sh')
-        return self._run_command('bash', [script_path, path])
-        
-    def _extract_method(self, args):
-        arg_list = args.split()
-        return self._run_command('dotnet', ['run', '--', 'extract-method'] + arg_list, cwd='ExtractMethodTool')
-
-    def _inline_method(self, args):
-        arg_list = args.split()
-        return self._run_command('dotnet', ['run', '--', 'inline-method'] + arg_list, cwd='ExtractMethodTool')
-        
-    def _revert(self, directory='.'):
-        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'revert.sh')
-        return self._run_command('bash', [script_path, directory])
-
-
-    def parse_and_execute(self, text):
-        pattern = r'^/([\w-]+)(?:\s+(.*))?$'
-        for line in text.splitlines():
-            line = line.strip()
-            match = re.match(pattern, line)
-            if match:
-                cmd, arg = match.groups()
-                tool_fn = self.tools.get(cmd)
-                if tool_fn:
-                    result = tool_fn(arg.strip() if arg else None)
-                    return f"{line}\n{result['output']}", result['output']
-                else:
-                    return f"{line}\nUnknown command: {cmd}", f"Unknown command: {cmd}"
-        return text.splitlines()[0].strip(), ""
