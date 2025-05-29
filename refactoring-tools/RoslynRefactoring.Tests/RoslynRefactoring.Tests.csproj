@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <RootNamespace>RoslynRefactoring.Tests</RootNamespace>
+    <AssemblyName>RoslynRefactoring.Tests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExtractMethodTool\ExtractMethodTool.csproj" />
+    <ProjectReference Include="..\RoslynRefactoring\RoslynRefactoring.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,3 +1,4 @@
+import os
 import re
 import subprocess
 
@@ -60,7 +61,8 @@ class ToolFramework:
         return self._run_command('cat', ['-n', filename])
 
     def _test(self, path):
-        return self._run_command('bash', ['./test.sh', path])
+        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test.sh')
+        return self._run_command('bash', [script_path, path])
         
     def _extract_method(self, args):
         arg_list = args.split()
@@ -71,7 +73,8 @@ class ToolFramework:
         return self._run_command('dotnet', ['run', '--', 'inline-method'] + arg_list, cwd='ExtractMethodTool')
         
     def _revert(self, directory='.'):
-        return self._run_command('bash', ['./revert.sh', directory])
+        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'revert.sh')
+        return self._run_command('bash', [script_path, directory])
 
 
     def parse_and_execute(self, text):

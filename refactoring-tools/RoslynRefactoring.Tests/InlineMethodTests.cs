@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Formatting;
 
-namespace ExtractMethodTool.Tests;
+namespace RoslynRefactoring.Tests;
 
 [TestFixture]
 public class InlineMethodTests

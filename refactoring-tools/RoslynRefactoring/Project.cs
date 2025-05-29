@@ -1,7 +1,7 @@
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.MSBuild;
 
-namespace ExtractMethodTool;
+namespace RoslynRefactoring;
 
 public class Project(string projectPath, string fileName)
 {

@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Text;
 
-namespace ExtractMethodTool;
+namespace RoslynRefactoring;
 
 public class ExtractMethod(CodeSelection selection, string newMethodName) : IRefactoring
 {

@@ -1,4 +1,4 @@
-﻿using ExtractMethodTool;
+﻿using RoslynRefactoring;
 
 var refactoringName = args[0];
 var refactoringArgs = args.Skip(3).ToArray();

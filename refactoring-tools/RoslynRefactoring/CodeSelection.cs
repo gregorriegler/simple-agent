@@ -1,4 +1,4 @@
-namespace ExtractMethodTool;
+namespace RoslynRefactoring;
 
 public record CodeSelection(Cursor Start, Cursor End)
 {

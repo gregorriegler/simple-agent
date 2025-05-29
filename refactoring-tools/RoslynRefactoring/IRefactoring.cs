@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace ExtractMethodTool;
+namespace RoslynRefactoring;
 
 public interface IRefactoring
 {
