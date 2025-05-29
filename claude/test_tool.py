@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 import sys
-from tool_framework import ToolFramework
+from tools import ToolLibrary
 
 if __name__ == "__main__":   
     command = ' '.join(sys.argv[1:])
-    tool = ToolFramework()
+    tool = ToolLibrary()
     try:
         output, _ = tool.parse_and_execute("/" + command)
     except Exception as e:

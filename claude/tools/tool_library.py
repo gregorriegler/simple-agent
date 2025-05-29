@@ -1,18 +1,27 @@
-import os
 import re
 import subprocess
 
+from .ls_tool import LsTool
+from .cat_tool import CatTool
+from .test_tool import TestTool
+from .extract_method_tool import ExtractMethodTool
+from .inline_method_tool import InlineMethodTool
+from .revert_tool import RevertTool
 
-class ToolFramework:
+class ToolLibrary:
     def __init__(self):
-        self.tools = {
-            'ls': self._ls,
-            'cat': self._cat,
-            'test': self._test,
-            'extract-method': self._extract_method,
-            'inline-method': self._inline_method,
-            'revert': self._revert,
-        }
+        self.tools = [
+            LsTool(self.runcommand),
+            CatTool(self.runcommand),
+            TestTool(self.runcommand),
+            ExtractMethodTool(self.runcommand),
+            InlineMethodTool(self.runcommand),
+            RevertTool(self.runcommand)
+        ]
+        self._build_tool_dict()
+    
+    def _build_tool_dict(self):
+        self.tool_dict = {tool.name: tool for tool in self.tools}
         
     def parse_and_execute(self, text):
         pattern = r'^/([\w-]+)(?:\s+(.*))?$'
@@ -21,36 +30,13 @@ class ToolFramework:
             match = re.match(pattern, line)
             if match:
                 cmd, arg = match.groups()
-                tool_fn = self.tools.get(cmd)
-                if tool_fn:
-                    result = tool_fn(arg.strip() if arg else None)
+                tool = self.tool_dict.get(cmd)
+                if tool:
+                    result = tool.execute(arg.strip() if arg else None)
                     return f"{line}\n{result['output']}", result['output']
                 else:
                     return f"{line}\nUnknown command: {cmd}", f"Unknown command: {cmd}"
         return text.splitlines()[0].strip(), ""
-
-
-    def _ls(self, path='.'):
-        return self.runcommand('ls', ['-la', path] if path else ['-la'])
-
-    def _cat(self, filename):
-        return self.runcommand('cat', ['-n', filename])
-
-    def _test(self, path):
-        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test.sh')
-        return self.runcommand('bash', [script_path, path])
-        
-    def _extract_method(self, args):
-        arg_list = args.split()
-        return self.runcommand('dotnet', ['run', '--', 'extract-method'] + arg_list, cwd='ExtractMethodTool')
-
-    def _inline_method(self, args):
-        arg_list = args.split()
-        return self.runcommand('dotnet', ['run', '--', 'inline-method'] + arg_list, cwd='ExtractMethodTool')
-        
-    def _revert(self, directory='.'):
-        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'revert.sh')
-        return self.runcommand('bash', [script_path, directory])
 
     def runcommand(self, cmd, args=None, cwd=None):
         try:

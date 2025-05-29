@@ -7,7 +7,7 @@ import os
 import requests
 
 from helpers import *
-from tool_framework import ToolFramework
+from tools import ToolLibrary
 
 api_key = read_file("claude-api-key.txt")
 model = read_file("claude-model.txt")
@@ -69,7 +69,7 @@ def main():
     
     args = parser.parse_args()
     
-    tools = ToolFramework()
+    tools = ToolLibrary()
       
     if args.new:
         messages = []
