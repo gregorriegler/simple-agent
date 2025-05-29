@@ -11,9 +11,6 @@ from tool_framework import ToolFramework
 
 api_key = read_file("claude-api-key.txt")
 model = read_file("claude-model.txt")
-system_prompt = None
-if os.path.exists("system-prompt.md"):
-    system_prompt = read_file("system-prompt.md")
 
 def load_session(session_file):
     """Load conversation history from session file."""
@@ -51,9 +48,10 @@ def message_claude(messages):
         "messages": messages
     }
     
-    # Add system prompt if provided
-    if system_prompt:
-        data["system"] = system_prompt
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    system_prompt_path = os.path.join(script_dir, "system-prompt.md")
+    if os.path.exists(system_prompt_path):
+        data["system"] = read_file(system_prompt_path)
     
     try:
         response = requests.post(url, headers=headers, json=data)
@@ -65,19 +63,19 @@ def message_claude(messages):
 
 def main():
     parser = argparse.ArgumentParser(description="Claude API CLI with session support")
-    parser.add_argument("--new-session", action="store_true", help="Start a new session (clear history)")
-    parser.add_argument("--session-file", default="claude-session.json", help="Session file name (default: claude-session.json)")
+    parser.add_argument("--new", action="store_true", help="Start a new session (clear history)")
+    parser.add_argument("--session", default="claude-session.json", help="Session file name (default: claude-session.json)")
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
     
     args = parser.parse_args()
     
     tools = ToolFramework()
       
-    if args.new_session:
+    if args.new:
         messages = []
-        print(f"Starting new session (cleared {args.session_file})")
+        print(f"Starting new session (cleared {args.session})")
     else:
-        messages = load_session(args.session_file)
+        messages = load_session(args.session)
 
     # Get message from command line argument or stdin
     if len(sys.argv) > 1:
@@ -115,7 +113,7 @@ def main():
                 "content": f"[TOOL_RESULTS]\n{tool_result}\n"
             })
 
-        save_session(args.session_file, messages)
+        save_session(args.session, messages)
 
 if __name__ == "__main__":
     main()

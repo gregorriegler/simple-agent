@@ -1,3 +1,5 @@
+- make it respect the rules.md
+
 - commit tool
 
 - organize tools better, it should be easier to add them
@@ -68,3 +70,15 @@ I see there are some issues with the previous refactoring. Let me create a new m
 This would help us fix the current state of the code. The current automatic refactoring has created some issues with duplicate methods and incorrect implementations.
 
 Would you like me to proceed with a different approach or do you have a tool that could help with this situation?
+
+
+
+/need Add Constant
+I need a tool to add a constant at the class level. For example:
+```csharp
+private const double LOAD_FACTOR = 9.0;
+```
+This would help eliminate magic numbers in the code.
+
+Example usage:
+/add-constant "path/to/project.csproj" "Parrot.cs" "LOAD_FACTOR" "9.0" "double"
