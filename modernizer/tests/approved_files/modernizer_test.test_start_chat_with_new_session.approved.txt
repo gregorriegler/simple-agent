@@ -1,0 +1,8 @@
+Starting new session
+
+Claude: Test response
+
+Claude: Test response
+
+
+Exiting...

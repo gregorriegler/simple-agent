@@ -41,30 +41,31 @@ def get_system_prompt():
 def main():
     parser = argparse.ArgumentParser(description="Claude API CLI with session support")
     parser.add_argument("--new", action="store_true", help="Start a new session (clear history)")
-    parser.add_argument("--session", default="claude-session.json", help="Session file name (default: claude-session.json)")
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
     
     args = parser.parse_args()
+    start_message = None
+    if len(sys.argv) > 1:
+        start_message = " ".join(sys.argv[1:])
+    if args.message:
+        start_message = " ".join(args.message)
+    new = args.new
 
-    system_prompt=get_system_prompt()
+    start_chat(start_message, new, message_claude)
+
+
+def start_chat(start_message, new, message_claude):
+    system_prompt = get_system_prompt()
     tools = ToolLibrary()
-      
-    if args.new:
+    if new:
         messages = []
         print(f"Starting new session")
     else:
-        messages = load_session(args.session)
-
-    if len(sys.argv) > 1:
-        message = " ".join(sys.argv[1:])
-    if args.message:
-        message = " ".join(args.message)
-
+        messages = load_session("claude-session.json")
     messages.append({
         "role": "user",
-        "content": message
+        "content": start_message
     })
-    
     while True:
         answer = message_claude(messages, system_prompt)
         print(f"\nClaude: {answer}")
@@ -81,16 +82,17 @@ def main():
         except KeyboardInterrupt:
             print("\n\nExiting...")
             break
-        
-        content, tool_result = tools.parse_and_execute(answer)
-    
+
+        _, tool_result = tools.parse_and_execute(answer)
+
         if tool_result:
             messages.append({
                 "role": "user",
                 "content": f"[TOOL_RESULTS]\n{tool_result}\n"
             })
 
-        save_session(args.session, messages)
+        save_session("claude-session.json", messages)
+
 
 if __name__ == "__main__":
     main()

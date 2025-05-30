@@ -2,6 +2,7 @@ import os
 from .base_tool import BaseTool
 
 class TestTool(BaseTool):
+    __test__ = False
     name = 'test'
     
     def __init__(self, runcommand):
