@@ -4,13 +4,10 @@ import argparse
 import json
 import os
 
-import requests
-
+from claude_client import message_claude
 from helpers import *
 from tools import ToolLibrary
 
-api_key = read_file("claude-api-key.txt")
-model = read_file("claude-model.txt")
 
 def load_session(session_file):
     """Load conversation history from session file."""
@@ -32,34 +29,14 @@ def save_session(session_file, messages):
     except Exception as e:
         print(f"Warning: Could not save session file {session_file}: {e}", file=sys.stderr)
 
-def message_claude(messages):
-    """Send a request to the Claude API with conversation history."""
-    url = "https://api.anthropic.com/v1/messages"
-    
-    headers = {
-        "Content-Type": "application/json",
-        "x-api-key": api_key,
-        "anthropic-version": "2023-06-01"
-    }
-    
-    data = {
-        "model": model,
-        "max_tokens": 4000,
-        "messages": messages
-    }
-    
+def get_system_prompt():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     system_prompt_path = os.path.join(script_dir, "system-prompt.md")
+    system_prompt = None
     if os.path.exists(system_prompt_path):
-        data["system"] = read_file(system_prompt_path)
-    
-    try:
-        response = requests.post(url, headers=headers, json=data)
-        response.raise_for_status()
-        return response.json()["content"][0]["text"]
-    except requests.exceptions.RequestException as e:
-        print(f"API request failed: {e}", file=sys.stderr)
-        sys.exit(1)
+        system_prompt = read_file(system_prompt_path)
+    return system_prompt
+
 
 def main():
     parser = argparse.ArgumentParser(description="Claude API CLI with session support")
@@ -68,7 +45,8 @@ def main():
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
     
     args = parser.parse_args()
-    
+
+    system_prompt=get_system_prompt()
     tools = ToolLibrary()
       
     if args.new:
@@ -77,7 +55,6 @@ def main():
     else:
         messages = load_session(args.session)
 
-    # Get message from command line argument or stdin
     if len(sys.argv) > 1:
         message = " ".join(sys.argv[1:])
     if args.message:
@@ -89,7 +66,7 @@ def main():
     })
     
     while True:
-        answer = message_claude(messages)
+        answer = message_claude(messages, system_prompt)
         print(f"\nClaude: {answer}")
         messages.append({
             "role": "assistant",
