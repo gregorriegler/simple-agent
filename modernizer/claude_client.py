@@ -1,3 +1,5 @@
+import sys
+
 import requests
 
 from helpers import *
@@ -28,4 +30,7 @@ def message_claude(messages, system_prompt):
         return response.json()["content"][0]["text"]
     except requests.exceptions.RequestException as e:
         print(f"API request failed: {e}", file=sys.stderr)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\n\nExiting...")
         sys.exit(1)

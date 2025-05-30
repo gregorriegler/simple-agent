@@ -51,7 +51,7 @@ def main():
       
     if args.new:
         messages = []
-        print(f"Starting new session (cleared {args.session})")
+        print(f"Starting new session")
     else:
         messages = load_session(args.session)
 
