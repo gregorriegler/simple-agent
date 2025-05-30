@@ -1,5 +1,7 @@
 - make it respect the rules.md
 
+- each tool has its description and all descriptions are automatically added to the system prompt
+
 - commit tool
 
 - organize tools better, it should be easier to add them
