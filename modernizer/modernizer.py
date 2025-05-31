@@ -75,7 +75,13 @@ def start_chat(start_message, new, message_claude):
         })
 
         try:
-            input("\nAny key to continue: ")
+            user_input = input("\nPress Enter to continue or type a message to add: ")
+            if user_input.strip():
+                messages.append({
+                    "role": "user",
+                    "content": user_input
+                })
+                continue
         except EOFError:
             print("\nExiting...")
             break
