@@ -98,7 +98,7 @@ def start_chat(start_message, new, message_claude, rounds=999999, save_session=s
         if tool_result:
             messages.append({
                 "role": "user",
-                "content": f"[TOOL_RESULTS]\n{tool_result}\n"
+                "content": tool_result
             })
 
         save_session(messages)

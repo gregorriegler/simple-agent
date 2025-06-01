@@ -1,0 +1,10 @@
+# Standard out:
+Starting new session
+
+Claude: /cat /tmp/path/testfile.txt
+     1	Hello world
+
+# Saved messages:
+user: Test message
+assistant: /cat /tmp/path/testfile.txt
+user: 1	Hello world

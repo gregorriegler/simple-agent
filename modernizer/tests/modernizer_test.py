@@ -1,10 +1,13 @@
 import builtins
 import os
+import re
 import sys
 import pytest
-from approvaltests import verify
+from approvaltests import verify, verify_as_json
 from approvaltests.reporters.report_with_beyond_compare import ReportWithWinMerge
 from approvaltests import set_default_reporter
+from approvaltests.scrubbers import create_regex_scrubber
+from approvaltests import Options
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from modernizer.modernizer import start_chat
 
@@ -35,6 +38,7 @@ def run_chat_test(capsys, input_stub, message, answer):
     captured = capsys.readouterr()
     return f"""# Standard out:
 {captured.out}
+
 # Saved messages:
 {saved_messages}"""
 
@@ -45,3 +49,13 @@ def test_start_chat_with_new_session(capsys):
 def test_abort(capsys):
     result = run_chat_test(capsys, input_stub_keyboard_interrupt, "Test message", "Test answer")
     verify(result)
+
+def test_tool_cat(capsys, tmp_path):
+    temp_file = tmp_path / "testfile.txt"
+    temp_file.write_text("Hello world")
+    
+    result = run_chat_test(capsys, input_stub_enter, f"Test message", f"/cat {temp_file}")
+    
+    temp_path_scrubber = create_regex_scrubber('/cat.*', '/cat /tmp/path/testfile.txt')
+    
+    verify(result, options=Options().with_scrubber(temp_path_scrubber))
