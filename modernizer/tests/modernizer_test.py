@@ -15,10 +15,15 @@ from modernizer.modernizer import start_chat
 def set_default_reporter_for_all_tests() -> None:
     set_default_reporter(ReportWithWinMerge())
 
-def input_stub_enter(_):
+def create_temp_file(tmp_path, filename, contents):
+    temp_file = tmp_path / filename
+    temp_file.write_text(contents)
+    return temp_file
+
+def enter(_):
     return "\n"
 
-def input_stub_keyboard_interrupt(_):
+def keyboard_interrupt(_):
     raise KeyboardInterrupt()
     
 def run_chat_test(capsys, input_stub, message, answer):
@@ -43,19 +48,17 @@ def run_chat_test(capsys, input_stub, message, answer):
 {saved_messages}"""
 
 def test_start_chat_with_new_session(capsys):
-    result = run_chat_test(capsys, input_stub_enter, "Test message", "Test answer")
+    result = run_chat_test(capsys, input_stub=enter, message="Test message", answer="Test answer")
     verify(result)
 
 def test_abort(capsys):
-    result = run_chat_test(capsys, input_stub_keyboard_interrupt, "Test message", "Test answer")
+    result = run_chat_test(capsys, input_stub=keyboard_interrupt, message="Test message", answer="Test answer")
     verify(result)
 
 def test_tool_cat(capsys, tmp_path):
-    temp_file = tmp_path / "testfile.txt"
-    temp_file.write_text("Hello world")
+    temp_file = create_temp_file(tmp_path, "testfile.txt", "Hello world")
     
-    result = run_chat_test(capsys, input_stub_enter, f"Test message", f"/cat {temp_file}")
+    result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/cat {temp_file}")
     
     temp_path_scrubber = create_regex_scrubber('/cat.*', '/cat /tmp/path/testfile.txt')
-    
     verify(result, options=Options().with_scrubber(temp_path_scrubber))
