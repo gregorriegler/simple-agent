@@ -22,14 +22,18 @@ def create_input_stub():
         raise KeyboardInterrupt()
     return input_stub
 
-def test_start_chat_with_new_session(capsys):
+def run_chat_test(capsys, message, answer):
     builtins.input = create_input_stub()
-    claude_stub = lambda messages, system_prompt: "Test response"
+    claude_stub = lambda messages, system_prompt: answer
     
     try:
-        start_chat("Test message", new=True, message_claude=claude_stub)
+        start_chat(message, new=True, message_claude=claude_stub)
     except KeyboardInterrupt:
         pass
         
     captured = capsys.readouterr()
-    verify(captured.out)
+    return captured.out
+
+def test_start_chat_with_new_session(capsys):
+    result = run_chat_test(capsys, "Test message", "Test answer")
+    verify(result)

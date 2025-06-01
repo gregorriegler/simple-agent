@@ -1,7 +1,7 @@
 Starting new session
 
-Claude: Test response
+Claude: Test answer
 
-Claude: Test response
+Claude: Test answer
 
 Exiting...
