@@ -1,0 +1,5 @@
+Starting new session
+
+Claude: Test answer
+
+Exiting...

@@ -12,18 +12,14 @@ from modernizer.modernizer import start_chat
 def set_default_reporter_for_all_tests() -> None:
     set_default_reporter(ReportWithWinMerge())
 
-def create_input_stub():
-    call_count = 0
-    def input_stub(_):
-        nonlocal call_count
-        call_count += 1
-        if call_count == 1:
-            return "\n"
-        raise KeyboardInterrupt()
-    return input_stub
+def input_stub_enter(_):
+    return "\n"
 
-def run_chat_test(capsys, message, answer):
-    builtins.input = create_input_stub()
+def input_stub_keyboard_interrupt(_):
+    raise KeyboardInterrupt()
+    
+def run_chat_test(capsys, input_stub, message, answer):
+    builtins.input = input_stub
     claude_stub = lambda messages, system_prompt: answer
     
     try:
@@ -35,5 +31,9 @@ def run_chat_test(capsys, message, answer):
     return captured.out
 
 def test_start_chat_with_new_session(capsys):
-    result = run_chat_test(capsys, "Test message", "Test answer")
+    result = run_chat_test(capsys, input_stub_enter, "Test message", "Test answer")
+    verify(result)
+
+def test_abort(capsys):
+    result = run_chat_test(capsys, input_stub_keyboard_interrupt, "Test message", "Test answer")
     verify(result)
