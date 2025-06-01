@@ -86,7 +86,7 @@ def start_chat(start_message, new, message_claude):
             print("\nExiting...")
             break
         except KeyboardInterrupt:
-            print("\n\nExiting...")
+            print("\nExiting...")
             break
 
         _, tool_result = tools.parse_and_execute(answer)

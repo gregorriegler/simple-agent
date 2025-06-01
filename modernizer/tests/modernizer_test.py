@@ -12,23 +12,22 @@ from modernizer.modernizer import start_chat
 def set_default_reporter_for_all_tests() -> None:
     set_default_reporter(ReportWithWinMerge())
 
-def test_start_chat_with_new_session(capsys):
-    def create_input_stub():
-        call_count = 0
-        def input_stub(_):
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                return "\n"
-            raise KeyboardInterrupt()
-        return input_stub
+def create_input_stub():
+    call_count = 0
+    def input_stub(_):
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return "\n"
+        raise KeyboardInterrupt()
+    return input_stub
 
+def test_start_chat_with_new_session(capsys):
     builtins.input = create_input_stub()
-    test_message = "Test message"
     claude_stub = lambda messages, system_prompt: "Test response"
     
     try:
-        start_chat(test_message, new=True, message_claude=claude_stub)
+        start_chat("Test message", new=True, message_claude=claude_stub)
     except KeyboardInterrupt:
         pass
         
