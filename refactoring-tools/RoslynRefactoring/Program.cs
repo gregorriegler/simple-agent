@@ -18,5 +18,10 @@ IRefactoring CreateRefactoring(string name, string[] refactoringArguments)
         return ExtractMethod.Create(refactoringArguments);
     }
 
+    if (name == "inline-method")
+    {
+        return InlineMethod.Create(refactoringArguments);
+    }
+
     throw new InvalidOperationException("Unknown refactoring");
 }

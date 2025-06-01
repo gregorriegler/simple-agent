@@ -6,6 +6,12 @@ namespace RoslynRefactoring;
 
 public class InlineMethod(Cursor cursor) : IRefactoring
 {
+    public static InlineMethod Create(string[] args)
+    {
+        var cursor = Cursor.Parse(args[0]);
+        return new InlineMethod(cursor);
+    }
+
     public async Task<Document> PerformAsync(Document document)
     {
         var root = await document.GetSyntaxRootAsync();
