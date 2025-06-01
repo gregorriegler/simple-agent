@@ -6,7 +6,7 @@ class ExtractMethodTool(BaseTool):
     def __init__(self, runcommand):
         super().__init__()
         self.runcommand = runcommand
-        self.cwd = 'ExtractMethodTool'
+        self.cwd = 'refactoring-tools/RoslynRefactoring'
         
     def execute(self, args):
         arg_list = args.split()
