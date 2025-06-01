@@ -54,19 +54,23 @@ def main():
     start_chat(start_message, new, message_claude)
 
 
-def start_chat(start_message, new, message_claude):
+def start_chat(start_message, new, message_claude, rounds=999999):
     system_prompt = get_system_prompt()
     tools = ToolLibrary()
+
     if new:
         messages = []
         print(f"Starting new session")
     else:
         messages = load_session("claude-session.json")
+        print(f"Continuing session")
+    
     messages.append({
         "role": "user",
         "content": start_message
     })
-    while True:
+
+    for _ in range(rounds):
         answer = message_claude(messages, system_prompt)
         print(f"\nClaude: {answer}")
         messages.append({

@@ -27,7 +27,7 @@ def run_chat_test(capsys, message, answer):
     claude_stub = lambda messages, system_prompt: answer
     
     try:
-        start_chat(message, new=True, message_claude=claude_stub)
+        start_chat(message, new=True, message_claude=claude_stub, rounds=1)
     except KeyboardInterrupt:
         pass
         
