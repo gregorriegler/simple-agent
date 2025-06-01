@@ -21,14 +21,22 @@ def input_stub_keyboard_interrupt(_):
 def run_chat_test(capsys, input_stub, message, answer):
     builtins.input = input_stub
     claude_stub = lambda messages, system_prompt: answer
+
+    saved_messages = "None"
+    def save_session(messages):
+        nonlocal saved_messages
+        saved_messages = "\n".join(str(msg['role'] + ": " + msg['content']) for msg in messages)
     
     try:
-        start_chat(message, new=True, message_claude=claude_stub, rounds=1)
+        start_chat(message, new=True, message_claude=claude_stub, rounds=1, save_session=save_session)
     except KeyboardInterrupt:
         pass
         
     captured = capsys.readouterr()
-    return captured.out
+    return f"""# Standard out:
+{captured.out}
+# Saved messages:
+{saved_messages}"""
 
 def test_start_chat_with_new_session(capsys):
     result = run_chat_test(capsys, input_stub_enter, "Test message", "Test answer")

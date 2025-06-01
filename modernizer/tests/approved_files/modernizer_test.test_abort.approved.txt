@@ -1,5 +1,9 @@
+# Standard out:
 Starting new session
 
 Claude: Test answer
 
 Exiting...
+
+# Saved messages:
+None
