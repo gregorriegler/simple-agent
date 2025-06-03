@@ -71,3 +71,5 @@ def create_multi_scrubber(path_scrubber=None, date_scrubber=None):
     if date_scrubber is None:
         date_scrubber = create_date_scrubber()
     return combine_scrubbers(path_scrubber, date_scrubber)
+
+multi_scrubber = create_multi_scrubber()

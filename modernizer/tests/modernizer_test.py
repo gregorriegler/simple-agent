@@ -10,9 +10,7 @@ from .test_helpers import (
     set_default_reporter_for_all_tests,
     create_temp_file,
     create_temp_directory_structure,
-    create_path_scrubber,
-    create_date_scrubber,
-    create_multi_scrubber
+    multi_scrubber
 )
 
 def enter(_):
@@ -55,15 +53,12 @@ def test_tool_cat(capsys, tmp_path):
     
     result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/cat {temp_file}")
     
-    path_scrubber = create_path_scrubber()
-    verify(result, options=Options().with_scrubber(path_scrubber))
+    verify(result, options=Options().with_scrubber(multi_scrubber))
 
 
 def test_tool_ls_integration(capsys, tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
     result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/ls {directory_path}")
-    
-    multi_scrubber = create_multi_scrubber()
     
     verify(result, options=Options().with_scrubber(multi_scrubber))
 
@@ -71,8 +66,7 @@ def test_tool_cat_integration(capsys, tmp_path):
     temp_file = create_temp_file(tmp_path, "integration_test.txt", "Integration test content\nLine 2")
     result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/cat {temp_file}")
     
-    path_scrubber = create_path_scrubber()
-    verify(result, options=Options().with_scrubber(path_scrubber))
+    verify(result, options=Options().with_scrubber(multi_scrubber))
 
 def test_multiple_tool_calls_integration(capsys, tmp_path):
     temp_file = create_temp_file(tmp_path, "multi_test.txt", "Multi-tool test")
@@ -80,7 +74,6 @@ def test_multiple_tool_calls_integration(capsys, tmp_path):
     cat_result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/cat {temp_file}")
     
     combined_result = f"=== LS RESULT ===\n{ls_result}\n\n=== CAT RESULT ===\n{cat_result}"
-    multi_scrubber = create_multi_scrubber()
     
     verify(combined_result, options=Options().with_scrubber(multi_scrubber))
 
