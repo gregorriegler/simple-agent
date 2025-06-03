@@ -21,10 +21,10 @@ drwxr-xr-x 1 riegl 197609  0 [DATE] ..
 # Standard out:
 Starting new session
 
-Claude: /cat /tmp/test_path
+Claude: /cat /tmp/test_path/multi_test.txt
      1	Multi-tool test
 
 # Saved messages:
 user: Test message
-assistant: /cat /tmp/test_path
+assistant: /cat /tmp/test_path/multi_test.txt
 user: 1	Multi-tool test

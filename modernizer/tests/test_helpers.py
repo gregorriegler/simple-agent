@@ -27,9 +27,37 @@ def create_temp_directory_structure(tmp_path):
     
     return tmp_path, file1, file2, subdir, subfile
 
-def create_path_scrubber(replacement='/tmp/test_path'):
-    temp_path_pattern = r'[A-Za-z]:\\[^\s]+\\pytest-[^\s]+|/tmp/[^\s]+|[A-Za-z]:\\Users\\[^\s]+\\AppData\\Local\\Temp\\[^\s]+'
-    return create_regex_scrubber(temp_path_pattern, replacement)
+def create_path_scrubber():
+    def path_replacer(text):
+        import re
+        import os
+        
+        lines = text.split('\n')
+        result_lines = []
+        
+        for line in lines:
+            if '/cat ' in line:
+                parts = line.split('/cat ')
+                if len(parts) > 1:
+                    path_part = parts[1].strip()
+                    filename = os.path.basename(path_part)
+                    new_line = parts[0] + '/cat /tmp/test_path/' + filename
+                    result_lines.append(new_line)
+                else:
+                    result_lines.append(line)
+            elif '/ls ' in line:
+                parts = line.split('/ls ')
+                if len(parts) > 1:
+                    new_line = parts[0] + '/ls /tmp/test_path'
+                    result_lines.append(new_line)
+                else:
+                    result_lines.append(line)
+            else:
+                result_lines.append(line)
+        
+        return '\n'.join(result_lines)
+    
+    return path_replacer
 
 def create_date_scrubber():
     return create_regex_scrubber(

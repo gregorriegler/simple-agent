@@ -36,7 +36,7 @@ def test_cat_tool_single_file(tmp_path):
     
     command, result = framework.parse_and_execute(f"/cat {temp_file}")
     
-    path_scrubber = create_path_scrubber('/tmp/test_path/test.txt')
+    path_scrubber = create_path_scrubber()
     verify(f"Command: {command}\nResult: {result}", options=Options().with_scrubber(path_scrubber))
 
 def test_cat_tool_nonexistent_file():
@@ -49,7 +49,7 @@ def test_cat_tool_empty_file(tmp_path):
     
     command, result = framework.parse_and_execute(f"/cat {temp_file}")
     
-    path_scrubber = create_path_scrubber('/tmp/test_path/empty.txt')
+    path_scrubber = create_path_scrubber()
     verify(f"Command: {command}\nResult: {result}", options=Options().with_scrubber(path_scrubber))
 
 def test_unknown_command():
@@ -66,5 +66,5 @@ def test_tool_with_special_characters(tmp_path):
     special_file = create_temp_file(tmp_path, "special-file_name.txt", "Content with special chars: !@#$%^&*()")
     command, result = framework.parse_and_execute(f"/cat {special_file}")
     
-    path_scrubber = create_path_scrubber('/tmp/test_path/special-file_name.txt')
+    path_scrubber = create_path_scrubber()
     verify(f"Command: {command}\nResult: {result}", options=Options().with_scrubber(path_scrubber))
