@@ -73,3 +73,10 @@ def create_multi_scrubber(path_scrubber=None, date_scrubber=None):
     return combine_scrubbers(path_scrubber, date_scrubber)
 
 multi_scrubber = create_multi_scrubber()
+
+def verifyTool(framework, command):
+    from approvaltests import verify
+    from approvaltests import Options
+    
+    cmd, result = framework.parse_and_execute(command)
+    verify(f"Command: {cmd}\nResult: {result}", options=Options().with_scrubber(multi_scrubber))
