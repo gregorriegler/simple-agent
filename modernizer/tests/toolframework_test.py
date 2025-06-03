@@ -60,7 +60,6 @@ def test_cat_shows_contents(tmp_path):
 
     assert "1\thello" == tool_result
     
-
 def xtest_test_runs_test():
     framework = ToolLibrary()
     
