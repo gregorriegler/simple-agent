@@ -1,0 +1,3 @@
+Command: /unknown-command arg1 arg2
+Unknown command: unknown-command
+Result: Unknown command: unknown-command

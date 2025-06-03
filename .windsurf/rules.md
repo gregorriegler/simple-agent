@@ -1,8 +1,14 @@
-ALWAYS start with a STARTING_CHARACTER
+# Answering Rules
+ALWAYS start your answers with a STARTING_CHARACTER
 The default STARTING_CHARACTER is 🐙
 
-never use comments
+I prefer SHORT answers over long ones
+
+# Coding Rules
+NEVER USE COMMENTS
 
 declare and assign variables as close as possible to where they are used    
 
-answer short and concise
+I prefer SIMPLE design with fewer elements
+
+run the tests after each change

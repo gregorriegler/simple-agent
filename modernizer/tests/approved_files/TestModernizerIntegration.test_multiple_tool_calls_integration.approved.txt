@@ -1,0 +1,30 @@
+=== LS RESULT ===
+# Standard out:
+Starting new session
+
+Claude: /ls /tmp/test_path
+total 5
+drwxr-xr-x 1 riegl 197609  0 [DATE] .
+drwxr-xr-x 1 riegl 197609  0 [DATE] ..
+-rw-r--r-- 1 riegl 197609 15 [DATE] multi_test.txt
+
+
+# Saved messages:
+user: Test message
+assistant: /ls /tmp/test_path
+user: total 5
+drwxr-xr-x 1 riegl 197609  0 [DATE] .
+drwxr-xr-x 1 riegl 197609  0 [DATE] ..
+-rw-r--r-- 1 riegl 197609 15 [DATE] multi_test.txt
+
+=== CAT RESULT ===
+# Standard out:
+Starting new session
+
+Claude: /cat /tmp/test_path\multi_test.txt
+     1	Multi-tool test
+
+# Saved messages:
+user: Test message
+assistant: /cat /tmp/test_path\multi_test.txt
+user: 1	Multi-tool test

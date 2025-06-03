@@ -1,0 +1,9 @@
+# Standard out:
+Starting new session
+
+Claude: Hello! How can I help you?
+
+
+# Saved messages:
+user: Hello
+assistant: Hello! How can I help you?

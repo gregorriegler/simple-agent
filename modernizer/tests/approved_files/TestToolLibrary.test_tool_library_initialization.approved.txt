@@ -1,0 +1,3 @@
+Expected tools: ['cat', 'extract-method', 'inline-method', 'ls', 'revert', 'test']
+Actual tools: ['cat', 'extract-method', 'inline-method', 'ls', 'revert', 'test']
+All tools present: True
