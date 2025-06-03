@@ -1,11 +1,8 @@
-import os
-import sys
 import pytest
 from approvaltests import verify
 from approvaltests.reporters.report_with_beyond_compare import ReportWithWinMerge
 from approvaltests import set_default_reporter
 from approvaltests.scrubbers import create_regex_scrubber, combine_scrubbers
-from approvaltests import Options
 
 @pytest.fixture(scope="session", autouse=True)
 def set_default_reporter_for_all_tests() -> None:

@@ -1,13 +1,11 @@
 import os
 import sys
-import pytest
 from approvaltests import verify
 from approvaltests import Options
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from modernizer.tools.tool_library import ToolLibrary
 from .test_helpers import (
-    set_default_reporter_for_all_tests,
     create_temp_file,
     create_temp_directory_structure,
     create_path_scrubber,
@@ -15,21 +13,7 @@ from .test_helpers import (
     create_multi_scrubber
 )
 
-def test_ls_lists_directory_contents(tmp_path):
-    file1 = tmp_path / "file1.txt"
-    file2 = tmp_path / "file2.txt"
-    subdir = tmp_path / "subdir"
-    file1.write_text("hello")
-    file2.write_text("world")
-    subdir.mkdir()
-
-    framework = ToolLibrary()
-    
-    _, tool_result = framework.parse_and_execute("/ls " + str(tmp_path))
-    
-    assert "file1.txt" in tool_result
-    assert "file2.txt" in tool_result
-    assert "subdir" in tool_result
+framework = ToolLibrary()
 
 
 def test_cat_shows_contents(tmp_path):
@@ -42,21 +26,6 @@ def test_cat_shows_contents(tmp_path):
 
     assert "1\thello" == tool_result
     
-def xtest_test_runs_test():
-    framework = ToolLibrary()
-    
-    _, tool_result = framework.parse_and_execute("/test ../refactoring-tools")
-    
-    assert "All tests passed" in tool_result
-    
-def xtest_extract_method():
-    framework = ToolLibrary()
-    
-    _, tool_result = framework.parse_and_execute("/extract-method \"C:/Users/riegl/code/Parrot-Refactoring-Kata/CSharp/Parrot/Parrot.csproj\" Parrot.cs 23:0-33:14 ComputeSpeed")
-    
-    print(tool_result)
-    assert "x" is tool_result
-
 def test_ls_tool_basic_directory(tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
     
@@ -118,3 +87,18 @@ def test_tool_with_special_characters(tmp_path):
     
     path_scrubber = create_path_scrubber(special_file, '/tmp/test_path/special-file_name.txt')
     verify(f"Command: {command}\nResult: {result}", options=Options().with_scrubber(path_scrubber))
+
+def xtest_test_runs_test():
+    framework = ToolLibrary()
+    
+    _, tool_result = framework.parse_and_execute("/test ../refactoring-tools")
+    
+    assert "All tests passed" in tool_result
+    
+def xtest_extract_method():
+    framework = ToolLibrary()
+    
+    _, tool_result = framework.parse_and_execute("/extract-method \"C:/Users/riegl/code/Parrot-Refactoring-Kata/CSharp/Parrot/Parrot.csproj\" Parrot.cs 23:0-33:14 ComputeSpeed")
+    
+    print(tool_result)
+    assert "x" is tool_result

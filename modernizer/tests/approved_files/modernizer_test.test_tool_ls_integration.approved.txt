@@ -2,7 +2,7 @@
 Starting new session
 
 Claude: /ls /tmp/test_path
-total 10
+total 6
 drwxr-xr-x 1 riegl 197609  0 [DATE] .
 drwxr-xr-x 1 riegl 197609  0 [DATE] ..
 -rw-r--r-- 1 riegl 197609 27 [DATE] file1.txt
@@ -13,7 +13,7 @@ drwxr-xr-x 1 riegl 197609  0 [DATE] subdir
 # Saved messages:
 user: Test message
 assistant: /ls /tmp/test_path
-user: total 10
+user: total 6
 drwxr-xr-x 1 riegl 197609  0 [DATE] .
 drwxr-xr-x 1 riegl 197609  0 [DATE] ..
 -rw-r--r-- 1 riegl 197609 27 [DATE] file1.txt
