@@ -77,63 +77,56 @@ def test_tool_cat(capsys, tmp_path):
     temp_path_scrubber = create_regex_scrubber('/cat.*', '/cat /tmp/path/testfile.txt')
     verify(result, options=Options().with_scrubber(temp_path_scrubber))
 
-class TestModernizerIntegration:
-    def enter_input(_, prompt=""):
-        return "\n"
-
-    def keyboard_interrupt(_):
-        raise KeyboardInterrupt()
+def run_chat_test(capsys, input_stub, message, answer):
+    builtins.input = input_stub
+    claude_stub = lambda messages, system_prompt: answer
+    saved_messages = "None"
     
-    def run_chat_test(self, capsys, input_stub, message, answer):
-        builtins.input = input_stub
-        claude_stub = lambda messages, system_prompt: answer
-        saved_messages = "None"
+    def save_session(messages):
+        nonlocal saved_messages
+        saved_messages = "\n".join(str(msg['role'] + ": " + msg['content']) for msg in messages)
+    
+    try:
+        start_chat(message, new=True, message_claude=claude_stub, rounds=1, save_session=save_session)
+    except KeyboardInterrupt:
+        pass
         
-        def save_session(messages):
-            nonlocal saved_messages
-            saved_messages = "\n".join(str(msg['role'] + ": " + msg['content']) for msg in messages)
-        
-        try:
-            start_chat(message, new=True, message_claude=claude_stub, rounds=1, save_session=save_session)
-        except KeyboardInterrupt:
-            pass
-            
-        captured = capsys.readouterr()
-        return f"""# Standard out:
+    captured = capsys.readouterr()
+    return f"""# Standard out:
 {captured.out}
 
 # Saved messages:
 {saved_messages}"""
 
-    def test_tool_ls_integration(self, capsys, tmp_path):
-        directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
-        result = self.run_chat_test(capsys, input_stub=self.enter_input, message="Test message", answer=f"/ls {directory_path}")
-        
-        temp_path_scrubber = create_regex_scrubber(str(directory_path).replace('\\', '\\\\'), '/tmp/test_path')
-        date_scrubber = create_regex_scrubber(r'\w{3}\s+\d{1,2}\s+\d{1,2}:\d{2}|\d{1,2}\s+\w{3}\s+\d{1,2}:\d{2}|\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}', '[DATE]')
-        multi_scrubber = combine_scrubbers(temp_path_scrubber, date_scrubber)
-        
-        verify(result, options=Options().with_scrubber(multi_scrubber))
+def test_tool_ls_integration(capsys, tmp_path):
+    directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
+    result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/ls {directory_path}")
+    
+    temp_path_scrubber = create_regex_scrubber(str(directory_path).replace('\\', '\\\\'), '/tmp/test_path')
+    date_scrubber = create_regex_scrubber(r'\w{3}\s+\d{1,2}\s+\d{1,2}:\d{2}|\d{1,2}\s+\w{3}\s+\d{1,2}:\d{2}|\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}', '[DATE]')
+    multi_scrubber = combine_scrubbers(temp_path_scrubber, date_scrubber)
+    
+    verify(result, options=Options().with_scrubber(multi_scrubber))
 
-    def test_tool_cat_integration(self, capsys, tmp_path):
-        temp_file = create_temp_file(tmp_path, "integration_test.txt", "Integration test content\nLine 2")
-        result = self.run_chat_test(capsys, input_stub=self.enter_input, message="Test message", answer=f"/cat {temp_file}")
-        
-        temp_path_scrubber = create_regex_scrubber(str(temp_file).replace('\\', '\\\\'), '/tmp/test_path/integration_test.txt')
-        verify(result, options=Options().with_scrubber(temp_path_scrubber))
+def test_tool_cat_integration(capsys, tmp_path):
+    temp_file = create_temp_file(tmp_path, "integration_test.txt", "Integration test content\nLine 2")
+    result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/cat {temp_file}")
+    
+    temp_path_scrubber = create_regex_scrubber(str(temp_file).replace('\\', '\\\\'), '/tmp/test_path/integration_test.txt')
+    verify(result, options=Options().with_scrubber(temp_path_scrubber))
 
-    def test_multiple_tool_calls_integration(self, capsys, tmp_path):
-        temp_file = create_temp_file(tmp_path, "multi_test.txt", "Multi-tool test")
-        ls_result = self.run_chat_test(capsys, input_stub=self.enter_input, message="Test message", answer=f"/ls {tmp_path}")
-        cat_result = self.run_chat_test(capsys, input_stub=self.enter_input, message="Test message", answer=f"/cat {temp_file}")
-        
-        combined_result = f"=== LS RESULT ===\n{ls_result}\n\n=== CAT RESULT ===\n{cat_result}"
-        temp_path_scrubber = create_regex_scrubber(str(tmp_path).replace('\\', '\\\\'), '/tmp/test_path')
-        date_scrubber = create_regex_scrubber(r'\w{3}\s+\d{1,2}\s+\d{1,2}:\d{2}|\d{1,2}\s+\w{3}\s+\d{1,2}:\d{2}|\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}', '[DATE]')
-        multi_scrubber = combine_scrubbers(temp_path_scrubber, date_scrubber)
-        
-        verify(combined_result, options=Options().with_scrubber(multi_scrubber))
+def test_multiple_tool_calls_integration(capsys, tmp_path):
+    temp_file = create_temp_file(tmp_path, "multi_test.txt", "Multi-tool test")
+    ls_result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/ls {tmp_path}")
+    cat_result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/cat {temp_file}")
+    
+    combined_result = f"=== LS RESULT ===\n{ls_result}\n\n=== CAT RESULT ===\n{cat_result}"
+    temp_path_scrubber = create_regex_scrubber(str(tmp_path).replace('\\', '\\\\'), '/tmp/test_path')
+    date_scrubber = create_regex_scrubber(r'\w{3}\s+\d{1,2}\s+\d{1,2}:\d{2}|\d{1,2}\s+\w{3}\s+\d{1,2}:\d{2}|\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}', '[DATE]')
+    multi_scrubber = combine_scrubbers(temp_path_scrubber, date_scrubber)
+    
+    verify(combined_result, options=Options().with_scrubber(multi_scrubber))
 
-    def test_chat_with_regular_response(self, capsys):
-        result = self.run_chat_test(capsys, input_stub=self.enter_input, message="Hello", answer="Hello! How can I help you?")
-        verify(result)
+def test_chat_with_regular_response(capsys):
+    result = run_chat_test(capsys, input_stub=enter, message="Hello", answer="Hello! How can I help you?")
+    verify(result)
