@@ -27,8 +27,9 @@ def create_temp_directory_structure(tmp_path):
     
     return tmp_path, file1, file2, subdir, subfile
 
-def create_path_scrubber(path, replacement='/tmp/test_path'):
-    return create_regex_scrubber(str(path).replace('\\', '\\\\'), replacement)
+def create_path_scrubber(replacement='/tmp/test_path'):
+    temp_path_pattern = r'[A-Za-z]:\\[^\s]+\\pytest-[^\s]+|/tmp/[^\s]+|[A-Za-z]:\\Users\\[^\s]+\\AppData\\Local\\Temp\\[^\s]+'
+    return create_regex_scrubber(temp_path_pattern, replacement)
 
 def create_date_scrubber():
     return create_regex_scrubber(
@@ -36,7 +37,9 @@ def create_date_scrubber():
         '[DATE]'
     )
 
-def create_multi_scrubber(path_scrubber, date_scrubber=None):
+def create_multi_scrubber(path_scrubber=None, date_scrubber=None):
+    if path_scrubber is None:
+        path_scrubber = create_path_scrubber()
     if date_scrubber is None:
         date_scrubber = create_date_scrubber()
     return combine_scrubbers(path_scrubber, date_scrubber)
