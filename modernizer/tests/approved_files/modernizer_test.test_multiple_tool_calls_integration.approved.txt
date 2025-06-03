@@ -3,7 +3,7 @@
 Starting new session
 
 Claude: /ls /tmp/test_path
-total 5
+total 9
 drwxr-xr-x 1 riegl 197609  0 [DATE] .
 drwxr-xr-x 1 riegl 197609  0 [DATE] ..
 -rw-r--r-- 1 riegl 197609 15 [DATE] multi_test.txt
@@ -12,7 +12,7 @@ drwxr-xr-x 1 riegl 197609  0 [DATE] ..
 # Saved messages:
 user: Test message
 assistant: /ls /tmp/test_path
-user: total 5
+user: total 9
 drwxr-xr-x 1 riegl 197609  0 [DATE] .
 drwxr-xr-x 1 riegl 197609  0 [DATE] ..
 -rw-r--r-- 1 riegl 197609 15 [DATE] multi_test.txt
