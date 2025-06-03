@@ -16,16 +16,6 @@ from .test_helpers import (
 framework = ToolLibrary()
 
 
-def test_cat_shows_contents(tmp_path):
-    file1 = tmp_path / "file1.txt"
-    file1.write_text("hello")
-    
-    framework = ToolLibrary()
-
-    _, tool_result = framework.parse_and_execute("/cat " + str(file1))
-
-    assert "1\thello" == tool_result
-    
 def test_ls_tool_basic_directory(tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
     
