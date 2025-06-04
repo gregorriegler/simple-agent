@@ -1,11 +1,8 @@
-Command: /ls /tmp/test_path
+Command:
+/ls /tmp/test_path
+
+Result:
 total 6
-drwxr-xr-x 1 riegl 197609  0 [DATE] .
-drwxr-xr-x 1 riegl 197609  0 [DATE] ..
--rw-r--r-- 1 riegl 197609 27 [DATE] file1.txt
--rw-r--r-- 1 riegl 197609 47 [DATE] file2.py
-drwxr-xr-x 1 riegl 197609  0 [DATE] subdir
-Result: total 6
 drwxr-xr-x 1 riegl 197609  0 [DATE] .
 drwxr-xr-x 1 riegl 197609  0 [DATE] ..
 -rw-r--r-- 1 riegl 197609 27 [DATE] file1.txt

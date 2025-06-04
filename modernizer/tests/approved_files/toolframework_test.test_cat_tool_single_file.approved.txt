@@ -1,7 +1,7 @@
-Command: /cat /tmp/test_path/test.txt
+Command:
+/cat /tmp/test_path/test.txt
+
+Result:
 1	Hello world
-     2	Second line
-     3	Third line
-Result: 1	Hello world
      2	Second line
      3	Third line

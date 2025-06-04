@@ -1,2 +1,4 @@
-Command: This is just regular text without commands
-Result: 
+Command:
+This is just regular text without commands
+
+Result:

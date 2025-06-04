@@ -33,9 +33,9 @@ class ToolLibrary:
                 tool = self.tool_dict.get(cmd)
                 if tool:
                     result = tool.execute(arg.strip() if arg else None)
-                    return f"{line}\n{result['output']}", result['output']
+                    return line, result['output']
                 else:
-                    return f"{line}\nUnknown command: {cmd}", f"Unknown command: {cmd}"
+                    return line, f"Unknown command: {cmd}"
         return text.splitlines()[0].strip(), ""
 
     def runcommand(self, cmd, args=None, cwd=None):
@@ -71,4 +71,3 @@ class ToolLibrary:
             return {'success': False, 'output': 'Command timed out (30s limit)', 'returncode': -1}
         except Exception as e:
             return {'success': False, 'output': f'Error: {str(e)}', 'returncode': -1}
-

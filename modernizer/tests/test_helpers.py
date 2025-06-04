@@ -79,4 +79,4 @@ def verifyTool(framework, command):
     from approvaltests import Options
     
     cmd, result = framework.parse_and_execute(command)
-    verify(f"Command: {cmd}\nResult: {result}", options=Options().with_scrubber(multi_scrubber))
+    verify(f"Command:\n{cmd}\n\nResult:\n{result}", options=Options().with_scrubber(multi_scrubber))
