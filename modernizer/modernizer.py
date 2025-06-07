@@ -1,23 +1,14 @@
 #!/usr/bin/env python
 
 import argparse
-import json
 import os
 import sys
 
 from claude_client import message_claude
 from helpers import *
-from chat import Chat, load_chat
+from chat import Chat, load_chat, save_chat
 from tools import ToolLibrary
 
-
-def save_chat(chat):
-    session_file = "claude-session.json"
-    try:
-        with open(session_file, 'w') as f:
-            json.dump(chat.to_list(), f, indent=2)
-    except Exception as e:
-        print(f"Warning: Could not save session file {session_file}: {e}", file=sys.stderr)
 
 def get_system_prompt():
     script_dir = os.path.dirname(os.path.abspath(__file__))
