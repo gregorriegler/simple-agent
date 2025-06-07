@@ -14,21 +14,21 @@ from tools import ToolLibrary
 def load_session(session_file):
     """Load conversation history from session file."""
     if not os.path.exists(session_file):
-        return Messages()
+        return Chat()
     
     try:
         with open(session_file, 'r') as f:
-            messages = json.load(f)
-            return Chat(messages if isinstance(messages, list) else [])
+            chat_data = json.load(f)
+            return Chat(chat_data if isinstance(chat_data, list) else [])
     except (json.JSONDecodeError, Exception) as e:
         print(f"Warning: Could not load session file {session_file}: {e}", file=sys.stderr)
         return Chat()
 
-def save_session(messages):
+def save_session(chat):
     session_file = "claude-session.json"
     try:
         with open(session_file, 'w') as f:
-            json.dump(messages.to_list(), f, indent=2)
+            json.dump(chat.to_list(), f, indent=2)
     except Exception as e:
         print(f"Warning: Could not save session file {session_file}: {e}", file=sys.stderr)
 
@@ -61,21 +61,21 @@ def start_chat(start_message, new, message_claude, rounds=999999, save_session=s
     system_prompt = get_system_prompt()
     tools = ToolLibrary()
 
-    messages = Chat() if new else load_session("claude-session.json")
+    chat = Chat() if new else load_session("claude-session.json")
     print("Starting new session" if new else "Continuing session")
     
     if start_message:
-        messages = messages.add("user", start_message)
+        chat = chat.add("user", start_message)
 
     for _ in range(rounds):
-        answer = message_claude(messages.to_list(), system_prompt)
+        answer = message_claude(chat.to_list(), system_prompt)
         print(f"\nClaude: {answer}")
-        messages = messages.add("assistant", answer)
+        chat = chat.add("assistant", answer)
 
         try:
             user_input = input("\nPress Enter to continue or type a message to add: ")
             if user_input.strip():
-                messages = messages.add("user", user_input)
+                chat = chat.add("user", user_input)
                 continue
         except EOFError:
             print("\nExiting...")
@@ -87,9 +87,9 @@ def start_chat(start_message, new, message_claude, rounds=999999, save_session=s
         _, tool_result = tools.parse_and_execute(answer)
 
         if tool_result:
-            messages = messages.add("user", tool_result)
+            chat = chat.add("user", tool_result)
 
-        save_session(messages)
+        save_session(chat)
 
 
 if __name__ == "__main__":
