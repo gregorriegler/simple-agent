@@ -7,6 +7,9 @@ class Chat:
 
     def userSays(self, content: str) -> 'Chat':
         return self.add("user", content)
+        
+    def assistantSays(self, content: str) -> 'Chat':
+        return self.add("assistant", content)
 
     def add(self, role: str, content: str) -> 'Chat':
         new_messages = list(self._messages)

@@ -70,7 +70,7 @@ def start_chat(start_message, new, message_claude, rounds=999999, save_chat=save
     for _ in range(rounds):
         answer = message_claude(chat.to_list(), system_prompt)
         print(f"\nClaude: {answer}")
-        chat = chat.add("assistant", answer)
+        chat = chat.assistantSays(answer)
 
         try:
             user_input = input("\nPress Enter to continue or type a message to add: ")
