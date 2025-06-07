@@ -65,7 +65,7 @@ def start_chat(start_message, new, message_claude, rounds=999999, save_chat=save
     print("Starting new session" if new else "Continuing session")
     
     if start_message:
-        chat = chat.add("user", start_message)
+        chat = chat.userSays(start_message)
 
     for _ in range(rounds):
         answer = message_claude(chat.to_list(), system_prompt)
@@ -75,7 +75,7 @@ def start_chat(start_message, new, message_claude, rounds=999999, save_chat=save
         try:
             user_input = input("\nPress Enter to continue or type a message to add: ")
             if user_input.strip():
-                chat = chat.add("user", user_input)
+                chat = chat.userSays(user_input)
                 continue
         except EOFError:
             print("\nExiting...")
@@ -87,7 +87,7 @@ def start_chat(start_message, new, message_claude, rounds=999999, save_chat=save
         _, tool_result = tools.parse_and_execute(answer)
 
         if tool_result:
-            chat = chat.add("user", tool_result)
+            chat = chat.userSays(tool_result)
 
         save_chat(chat)
 

@@ -5,6 +5,9 @@ from typing import List, Dict
 class Chat:
     _messages: List[Dict[str, str]] = field(default_factory=list)
 
+    def userSays(self, content: str) -> 'Chat':
+        return self.add("user", content)
+
     def add(self, role: str, content: str) -> 'Chat':
         new_messages = list(self._messages)
         new_messages.append({"role": role, "content": content})
