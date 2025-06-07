@@ -23,12 +23,12 @@ def run_chat_test(capsys, input_stub, message, answer):
     claude_stub = lambda messages, system_prompt: answer
 
     saved_messages = "None"
-    def save_session(chat):
+    def save_chat(chat):
         nonlocal saved_messages
         saved_messages = "\n".join(f"{msg['role']}: {msg['content']}" for msg in chat)
     
     try:
-        start_chat(message, new=True, message_claude=claude_stub, rounds=1, save_session=save_session)
+        start_chat(message, new=True, message_claude=claude_stub, rounds=1, save_chat=save_chat)
     except KeyboardInterrupt:
         pass
         

@@ -24,7 +24,7 @@ def load_session(session_file):
         print(f"Warning: Could not load session file {session_file}: {e}", file=sys.stderr)
         return Chat()
 
-def save_session(chat):
+def save_chat(chat):
     session_file = "claude-session.json"
     try:
         with open(session_file, 'w') as f:
@@ -54,10 +54,10 @@ def main():
         start_message = " ".join(args.message)
     new = args.new
 
-    start_chat(start_message, new, message_claude, save_session=save_session)
+    start_chat(start_message, new, message_claude, save_chat=save_chat)
 
 
-def start_chat(start_message, new, message_claude, rounds=999999, save_session=save_session):
+def start_chat(start_message, new, message_claude, rounds=999999, save_chat=save_chat):
     system_prompt = get_system_prompt()
     tools = ToolLibrary()
 
@@ -89,7 +89,7 @@ def start_chat(start_message, new, message_claude, rounds=999999, save_session=s
         if tool_result:
             chat = chat.add("user", tool_result)
 
-        save_session(chat)
+        save_chat(chat)
 
 
 if __name__ == "__main__":
