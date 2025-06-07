@@ -38,8 +38,7 @@ Instead of implementing the tool by components, we'll use an iterative approach 
 - [ ] Build a basic directed graph representation where:
   - Nodes are methods
   - Edges represent method calls
-- [ ] Implement a simple visualization or text-based output of the call graph
-- [ ] Add command-line option to output the call graph
+- [ ] Implement a mermaid output of the call graph
 
 **Deliverable:** A tool that can generate and display a basic call graph for a C# project.
 
@@ -47,9 +46,7 @@ Instead of implementing the tool by components, we'll use an iterative approach 
 
 **Goal:** Identify potential entry points for testing.
 
-- [ ] Implement filters to identify public methods on public classes
-- [ ] Create a data structure to store candidate methods with basic metadata
-- [ ] Add command-line option to list only potential entry points
+- [ ] identify public methods on public classes
 - [ ] Enhance the output to highlight entry point methods in the call graph
 
 **Deliverable:** A tool that can identify and display potential entry points for testing.
@@ -60,7 +57,6 @@ Instead of implementing the tool by components, we'll use an iterative approach 
 
 - [ ] Implement basic graph traversal algorithms to determine reachable methods from each entry point
 - [ ] Create a simple reachability report for each entry point
-- [ ] Add command-line option to show reachability information
 - [ ] Enhance the call graph visualization to show reachability from a selected entry point
 
 **Deliverable:** A tool that can show which methods are reachable from each entry point.
@@ -74,7 +70,6 @@ Instead of implementing the tool by components, we'll use an iterative approach 
   - Number of methods reachable
   - Percentage of codebase covered
   - Unique methods covered (not covered by other candidates)
-- [ ] Add command-line options to sort and filter entry points by coverage metrics
 - [ ] Enhance the output to include coverage statistics
 
 **Deliverable:** A tool that can rank entry points by their coverage effectiveness.
@@ -86,28 +81,6 @@ Instead of implementing the tool by components, we'll use an iterative approach 
 - [ ] Implement a basic greedy set cover algorithm that:
   - Selects the candidate with maximum additional coverage at each step
   - Continues until a specified number of entry points is reached
-- [ ] Add command-line option to specify the desired number of entry points
 - [ ] Output the selected set of entry points with their combined coverage
 
 **Deliverable:** A tool that can recommend a set of entry points to maximize code coverage.
-
-### Iteration 7: Complete Solution with Optimizations
-
-**Goal:** Optimize the solution and add remaining features.
-
-- [ ] Enhance the set cover algorithm to continue until a coverage threshold is reached
-- [ ] Add command-line option to specify the desired coverage threshold
-- [ ] Optimize performance for large codebases
-- [ ] Add support for excluding specific methods or classes from analysis
-- [ ] Enhance the output with detailed reports and visualizations
-- [ ] Add options to export results in different formats (JSON, CSV, etc.)
-
-**Deliverable:** A complete, optimized tool that can efficiently identify the optimal set of entry points for characterization tests.
-
-## Benefits of the Iterative Approach
-
-1. **Early Functionality:** Each iteration delivers working functionality that can be tested and evaluated.
-2. **Incremental Value:** Stakeholders can start using the tool after the first few iterations.
-3. **Flexibility:** The plan can be adjusted based on feedback from early iterations.
-4. **Risk Reduction:** Technical challenges are identified and addressed early in the process.
-5. **Clear Milestones:** Each iteration has a clear goal and deliverable, making progress easier to track.
