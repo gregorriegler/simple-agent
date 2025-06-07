@@ -5,6 +5,7 @@ from approvaltests import verify
 from approvaltests import Options
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from modernizer.modernizer import start_chat
+from modernizer.messages import Messages
 from .test_helpers import (
     create_temp_file,
     create_temp_directory_structure,
@@ -24,7 +25,7 @@ def run_chat_test(capsys, input_stub, message, answer):
     saved_messages = "None"
     def save_session(messages):
         nonlocal saved_messages
-        saved_messages = "\n".join(str(msg['role'] + ": " + msg['content']) for msg in messages)
+        saved_messages = "\n".join(f"{msg['role']}: {msg['content']}" for msg in messages)
     
     try:
         start_chat(message, new=True, message_claude=claude_stub, rounds=1, save_session=save_session)
