@@ -7,22 +7,9 @@ import sys
 
 from claude_client import message_claude
 from helpers import *
-from chat import Chat
+from chat import Chat, load_chat
 from tools import ToolLibrary
 
-
-def load_session(session_file):
-    """Load conversation history from session file."""
-    if not os.path.exists(session_file):
-        return Chat()
-    
-    try:
-        with open(session_file, 'r') as f:
-            chat_data = json.load(f)
-            return Chat(chat_data if isinstance(chat_data, list) else [])
-    except (json.JSONDecodeError, Exception) as e:
-        print(f"Warning: Could not load session file {session_file}: {e}", file=sys.stderr)
-        return Chat()
 
 def save_chat(chat):
     session_file = "claude-session.json"
@@ -61,7 +48,7 @@ def start_chat(start_message, new, message_claude, rounds=999999, save_chat=save
     system_prompt = get_system_prompt()
     tools = ToolLibrary()
 
-    chat = Chat() if new else load_session("claude-session.json")
+    chat = Chat() if new else load_chat("claude-session.json")
     print("Starting new session" if new else "Continuing session")
     
     if start_message:

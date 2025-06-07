@@ -1,3 +1,6 @@
+import json
+import os
+import sys
 from dataclasses import dataclass, field
 from typing import List, Dict
 
@@ -27,3 +30,16 @@ class Chat:
     
     def __str__(self) -> str:
         return str(self._messages)
+
+
+def load_chat(session_file: str = "claude-session.json") -> 'Chat':
+    if not os.path.exists(session_file):
+        return Chat()
+    
+    try:
+        with open(session_file, 'r') as f:
+            chat_data = json.load(f)
+            return Chat(chat_data if isinstance(chat_data, list) else [])
+    except (json.JSONDecodeError, Exception) as e:
+        print(f"Warning: Could not load session file {session_file}: {e}", file=sys.stderr)
+        return Chat()
