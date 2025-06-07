@@ -4,7 +4,7 @@ import argparse
 import sys
 
 from claude_client import message_claude
-from modernizer2 import start_chat, save_chat
+from modernizer import start_chat, save_chat
 
 
 def main():
