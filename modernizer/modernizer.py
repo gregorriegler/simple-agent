@@ -7,7 +7,7 @@ import sys
 
 from claude_client import message_claude
 from helpers import *
-from messages import Messages
+from chat import Chat
 from tools import ToolLibrary
 
 
@@ -19,10 +19,10 @@ def load_session(session_file):
     try:
         with open(session_file, 'r') as f:
             messages = json.load(f)
-            return Messages(messages if isinstance(messages, list) else [])
+            return Chat(messages if isinstance(messages, list) else [])
     except (json.JSONDecodeError, Exception) as e:
         print(f"Warning: Could not load session file {session_file}: {e}", file=sys.stderr)
-        return Messages()
+        return Chat()
 
 def save_session(messages):
     session_file = "claude-session.json"
@@ -61,7 +61,7 @@ def start_chat(start_message, new, message_claude, rounds=999999, save_session=s
     system_prompt = get_system_prompt()
     tools = ToolLibrary()
 
-    messages = Messages() if new else load_session("claude-session.json")
+    messages = Chat() if new else load_session("claude-session.json")
     print("Starting new session" if new else "Continuing session")
     
     if start_message:

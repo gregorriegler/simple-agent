@@ -5,7 +5,7 @@ from approvaltests import verify
 from approvaltests import Options
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from modernizer.modernizer import start_chat
-from modernizer.messages import Messages
+from modernizer.chat import Chat
 from .test_helpers import (
     create_temp_file,
     create_temp_directory_structure,
