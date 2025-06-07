@@ -56,6 +56,5 @@ def verify_chat(capsys, input_stub, message, answer):
     result = run_chat_test(capsys, input_stub=input_stub, message=message, answer=answer)
     verify(result, options=Options().with_scrubber(multi_scrubber))
 
-
 def test_chat_with_regular_response(capsys):
     verify_chat(capsys, enter, "Hello", "Hello! How can I help you?")
