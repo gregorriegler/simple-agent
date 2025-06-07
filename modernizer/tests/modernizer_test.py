@@ -1,7 +1,6 @@
 import builtins
 import os
 import sys
-import pytest
 from approvaltests import verify, verify_as_json
 from approvaltests import Options
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -34,11 +33,7 @@ def run_chat_test(capsys, input_stub, message, answer):
         pass
         
     captured = capsys.readouterr()
-    return f"""# Standard out:
-{captured.out}
-
-# Saved messages:
-{saved_messages}"""
+    return f"# Standard out:\n{captured.out}\n\n# Saved messages:\n{saved_messages}"
 
 def test_start_chat_with_new_session(capsys):
     result = run_chat_test(capsys, input_stub=enter, message="Test message", answer="Test answer")
