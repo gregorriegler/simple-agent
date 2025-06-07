@@ -7,7 +7,7 @@ class Chat:
 
     def userSays(self, content: str) -> 'Chat':
         return self.add("user", content)
-        
+
     def assistantSays(self, content: str) -> 'Chat':
         return self.add("assistant", content)
 
