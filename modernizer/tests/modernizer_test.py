@@ -37,11 +37,11 @@ def run_chat_test(capsys, input_stub, message, answer):
 
 def test_start_chat_with_new_session(capsys):
     result = run_chat_test(capsys, input_stub=enter, message="Test message", answer="Test answer")
-    verify(result)
+    verify(result, options=Options().with_scrubber(multi_scrubber))
 
 def test_abort(capsys):
     result = run_chat_test(capsys, input_stub=keyboard_interrupt, message="Test message", answer="Test answer")
-    verify(result)
+    verify(result, options=Options().with_scrubber(multi_scrubber))
 
 def test_tool_cat(capsys, tmp_path):
     temp_file = create_temp_file(tmp_path, "testfile.txt", "Hello world")
@@ -74,4 +74,4 @@ def test_multiple_tool_calls_integration(capsys, tmp_path):
 
 def test_chat_with_regular_response(capsys):
     result = run_chat_test(capsys, input_stub=enter, message="Hello", answer="Hello! How can I help you?")
-    verify(result)
+    verify(result, options=Options().with_scrubber(multi_scrubber))
