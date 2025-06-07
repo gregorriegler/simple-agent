@@ -1,12 +1,11 @@
 import builtins
 import os
 import sys
-from approvaltests import verify, verify_as_json
+from approvaltests import verify
 from approvaltests import Options
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from modernizer.modernizer import start_chat
 from .test_helpers import (
-    set_default_reporter_for_all_tests,
     create_temp_file,
     create_temp_directory_structure,
     multi_scrubber
@@ -36,42 +35,27 @@ def run_chat_test(capsys, input_stub, message, answer):
     return f"# Standard out:\n{captured.out}\n\n# Saved messages:\n{saved_messages}"
 
 def test_start_chat_with_new_session(capsys):
-    result = run_chat_test(capsys, input_stub=enter, message="Test message", answer="Test answer")
-    verify(result, options=Options().with_scrubber(multi_scrubber))
+    verify_chat(capsys, enter, "Test message", "Test answer")
 
 def test_abort(capsys):
-    result = run_chat_test(capsys, input_stub=keyboard_interrupt, message="Test message", answer="Test answer")
-    verify(result, options=Options().with_scrubber(multi_scrubber))
+    verify_chat(capsys, keyboard_interrupt, "Test message", "Test answer")
 
 def test_tool_cat(capsys, tmp_path):
     temp_file = create_temp_file(tmp_path, "testfile.txt", "Hello world")
-    
-    result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/cat {temp_file}")
-    
-    verify(result, options=Options().with_scrubber(multi_scrubber))
-
+    verify_chat(capsys, enter, "Test message", f"/cat {temp_file}")
 
 def test_tool_ls_integration(capsys, tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
-    result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/ls {directory_path}")
-    
-    verify(result, options=Options().with_scrubber(multi_scrubber))
+    verify_chat(capsys, enter, "Test message", f"/ls {directory_path}")
 
 def test_tool_cat_integration(capsys, tmp_path):
     temp_file = create_temp_file(tmp_path, "integration_test.txt", "Integration test content\nLine 2")
-    result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/cat {temp_file}")
-    
+    verify_chat(capsys, enter, "Test message", f"/cat {temp_file}")
+
+def verify_chat(capsys, input_stub, message, answer):
+    result = run_chat_test(capsys, input_stub=input_stub, message=message, answer=answer)
     verify(result, options=Options().with_scrubber(multi_scrubber))
 
-def test_multiple_tool_calls_integration(capsys, tmp_path):
-    temp_file = create_temp_file(tmp_path, "multi_test.txt", "Multi-tool test")
-    ls_result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/ls {tmp_path}")
-    cat_result = run_chat_test(capsys, input_stub=enter, message="Test message", answer=f"/cat {temp_file}")
-    
-    combined_result = f"=== LS RESULT ===\n{ls_result}\n\n=== CAT RESULT ===\n{cat_result}"
-    
-    verify(combined_result, options=Options().with_scrubber(multi_scrubber))
 
 def test_chat_with_regular_response(capsys):
-    result = run_chat_test(capsys, input_stub=enter, message="Hello", answer="Hello! How can I help you?")
-    verify(result, options=Options().with_scrubber(multi_scrubber))
+    verify_chat(capsys, enter, "Hello", "Hello! How can I help you?")
