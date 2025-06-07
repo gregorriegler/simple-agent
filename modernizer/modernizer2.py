@@ -1,7 +1,6 @@
 import os
 
-from claude_client import message_claude
-from helpers import *
+from helpers import read_file
 from chat import Chat, load_chat, save_chat
 from tools import ToolLibrary
 
