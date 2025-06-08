@@ -20,9 +20,6 @@ public class EntryPointFinder
     {
         var project = await _workspaceLoader.LoadProjectAsync(projectPath);
         
-        if (project == null)
-            throw new InvalidOperationException($"Failed to load project: {projectPath}");
-        
         var documents = project.Documents.ToList();
         
         var entryPoints = new List<EntryPoint>();
@@ -43,9 +40,6 @@ public class EntryPointFinder
         var syntaxTree = await document.GetSyntaxTreeAsync();
         var semanticModel = await document.GetSemanticModelAsync();
         
-        if (syntaxTree == null || semanticModel == null)
-            return entryPoints;
-            
         var root = await syntaxTree.GetRootAsync();
         
         var methodDeclarations = root.DescendantNodes().OfType<MethodDeclarationSyntax>();
@@ -71,8 +65,6 @@ public class EntryPointFinder
         
         var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration);
         var containingType = methodSymbol?.ContainingType;
-        if (containingType == null)
-            return null;
         
         var fullyQualifiedName = $"{containingType.ContainingNamespace.ToDisplayString()}.{containingType.Name}.{methodSymbol?.Name}";
         
