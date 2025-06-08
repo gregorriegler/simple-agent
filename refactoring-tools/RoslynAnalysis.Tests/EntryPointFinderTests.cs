@@ -13,18 +13,14 @@ public class EntryPointFinderTests
     public async Task SinglePublicMethod_IsIdentifiedAsEntryPoint()
     {
         var projectPath = CreateSingleClassProject();
-        
+
         var entryPoints = await EntryPointFinder.FindEntryPointsAsync(projectPath);
-        
+
         Assert.That(entryPoints, Has.Count.EqualTo(1));
-        
         var entryPoint = entryPoints.First();
-        Assert.Multiple(() =>
-        {
-            Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo("SimpleProject.SimpleClass.SimpleMethod"));
-            Assert.That(entryPoint.MethodSignature, Is.EqualTo("void SimpleMethod()"));
-            Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(1));
-        });
+        Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo("SimpleProject.SimpleClass.SimpleMethod"));
+        Assert.That(entryPoint.MethodSignature, Is.EqualTo("void SimpleMethod()"));
+        Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(1));
     }
     
     private string CreateSingleClassProject()
@@ -40,7 +36,8 @@ public class EntryPointFinderTests
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-</Project>");
+</Project>"
+);
         
         var sourceDir = Path.Combine(projectDir, "src");
         Directory.CreateDirectory(sourceDir);
@@ -56,7 +53,8 @@ namespace SimpleProject
             
         }
     }
-}");
+}"
+);
         
         return projectPath;
     }
