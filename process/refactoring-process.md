@@ -3,7 +3,10 @@
 Refactoring means to improve the structure of the code in tiny steps while maintaining its current observable behavior. All the tests need to keep passing.
 
 ## 1. Create a Plan
-1. Decide on something to improve. If I don't tell you what to improve find something yourself using the [identify-code-smells](./identify-code-smells.md) process.
+1. Decide on something to improve. If I don't tell you what to improve find something yourself. 
+    1. First look for production code that is not covered by any of the tests. Every single condition is a candidate for removal, if there is no test demanding it.
+    Get rid of code that is not demanded by the tests.
+    1. If you can't find any production code that you can remove, start searching for code-smells using the [identify-code-smells](./identify-code-smells.md) process.
 1. Break that improvement down into small atomic refactoring steps of which each step keeps all the tests passing
 1. If there already is a `refactoring-plan.md` file, delete it.
 1. Create a refactoring plan file `refactoring-plan.md` which lists all the steps as tasks prefixed with a checkbox.
