@@ -43,6 +43,15 @@ flowchart TD
    - Input: Path to a simple legacy C# solution or csproj
    - Output: List of entry points with metadata
 
+   **Examples:**
+   - *Single Class, Single Method*: A project with one file containing a single class and a single public method (e.g., `public void Main()`). The tool should identify this method as the only entry point and output its metadata.
+   - *Single Class, Multiple Methods*: A project with one class containing several public methods (e.g., `Initialize()`, `Process()`, `Cleanup()`). The tool should output all methods that could serve as entry points, each with their metadata.
+   - *Multiple Classes, Isolated Methods*: A project with two or three classes, each with one or more public methods, but no methods call each other. The tool should list each public method as a distinct entry point.
+   - *Simple Call Chain*: A project where one public method calls another method within the same class or another class. The tool should identify the top-level method as the entry point and indicate the reachable methods count.
+   - *Static Main Method*: A project with a standard `static void Main(string[] args)` entry point. The tool should recognize `Main` as the entry point and provide its metadata.
+   - *Method with Parameters*: A class with a public method that takes parameters (e.g., `public int Add(int a, int b)`). The tool should output the method signature, including parameter types.
+   - *Method Returning Value*: A public method that returns a value (e.g., `public string GetName()`). The output should include the return type in the metadata.
+
 2. **Run tool on a medium-sized project with multiple namespaces**
    - Input: Path to a moderately complex codebase
    - Output: Entry points covering most code paths, grouped by namespace
