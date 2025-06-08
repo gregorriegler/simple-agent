@@ -5,3 +5,5 @@
 - [x] Remove comments from EntryPoint.cs
 - [x] Remove comments from EntryPointFinder.cs
 - [x] Verify all tests still pass
+- [x] Remove comments from EntryPointFinderTests.cs
+- [x] Verify all tests still pass

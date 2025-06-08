@@ -12,13 +12,10 @@ public class EntryPointFinderTests
     [Test]
     public async Task SinglePublicMethod_IsIdentifiedAsEntryPoint()
     {
-        // Arrange
         var projectPath = CreateSingleClassProject();
         
-        // Act
         var entryPoints = await EntryPointFinder.FindEntryPointsAsync(projectPath);
         
-        // Assert
         Assert.That(entryPoints, Has.Count.EqualTo(1));
         
         var entryPoint = entryPoints.First();
@@ -35,7 +32,6 @@ public class EntryPointFinderTests
         var projectDir = Path.Combine(Path.GetTempPath(), "SimpleProject");
         Directory.CreateDirectory(projectDir);
         
-        // Create project file
         var projectPath = Path.Combine(projectDir, "SimpleProject.csproj");
         File.WriteAllText(projectPath, @"
 <Project Sdk=""Microsoft.NET.Sdk"">
@@ -46,7 +42,6 @@ public class EntryPointFinderTests
   </PropertyGroup>
 </Project>");
         
-        // Create source file
         var sourceDir = Path.Combine(projectDir, "src");
         Directory.CreateDirectory(sourceDir);
         
@@ -58,7 +53,7 @@ namespace SimpleProject
     {
         public void SimpleMethod()
         {
-            // This is a simple method
+            
         }
     }
 }");
