@@ -44,13 +44,13 @@ flowchart TD
    - Output: List of entry points with metadata
 
    **Testlist:**
-   1. Create a C# project with a single class containing a single public method. Run the tool and verify it identifies this method as the only entry point and outputs its metadata.
-   2. Create a C# project with one class containing multiple public methods. Run the tool and verify it outputs all public methods as entry points, each with their metadata.
-   3. Create a C# project with two or three classes, each with one or more public methods, and ensure no methods call each other. Run the tool and verify each public method is listed as a distinct entry point.
-   4. Create a C# project where a public method calls another method within the same or another class. Run the tool and verify it identifies the top-level method as the entry point and includes the count of reachable methods.
-   5. Create a C# project with a standard `static void Main(string[] args)` entry point. Run the tool and verify it recognizes `Main` as the entry point and outputs its metadata.
-   6. Create a C# project with a public method that takes parameters (e.g., `public int Add(int a, int b)`). Run the tool and verify the method signature, including parameter types, is included in the output.
-   7. Create a C# project with a public method that returns a value (e.g., `public string GetName()`). Run the tool and verify the return type is included in the metadata.
+   - [ ] Create a C# project with a single class containing a single public method. Run the tool and verify it identifies this method as the only entry point and outputs its metadata.
+   - [ ] Create a C# project with one class containing multiple public methods. Run the tool and verify it outputs all public methods as entry points, each with their metadata.
+   - [ ] Create a C# project with two or three classes, each with one or more public methods, and ensure no methods call each other. Run the tool and verify each public method is listed as a distinct entry point.
+   - [ ] Create a C# project where a public method calls another method within the same or another class. Run the tool and verify it identifies the top-level method as the entry point and includes the count of reachable methods.
+   - [ ] Create a C# project with a standard `static void Main(string[] args)` entry point. Run the tool and verify it recognizes `Main` as the entry point and outputs its metadata.
+   - [ ] Create a C# project with a public method that takes parameters (e.g., `public int Add(int a, int b)`). Run the tool and verify the method signature, including parameter types, is included in the output.
+   - [ ] Create a C# project with a public method that returns a value (e.g., `public string GetName()`). Run the tool and verify the return type is included in the metadata.
 
 2. **Run tool on a medium-sized project with multiple namespaces**
    - Input: Path to a moderately complex codebase
