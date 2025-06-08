@@ -37,9 +37,10 @@ flowchart TD
 
 ---
 
-## Coding Guidelines
-- Use NUnit
-- Avoid Comments
+## Context
+- We are working in the RoslynAnalysis project
+- Follow the [development process](../../process/development-process.md)
+- Follow the [coding guidelines](../style-guide-csharp.md)
 
 ## Scenarios (ordered by simplicity)
 
