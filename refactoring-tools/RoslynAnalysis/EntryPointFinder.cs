@@ -70,35 +70,34 @@ public class EntryPointFinder
             return null;
         
         var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration);
-        if (methodSymbol == null)
-            return null;
-        
-        var containingType = methodSymbol.ContainingType;
+        var containingType = methodSymbol?.ContainingType;
         if (containingType == null)
             return null;
         
-        var fullyQualifiedName = $"{containingType.ContainingNamespace.ToDisplayString()}.{containingType.Name}.{methodSymbol.Name}";
+        var fullyQualifiedName = $"{containingType.ContainingNamespace.ToDisplayString()}.{containingType.Name}.{methodSymbol?.Name}";
         
         var filePath = document.FilePath ?? string.Empty;
         
         var lineSpan = methodDeclaration.GetLocation().GetLineSpan();
         var lineNumber = lineSpan.StartLinePosition.Line + 1;
         
-        var methodSignature = GetMethodSignature(methodSymbol);
+        // Since we've already checked that containingType is not null, methodSymbol must also not be null
+        // But we'll use the non-null assertion operator to make this explicit
+        var methodSignature = GetMethodSignature(methodSymbol!);
         
-        var reachableMethodsCount = 1;
-        
+        // Removed the unnecessary variable and directly use the value 1
         return new EntryPoint(
             fullyQualifiedName,
             filePath,
             lineNumber,
             methodSignature,
-            reachableMethodsCount
+            1 // Hardcoded value as it's not actually calculated
         );
     }
     
     private string GetMethodSignature(IMethodSymbol methodSymbol)
     {
+        // This method is only called with non-null methodSymbol (enforced by the non-null assertion in the caller)
         var returnType = methodSymbol.ReturnType.ToDisplayString();
         var parameters = string.Join(", ", methodSymbol.Parameters.Select(p => $"{p.Type.ToDisplayString()} {p.Name}"));
         return $"{returnType} {methodSymbol.Name}({parameters})";
