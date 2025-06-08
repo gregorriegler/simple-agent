@@ -37,6 +37,10 @@ flowchart TD
 
 ---
 
+## Coding Guidelines
+- Use NUnit
+- Avoid Comments
+
 ## Scenarios (ordered by simplicity)
 
 1. **Run tool on a small C# project**
