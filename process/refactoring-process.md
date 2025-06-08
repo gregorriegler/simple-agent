@@ -6,6 +6,8 @@ Refactoring means to improve the structure of the code in tiny steps while maint
 1. Decide on something to improve. If I don't tell you what to improve find something yourself. 
     1. First look for production code that is not covered by any of the tests. Every single condition is a candidate for removal, if there is no test demanding it.
     Get rid of code that is not demanded by the tests.
+        1. **Pay special attention to if statements and conditional expressions** that aren't exercised by any tests. These should be systematically identified and removed if no test requires them.
+        2. Scan through all conditional logic (if/else, switch, ternary operators) and verify each branch is covered by tests before keeping it.
     1. If you can't find any production code that you can remove, start searching for code-smells using the [identify-code-smells](./identify-code-smells.md) process.
 1. Break that improvement down into small atomic refactoring steps of which each step keeps all the tests passing
 1. If there already is a `refactoring-plan.md` file, delete it.
@@ -16,7 +18,7 @@ For each task
 1. Make sure all the tests pass before we start
 1. make the change
 1. Run the tests again to see everything still works
-1. If it does not work, revert and try over
+1. If any tests fail after your change, **immediately revert to the previous working state** before attempting a different approach. Never proceed with broken tests during refactoring.
 1. commit only when I say its ok
 1. check off the task
-1. Go to the next step 
+1. Go to the next step
