@@ -1,8 +1,8 @@
 # Refactoring Process
 
-Refactoring means to improve the structure of the code in tiny steps while maintaining its current observable behavior. All the tests need to keep passing. We treat warnings as errors.
+Refactoring means to improve the structure of the code in tiny steps while maintaining its current observable behavior. All the tests need to keep passing. Treat warnings as errors.
 
-BE CONCISE!!
+GIVE CONCISE ANSWERS!!
 
 ## 1. Find one thing to improve
 1. Decide on something to improve.
