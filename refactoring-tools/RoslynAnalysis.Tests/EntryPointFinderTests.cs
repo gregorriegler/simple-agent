@@ -79,12 +79,12 @@ public class EntryPointFinderTests
         Assert.That(methodNames, Contains.Item("GetErrorMessage"));
     }
     
-    private string CreateSingleClassProject()
+    private (string projectPath, string sourceDir) CreateProjectBase(string projectName)
     {
-        var projectDir = Path.Combine(Path.GetTempPath(), "SimpleProject");
+        var projectDir = Path.Combine(Path.GetTempPath(), projectName);
         Directory.CreateDirectory(projectDir);
         
-        var projectPath = Path.Combine(projectDir, "SimpleProject.csproj");
+        var projectPath = Path.Combine(projectDir, $"{projectName}.csproj");
         File.WriteAllText(projectPath, @"
 <Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
@@ -98,8 +98,21 @@ public class EntryPointFinderTests
         var sourceDir = Path.Combine(projectDir, "src");
         Directory.CreateDirectory(sourceDir);
         
-        var sourceFilePath = Path.Combine(sourceDir, "SimpleClass.cs");
-        File.WriteAllText(sourceFilePath, @"
+        return (projectPath, sourceDir);
+    }
+    
+    private string CreateSourceFile(string sourceDir, string fileName, string fileContent)
+    {
+        var sourceFilePath = Path.Combine(sourceDir, fileName);
+        File.WriteAllText(sourceFilePath, fileContent);
+        return sourceFilePath;
+    }
+    
+    private string CreateSingleClassProject()
+    {
+        var (projectPath, sourceDir) = CreateProjectBase("SimpleProject");
+        
+        CreateSourceFile(sourceDir, "SimpleClass.cs", @"
 namespace SimpleProject
 {
     public class SimpleClass
@@ -117,25 +130,9 @@ namespace SimpleProject
     
     private string CreateProjectWithMultiplePublicMethods()
     {
-        var projectDir = Path.Combine(Path.GetTempPath(), "MultiMethodProject");
-        Directory.CreateDirectory(projectDir);
+        var (projectPath, sourceDir) = CreateProjectBase("MultiMethodProject");
         
-        var projectPath = Path.Combine(projectDir, "MultiMethodProject.csproj");
-        File.WriteAllText(projectPath, @"
-<Project Sdk=""Microsoft.NET.Sdk"">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-</Project>"
-        );
-        
-        var sourceDir = Path.Combine(projectDir, "src");
-        Directory.CreateDirectory(sourceDir);
-        
-        var sourceFilePath = Path.Combine(sourceDir, "Calculator.cs");
-        File.WriteAllText(sourceFilePath, @"
+        CreateSourceFile(sourceDir, "Calculator.cs", @"
 namespace MultiMethodProject
 {
     public class Calculator
@@ -168,25 +165,9 @@ namespace MultiMethodProject
     
     private string CreateProjectWithMultipleClasses()
     {
-        var projectDir = Path.Combine(Path.GetTempPath(), "MultiClassProject");
-        Directory.CreateDirectory(projectDir);
+        var (projectPath, sourceDir) = CreateProjectBase("MultiClassProject");
         
-        var projectPath = Path.Combine(projectDir, "MultiClassProject.csproj");
-        File.WriteAllText(projectPath, @"
-<Project Sdk=""Microsoft.NET.Sdk"">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-</Project>"
-        );
-        
-        var sourceDir = Path.Combine(projectDir, "src");
-        Directory.CreateDirectory(sourceDir);
-        
-        var calculatorFilePath = Path.Combine(sourceDir, "Calculator.cs");
-        File.WriteAllText(calculatorFilePath, @"
+        CreateSourceFile(sourceDir, "Calculator.cs", @"
 namespace MultiClassProject
 {
     public class Calculator
@@ -209,8 +190,7 @@ namespace MultiClassProject
 }"
         );
         
-        var loggerFilePath = Path.Combine(sourceDir, "Logger.cs");
-        File.WriteAllText(loggerFilePath, @"
+        CreateSourceFile(sourceDir, "Logger.cs", @"
 namespace MultiClassProject
 {
     public class Logger
@@ -228,8 +208,7 @@ namespace MultiClassProject
 }"
         );
         
-        var validatorFilePath = Path.Combine(sourceDir, "Validator.cs");
-        File.WriteAllText(validatorFilePath, @"
+        CreateSourceFile(sourceDir, "Validator.cs", @"
 namespace MultiClassProject
 {
     public class Validator

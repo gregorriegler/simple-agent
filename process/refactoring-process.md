@@ -5,7 +5,8 @@ Refactoring means to improve the structure of the code in tiny steps while maint
 ## 1. Create a Plan
 1. Decide on something to improve. If I don't tell you what to improve find something yourself using the [identify-code-smells](./identify-code-smells.md) process.
 1. Break that improvement down into small atomic refactoring steps of which each step keeps all the tests passing
-1. Create a temporary refactoring file `refactoring-plan.md` which lists all the steps as tasks prefixed with a checkbox.
+1. If there already is a `refactoring-plan.md` file, delete it.
+1. Create a refactoring plan file `refactoring-plan.md` which lists all the steps as tasks prefixed with a checkbox.
 
 ## 2. Work through the planned tasks
 For each task
