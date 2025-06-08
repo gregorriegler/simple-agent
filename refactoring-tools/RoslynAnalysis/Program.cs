@@ -32,7 +32,9 @@ public class Program
             {
                 Console.WriteLine($"Analyzing project: {projectPath}");
                 
-                var entryPoints = await EntryPointFinder.FindEntryPointsAsync(projectPath);
+                var workspaceLoader = new MSBuildWorkspaceLoader();
+                var entryPointFinder = new EntryPointFinder(workspaceLoader);
+                var entryPoints = await entryPointFinder.FindEntryPointsAsync(projectPath);
                 
                 Console.WriteLine($"Found {entryPoints.Count} entry points.");
                 

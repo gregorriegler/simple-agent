@@ -1,44 +1,28 @@
-using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.MSBuild;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace RoslynAnalysis;
 
-public static class EntryPointFinder
+public class EntryPointFinder
 {
-    static EntryPointFinder()
+    private readonly IWorkspaceLoader _workspaceLoader;
+    
+    public EntryPointFinder(IWorkspaceLoader workspaceLoader)
     {
-        try
-        {
-            MSBuildLocator.RegisterDefaults();
-        }
-        catch (InvalidOperationException)
-        {
-            // MSBuild is already registered, ignore
-        }
+        _workspaceLoader = workspaceLoader;
     }
     
-    public static async Task<List<EntryPoint>> FindEntryPointsAsync(string projectPath)
+    public async Task<List<EntryPoint>> FindEntryPointsAsync(string projectPath)
     {
-        if (string.IsNullOrWhiteSpace(projectPath))
-            throw new ArgumentException("Project path cannot be null or empty", nameof(projectPath));
-            
-        if (!File.Exists(projectPath))
-            throw new FileNotFoundException($"Project file not found: {projectPath}", projectPath);
-            
-        using var workspace = MSBuildWorkspace.Create();
-        
-        var project = await workspace.OpenProjectAsync(projectPath);
+        var project = await _workspaceLoader.LoadProjectAsync(projectPath);
         
         if (project == null)
             throw new InvalidOperationException($"Failed to load project: {projectPath}");
-            
+        
         var documents = project.Documents.ToList();
         
         var entryPoints = new List<EntryPoint>();
@@ -52,7 +36,7 @@ public static class EntryPointFinder
         return entryPoints;
     }
     
-    private static async Task<List<EntryPoint>> FindEntryPointsInDocumentAsync(Document document)
+    private async Task<List<EntryPoint>> FindEntryPointsInDocumentAsync(Document document)
     {
         var entryPoints = new List<EntryPoint>();
         
@@ -76,7 +60,7 @@ public static class EntryPointFinder
         return entryPoints;
     }
     
-    private static EntryPoint? TryCreateEntryPoint(
+    private EntryPoint? TryCreateEntryPoint(
         Document document, 
         MethodDeclarationSyntax methodDeclaration, 
         SemanticModel semanticModel
@@ -113,7 +97,7 @@ public static class EntryPointFinder
         );
     }
     
-    private static string GetMethodSignature(IMethodSymbol methodSymbol)
+    private string GetMethodSignature(IMethodSymbol methodSymbol)
     {
         var returnType = methodSymbol.ReturnType.ToDisplayString();
         var parameters = string.Join(", ", methodSymbol.Parameters.Select(p => $"{p.Type.ToDisplayString()} {p.Name}"));

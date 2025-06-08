@@ -9,12 +9,21 @@ namespace RoslynAnalysis.Tests;
 [TestFixture]
 public class EntryPointFinderTests
 {
+    private EntryPointFinder _entryPointFinder;
+    
+    [SetUp]
+    public void Setup()
+    {
+        var workspaceLoader = new MSBuildWorkspaceLoader();
+        _entryPointFinder = new EntryPointFinder(workspaceLoader);
+    }
+    
     [Test]
     public async Task SinglePublicMethod_IsIdentifiedAsEntryPoint()
     {
         var projectPath = CreateSingleClassProject();
 
-        var entryPoints = await EntryPointFinder.FindEntryPointsAsync(projectPath);
+        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(1));
         var entryPoint = entryPoints.First();
@@ -28,7 +37,7 @@ public class EntryPointFinderTests
     {
         var projectPath = CreateProjectWithMultiplePublicMethods();
 
-        var entryPoints = await EntryPointFinder.FindEntryPointsAsync(projectPath);
+        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(3));
         
@@ -52,7 +61,7 @@ public class EntryPointFinderTests
     {
         var projectPath = CreateProjectWithMultipleClasses();
 
-        var entryPoints = await EntryPointFinder.FindEntryPointsAsync(projectPath);
+        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(5));
         
