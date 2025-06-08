@@ -48,7 +48,7 @@ flowchart TD
    - Output: List of entry points with metadata
 
    **Testlist:**
-   - [ ] Create a C# project with a single class containing a single public method. Run the tool and verify it identifies this method as the only entry point and outputs its metadata.
+   - [x] Create a C# project with a single class containing a single public method. Run the tool and verify it identifies this method as the only entry point and outputs its metadata.
    - [ ] Create a C# project with one class containing multiple public methods. Run the tool and verify it outputs all public methods as entry points, each with their metadata.
    - [ ] Create a C# project with two or three classes, each with one or more public methods, and ensure no methods call each other. Run the tool and verify each public method is listed as a distinct entry point.
    - [ ] Create a C# project where a public method calls another method within the same or another class. Run the tool and verify it identifies the top-level method as the entry point and includes the count of reachable methods.

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoslynRefactoring.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoslynAnalysis", "RoslynAnalysis\RoslynAnalysis.csproj", "{849F4D51-CF00-4CA5-9199-6B27857B1EA3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoslynAnalysis.Tests", "RoslynAnalysis.Tests\RoslynAnalysis.Tests.csproj", "{A5F4D52B-CF01-4CA6-9200-6B28857B1EA4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{849F4D51-CF00-4CA5-9199-6B27857B1EA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{849F4D51-CF00-4CA5-9199-6B27857B1EA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{849F4D51-CF00-4CA5-9199-6B27857B1EA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5F4D52B-CF01-4CA6-9200-6B28857B1EA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5F4D52B-CF01-4CA6-9200-6B28857B1EA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5F4D52B-CF01-4CA6-9200-6B28857B1EA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5F4D52B-CF01-4CA6-9200-6B28857B1EA4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
