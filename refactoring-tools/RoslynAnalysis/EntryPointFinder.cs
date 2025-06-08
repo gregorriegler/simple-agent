@@ -12,6 +12,18 @@ namespace RoslynAnalysis;
 
 public static class EntryPointFinder
 {
+    static EntryPointFinder()
+    {
+        try
+        {
+            MSBuildLocator.RegisterDefaults();
+        }
+        catch (InvalidOperationException)
+        {
+            // MSBuild is already registered, ignore
+        }
+    }
+    
     public static async Task<List<EntryPoint>> FindEntryPointsAsync(string projectPath)
     {
         if (string.IsNullOrWhiteSpace(projectPath))
@@ -20,8 +32,6 @@ public static class EntryPointFinder
         if (!File.Exists(projectPath))
             throw new FileNotFoundException($"Project file not found: {projectPath}", projectPath);
             
-        MSBuildLocator.RegisterDefaults();
-        
         using var workspace = MSBuildWorkspace.Create();
         
         var project = await workspace.OpenProjectAsync(projectPath);
