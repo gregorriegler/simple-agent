@@ -20,6 +20,9 @@ public class EntryPointFinder
     {
         var project = await _workspaceLoader.LoadProjectAsync(projectPath);
         
+        if (project == null)
+            return new List<EntryPoint>();
+            
         var documents = project.Documents.ToList();
         
         var entryPoints = new List<EntryPoint>();
@@ -38,7 +41,12 @@ public class EntryPointFinder
         var entryPoints = new List<EntryPoint>();
         
         var syntaxTree = await document.GetSyntaxTreeAsync();
+        if (syntaxTree == null)
+            return entryPoints;
+            
         var semanticModel = await document.GetSemanticModelAsync();
+        if (semanticModel == null)
+            return entryPoints;
         
         var root = await syntaxTree.GetRootAsync();
         
@@ -64,18 +72,22 @@ public class EntryPointFinder
             return null;
         
         var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration);
-        var containingType = methodSymbol?.ContainingType;
+        if (methodSymbol == null)
+            return null;
+            
+        var containingType = methodSymbol.ContainingType;
+        if (containingType == null)
+            return null;
         
-        var fullyQualifiedName = $"{containingType.ContainingNamespace.ToDisplayString()}.{containingType.Name}.{methodSymbol?.Name}";
+        var fullyQualifiedName = $"{containingType.ContainingNamespace.ToDisplayString()}.{containingType.Name}.{methodSymbol.Name}";
         
         var filePath = document.FilePath ?? string.Empty;
         
         var lineSpan = methodDeclaration.GetLocation().GetLineSpan();
         var lineNumber = lineSpan.StartLinePosition.Line + 1;
         
-        // Since we've already checked that containingType is not null, methodSymbol must also not be null
-        // But we'll use the non-null assertion operator to make this explicit
-        var methodSignature = GetMethodSignature(methodSymbol!);
+        // Since we've already checked that methodSymbol is not null, we can safely pass it
+        var methodSignature = GetMethodSignature(methodSymbol);
         
         // Removed the unnecessary variable and directly use the value 1
         return new EntryPoint(
