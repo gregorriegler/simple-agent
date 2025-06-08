@@ -37,7 +37,7 @@ public class EntryPointFinderTests
     <Nullable>enable</Nullable>
   </PropertyGroup>
 </Project>"
-);
+        );
         
         var sourceDir = Path.Combine(projectDir, "src");
         Directory.CreateDirectory(sourceDir);
@@ -54,7 +54,7 @@ namespace SimpleProject
         }
     }
 }"
-);
+        );
         
         return projectPath;
     }

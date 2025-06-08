@@ -69,7 +69,8 @@ public static class EntryPointFinder
     private static EntryPoint? TryCreateEntryPoint(
         Document document, 
         MethodDeclarationSyntax methodDeclaration, 
-        SemanticModel semanticModel)
+        SemanticModel semanticModel
+    )
     {
         if (!methodDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)))
             return null;
@@ -98,7 +99,8 @@ public static class EntryPointFinder
             filePath,
             lineNumber,
             methodSignature,
-            reachableMethodsCount);
+            reachableMethodsCount
+        );
     }
     
     private static string GetMethodSignature(IMethodSymbol methodSymbol)

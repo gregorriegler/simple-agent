@@ -12,14 +12,16 @@ public class Program
         
         var projectPathOption = new Option<string>(
             name: "--project-path",
-            description: "Path to the C# project file (.csproj) or solution file (.sln)")
+            description: "Path to the C# project file (.csproj) or solution file (.sln)"
+        )
         {
             IsRequired = true
         };
         
         var outputFileOption = new Option<string?>(
             name: "--output-file",
-            description: "Path to the output file (if not specified, output will be written to console)");
+            description: "Path to the output file (if not specified, output will be written to console)"
+        );
         
         rootCommand.AddOption(projectPathOption);
         rootCommand.AddOption(outputFileOption);

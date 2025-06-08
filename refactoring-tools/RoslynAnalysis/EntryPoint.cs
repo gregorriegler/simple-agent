@@ -5,4 +5,5 @@ public record EntryPoint(
     string FilePath,
     int LineNumber,
     string MethodSignature,
-    int ReachableMethodsCount);
+    int ReachableMethodsCount
+);
