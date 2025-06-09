@@ -15,7 +15,7 @@ GIVE CONCISE ANSWERS!!
     **Pay special attention to if statements and conditional expressions** that aren't exercised by any tests. These should be systematically identified and removed if no test requires them.
     If you are unsure whether you can remove production code, run a [mutation test](./mutation-test.md)
     1. Only if you can't find any production code that you can remove, start searching for code-smells using the [identify-code-smells](./identify-code-smells.md) process.
-1. Break that improvement down into small atomic refactoring steps of which each step keeps all the tests passing
+1. Break that improvement down into small atomic refactoring steps of which each step keeps all the tests passing (use `test.sh`)
 1. If there is already a `refactoring-plan.md` file, delete it.
 1. Create a refactoring plan file `refactoring-plan.md` which lists all the steps as tasks prefixed with a checkbox.
 
