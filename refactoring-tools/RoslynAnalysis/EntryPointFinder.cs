@@ -89,13 +89,30 @@ public class EntryPointFinder
         // Since we've already checked that methodSymbol is not null, we can safely pass it
         var methodSignature = GetMethodSignature(methodSymbol);
         
-        // Removed the unnecessary variable and directly use the value 1
+        // Calculate reachable methods: itself + directly called methods in the same class
+        var reachableMethods = new HashSet<string> { methodSymbol.Name };
+        if (methodDeclaration.Body != null)
+        {
+            var invocationExpressions = methodDeclaration.Body.DescendantNodes().OfType<InvocationExpressionSyntax>();
+            foreach (var invocation in invocationExpressions)
+            {
+                var symbolInfo = semanticModel.GetSymbolInfo(invocation);
+                if (symbolInfo.Symbol is IMethodSymbol calledMethodSymbol)
+                {
+                    // Only count methods in the same class (not static, not external)
+                    if (SymbolEqualityComparer.Default.Equals(calledMethodSymbol.ContainingType, containingType))
+                    {
+                        reachableMethods.Add(calledMethodSymbol.Name);
+                    }
+                }
+            }
+        }
         return new EntryPoint(
             fullyQualifiedName,
             filePath,
             lineNumber,
             methodSignature,
-            1 // Hardcoded value as it's not actually calculated
+            reachableMethods.Count
         );
     }
     

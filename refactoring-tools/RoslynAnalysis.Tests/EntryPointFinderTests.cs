@@ -48,12 +48,15 @@ public class EntryPointFinderTests
         
         var addMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("Add"));
         Assert.That(addMethod.MethodSignature, Is.EqualTo("int Add(int a, int b)"));
+        Assert.That(addMethod.ReachableMethodsCount, Is.EqualTo(2));
         
         var subtractMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("Subtract"));
         Assert.That(subtractMethod.MethodSignature, Is.EqualTo("int Subtract(int a, int b)"));
+        Assert.That(subtractMethod.ReachableMethodsCount, Is.EqualTo(1));
         
         var getNameMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("GetName"));
         Assert.That(getNameMethod.MethodSignature, Is.EqualTo("string GetName()"));
+        Assert.That(getNameMethod.ReachableMethodsCount, Is.EqualTo(1));
     }
     
     [Test]
@@ -148,7 +151,7 @@ namespace MultiMethodProject
     {
         public int Add(int a, int b)
         {
-            return a + b;
+            return Multiply(a, 1) + Multiply(b, 1);
         }
         
         public int Subtract(int a, int b)
