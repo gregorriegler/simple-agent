@@ -91,6 +91,96 @@ public class EntryPointFinderTests
         Assert.That(methodNames, Contains.Item("GetErrorMessage"));
     }
     
+    [Test]
+    public async Task PublicMethodCallingOtherMethods_CountsReachableMethods()
+    {
+        var projectPath = CreateProjectWithMethodCalls();
+
+        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
+
+        Assert.That(entryPoints, Has.Count.EqualTo(1));
+        
+        var entryPoint = entryPoints.First();
+        Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo("CallProject.BusinessLogic.ProcessData"));
+        Assert.That(entryPoint.MethodSignature, Is.EqualTo("string ProcessData(string input)"));
+        Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(4)); // ProcessData + ValidateInput + TransformData + FormatOutput
+    }
+    
+    [Test]
+    public async Task MainMethod_IsRecognizedAsEntryPoint()
+    {
+        var projectPath = CreateProjectWithMainMethod();
+
+        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
+
+        Assert.That(entryPoints, Has.Count.EqualTo(1));
+        
+        var entryPoint = entryPoints.First();
+        Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo("MainProject.Program.Main"));
+        Assert.That(entryPoint.MethodSignature, Is.EqualTo("void Main(string[] args)"));
+        Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(1));
+    }
+    
+    [Test]
+    public async Task MethodWithParameters_IncludesParameterTypesInSignature()
+    {
+        var projectPath = CreateProjectWithParameterizedMethods();
+
+        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
+
+        Assert.That(entryPoints, Has.Count.EqualTo(3));
+        
+        var addMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("Add"));
+        Assert.That(addMethod.MethodSignature, Is.EqualTo("int Add(int a, int b)"));
+        
+        var processMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("ProcessData"));
+        Assert.That(processMethod.MethodSignature, Is.EqualTo("string ProcessData(string input, bool validate)"));
+        
+        var calculateMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("Calculate"));
+        Assert.That(calculateMethod.MethodSignature, Is.EqualTo("double Calculate(double x, double y, int precision)"));
+    }
+    
+    [Test]
+    public async Task MethodWithReturnValue_IncludesReturnTypeInSignature()
+    {
+        var projectPath = CreateProjectWithReturnValueMethods();
+
+        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
+
+        Assert.That(entryPoints, Has.Count.EqualTo(4));
+        
+        var getNameMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("GetName"));
+        Assert.That(getNameMethod.MethodSignature, Is.EqualTo("string GetName()"));
+        
+        var getCountMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("GetCount"));
+        Assert.That(getCountMethod.MethodSignature, Is.EqualTo("int GetCount()"));
+        
+        var isValidMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("IsValid"));
+        Assert.That(isValidMethod.MethodSignature, Is.EqualTo("bool IsValid()"));
+        
+        var getDataMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("GetData"));
+        Assert.That(getDataMethod.MethodSignature, Is.EqualTo("List<string> GetData()"));
+    }
+    
+    [Test]
+    public async Task CrossClassMethodCalls_CountsReachableMethodsAcrossClasses()
+    {
+        var projectPath = CreateProjectWithCrossClassCalls();
+
+        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
+
+        Assert.That(entryPoints, Has.Count.EqualTo(1));
+        
+        var entryPoint = entryPoints.First();
+        Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo("CrossCallProject.OrderService.ProcessOrder"));
+        Assert.That(entryPoint.MethodSignature, Is.EqualTo("string ProcessOrder(string orderId)"));
+        // ProcessOrder calls: ValidateOrder (same class), PaymentService.ProcessPayment, EmailService.SendConfirmation
+        // PaymentService.ProcessPayment calls: LogPayment (same class)
+        // EmailService.SendConfirmation calls: FormatEmail (same class)
+        // Total reachable: ProcessOrder + ValidateOrder + ProcessPayment + LogPayment + SendConfirmation + FormatEmail = 6
+        Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(6));
+    }
+    
     private (string projectPath, string sourceDir) CreateProjectBase(string projectName)
     {
         var projectDir = Path.Combine(Path.GetTempPath(), projectName);
@@ -233,6 +323,205 @@ namespace MultiClassProject
         public string GetErrorMessage()
         {
             return ""Invalid input"";
+        }
+    }
+}"
+        );
+        
+        return projectPath;
+    }
+    
+    private string CreateProjectWithMethodCalls()
+    {
+        var (projectPath, sourceDir) = CreateProjectBase("CallProject");
+        
+        CreateSourceFile(sourceDir, "BusinessLogic.cs", @"
+namespace CallProject
+{
+    public class BusinessLogic
+    {
+        public string ProcessData(string input)
+        {
+            var validatedInput = ValidateInput(input);
+            var transformedData = TransformData(validatedInput);
+            return FormatOutput(transformedData);
+        }
+        
+        private string ValidateInput(string input)
+        {
+            return string.IsNullOrEmpty(input) ? ""default"" : input;
+        }
+        
+        private string TransformData(string data)
+        {
+            return data.ToUpper();
+        }
+        
+        private string FormatOutput(string data)
+        {
+            return $""Result: {data}"";
+        }
+    }
+}"
+        );
+        
+        return projectPath;
+    }
+    
+    private string CreateProjectWithMainMethod()
+    {
+        var (projectPath, sourceDir) = CreateProjectBase("MainProject");
+        
+        CreateSourceFile(sourceDir, "Program.cs", @"
+namespace MainProject
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            Console.WriteLine(""Hello World!"");
+        }
+    }
+}"
+        );
+        
+        return projectPath;
+    }
+    
+    private string CreateProjectWithParameterizedMethods()
+    {
+        var (projectPath, sourceDir) = CreateProjectBase("ParameterProject");
+        
+        CreateSourceFile(sourceDir, "MathOperations.cs", @"
+namespace ParameterProject
+{
+    public class MathOperations
+    {
+        public int Add(int a, int b)
+        {
+            return a + b;
+        }
+        
+        public string ProcessData(string input, bool validate)
+        {
+            if (validate && string.IsNullOrEmpty(input))
+                return ""Invalid"";
+            return input?.ToUpper() ?? ""Empty"";
+        }
+        
+        public double Calculate(double x, double y, int precision)
+        {
+            var result = x * y;
+            return Math.Round(result, precision);
+        }
+    }
+}"
+        );
+        
+        return projectPath;
+    }
+    
+    private string CreateProjectWithReturnValueMethods()
+    {
+        var (projectPath, sourceDir) = CreateProjectBase("ReturnValueProject");
+        
+        CreateSourceFile(sourceDir, "DataService.cs", @"
+using System.Collections.Generic;
+
+namespace ReturnValueProject
+{
+    public class DataService
+    {
+        public string GetName()
+        {
+            return ""DataService"";
+        }
+        
+        public int GetCount()
+        {
+            return 42;
+        }
+        
+        public bool IsValid()
+        {
+            return true;
+        }
+        
+        public List<string> GetData()
+        {
+            return new List<string> { ""item1"", ""item2"", ""item3"" };
+        }
+    }
+}"
+        );
+        
+        return projectPath;
+    }
+    
+    private string CreateProjectWithCrossClassCalls()
+    {
+        var (projectPath, sourceDir) = CreateProjectBase("CrossCallProject");
+        
+        CreateSourceFile(sourceDir, "OrderService.cs", @"
+namespace CrossCallProject
+{
+    public class OrderService
+    {
+        private PaymentService _paymentService = new PaymentService();
+        private EmailService _emailService = new EmailService();
+        
+        public string ProcessOrder(string orderId)
+        {
+            var isValid = ValidateOrder(orderId);
+            if (!isValid) return ""Invalid order"";
+            
+            var paymentResult = _paymentService.ProcessPayment(orderId);
+            _emailService.SendConfirmation(orderId);
+            
+            return $""Order {orderId} processed successfully"";
+        }
+        
+        private bool ValidateOrder(string orderId)
+        {
+            return !string.IsNullOrEmpty(orderId);
+        }
+    }
+}"
+        );
+        
+        CreateSourceFile(sourceDir, "PaymentService.cs", @"
+namespace CrossCallProject
+{
+    public class PaymentService
+    {
+        public string ProcessPayment(string orderId)
+        {
+            LogPayment(orderId);
+            return $""Payment processed for {orderId}"";
+        }
+        
+        private void LogPayment(string orderId)
+        {
+            // Log payment details
+        }
+    }
+}"
+        );
+        
+        CreateSourceFile(sourceDir, "EmailService.cs", @"
+namespace CrossCallProject
+{
+    public class EmailService
+    {
+        public void SendConfirmation(string orderId)
+        {
+            var emailContent = FormatEmail(orderId);
+            // Send email
+        }
+        
+        private string FormatEmail(string orderId)
+        {
+            return $""Your order {orderId} has been confirmed."";
         }
     }
 }"
