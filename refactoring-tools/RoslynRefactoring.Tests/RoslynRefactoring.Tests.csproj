@@ -8,6 +8,7 @@
     <IsPackable>false</IsPackable>
     <RootNamespace>RoslynRefactoring.Tests</RootNamespace>
     <AssemblyName>RoslynRefactoring.Tests</AssemblyName>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
