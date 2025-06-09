@@ -43,7 +43,7 @@ public class EntryPointFinder
             foreach (var methodDeclaration in methodDeclarations)
             {
                 var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration);
-                if (methodSymbol != null) // && methodSymbol.ContainingType != null)
+                if (methodSymbol != null)
                 {
                     var fullyQualifiedName = $"{methodSymbol.ContainingType.ContainingNamespace.ToDisplayString()}.{methodSymbol.ContainingType.Name}.{methodSymbol.Name}";
                     allMethods.Add((document, methodDeclaration, semanticModel, fullyQualifiedName));
