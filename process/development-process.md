@@ -1,7 +1,7 @@
 # Development Process
 
 1. Identify where we are
-    - Read the aligned goal markdown file with the testlist
+    - Read the `goal.md` file with the testlist
 1. Pick the first item of the Testlist that is not yet implemented
 1. Write a failing test for it
 1. Run all tests, and see it fail
