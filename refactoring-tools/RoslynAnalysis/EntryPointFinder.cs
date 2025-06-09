@@ -104,31 +104,6 @@ public class EntryPointFinder
         return entryPoints;
     }
     
-    private async Task<List<EntryPoint>> FindEntryPointsInDocumentAsync(Document document)
-    {
-        var entryPoints = new List<EntryPoint>();
-        
-        var syntaxTree = await document.GetSyntaxTreeAsync();
-        if (syntaxTree == null)
-            return entryPoints;
-            
-        var semanticModel = await document.GetSemanticModelAsync();
-        if (semanticModel == null)
-            return entryPoints;
-        
-        var root = await syntaxTree.GetRootAsync();
-        
-        var methodDeclarations = root.DescendantNodes().OfType<MethodDeclarationSyntax>();
-        
-        foreach (var methodDeclaration in methodDeclarations)
-        {
-            var entryPoint = TryCreateEntryPoint(document, methodDeclaration, semanticModel);
-            if (entryPoint != null)
-                entryPoints.Add(entryPoint);
-        }
-        
-        return entryPoints;
-    }
     
     private EntryPoint? TryCreateEntryPoint(
         Document document, 
