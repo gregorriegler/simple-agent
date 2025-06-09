@@ -43,7 +43,7 @@ public class EntryPointFinder
             foreach (var methodDeclaration in methodDeclarations)
             {
                 var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration);
-                if (methodSymbol != null && methodSymbol.ContainingType != null)
+                if (methodSymbol != null) // && methodSymbol.ContainingType != null)
                 {
                     var fullyQualifiedName = $"{methodSymbol.ContainingType.ContainingNamespace.ToDisplayString()}.{methodSymbol.ContainingType.Name}.{methodSymbol.Name}";
                     allMethods.Add((document, methodDeclaration, semanticModel, fullyQualifiedName));
@@ -132,30 +132,13 @@ public class EntryPointFinder
         // Since we've already checked that methodSymbol is not null, we can safely pass it
         var methodSignature = GetMethodSignature(methodSymbol);
         
-        // Calculate reachable methods: itself + directly called methods in the same class
-        var reachableMethods = new HashSet<string> { methodSymbol.Name };
-        if (methodDeclaration.Body != null)
-        {
-            var invocationExpressions = methodDeclaration.Body.DescendantNodes().OfType<InvocationExpressionSyntax>();
-            foreach (var invocation in invocationExpressions)
-            {
-                var symbolInfo = semanticModel.GetSymbolInfo(invocation);
-                if (symbolInfo.Symbol is IMethodSymbol calledMethodSymbol)
-                {
-                    // Only count methods in the same class (not static, not external)
-                    if (SymbolEqualityComparer.Default.Equals(calledMethodSymbol.ContainingType, containingType))
-                    {
-                        reachableMethods.Add(calledMethodSymbol.Name);
-                    }
-                }
-            }
-        }
+        // Placeholder reachable count - will be recalculated later
         return new EntryPoint(
             fullyQualifiedName,
             filePath,
             lineNumber,
             methodSignature,
-            reachableMethods.Count
+            1
         );
     }
     
