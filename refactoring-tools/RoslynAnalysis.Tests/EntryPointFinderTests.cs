@@ -738,4 +738,159 @@ EndGlobal";
         
         return solutionPath;
     }
+    
+    [Test]
+    public async Task SolutionWithTestProject_ExcludesTestMethodsFromEntryPoints()
+    {
+        var solutionPath = CreateSolutionWithProductionAndTestProjects();
+
+        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(solutionPath);
+
+        // Should only find entry points from production code, not test methods
+        Assert.That(entryPoints, Has.Count.EqualTo(2));
+        
+        // Should find production methods
+        var productionMethods = entryPoints.Where(ep => ep.FullyQualifiedName.Contains("ProductionProject")).ToList();
+        Assert.That(productionMethods, Has.Count.EqualTo(2));
+        Assert.That(productionMethods.Any(ep => ep.FullyQualifiedName.EndsWith("Calculator.Add")), Is.True);
+        Assert.That(productionMethods.Any(ep => ep.FullyQualifiedName.EndsWith("Logger.Log")), Is.True);
+        
+        // Should NOT find test methods
+        var testMethods = entryPoints.Where(ep => ep.FullyQualifiedName.Contains("TestProject")).ToList();
+        Assert.That(testMethods, Has.Count.EqualTo(0));
+    }
+    
+    private string CreateSolutionWithProductionAndTestProjects()
+    {
+        var solutionName = $"ProdTestSolution_{Guid.NewGuid():N}";
+        var solutionDir = Path.Combine(Path.GetTempPath(), solutionName);
+        Directory.CreateDirectory(solutionDir);
+        
+        // Create solution file
+        var solutionPath = Path.Combine(solutionDir, $"{solutionName}.sln");
+        
+        // Create Production Project
+        var productionDir = Path.Combine(solutionDir, "ProductionProject");
+        Directory.CreateDirectory(productionDir);
+        var productionPath = Path.Combine(productionDir, "ProductionProject.csproj");
+        File.WriteAllText(productionPath, @"
+<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>");
+        
+        CreateSourceFile(productionDir, "Calculator.cs", @"
+namespace ProductionProject
+{
+    public class Calculator
+    {
+        public int Add(int a, int b)
+        {
+            return a + b;
+        }
+    }
+}");
+        
+        CreateSourceFile(productionDir, "Logger.cs", @"
+namespace ProductionProject
+{
+    public class Logger
+    {
+        public void Log(string message)
+        {
+            // Log implementation
+        }
+    }
+}");
+        
+        // Create Test Project
+        var testDir = Path.Combine(solutionDir, "TestProject");
+        Directory.CreateDirectory(testDir);
+        var testPath = Path.Combine(testDir, "TestProject.csproj");
+        File.WriteAllText(testPath, @"
+<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include=""NUnit"" Version=""3.13.3"" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include=""..\ProductionProject\ProductionProject.csproj"" />
+  </ItemGroup>
+</Project>");
+        
+        CreateSourceFile(testDir, "CalculatorTests.cs", @"
+using NUnit.Framework;
+using ProductionProject;
+
+namespace TestProject
+{
+    [TestFixture]
+    public class CalculatorTests
+    {
+        [Test]
+        public void Add_ShouldReturnSum()
+        {
+            var calculator = new Calculator();
+            var result = calculator.Add(2, 3);
+            Assert.That(result, Is.EqualTo(5));
+        }
+        
+        [Test]
+        public void Add_WithNegativeNumbers_ShouldWork()
+        {
+            var calculator = new Calculator();
+            var result = calculator.Add(-2, 3);
+            Assert.That(result, Is.EqualTo(1));
+        }
+    }
+}");
+        
+        // Create solution file content
+        var productionGuid = Guid.NewGuid().ToString().ToUpper();
+        var testGuid = Guid.NewGuid().ToString().ToUpper();
+        var solutionGuid = Guid.NewGuid().ToString().ToUpper();
+        
+        var solutionContent = $@"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project(""{{9A19103F-16F7-4668-BE54-9A1E7A4F7556}}"") = ""ProductionProject"", ""ProductionProject\ProductionProject.csproj"", ""{{{productionGuid}}}""
+EndProject
+Project(""{{9A19103F-16F7-4668-BE54-9A1E7A4F7556}}"") = ""TestProject"", ""TestProject\TestProject.csproj"", ""{{{testGuid}}}""
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{{{productionGuid}}}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{{{productionGuid}}}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{{{productionGuid}}}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{{{productionGuid}}}.Release|Any CPU.Build.0 = Release|Any CPU
+		{{{testGuid}}}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{{{testGuid}}}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{{{testGuid}}}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{{{testGuid}}}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {{{solutionGuid}}}
+	EndGlobalSection
+EndGlobal";
+        
+        File.WriteAllText(solutionPath, solutionContent);
+        
+        return solutionPath;
+    }
 }

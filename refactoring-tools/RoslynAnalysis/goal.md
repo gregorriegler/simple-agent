@@ -58,3 +58,4 @@ flowchart TD
    - [x] Create a C# project with a public method that returns a value (e.g., `public string GetName()`). Run the tool and verify the return type is included in the metadata.
    - [x] handling circular references gracefully
    - [x] dotnet run --project-path ../../../Parrot-Refactoring-Kata/CSharp/parrot.sln - Successfully loads solution files and analyzes all projects within the solution. Found 12 entry points from the Parrot Refactoring Kata project.
+   - [x] Exclude unit test methods from entry points - the tool should not identify test methods (methods with [Test], [TestMethod], [Fact] attributes or in test projects) as entry points since we want to test production code, not test code. Now correctly finds 2 production entry points instead of 12 test methods in the Parrot Refactoring Kata.

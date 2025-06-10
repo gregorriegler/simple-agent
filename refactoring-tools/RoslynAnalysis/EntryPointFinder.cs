@@ -123,6 +123,10 @@ public class EntryPointFinder
         if (containingType == null)
             return null;
         
+        // Exclude test methods - check for common test attributes
+        if (IsTestMethod(methodSymbol))
+            return null;
+        
         var fullyQualifiedName = $"{containingType.ContainingNamespace.ToDisplayString()}.{containingType.Name}.{methodSymbol.Name}";
         
         var filePath = document.FilePath ?? string.Empty;
@@ -200,5 +204,22 @@ public class EntryPointFinder
         var returnType = methodSymbol.ReturnType.ToDisplayString();
         var parameters = string.Join(", ", methodSymbol.Parameters.Select(p => $"{p.Type.ToDisplayString()} {p.Name}"));
         return $"{returnType} {methodSymbol.Name}({parameters})";
+    }
+    
+    private bool IsTestMethod(IMethodSymbol methodSymbol)
+    {
+        // Check for common test attributes
+        var testAttributes = new[]
+        {
+            "Test",
+            "TestMethod", 
+            "Fact",
+            "Theory",
+            "TestCase"
+        };
+        
+        return methodSymbol.GetAttributes().Any(attr => 
+            testAttributes.Any(testAttr => 
+                attr.AttributeClass?.Name.Contains(testAttr) == true));
     }
 }
