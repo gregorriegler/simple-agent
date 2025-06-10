@@ -56,4 +56,4 @@ flowchart TD
    - [x] Create a C# project with a standard `static void Main(string[] args)` entry point. Run the tool and verify it recognizes `Main` as the entry point and outputs its metadata.
    - [x] Create a C# project with a public method that takes parameters (e.g., `public int Add(int a, int b)`). Run the tool and verify the method signature, including parameter types, is included in the output.
    - [x] Create a C# project with a public method that returns a value (e.g., `public string GetName()`). Run the tool and verify the return type is included in the metadata.
-   - [ ] handling circular references gracefully
+   - [x] handling circular references gracefully

@@ -22,12 +22,13 @@ public class EntryPointFinderTests
     public async Task SinglePublicMethod_IsIdentifiedAsEntryPoint()
     {
         var projectPath = CreateSingleClassProject();
+        var projectName = Path.GetFileNameWithoutExtension(projectPath);
 
         var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(1));
         var entryPoint = entryPoints.First();
-        Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo("SimpleProject.SimpleClass.SimpleMethod"));
+        Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo($"{projectName}.SimpleClass.SimpleMethod"));
         Assert.That(entryPoint.MethodSignature, Is.EqualTo("void SimpleMethod()"));
         Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(1));
     }
@@ -181,12 +182,13 @@ public class EntryPointFinderTests
         Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(6));
     }
     
-    private (string projectPath, string sourceDir) CreateProjectBase(string projectName)
+    private string CreateProjectBase(string projectName)
     {
-        var projectDir = Path.Combine(Path.GetTempPath(), projectName);
+        var uniqueProjectName = $"{projectName}_{Guid.NewGuid():N}";
+        var projectDir = Path.Combine(Path.GetTempPath(), uniqueProjectName);
         Directory.CreateDirectory(projectDir);
         
-        var projectPath = Path.Combine(projectDir, $"{projectName}.csproj");
+        var projectPath = Path.Combine(projectDir, $"{uniqueProjectName}.csproj");
         File.WriteAllText(projectPath, @"
 <Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
@@ -197,34 +199,33 @@ public class EntryPointFinderTests
 </Project>"
         );
         
-        var sourceDir = Path.Combine(projectDir, "src");
-        Directory.CreateDirectory(sourceDir);
-        
-        return (projectPath, sourceDir);
+        return projectPath;
     }
     
-    private string CreateSourceFile(string sourceDir, string fileName, string fileContent)
+    private string CreateSourceFile(string projectDir, string fileName, string fileContent)
     {
-        var sourceFilePath = Path.Combine(sourceDir, fileName);
+        var sourceFilePath = Path.Combine(projectDir, fileName);
         File.WriteAllText(sourceFilePath, fileContent);
         return sourceFilePath;
     }
     
     private string CreateSingleClassProject()
     {
-        var (projectPath, sourceDir) = CreateProjectBase("SimpleProject");
+        var projectPath = CreateProjectBase("SimpleProject");
+        var projectDir = Path.GetDirectoryName(projectPath)!;
+        var projectName = Path.GetFileNameWithoutExtension(projectPath);
         
-        CreateSourceFile(sourceDir, "SimpleClass.cs", @"
-namespace SimpleProject
-{
+        CreateSourceFile(projectDir, "SimpleClass.cs", $@"
+namespace {projectName}
+{{
     public class SimpleClass
-    {
+    {{
         public void SimpleMethod()
-        {
+        {{
             
-        }
-    }
-}"
+        }}
+    }}
+}}"
         );
         
         return projectPath;
@@ -232,9 +233,10 @@ namespace SimpleProject
     
     private string CreateProjectWithMultiplePublicMethods()
     {
-        var (projectPath, sourceDir) = CreateProjectBase("MultiMethodProject");
+        var projectPath = CreateProjectBase("MultiMethodProject");
+        var projectDir = Path.GetDirectoryName(projectPath)!;
         
-        CreateSourceFile(sourceDir, "Calculator.cs", @"
+        CreateSourceFile(projectDir, "Calculator.cs", @"
 namespace MultiMethodProject
 {
     public class Calculator
@@ -267,9 +269,10 @@ namespace MultiMethodProject
     
     private string CreateProjectWithMultipleClasses()
     {
-        var (projectPath, sourceDir) = CreateProjectBase("MultiClassProject");
+        var projectPath = CreateProjectBase("MultiClassProject");
+        var projectDir = Path.GetDirectoryName(projectPath)!;
         
-        CreateSourceFile(sourceDir, "Calculator.cs", @"
+        CreateSourceFile(projectDir, "Calculator.cs", @"
 namespace MultiClassProject
 {
     public class Calculator
@@ -292,7 +295,7 @@ namespace MultiClassProject
 }"
         );
         
-        CreateSourceFile(sourceDir, "Logger.cs", @"
+        CreateSourceFile(projectDir, "Logger.cs", @"
 namespace MultiClassProject
 {
     public class Logger
@@ -310,7 +313,7 @@ namespace MultiClassProject
 }"
         );
         
-        CreateSourceFile(sourceDir, "Validator.cs", @"
+        CreateSourceFile(projectDir, "Validator.cs", @"
 namespace MultiClassProject
 {
     public class Validator
@@ -333,9 +336,10 @@ namespace MultiClassProject
     
     private string CreateProjectWithMethodCalls()
     {
-        var (projectPath, sourceDir) = CreateProjectBase("CallProject");
+        var projectPath = CreateProjectBase("CallProject");
+        var projectDir = Path.GetDirectoryName(projectPath)!;
         
-        CreateSourceFile(sourceDir, "BusinessLogic.cs", @"
+        CreateSourceFile(projectDir, "BusinessLogic.cs", @"
 namespace CallProject
 {
     public class BusinessLogic
@@ -370,9 +374,10 @@ namespace CallProject
     
     private string CreateProjectWithMainMethod()
     {
-        var (projectPath, sourceDir) = CreateProjectBase("MainProject");
+        var projectPath = CreateProjectBase("MainProject");
+        var projectDir = Path.GetDirectoryName(projectPath)!;
         
-        CreateSourceFile(sourceDir, "Program.cs", @"
+        CreateSourceFile(projectDir, "Program.cs", @"
 namespace MainProject
 {
     public class Program
@@ -390,9 +395,10 @@ namespace MainProject
     
     private string CreateProjectWithParameterizedMethods()
     {
-        var (projectPath, sourceDir) = CreateProjectBase("ParameterProject");
+        var projectPath = CreateProjectBase("ParameterProject");
+        var projectDir = Path.GetDirectoryName(projectPath)!;
         
-        CreateSourceFile(sourceDir, "MathOperations.cs", @"
+        CreateSourceFile(projectDir, "MathOperations.cs", @"
 namespace ParameterProject
 {
     public class MathOperations
@@ -423,9 +429,10 @@ namespace ParameterProject
     
     private string CreateProjectWithReturnValueMethods()
     {
-        var (projectPath, sourceDir) = CreateProjectBase("ReturnValueProject");
+        var projectPath = CreateProjectBase("ReturnValueProject");
+        var projectDir = Path.GetDirectoryName(projectPath)!;
         
-        CreateSourceFile(sourceDir, "DataService.cs", @"
+        CreateSourceFile(projectDir, "DataService.cs", @"
 using System.Collections.Generic;
 
 namespace ReturnValueProject
@@ -458,11 +465,80 @@ namespace ReturnValueProject
         return projectPath;
     }
     
+    [Test]
+    public async Task CircularReferences_HandledGracefully()
+    {
+        var projectPath = CreateProjectWithCircularReferences();
+
+        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
+
+        Assert.That(entryPoints, Has.Count.EqualTo(1));
+        
+        var entryPoint = entryPoints.First();
+        Assert.That(entryPoint.FullyQualifiedName, Does.EndWith(".CircularService.StartProcess"));
+        Assert.That(entryPoint.MethodSignature, Is.EqualTo("string StartProcess(string input)"));
+        // Should count reachable methods despite circular references:
+        // StartProcess -> ProcessA -> ProcessB (circular reference back to ProcessA is detected and handled)
+        // Total unique methods: StartProcess, ProcessA = 2
+        Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(2));
+    }
+    
+    private string CreateProjectWithCircularReferences()
+    {
+        var projectName = $"CircularProject_{Guid.NewGuid():N}";
+        var projectDir = Path.Combine(Path.GetTempPath(), projectName);
+        Directory.CreateDirectory(projectDir);
+        
+        var projectPath = Path.Combine(projectDir, $"{projectName}.csproj");
+        File.WriteAllText(projectPath, @"
+<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>"
+        );
+        
+        // Create only the one source file we want
+        var sourceFilePath = Path.Combine(projectDir, "CircularService.cs");
+        File.WriteAllText(sourceFilePath, $@"
+namespace {projectName}
+{{
+    public class CircularService
+    {{
+        public string StartProcess(string input)
+        {{
+            return ProcessA(input);
+        }}
+        
+        private string ProcessA(string data)
+        {{
+            // This creates a circular reference: ProcessA -> ProcessB -> ProcessA
+            return ProcessB(data + ""_A"");
+        }}
+        
+        private string ProcessB(string data)
+        {{
+            if (data.Length > 10)
+                return data; // Break the cycle conditionally
+            
+            // This creates the circular reference back to ProcessA
+            return ProcessA(data + ""_B"");
+        }}
+    }}
+}}"
+        );
+        
+        return projectPath;
+    }
+    
     private string CreateProjectWithCrossClassCalls()
     {
-        var (projectPath, sourceDir) = CreateProjectBase("CrossCallProject");
+        var projectPath = CreateProjectBase("CrossCallProject");
+        var projectDir = Path.GetDirectoryName(projectPath)!;
         
-        CreateSourceFile(sourceDir, "OrderService.cs", @"
+        CreateSourceFile(projectDir, "OrderService.cs", @"
 namespace CrossCallProject
 {
     public class OrderService
@@ -489,7 +565,7 @@ namespace CrossCallProject
 }"
         );
         
-        CreateSourceFile(sourceDir, "PaymentService.cs", @"
+        CreateSourceFile(projectDir, "PaymentService.cs", @"
 namespace CrossCallProject
 {
     public class PaymentService
@@ -508,7 +584,7 @@ namespace CrossCallProject
 }"
         );
         
-        CreateSourceFile(sourceDir, "EmailService.cs", @"
+        CreateSourceFile(projectDir, "EmailService.cs", @"
 namespace CrossCallProject
 {
     public class EmailService

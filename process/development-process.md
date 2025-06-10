@@ -1,5 +1,7 @@
 # Development Process
 
+Your answer should be succinct and concise
+
 1. Identify where we are
     - Read the `goal.md` file with the testlist
 1. Pick the first item of the Testlist that is not yet implemented
