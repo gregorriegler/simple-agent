@@ -20,7 +20,7 @@ public class EntryPointFinder
     {
         var projects = await _workspaceLoader.LoadProjectsAsync(projectPath);
         
-        if (projects == null || !projects.Any())
+        if (!projects.Any())
             return new List<EntryPoint>();
             
         // Combine documents from all projects
