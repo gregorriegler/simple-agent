@@ -605,4 +605,137 @@ namespace CrossCallProject
         
         return projectPath;
     }
+    
+    [Test]
+    public async Task SolutionFile_LoadsAllProjectsAndFindsEntryPoints()
+    {
+        var solutionPath = CreateSolutionWithMultipleProjects();
+
+        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(solutionPath);
+
+        Assert.That(entryPoints, Has.Count.EqualTo(3));
+        
+        // Should find entry points from both projects
+        var project1Methods = entryPoints.Where(ep => ep.FullyQualifiedName.Contains("Project1")).ToList();
+        Assert.That(project1Methods, Has.Count.EqualTo(1));
+        Assert.That(project1Methods.First().FullyQualifiedName, Does.EndWith("Calculator.Add"));
+        
+        var project2Methods = entryPoints.Where(ep => ep.FullyQualifiedName.Contains("Project2")).ToList();
+        Assert.That(project2Methods, Has.Count.EqualTo(2));
+        Assert.That(project2Methods.Any(ep => ep.FullyQualifiedName.EndsWith("Logger.Log")), Is.True);
+        Assert.That(project2Methods.Any(ep => ep.FullyQualifiedName.EndsWith("Validator.IsValid")), Is.True);
+    }
+    
+    private string CreateSolutionWithMultipleProjects()
+    {
+        var solutionName = $"TestSolution_{Guid.NewGuid():N}";
+        var solutionDir = Path.Combine(Path.GetTempPath(), solutionName);
+        Directory.CreateDirectory(solutionDir);
+        
+        // Create solution file
+        var solutionPath = Path.Combine(solutionDir, $"{solutionName}.sln");
+        
+        // Create Project1
+        var project1Dir = Path.Combine(solutionDir, "Project1");
+        Directory.CreateDirectory(project1Dir);
+        var project1Path = Path.Combine(project1Dir, "Project1.csproj");
+        File.WriteAllText(project1Path, @"
+<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>");
+        
+        CreateSourceFile(project1Dir, "Calculator.cs", @"
+namespace Project1
+{
+    public class Calculator
+    {
+        public int Add(int a, int b)
+        {
+            return a + b;
+        }
+    }
+}");
+        
+        // Create Project2
+        var project2Dir = Path.Combine(solutionDir, "Project2");
+        Directory.CreateDirectory(project2Dir);
+        var project2Path = Path.Combine(project2Dir, "Project2.csproj");
+        File.WriteAllText(project2Path, @"
+<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>");
+        
+        CreateSourceFile(project2Dir, "Logger.cs", @"
+namespace Project2
+{
+    public class Logger
+    {
+        public void Log(string message)
+        {
+            // Log implementation
+        }
+    }
+}");
+        
+        CreateSourceFile(project2Dir, "Validator.cs", @"
+namespace Project2
+{
+    public class Validator
+    {
+        public bool IsValid(string input)
+        {
+            return !string.IsNullOrEmpty(input);
+        }
+    }
+}");
+        
+        // Create solution file content
+        var project1Guid = Guid.NewGuid().ToString().ToUpper();
+        var project2Guid = Guid.NewGuid().ToString().ToUpper();
+        var solutionGuid = Guid.NewGuid().ToString().ToUpper();
+        
+        var solutionContent = $@"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project(""{{9A19103F-16F7-4668-BE54-9A1E7A4F7556}}"") = ""Project1"", ""Project1\Project1.csproj"", ""{{{project1Guid}}}""
+EndProject
+Project(""{{9A19103F-16F7-4668-BE54-9A1E7A4F7556}}"") = ""Project2"", ""Project2\Project2.csproj"", ""{{{project2Guid}}}""
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{{{project1Guid}}}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{{{project1Guid}}}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{{{project1Guid}}}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{{{project1Guid}}}.Release|Any CPU.Build.0 = Release|Any CPU
+		{{{project2Guid}}}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{{{project2Guid}}}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{{{project2Guid}}}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{{{project2Guid}}}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {{{solutionGuid}}}
+	EndGlobalSection
+EndGlobal";
+        
+        File.WriteAllText(solutionPath, solutionContent);
+        
+        return solutionPath;
+    }
 }

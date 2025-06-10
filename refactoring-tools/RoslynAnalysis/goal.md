@@ -57,17 +57,4 @@ flowchart TD
    - [x] Create a C# project with a public method that takes parameters (e.g., `public int Add(int a, int b)`). Run the tool and verify the method signature, including parameter types, is included in the output.
    - [x] Create a C# project with a public method that returns a value (e.g., `public string GetName()`). Run the tool and verify the return type is included in the metadata.
    - [x] handling circular references gracefully
-   - [ ] dotnet run --project-path ../../../Parrot-Refactoring-Kata/CSharp/parrot.sln
-                Analyzing project: ../../../Parrot-Refactoring-Kata/CSharp/parrot.sln
-                Error: Projekt "C:\Users\riegl\code\Parrot-Refactoring-Kata\CSharp\parrot.sln" kann nicht geöffnet werden, da die Dateierweiterung ".sln" keiner Sprache zugeordnet ist.
-                at Microsoft.CodeAnalysis.MSBuild.DiagnosticReporter.Report(DiagnosticReportingMode mode, String message, Func`2 createException)
-                at Microsoft.CodeAnalysis.MSBuild.ProjectFileExtensionRegistry.TryGetLanguageNameFromProjectPath(String projectFilePath, DiagnosticReportingMode mode, String& languageName)
-                at Microsoft.CodeAnalysis.MSBuild.MSBuildProjectLoader.Worker.LoadProjectFileInfosAsync(String projectPath, DiagnosticReportingOptions reportingOptions, CancellationToken cancellationToken)
-                at Microsoft.CodeAnalysis.MSBuild.MSBuildProjectLoader.Worker.LoadProjectInfosFromPathAsync(String projectPath, DiagnosticReportingOptions reportingOptions, CancellationToken cancellationToken)
-                at Microsoft.CodeAnalysis.MSBuild.MSBuildProjectLoader.Worker.LoadAsync(CancellationToken cancellationToken)
-                at Microsoft.CodeAnalysis.MSBuild.MSBuildProjectLoader.LoadProjectInfoAsync(String projectFilePath, ProjectMap projectMap, IProgress`1 progress, ILogger msbuildLogger, CancellationToken cancellationToken)
-                at Microsoft.CodeAnalysis.MSBuild.MSBuildProjectLoader.LoadProjectInfoAsync(String projectFilePath, ProjectMap projectMap, IProgress`1 progress, ILogger msbuildLogger, CancellationToken cancellationToken)
-                at Microsoft.CodeAnalysis.MSBuild.MSBuildWorkspace.OpenProjectAsync(String projectFilePath, ILogger msbuildLogger, IProgress`1 progress, CancellationToken cancellationToken)
-                at RoslynAnalysis.MSBuildWorkspaceLoader.LoadProjectAsync(String projectPath) in C:\Users\riegl\code\code-modernizer\refactoring-tools\RoslynAnalysis\MSBuildWorkspaceLoader.cs:line 34      
-                at RoslynAnalysis.EntryPointFinder.FindEntryPointsAsync(String projectPath) in C:\Users\riegl\code\code-modernizer\refactoring-tools\RoslynAnalysis\EntryPointFinder.cs:line 21
-                at RoslynAnalysis.Program.<>c.<<Main>b__0_0>d.MoveNext() in C:\Users\riegl\code\code-modernizer\refactoring-tools\RoslynAnalysis\Program.cs:line 37
+   - [x] dotnet run --project-path ../../../Parrot-Refactoring-Kata/CSharp/parrot.sln - Successfully loads solution files and analyzes all projects within the solution. Found 12 entry points from the Parrot Refactoring Kata project.

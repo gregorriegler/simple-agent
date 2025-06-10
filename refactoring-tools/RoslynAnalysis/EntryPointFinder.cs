@@ -18,12 +18,13 @@ public class EntryPointFinder
     
     public async Task<List<EntryPoint>> FindEntryPointsAsync(string projectPath)
     {
-        var project = await _workspaceLoader.LoadProjectAsync(projectPath);
+        var projects = await _workspaceLoader.LoadProjectsAsync(projectPath);
         
-        if (project == null)
+        if (projects == null || !projects.Any())
             return new List<EntryPoint>();
             
-        var documents = project.Documents.ToList();
+        // Combine documents from all projects
+        var documents = projects.SelectMany(p => p.Documents).ToList();
         
         // First pass: find all public methods and collect all methods for reachability analysis
         var allPublicMethods = new List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)>();

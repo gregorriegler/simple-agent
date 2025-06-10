@@ -1,9 +1,10 @@
 using Microsoft.CodeAnalysis;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace RoslynAnalysis;
 
 public interface IWorkspaceLoader
 {
-    Task<Project?> LoadProjectAsync(string projectPath);
+    Task<IEnumerable<Project>> LoadProjectsAsync(string projectPath);
 }
