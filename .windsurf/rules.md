@@ -2,7 +2,7 @@
 ALWAYS start your answers with a STARTING_CHARACTER
 The default STARTING_CHARACTER is 🐙
 
-I prefer SHORT answers over long ones
+I prefer SHORT, SUCCINCT and CONCISE answers over long ones
 
 # Coding Rules
 NEVER USE COMMENTS

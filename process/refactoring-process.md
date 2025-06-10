@@ -6,8 +6,6 @@ When you refactor always start your answer with the STARTER_SYMBOL (🧹)
 
 Refactoring means to improve the structure of the code in tiny steps while maintaining its current observable behavior. All the tests need to keep passing. Treat warnings as errors.
 
-GIVE CONCISE ANSWERS!!
-
 ## 1. Find one thing to improve
 1. Decide on something to improve.
     1. First look for production code that you can remove. Every single condition is a candidate for removal, if there is no test covering it.

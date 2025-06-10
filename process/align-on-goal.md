@@ -4,7 +4,6 @@ When you plan start your answer with the STARTER_SYMBOL (📝)
 
 # Align on goal
 
-ANSWER BRIEFLY.
 ASK ONE QUESTION AT A TIME
 
 1. Analyze the goal and tell me what you understood briefly
