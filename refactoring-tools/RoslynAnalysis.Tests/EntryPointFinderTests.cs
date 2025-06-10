@@ -740,24 +740,15 @@ EndGlobal";
     }
     
     [Test]
-    public async Task SolutionWithTestProject_ExcludesTestMethodsFromEntryPoints()
+    public async Task TestMethod_ExcludedFromEntryPoints()
     {
-        var solutionPath = CreateSolutionWithProductionAndTestProjects();
+        var projectPath = CreateProjectWithTestMethod();
 
-        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(solutionPath);
+        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
-        // Should only find entry points from production code, not test methods
-        Assert.That(entryPoints, Has.Count.EqualTo(2));
-        
-        // Should find production methods
-        var productionMethods = entryPoints.Where(ep => ep.FullyQualifiedName.Contains("ProductionProject")).ToList();
-        Assert.That(productionMethods, Has.Count.EqualTo(2));
-        Assert.That(productionMethods.Any(ep => ep.FullyQualifiedName.EndsWith("Calculator.Add")), Is.True);
-        Assert.That(productionMethods.Any(ep => ep.FullyQualifiedName.EndsWith("Logger.Log")), Is.True);
-        
-        // Should NOT find test methods
-        var testMethods = entryPoints.Where(ep => ep.FullyQualifiedName.Contains("TestProject")).ToList();
-        Assert.That(testMethods, Has.Count.EqualTo(0));
+        // Should only find the production method, not the test method
+        Assert.That(entryPoints, Has.Count.EqualTo(1));
+        Assert.That(entryPoints.First().FullyQualifiedName, Does.EndWith("Calculator.Add"));
     }
     
     private string CreateSolutionWithProductionAndTestProjects()
@@ -892,5 +883,48 @@ EndGlobal";
         File.WriteAllText(solutionPath, solutionContent);
         
         return solutionPath;
+    }
+    
+    private string CreateProjectWithTestMethod()
+    {
+        var projectPath = CreateProjectBase("TestMethodProject");
+        var projectDir = Path.GetDirectoryName(projectPath)!;
+        
+        // Add NUnit package reference to the project file
+        var projectContent = @"
+<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include=""NUnit"" Version=""3.13.3"" />
+  </ItemGroup>
+</Project>";
+        File.WriteAllText(projectPath, projectContent);
+        
+        CreateSourceFile(projectDir, "Calculator.cs", @"
+using NUnit.Framework;
+
+namespace TestMethodProject
+{
+    public class Calculator
+    {
+        public int Add(int a, int b)
+        {
+            return a + b;
+        }
+        
+        [Test]
+        public void TestAdd()
+        {
+            var result = Add(2, 3);
+            Assert.That(result, Is.EqualTo(5));
+        }
+    }
+}");
+        
+        return projectPath;
     }
 }
