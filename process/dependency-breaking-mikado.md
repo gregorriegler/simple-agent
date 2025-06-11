@@ -4,12 +4,9 @@
 1. Identify hard dependencies
 1. For each hard dependency generate a strategy to break it
 1. Create a list of tiny refactoring steps and 
-1. Write everything to markdown
+1. write everything to markdown `characterization-test-plan-entrypoint-{foo}.md` 
 
-
-Sample markdown
-
-`characterization-test-plan-entrypoint-{foo}.md`
+--- Sample markdown ---
 
 # Entrypoint
 
