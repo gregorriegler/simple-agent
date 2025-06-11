@@ -102,7 +102,7 @@ public class EntryPointFinder
             entryPoints.Add(updatedEntryPoint);
         }
         
-        return entryPoints;
+        return entryPoints.OrderByDescending(ep => ep.ReachableMethodsCount).ToList();
     }
     
     

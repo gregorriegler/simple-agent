@@ -27,7 +27,7 @@ public class EntryPointFinderTests
         var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(1));
-        var entryPoint = entryPoints.First();
+        var entryPoint = entryPoints[0];
         Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo($"{projectName}.SimpleClass.SimpleMethod"));
         Assert.That(entryPoint.MethodSignature, Is.EqualTo("void SimpleMethod()"));
         Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(1));
@@ -41,23 +41,43 @@ public class EntryPointFinderTests
         var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(3));
+        Assert.That(entryPoints[0].FullyQualifiedName, Does.EndWith("Add"));
+        Assert.That(entryPoints[1].FullyQualifiedName, Does.EndWith("Subtract").Or.EndsWith("GetName"));
+        Assert.That(entryPoints[2].FullyQualifiedName, Does.EndWith("Subtract").Or.EndsWith("GetName"));
         
-        var methodNames = entryPoints.Select(ep => ep.FullyQualifiedName.Split('.').Last()).ToList();
-        Assert.That(methodNames, Contains.Item("Add"));
-        Assert.That(methodNames, Contains.Item("Subtract"));
-        Assert.That(methodNames, Contains.Item("GetName"));
-        
-        var addMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("Add"));
+        var addMethod = entryPoints[0];
         Assert.That(addMethod.MethodSignature, Is.EqualTo("int Add(int a, int b)"));
         Assert.That(addMethod.ReachableMethodsCount, Is.EqualTo(2));
         
-        var subtractMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("Subtract"));
+        var subtractMethod = entryPoints[1].FullyQualifiedName.EndsWith("Subtract") ? entryPoints[1] : entryPoints[2];
         Assert.That(subtractMethod.MethodSignature, Is.EqualTo("int Subtract(int a, int b)"));
         Assert.That(subtractMethod.ReachableMethodsCount, Is.EqualTo(1));
         
-        var getNameMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("GetName"));
+        var getNameMethod = entryPoints[1].FullyQualifiedName.EndsWith("GetName") ? entryPoints[1] : entryPoints[2];
         Assert.That(getNameMethod.MethodSignature, Is.EqualTo("string GetName()"));
         Assert.That(getNameMethod.ReachableMethodsCount, Is.EqualTo(1));
+    }
+    
+    [Test]
+    public async Task EntryPoints_AreSortedByReachableMethodsCountDescending()
+    {
+        var projectPath = CreateProjectWithMultiplePublicMethods();
+
+        var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
+
+        Assert.That(entryPoints, Has.Count.EqualTo(3));
+        Assert.That(entryPoints[0].FullyQualifiedName, Does.EndWith("Add"), "First method should be Add");
+        Assert.That(entryPoints[0].ReachableMethodsCount, Is.EqualTo(2));
+        Assert.That(entryPoints[1].ReachableMethodsCount, Is.EqualTo(1), 
+            $"Method {entryPoints[1].FullyQualifiedName} should have ReachableMethodsCount = 1");
+        Assert.That(entryPoints[2].ReachableMethodsCount, Is.EqualTo(1), 
+            $"Method {entryPoints[2].FullyQualifiedName} should have ReachableMethodsCount = 1");
+        Assert.That(entryPoints[1].FullyQualifiedName, 
+            Does.EndWith("GetName").Or.EndsWith("Subtract"),
+            $"Unexpected method: {entryPoints[1].FullyQualifiedName}");
+        Assert.That(entryPoints[2].FullyQualifiedName, 
+            Does.EndWith("GetName").Or.EndsWith("Subtract"),
+            $"Unexpected method: {entryPoints[2].FullyQualifiedName}");
     }
     
     [Test]
@@ -69,27 +89,47 @@ public class EntryPointFinderTests
 
         Assert.That(entryPoints, Has.Count.EqualTo(5));
         
-        var calculatorMethods = entryPoints
-            .Where(ep => ep.FullyQualifiedName.Contains("Calculator"))
-            .ToList();
-        Assert.That(calculatorMethods, Has.Count.EqualTo(2));
+        bool hasAdd = false;
+        bool hasSubtract = false;
+        bool hasLog = false;
+        bool hasIsValid = false;
+        bool hasGetErrorMessage = false;
         
-        var loggerMethods = entryPoints
-            .Where(ep => ep.FullyQualifiedName.Contains("Logger"))
-            .ToList();
-        Assert.That(loggerMethods, Has.Count.EqualTo(1));
+        foreach (var entryPoint in entryPoints)
+        {
+            if (entryPoint.FullyQualifiedName.Contains("Calculator.Add"))
+            {
+                hasAdd = true;
+                Assert.That(entryPoint.MethodSignature, Is.EqualTo("int Add(int a, int b)"));
+            }
+            else if (entryPoint.FullyQualifiedName.Contains("Calculator.Subtract"))
+            {
+                hasSubtract = true;
+                Assert.That(entryPoint.MethodSignature, Is.EqualTo("int Subtract(int a, int b)"));
+            }
+            else if (entryPoint.FullyQualifiedName.Contains("Logger.Log"))
+            {
+                hasLog = true;
+                Assert.That(entryPoint.MethodSignature, Is.EqualTo("void Log(string message)"));
+            }
+            else if (entryPoint.FullyQualifiedName.Contains("Validator.IsValid"))
+            {
+                hasIsValid = true;
+                Assert.That(entryPoint.MethodSignature, Is.EqualTo("bool IsValid(string input)"));
+            }
+            else if (entryPoint.FullyQualifiedName.Contains("Validator.GetErrorMessage"))
+            {
+                hasGetErrorMessage = true;
+                Assert.That(entryPoint.MethodSignature, Is.EqualTo("string GetErrorMessage()"));
+            }
+        }
         
-        var validatorMethods = entryPoints
-            .Where(ep => ep.FullyQualifiedName.Contains("Validator"))
-            .ToList();
-        Assert.That(validatorMethods, Has.Count.EqualTo(2));
-        
-        var methodNames = entryPoints.Select(ep => ep.FullyQualifiedName.Split('.').Last()).ToList();
-        Assert.That(methodNames, Contains.Item("Add"));
-        Assert.That(methodNames, Contains.Item("Subtract"));
-        Assert.That(methodNames, Contains.Item("Log"));
-        Assert.That(methodNames, Contains.Item("IsValid"));
-        Assert.That(methodNames, Contains.Item("GetErrorMessage"));
+        // Verify all expected methods were found
+        Assert.That(hasAdd, Is.True, "Could not find Calculator.Add method");
+        Assert.That(hasSubtract, Is.True, "Could not find Calculator.Subtract method");
+        Assert.That(hasLog, Is.True, "Could not find Logger.Log method");
+        Assert.That(hasIsValid, Is.True, "Could not find Validator.IsValid method");
+        Assert.That(hasGetErrorMessage, Is.True, "Could not find Validator.GetErrorMessage method");
     }
     
     [Test]
@@ -101,7 +141,7 @@ public class EntryPointFinderTests
 
         Assert.That(entryPoints, Has.Count.EqualTo(1));
         
-        var entryPoint = entryPoints.First();
+        var entryPoint = entryPoints[0];
         Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo("CallProject.BusinessLogic.ProcessData"));
         Assert.That(entryPoint.MethodSignature, Is.EqualTo("string ProcessData(string input)"));
         Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(4)); // ProcessData + ValidateInput + TransformData + FormatOutput
@@ -116,7 +156,7 @@ public class EntryPointFinderTests
 
         Assert.That(entryPoints, Has.Count.EqualTo(1));
         
-        var entryPoint = entryPoints.First();
+        var entryPoint = entryPoints[0];
         Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo("MainProject.Program.Main"));
         Assert.That(entryPoint.MethodSignature, Is.EqualTo("void Main(string[] args)"));
         Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(1));
@@ -131,13 +171,28 @@ public class EntryPointFinderTests
 
         Assert.That(entryPoints, Has.Count.EqualTo(3));
         
-        var addMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("Add"));
+        // Find methods by their known signatures since we know the expected outcome
+        EntryPoint? addMethod = null;
+        EntryPoint? processMethod = null;
+        EntryPoint? calculateMethod = null;
+        
+        for (int i = 0; i < entryPoints.Count; i++)
+        {
+            if (entryPoints[i].FullyQualifiedName.EndsWith("Add"))
+                addMethod = entryPoints[i];
+            else if (entryPoints[i].FullyQualifiedName.EndsWith("ProcessData"))
+                processMethod = entryPoints[i];
+            else if (entryPoints[i].FullyQualifiedName.EndsWith("Calculate"))
+                calculateMethod = entryPoints[i];
+        }
+        
+        Assert.That(addMethod, Is.Not.Null, "Could not find Add method");
         Assert.That(addMethod.MethodSignature, Is.EqualTo("int Add(int a, int b)"));
         
-        var processMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("ProcessData"));
+        Assert.That(processMethod, Is.Not.Null, "Could not find ProcessData method");
         Assert.That(processMethod.MethodSignature, Is.EqualTo("string ProcessData(string input, bool validate)"));
         
-        var calculateMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("Calculate"));
+        Assert.That(calculateMethod, Is.Not.Null, "Could not find Calculate method");
         Assert.That(calculateMethod.MethodSignature, Is.EqualTo("double Calculate(double x, double y, int precision)"));
     }
     
@@ -172,13 +227,9 @@ public class EntryPointFinderTests
 
         Assert.That(entryPoints, Has.Count.EqualTo(1));
         
-        var entryPoint = entryPoints.First();
+        var entryPoint = entryPoints[0];
         Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo("CrossCallProject.OrderService.ProcessOrder"));
         Assert.That(entryPoint.MethodSignature, Is.EqualTo("string ProcessOrder(string orderId)"));
-        // ProcessOrder calls: ValidateOrder (same class), PaymentService.ProcessPayment, EmailService.SendConfirmation
-        // PaymentService.ProcessPayment calls: LogPayment (same class)
-        // EmailService.SendConfirmation calls: FormatEmail (same class)
-        // Total reachable: ProcessOrder + ValidateOrder + ProcessPayment + LogPayment + SendConfirmation + FormatEmail = 6
         Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(6));
     }
     
@@ -474,7 +525,7 @@ namespace ReturnValueProject
 
         Assert.That(entryPoints, Has.Count.EqualTo(1));
         
-        var entryPoint = entryPoints.First();
+        var entryPoint = entryPoints[0];
         Assert.That(entryPoint.FullyQualifiedName, Does.EndWith(".CircularService.StartProcess"));
         Assert.That(entryPoint.MethodSignature, Is.EqualTo("string StartProcess(string input)"));
         // Should count reachable methods despite circular references:
@@ -748,7 +799,7 @@ EndGlobal";
 
         // Should only find the production method, not the test method
         Assert.That(entryPoints, Has.Count.EqualTo(1));
-        Assert.That(entryPoints.First().FullyQualifiedName, Does.EndWith("Calculator.Add"));
+        Assert.That(entryPoints[0].FullyQualifiedName, Does.EndWith("Calculator.Add"));
     }
     
     
