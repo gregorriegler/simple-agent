@@ -1,7 +1,7 @@
 # Dependency Breaking Mikado Plan
 
 1. For a characterization test entrypoint
-1. Identify hard dependencies
+1. Identify hard dependencies. Only consider dependencies that harm testability.
 1. For each hard dependency generate a strategy to break it
 1. Create a list of tiny refactoring steps and 
 1. write everything to markdown `characterization-test-plan-entrypoint-{foo}.md` 
