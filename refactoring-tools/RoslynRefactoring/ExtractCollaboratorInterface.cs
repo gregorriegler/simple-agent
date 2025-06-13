@@ -54,13 +54,28 @@ public class ExtractCollaboratorInterface : IRefactoring
             return null;
             
         var typeName = collaboratorType.ToString();
+        var existingInterface = FindExistingInterface(documentRoot, typeName);
+        
+        if (existingInterface != null)
+            return new CollaboratorInfo(targetClass, typeName, new List<string>(), new List<string>(), null, existingInterface);
+            
         var usedMethods = FindUsedMethods(targetClass, typeName);
         var usedProperties = FindUsedProperties(targetClass, typeName);
         
         if (!usedMethods.Any() && !usedProperties.Any())
             return null;
             
-        return new CollaboratorInfo(targetClass, typeName, usedMethods, usedProperties, null);
+        return new CollaboratorInfo(targetClass, typeName, usedMethods, usedProperties, null, null);
+    }
+    
+    private string? FindExistingInterface(SyntaxNode documentRoot, string collaboratorType)
+    {
+        var interfaceName = GetInterfaceName(collaboratorType);
+        var existingInterface = documentRoot.DescendantNodes()
+            .OfType<InterfaceDeclarationSyntax>()
+            .FirstOrDefault(i => i.Identifier.Text == interfaceName);
+            
+        return existingInterface?.Identifier.Text;
     }
     
     private ClassDeclarationSyntax? FindTargetClass(TypeSyntax collaboratorType)
@@ -70,10 +85,13 @@ public class ExtractCollaboratorInterface : IRefactoring
     
     private void ApplyRefactoring(DocumentEditor documentEditor, CollaboratorInfo collaboratorInfo)
     {
-        var interfaceDeclaration = CreateInterface(collaboratorInfo);
-        var updatedClass = RefactorClass(collaboratorInfo);
+        if (collaboratorInfo.ExistingInterface == null)
+        {
+            var interfaceDeclaration = CreateInterface(collaboratorInfo);
+            documentEditor.InsertBefore(collaboratorInfo.TargetClass, interfaceDeclaration);
+        }
         
-        documentEditor.InsertBefore(collaboratorInfo.TargetClass, interfaceDeclaration);
+        var updatedClass = RefactorClass(collaboratorInfo);
         documentEditor.ReplaceNode(collaboratorInfo.TargetClass, updatedClass);
     }
     
@@ -219,14 +237,16 @@ public class ExtractCollaboratorInterface : IRefactoring
         public List<string> UsedMethods { get; }
         public List<string> UsedProperties { get; }
         public ObjectCreationExpressionSyntax? ObjectCreation { get; }
+        public string? ExistingInterface { get; }
         
-        public CollaboratorInfo(ClassDeclarationSyntax targetClass, string collaboratorType, List<string> usedMethods, List<string> usedProperties, ObjectCreationExpressionSyntax? objectCreation)
+        public CollaboratorInfo(ClassDeclarationSyntax targetClass, string collaboratorType, List<string> usedMethods, List<string> usedProperties, ObjectCreationExpressionSyntax? objectCreation, string? existingInterface)
         {
             TargetClass = targetClass;
             CollaboratorType = collaboratorType;
             UsedMethods = usedMethods;
             UsedProperties = usedProperties;
             ObjectCreation = objectCreation;
+            ExistingInterface = existingInterface;
         }
     }
     

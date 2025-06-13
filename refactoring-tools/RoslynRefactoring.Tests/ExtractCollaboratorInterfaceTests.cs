@@ -68,6 +68,63 @@ public class ExtractCollaboratorInterfaceTests
         await VerifyExtractCollaboratorInterface(code, "3:29-3:46");
     }
 
+    [Test]
+    public async Task HandleOneCollaboratorMultipleMembers()
+    {
+        const string code = """
+                            public class OrderService
+                            {
+                                private readonly PaymentProcessor _paymentProcessor;
+                                
+                                public OrderService(PaymentProcessor paymentProcessor)
+                                {
+                                    _paymentProcessor = paymentProcessor;
+                                }
+                                
+                                public void ProcessOrder(Order order)
+                                {
+                                    _paymentProcessor.ProcessPayment();
+                                    var status = _paymentProcessor.Status;
+                                }
+                            }
+                            """;
+
+        await VerifyExtractCollaboratorInterface(code, "3:29-3:46");
+    }
+
+    [Test]
+    public async Task HandleCollaboratorWithExistingInterface()
+    {
+        const string code = """
+                            public interface IPaymentProcessor
+                            {
+                                void ProcessPayment();
+                            }
+                            
+                            public class PaymentProcessor : IPaymentProcessor
+                            {
+                                public void ProcessPayment() { }
+                            }
+                            
+                            public class OrderService
+                            {
+                                private readonly PaymentProcessor _paymentProcessor;
+                                
+                                public OrderService(PaymentProcessor paymentProcessor)
+                                {
+                                    _paymentProcessor = paymentProcessor;
+                                }
+                                
+                                public void ProcessOrder(Order order)
+                                {
+                                    _paymentProcessor.ProcessPayment();
+                                }
+                            }
+                            """;
+
+        await VerifyExtractCollaboratorInterface(code, "15:29-15:46");
+    }
+
     private static async Task VerifyExtractCollaboratorInterface(string code, string selectionText = "")
     {
         var document = CreateDocument(code);
