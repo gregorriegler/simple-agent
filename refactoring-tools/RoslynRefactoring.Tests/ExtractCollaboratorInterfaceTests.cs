@@ -45,6 +45,29 @@ public class ExtractCollaboratorInterfaceTests
         await VerifyExtractCollaboratorInterface(code, "3:29-3:46");
     }
 
+    [Test]
+    public async Task HandleOneCollaboratorOneProperty()
+    {
+        const string code = """
+                            public class OrderService
+                            {
+                                private readonly PaymentProcessor _paymentProcessor;
+                                
+                                public OrderService(PaymentProcessor paymentProcessor)
+                                {
+                                    _paymentProcessor = paymentProcessor;
+                                }
+                                
+                                public void ProcessOrder(Order order)
+                                {
+                                    var status = _paymentProcessor.Status;
+                                }
+                            }
+                            """;
+
+        await VerifyExtractCollaboratorInterface(code, "3:29-3:46");
+    }
+
     private static async Task VerifyExtractCollaboratorInterface(string code, string selectionText = "")
     {
         var document = CreateDocument(code);

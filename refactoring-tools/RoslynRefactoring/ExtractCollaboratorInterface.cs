@@ -55,11 +55,12 @@ public class ExtractCollaboratorInterface : IRefactoring
             
         var typeName = collaboratorType.ToString();
         var usedMethods = FindUsedMethods(targetClass, typeName);
+        var usedProperties = FindUsedProperties(targetClass, typeName);
         
-        if (!usedMethods.Any())
+        if (!usedMethods.Any() && !usedProperties.Any())
             return null;
             
-        return new CollaboratorInfo(targetClass, typeName, usedMethods, null);
+        return new CollaboratorInfo(targetClass, typeName, usedMethods, usedProperties, null);
     }
     
     private ClassDeclarationSyntax? FindTargetClass(TypeSyntax collaboratorType)
@@ -114,12 +115,42 @@ public class ExtractCollaboratorInterface : IRefactoring
         
         foreach (var memberAccess in collaboratorMemberAccesses)
         {
-            var methodName = memberAccess.Name.Identifier.Text;
-            if (!methodNames.Contains(methodName))
-                methodNames.Add(methodName);
+            if (IsMethodCall(memberAccess))
+            {
+                var methodName = memberAccess.Name.Identifier.Text;
+                if (!methodNames.Contains(methodName))
+                    methodNames.Add(methodName);
+            }
         }
         
         return methodNames;
+    }
+    
+    private bool IsMethodCall(MemberAccessExpressionSyntax memberAccess)
+    {
+        return memberAccess.Parent is InvocationExpressionSyntax;
+    }
+    
+    private List<string> FindUsedProperties(ClassDeclarationSyntax targetClass, string collaboratorType)
+    {
+        var propertyNames = new List<string>();
+        
+        var collaboratorMemberAccesses = targetClass.DescendantNodes()
+            .OfType<MemberAccessExpressionSyntax>()
+            .Where(memberAccess => memberAccess.Expression is IdentifierNameSyntax fieldIdentifier &&
+                        IsCollaboratorField(targetClass, fieldIdentifier.Identifier.Text, collaboratorType));
+        
+        foreach (var memberAccess in collaboratorMemberAccesses)
+        {
+            if (!IsMethodCall(memberAccess))
+            {
+                var propertyName = memberAccess.Name.Identifier.Text;
+                if (!propertyNames.Contains(propertyName))
+                    propertyNames.Add(propertyName);
+            }
+        }
+        
+        return propertyNames;
     }
     
     private bool IsCollaboratorField(ClassDeclarationSyntax targetClass, string fieldName, string collaboratorType)
@@ -135,7 +166,7 @@ public class ExtractCollaboratorInterface : IRefactoring
     private InterfaceDeclarationSyntax CreateInterface(CollaboratorInfo collaboratorInfo)
     {
         var interfaceName = GetInterfaceName(collaboratorInfo.CollaboratorType);
-        var methods = new List<MemberDeclarationSyntax>();
+        var members = new List<MemberDeclarationSyntax>();
         
         foreach (var methodName in collaboratorInfo.UsedMethods)
         {
@@ -144,12 +175,25 @@ public class ExtractCollaboratorInterface : IRefactoring
                 methodName)
                 .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
                 
-            methods.Add(method);
+            members.Add(method);
+        }
+        
+        foreach (var propertyName in collaboratorInfo.UsedProperties)
+        {
+            var property = SyntaxFactory.PropertyDeclaration(
+                SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.ObjectKeyword)),
+                propertyName)
+                .WithAccessorList(SyntaxFactory.AccessorList(
+                    SyntaxFactory.SingletonList(
+                        SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)))));
+                            
+            members.Add(property);
         }
         
         return SyntaxFactory.InterfaceDeclaration(interfaceName)
             .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-            .WithMembers(SyntaxFactory.List(methods));
+            .WithMembers(SyntaxFactory.List(members));
     }
     
     private static string GetInterfaceName(string collaboratorType)
@@ -173,13 +217,15 @@ public class ExtractCollaboratorInterface : IRefactoring
         public ClassDeclarationSyntax TargetClass { get; }
         public string CollaboratorType { get; }
         public List<string> UsedMethods { get; }
+        public List<string> UsedProperties { get; }
         public ObjectCreationExpressionSyntax? ObjectCreation { get; }
         
-        public CollaboratorInfo(ClassDeclarationSyntax targetClass, string collaboratorType, List<string> usedMethods, ObjectCreationExpressionSyntax? objectCreation)
+        public CollaboratorInfo(ClassDeclarationSyntax targetClass, string collaboratorType, List<string> usedMethods, List<string> usedProperties, ObjectCreationExpressionSyntax? objectCreation)
         {
             TargetClass = targetClass;
             CollaboratorType = collaboratorType;
             UsedMethods = usedMethods;
+            UsedProperties = usedProperties;
             ObjectCreation = objectCreation;
         }
     }
