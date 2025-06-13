@@ -139,12 +139,6 @@ public class ExtractCollaboratorInterface : IRefactoring
         return (ClassDeclarationSyntax)rewriter.Visit(collaboratorInfo.TargetClass);
     }
     
-    private MethodDeclarationSyntax UpdateMethodToUseField(MethodDeclarationSyntax method, CollaboratorInfo collaboratorInfo, string fieldName)
-    {
-        var rewriter = new CollaboratorRewriter(collaboratorInfo.CollaboratorType, fieldName);
-        return (MethodDeclarationSyntax)rewriter.Visit(method);
-    }
-    
     private string FirstCharToLower(string text)
     {
         if (string.IsNullOrEmpty(text))

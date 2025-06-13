@@ -1,7 +1,7 @@
 # 🧹 Refactoring Plan for ExtractCollaboratorInterface
 
 - [x] Add missing `using System;` directive for ArgumentNullException
-- [ ] Remove hardcoded "PaymentProcessor" string and make it configurable
+- [x] Remove hardcoded "PaymentProcessor" string and make it configurable
 - [ ] Remove unused `UpdateMethodToUseField` method (dead code)
 - [ ] Extract interface name generation logic to avoid duplication
 - [ ] Break down `ProcessDocumentAsync` method into smaller, focused methods
