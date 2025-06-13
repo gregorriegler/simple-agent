@@ -38,7 +38,9 @@ public class BreakHardDependencyTests
                             }
                             """;
 
-        await VerifyBreakHardDependency(code);
+        // No selection needed for this test as there are no fields to refactor
+        // Select the field with OrderRepository.Instance
+        await VerifyBreakHardDependency(code, "31:33-31:58");
     }
 
     [Test]
@@ -64,7 +66,8 @@ public class BreakHardDependencyTests
                             }
                             """;
 
-        await VerifyBreakHardDependency(code);
+        // Select the field with OrderRepository.Instance
+        await VerifyBreakHardDependency(code, "50:33-50:58");
     }
 
     [Test]
@@ -92,13 +95,20 @@ public class BreakHardDependencyTests
                             }
                             """;
 
-        await VerifyBreakHardDependency(code);
+        // Select the field with OrderRepository.Instance
+        await VerifyBreakHardDependency(code, "76:33-76:58");
     }
 
-    private static async Task VerifyBreakHardDependency(string code)
+    private static async Task VerifyBreakHardDependency(string code, string selectionText = "")
     {
         var document = CreateDocument(code);
-        var breakHardDependency = new BreakHardDependency();
+        
+        // If no selection is provided, use a default selection that won't match any field
+        var selection = string.IsNullOrEmpty(selectionText)
+            ? CodeSelection.Parse("1:0-1:0")
+            : CodeSelection.Parse(selectionText);
+            
+        var breakHardDependency = new BreakHardDependency(selection);
         var updatedDocument = await breakHardDependency.PerformAsync(document);
         var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
         await Verify(formatted.ToFullString());

@@ -9,23 +9,59 @@ namespace RoslynRefactoring;
 
 public class BreakHardDependency : IRefactoring
 {
+    private readonly CodeSelection _selection;
+
+    public BreakHardDependency(CodeSelection selection)
+    {
+        _selection = selection;
+    }
+
+    public static BreakHardDependency Create(string[] args)
+    {
+        var selection = CodeSelection.Parse(args[0]);
+        return new BreakHardDependency(selection);
+    }
+
     public async Task<Document> PerformAsync(Document document)
     {
+        // NOTE: Currently, this implementation ignores the CodeSelection parameter and processes all singleton fields
+        // in the document. In a future enhancement, the CodeSelection could be used to identify a specific field
+        // to refactor, similar to how ExtractMethod uses the selection to identify the code to extract.
+        
         var syntaxRoot = await document.GetSyntaxRootAsync();
         var semanticModel = await document.GetSemanticModelAsync();
         
         if (syntaxRoot == null || semanticModel == null)
             return document;
             
-        var classDeclarations = syntaxRoot.DescendantNodes().OfType<ClassDeclarationSyntax>().ToList();
-        var modifiedClasses = new Dictionary<string, (List<(FieldDeclarationSyntax Field, string TypeName)> Singletons, ClassDeclarationSyntax UpdatedClass)>();
-        
         var documentEditor = await DocumentEditor.CreateAsync(document);
+        
+        // Find all class declarations in the document
+        var classDeclarations = syntaxRoot.DescendantNodes().OfType<ClassDeclarationSyntax>();
         
         foreach (var classDeclaration in classDeclarations)
         {
-            var singletonFields = FindSingletonFields(classDeclaration);
+            // Find all fields in the class
+            var fields = classDeclaration.Members.OfType<FieldDeclarationSyntax>();
             
+            // Find singleton fields (fields initialized with ClassName.Instance)
+            var singletonFields = new List<(FieldDeclarationSyntax Field, string TypeName)>();
+            
+            foreach (var field in fields)
+            {
+                foreach (var variable in field.Declaration.Variables)
+                {
+                    if (variable.Initializer != null &&
+                        variable.Initializer.Value is MemberAccessExpressionSyntax memberAccess &&
+                        memberAccess.Name.Identifier.Text == "Instance")
+                    {
+                        var typeName = memberAccess.Expression.ToString();
+                        singletonFields.Add((field, typeName));
+                    }
+                }
+            }
+            
+            // If no singleton fields found, continue to the next class
             if (!singletonFields.Any())
                 continue;
                 
@@ -90,29 +126,22 @@ public class BreakHardDependency : IRefactoring
             var updatedClass = classDeclaration.WithMembers(SyntaxFactory.List(updatedMembers));
             documentEditor.ReplaceNode(classDeclaration, updatedClass);
             
-            modifiedClasses.Add(classDeclaration.Identifier.Text, (singletonFields, updatedClass));
-        }
-        
-        if (modifiedClasses.Any())
-        {
-            // Update all object creation expressions that create instances of the modified classes
+            // Update all object creation expressions that create instances of the modified class
             var objectCreationExpressions = syntaxRoot.DescendantNodes().OfType<ObjectCreationExpressionSyntax>();
             
             foreach (var objectCreation in objectCreationExpressions)
             {
                 var typeName = objectCreation.Type.ToString();
                 
-                if (modifiedClasses.TryGetValue(typeName, out var classInfo))
+                if (typeName == classDeclaration.Identifier.Text)
                 {
-                    var updatedObjectCreation = UpdateObjectCreation(objectCreation, classInfo.Singletons);
+                    var updatedObjectCreation = UpdateObjectCreation(objectCreation, singletonFields);
                     documentEditor.ReplaceNode(objectCreation, updatedObjectCreation);
                 }
             }
-            
-            return documentEditor.GetChangedDocument();
         }
         
-        return document;
+        return documentEditor.GetChangedDocument();
     }
     
     private ObjectCreationExpressionSyntax UpdateObjectCreation(
@@ -279,7 +308,7 @@ public class BreakHardDependency : IRefactoring
         
         // Create new constructor with dependency injection parameters
         var parameters = singletonFields
-            .Select(f =>
+            .Select(f => 
                 SyntaxFactory.Parameter(
                     SyntaxFactory.Identifier(FirstCharToLower(f.TypeName)))
                 .WithType(SyntaxFactory.IdentifierName(f.TypeName)))
@@ -308,30 +337,6 @@ public class BreakHardDependency : IRefactoring
             .WithBody(constructorBody);
             
         result.Add(newConstructor);
-        
-        return result;
-    }
-    
-    private List<(FieldDeclarationSyntax Field, string TypeName)> FindSingletonFields(ClassDeclarationSyntax classDeclaration)
-    {
-        var result = new List<(FieldDeclarationSyntax, string)>();
-        
-        foreach (var member in classDeclaration.Members)
-        {
-            if (member is FieldDeclarationSyntax fieldDeclaration)
-            {
-                foreach (var variable in fieldDeclaration.Declaration.Variables)
-                {
-                    if (variable.Initializer != null &&
-                        variable.Initializer.Value is MemberAccessExpressionSyntax memberAccess &&
-                        memberAccess.Name.Identifier.Text == "Instance")
-                    {
-                        var typeName = memberAccess.Expression.ToString();
-                        result.Add((fieldDeclaration, typeName));
-                    }
-                }
-            }
-        }
         
         return result;
     }
