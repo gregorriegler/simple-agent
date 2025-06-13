@@ -44,7 +44,7 @@ public class ExtractCollaboratorInterface : IRefactoring
     
     private CollaboratorInfo? ExtractCollaboratorInfo(SyntaxNode documentRoot)
     {
-        var collaboratorType = FindCollaboratorTypeFromSelection(documentRoot);
+        var collaboratorType = FindFirstCollaboratorFieldType(documentRoot);
         
         if (collaboratorType == null)
             return null;
@@ -76,7 +76,7 @@ public class ExtractCollaboratorInterface : IRefactoring
         documentEditor.ReplaceNode(collaboratorInfo.TargetClass, updatedClass);
     }
     
-    private TypeSyntax? FindCollaboratorTypeFromSelection(SyntaxNode syntaxRoot)
+    private TypeSyntax? FindFirstCollaboratorFieldType(SyntaxNode syntaxRoot)
     {
         // Find the first field declaration that could be a collaborator
         // This removes the hardcoded "PaymentProcessor" dependency
