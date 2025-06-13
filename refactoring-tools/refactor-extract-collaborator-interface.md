@@ -12,6 +12,7 @@ public interface IRefactoring
     Task<Document> PerformAsync(Document document);
 }
 ```
+* The CodeSelection of the collaborator should be passed via constructor or factory
 
 ---
 
