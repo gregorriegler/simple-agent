@@ -5,7 +5,7 @@ var refactoringName = args[0];
 
 if (refactoringName == "--list-tools")
 {
-    var availableTools = new[] { "extract-method", "inline-method", "extract-collaborator-interface", "break-hard-dependency" };
+    var availableTools = GetAvailableRefactorings().Keys;
     foreach (var tool in availableTools)
     {
         Console.WriteLine(tool);
@@ -47,15 +47,41 @@ var project = new Project(projectPath, fileName);
 await project.OpenAndApplyRefactoring(refactoring);
 return;
 
+Dictionary<string, Type> GetAvailableRefactorings()
+{
+    var assembly = Assembly.GetExecutingAssembly();
+    var refactoringTypes = assembly.GetTypes()
+        .Where(t => typeof(IRefactoring).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
+        .ToList();
+
+    var refactoringMap = new Dictionary<string, Type>();
+    
+    foreach (var type in refactoringTypes)
+    {
+        var toolName = ConvertTypeNameToToolName(type.Name);
+        refactoringMap[toolName] = type;
+    }
+    
+    return refactoringMap;
+}
+
+string ConvertTypeNameToToolName(string typeName)
+{
+    var result = "";
+    for (int i = 0; i < typeName.Length; i++)
+    {
+        if (i > 0 && char.IsUpper(typeName[i]))
+        {
+            result += "-";
+        }
+        result += char.ToLower(typeName[i]);
+    }
+    return result;
+}
+
 IRefactoring CreateRefactoring(string name, string[] refactoringArguments)
 {
-    var refactoringMap = new Dictionary<string, Type>
-    {
-        { "extract-method", typeof(ExtractMethod) },
-        { "inline-method", typeof(InlineMethod) },
-        { "extract-collaborator-interface", typeof(ExtractCollaboratorInterface) },
-        { "break-hard-dependency", typeof(BreakHardDependency) }
-    };
+    var refactoringMap = GetAvailableRefactorings();
 
     if (!refactoringMap.TryGetValue(name, out var refactoringType))
     {
@@ -75,13 +101,7 @@ IRefactoring CreateRefactoring(string name, string[] refactoringArguments)
 
 string GetRefactoringDescription(string name)
 {
-    var refactoringMap = new Dictionary<string, Type>
-    {
-        { "extract-method", typeof(ExtractMethod) },
-        { "inline-method", typeof(InlineMethod) },
-        { "extract-collaborator-interface", typeof(ExtractCollaboratorInterface) },
-        { "break-hard-dependency", typeof(BreakHardDependency) }
-    };
+    var refactoringMap = GetAvailableRefactorings();
 
     if (!refactoringMap.TryGetValue(name, out var refactoringType))
     {
@@ -101,13 +121,7 @@ string GetRefactoringDescription(string name)
 
 string GetRefactoringArguments(string name)
 {
-    var refactoringMap = new Dictionary<string, Type>
-    {
-        { "extract-method", typeof(ExtractMethod) },
-        { "inline-method", typeof(InlineMethod) },
-        { "extract-collaborator-interface", typeof(ExtractCollaboratorInterface) },
-        { "break-hard-dependency", typeof(BreakHardDependency) }
-    };
+    var refactoringMap = GetAvailableRefactorings();
 
     if (!refactoringMap.TryGetValue(name, out var refactoringType))
     {
@@ -151,13 +165,7 @@ string GetRefactoringArguments(string name)
 
 string GetRefactoringInfo(string name)
 {
-    var refactoringMap = new Dictionary<string, Type>
-    {
-        { "extract-method", typeof(ExtractMethod) },
-        { "inline-method", typeof(InlineMethod) },
-        { "extract-collaborator-interface", typeof(ExtractCollaboratorInterface) },
-        { "break-hard-dependency", typeof(BreakHardDependency) }
-    };
+    var refactoringMap = GetAvailableRefactorings();
 
     if (!refactoringMap.TryGetValue(name, out var refactoringType))
     {
