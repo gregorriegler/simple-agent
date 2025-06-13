@@ -3,7 +3,7 @@
 - [x] Add missing `using System;` directive for ArgumentNullException
 - [x] Remove hardcoded "PaymentProcessor" string and make it configurable
 - [x] Remove unused `UpdateMethodToUseField` method (dead code)
-- [ ] Extract interface name generation logic to avoid duplication
+- [x] Extract interface name generation logic to avoid duplication
 - [ ] Break down `ProcessDocumentAsync` method into smaller, focused methods
 - [ ] Rename `FindCollaboratorTypeFromSelection` to be more descriptive
 - [ ] Simplify `FirstCharToLower` method implementation

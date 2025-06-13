@@ -32,29 +32,48 @@ public class ExtractCollaboratorInterface : IRefactoring
     
     private Task<Document> ProcessDocumentAsync(Document document, SyntaxNode documentRoot, DocumentEditor documentEditor)
     {
+        var collaboratorInfo = ExtractCollaboratorInfo(documentRoot);
+        
+        if (collaboratorInfo == null)
+            return Task.FromResult(document);
+            
+        ApplyRefactoring(documentEditor, collaboratorInfo);
+        
+        return Task.FromResult(documentEditor.GetChangedDocument());
+    }
+    
+    private CollaboratorInfo? ExtractCollaboratorInfo(SyntaxNode documentRoot)
+    {
         var collaboratorType = FindCollaboratorTypeFromSelection(documentRoot);
         
         if (collaboratorType == null)
-            return Task.FromResult(document);
+            return null;
             
-        var targetClass = collaboratorType.Ancestors().OfType<ClassDeclarationSyntax>().FirstOrDefault();
+        var targetClass = FindTargetClass(collaboratorType);
         if (targetClass == null)
-            return Task.FromResult(document);
+            return null;
             
         var typeName = collaboratorType.ToString();
         var usedMethods = FindUsedMethods(targetClass, typeName);
         
         if (!usedMethods.Any())
-            return Task.FromResult(document);
+            return null;
             
-        var collaboratorInfo = new CollaboratorInfo(targetClass, typeName, usedMethods, null);
+        return new CollaboratorInfo(targetClass, typeName, usedMethods, null);
+    }
+    
+    private ClassDeclarationSyntax? FindTargetClass(TypeSyntax collaboratorType)
+    {
+        return collaboratorType.Ancestors().OfType<ClassDeclarationSyntax>().FirstOrDefault();
+    }
+    
+    private void ApplyRefactoring(DocumentEditor documentEditor, CollaboratorInfo collaboratorInfo)
+    {
         var interfaceDeclaration = CreateInterface(collaboratorInfo);
         var updatedClass = RefactorClass(collaboratorInfo);
         
         documentEditor.InsertBefore(collaboratorInfo.TargetClass, interfaceDeclaration);
         documentEditor.ReplaceNode(collaboratorInfo.TargetClass, updatedClass);
-        
-        return Task.FromResult(documentEditor.GetChangedDocument());
     }
     
     private TypeSyntax? FindCollaboratorTypeFromSelection(SyntaxNode syntaxRoot)
