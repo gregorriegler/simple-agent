@@ -115,7 +115,7 @@ public class ExtractCollaboratorInterface : IRefactoring
     
     private InterfaceDeclarationSyntax CreateInterface(CollaboratorInfo collaboratorInfo)
     {
-        var interfaceName = $"I{collaboratorInfo.CollaboratorType}";
+        var interfaceName = GetInterfaceName(collaboratorInfo.CollaboratorType);
         var methods = new List<MemberDeclarationSyntax>();
         
         foreach (var methodName in collaboratorInfo.UsedMethods)
@@ -131,6 +131,11 @@ public class ExtractCollaboratorInterface : IRefactoring
         return SyntaxFactory.InterfaceDeclaration(interfaceName)
             .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
             .WithMembers(SyntaxFactory.List(methods));
+    }
+    
+    private static string GetInterfaceName(string collaboratorType)
+    {
+        return $"I{collaboratorType}";
     }
     
     private ClassDeclarationSyntax RefactorClass(CollaboratorInfo collaboratorInfo)
@@ -178,7 +183,7 @@ public class ExtractCollaboratorInterface : IRefactoring
         {
             if (node.Declaration.Type.ToString() == _collaboratorType)
             {
-                var interfaceName = $"I{_collaboratorType}";
+                var interfaceName = GetInterfaceName(_collaboratorType);
                 return node.WithDeclaration(
                     node.Declaration.WithType(SyntaxFactory.IdentifierName(interfaceName)));
             }
@@ -190,7 +195,7 @@ public class ExtractCollaboratorInterface : IRefactoring
         {
             if (node.Type?.ToString() == _collaboratorType)
             {
-                var interfaceName = $"I{_collaboratorType}";
+                var interfaceName = GetInterfaceName(_collaboratorType);
                 return node.WithType(SyntaxFactory.IdentifierName(interfaceName));
             }
             
