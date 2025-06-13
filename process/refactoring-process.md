@@ -6,14 +6,20 @@ When you refactor always start your answer with the STARTER_SYMBOL (🧹)
 
 Refactoring means to improve the structure of the code in tiny steps while maintaining its current observable behavior. All the tests need to keep passing. Treat warnings as errors.
 
-## 1. Find one thing to improve
-1. Decide on something to improve.
-    1. Identify dead code in the tests
-    1. Then look for production code that you can remove. **Pay special attention to if statements and conditional expressions** that aren't exercised by any tests. These should be systematically identified and removed if no test requires them.
-    If you are unsure whether you can remove production code, run a [mutation test](./mutation-test.md)
-    1. Only if you can't find any production code that you can remove, start searching for code-smells using the [identify-code-smells](./identify-code-smells.md) process.
-1. Break that improvement down into small atomic refactoring steps of which each step keeps all the tests passing (use `test.sh`)
+## 1. Identify things to improve
 1. If there is already a `refactoring-plan.md` file, clean it so its empty.
+1. Find things to improve.
+    - Remove Comments
+    - Remove Dead code
+    - Remove Production code is not exercised by any tests. If you are unsure whether you can remove production code, run a [mutation test](./mutation-test.md)
+    - Fix Feature Envy
+    - Identify and refactor duplicated code
+    - Refactor Long Methods
+    - Long Parameter Lists (more than 3 is long)
+    - Long Classes
+    - Long Files
+    - Improve Names
+1. Break that improvement down into small atomic refactoring steps of which each step keeps all the tests passing (use `test.sh`)
 1. Lists all the steps as tasks prefixed with a checkbox in `refactoring-plan.md`.
 
 ## 2. Work through the planned tasks
