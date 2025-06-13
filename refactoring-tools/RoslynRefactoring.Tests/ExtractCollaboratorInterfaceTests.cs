@@ -1,0 +1,64 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Formatting;
+
+namespace RoslynRefactoring.Tests;
+
+[TestFixture]
+public class ExtractCollaboratorInterfaceTests
+{
+    [Test]
+    public async Task HandleZeroCollaborators()
+    {
+        const string code = """
+                            public class OrderService
+                            {
+                                public void ProcessOrder(Order order)
+                                {
+                                    order.Status = "Processed";
+                                }
+                            }
+                            """;
+
+        await VerifyExtractCollaboratorInterface(code);
+    }
+
+    [Test]
+    public async Task HandleOneCollaboratorOneMethod()
+    {
+        const string code = """
+                            public class OrderService
+                            {
+                                public void ProcessOrder(Order order)
+                                {
+                                    var processor = new PaymentProcessor();
+                                    processor.ProcessPayment();
+                                }
+                            }
+                            """;
+
+        await VerifyExtractCollaboratorInterface(code, "5:29-5:52");
+    }
+
+    private static async Task VerifyExtractCollaboratorInterface(string code, string selectionText = "")
+    {
+        var document = CreateDocument(code);
+        
+        var selection = string.IsNullOrEmpty(selectionText)
+            ? CodeSelection.Parse("1:0-1:0")
+            : CodeSelection.Parse(selectionText);
+            
+        var extractCollaboratorInterface = new ExtractCollaboratorInterface(selection);
+        var updatedDocument = await extractCollaboratorInterface.PerformAsync(document);
+        var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
+        await Verify(formatted.ToFullString());
+    }
+
+    private static Document CreateDocument(string code)
+    {
+        var workspace = new AdhocWorkspace();
+        var project = workspace.CurrentSolution.AddProject("TestProject", "TestProject.dll", LanguageNames.CSharp)
+            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
+
+        return project.AddDocument("Test.cs", code);
+    }
+}

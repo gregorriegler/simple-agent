@@ -1,0 +1,7 @@
+﻿public class OrderService
+{
+    public void ProcessOrder(Order order)
+    {
+        order.Status = "Processed";
+    }
+}
