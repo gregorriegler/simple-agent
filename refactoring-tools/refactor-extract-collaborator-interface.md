@@ -39,6 +39,8 @@ flowchart TD
 
 ## 3. List of Scenarios (Ordered by Simplicity)
 
+Collaborator means, its saved in a field and injected via Constructor
+
 1. **Simple Collaborator:**
 
    * A class `OrderService` directly uses `PaymentProcessor` (single method called).
