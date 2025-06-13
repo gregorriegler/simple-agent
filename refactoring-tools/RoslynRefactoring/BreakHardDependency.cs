@@ -2,6 +2,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using Microsoft.CodeAnalysis.Text;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,10 +26,6 @@ public class BreakHardDependency : IRefactoring
 
     public async Task<Document> PerformAsync(Document document)
     {
-        // NOTE: Currently, this implementation ignores the CodeSelection parameter and processes all singleton fields
-        // in the document. In a future enhancement, the CodeSelection could be used to identify a specific field
-        // to refactor, similar to how ExtractMethod uses the selection to identify the code to extract.
-        
         var syntaxRoot = await document.GetSyntaxRootAsync();
         var semanticModel = await document.GetSemanticModelAsync();
         
@@ -36,108 +34,188 @@ public class BreakHardDependency : IRefactoring
             
         var documentEditor = await DocumentEditor.CreateAsync(document);
         
-        // Find all class declarations in the document
-        var classDeclarations = syntaxRoot.DescendantNodes().OfType<ClassDeclarationSyntax>();
+        // Try to use the selection to find a specific field
+        var singletonFields = new List<(FieldDeclarationSyntax Field, string TypeName)>();
+        ClassDeclarationSyntax? targetClass = null;
         
-        foreach (var classDeclaration in classDeclarations)
+        if (_selection.Start.Line > 0 && _selection.End.Line > 0)
         {
-            // Find all fields in the class
-            var fields = classDeclaration.Members.OfType<FieldDeclarationSyntax>();
-            
-            // Find singleton fields (fields initialized with ClassName.Instance)
-            var singletonFields = new List<(FieldDeclarationSyntax Field, string TypeName)>();
-            
-            foreach (var field in fields)
+            try
             {
-                foreach (var variable in field.Declaration.Variables)
+                var text = await document.GetTextAsync();
+                var lines = text.Lines;
+                
+                // Check if selection is within valid range
+                if (_selection.Start.Line <= lines.Count && _selection.End.Line <= lines.Count)
                 {
-                    if (variable.Initializer != null &&
-                        variable.Initializer.Value is MemberAccessExpressionSyntax memberAccess &&
-                        memberAccess.Name.Identifier.Text == "Instance")
+                    // Get the span from the selection
+                    var startPos = lines[_selection.Start.Line - 1].Start + 
+                        Math.Min(_selection.Start.Column - 1, lines[_selection.Start.Line - 1].End - lines[_selection.Start.Line - 1].Start);
+                    var endPos = lines[_selection.End.Line - 1].Start + 
+                        Math.Min(_selection.End.Column - 1, lines[_selection.End.Line - 1].End - lines[_selection.End.Line - 1].Start);
+                    
+                    if (startPos <= endPos && startPos >= 0)
                     {
-                        var typeName = memberAccess.Expression.ToString();
-                        singletonFields.Add((field, typeName));
+                        var span = new TextSpan(startPos, endPos - startPos);
+                        
+                        // Find the node at the selection
+                        var selectedNode = syntaxRoot.FindNode(span);
+                        
+                        // Find the field declaration that contains the selection
+                        var fieldDeclaration = selectedNode.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().FirstOrDefault();
+                        
+                        if (fieldDeclaration != null)
+                        {
+                            // Find the class that contains the field
+                            targetClass = fieldDeclaration.Ancestors().OfType<ClassDeclarationSyntax>().FirstOrDefault();
+                            
+                            if (targetClass != null)
+                            {
+                                // Check if the field is a singleton field
+                                foreach (var variable in fieldDeclaration.Declaration.Variables)
+                                {
+                                    if (variable.Initializer != null &&
+                                        variable.Initializer.Value is MemberAccessExpressionSyntax memberAccess &&
+                                        memberAccess.Name.Identifier.Text == "Instance")
+                                    {
+                                        var typeName = memberAccess.Expression.ToString();
+                                        singletonFields.Add((fieldDeclaration, typeName));
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
-            
-            // If no singleton fields found, continue to the next class
-            if (!singletonFields.Any())
-                continue;
-                
-            var updatedMembers = new List<MemberDeclarationSyntax>();
-            
-            var modifiedFields = new List<MemberDeclarationSyntax>();
-            var constructors = new List<ConstructorDeclarationSyntax>();
-            var otherMembers = new List<MemberDeclarationSyntax>();
-            
-            foreach (var member in classDeclaration.Members)
+            catch
             {
-                if (member is FieldDeclarationSyntax fieldDeclaration)
+                // If there's any error with the selection, fall back to automated finding
+                singletonFields.Clear();
+                targetClass = null;
+            }
+        }
+        
+        // If no field was found using the selection, fall back to automated finding
+        if (singletonFields.Count == 0)
+        {
+            // Find all class declarations in the document
+            var classDeclarations = syntaxRoot.DescendantNodes().OfType<ClassDeclarationSyntax>();
+            
+            foreach (var classDeclaration in classDeclarations)
+            {
+                // Find all fields in the class
+                var fields = classDeclaration.Members.OfType<FieldDeclarationSyntax>();
+                
+                // Find singleton fields (fields initialized with ClassName.Instance)
+                var classSingletonFields = new List<(FieldDeclarationSyntax Field, string TypeName)>();
+                
+                foreach (var field in fields)
                 {
-                    var singletonField = singletonFields.FirstOrDefault(f => f.Field == fieldDeclaration);
-                    
-                    if (singletonField != default)
+                    foreach (var variable in field.Declaration.Variables)
                     {
-                        var variable = fieldDeclaration.Declaration.Variables.First();
-                        var newVariable = variable.WithInitializer(null);
-                        
-                        var newDeclaration = fieldDeclaration.Declaration.WithVariables(
-                            SyntaxFactory.SingletonSeparatedList(newVariable));
-                            
-                        var newField = fieldDeclaration
-                            .WithDeclaration(newDeclaration)
-                            .WithModifiers(SyntaxFactory.TokenList(
-                                SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
-                                SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword)));
-                                
-                        modifiedFields.Add(newField);
-                    }
-                    else
-                    {
-                        modifiedFields.Add(fieldDeclaration);
+                        if (variable.Initializer != null &&
+                            variable.Initializer.Value is MemberAccessExpressionSyntax memberAccess &&
+                            memberAccess.Name.Identifier.Text == "Instance")
+                        {
+                            var typeName = memberAccess.Expression.ToString();
+                            classSingletonFields.Add((field, typeName));
+                        }
                     }
                 }
-                else if (member is ConstructorDeclarationSyntax constructor)
+                
+                // If singleton fields found, process this class
+                if (classSingletonFields.Any())
                 {
-                    constructors.Add(constructor);
+                    singletonFields = classSingletonFields;
+                    targetClass = classDeclaration;
+                    break;
+                }
+            }
+            
+            // If no singleton fields found in any class, return the document unchanged
+            if (singletonFields.Count == 0 || targetClass == null)
+                return document;
+        }
+        
+        // Process the target class with the singleton fields
+        var updatedMembers = new List<MemberDeclarationSyntax>();
+        
+        var modifiedFields = new List<MemberDeclarationSyntax>();
+        var constructors = new List<ConstructorDeclarationSyntax>();
+        var otherMembers = new List<MemberDeclarationSyntax>();
+        
+        // This check is redundant as we already checked targetClass != null above,
+        // but it's added to satisfy the compiler's null reference analysis
+        if (targetClass == null)
+            return document;
+            
+        foreach (var member in targetClass.Members)
+        {
+            if (member is FieldDeclarationSyntax fieldDeclaration)
+            {
+                var singletonField = singletonFields.FirstOrDefault(f => f.Field == fieldDeclaration);
+                
+                if (singletonField != default)
+                {
+                    var variable = fieldDeclaration.Declaration.Variables.First();
+                    var newVariable = variable.WithInitializer(null);
+                    
+                    var newDeclaration = fieldDeclaration.Declaration.WithVariables(
+                        SyntaxFactory.SingletonSeparatedList(newVariable));
+                        
+                    var newField = fieldDeclaration
+                        .WithDeclaration(newDeclaration)
+                        .WithModifiers(SyntaxFactory.TokenList(
+                            SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
+                            SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword)));
+                            
+                    modifiedFields.Add(newField);
                 }
                 else
                 {
-                    otherMembers.Add(member);
+                    modifiedFields.Add(fieldDeclaration);
                 }
             }
-            
-            updatedMembers.AddRange(modifiedFields);
-            
-            if (constructors.Any())
+            else if (member is ConstructorDeclarationSyntax constructor)
             {
-                var updatedConstructors = UpdateExistingConstructors(constructors, singletonFields);
-                updatedMembers.AddRange(updatedConstructors);
+                constructors.Add(constructor);
             }
             else
             {
-                var newConstructors = CreateConstructorsForSingletons(classDeclaration.Identifier.Text, singletonFields);
-                updatedMembers.AddRange(newConstructors);
+                otherMembers.Add(member);
             }
+        }
+        
+        updatedMembers.AddRange(modifiedFields);
+        
+        if (constructors.Any())
+        {
+            var updatedConstructors = UpdateExistingConstructors(constructors, singletonFields);
+            updatedMembers.AddRange(updatedConstructors);
+        }
+        else
+        {
+            var newConstructors = CreateConstructorsForSingletons(targetClass.Identifier.Text, singletonFields);
+            updatedMembers.AddRange(newConstructors);
+        }
+        
+        updatedMembers.AddRange(otherMembers);
+        
+        var updatedClass = targetClass.WithMembers(SyntaxFactory.List(updatedMembers));
+        documentEditor.ReplaceNode(targetClass, updatedClass);
+        
+        // Update all object creation expressions that create instances of the modified class
+        var objectCreationExpressions = syntaxRoot.DescendantNodes().OfType<ObjectCreationExpressionSyntax>();
+        
+        foreach (var objectCreation in objectCreationExpressions)
+        {
+            var typeName = objectCreation.Type.ToString();
             
-            updatedMembers.AddRange(otherMembers);
-            
-            var updatedClass = classDeclaration.WithMembers(SyntaxFactory.List(updatedMembers));
-            documentEditor.ReplaceNode(classDeclaration, updatedClass);
-            
-            // Update all object creation expressions that create instances of the modified class
-            var objectCreationExpressions = syntaxRoot.DescendantNodes().OfType<ObjectCreationExpressionSyntax>();
-            
-            foreach (var objectCreation in objectCreationExpressions)
+            if (typeName == targetClass.Identifier.Text)
             {
-                var typeName = objectCreation.Type.ToString();
-                
-                if (typeName == classDeclaration.Identifier.Text)
-                {
-                    var updatedObjectCreation = UpdateObjectCreation(objectCreation, singletonFields);
-                    documentEditor.ReplaceNode(objectCreation, updatedObjectCreation);
-                }
+                var updatedObjectCreation = UpdateObjectCreation(objectCreation, singletonFields);
+                documentEditor.ReplaceNode(objectCreation, updatedObjectCreation);
             }
         }
         
