@@ -163,12 +163,9 @@ public class ExtractCollaboratorInterface : IRefactoring
         return (ClassDeclarationSyntax)rewriter.Visit(collaboratorInfo.TargetClass);
     }
     
-    private string FirstCharToLower(string text)
+    private static string FirstCharToLower(string text)
     {
-        if (string.IsNullOrEmpty(text))
-            return text;
-            
-        return $"{char.ToLower(text[0])}{text[1..]}";
+        return string.IsNullOrEmpty(text) ? text : char.ToLower(text[0]) + text[1..];
     }
     
     private class CollaboratorInfo

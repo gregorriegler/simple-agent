@@ -5,7 +5,7 @@
 - [x] Remove unused `UpdateMethodToUseField` method (dead code)
 - [x] Extract interface name generation logic to avoid duplication
 - [x] Break down `ProcessDocumentAsync` method into smaller, focused methods
-- [ ] Rename `FindCollaboratorTypeFromSelection` to be more descriptive
+- [x] Rename `FindCollaboratorTypeFromSelection` to be more descriptive
 - [ ] Simplify `FirstCharToLower` method implementation
 - [ ] Extract collaborator type detection logic from hardcoded string
 - [ ] Improve variable names in `FindUsedMethods` for better readability
