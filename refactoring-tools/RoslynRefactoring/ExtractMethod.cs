@@ -8,6 +8,8 @@ namespace RoslynRefactoring;
 
 public class ExtractMethod(CodeSelection selection, string newMethodName) : IRefactoring
 {
+    public string Description => "Extract selected code into a new method";
+    
     public static ExtractMethod Create(string[] args)
     {
         var selection = CodeSelection.Parse(args[0]);

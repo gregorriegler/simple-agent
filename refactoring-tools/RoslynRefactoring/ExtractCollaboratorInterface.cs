@@ -9,6 +9,8 @@ namespace RoslynRefactoring;
 
 public class ExtractCollaboratorInterface : IRefactoring
 {
+    public string Description => "Extract an interface from a collaborator class and update dependencies";
+    
     private readonly CodeSelection _selection;
 
     public ExtractCollaboratorInterface(CodeSelection selection)

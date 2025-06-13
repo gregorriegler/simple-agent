@@ -6,6 +6,8 @@ namespace RoslynRefactoring;
 
 public class InlineMethod(Cursor cursor) : IRefactoring
 {
+    public string Description => "Inline a method call by replacing it with the method's body";
+    
     public static InlineMethod Create(string[] args)
     {
         var cursor = Cursor.Parse(args[0]);
