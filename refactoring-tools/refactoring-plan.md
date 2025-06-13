@@ -7,6 +7,6 @@
 - [x] Break down `ProcessDocumentAsync` method into smaller, focused methods
 - [x] Rename `FindCollaboratorTypeFromSelection` to be more descriptive
 - [x] Simplify `FirstCharToLower` method implementation
-- [ ] Extract collaborator type detection logic from hardcoded string
-- [ ] Improve variable names in `FindUsedMethods` for better readability
-- [ ] Consolidate interface name generation in `CollaboratorRewriter` class
+- [x] Extract collaborator type detection logic from hardcoded string
+- [x] Improve variable names in `FindUsedMethods` for better readability
+- [x] Consolidate interface name generation in `CollaboratorRewriter` class
