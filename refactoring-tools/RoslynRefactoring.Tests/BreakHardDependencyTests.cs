@@ -67,6 +67,34 @@ public class BreakHardDependencyTests
         await VerifyBreakHardDependency(code);
     }
 
+    [Test]
+    public async Task UpdateCallers()
+    {
+        const string code = """
+                            public class OrderProcessor
+                            {
+                                private OrderRepository _orderRepository = OrderRepository.Instance;
+
+                                public void Process(Order order)
+                                {
+                                    _orderRepository.Save(order);
+                                    order.Status = "Processed";
+                                }
+                            }
+
+                            public class OrderService
+                            {
+                                public void ProcessOrder(Order order)
+                                {
+                                    var processor = new OrderProcessor();
+                                    processor.Process(order);
+                                }
+                            }
+                            """;
+
+        await VerifyBreakHardDependency(code);
+    }
+
     private static async Task VerifyBreakHardDependency(string code)
     {
         var document = CreateDocument(code);

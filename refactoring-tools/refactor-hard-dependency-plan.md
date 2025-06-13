@@ -27,6 +27,7 @@ This is a list of minimal, incremental test cases the refactoring tool should pa
 - [x] Handle zero hard dependencies — if the class uses no singleton, refactoring should make no changes.
 - [x] Handle one hard dependency and no constructor — the class uses OrderRepository.Instance and has no constructor; the tool should generate a constructor accepting OrderRepository.
 - [x] Handle one hard dependency and an existing constructor — the class uses OrderRepository.Instance and has a constructor taking ProductCatalog; the tool should add OrderRepository as a parameter and use it for the field.
+- [x] Update callers — when a class constructor is modified, update all callers to use the new constructor signature.
 
 
 ---

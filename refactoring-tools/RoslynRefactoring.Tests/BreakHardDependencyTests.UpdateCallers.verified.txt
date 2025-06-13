@@ -1,0 +1,24 @@
+public class OrderProcessor
+{
+    private readonly OrderRepository _orderRepository;
+
+    public OrderProcessor(OrderRepository orderRepository)
+    {
+        _orderRepository = orderRepository;
+    }
+
+    public void Process(Order order)
+    {
+        _orderRepository.Save(order);
+        order.Status = "Processed";
+    }
+}
+
+public class OrderService
+{
+    public void ProcessOrder(Order order)
+    {
+        var processor = new OrderProcessor(OrderRepository.Instance);
+        processor.Process(order);
+    }
+}

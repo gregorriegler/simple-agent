@@ -17,7 +17,10 @@ public class BreakHardDependency : IRefactoring
         if (syntaxRoot == null || semanticModel == null)
             return document;
             
-        var classDeclarations = syntaxRoot.DescendantNodes().OfType<ClassDeclarationSyntax>();
+        var classDeclarations = syntaxRoot.DescendantNodes().OfType<ClassDeclarationSyntax>().ToList();
+        var modifiedClasses = new Dictionary<string, (List<(FieldDeclarationSyntax Field, string TypeName)> Singletons, ClassDeclarationSyntax UpdatedClass)>();
+        
+        var documentEditor = await DocumentEditor.CreateAsync(document);
         
         foreach (var classDeclaration in classDeclarations)
         {
@@ -26,8 +29,6 @@ public class BreakHardDependency : IRefactoring
             if (!singletonFields.Any())
                 continue;
                 
-            var documentEditor = await DocumentEditor.CreateAsync(document);
-            
             var updatedMembers = new List<MemberDeclarationSyntax>();
             
             var modifiedFields = new List<MemberDeclarationSyntax>();
@@ -89,10 +90,53 @@ public class BreakHardDependency : IRefactoring
             var updatedClass = classDeclaration.WithMembers(SyntaxFactory.List(updatedMembers));
             documentEditor.ReplaceNode(classDeclaration, updatedClass);
             
+            modifiedClasses.Add(classDeclaration.Identifier.Text, (singletonFields, updatedClass));
+        }
+        
+        if (modifiedClasses.Any())
+        {
+            // Update all object creation expressions that create instances of the modified classes
+            var objectCreationExpressions = syntaxRoot.DescendantNodes().OfType<ObjectCreationExpressionSyntax>();
+            
+            foreach (var objectCreation in objectCreationExpressions)
+            {
+                var typeName = objectCreation.Type.ToString();
+                
+                if (modifiedClasses.TryGetValue(typeName, out var classInfo))
+                {
+                    var updatedObjectCreation = UpdateObjectCreation(objectCreation, classInfo.Singletons);
+                    documentEditor.ReplaceNode(objectCreation, updatedObjectCreation);
+                }
+            }
+            
             return documentEditor.GetChangedDocument();
         }
         
         return document;
+    }
+    
+    private ObjectCreationExpressionSyntax UpdateObjectCreation(
+        ObjectCreationExpressionSyntax objectCreation,
+        List<(FieldDeclarationSyntax Field, string TypeName)> singletonFields)
+    {
+        var existingArguments = objectCreation.ArgumentList?.Arguments.ToList() ?? new List<ArgumentSyntax>();
+        
+        foreach (var singletonField in singletonFields)
+        {
+            var singletonArgument = SyntaxFactory.Argument(
+                SyntaxFactory.MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    SyntaxFactory.IdentifierName(singletonField.TypeName),
+                    SyntaxFactory.IdentifierName("Instance")
+                )
+            );
+            
+            existingArguments.Add(singletonArgument);
+        }
+        
+        var updatedArgumentList = SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(existingArguments));
+        
+        return objectCreation.WithArgumentList(updatedArgumentList);
     }
     
     private List<ConstructorDeclarationSyntax> UpdateExistingConstructors(
