@@ -28,15 +28,21 @@ public class ExtractCollaboratorInterfaceTests
         const string code = """
                             public class OrderService
                             {
+                                private readonly PaymentProcessor _paymentProcessor;
+                                
+                                public OrderService(PaymentProcessor paymentProcessor)
+                                {
+                                    _paymentProcessor = paymentProcessor;
+                                }
+                                
                                 public void ProcessOrder(Order order)
                                 {
-                                    var processor = new PaymentProcessor();
-                                    processor.ProcessPayment();
+                                    _paymentProcessor.ProcessPayment();
                                 }
                             }
                             """;
 
-        await VerifyExtractCollaboratorInterface(code, "5:29-5:52");
+        await VerifyExtractCollaboratorInterface(code, "3:29-3:46");
     }
 
     private static async Task VerifyExtractCollaboratorInterface(string code, string selectionText = "")

@@ -31,22 +31,22 @@ public class ExtractCollaboratorInterface : IRefactoring
     
     private Task<Document> ProcessDocumentAsync(Document document, SyntaxNode documentRoot, DocumentEditor documentEditor)
     {
-        var objectCreation = FindObjectCreationFromSelection(documentRoot);
+        var collaboratorType = FindCollaboratorTypeFromSelection(documentRoot);
         
-        if (objectCreation == null)
+        if (collaboratorType == null)
             return Task.FromResult(document);
             
-        var targetClass = objectCreation.Ancestors().OfType<ClassDeclarationSyntax>().FirstOrDefault();
+        var targetClass = collaboratorType.Ancestors().OfType<ClassDeclarationSyntax>().FirstOrDefault();
         if (targetClass == null)
             return Task.FromResult(document);
             
-        var collaboratorType = objectCreation.Type.ToString();
-        var usedMethods = FindUsedMethods(targetClass, collaboratorType);
+        var typeName = collaboratorType.ToString();
+        var usedMethods = FindUsedMethods(targetClass, typeName);
         
         if (!usedMethods.Any())
             return Task.FromResult(document);
             
-        var collaboratorInfo = new CollaboratorInfo(targetClass, collaboratorType, usedMethods, objectCreation);
+        var collaboratorInfo = new CollaboratorInfo(targetClass, typeName, usedMethods, null);
         var interfaceDeclaration = CreateInterface(collaboratorInfo);
         var updatedClass = RefactorClass(collaboratorInfo);
         
@@ -56,11 +56,13 @@ public class ExtractCollaboratorInterface : IRefactoring
         return Task.FromResult(documentEditor.GetChangedDocument());
     }
     
-    private ObjectCreationExpressionSyntax? FindObjectCreationFromSelection(SyntaxNode syntaxRoot)
+    private TypeSyntax? FindCollaboratorTypeFromSelection(SyntaxNode syntaxRoot)
     {
         return syntaxRoot.DescendantNodes()
-            .OfType<ObjectCreationExpressionSyntax>()
-            .FirstOrDefault(oc => oc.Type.ToString() == "PaymentProcessor");
+            .OfType<FieldDeclarationSyntax>()
+            .Where(f => f.Declaration.Type.ToString() == "PaymentProcessor")
+            .Select(f => f.Declaration.Type)
+            .FirstOrDefault();
     }
     
     
@@ -71,7 +73,7 @@ public class ExtractCollaboratorInterface : IRefactoring
         var memberAccesses = targetClass.DescendantNodes()
             .OfType<MemberAccessExpressionSyntax>()
             .Where(ma => ma.Expression is IdentifierNameSyntax identifier &&
-                        IsCollaboratorVariable(targetClass, identifier.Identifier.Text, collaboratorType));
+                        IsCollaboratorField(targetClass, identifier.Identifier.Text, collaboratorType));
         
         foreach (var memberAccess in memberAccesses)
         {
@@ -83,24 +85,14 @@ public class ExtractCollaboratorInterface : IRefactoring
         return usedMethods;
     }
     
-    private bool IsCollaboratorVariable(ClassDeclarationSyntax targetClass, string variableName, string collaboratorType)
+    private bool IsCollaboratorField(ClassDeclarationSyntax targetClass, string fieldName, string collaboratorType)
     {
-        var variableDeclarations = targetClass.DescendantNodes()
-            .OfType<VariableDeclarationSyntax>()
-            .Where(vd => vd.Variables.Any(v => v.Identifier.Text == variableName));
+        var fieldDeclarations = targetClass.DescendantNodes()
+            .OfType<FieldDeclarationSyntax>()
+            .Where(fd => fd.Declaration.Type.ToString() == collaboratorType &&
+                        fd.Declaration.Variables.Any(v => v.Identifier.Text == fieldName));
             
-        foreach (var declaration in variableDeclarations)
-        {
-            var objectCreation = declaration.Variables
-                .SelectMany(v => v.DescendantNodes())
-                .OfType<ObjectCreationExpressionSyntax>()
-                .FirstOrDefault(oc => oc.Type.ToString() == collaboratorType);
-                
-            if (objectCreation != null)
-                return true;
-        }
-        
-        return false;
+        return fieldDeclarations.Any();
     }
     
     private InterfaceDeclarationSyntax CreateInterface(CollaboratorInfo collaboratorInfo)
@@ -125,52 +117,13 @@ public class ExtractCollaboratorInterface : IRefactoring
     
     private ClassDeclarationSyntax RefactorClass(CollaboratorInfo collaboratorInfo)
     {
-        var interfaceName = $"I{collaboratorInfo.CollaboratorType}";
-        var fieldName = $"_{FirstCharToLower(collaboratorInfo.CollaboratorType)}";
-        
-        var field = SyntaxFactory.FieldDeclaration(
-            SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName(interfaceName))
-                .WithVariables(SyntaxFactory.SingletonSeparatedList(
-                    SyntaxFactory.VariableDeclarator(fieldName))))
-            .WithModifiers(SyntaxFactory.TokenList(
-                SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
-                SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword)));
-        
-        var parameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier(FirstCharToLower(collaboratorInfo.CollaboratorType)))
-            .WithType(SyntaxFactory.IdentifierName(interfaceName));
-            
-        var assignment = SyntaxFactory.ExpressionStatement(
-            SyntaxFactory.AssignmentExpression(
-                SyntaxKind.SimpleAssignmentExpression,
-                SyntaxFactory.IdentifierName(fieldName),
-                SyntaxFactory.IdentifierName(FirstCharToLower(collaboratorInfo.CollaboratorType))));
-        
-        var constructor = SyntaxFactory.ConstructorDeclaration(collaboratorInfo.TargetClass.Identifier.Text)
-            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-            .WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SingletonSeparatedList(parameter)))
-            .WithBody(SyntaxFactory.Block(assignment));
-        
-        var updatedMembers = new List<MemberDeclarationSyntax> { field, constructor };
-        
-        foreach (var member in collaboratorInfo.TargetClass.Members)
-        {
-            if (member is MethodDeclarationSyntax method)
-            {
-                var updatedMethod = UpdateMethodToUseField(method, collaboratorInfo, fieldName);
-                updatedMembers.Add(updatedMethod);
-            }
-            else
-            {
-                updatedMembers.Add(member);
-            }
-        }
-        
-        return collaboratorInfo.TargetClass.WithMembers(SyntaxFactory.List(updatedMembers));
+        var rewriter = new CollaboratorRewriter(collaboratorInfo.CollaboratorType, "");
+        return (ClassDeclarationSyntax)rewriter.Visit(collaboratorInfo.TargetClass);
     }
     
     private MethodDeclarationSyntax UpdateMethodToUseField(MethodDeclarationSyntax method, CollaboratorInfo collaboratorInfo, string fieldName)
     {
-        var rewriter = new CollaboratorRewriter(collaboratorInfo.ObjectCreation, fieldName);
+        var rewriter = new CollaboratorRewriter(collaboratorInfo.CollaboratorType, fieldName);
         return (MethodDeclarationSyntax)rewriter.Visit(method);
     }
     
@@ -187,9 +140,9 @@ public class ExtractCollaboratorInterface : IRefactoring
         public ClassDeclarationSyntax TargetClass { get; }
         public string CollaboratorType { get; }
         public List<string> UsedMethods { get; }
-        public ObjectCreationExpressionSyntax ObjectCreation { get; }
+        public ObjectCreationExpressionSyntax? ObjectCreation { get; }
         
-        public CollaboratorInfo(ClassDeclarationSyntax targetClass, string collaboratorType, List<string> usedMethods, ObjectCreationExpressionSyntax objectCreation)
+        public CollaboratorInfo(ClassDeclarationSyntax targetClass, string collaboratorType, List<string> usedMethods, ObjectCreationExpressionSyntax? objectCreation)
         {
             TargetClass = targetClass;
             CollaboratorType = collaboratorType;
@@ -200,65 +153,36 @@ public class ExtractCollaboratorInterface : IRefactoring
     
     private class CollaboratorRewriter : CSharpSyntaxRewriter
     {
-        private readonly ObjectCreationExpressionSyntax _objectCreation;
+        private readonly string _collaboratorType;
         private readonly string _fieldName;
         
-        public CollaboratorRewriter(ObjectCreationExpressionSyntax objectCreation, string fieldName)
+        public CollaboratorRewriter(string collaboratorType, string fieldName)
         {
-            _objectCreation = objectCreation;
+            _collaboratorType = collaboratorType;
             _fieldName = fieldName;
         }
         
-        public override SyntaxNode? VisitVariableDeclaration(VariableDeclarationSyntax node)
+        public override SyntaxNode? VisitFieldDeclaration(FieldDeclarationSyntax node)
         {
-            var hasObjectCreation = node.Variables.Any(v =>
-                v.Initializer?.Value == _objectCreation);
-                
-            if (hasObjectCreation)
+            if (node.Declaration.Type.ToString() == _collaboratorType)
             {
-                return null;
+                var interfaceName = $"I{_collaboratorType}";
+                return node.WithDeclaration(
+                    node.Declaration.WithType(SyntaxFactory.IdentifierName(interfaceName)));
             }
             
-            return base.VisitVariableDeclaration(node);
+            return base.VisitFieldDeclaration(node);
         }
         
-        public override SyntaxNode? VisitLocalDeclarationStatement(LocalDeclarationStatementSyntax node)
+        public override SyntaxNode? VisitParameter(ParameterSyntax node)
         {
-            var hasObjectCreation = node.Declaration.Variables.Any(v =>
-                v.Initializer?.Value == _objectCreation);
-                
-            if (hasObjectCreation)
+            if (node.Type?.ToString() == _collaboratorType)
             {
-                return null;
+                var interfaceName = $"I{_collaboratorType}";
+                return node.WithType(SyntaxFactory.IdentifierName(interfaceName));
             }
             
-            return base.VisitLocalDeclarationStatement(node);
-        }
-        
-        public override SyntaxNode? VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
-        {
-            if (node.Expression is IdentifierNameSyntax identifier)
-            {
-                var variableName = identifier.Identifier.Text;
-                if (IsVariableFromObjectCreation(node, variableName))
-                {
-                    return node.WithExpression(SyntaxFactory.IdentifierName(_fieldName));
-                }
-            }
-            
-            return base.VisitMemberAccessExpression(node);
-        }
-        
-        private bool IsVariableFromObjectCreation(SyntaxNode node, string variableName)
-        {
-            var method = node.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault();
-            if (method == null) return false;
-            
-            var variableDeclarations = method.DescendantNodes()
-                .OfType<VariableDeclarationSyntax>()
-                .Where(vd => vd.Variables.Any(v => v.Identifier.Text == variableName));
-                
-            return variableDeclarations.Any(vd => vd.Variables.Any(v => v.Initializer?.Value == _objectCreation));
+            return base.VisitParameter(node);
         }
     }
 }
