@@ -1,0 +1,18 @@
+public class OrderProcessor
+{
+    private readonly OrderRepository _orderRepository;
+    private readonly ProductCatalog _productCatalog;
+
+    public OrderProcessor(ProductCatalog productCatalog, OrderRepository orderRepository)
+    {
+        _productCatalog = productCatalog;
+        _orderRepository = orderRepository;
+    }
+
+    public void Process(Order order)
+    {
+        _orderRepository.Save(order);
+        _productCatalog.Update(order.ProductId);
+        order.Status = "Processed";
+    }
+}
