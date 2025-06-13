@@ -1,4 +1,5 @@
-﻿using RoslynRefactoring;
+﻿using System.Reflection;
+using RoslynRefactoring;
 
 var refactoringName = args[0];
 var refactoringArgs = args.Skip(3).ToArray();
@@ -13,15 +14,26 @@ return;
 
 IRefactoring CreateRefactoring(string name, string[] refactoringArguments)
 {
-    if (name == "extract-method")
+    var refactoringMap = new Dictionary<string, Type>
     {
-        return ExtractMethod.Create(refactoringArguments);
+        { "extract-method", typeof(ExtractMethod) },
+        { "inline-method", typeof(InlineMethod) },
+        { "extract-collaborator-interface", typeof(ExtractCollaboratorInterface) },
+        { "break-hard-dependency", typeof(BreakHardDependency) }
+    };
+
+    if (!refactoringMap.TryGetValue(name, out var refactoringType))
+    {
+        var availableRefactorings = string.Join(", ", refactoringMap.Keys);
+        throw new InvalidOperationException($"Unknown refactoring '{name}'. Available refactorings: {availableRefactorings}");
     }
 
-    if (name == "inline-method")
+    var createMethod = refactoringType.GetMethod("Create", BindingFlags.Public | BindingFlags.Static);
+    if (createMethod == null)
     {
-        return InlineMethod.Create(refactoringArguments);
+        throw new InvalidOperationException($"Refactoring '{refactoringType.Name}' does not have a static Create method");
     }
 
-    throw new InvalidOperationException("Unknown refactoring");
+    var result = createMethod.Invoke(null, new object[] { refactoringArguments });
+    return (IRefactoring)result!;
 }

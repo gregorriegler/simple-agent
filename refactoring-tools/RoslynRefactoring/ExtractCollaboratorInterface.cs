@@ -15,6 +15,15 @@ public class ExtractCollaboratorInterface : IRefactoring
     {
         _selection = selection ?? throw new ArgumentNullException(nameof(selection));
     }
+    
+    public static ExtractCollaboratorInterface Create(string[] args)
+    {
+        if (args.Length != 1)
+            throw new ArgumentException("ExtractCollaboratorInterface requires exactly one argument: selection");
+        
+        var selection = CodeSelection.Parse(args[0]);
+        return new ExtractCollaboratorInterface(selection);
+    }
 
     public async Task<Document> PerformAsync(Document document)
     {
