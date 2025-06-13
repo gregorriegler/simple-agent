@@ -1,10 +1,12 @@
-# 🧹 Refactoring Plan for BreakHardDependency
+# 🧹 Refactoring Plan for ExtractCollaboratorInterface
 
-- [x] Add missing `using System.Threading.Tasks;` directive
-- [x] Simplify `FirstCharToLower` method using string interpolation
-- [x] Break down `PerformAsync` method into smaller methods
-- [x] Refactor `FindAllSingletonFields` method to improve readability
-- [x] Refactor `RefactorClass` method to reduce complexity
-- [x] Refactor tuple return type in `CategorizeMembersForRefactoring` to a dedicated class
-- [x] Simplify `FindSingletonField` method
-- [x] Improve error handling in `TryFindFieldFromSelection` by using specific exception types
+- [ ] Add missing `using System;` directive for ArgumentNullException
+- [ ] Remove hardcoded "PaymentProcessor" string and make it configurable
+- [ ] Remove unused `UpdateMethodToUseField` method (dead code)
+- [ ] Extract interface name generation logic to avoid duplication
+- [ ] Break down `ProcessDocumentAsync` method into smaller, focused methods
+- [ ] Rename `FindCollaboratorTypeFromSelection` to be more descriptive
+- [ ] Simplify `FirstCharToLower` method implementation
+- [ ] Extract collaborator type detection logic from hardcoded string
+- [ ] Improve variable names in `FindUsedMethods` for better readability
+- [ ] Consolidate interface name generation in `CollaboratorRewriter` class
