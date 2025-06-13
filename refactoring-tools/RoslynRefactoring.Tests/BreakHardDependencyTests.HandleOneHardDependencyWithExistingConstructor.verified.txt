@@ -3,6 +3,12 @@ public class OrderProcessor
     private readonly OrderRepository _orderRepository;
     private readonly ProductCatalog _productCatalog;
 
+    public OrderProcessor(ProductCatalog productCatalog)
+    {
+        _productCatalog = productCatalog;
+        _orderRepository = OrderRepository.Instance;
+    }
+
     public OrderProcessor(ProductCatalog productCatalog, OrderRepository orderRepository)
     {
         _productCatalog = productCatalog;

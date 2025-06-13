@@ -2,6 +2,11 @@ public class OrderProcessor
 {
     private readonly OrderRepository _orderRepository;
 
+    public OrderProcessor()
+    {
+        _orderRepository = OrderRepository.Instance;
+    }
+
     public OrderProcessor(OrderRepository orderRepository)
     {
         _orderRepository = orderRepository;

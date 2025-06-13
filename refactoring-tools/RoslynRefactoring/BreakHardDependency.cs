@@ -81,8 +81,8 @@ public class BreakHardDependency : IRefactoring
             }
             else
             {
-                var newConstructor = CreateConstructorForSingletons(classDeclaration.Identifier.Text, singletonFields);
-                updatedMembers.Add(newConstructor);
+                var newConstructors = CreateConstructorsForSingletons(classDeclaration.Identifier.Text, singletonFields);
+                updatedMembers.AddRange(newConstructors);
             }
             
             updatedMembers.AddRange(otherMembers);
@@ -145,10 +145,60 @@ public class BreakHardDependency : IRefactoring
     {
         var result = new List<ConstructorDeclarationSyntax>();
         
+        // Keep original constructors
         foreach (var constructor in constructors)
         {
+            // Create a copy of the original constructor but update the body to use the singleton
+            var originalStatements = constructor.Body?.Statements.ToList() ?? new List<StatementSyntax>();
+            var updatedOriginalStatements = new List<StatementSyntax>(originalStatements);
+            
+            // Add assignments for singleton fields
+            foreach (var singletonField in singletonFields)
+            {
+                var fieldName = singletonField.Field.Declaration.Variables.First().Identifier.Text;
+                
+                // Check if there's already an assignment for this field
+                var hasAssignment = updatedOriginalStatements.Any(s =>
+                    s is ExpressionStatementSyntax expr &&
+                    expr.Expression is AssignmentExpressionSyntax assignment &&
+                    assignment.Left.ToString() == fieldName);
+                    
+                if (!hasAssignment)
+                {
+                    var singletonAssignment = SyntaxFactory.ExpressionStatement(
+                        SyntaxFactory.AssignmentExpression(
+                            SyntaxKind.SimpleAssignmentExpression,
+                            SyntaxFactory.IdentifierName(fieldName),
+                            SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.IdentifierName(singletonField.TypeName),
+                                SyntaxFactory.IdentifierName("Instance")
+                            )
+                        )
+                    );
+                    
+                    updatedOriginalStatements.Add(singletonAssignment);
+                }
+            }
+            
+            var preservedConstructor = constructor
+                .WithBody(SyntaxFactory.Block(updatedOriginalStatements));
+                
+            result.Add(preservedConstructor);
+            
+            // Create a new constructor with dependency injection parameters
             var updatedParameters = constructor.ParameterList.Parameters.ToList();
             var updatedStatements = constructor.Body?.Statements.ToList() ?? new List<StatementSyntax>();
+            
+            // Remove singleton assignments if they exist
+            updatedStatements = updatedStatements
+                .Where(s => !(s is ExpressionStatementSyntax expr &&
+                             expr.Expression is AssignmentExpressionSyntax assignment &&
+                             assignment.Right.ToString().Contains(".Instance")))
+                .ToList();
+            
+            var newParameters = new List<ParameterSyntax>();
+            var newAssignments = new List<StatementSyntax>();
             
             foreach (var singletonField in singletonFields)
             {
@@ -164,7 +214,7 @@ public class BreakHardDependency : IRefactoring
                         SyntaxFactory.Identifier(paramName))
                         .WithType(SyntaxFactory.IdentifierName(singletonField.TypeName));
                         
-                    updatedParameters.Add(newParameter);
+                    newParameters.Add(newParameter);
                     
                     var assignment = SyntaxFactory.ExpressionStatement(
                         SyntaxFactory.AssignmentExpression(
@@ -174,24 +224,60 @@ public class BreakHardDependency : IRefactoring
                         )
                     );
                     
-                    updatedStatements.Add(assignment);
+                    newAssignments.Add(assignment);
                 }
             }
             
-            var updatedConstructor = constructor
-                .WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(updatedParameters)))
-                .WithBody(SyntaxFactory.Block(updatedStatements));
+            if (newParameters.Any())
+            {
+                var allParameters = updatedParameters.Concat(newParameters).ToList();
+                var allStatements = updatedStatements.Concat(newAssignments).ToList();
                 
-            result.Add(updatedConstructor);
+                var newConstructor = constructor
+                    .WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(allParameters)))
+                    .WithBody(SyntaxFactory.Block(allStatements));
+                    
+                result.Add(newConstructor);
+            }
         }
         
         return result;
     }
     
-    private ConstructorDeclarationSyntax CreateConstructorForSingletons(
+    private List<ConstructorDeclarationSyntax> CreateConstructorsForSingletons(
         string className,
         List<(FieldDeclarationSyntax Field, string TypeName)> singletonFields)
     {
+        var result = new List<ConstructorDeclarationSyntax>();
+        
+        // Create original constructor with no parameters that uses singletons
+        var originalAssignments = singletonFields
+            .Select(f => {
+                var fieldName = f.Field.Declaration.Variables.First().Identifier.Text;
+                return SyntaxFactory.ExpressionStatement(
+                    SyntaxFactory.AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        SyntaxFactory.IdentifierName(fieldName),
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.IdentifierName(f.TypeName),
+                            SyntaxFactory.IdentifierName("Instance")
+                        )
+                    )
+                );
+            })
+            .ToArray();
+            
+        var originalConstructorBody = SyntaxFactory.Block(originalAssignments);
+        
+        var originalConstructor = SyntaxFactory.ConstructorDeclaration(className)
+            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+            .WithParameterList(SyntaxFactory.ParameterList())
+            .WithBody(originalConstructorBody);
+            
+        result.Add(originalConstructor);
+        
+        // Create new constructor with dependency injection parameters
         var parameters = singletonFields
             .Select(f =>
                 SyntaxFactory.Parameter(
@@ -216,10 +302,14 @@ public class BreakHardDependency : IRefactoring
             
         var constructorBody = SyntaxFactory.Block(assignments);
         
-        return SyntaxFactory.ConstructorDeclaration(className)
+        var newConstructor = SyntaxFactory.ConstructorDeclaration(className)
             .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
             .WithParameterList(parameterList)
             .WithBody(constructorBody);
+            
+        result.Add(newConstructor);
+        
+        return result;
     }
     
     private List<(FieldDeclarationSyntax Field, string TypeName)> FindSingletonFields(ClassDeclarationSyntax classDeclaration)
