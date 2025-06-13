@@ -105,21 +105,21 @@ public class ExtractCollaboratorInterface : IRefactoring
     
     private List<string> FindUsedMethods(ClassDeclarationSyntax targetClass, string collaboratorType)
     {
-        var usedMethods = new List<string>();
+        var methodNames = new List<string>();
         
-        var memberAccesses = targetClass.DescendantNodes()
+        var collaboratorMemberAccesses = targetClass.DescendantNodes()
             .OfType<MemberAccessExpressionSyntax>()
-            .Where(ma => ma.Expression is IdentifierNameSyntax identifier &&
-                        IsCollaboratorField(targetClass, identifier.Identifier.Text, collaboratorType));
+            .Where(memberAccess => memberAccess.Expression is IdentifierNameSyntax fieldIdentifier &&
+                        IsCollaboratorField(targetClass, fieldIdentifier.Identifier.Text, collaboratorType));
         
-        foreach (var memberAccess in memberAccesses)
+        foreach (var memberAccess in collaboratorMemberAccesses)
         {
             var methodName = memberAccess.Name.Identifier.Text;
-            if (!usedMethods.Contains(methodName))
-                usedMethods.Add(methodName);
+            if (!methodNames.Contains(methodName))
+                methodNames.Add(methodName);
         }
         
-        return usedMethods;
+        return methodNames;
     }
     
     private bool IsCollaboratorField(ClassDeclarationSyntax targetClass, string fieldName, string collaboratorType)
