@@ -1,0 +1,14 @@
+﻿public interface IPaymentProcessor
+{
+    void ProcessPayment();
+}
+
+public class OrderService
+{
+    public IPaymentProcessor PaymentProcessor { get; set; }
+
+    public void ProcessOrder(Order order)
+    {
+        PaymentProcessor.ProcessPayment();
+    }
+}

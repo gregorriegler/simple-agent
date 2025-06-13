@@ -125,6 +125,24 @@ public class ExtractCollaboratorInterfaceTests
         await VerifyExtractCollaboratorInterface(code, "15:29-15:46");
     }
 
+    [Test]
+    public async Task HandlePropertyInjection()
+    {
+        const string code = """
+                            public class OrderService
+                            {
+                                public PaymentProcessor PaymentProcessor { get; set; }
+                                
+                                public void ProcessOrder(Order order)
+                                {
+                                    PaymentProcessor.ProcessPayment();
+                                }
+                            }
+                            """;
+
+        await VerifyExtractCollaboratorInterface(code, "3:21-3:38");
+    }
+
     private static async Task VerifyExtractCollaboratorInterface(string code, string selectionText = "")
     {
         var document = CreateDocument(code);

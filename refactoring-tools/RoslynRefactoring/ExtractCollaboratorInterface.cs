@@ -97,12 +97,19 @@ public class ExtractCollaboratorInterface : IRefactoring
     
     private TypeSyntax? FindFirstCollaboratorFieldType(SyntaxNode syntaxRoot)
     {
-        // Find the first field declaration that could be a collaborator
-        // This removes the hardcoded "PaymentProcessor" dependency
-        return syntaxRoot.DescendantNodes()
+        var fieldType = syntaxRoot.DescendantNodes()
             .OfType<FieldDeclarationSyntax>()
             .Where(f => IsLikelyCollaboratorType(f.Declaration.Type))
             .Select(f => f.Declaration.Type)
+            .FirstOrDefault();
+            
+        if (fieldType != null)
+            return fieldType;
+            
+        return syntaxRoot.DescendantNodes()
+            .OfType<PropertyDeclarationSyntax>()
+            .Where(p => IsLikelyCollaboratorType(p.Type))
+            .Select(p => p.Type)
             .FirstOrDefault();
     }
     
@@ -178,7 +185,15 @@ public class ExtractCollaboratorInterface : IRefactoring
             .Where(fd => fd.Declaration.Type.ToString() == collaboratorType &&
                         fd.Declaration.Variables.Any(v => v.Identifier.Text == fieldName));
             
-        return fieldDeclarations.Any();
+        if (fieldDeclarations.Any())
+            return true;
+            
+        var propertyDeclarations = targetClass.DescendantNodes()
+            .OfType<PropertyDeclarationSyntax>()
+            .Where(pd => pd.Type.ToString() == collaboratorType &&
+                        pd.Identifier.Text == fieldName);
+                        
+        return propertyDeclarations.Any();
     }
     
     private InterfaceDeclarationSyntax CreateInterface(CollaboratorInfo collaboratorInfo)
@@ -282,6 +297,17 @@ public class ExtractCollaboratorInterface : IRefactoring
             }
             
             return base.VisitParameter(node);
+        }
+        
+        public override SyntaxNode? VisitPropertyDeclaration(PropertyDeclarationSyntax node)
+        {
+            if (node.Type.ToString() == _collaboratorType)
+            {
+                var interfaceName = GetInterfaceName(_collaboratorType);
+                return node.WithType(SyntaxFactory.IdentifierName(interfaceName));
+            }
+            
+            return base.VisitPropertyDeclaration(node);
         }
     }
 }
