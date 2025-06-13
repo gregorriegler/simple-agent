@@ -44,7 +44,7 @@ public class ExtractCollaboratorInterface : IRefactoring
     
     private CollaboratorInfo? ExtractCollaboratorInfo(SyntaxNode documentRoot)
     {
-        var collaboratorType = FindFirstCollaboratorFieldType(documentRoot);
+        var collaboratorType = FindCollaboratorTypeAtSelection(documentRoot);
         
         if (collaboratorType == null)
             return null;
@@ -66,6 +66,26 @@ public class ExtractCollaboratorInterface : IRefactoring
             return null;
             
         return new CollaboratorInfo(targetClass, typeName, usedMethods, usedProperties, null, null);
+    }
+    
+    private TypeSyntax? FindCollaboratorTypeAtSelection(SyntaxNode documentRoot)
+    {
+        var sourceText = documentRoot.GetText();
+        var startPosition = sourceText.Lines[_selection.Start.Line - 1].Start + _selection.Start.Column;
+        var endPosition = sourceText.Lines[_selection.End.Line - 1].Start + _selection.End.Column;
+        var selectionSpan = TextSpan.FromBounds(startPosition, endPosition);
+        
+        var nodeAtSelection = documentRoot.FindNode(selectionSpan);
+        
+        var fieldDeclaration = nodeAtSelection.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().FirstOrDefault();
+        if (fieldDeclaration != null && IsLikelyCollaboratorType(fieldDeclaration.Declaration.Type))
+            return fieldDeclaration.Declaration.Type;
+            
+        var propertyDeclaration = nodeAtSelection.AncestorsAndSelf().OfType<PropertyDeclarationSyntax>().FirstOrDefault();
+        if (propertyDeclaration != null && IsLikelyCollaboratorType(propertyDeclaration.Type))
+            return propertyDeclaration.Type;
+            
+        return FindFirstCollaboratorFieldType(documentRoot);
     }
     
     private string? FindExistingInterface(SyntaxNode documentRoot, string collaboratorType)
