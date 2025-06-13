@@ -18,6 +18,7 @@ public class SelectionException : Exception
 public class BreakHardDependency : IRefactoring
 {
     public string Description => "Convert hard field dependencies to constructor injection";
+    public static string StaticDescription => "Convert hard field dependencies to constructor injection";
     
     private readonly CodeSelection _selection;
 

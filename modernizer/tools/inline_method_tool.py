@@ -7,6 +7,10 @@ class InlineMethodTool(BaseTool):
         super().__init__()
         self.runcommand = runcommand
         
+    @property
+    def description(self):
+        return self.get_description_from_csharp('inline-method')
+        
     def execute(self, args):
         arg_list = args.split()
         return self.runcommand('dotnet', ['run', '--project', 'refactoring-tools/RoslynRefactoring/RoslynRefactoring.csproj', '--', 'inline-method'] + arg_list)

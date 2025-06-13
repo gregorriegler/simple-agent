@@ -2,6 +2,15 @@
 using RoslynRefactoring;
 
 var refactoringName = args[0];
+
+if (refactoringName == "--describe" && args.Length >= 2)
+{
+    var toolName = args[1];
+    var description = GetRefactoringDescription(toolName);
+    Console.WriteLine(description);
+    return;
+}
+
 var refactoringArgs = args.Skip(3).ToArray();
 var refactoring = CreateRefactoring(refactoringName, refactoringArgs);
 
@@ -36,4 +45,30 @@ IRefactoring CreateRefactoring(string name, string[] refactoringArguments)
 
     var result = createMethod.Invoke(null, new object[] { refactoringArguments });
     return (IRefactoring)result!;
+}
+
+string GetRefactoringDescription(string name)
+{
+    var refactoringMap = new Dictionary<string, Type>
+    {
+        { "extract-method", typeof(ExtractMethod) },
+        { "inline-method", typeof(InlineMethod) },
+        { "extract-collaborator-interface", typeof(ExtractCollaboratorInterface) },
+        { "break-hard-dependency", typeof(BreakHardDependency) }
+    };
+
+    if (!refactoringMap.TryGetValue(name, out var refactoringType))
+    {
+        var availableRefactorings = string.Join(", ", refactoringMap.Keys);
+        throw new InvalidOperationException($"Unknown refactoring '{name}'. Available refactorings: {availableRefactorings}");
+    }
+
+    var descriptionProperty = refactoringType.GetProperty("StaticDescription", BindingFlags.Public | BindingFlags.Static);
+    if (descriptionProperty == null)
+    {
+        throw new InvalidOperationException($"Refactoring '{refactoringType.Name}' does not have a StaticDescription property");
+    }
+
+    var description = descriptionProperty.GetValue(null);
+    return description?.ToString() ?? "No description available";
 }

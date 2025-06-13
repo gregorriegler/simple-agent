@@ -7,6 +7,10 @@ class BreakHardDependencyTool(BaseTool):
         super().__init__()
         self.runcommand = runcommand
         
+    @property
+    def description(self):
+        return self.get_description_from_csharp('break-hard-dependency')
+        
     def execute(self, args):
         arg_list = args.split()
         return self.runcommand('dotnet', ['run', '--project', 'refactoring-tools/RoslynRefactoring/RoslynRefactoring.csproj', '--', 'break-hard-dependency'] + arg_list)
