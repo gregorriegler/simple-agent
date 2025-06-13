@@ -6,6 +6,8 @@ from .cat_tool import CatTool
 from .test_tool import TestTool
 from .extract_method_tool import ExtractMethodTool
 from .inline_method_tool import InlineMethodTool
+from .break_hard_dependency_tool import BreakHardDependencyTool
+from .extract_collaborator_interface_tool import ExtractCollaboratorInterfaceTool
 from .revert_tool import RevertTool
 
 class ToolLibrary:
@@ -16,6 +18,8 @@ class ToolLibrary:
             TestTool(self.runcommand),
             ExtractMethodTool(self.runcommand),
             InlineMethodTool(self.runcommand),
+            BreakHardDependencyTool(self.runcommand),
+            ExtractCollaboratorInterfaceTool(self.runcommand),
             RevertTool(self.runcommand)
         ]
         self._build_tool_dict()
