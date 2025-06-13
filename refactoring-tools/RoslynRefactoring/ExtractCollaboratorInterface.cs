@@ -59,11 +59,28 @@ public class ExtractCollaboratorInterface : IRefactoring
     
     private TypeSyntax? FindCollaboratorTypeFromSelection(SyntaxNode syntaxRoot)
     {
+        // Find the first field declaration that could be a collaborator
+        // This removes the hardcoded "PaymentProcessor" dependency
         return syntaxRoot.DescendantNodes()
             .OfType<FieldDeclarationSyntax>()
-            .Where(f => f.Declaration.Type.ToString() == "PaymentProcessor")
+            .Where(f => IsLikelyCollaboratorType(f.Declaration.Type))
             .Select(f => f.Declaration.Type)
             .FirstOrDefault();
+    }
+    
+    private bool IsLikelyCollaboratorType(TypeSyntax type)
+    {
+        var typeName = type.ToString();
+        // A collaborator is likely a class type (not primitive, not generic collection)
+        return !string.IsNullOrEmpty(typeName) &&
+               char.IsUpper(typeName[0]) &&
+               !typeName.Contains('<') &&
+               !IsPrimitiveType(typeName);
+    }
+    
+    private bool IsPrimitiveType(string typeName)
+    {
+        return typeName is "int" or "string" or "bool" or "double" or "float" or "decimal" or "DateTime";
     }
     
     
