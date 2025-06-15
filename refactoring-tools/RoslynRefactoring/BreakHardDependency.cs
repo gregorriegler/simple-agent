@@ -125,10 +125,6 @@ public class BreakHardDependency : IRefactoring
     
     private TextSpan? GetTextSpanFromSelection(TextLineCollection lines)
     {
-        if (_selection.Start.Line < 1 || _selection.End.Line < 1 ||
-            _selection.Start.Line > lines.Count || _selection.End.Line > lines.Count)
-            return null;
-            
         var startPos = lines[_selection.Start.Line - 1].Start +
             Math.Min(_selection.Start.Column - 1, lines[_selection.Start.Line - 1].End - lines[_selection.Start.Line - 1].Start);
         var endPos = lines[_selection.End.Line - 1].Start +
