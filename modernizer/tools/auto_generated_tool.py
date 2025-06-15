@@ -83,27 +83,10 @@ Arguments:"""
             
         return usage_info
     
-    def get_argument_count(self):
-        """Get the expected number of arguments for this tool"""
-        args = self.arguments
-        return len(args)
     
-    def validate_arguments(self, args):
-        """Validate that the provided arguments match the expected format"""
-        arg_list = args.split() if isinstance(args, str) else args
-        expected_count = self.get_argument_count()
-        
-        if len(arg_list) != expected_count:
-            usage = self.get_usage_info()
-            return False, f"Expected {expected_count} arguments, got {len(arg_list)}.\n\n{usage}", None
-        
-        return True, "Arguments are valid", arg_list
-        
     def execute(self, args):
         """Execute the refactoring tool with the provided arguments"""
-        is_valid, message, arg_list = self.validate_arguments(args)
-        if not is_valid:
-            return f"Argument validation failed: {message}"
+        arg_list = args.split() if isinstance(args, str) and args else []
         
         return self.runcommand('dotnet', [
             'run', '--project', 'refactoring-tools/RoslynRefactoring/RoslynRefactoring.csproj',
