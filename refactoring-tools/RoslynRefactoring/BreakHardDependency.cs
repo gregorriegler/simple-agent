@@ -85,13 +85,10 @@ public class BreakHardDependency : IRefactoring
         
         try
         {
-            if (!IsSelectionValid(_selection))
-                throw new SelectionException("Invalid selection");
-                
             var text = await document.GetTextAsync();
             var lines = text.Lines;
             
-            if (!IsSelectionInRange(_selection, lines))
+            if (!_selection.IsInRange(lines))
                 throw new SelectionException("Selection out of range");
                 
             var span = GetTextSpanFromSelection(lines);
@@ -114,16 +111,6 @@ public class BreakHardDependency : IRefactoring
         {
             return (null, singletonFields);
         }
-    }
-    
-    private bool IsSelectionValid(CodeSelection selection)
-    {
-        return selection.Start.Line > 0 && selection.End.Line > 0;
-    }
-    
-    private bool IsSelectionInRange(CodeSelection selection, TextLineCollection lines)
-    {
-        return selection.Start.Line <= lines.Count && selection.End.Line <= lines.Count;
     }
     
     private (FieldDeclarationSyntax? Field, ClassDeclarationSyntax? Class) FindFieldAndClass(SyntaxNode node)
