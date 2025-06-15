@@ -1,0 +1,39 @@
+[
+  {
+    "name": "break-hard-dependency",
+    "description": "Convert hard field dependencies to constructor injection",
+    "arguments": [
+      "project_path: string - Path to the project file",
+      "file_name: string - Name of the file to refactor",
+      "selection: CodeSelection"
+    ]
+  },
+  {
+    "name": "extract-collaborator-interface",
+    "description": "Extract an interface from a collaborator class and update dependencies",
+    "arguments": [
+      "project_path: string - Path to the project file",
+      "file_name: string - Name of the file to refactor",
+      "selection: CodeSelection"
+    ]
+  },
+  {
+    "name": "extract-method",
+    "description": "Extract selected code into a new method",
+    "arguments": [
+      "project_path: string - Path to the project file",
+      "file_name: string - Name of the file to refactor",
+      "selection: CodeSelection",
+      "newMethodName: String"
+    ]
+  },
+  {
+    "name": "inline-method",
+    "description": "Inline a method call by replacing it with the method's body",
+    "arguments": [
+      "project_path: string - Path to the project file",
+      "file_name: string - Name of the file to refactor",
+      "cursor: Cursor"
+    ]
+  }
+]
