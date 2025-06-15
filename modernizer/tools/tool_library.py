@@ -26,11 +26,8 @@ class ToolLibrary:
     def _discover_refactoring_tools(self):
         """Automatically discover all available C# refactoring tools from JSON"""
         import os
-        current_dir = os.getcwd()
-        if current_dir.endswith('modernizer'):
-            project_path = '../refactoring-tools/RoslynRefactoring/RoslynRefactoring.csproj'
-        else:
-            project_path = 'refactoring-tools/RoslynRefactoring/RoslynRefactoring.csproj'
+        tool_library_dir = os.path.dirname(os.path.abspath(__file__))
+        project_path = os.path.join(tool_library_dir, '../../refactoring-tools/RoslynRefactoring/RoslynRefactoring.csproj')
         
         result = subprocess.run(
             ['dotnet', 'run', '--project', project_path, '--', '--list-tools'],
