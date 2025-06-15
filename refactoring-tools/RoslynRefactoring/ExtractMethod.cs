@@ -6,10 +6,11 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace RoslynRefactoring;
 
+/// <summary>
+/// Extract selected code into a new method
+/// </summary>
 public class ExtractMethod(CodeSelection selection, string newMethodName) : IRefactoring
 {
-    public static string StaticDescription => "Extract selected code into a new method";
-    
     public static ExtractMethod Create(string[] args)
     {
         var selection = CodeSelection.Parse(args[0]);

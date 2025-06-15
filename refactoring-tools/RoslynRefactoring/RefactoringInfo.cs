@@ -1,4 +1,6 @@
 using System.Reflection;
+using System.IO;
+using System.Xml.Linq;
 
 namespace RoslynRefactoring;
 
@@ -85,15 +87,26 @@ public static class RefactoringInfoGenerator
 
     private static string GetDescriptionFromType(Type refactoringType)
     {
-        var descriptionProperty =
-            refactoringType.GetProperty("StaticDescription", BindingFlags.Public | BindingFlags.Static);
-        if (descriptionProperty == null)
+        var xmlDoc = System.Xml.Linq.XDocument.Load(GetXmlDocumentationPath());
+        var typeName = refactoringType.FullName;
+        
+        var summaryElement = xmlDoc.Descendants("member")
+            .FirstOrDefault(m => m.Attribute("name")?.Value == $"T:{typeName}")
+            ?.Element("summary");
+            
+        if (summaryElement != null)
         {
-            return "No description available";
+            return summaryElement.Value.Trim();
         }
-
-        var description = descriptionProperty.GetValue(null);
-        return description?.ToString() ?? "No description available";
+        
+        return "No description available";
+    }
+    
+    private static string GetXmlDocumentationPath()
+    {
+        var assemblyLocation = Assembly.GetExecutingAssembly().Location;
+        var xmlPath = Path.ChangeExtension(assemblyLocation, ".xml");
+        return xmlPath;
     }
 
     private static string[] GetArgumentsFromType(Type refactoringType)

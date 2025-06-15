@@ -7,10 +7,11 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace RoslynRefactoring;
 
+/// <summary>
+/// Extract an interface from a collaborator class and update dependencies
+/// </summary>
 public class ExtractCollaboratorInterface : IRefactoring
 {
-    public static string StaticDescription => "Extract an interface from a collaborator class and update dependencies";
-    
     private readonly CodeSelection _selection;
 
     public ExtractCollaboratorInterface(CodeSelection selection)

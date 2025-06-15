@@ -4,10 +4,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace RoslynRefactoring;
 
+/// <summary>
+/// Inline a method call by replacing it with the method's body
+/// </summary>
 public class InlineMethod(Cursor cursor) : IRefactoring
 {
-    public static string StaticDescription => "Inline a method call by replacing it with the method's body";
-    
     public static InlineMethod Create(string[] args)
     {
         var cursor = Cursor.Parse(args[0]);

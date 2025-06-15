@@ -15,10 +15,11 @@ public class SelectionException : Exception
     public SelectionException(string message) : base(message) { }
 }
 
+/// <summary>
+/// Convert hard field dependencies to constructor injection
+/// </summary>
 public class BreakHardDependency : IRefactoring
 {
-    public static string StaticDescription => "Convert hard field dependencies to constructor injection";
-    
     private readonly CodeSelection _selection;
 
     public BreakHardDependency(CodeSelection selection)
