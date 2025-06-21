@@ -3,15 +3,13 @@ import os
 from helpers import read_file
 from chat import Chat, load_chat, save_chat
 from tools import ToolLibrary
+from system_prompt_generator import SystemPromptGenerator
 
 
 def get_system_prompt():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    system_prompt_path = os.path.join(script_dir, "system-prompt.md")
-    system_prompt = None
-    if os.path.exists(system_prompt_path):
-        system_prompt = read_file(system_prompt_path)
-    return system_prompt
+    """Get the system prompt with dynamically populated tools"""
+    generator = SystemPromptGenerator()
+    return generator.get_system_prompt_for_llm()
 
 
 def start_chat(start_message, new, message_claude, rounds=999999, save_chat=save_chat):
