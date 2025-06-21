@@ -1,7 +1,7 @@
 namespace RoslynAnalysis;
 
 /// <summary>
-/// Finds entry points in a C# project for characterization testing
+/// Analyzes the C# project to find the best entry points for characterization tests
 /// </summary>
 public class EntryPointAnalysis : IAnalysis
 {
