@@ -6,5 +6,5 @@ namespace RoslynAnalysis;
 
 public interface IWorkspaceLoader
 {
-    Task<IEnumerable<Project>> LoadProjectsAsync(string projectPath);
+    Task<IEnumerable<Microsoft.CodeAnalysis.Project>> LoadProjectsAsync(string projectPath);
 }

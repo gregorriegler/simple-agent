@@ -22,7 +22,7 @@ public class MSBuildWorkspaceLoader : IWorkspaceLoader
         }
     }
     
-    public async Task<IEnumerable<Project>> LoadProjectsAsync(string projectPath)
+    public async Task<IEnumerable<Microsoft.CodeAnalysis.Project>> LoadProjectsAsync(string projectPath)
     {
         using var workspace = MSBuildWorkspace.Create();
         
