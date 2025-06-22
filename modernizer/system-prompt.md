@@ -17,35 +17,7 @@ One tool execution per answer.
 
 # Tools
 
-## ls
-Syntax: 
-/ls {path} 
-
-## cat
-Syntax: 
-/cat {path} 
-
-## Test
-Syntax: 
-/test {directory}
-
-## Revert
-Syntax: 
-/revert {directory}
-
-## Extract Method
-Syntax:
-/extract-method {projectPath} {fileName} {startLine}:{startColumn}-{endLine}:{endColumn} {newMethodName}
-
-e.g. 
-/extract-method "C:\\Users\\riegl\\code\\Kata\\Kata.csproj" Kata.cs 10:0-13:20 Foo
-
-## Inline Method
-Syntax:
-/inline-method {projectPath} {fileName} {line}:{column}
-
-e.g. 
-/inline-method "C:\\Users\\riegl\\code\\Kata\\Kata.csproj" Kata.cs 10:5
+{{DYNAMIC_TOOLS_PLACEHOLDER}}
 
 ## Need
 Use this when you miss a tool you would need

@@ -19,11 +19,16 @@ class SystemPromptGenerator:
     
     def _read_system_prompt_template(self):
         """Read the system prompt template file"""
+        import os
+        # Get the directory where this script is located
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        template_path = os.path.join(script_dir, "system-prompt.md")
+        
         try:
-            with open("system-prompt.md", 'r', encoding='utf-8') as f:
+            with open(template_path, 'r', encoding='utf-8') as f:
                 return f.read()
         except FileNotFoundError:
-            raise FileNotFoundError("system-prompt.md template file not found")
+            raise FileNotFoundError(f"system-prompt.md template file not found at {template_path}")
     
     def _generate_tools_content(self):
         """Generate the tools content to replace the placeholder"""
