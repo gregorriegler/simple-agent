@@ -2,4 +2,4 @@ Command:
 /ls /tmp/test_path
 
 Result:
-STDERR: ls: cannot access '/nonexistent/path': No such file or directory
+STDERR: ls: /nonexistent/path: No such file or directory
