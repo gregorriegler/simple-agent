@@ -57,16 +57,28 @@ def scrub_line(line):
 
 def create_date_scrubber():
     return create_regex_scrubber(
-        r'\w{3}\s+\d{1,2}\s+\d{1,2}:\d{2}|\d{1,2}\s+\w{3}\s+\d{1,2}:\d{2}|\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}', 
+        r'\w{3}\s+\d{1,2}\s+\d{1,2}:\d{2}|\d{1,2}\s+\w{3}\s+\d{1,2}:\d{2}|\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}',
         '[DATE]'
     )
 
-def create_multi_scrubber(path_scrubber=None, date_scrubber=None):
+def create_ls_error_scrubber():
+    """Normalize ls error messages between Mac and Windows"""
+    def ls_error_replacer(text):
+        import re
+        # Convert Windows format to Mac format
+        pattern = r"ls: cannot access '([^']+)': No such file or directory"
+        replacement = r"ls: \1: No such file or directory"
+        return re.sub(pattern, replacement, text)
+    return ls_error_replacer
+
+def create_multi_scrubber(path_scrubber=None, date_scrubber=None, ls_error_scrubber=None):
     if path_scrubber is None:
         path_scrubber = create_path_scrubber()
     if date_scrubber is None:
         date_scrubber = create_date_scrubber()
-    return combine_scrubbers(path_scrubber, date_scrubber)
+    if ls_error_scrubber is None:
+        ls_error_scrubber = create_ls_error_scrubber()
+    return combine_scrubbers(path_scrubber, date_scrubber, ls_error_scrubber)
 
 multi_scrubber = create_multi_scrubber()
 
