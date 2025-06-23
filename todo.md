@@ -1,3 +1,9 @@
+ttyd
+ngrok
+tmux
+
+- Edit tool: Change only 1, or maybe N lines at a time
+
 - make it respect the rules.md
 
 - each tool has its description and all descriptions are automatically added to the system prompt
@@ -12,6 +18,7 @@
 
 -C:\Users\riegl\code\Parrot-Refactoring-Kata\CSharp\Parrot\Parrot.cs(94,20): error CS0103: Der Name "value" ist im aktuellen Kontext nicht vorhanden. [C:\Users\riegl\code\Parrot-Refactoring-Kata\CSharp\Parrot\Parrot.csproj]
 API request failed: 429 Client Error: Too Many Requests for url: https://api.anthropic.com/v1/messages
+
 
 riegl@greglap ~/code/code-modernizer (main)
 $
