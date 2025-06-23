@@ -148,7 +148,7 @@ public class EntryPointFinder
     }
     
     private int CalculateReachableMethodsCount(
-        MethodDeclarationSyntax methodDeclaration, 
+        MethodDeclarationSyntax methodDeclaration,
         SemanticModel semanticModel,
         List<(Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel, string fullyQualifiedName)> allMethods)
     {
@@ -166,6 +166,7 @@ public class EntryPointFinder
             
             var currentMethodFullName = $"{currentMethodSymbol.ContainingType.ContainingNamespace.ToDisplayString()}.{currentMethodSymbol.ContainingType.Name}.{currentMethodSymbol.Name}";
             
+            // Check if we've already processed this method (prevents infinite loops in circular references)
             if (processedMethods.Contains(currentMethodFullName))
                 continue;
                 
@@ -186,7 +187,7 @@ public class EntryPointFinder
                         var calledMethodInfo = allMethods
                             .FirstOrDefault(m => m.fullyQualifiedName == calledMethodFullName);
                             
-                        if (calledMethodInfo.methodDeclaration != null && !processedMethods.Contains(calledMethodFullName))
+                        if (calledMethodInfo.methodDeclaration != null)
                         {
                             methodsToProcess.Enqueue((calledMethodInfo.methodDeclaration, calledMethodInfo.semanticModel));
                         }
@@ -201,9 +202,15 @@ public class EntryPointFinder
     private string GetMethodSignature(IMethodSymbol methodSymbol)
     {
         // This method is only called with non-null methodSymbol (enforced by the non-null assertion in the caller)
-        var returnType = methodSymbol.ReturnType.ToDisplayString();
-        var parameters = string.Join(", ", methodSymbol.Parameters.Select(p => $"{p.Type.ToDisplayString()} {p.Name}"));
+        var returnType = GetSimplifiedTypeName(methodSymbol.ReturnType);
+        var parameters = string.Join(", ", methodSymbol.Parameters.Select(p => $"{GetSimplifiedTypeName(p.Type)} {p.Name}"));
         return $"{returnType} {methodSymbol.Name}({parameters})";
+    }
+    
+    private string GetSimplifiedTypeName(ITypeSymbol typeSymbol)
+    {
+        // Use Roslyn's built-in display format with C# keywords and minimal qualification
+        return typeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
     }
     
     private bool IsTestMethod(IMethodSymbol methodSymbol)
