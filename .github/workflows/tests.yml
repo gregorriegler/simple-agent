@@ -1,14 +1,16 @@
-name: Refactoring Tools Tests
+name: Tests
 
 on:
   push:
     branches: [ main ]
     paths:
       - 'refactoring-tools/**'
+      - 'modernizer/**'
   pull_request:
     branches: [ main ]
     paths:
       - 'refactoring-tools/**'
+      - 'modernizer/**'
   workflow_dispatch:
 
 jobs:
@@ -36,6 +38,10 @@ jobs:
       run: dotnet build --no-restore
       working-directory: refactoring-tools
     
-    - name: Run tests
+    - name: Run .NET tests
       run: dotnet test --no-build --verbosity normal
       working-directory: refactoring-tools
+    
+    - name: Run modernizer tests
+      run: bash test.sh
+      working-directory: modernizer
