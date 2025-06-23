@@ -36,13 +36,6 @@ jobs:
       run: dotnet build --no-restore
       working-directory: refactoring-tools
     
-    - name: Run tests (Unix)
-      if: runner.os != 'Windows'
-      run: bash test.sh
+    - name: Run tests
+      run: dotnet test --no-build --verbosity normal
       working-directory: refactoring-tools
-    
-    - name: Run tests (Windows)
-      if: runner.os == 'Windows'
-      run: bash test.sh
-      working-directory: refactoring-tools
-      shell: bash
