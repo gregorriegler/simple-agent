@@ -530,8 +530,8 @@ namespace ReturnValueProject
         Assert.That(entryPoint.MethodSignature, Is.EqualTo("string StartProcess(string input)"));
         // Should count reachable methods despite circular references:
         // StartProcess -> ProcessA -> ProcessB (circular reference back to ProcessA is detected and handled)
-        // Total unique methods: StartProcess, ProcessA = 2
-        Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(2));
+        // Total unique methods: StartProcess, ProcessA, ProcessB = 3
+        Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(3));
     }
     
     private string CreateProjectWithCircularReferences()

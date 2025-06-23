@@ -176,20 +176,46 @@ public class EntryPointFinder
             if (currentMethod.Body != null)
             {
                 var invocationExpressions = currentMethod.Body.DescendantNodes().OfType<InvocationExpressionSyntax>();
+                
                 foreach (var invocation in invocationExpressions)
                 {
                     var symbolInfo = currentSemanticModel.GetSymbolInfo(invocation);
+                    string? calledMethodFullName = null;
+                    
                     if (symbolInfo.Symbol is IMethodSymbol calledMethodSymbol)
                     {
-                        var calledMethodFullName = $"{calledMethodSymbol.ContainingType.ContainingNamespace.ToDisplayString()}.{calledMethodSymbol.ContainingType.Name}.{calledMethodSymbol.Name}";
-                        
+                        calledMethodFullName = $"{calledMethodSymbol.ContainingType.ContainingNamespace.ToDisplayString()}.{calledMethodSymbol.ContainingType.Name}.{calledMethodSymbol.Name}";
+                    }
+                    else
+                    {
+                        // Fallback: try to resolve by method name pattern matching
+                        // This handles cases where symbol resolution fails due to circular references
+                        if (invocation.Expression is IdentifierNameSyntax identifierName)
+                        {
+                            var methodName = identifierName.Identifier.ValueText;
+                            var fallbackMethodSymbol = currentSemanticModel.GetDeclaredSymbol(currentMethod);
+                            if (fallbackMethodSymbol != null)
+                            {
+                                var currentNamespace = fallbackMethodSymbol.ContainingType.ContainingNamespace.ToDisplayString();
+                                var currentTypeName = fallbackMethodSymbol.ContainingType.Name;
+                                calledMethodFullName = $"{currentNamespace}.{currentTypeName}.{methodName}";
+                            }
+                        }
+                    }
+                    
+                    if (calledMethodFullName != null)
+                    {
                         // Find the method declaration and its semantic model for the called method
                         var calledMethodInfo = allMethods
                             .FirstOrDefault(m => m.fullyQualifiedName == calledMethodFullName);
                             
                         if (calledMethodInfo.methodDeclaration != null)
                         {
-                            methodsToProcess.Enqueue((calledMethodInfo.methodDeclaration, calledMethodInfo.semanticModel));
+                            // Only add to queue if we haven't processed this method yet
+                            if (!processedMethods.Contains(calledMethodFullName))
+                            {
+                                methodsToProcess.Enqueue((calledMethodInfo.methodDeclaration, calledMethodInfo.semanticModel));
+                            }
                         }
                     }
                 }
