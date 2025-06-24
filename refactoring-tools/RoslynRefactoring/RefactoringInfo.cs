@@ -134,9 +134,19 @@ public static class RefactoringInfoGenerator
         return (
             from param in primaryConstructor.GetParameters()
             let paramName = param.Name ?? "unknown"
-            let paramType = param.ParameterType.Name
-            select $"{paramName}: {paramType}"
+            let typeDescription = GetTypeDescription(param.ParameterType)
+            select $"{paramName}: {param.ParameterType.Name}{typeDescription}"
         ).ToArray();
+    }
+
+    private static string GetTypeDescription(Type parameterType)
+    {
+        return parameterType switch
+        {
+            _ when parameterType == typeof(CodeSelection) => " - Format: startLine:startColumn-endLine:endColumn (e.g., 5:10-8:25)",
+            _ when parameterType == typeof(Cursor) => " - Format: line:column (e.g., 12:5)",
+            _ => ""
+        };
     }
 }
 
