@@ -71,11 +71,22 @@ class SystemPromptGenerator:
                 description = line.replace('Description: ', '')
                 break
         
-        # Find usage syntax
-        usage_syntax = ""
+        # Extract arguments from usage info
+        arguments = []
+        in_arguments_section = False
         for line in lines:
-            if line.startswith('Usage: '):
-                usage_syntax = line.replace('Usage: ', '')
+            if line.strip() == "Arguments:":
+                in_arguments_section = True
+                continue
+            elif in_arguments_section and line.strip().startswith("- "):
+                # Remove the "- " prefix and add to arguments
+                arg = line.strip()[2:]
+                arguments.append(arg)
+            elif in_arguments_section and line.strip() == "":
+                # Empty line might end arguments section
+                continue
+            elif in_arguments_section and not line.strip().startswith("- ") and line.strip():
+                # Non-argument line ends arguments section
                 break
         
         # Format as markdown section
@@ -83,8 +94,15 @@ class SystemPromptGenerator:
         if description:
             doc_lines.append(f"{description}")
         doc_lines.append("Syntax:")
-        if usage_syntax:
-            doc_lines.append(usage_syntax)
+        
+        # Build syntax with actual arguments
+        if arguments:
+            arg_syntax = " ".join([f"<{arg.split(':')[0].strip()}>" for arg in arguments])
+            doc_lines.append(f"/{tool_name} {arg_syntax}")
+            doc_lines.append("")
+            doc_lines.append("Arguments:")
+            for arg in arguments:
+                doc_lines.append(f"  - {arg}")
         else:
             doc_lines.append(f"/{tool_name} {{arguments}}")
         
@@ -138,3 +156,36 @@ class SystemPromptGenerator:
     def get_system_prompt_for_llm(self):
         """Get the system prompt with tools populated for sending to LLM"""
         return self.generate_system_prompt()
+
+
+def main():
+    """Main function to handle command line arguments"""
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description='Generate system prompt with dynamic tool descriptions',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        '--output', '-o',
+        help='Output file path (default: stdout)',
+        default=None
+    )
+    
+    args = parser.parse_args()
+    
+    # Generate the system prompt
+    generator = SystemPromptGenerator()
+    system_prompt = generator.generate_system_prompt()
+    
+    # Output to file or stdout
+    if args.output:
+        with open(args.output, 'w', encoding='utf-8') as f:
+            f.write(system_prompt)
+        print(f"System prompt written to {args.output}")
+    else:
+        print(system_prompt)
+
+
+if __name__ == "__main__":
+    main()
