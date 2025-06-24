@@ -1,8 +1,10 @@
+# Planning Process
+
 STARTER_SYMBOL=📝
 
 When you plan start your answer with the STARTER_SYMBOL (📝)
 
-# How to plan
+## How to plan
 
 We will record everything in the `goal.md` and keep enhancing and refining it.
 

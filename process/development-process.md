@@ -1,6 +1,8 @@
 # Development Process
 
-Your answer should be succinct and concise
+STARTER_SYMBOL=🛠️
+
+Your answers should be succinct and concise
 
 1. Identify where we are
     - Read the `goal.md` file with the testlist

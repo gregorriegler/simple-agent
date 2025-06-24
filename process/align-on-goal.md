@@ -1,8 +1,8 @@
+# Align on goal
+
 STARTER_SYMBOL=📝
 
 When you plan start your answer with the STARTER_SYMBOL (📝)
-
-# Align on goal
 
 ASK ONE QUESTION AT A TIME
 

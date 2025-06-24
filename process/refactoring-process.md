@@ -1,8 +1,8 @@
+# Refactoring Process
+
 STARTER_SYMBOL=🧹
 
 When you refactor always start your answer with the STARTER_SYMBOL (🧹)
-
-# Refactoring Process
 
 Refactoring means to improve the structure of the code in tiny steps while maintaining its current observable behavior. All the tests need to keep passing. Treat warnings as errors.
 
@@ -25,9 +25,9 @@ Refactoring means to improve the structure of the code in tiny steps while maint
 ## 2. Work through the planned tasks
 For each task
 1. Make sure all the tests pass before we start
-1. make the change
+1. Make the change
 1. Run the tests again to see everything still works
-1. If any tests fail after your change, **immediately revert to the previous working state** before attempting a different approach. Never proceed with broken tests during refactoring.
-1. commit the code
-1. check off the task
+1. If any tests fail after your change, **immediately revert to the previous working state** using `revert.sh` before attempting a different approach. Never proceed with broken tests during refactoring.
+1. Commit the code using git
+1. Check off the task
 1. Go to the next step
