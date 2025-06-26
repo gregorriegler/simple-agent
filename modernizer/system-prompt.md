@@ -6,6 +6,8 @@ One tool execution per answer.
 
 # Refactoring Process
 
+1. Make sure the code we refactor is covered by Characterization Tests
+1. If there are no tests yet, add them
 1. Run all Tests, make sure they pass.
 2. Make sure they cover the code you want to refactor.
 3. If not, we first have to add Characterization Tests.

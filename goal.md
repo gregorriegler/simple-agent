@@ -1,12 +1,29 @@
-# Goal: Fix System Prompt Generator Argument Handling
+# Goal: Code Coverage Analysis Tool
 
-## Problem
-The `modernizer/system_prompt_generator.py` file does not provide proper info about arguments when run directly. It lacks command-line interface and argument parsing.
+## Objective
+Create a new analysis tool for the code-modernizer that provides feedback on code coverage by generating coverage data and identifying uncovered code sections.
 
-## Testlist
-- [x] System prompt generator should show help when run with --help
-- [x] System prompt generator should generate system prompt to stdout when run without arguments
-- [x] System prompt generator should handle invalid arguments gracefully
-- [x] Create a helper program that generates the system prompt to stdout
-- [x] System prompt generator should show specific arguments instead of generic <arguments>
-- [x] Document CodeSelection and Cursor formats with examples in the system prompt
+## Specifications
+
+### Core Functionality
+- **Generate Coverage Data**: Run `dotnet test` with coverlet to generate code coverage reports
+- **Analyze Coverage**: Parse the coverage data to identify specific uncovered code sections
+- **Highlight Uncovered Code**: Present clear feedback showing which lines, methods, or branches are not covered by tests
+
+### Technical Requirements
+- **Language Support**: C# only (using dotnet test + coverlet)
+- **Tool Implementation**: Python tool that inherits from BaseTool (following existing pattern)
+- **Integration**: Static tool added to ToolLibrary like TestTool, LsTool, CatTool (not auto-discovered)
+- **Output Format**: Clear identification and highlighting of uncovered code sections
+
+### Implementation Approach
+1. Create Python coverage tool inheriting from BaseTool
+2. Execute `dotnet test` with coverlet via subprocess to generate coverage data
+3. Parse XML/JSON coverage reports in Python to extract uncovered code information
+4. Format output to clearly highlight uncovered sections for developer feedback
+5. Add tool to static_tools list in ToolLibrary.__init__ (similar to TestTool)
+
+### Success Criteria
+- Tool is automatically discovered by the modernizer system
+- Successfully runs dotnet test with coverage collection
+- Accurately identifies and reports uncovered code sections
