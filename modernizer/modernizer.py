@@ -40,6 +40,7 @@ def start_chat(start_message, new, message_claude, rounds=999999, save_chat=save
             break
 
         _, tool_result = tools.parse_and_execute(answer)
+        print(tool_result)
 
         if tool_result:
             chat = chat.userSays(tool_result)
