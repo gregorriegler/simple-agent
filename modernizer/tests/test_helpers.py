@@ -1,14 +1,14 @@
 import os
 import pytest
-from approvaltests import Options    
+from approvaltests import Options
 from approvaltests import verify
-from approvaltests.reporters.report_with_beyond_compare import ReportWithWinMerge
 from approvaltests import set_default_reporter
+from approvaltests.reporters.diff_reporter import DiffReporter
 from approvaltests.scrubbers import create_regex_scrubber, combine_scrubbers
 
 @pytest.fixture(scope="session", autouse=True)
 def set_default_reporter_for_all_tests() -> None:
-    set_default_reporter(ReportWithWinMerge())
+    set_default_reporter(DiffReporter())
 
 def create_temp_file(tmp_path, filename, contents):
     temp_file = tmp_path / filename

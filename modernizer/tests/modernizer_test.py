@@ -1,8 +1,10 @@
 import builtins
 import os
 import sys
-from approvaltests import verify
+from approvaltests import set_default_reporter, verify
 from approvaltests import Options
+from approvaltests.reporters.diff_reporter import DiffReporter
+import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from modernizer.modernizer import start_chat
 from .test_helpers import (
@@ -10,6 +12,10 @@ from .test_helpers import (
     create_temp_directory_structure,
     multi_scrubber
 )
+
+@pytest.fixture(scope="session", autouse=True)
+def set_default_reporter_for_all_tests() -> None:
+    set_default_reporter(DiffReporter())
 
 def enter(_):
     return "\n"
