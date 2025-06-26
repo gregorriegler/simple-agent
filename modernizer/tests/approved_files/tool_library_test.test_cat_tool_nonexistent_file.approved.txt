@@ -2,5 +2,4 @@ Command:
 /cat /tmp/test_path/file.txt
 
 Result:
-
 STDERR: cat: /nonexistent/file.txt: No such file or directory

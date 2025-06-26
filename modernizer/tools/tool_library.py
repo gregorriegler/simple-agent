@@ -94,12 +94,14 @@ class ToolLibrary:
                 cwd=cwd
             )
     
-            output = result.stdout
-            output = output.rstrip('\n')
+            output = result.stdout.rstrip('\n')
             
             if result.stderr:
                 stderr = result.stderr
-                output += f"\nSTDERR: {stderr}"
+                if output:  # Only add newline if there's stdout content
+                    output += f"\nSTDERR: {stderr}"
+                else:
+                    output = f"STDERR: {stderr}"
     
             return {
                 'success': result.returncode == 0,
