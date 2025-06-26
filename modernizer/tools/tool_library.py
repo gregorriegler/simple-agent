@@ -95,10 +95,8 @@ class ToolLibrary:
             )
     
             output = result.stdout
-            print(output, end='')
             if result.stderr:
                 stderr = result.stderr
-                print(f"\nSTDERR: {stderr}", end='')
                 output += f"\nSTDERR: {stderr}"
     
             return {

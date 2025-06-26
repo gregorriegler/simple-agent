@@ -47,10 +47,9 @@ class CoverageTool(BaseTool):
             
             # Format the output
             formatted_coverage = self._format_coverage_data(coverage_data)
-            formatted = raw_output + "\n\n" + formatted_coverage
-            return formatted
+            return formatted_coverage
         except Exception as e:
-            return raw_output + f"\n\nError parsing coverage: {str(e)}"
+            return f"Error parsing coverage: {str(e)}"
     
     def _read_coverage_file(self, file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -67,13 +66,17 @@ class CoverageTool(BaseTool):
                     class_name = class_elem.get('name')
                     lines_data = []
                     
-                    for line in class_elem.findall('.//line'):
-                        line_number = int(line.get('number'))
-                        hits = int(line.get('hits'))
-                        lines_data.append({
-                            'number': line_number,
-                            'covered': hits > 0
-                        })
+                    # Only look at the direct <lines> child of the class, not method lines
+                    # This avoids duplicates since the same lines appear in both places
+                    lines_container = class_elem.find('lines')
+                    if lines_container is not None:
+                        for line in lines_container.findall('line'):
+                            line_number = int(line.get('number'))
+                            hits = int(line.get('hits'))
+                            lines_data.append({
+                                'number': line_number,
+                                'covered': hits > 0
+                            })
                     
                     coverage_data[filename] = {
                         'class_name': class_name,
