@@ -29,10 +29,10 @@ class CoverageTool(BaseTool):
         return result
     
     def _format_coverage_output(self, raw_output, specific_files=None):
-        # Extract coverage file path from output
-        coverage_file_match = re.search(r'TestResults/[^/]+/coverage\.cobertura\.xml', raw_output)
+        # Extract coverage file path from output - handle both Unix and Windows paths
+        coverage_file_match = re.search(r'[^\s]*coverage\.cobertura\.xml', raw_output)
         if not coverage_file_match:
-            return raw_output + "\n\nNo coverage file found."
+            return raw_output + "\n\nNo coverage file found in output."
         
         coverage_file_path = coverage_file_match.group(0)
         
@@ -46,7 +46,8 @@ class CoverageTool(BaseTool):
                 coverage_data = self._filter_coverage_data(coverage_data, specific_files)
             
             # Format the output
-            formatted = raw_output + "\n\n" + self._format_coverage_data(coverage_data)
+            formatted_coverage = self._format_coverage_data(coverage_data)
+            formatted = raw_output + "\n\n" + formatted_coverage
             return formatted
         except Exception as e:
             return raw_output + f"\n\nError parsing coverage: {str(e)}"
