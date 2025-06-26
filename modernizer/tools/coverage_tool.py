@@ -8,4 +8,4 @@ class CoverageTool(BaseTool):
         self.runcommand = runcommand
         
     def execute(self, path):
-        return {'success': True, 'output': 'Coverage tool executed'}
+        return self.runcommand('dotnet', ['test', path, '--collect:"XPlat Code Coverage"'])
