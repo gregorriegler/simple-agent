@@ -10,17 +10,25 @@ class CoverageTool(BaseTool):
         super().__init__()
         self.runcommand = runcommand
         
-    def execute(self, path):
-        result = self.runcommand('dotnet', ['test', path, '--collect:"XPlat Code Coverage"'])
+    def execute(self, args):
+        # Parse arguments: project [file1] [file2] ...
+        if not args:
+            return {'success': False, 'output': 'No project specified'}
+        
+        parts = args.split()
+        project = parts[0]
+        specific_files = parts[1:] if len(parts) > 1 else None
+        
+        result = self.runcommand('dotnet', ['test', project, '--collect:"XPlat Code Coverage"'])
         
         if result['success']:
             # Parse and format coverage data
-            formatted_output = self._format_coverage_output(result['output'])
+            formatted_output = self._format_coverage_output(result['output'], specific_files)
             result['output'] = formatted_output
             
         return result
     
-    def _format_coverage_output(self, raw_output):
+    def _format_coverage_output(self, raw_output, specific_files=None):
         # Extract coverage file path from output
         coverage_file_match = re.search(r'TestResults/[^/]+/coverage\.cobertura\.xml', raw_output)
         if not coverage_file_match:
@@ -32,6 +40,10 @@ class CoverageTool(BaseTool):
             # Read and parse coverage XML
             xml_content = self._read_coverage_file(coverage_file_path)
             coverage_data = self._parse_coverage_xml(xml_content)
+            
+            # Filter coverage data if specific files are requested
+            if specific_files:
+                coverage_data = self._filter_coverage_data(coverage_data, specific_files)
             
             # Format the output
             formatted = raw_output + "\n\n" + self._format_coverage_data(coverage_data)
@@ -84,3 +96,17 @@ class CoverageTool(BaseTool):
                     output_lines.append(f"  Line {line_num}: Not covered")
         
         return "\n".join(output_lines) if output_lines else "All lines are covered!"
+    
+    def _filter_coverage_data(self, coverage_data, specific_files):
+        """Filter coverage data to only include specified files"""
+        filtered_data = {}
+        
+        for filename, file_data in coverage_data.items():
+            # Check if this file is in the list of specific files
+            # Match by filename (e.g., "Calculator.cs" matches "path/Calculator.cs")
+            for requested_file in specific_files:
+                if filename.endswith(requested_file) or requested_file in filename:
+                    filtered_data[filename] = file_data
+                    break
+        
+        return filtered_data
