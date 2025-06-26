@@ -8,7 +8,6 @@ file1.txt
 file2.py
 subdir
 
-
 # Saved messages:
 user: Test message
 assistant: /ls /tmp/test_path

@@ -95,13 +95,15 @@ class ToolLibrary:
             )
     
             output = result.stdout
+            output = output.rstrip('\n')
+            
             if result.stderr:
                 stderr = result.stderr
                 output += f"\nSTDERR: {stderr}"
     
             return {
                 'success': result.returncode == 0,
-                'output': output.strip(),
+                'output': output,
                 'returncode': result.returncode
             }
         except subprocess.TimeoutExpired:

@@ -7,4 +7,4 @@ Claude: /cat /tmp/test_path/testfile.txt
 # Saved messages:
 user: Test message
 assistant: /cat /tmp/test_path/testfile.txt
-user: 1	Hello world
+user:      1	Hello world

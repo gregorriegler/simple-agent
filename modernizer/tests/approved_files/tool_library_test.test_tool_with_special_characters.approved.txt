@@ -2,4 +2,4 @@ Command:
 /cat /tmp/test_path/special-file_name.txt
 
 Result:
-1	Content with special chars: !@#$%^&*()
+     1	Content with special chars: !@#$%^&*()
