@@ -12,7 +12,7 @@ I prefer SHORT, SUCCINCT and CONCISE answers
 
 - prefer SIMPLE design with fewer elements
 
-- run the tests after each change using just `test.sh`
+- run the tests after each change using `test.sh`
 
 # Commandline rules
 
