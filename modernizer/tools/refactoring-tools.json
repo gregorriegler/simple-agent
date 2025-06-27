@@ -24,7 +24,7 @@
       "project_path: string - Path to the project file",
       "file_name: string - Name of the file to refactor",
       "selection: CodeSelection - Format: startLine:startColumn-endLine:endColumn (e.g., 5:10-8:25)",
-      "newMethodName: String - Name for the new method"
+      "newMethodName: String"
     ]
   },
   {
@@ -34,6 +34,16 @@
       "project_path: string - Path to the project file",
       "file_name: string - Name of the file to refactor",
       "cursor: Cursor - Format: line:column (e.g., 12:5)"
+    ]
+  },
+  {
+    "name": "rename-symbol",
+    "description": "Renames a symbol at the specified cursor location to a new name",
+    "arguments": [
+      "project_path: string - Path to the project file",
+      "file_name: string - Name of the file to refactor",
+      "cursor: Cursor - Format: line:column (e.g., 12:5)",
+      "newName: String"
     ]
   }
 ]
