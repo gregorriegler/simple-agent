@@ -37,7 +37,7 @@ User wants to rename a local variable `oldName` to `newName` within a single met
 - Update all references to use the new name
 
 **Examples (ordered by simplicity):**
-- [ ] **Zero usage**: Rename unused local variable `int unused = 5;` to `int temp = 5;`
+- [x] **Zero usage**: Rename unused local variable `int unused = 5;` to `int temp = 5;`
   - Input: File path, cursor on `unused`, new name `temp`
   - Output: Variable declaration updated, no other changes needed
 - [ ] **One usage**: Rename variable with single usage `int count = 0; return count;`

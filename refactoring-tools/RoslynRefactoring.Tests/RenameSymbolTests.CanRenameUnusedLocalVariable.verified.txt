@@ -1,0 +1,9 @@
+﻿
+public class Test
+{
+    public void Method()
+    {
+        int temp = 5;
+        Console.WriteLine("Hello");
+    }
+}
