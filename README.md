@@ -155,3 +155,15 @@ cd refactoring-tools
 # List available refactorings
 dotnet run --project RoslynRefactoring -- --list-tools
 ```
+
+### Python Modernizer Development
+
+```bash
+cd modernizer
+
+# Run tests
+./test.sh
+
+# Test the System Prompt
+python system_prompt_generator.py
+```
