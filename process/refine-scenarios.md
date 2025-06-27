@@ -7,4 +7,5 @@ STARTER_SYMBOL=📝
 Think about inputs and outputs. What information would the user have to input to the system, and what would they want to get out of it? Those examples will later be used as a testlist in the TDD process. Add those examples to `goal.md` as a todo list to the scenario we are working on. Each item should be unchecked. They should be ordered by simplicity ascending.
 1. Let me review the examples. 
 1. Change the scenario status from "- DRAFT" to "- REFINED"
+1. commit the changes
 1. Start a new context with the prompt "Read the `development-process.md` and apply it working on `goal.md`
