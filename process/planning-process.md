@@ -2,14 +2,11 @@
 
 STARTER_SYMBOL=📝
 
-When you plan start your answer with the STARTER_SYMBOL (📝)
+We will enhance our notes in the `goal.md`.
 
-## How to plan
-
-We will record everything in the `goal.md` and keep enhancing and refining it.
-
-1. Align on a goal following the process defined in `goal.md`
-1. After we have concluded on a goal, create a rough component diagram using mermaid and add that to the `goal.md`
-1. Create a list of scenarios ordered by simplicity ascending and add those to the `goal.md`
-1. Let me read through the scenarios and make adaptions
-1. Then we go on to [refining](./refine-scenarios.md)
+1. Create a new section in the bottom of `goal.md` with the headline "Scenarios"
+1. Think of a couple of simple happy path scenarios. Order them by simplicity ascending and add those to the `goal.md` to the scenarios section. Each scenario you add should be a new sub-headline. This headline should end with the suffix "- DRAFT"
+1. Ask yourself whether all of those scenarios you added are viable for an MVP. Maybe we can remove some of the more complex ones
+1. Think of exception path scenarios, and add the most important to the List
+1. Ask me to read through the scenarios and make adaptions
+1. Then create a new context with the prompt "Read and follow the `refine-scenarios.md` instructions, we are working on refining a scenario described in `goal.md`"

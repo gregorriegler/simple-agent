@@ -4,6 +4,9 @@ The default STARTING_CHARACTER is 🐙
 
 I prefer SHORT, SUCCINCT and CONCISE answers
 
+Don't be overly optimistic, but be critical and skeptical.
+Be honest if you don't understand something.
+
 # Coding Rules
 
 - NEVER USE COMMENTS
