@@ -22,6 +22,22 @@ public class Test
         await VerifyRename(code, Cursor.Parse("6:13"), "temp");
     }
 
+    [Test]
+    public async Task CanRenameVariableWithOneUsage()
+    {
+        var code = @"
+public class Test
+{
+    public void Method()
+    {
+        int count = 0;
+        return count;
+    }
+}";
+
+        await VerifyRename(code, Cursor.Parse("6:13"), "total");
+    }
+
     private static async Task VerifyRename(string code, Cursor cursor, string newName)
     {
         var document = CreateDocument(code);

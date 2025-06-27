@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using System.Linq;
 
 namespace RoslynRefactoring;
 
@@ -46,8 +47,24 @@ public class RenameSymbol : IRefactoring
             var variableDeclarator = token.Parent as VariableDeclaratorSyntax;
             if (variableDeclarator != null)
             {
-                var newToken = SyntaxFactory.Identifier(newName);
-                var newRoot = root.ReplaceToken(token, newToken);
+                var oldName = token.ValueText;
+                var newRoot = root.ReplaceNodes(
+                    root.DescendantNodes().OfType<IdentifierNameSyntax>()
+                        .Where(id => id.Identifier.ValueText == oldName)
+                        .Cast<SyntaxNode>()
+                        .Concat(new[] { variableDeclarator }),
+                    (original, _) =>
+                    {
+                        if (original is VariableDeclaratorSyntax declarator)
+                        {
+                            return declarator.WithIdentifier(SyntaxFactory.Identifier(newName));
+                        }
+                        if (original is IdentifierNameSyntax identifier)
+                        {
+                            return identifier.WithIdentifier(SyntaxFactory.Identifier(newName));
+                        }
+                        return original;
+                    });
                 return document.WithSyntaxRoot(newRoot);
             }
         }

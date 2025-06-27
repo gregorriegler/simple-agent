@@ -1,0 +1,9 @@
+﻿
+public class Test
+{
+    public void Method()
+    {
+        int total = 0;
+        return total;
+    }
+}
