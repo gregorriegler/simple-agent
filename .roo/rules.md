@@ -21,4 +21,4 @@ Be honest if you don't understand something.
 
 - for interacting with github use the github cli
 
-- avoid windows commands, use bash
+- avoid windows commands, ALWAYS USE BASH Commands
