@@ -30,11 +30,28 @@ Follow the existing pattern of similar refactoring tools already present in the 
 
 ## Scenarios
 
-### Rename Local Variable - DRAFT
+### Rename Local Variable - REFINED
 User wants to rename a local variable `oldName` to `newName` within a single method. The tool should:
 - Identify the variable declaration
 - Find all usages within the method scope
 - Update all references to use the new name
+
+**Examples (ordered by simplicity):**
+- [ ] **Zero usage**: Rename unused local variable `int unused = 5;` to `int temp = 5;`
+  - Input: File path, cursor on `unused`, new name `temp`
+  - Output: Variable declaration updated, no other changes needed
+- [ ] **One usage**: Rename variable with single usage `int count = 0; return count;`
+  - Input: File path, cursor on `count` (declaration), new name `total`
+  - Output: Both declaration and usage updated to `total`
+- [ ] **Many usages**: Rename variable used multiple times in method
+  - Input: File path, cursor on variable used 5+ times in calculations, new name
+  - Output: All usages within method scope updated
+- [ ] **Variable in different scopes**: Rename variable that shadows outer scope variable
+  - Input: File path, cursor on inner scope variable, new name
+  - Output: Only inner scope variable and its usages renamed
+- [ ] **Variable in loop**: Rename loop variable `for(int i = 0; i < 10; i++)`
+  - Input: File path, cursor on `i`, new name `index`
+  - Output: All three occurrences in for-loop updated
 
 ### Rename Method in Single Class - DRAFT
 User wants to rename a private method `DoSomething()` to `ProcessData()` within one class. The tool should:
