@@ -26,7 +26,6 @@ def test_coverage_tool_shows_specific_uncovered_lines():
         'output': 'Coverage report generated: TestResults/12345/coverage.cobertura.xml'
     }
     
-    # Mock XML content with specific uncovered lines
     mock_xml_content = '''<?xml version="1.0" encoding="utf-8"?>
 <coverage>
   <packages>
@@ -65,7 +64,6 @@ def test_coverage_tool_with_project_only():
     coverage_tool = CoverageTool(mock_runcommand)
     result = coverage_tool.execute('MyProject.csproj')
     
-    # Should run dotnet test on the project
     mock_runcommand.assert_called_with('dotnet', ['test', 'MyProject.csproj', '--collect:"XPlat Code Coverage"'])
 
 
@@ -101,7 +99,6 @@ def test_coverage_tool_with_project_and_single_file():
     
     result = coverage_tool.execute('MyProject.csproj Calculator.cs')
     
-    # Should only show coverage for Calculator.cs, not Helper.cs
     assert 'Calculator.cs:' in result['output']
     assert 'Helper.cs:' not in result['output']
 
@@ -143,7 +140,6 @@ def test_coverage_tool_with_project_and_multiple_files():
     
     result = coverage_tool.execute('MyProject.csproj Calculator.cs Helper.cs')
     
-    # Should show coverage for Calculator.cs and Helper.cs, but not Utils.cs
     assert 'Calculator.cs:' in result['output']
     assert 'Helper.cs:' in result['output']
     assert 'Utils.cs:' not in result['output']
@@ -157,7 +153,6 @@ def test_coverage_tool_with_real_xml_structure():
         'output': 'Coverage report generated: TestResults/12345/coverage.cobertura.xml'
     }
     
-    # Real XML structure with <lines> container element
     mock_xml_content = '''<?xml version="1.0" encoding="utf-8"?>
 <coverage line-rate="0.75" branch-rate="1" version="1.9" timestamp="1750966760" lines-covered="9" lines-valid="12" branches-covered="0" branches-valid="0">
   <sources>
@@ -202,12 +197,10 @@ def test_coverage_tool_with_real_xml_structure():
     
     result = coverage_tool.execute('test-project')
     
-    # Should show uncovered lines from the real XML structure
     assert 'Domain\\Category.cs:' in result['output']
     assert 'Line 9: Not covered' in result['output']
     assert 'Line 10: Not covered' in result['output']
     assert 'Line 11: Not covered' in result['output']
-    # Lines 14, 15, 16 should not appear as they are covered (hits > 0)
     assert 'Line 14: Not covered' not in result['output']
 
 
@@ -220,11 +213,9 @@ def test_coverage_tool_integration_with_file_not_found():
     }
     
     coverage_tool = CoverageTool(mock_runcommand)
-    # Don't mock _read_coverage_file - let it try to read the actual file
     
     result = coverage_tool.execute('test-project')
     
-    # Should show an error message about file not found
     assert 'Error parsing coverage:' in result['output']
     assert result['success'] is True  # The dotnet test succeeded, just parsing failed
 
@@ -237,7 +228,6 @@ def test_coverage_tool_should_not_duplicate_lines():
         'output': 'Coverage report generated: TestResults/12345/coverage.cobertura.xml'
     }
     
-    # XML with both method-level and class-level line elements (like real dotnet coverage)
     mock_xml_content = '''<?xml version="1.0" encoding="utf-8"?>
 <coverage line-rate="0.5" branch-rate="1" version="1.9">
   <packages>
@@ -267,7 +257,6 @@ def test_coverage_tool_should_not_duplicate_lines():
     
     result = coverage_tool.execute('test-project')
     
-    # Should only show line 11 once, not twice
     output_lines = result['output'].split('\n')
     line_11_count = sum(1 for line in output_lines if 'Line 11: Not covered' in line)
     assert line_11_count == 1, f"Expected line 11 to appear once, but appeared {line_11_count} times"

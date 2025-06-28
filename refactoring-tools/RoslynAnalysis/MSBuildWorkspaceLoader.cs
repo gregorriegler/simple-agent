@@ -18,7 +18,6 @@ public class MSBuildWorkspaceLoader : IWorkspaceLoader
         }
         catch (InvalidOperationException)
         {
-            // MSBuild is already registered, ignore
         }
     }
     
@@ -26,17 +25,14 @@ public class MSBuildWorkspaceLoader : IWorkspaceLoader
     {
         using var workspace = MSBuildWorkspace.Create();
         
-        // Check if it's a solution file
         if (Path.GetExtension(projectPath).Equals(".sln", StringComparison.OrdinalIgnoreCase))
         {
             var solution = await workspace.OpenSolutionAsync(projectPath);
             
-            // Return all projects from the solution
             return solution.Projects.ToList();
         }
         else
         {
-            // Handle single project file
             var project = await workspace.OpenProjectAsync(projectPath);
                 
             return new[] { project };

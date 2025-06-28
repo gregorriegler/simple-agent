@@ -65,7 +65,6 @@ def create_ls_error_scrubber():
     """Normalize ls error messages between Mac and Windows"""
     def ls_error_replacer(text):
         import re
-        # Convert Windows format to Mac format
         pattern = r"ls: cannot access '([^']+)': No such file or directory"
         replacement = r"ls: \1: No such file or directory"
         return re.sub(pattern, replacement, text)

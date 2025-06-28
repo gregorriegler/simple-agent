@@ -38,8 +38,6 @@ public class BreakHardDependencyTests
                             }
                             """;
 
-        // No selection needed for this test as there are no fields to refactor
-        // Select the field with OrderRepository.Instance
         await VerifyBreakHardDependency(code, "31:33-31:58");
     }
 
@@ -66,7 +64,6 @@ public class BreakHardDependencyTests
                             }
                             """;
 
-        // Select the field with OrderRepository.Instance
         await VerifyBreakHardDependency(code, "50:33-50:58");
     }
 
@@ -95,7 +92,6 @@ public class BreakHardDependencyTests
                             }
                             """;
 
-        // Select the field with OrderRepository.Instance
         await VerifyBreakHardDependency(code, "76:33-76:58");
     }
 
@@ -103,7 +99,6 @@ public class BreakHardDependencyTests
     {
         var document = CreateDocument(code);
         
-        // If no selection is provided, use a default selection that won't match any field
         var selection = string.IsNullOrEmpty(selectionText)
             ? CodeSelection.Parse("1:0-1:0")
             : CodeSelection.Parse(selectionText);

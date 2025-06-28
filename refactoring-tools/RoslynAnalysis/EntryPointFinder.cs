@@ -23,10 +23,8 @@ public class EntryPointFinder
         if (!projects.Any())
             return new List<EntryPoint>();
             
-        // Combine documents from all projects
         var documents = projects.SelectMany(p => p.Documents).ToList();
         
-        // First pass: find all public methods and collect all methods for reachability analysis
         var allPublicMethods = new List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)>();
         var allMethods = new List<(Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel, string fullyQualifiedName)>();
         
@@ -49,7 +47,6 @@ public class EntryPointFinder
                     var fullyQualifiedName = $"{methodSymbol.ContainingType.ContainingNamespace.ToDisplayString()}.{methodSymbol.ContainingType.Name}.{methodSymbol.Name}";
                     allMethods.Add((document, methodDeclaration, semanticModel, fullyQualifiedName));
                     
-                    // Only add to public methods if it's public
                     var entryPoint = TryCreateEntryPoint(document, methodDeclaration, semanticModel);
                     if (entryPoint != null)
                     {
@@ -59,7 +56,6 @@ public class EntryPointFinder
             }
         }
         
-        // Second pass: identify which methods are called by other methods
         var calledMethods = new HashSet<string>();
         
         foreach (var (_, document, methodDeclaration, semanticModel) in allPublicMethods)
@@ -79,16 +75,13 @@ public class EntryPointFinder
             }
         }
         
-        // Third pass: calculate reachable methods for entry points and filter out called methods
         var entryPoints = new List<EntryPoint>();
         
         foreach (var (entryPoint, document, methodDeclaration, semanticModel) in allPublicMethods)
         {
-            // Skip methods that are called by other methods (they're not true entry points)
             if (calledMethods.Contains(entryPoint.FullyQualifiedName))
                 continue;
                 
-            // Calculate reachable methods across all classes
             var reachableCount = CalculateReachableMethodsCount(methodDeclaration, semanticModel, allMethods);
             
             var updatedEntryPoint = new EntryPoint(
@@ -123,7 +116,6 @@ public class EntryPointFinder
         if (containingType == null)
             return null;
         
-        // Exclude test methods - check for common test attributes
         if (IsTestMethod(methodSymbol))
             return null;
         
@@ -134,10 +126,8 @@ public class EntryPointFinder
         var lineSpan = methodDeclaration.GetLocation().GetLineSpan();
         var lineNumber = lineSpan.StartLinePosition.Line + 1;
         
-        // Since we've already checked that methodSymbol is not null, we can safely pass it
         var methodSignature = GetMethodSignature(methodSymbol);
         
-        // Placeholder reachable count - will be recalculated later
         return new EntryPoint(
             fullyQualifiedName,
             filePath,
@@ -166,7 +156,6 @@ public class EntryPointFinder
             
             var currentMethodFullName = $"{currentMethodSymbol.ContainingType.ContainingNamespace.ToDisplayString()}.{currentMethodSymbol.ContainingType.Name}.{currentMethodSymbol.Name}";
             
-            // Check if we've already processed this method (prevents infinite loops in circular references)
             if (processedMethods.Contains(currentMethodFullName))
                 continue;
                 
@@ -188,8 +177,6 @@ public class EntryPointFinder
                     }
                     else
                     {
-                        // Fallback: try to resolve by method name pattern matching
-                        // This handles cases where symbol resolution fails due to circular references
                         if (invocation.Expression is IdentifierNameSyntax identifierName)
                         {
                             var methodName = identifierName.Identifier.ValueText;
@@ -205,13 +192,11 @@ public class EntryPointFinder
                     
                     if (calledMethodFullName != null)
                     {
-                        // Find the method declaration and its semantic model for the called method
                         var calledMethodInfo = allMethods
                             .FirstOrDefault(m => m.fullyQualifiedName == calledMethodFullName);
                             
                         if (calledMethodInfo.methodDeclaration != null)
                         {
-                            // Only add to queue if we haven't processed this method yet
                             if (!processedMethods.Contains(calledMethodFullName))
                             {
                                 methodsToProcess.Enqueue((calledMethodInfo.methodDeclaration, calledMethodInfo.semanticModel));
@@ -227,7 +212,6 @@ public class EntryPointFinder
     
     private string GetMethodSignature(IMethodSymbol methodSymbol)
     {
-        // This method is only called with non-null methodSymbol (enforced by the non-null assertion in the caller)
         var returnType = GetSimplifiedTypeName(methodSymbol.ReturnType);
         var parameters = string.Join(", ", methodSymbol.Parameters.Select(p => $"{GetSimplifiedTypeName(p.Type)} {p.Name}"));
         return $"{returnType} {methodSymbol.Name}({parameters})";
@@ -235,13 +219,11 @@ public class EntryPointFinder
     
     private string GetSimplifiedTypeName(ITypeSymbol typeSymbol)
     {
-        // Use Roslyn's built-in display format with C# keywords and minimal qualification
         return typeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
     }
     
     private bool IsTestMethod(IMethodSymbol methodSymbol)
     {
-        // Check for common test attributes
         var testAttributes = new[]
         {
             "Test",

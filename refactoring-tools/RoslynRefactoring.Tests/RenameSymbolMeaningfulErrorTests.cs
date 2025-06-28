@@ -40,17 +40,13 @@ public class Test
 
     private static void AssertMeaningfulErrorResponse(Document document, RenameSymbol renameSymbol)
     {
-        // Capture console output
         using var consoleOutput = new StringWriter();
         Console.SetOut(consoleOutput);
         
-        // Should not throw exception, but should write error to console and return original document
         var result = renameSymbol.PerformAsync(document).Result;
         
-        // Should return original document unchanged
         Assert.That(result, Is.EqualTo(document));
         
-        // Should write meaningful error message to console
         var output = consoleOutput.ToString();
         Assert.That(output, Does.Contain("Error: No renameable symbol found at cursor location"));
         Assert.That(output, Does.Contain("Supported symbol types: variables, methods"));

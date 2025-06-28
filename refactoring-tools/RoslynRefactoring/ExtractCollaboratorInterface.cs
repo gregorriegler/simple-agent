@@ -148,7 +148,6 @@ public class ExtractCollaboratorInterface : IRefactoring
     private bool IsLikelyCollaboratorType(TypeSyntax type)
     {
         var typeName = type.ToString();
-        // A collaborator is likely a class type (not primitive, not generic collection)
         return !string.IsNullOrEmpty(typeName) &&
                char.IsUpper(typeName[0]) &&
                !typeName.Contains('<') &&

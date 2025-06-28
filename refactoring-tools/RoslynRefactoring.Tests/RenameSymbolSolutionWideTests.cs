@@ -8,7 +8,6 @@ public class RenameSymbolSolutionWideTests
     [Test]
     public void ShouldRenameMethodAcrossMultipleFiles()
     {
-        // Arrange: Create a solution with two files
         var file1Code = @"
 public class Calculator
 {
@@ -36,19 +35,15 @@ public class MathService
         
         var calculatorDocument = solution.Projects.First().Documents.First(d => d.Name == "Calculator.cs");
         
-        // Act: Rename the Add method in Calculator.cs
         var renameSymbol = new RenameSymbol(Cursor.Parse("4:16"), "Sum"); // cursor on "Add" method name
         var updatedDocument = renameSymbol.PerformAsync(calculatorDocument).Result;
         
-        // Assert: Both files should be updated
         var updatedSolution = updatedDocument.Project.Solution;
         
-        // Check Calculator.cs - method declaration should be renamed
         var updatedCalculatorText = updatedDocument.GetTextAsync().Result.ToString();
         Assert.That(updatedCalculatorText, Does.Contain("public int Sum(int a, int b)"));
         Assert.That(updatedCalculatorText, Does.Not.Contain("public int Add(int a, int b)"));
         
-        // Check MathService.cs - method call should be renamed
         var mathServiceDocument = updatedSolution.Projects.First().Documents.First(d => d.Name == "MathService.cs");
         var updatedMathServiceText = mathServiceDocument.GetTextAsync().Result.ToString();
         Assert.That(updatedMathServiceText, Does.Contain("calc.Sum(5, 3)"));

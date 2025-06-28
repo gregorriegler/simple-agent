@@ -86,7 +86,6 @@ class ToolLibrary:
                     args = [args]
                 command_line = [cmd] + args
     
-            # Use longer timeout for mutation testing (Stryker can take several minutes)
             timeout = 300 if (args and 'stryker' in args) else 30
             
             result = subprocess.run(

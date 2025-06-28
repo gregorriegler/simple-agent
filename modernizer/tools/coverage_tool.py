@@ -11,7 +11,6 @@ class CoverageTool(BaseTool):
         self.runcommand = runcommand
         
     def execute(self, args):
-        # Parse arguments: project [file1] [file2] ...
         if not args:
             return {'success': False, 'output': 'No project specified'}
         
@@ -22,14 +21,12 @@ class CoverageTool(BaseTool):
         result = self.runcommand('dotnet', ['test', project, '--collect:"XPlat Code Coverage"'])
         
         if result['success']:
-            # Parse and format coverage data
             formatted_output = self._format_coverage_output(result['output'], specific_files)
             result['output'] = formatted_output
             
         return result
     
     def _format_coverage_output(self, raw_output, specific_files=None):
-        # Extract coverage file path from output - handle both Unix and Windows paths
         coverage_file_match = re.search(r'[^\s]*coverage\.cobertura\.xml', raw_output)
         if not coverage_file_match:
             return raw_output + "\n\nNo coverage file found in output."
@@ -37,15 +34,12 @@ class CoverageTool(BaseTool):
         coverage_file_path = coverage_file_match.group(0)
         
         try:
-            # Read and parse coverage XML
             xml_content = self._read_coverage_file(coverage_file_path)
             coverage_data = self._parse_coverage_xml(xml_content)
             
-            # Filter coverage data if specific files are requested
             if specific_files:
                 coverage_data = self._filter_coverage_data(coverage_data, specific_files)
             
-            # Format the output
             formatted_coverage = self._format_coverage_data(coverage_data)
             return formatted_coverage
         except Exception as e:
@@ -66,8 +60,6 @@ class CoverageTool(BaseTool):
                     class_name = class_elem.get('name')
                     lines_data = []
                     
-                    # Only look at the direct <lines> child of the class, not method lines
-                    # This avoids duplicates since the same lines appear in both places
                     lines_container = class_elem.find('lines')
                     if lines_container is not None:
                         for line in lines_container.findall('line'):
@@ -106,8 +98,6 @@ class CoverageTool(BaseTool):
         filtered_data = {}
         
         for filename, file_data in coverage_data.items():
-            # Check if this file is in the list of specific files
-            # Match by filename (e.g., "Calculator.cs" matches "path/Calculator.cs")
             for requested_file in specific_files:
                 if filename.endswith(requested_file) or requested_file in filename:
                     filtered_data[filename] = file_data

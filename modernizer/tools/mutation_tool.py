@@ -11,7 +11,6 @@ class MutationTool(BaseTool):
         self.runcommand = runcommand
         
     def execute(self, args):
-        # Parse arguments: project [file1] [file2] ...
         if not args:
             return {'success': False, 'output': 'No project specified'}
         
@@ -19,8 +18,6 @@ class MutationTool(BaseTool):
         project = parts[0]
         specific_files = parts[1:] if len(parts) > 1 else None
         
-        # Execute Stryker.NET mutation testing with reduced output
-        # Use --verbosity Error to minimize stdout noise and --reporter json
         if project.endswith('.csproj'):
             project_dir = os.path.dirname(project)
             project_name = os.path.basename(project)
@@ -31,7 +28,6 @@ class MutationTool(BaseTool):
                 '--verbosity', 'Error'
             ], cwd=project_dir)
         elif '/' in project or '\\' in project:
-            # Handle directory paths - run from that directory
             result = self.runcommand('dotnet', [
                 'stryker',
                 '--reporter', 'json',
@@ -46,11 +42,9 @@ class MutationTool(BaseTool):
             ])
         
         if result['success']:
-            # Try to read the JSON report file instead of parsing stdout
             formatted_output = self._read_stryker_report(project, result['output'], specific_files)
             result['output'] = formatted_output
         else:
-            # Check if Stryker.NET is not installed
             if 'Could not execute because the specified command or file was not found' in result['output']:
                 result['output'] = 'Stryker.NET is not installed. Please install it using: dotnet tool install -g dotnet-stryker'
             
@@ -59,7 +53,6 @@ class MutationTool(BaseTool):
     def _read_stryker_report(self, project_path, stdout_output, specific_files=None):
         """Read Stryker JSON report from file system instead of stdout"""
         try:
-            # Determine the working directory where Stryker was executed
             if project_path.endswith('.csproj'):
                 work_dir = os.path.dirname(project_path)
             elif '/' in project_path or '\\' in project_path:
@@ -67,7 +60,6 @@ class MutationTool(BaseTool):
             else:
                 work_dir = '.'
             
-            # Look for Stryker output directory in multiple locations
             possible_dirs = [
                 os.path.join(work_dir, 'StrykerOutput'),  # Same directory
                 os.path.join(os.path.dirname(work_dir), 'StrykerOutput'),  # Parent directory
@@ -81,16 +73,13 @@ class MutationTool(BaseTool):
                     break
             
             if not stryker_output_dir:
-                # Fallback to parsing stdout if no report directory found
                 return self._format_mutation_output(stdout_output, specific_files)
             
-            # Find the most recent report directory
             report_dirs = [d for d in os.listdir(stryker_output_dir)
                           if os.path.isdir(os.path.join(stryker_output_dir, d))]
             if not report_dirs:
                 return self._format_mutation_output(stdout_output, specific_files)
             
-            # Get the most recent directory (sorted by name, which includes timestamp)
             latest_dir = sorted(report_dirs)[-1]
             json_report_path = os.path.join(stryker_output_dir, latest_dir, 'reports', 'mutation-report.json')
             
@@ -99,22 +88,17 @@ class MutationTool(BaseTool):
                     report_content = f.read()
                 return self._format_mutation_output(report_content, specific_files)
             else:
-                # Fallback to stdout parsing
                 return self._format_mutation_output(stdout_output, specific_files)
                 
         except Exception as e:
-            # If anything goes wrong, fallback to stdout parsing
             return self._format_mutation_output(stdout_output, specific_files)
     
     def _format_mutation_output(self, raw_output, specific_files=None):
         try:
-            # Parse Stryker JSON output
             mutation_report = json.loads(raw_output)
             
-            # Calculate statistics and collect survived mutants
             stats, survived_mutants = self._calculate_mutation_statistics(mutation_report)
             
-            # Return formatted output as JSON string
             result = {
                 'success': True,
                 'summary': stats,
@@ -124,7 +108,6 @@ class MutationTool(BaseTool):
             return json.dumps(result, indent=2)
             
         except json.JSONDecodeError:
-            # If not valid JSON, return simple success message
             return json.dumps({
                 'success': True,
                 'summary': {
@@ -139,14 +122,12 @@ class MutationTool(BaseTool):
     
     def _calculate_mutation_statistics(self, mutation_report):
         """Calculate mutation testing statistics and collect survived mutants"""
-        # Initialize counters
         total_mutants = 0
         killed = 0
         survived = 0
         timeout = 0
         survived_mutants = []
         
-        # Process each file
         files = mutation_report.get('files', {})
         for file_path, file_data in files.items():
             mutants = file_data.get('mutants', [])
@@ -163,7 +144,6 @@ class MutationTool(BaseTool):
                 elif status == 'Timeout':
                     timeout += 1
         
-        # Calculate mutation score
         mutation_score = self._calculate_mutation_score(killed, total_mutants)
         
         stats = {

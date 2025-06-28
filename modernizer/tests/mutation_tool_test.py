@@ -20,7 +20,6 @@ def test_mutation_tool_executes_successfully():
 
 
 def test_parse_stryker_output():
-    # Mock Stryker JSON output
     stryker_json = {
         "files": {
             "Calculator.cs": {
@@ -62,22 +61,18 @@ def test_parse_stryker_output():
     
     assert result['success'] is True
     
-    # Parse the output as JSON
     output_data = json.loads(result['output'])
     
-    # Verify structure matches expected format
     assert 'success' in output_data
     assert 'summary' in output_data
     assert 'survived_mutants' in output_data
     
-    # Verify summary statistics
     summary = output_data['summary']
     assert summary['total_mutants'] == 2
     assert summary['killed'] == 1
     assert summary['survived'] == 1
     assert summary['mutation_score'] == 50.0
     
-    # Verify survived mutants details
     survived = output_data['survived_mutants']
     assert len(survived) == 1
     assert survived[0]['file'] == 'Calculator.cs'
