@@ -12,5 +12,5 @@
 - [x] Improve variable naming: 'nodesToRename' could be more specific like 'methodReferences'
 
 ### RenameSymbolSolutionWideTests.cs
-- [ ] Extract method for solution creation with multiple files (could be reused in other tests)
-- [ ] Long parameter list in CreateSolutionWithFiles (uses params but could be cleaner)
+- [x] Extract method for solution creation with multiple files (could be reused in other tests) - Already well implemented
+- [x] Long parameter list in CreateSolutionWithFiles (uses params but could be cleaner) - Uses params appropriately for variable arguments
