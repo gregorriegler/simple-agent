@@ -69,7 +69,7 @@ User wants to rename a private method `DoSomething()` to `ProcessData()` within 
 - [x] **Many usages**: Rename private method called multiple times within same class
   - Input: File path, cursor on method used 5+ times in different class methods, new name
   - Output: All call sites within the class updated
-- [ ] **Method with parameters**: Rename method with parameters `private int Calculate(int x, int y) { return x + y; }`
+- [x] **Method with parameters**: Rename method with parameters `private int Calculate(int x, int y) { return x + y; }`
   - Input: File path, cursor on `Calculate`, new name `Sum`
   - Output: Method declaration and all call sites updated
 - [ ] **Overloaded methods**: Rename one overload of a method while leaving others unchanged

@@ -1,0 +1,14 @@
+﻿
+public class Test
+{
+    private int Sum(int x, int y)
+    {
+        return x + y;
+    }
+
+    public void Main()
+    {
+        int result = Sum(5, 3);
+        Console.WriteLine(Sum(10, 20));
+    }
+}

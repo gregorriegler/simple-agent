@@ -158,6 +158,27 @@ public class Test
         await VerifyRename(code, Cursor.Parse("4:18"), "ProcessData");
     }
 
+    [Test]
+    public async Task CanRenameMethodWithParameters()
+    {
+        var code = @"
+public class Test
+{
+    private int Calculate(int x, int y)
+    {
+        return x + y;
+    }
+    
+    public void Main()
+    {
+        int result = Calculate(5, 3);
+        Console.WriteLine(Calculate(10, 20));
+    }
+}";
+
+        await VerifyRename(code, Cursor.Parse("4:17"), "Sum");
+    }
+
     private static async Task VerifyRename(string code, Cursor cursor, string newName)
     {
         var document = CreateDocument(code);
