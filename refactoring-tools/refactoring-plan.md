@@ -4,7 +4,7 @@
 
 ### RenameSymbol.cs
 - [ ] Remove code duplication: IdentifyAndRenameSymbol and IdentifyAndRenameSymbolSolutionWide have nearly identical logic
-- [ ] Extract method for token validation (repeated null checks and error messages)
+- [x] Extract method for token validation (repeated null checks and error messages)
 - [ ] Long method: RenameMethodSolutionWide is doing too many things (finding declarations, finding calls, replacing nodes)
 - [ ] Extract method for finding method declarations across solution
 - [ ] Extract method for finding method calls across solution

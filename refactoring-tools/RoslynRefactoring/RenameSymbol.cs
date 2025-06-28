@@ -52,9 +52,8 @@ public class RenameSymbol : IRefactoring
 
     private async Task<Document> IdentifyAndRenameSymbolSolutionWide(Document document, SyntaxNode root, SyntaxToken token)
     {
-        if (!token.IsKind(SyntaxKind.IdentifierToken))
+        if (!IsValidRenameableToken(token))
         {
-            Console.WriteLine("Error: No renameable symbol found at cursor location. Supported symbol types: variables, methods");
             return document;
         }
 
@@ -74,8 +73,23 @@ public class RenameSymbol : IRefactoring
             return await RenameMethodSolutionWide(document, methodDeclaration, oldName);
         }
 
-        Console.WriteLine("Error: No renameable symbol found at cursor location. Supported symbol types: variables, methods");
+        PrintNoRenameableSymbolError();
         return document;
+    }
+
+    private static bool IsValidRenameableToken(SyntaxToken token)
+    {
+        if (!token.IsKind(SyntaxKind.IdentifierToken))
+        {
+            PrintNoRenameableSymbolError();
+            return false;
+        }
+        return true;
+    }
+
+    private static void PrintNoRenameableSymbolError()
+    {
+        Console.WriteLine("Error: No renameable symbol found at cursor location. Supported symbol types: variables, methods");
     }
 
 
