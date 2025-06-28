@@ -40,8 +40,20 @@ public class RenameSymbol : IRefactoring
 
         var position = await GetCursorPosition(document);
         var token = root.FindToken(position);
+        
+        return IdentifyAndRenameSymbol(document, root, token);
+    }
+
+    private async Task<int> GetCursorPosition(Document document)
+    {
+        var sourceText = await document.GetTextAsync();
+        return sourceText.Lines[cursor.Line - 1].Start + cursor.Column - 1;
+    }
+
+    private Document IdentifyAndRenameSymbol(Document document, SyntaxNode root, SyntaxToken token)
+    {
         if (!token.IsKind(SyntaxKind.IdentifierToken))
-            throw new InvalidOperationException("No renameable symbol found at cursor location");
+            throw new InvalidOperationException("No renameable symbol found at cursor location. Supported symbol types: variables, methods");
 
         var oldName = token.ValueText;
 
@@ -60,12 +72,6 @@ public class RenameSymbol : IRefactoring
         }
 
         throw new InvalidOperationException("No renameable symbol found at cursor location. Supported symbol types: variables, methods");
-    }
-
-    private async Task<int> GetCursorPosition(Document document)
-    {
-        var sourceText = await document.GetTextAsync();
-        return sourceText.Lines[cursor.Line - 1].Start + cursor.Column - 1;
     }
 
     private Document RenameVariable(Document document, SyntaxNode root, VariableDeclaratorSyntax variableDeclarator, string oldName)
