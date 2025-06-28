@@ -20,7 +20,7 @@ Your answers should be succinct and concise
     1. If it passes, you found a test that does not drive any change in production code. So we don't need the test. Remove it from the examples, and remove the test again. Find another test that forces a change in production code.
 1. Implement the smallest possible change to make it pass
 1. Run all tests, and see it pass
-1. Check off the item in the examples
+1. Check off the item in the examples in `goal.md`
 1. Commit the code
 1. Refactor the code using the [refactoring process](./refactoring-process.md).
 1. Start a new context with the prompt "Read the `process/development-process.md` and apply it.

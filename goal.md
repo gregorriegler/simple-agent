@@ -72,7 +72,7 @@ User wants to rename a private method `DoSomething()` to `ProcessData()` within 
 - [x] **Method with parameters**: Rename method with parameters `private int Calculate(int x, int y) { return x + y; }`
   - Input: File path, cursor on `Calculate`, new name `Sum`
   - Output: Method declaration and all call sites updated
-- [ ] **Overloaded methods**: Rename one overload of a method while leaving others unchanged
+- [x] **Overloaded methods**: Rename one overload of a method while leaving others unchanged
   - Input: File path, cursor on specific overload, new name
   - Output: Only the targeted overload and its call sites renamed
 
