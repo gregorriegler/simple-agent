@@ -85,3 +85,17 @@ def test_parse_stryker_output():
     assert survived[0]['column'] == 12
     assert survived[0]['mutation_type'] == 'arithmetic_operator'
     assert survived[0]['mutated'] == 'a - b'
+
+
+def test_stryker_not_installed():
+    mock_runcommand = Mock()
+    mock_runcommand.return_value = {
+        'success': False,
+        'output': 'Could not execute because the specified command or file was not found.'
+    }
+    
+    mutation_tool = MutationTool(mock_runcommand)
+    result = mutation_tool.execute('test-project')
+    
+    assert result['success'] is False
+    assert 'Stryker.NET is not installed' in result['output']
