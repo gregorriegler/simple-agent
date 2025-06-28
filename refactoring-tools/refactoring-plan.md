@@ -9,7 +9,7 @@
 - [x] Extract method for finding method declarations across solution
 - [x] Extract method for finding method calls across solution
 - [x] Remove unused method: IdentifyAndRenameSymbol is no longer used since we always use solution-wide approach
-- [ ] Improve variable naming: 'nodesToRename' could be more specific like 'methodReferences'
+- [x] Improve variable naming: 'nodesToRename' could be more specific like 'methodReferences'
 
 ### RenameSymbolSolutionWideTests.cs
 - [ ] Extract method for solution creation with multiple files (could be reused in other tests)

@@ -190,19 +190,19 @@ public class RenameSymbol : IRefactoring
                 var docRoot = await doc.GetSyntaxRootAsync();
                 if (docRoot == null) continue;
 
-                var nodesToRename = new List<SyntaxNode>();
+                var methodReferences = new List<SyntaxNode>();
 
                 // Find method declarations
                 var methodDeclarations = FindMethodDeclarations(docRoot, oldName);
-                nodesToRename.AddRange(methodDeclarations);
+                methodReferences.AddRange(methodDeclarations);
 
                 // Find method calls
                 var methodCallExpressions = FindMethodCallExpressions(docRoot, oldName);
-                nodesToRename.AddRange(methodCallExpressions);
+                methodReferences.AddRange(methodCallExpressions);
 
-                if (nodesToRename.Any())
+                if (methodReferences.Any())
                 {
-                    var updatedDocRoot = docRoot.ReplaceNodes(nodesToRename, (original, _) =>
+                    var updatedDocRoot = docRoot.ReplaceNodes(methodReferences, (original, _) =>
                     {
                         return original switch
                         {
