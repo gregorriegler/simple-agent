@@ -68,3 +68,20 @@ The tool should return a structured, minimal format containing:
 - Parse Stryker JSON output (not HTML) for data extraction
 - Implement filtering for specific files/methods when requested
 - Add comprehensive error handling for common Stryker failure scenarios
+
+## Scenarios
+
+### Basic Mutation Testing on Simple Calculator - DRAFT
+Execute mutation testing on a basic calculator project with simple arithmetic operations (add, subtract, multiply, divide). The project has comprehensive unit tests covering all methods. Expected outcome: tool successfully runs Stryker.NET, parses results, and returns JSON with mutation score and survived mutants.
+
+### Integration with Modernizer Workflow - DRAFT
+Use the mutation testing tool through the modernizer chat interface. An AI agent requests mutation testing on a project, receives the results, and uses the survived mutants information to suggest code improvements or additional tests.
+
+### No Tests Available Scenario - DRAFT
+Attempt mutation testing on a .NET project that has no unit tests. Stryker.NET should fail gracefully, and the tool should return meaningful error information indicating that tests are required for mutation testing.
+
+### Invalid Project Path Scenario - DRAFT
+Execute mutation testing with an invalid or non-existent project path. The tool should handle the error gracefully and return a structured error response with clear messaging about the invalid path.
+
+### Stryker.NET Not Installed Scenario - DRAFT
+Attempt to run mutation testing on a system where Stryker.NET is not installed or not accessible. The tool should detect this condition and provide clear installation instructions in the error response.
