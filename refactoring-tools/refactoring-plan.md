@@ -2,15 +2,15 @@
 
 ## Identified Improvements
 
-### RenameSymbolMeaningfulErrorTests.cs
-- [ ] Remove code duplication: Both test methods have identical console capture and assertion logic
-- [ ] Extract helper method for console output capture and verification
-- [ ] Remove duplicate CreateDocument method (already exists in RenameSymbolErrorHandlingTests)
+### RenameSymbol.cs
+- [ ] Remove code duplication: IdentifyAndRenameSymbol and IdentifyAndRenameSymbolSolutionWide have nearly identical logic
+- [ ] Extract method for token validation (repeated null checks and error messages)
+- [ ] Long method: RenameMethodSolutionWide is doing too many things (finding declarations, finding calls, replacing nodes)
+- [ ] Extract method for finding method declarations across solution
+- [ ] Extract method for finding method calls across solution
+- [ ] Remove unused method: IdentifyAndRenameSymbol is no longer used since we always use solution-wide approach
+- [ ] Improve variable naming: 'nodesToRename' could be more specific like 'methodReferences'
 
-### RenameSymbolErrorHandlingTests.cs  
-- [x] Remove code duplication: Both test methods have identical console capture and assertion logic
-- [ ] Extract shared helper method for error response testing
-
-### Test Code Organization
-- [ ] Consider merging RenameSymbolMeaningfulErrorTests.cs into RenameSymbolErrorHandlingTests.cs since they test the same functionality
-- [ ] Remove duplicate test scenarios that test identical behavior
+### RenameSymbolSolutionWideTests.cs
+- [ ] Extract method for solution creation with multiple files (could be reused in other tests)
+- [ ] Long parameter list in CreateSolutionWithFiles (uses params but could be cleaner)
