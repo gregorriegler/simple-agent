@@ -193,28 +193,12 @@ public class RenameSymbol : IRefactoring
                 var nodesToRename = new List<SyntaxNode>();
 
                 // Find method declarations
-                var methodDeclarations = docRoot.DescendantNodes()
-                    .OfType<MethodDeclarationSyntax>()
-                    .Where(method => method.Identifier.ValueText == oldName);
+                var methodDeclarations = FindMethodDeclarations(docRoot, oldName);
                 nodesToRename.AddRange(methodDeclarations);
 
                 // Find method calls
-                var methodCalls = docRoot.DescendantNodes()
-                    .OfType<InvocationExpressionSyntax>()
-                    .Where(invocation =>
-                    {
-                        if (invocation.Expression is IdentifierNameSyntax identifier)
-                        {
-                            return identifier.Identifier.ValueText == oldName;
-                        }
-                        if (invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
-                            memberAccess.Name is IdentifierNameSyntax memberName)
-                        {
-                            return memberName.Identifier.ValueText == oldName;
-                        }
-                        return false;
-                    });
-                nodesToRename.AddRange(methodCalls.Select(call => call.Expression));
+                var methodCallExpressions = FindMethodCallExpressions(docRoot, oldName);
+                nodesToRename.AddRange(methodCallExpressions);
 
                 if (nodesToRename.Any())
                 {
@@ -299,5 +283,33 @@ public class RenameSymbol : IRefactoring
         return scope.DescendantNodes()
             .OfType<BlockSyntax>()
             .Where(block => block.SpanStart >= start.SpanStart && block.Span.End <= end.Span.End);
+    }
+
+    private static IEnumerable<MethodDeclarationSyntax> FindMethodDeclarations(SyntaxNode root, string methodName)
+    {
+        return root.DescendantNodes()
+            .OfType<MethodDeclarationSyntax>()
+            .Where(method => method.Identifier.ValueText == methodName);
+    }
+
+    private static IEnumerable<SyntaxNode> FindMethodCallExpressions(SyntaxNode root, string methodName)
+    {
+        var methodCalls = root.DescendantNodes()
+            .OfType<InvocationExpressionSyntax>()
+            .Where(invocation =>
+            {
+                if (invocation.Expression is IdentifierNameSyntax identifier)
+                {
+                    return identifier.Identifier.ValueText == methodName;
+                }
+                if (invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
+                    memberAccess.Name is IdentifierNameSyntax memberName)
+                {
+                    return memberName.Identifier.ValueText == methodName;
+                }
+                return false;
+            });
+        
+        return methodCalls.Select(call => call.Expression);
     }
 }
