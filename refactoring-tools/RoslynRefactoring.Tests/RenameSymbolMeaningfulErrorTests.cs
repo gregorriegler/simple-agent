@@ -20,20 +20,7 @@ public class Test
         var document = CreateDocument(code);
         var renameSymbol = new RenameSymbol(Cursor.Parse("5:1"), "newName"); // cursor on whitespace
         
-        // Capture console output
-        using var consoleOutput = new StringWriter();
-        Console.SetOut(consoleOutput);
-        
-        // Should not throw exception, but should write error to console and return original document
-        var result = renameSymbol.PerformAsync(document).Result;
-        
-        // Should return original document unchanged
-        Assert.That(result, Is.EqualTo(document));
-        
-        // Should write meaningful error message to console
-        var output = consoleOutput.ToString();
-        Assert.That(output, Does.Contain("Error: No renameable symbol found at cursor location"));
-        Assert.That(output, Does.Contain("Supported symbol types: variables, methods"));
+        AssertMeaningfulErrorResponse(document, renameSymbol);
     }
 
     [Test]
@@ -48,6 +35,11 @@ public class Test
         var document = CreateDocument(code);
         var renameSymbol = new RenameSymbol(Cursor.Parse("4:19"), "NewName"); // cursor on property name
         
+        AssertMeaningfulErrorResponse(document, renameSymbol);
+    }
+
+    private static void AssertMeaningfulErrorResponse(Document document, RenameSymbol renameSymbol)
+    {
         // Capture console output
         using var consoleOutput = new StringWriter();
         Console.SetOut(consoleOutput);

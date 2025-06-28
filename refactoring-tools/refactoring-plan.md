@@ -8,7 +8,7 @@
 - [ ] Remove duplicate CreateDocument method (already exists in RenameSymbolErrorHandlingTests)
 
 ### RenameSymbolErrorHandlingTests.cs  
-- [ ] Remove code duplication: Both test methods have identical console capture and assertion logic
+- [x] Remove code duplication: Both test methods have identical console capture and assertion logic
 - [ ] Extract shared helper method for error response testing
 
 ### Test Code Organization
