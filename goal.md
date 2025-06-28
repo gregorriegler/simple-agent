@@ -71,8 +71,13 @@ The tool should return a structured, minimal format containing:
 
 ## Scenarios
 
-### Basic Mutation Testing on Simple Calculator - DRAFT
+### Basic Mutation Testing on Simple Calculator - REFINED
 Execute mutation testing on a basic calculator project with simple arithmetic operations (add, subtract, multiply, divide). The project has comprehensive unit tests covering all methods. Expected outcome: tool successfully runs Stryker.NET, parses results, and returns JSON with mutation score and survived mutants.
+
+**Examples (ordered by simplicity):**
+- [ ] **Tool executes successfully**: Run mutation testing tool on simple calculator project - tool should execute Stryker.NET and return structured JSON output
+- [ ] **Parse Stryker output**: Tool receives Stryker JSON output and converts it to our minimal format with summary and survived mutants
+- [ ] **Handle project with no mutants**: Tool processes Stryker output when no mutations are generated - returns valid JSON with zero counts
 
 ### Integration with Modernizer Workflow - DRAFT
 Use the mutation testing tool through the modernizer chat interface. An AI agent requests mutation testing on a project, receives the results, and uses the survived mutants information to suggest code improvements or additional tests.
