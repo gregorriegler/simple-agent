@@ -94,6 +94,26 @@ public class Test
         await VerifyRename(code, Cursor.Parse("6:17"), "index");
     }
 
+    [Test]
+    public async Task CanRenameUnusedPrivateMethod()
+    {
+        var code = @"
+public class Test
+{
+    private void DoSomething()
+    {
+        Console.WriteLine(""Hello"");
+    }
+    
+    public void Main()
+    {
+        Console.WriteLine(""Main method"");
+    }
+}";
+
+        await VerifyRename(code, Cursor.Parse("4:18"), "ProcessData");
+    }
+
     private static async Task VerifyRename(string code, Cursor cursor, string newName)
     {
         var document = CreateDocument(code);

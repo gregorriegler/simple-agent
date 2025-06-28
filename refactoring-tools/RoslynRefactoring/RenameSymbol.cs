@@ -45,17 +45,31 @@ public class RenameSymbol : IRefactoring
         if (!token.IsKind(SyntaxKind.IdentifierToken))
             return document;
 
-        // Find the variable declarator at the cursor position
-        var variableDeclarator = token.Parent as VariableDeclaratorSyntax;
-        if (variableDeclarator == null)
-            return document;
-
         var oldName = token.ValueText;
-        
+
+        // Try to find a variable declarator first
+        var variableDeclarator = token.Parent as VariableDeclaratorSyntax;
+        if (variableDeclarator != null)
+        {
+            return RenameVariable(document, root, variableDeclarator, oldName);
+        }
+
+        // Try to find a method declaration
+        var methodDeclaration = token.Parent as MethodDeclarationSyntax;
+        if (methodDeclaration != null)
+        {
+            return RenameMethod(document, root, methodDeclaration, oldName);
+        }
+
+        return document;
+    }
+
+    private Document RenameVariable(Document document, SyntaxNode root, VariableDeclaratorSyntax variableDeclarator, string oldName)
+    {
         // Find the scope of this variable declaration
         var declarationScope = FindDeclarationScope(variableDeclarator);
         if (declarationScope == null)
-            return document;
+            return document.WithSyntaxRoot(root);
 
         // Find all references to this variable within its scope
         var referencesToRename = new List<SyntaxNode> { variableDeclarator };
@@ -86,6 +100,15 @@ public class RenameSymbol : IRefactoring
                 _ => original
             };
         });
+
+        return document.WithSyntaxRoot(newRoot);
+    }
+
+    private Document RenameMethod(Document document, SyntaxNode root, MethodDeclarationSyntax methodDeclaration, string oldName)
+    {
+        // For now, just rename the method declaration (no usages since it's unused)
+        var newRoot = root.ReplaceNode(methodDeclaration,
+            methodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newName)));
 
         return document.WithSyntaxRoot(newRoot);
     }
