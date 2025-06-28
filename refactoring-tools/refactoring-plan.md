@@ -1,7 +1,16 @@
-# 🧹 Refactoring Plan for RenameSymbol
+# Refactoring Plan
 
-- [x] Extract cursor position calculation logic from PerformAsync method
-- [x] Extract symbol identification logic into separate method
-- [ ] Add documentation comments for private methods
-- [ ] Improve method name `FindDeclarationScope` to be more specific
-- [ ] Extract error message constants to avoid duplication
+## Identified Improvements
+
+### RenameSymbolMeaningfulErrorTests.cs
+- [ ] Remove code duplication: Both test methods have identical console capture and assertion logic
+- [ ] Extract helper method for console output capture and verification
+- [ ] Remove duplicate CreateDocument method (already exists in RenameSymbolErrorHandlingTests)
+
+### RenameSymbolErrorHandlingTests.cs  
+- [ ] Remove code duplication: Both test methods have identical console capture and assertion logic
+- [ ] Extract shared helper method for error response testing
+
+### Test Code Organization
+- [ ] Consider merging RenameSymbolMeaningfulErrorTests.cs into RenameSymbolErrorHandlingTests.cs since they test the same functionality
+- [ ] Remove duplicate test scenarios that test identical behavior
