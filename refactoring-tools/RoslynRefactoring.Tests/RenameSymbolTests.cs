@@ -76,6 +76,24 @@ public class Test
         await VerifyRename(code, Cursor.Parse("8:17"), "innerValue");
     }
 
+    [Test]
+    public async Task CanRenameVariableInLoop()
+    {
+        var code = @"
+public class Test
+{
+    public void Method()
+    {
+        for(int i = 0; i < 10; i++)
+        {
+            Console.WriteLine(i);
+        }
+    }
+}";
+
+        await VerifyRename(code, Cursor.Parse("6:17"), "index");
+    }
+
     private static async Task VerifyRename(string code, Cursor cursor, string newName)
     {
         var document = CreateDocument(code);

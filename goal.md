@@ -40,16 +40,16 @@ User wants to rename a local variable `oldName` to `newName` within a single met
 - [x] **Zero usage**: Rename unused local variable `int unused = 5;` to `int temp = 5;`
   - Input: File path, cursor on `unused`, new name `temp`
   - Output: Variable declaration updated, no other changes needed
-- [ ] **One usage**: Rename variable with single usage `int count = 0; return count;`
+- [x] **One usage**: Rename variable with single usage `int count = 0; return count;`
   - Input: File path, cursor on `count` (declaration), new name `total`
   - Output: Both declaration and usage updated to `total`
 - [x] **Many usages**: Rename variable used multiple times in method
   - Input: File path, cursor on variable used 5+ times in calculations, new name
   - Output: All usages within method scope updated
-- [ ] **Variable in different scopes**: Rename variable that shadows outer scope variable
+- [x] **Variable in different scopes**: Rename variable that shadows outer scope variable
   - Input: File path, cursor on inner scope variable, new name
   - Output: Only inner scope variable and its usages renamed
-- [ ] **Variable in loop**: Rename loop variable `for(int i = 0; i < 10; i++)`
+- [x] **Variable in loop**: Rename loop variable `for(int i = 0; i < 10; i++)`
   - Input: File path, cursor on `i`, new name `index`
   - Output: All three occurrences in for-loop updated
 
