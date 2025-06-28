@@ -21,6 +21,6 @@ Your answers should be succinct and concise
 1. Implement the smallest possible change to make it pass
 1. Run all tests, and see it pass
 1. Check off the item in the examples in `goal.md`
-1. Commit the code
+1. Commit the code. Prefix the commit message with "f", e.g. "f can rename methods"
 1. Refactor the code using the [refactoring process](./refactoring-process.md).
 1. Start a new context with the prompt "Read the `process/development-process.md` and apply it.

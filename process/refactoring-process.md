@@ -28,5 +28,5 @@ For each task
 1. Run the tests again to see everything still works
 1. If any tests fail after your change, revert to the changes using `revert.sh`. Never proceed with broken tests during refactoring.
 1. Check off the task
-1. Commit the code using git
+1. Commit the code using git. Refactoring commit messages start with an "r", e.g. "r extract class ..."s
 1. Go to the next step
