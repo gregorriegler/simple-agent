@@ -12,7 +12,7 @@ Your answers should be succinct and concise
     - However, we only ever add a failing test when all the current tests are passing, and there are no uncommitted changes. 
     - When the tests are passing, but there are uncommitted changes, then we have to commit first
 1. Run `test.sh` which runs all tests, and see it fail
-    1. Be aware, that if its a Verify or approvaltests test, the first test will always fail because there is no verified file yet. Only in this case, you have to consider if the received file is what you would expect and approve it.
+    1. Be aware, that if its a Verify or approvaltests test, the first test will always fail because there is no verified file yet. Only in this case, you have to consider if the received file is what you would expect and approve it. To approve it use the `approve.sh` script. e.g. `./approve.sh NameOfTheTest`
     1. If it passes, you found a test that does not drive any change in production code. So we don't need the test. Remove it from the examples, and remove the test again. Find another test that forces a change in production code.
 1. Implement the smallest possible change to make it pass
 1. Run all tests, and see it pass
