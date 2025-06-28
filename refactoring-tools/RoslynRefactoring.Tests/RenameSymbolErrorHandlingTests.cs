@@ -26,6 +26,24 @@ public class Test
         Assert.That(exception.Message, Does.Contain("No renameable symbol found at cursor location"));
     }
 
+    [Test]
+    public void ShouldProvideHelpfulErrorWhenCursorIsOnUnsupportedSymbolType()
+    {
+        var code = @"
+public class Test
+{
+    public string Name { get; set; }
+}";
+
+        var document = CreateDocument(code);
+        var renameSymbol = new RenameSymbol(Cursor.Parse("4:19"), "NewName"); // cursor on property name
+        
+        var exception = Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await renameSymbol.PerformAsync(document));
+        
+        Assert.That(exception.Message, Does.Contain("Supported symbol types: variables, methods"));
+    }
+
     private static Document CreateDocument(string code)
     {
         var workspace = new AdhocWorkspace();

@@ -61,7 +61,7 @@ public class RenameSymbol : IRefactoring
             return RenameMethod(document, root, methodDeclaration, oldName);
         }
 
-        throw new InvalidOperationException("No renameable symbol found at cursor location");
+        throw new InvalidOperationException("No renameable symbol found at cursor location. Supported symbol types: variables, methods");
     }
 
     private Document RenameVariable(Document document, SyntaxNode root, VariableDeclaratorSyntax variableDeclarator, string oldName)
