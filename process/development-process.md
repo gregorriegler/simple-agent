@@ -6,8 +6,8 @@ Your answers should be succinct and concise
 
 1. Identify where we are
     - Read the `README.md` to understand where we are.
-    - Run `pwd` to understand the current working directory.
     - Read the `goal.md` to understand our next goal, scenarios and examples.
+    - Run `pwd` to understand the current working directory.
 1. Pick the first item of the examples that is not yet implemented
     - If there are no more items left to be implemented in the currently REFINED scenario, we'll have to refine the next scenario.
     Do that by starting a new context with the prompt "Read and follow the `process/refine-scenarios.md` instructions, we are working on refining a scenario described in `goal.md`". Attach the `README.md`, the `process/refine-scenarios.md` and the `goal.md` to the new context. 
