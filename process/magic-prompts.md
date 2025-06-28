@@ -1,5 +1,5 @@
-run the copy/paste detector over the whole codebase to see if there are missing abstractions
+Run the copy/paste detector over the whole codebase to see if there are missing abstractions
 
-look at the git commits and tell me what pairs of files change at the same time
+Look at the git commits and tell me what pairs of files change at the same time
 
-draw an ascii graph of ...
+Draw an ascii graph of ...
