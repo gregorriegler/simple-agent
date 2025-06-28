@@ -8,7 +8,7 @@
 - [ ] Long method: RenameMethodSolutionWide is doing too many things (finding declarations, finding calls, replacing nodes)
 - [ ] Extract method for finding method declarations across solution
 - [ ] Extract method for finding method calls across solution
-- [ ] Remove unused method: IdentifyAndRenameSymbol is no longer used since we always use solution-wide approach
+- [x] Remove unused method: IdentifyAndRenameSymbol is no longer used since we always use solution-wide approach
 - [ ] Improve variable naming: 'nodesToRename' could be more specific like 'methodReferences'
 
 ### RenameSymbolSolutionWideTests.cs
