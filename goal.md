@@ -53,11 +53,28 @@ User wants to rename a local variable `oldName` to `newName` within a single met
   - Input: File path, cursor on `i`, new name `index`
   - Output: All three occurrences in for-loop updated
 
-### Rename Method in Single Class - DRAFT
+### Rename Method in Single Class - REFINED
 User wants to rename a private method `DoSomething()` to `ProcessData()` within one class. The tool should:
 - Identify the method declaration
 - Find all calls to this method within the same class
 - Update the method name and all call sites
+
+**Examples (ordered by simplicity):**
+- [ ] **Zero usage**: Rename unused private method `private void DoSomething() { }` to `ProcessData`
+  - Input: File path, cursor on `DoSomething`, new name `ProcessData`
+  - Output: Method declaration updated, no other changes needed
+- [ ] **One usage**: Rename private method called once `private void DoSomething() { } public void Main() { DoSomething(); }`
+  - Input: File path, cursor on `DoSomething` (declaration), new name `ProcessData`
+  - Output: Both declaration and single call site updated
+- [ ] **Many usages**: Rename private method called multiple times within same class
+  - Input: File path, cursor on method used 5+ times in different class methods, new name
+  - Output: All call sites within the class updated
+- [ ] **Method with parameters**: Rename method with parameters `private int Calculate(int x, int y) { return x + y; }`
+  - Input: File path, cursor on `Calculate`, new name `Sum`
+  - Output: Method declaration and all call sites updated
+- [ ] **Overloaded methods**: Rename one overload of a method while leaving others unchanged
+  - Input: File path, cursor on specific overload, new name
+  - Output: Only the targeted overload and its call sites renamed
 
 ### Rename Public Property Across Solution - DRAFT
 User wants to rename a public property `CustomerName` to `ClientName` in a class that's used across multiple projects. The tool should:
