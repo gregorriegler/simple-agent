@@ -21,4 +21,4 @@ Your answers should be succinct and concise
 1. Check off the item in the examples
 1. Ask me to commit the code
 1. Refactor the code using the [refactoring process](./refactoring-process.md).
-1. Go to 2
+1. Start a new context with the prompt "Read the `process/development-process.md` and apply it working on `goal.md`. Attach the `README.md`, the `process/development-process.md` and the `goal.md` to the new context. 
