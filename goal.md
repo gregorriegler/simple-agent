@@ -63,10 +63,10 @@ User wants to rename a private method `DoSomething()` to `ProcessData()` within 
 - [x] **Zero usage**: Rename unused private method `private void DoSomething() { }` to `ProcessData`
   - Input: File path, cursor on `DoSomething`, new name `ProcessData`
   - Output: Method declaration updated, no other changes needed
-- [ ] **One usage**: Rename private method called once `private void DoSomething() { } public void Main() { DoSomething(); }`
+- [x] **One usage**: Rename private method called once `private void DoSomething() { } public void Main() { DoSomething(); }`
   - Input: File path, cursor on `DoSomething` (declaration), new name `ProcessData`
   - Output: Both declaration and single call site updated
-- [ ] **Many usages**: Rename private method called multiple times within same class
+- [x] **Many usages**: Rename private method called multiple times within same class
   - Input: File path, cursor on method used 5+ times in different class methods, new name
   - Output: All call sites within the class updated
 - [ ] **Method with parameters**: Rename method with parameters `private int Calculate(int x, int y) { return x + y; }`

@@ -134,6 +134,30 @@ public class Test
         await VerifyRename(code, Cursor.Parse("4:18"), "ProcessData");
     }
 
+    [Test]
+    public async Task CanRenamePrivateMethodWithManyUsages()
+    {
+        var code = @"
+public class Test
+{
+    private void DoSomething()
+    {
+        Console.WriteLine(""Hello"");
+    }
+    
+    public void Main()
+    {
+        DoSomething();
+        DoSomething();
+        DoSomething();
+        DoSomething();
+        DoSomething();
+    }
+}";
+
+        await VerifyRename(code, Cursor.Parse("4:18"), "ProcessData");
+    }
+
     private static async Task VerifyRename(string code, Cursor cursor, string newName)
     {
         var document = CreateDocument(code);
