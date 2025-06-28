@@ -10,5 +10,5 @@ We will enhance our notes in the `goal.md`.
 1. Think of exception path scenarios, and add the most important to the List
 1. Ask me to read through the scenarios and make adaptions
 1. commit the changes
-1. Then create a new context with the prompt "Read and follow the `refine-scenarios.md` instructions, we are working on refining a scenario described in `goal.md`"
-Attach the `README.md`, the `refine-scenarios.md` and the `goal.md` to the new context. 
+1. Then create a new context with the prompt "Read and follow the `process/refine-scenarios.md` instructions, we are working on refining a scenario described in `goal.md`"
+Attach the `README.md`, the `process/refine-scenarios.md` and the `goal.md` to the new context. 
