@@ -60,7 +60,7 @@ User wants to rename a private method `DoSomething()` to `ProcessData()` within 
 - Update the method name and all call sites
 
 **Examples (ordered by simplicity):**
-- [ ] **Zero usage**: Rename unused private method `private void DoSomething() { }` to `ProcessData`
+- [x] **Zero usage**: Rename unused private method `private void DoSomething() { }` to `ProcessData`
   - Input: File path, cursor on `DoSomething`, new name `ProcessData`
   - Output: Method declaration updated, no other changes needed
 - [ ] **One usage**: Rename private method called once `private void DoSomething() { } public void Main() { DoSomething(); }`

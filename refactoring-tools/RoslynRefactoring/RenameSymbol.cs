@@ -106,11 +106,46 @@ public class RenameSymbol : IRefactoring
 
     private Document RenameMethod(Document document, SyntaxNode root, MethodDeclarationSyntax methodDeclaration, string oldName)
     {
-        // For now, just rename the method declaration (no usages since it's unused)
-        var newRoot = root.ReplaceNode(methodDeclaration,
-            methodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newName)));
+        // Find the class containing this method
+        var containingClass = methodDeclaration.FirstAncestorOrSelf<ClassDeclarationSyntax>();
+        if (containingClass == null)
+        {
+            // Just rename the method declaration if we can't find the containing class
+            var newRoot = root.ReplaceNode(methodDeclaration,
+                methodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newName)));
+            return document.WithSyntaxRoot(newRoot);
+        }
 
-        return document.WithSyntaxRoot(newRoot);
+        // Find all method calls within the same class
+        var referencesToRename = new List<SyntaxNode> { methodDeclaration };
+        
+        var methodCalls = containingClass.DescendantNodes()
+            .OfType<InvocationExpressionSyntax>()
+            .Where(invocation =>
+            {
+                if (invocation.Expression is IdentifierNameSyntax identifier)
+                {
+                    return identifier.Identifier.ValueText == oldName;
+                }
+                return false;
+            });
+
+        referencesToRename.AddRange(methodCalls.Select(call => call.Expression));
+
+        // Replace all references
+        var finalRoot = root.ReplaceNodes(referencesToRename, (original, _) =>
+        {
+            return original switch
+            {
+                MethodDeclarationSyntax method =>
+                    method.WithIdentifier(SyntaxFactory.Identifier(newName)),
+                IdentifierNameSyntax identifier =>
+                    identifier.WithIdentifier(SyntaxFactory.Identifier(newName)),
+                _ => original
+            };
+        });
+
+        return document.WithSyntaxRoot(finalRoot);
     }
 
     private static SyntaxNode? FindDeclarationScope(VariableDeclaratorSyntax variableDeclarator)

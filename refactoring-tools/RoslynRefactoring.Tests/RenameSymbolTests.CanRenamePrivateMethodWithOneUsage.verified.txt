@@ -1,0 +1,13 @@
+﻿
+public class Test
+{
+    private void ProcessData()
+    {
+        Console.WriteLine("Hello");
+    }
+
+    public void Main()
+    {
+        ProcessData();
+    }
+}
