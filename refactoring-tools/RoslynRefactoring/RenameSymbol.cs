@@ -41,13 +41,41 @@ public class RenameSymbol : IRefactoring
         var position = await GetCursorPosition(document);
         var token = root.FindToken(position);
         
-        return IdentifyAndRenameSymbol(document, root, token);
+        return await IdentifyAndRenameSymbolSolutionWide(document, root, token);
     }
 
     private async Task<int> GetCursorPosition(Document document)
     {
         var sourceText = await document.GetTextAsync();
         return sourceText.Lines[cursor.Line - 1].Start + cursor.Column - 1;
+    }
+
+    private async Task<Document> IdentifyAndRenameSymbolSolutionWide(Document document, SyntaxNode root, SyntaxToken token)
+    {
+        if (!token.IsKind(SyntaxKind.IdentifierToken))
+        {
+            Console.WriteLine("Error: No renameable symbol found at cursor location. Supported symbol types: variables, methods");
+            return document;
+        }
+
+        var oldName = token.ValueText;
+
+        // Try to find a variable declarator first
+        var variableDeclarator = token.Parent as VariableDeclaratorSyntax;
+        if (variableDeclarator != null)
+        {
+            return RenameVariable(document, root, variableDeclarator, oldName);
+        }
+
+        // Try to find a method declaration
+        var methodDeclaration = token.Parent as MethodDeclarationSyntax;
+        if (methodDeclaration != null)
+        {
+            return await RenameMethodSolutionWide(document, methodDeclaration, oldName);
+        }
+
+        Console.WriteLine("Error: No renameable symbol found at cursor location. Supported symbol types: variables, methods");
+        return document;
     }
 
     private Document IdentifyAndRenameSymbol(Document document, SyntaxNode root, SyntaxToken token)
@@ -160,6 +188,71 @@ public class RenameSymbol : IRefactoring
         });
 
         return document.WithSyntaxRoot(finalRoot);
+    }
+
+    private async Task<Document> RenameMethodSolutionWide(Document document, MethodDeclarationSyntax methodDeclaration, string oldName)
+    {
+        var solution = document.Project.Solution;
+        var updatedSolution = solution;
+
+        // Find and rename all method calls and declarations across all documents in the solution
+        foreach (var project in solution.Projects)
+        {
+            foreach (var doc in project.Documents)
+            {
+                var docRoot = await doc.GetSyntaxRootAsync();
+                if (docRoot == null) continue;
+
+                var nodesToRename = new List<SyntaxNode>();
+
+                // Find method declarations
+                var methodDeclarations = docRoot.DescendantNodes()
+                    .OfType<MethodDeclarationSyntax>()
+                    .Where(method => method.Identifier.ValueText == oldName);
+                nodesToRename.AddRange(methodDeclarations);
+
+                // Find method calls
+                var methodCalls = docRoot.DescendantNodes()
+                    .OfType<InvocationExpressionSyntax>()
+                    .Where(invocation =>
+                    {
+                        if (invocation.Expression is IdentifierNameSyntax identifier)
+                        {
+                            return identifier.Identifier.ValueText == oldName;
+                        }
+                        if (invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
+                            memberAccess.Name is IdentifierNameSyntax memberName)
+                        {
+                            return memberName.Identifier.ValueText == oldName;
+                        }
+                        return false;
+                    });
+                nodesToRename.AddRange(methodCalls.Select(call => call.Expression));
+
+                if (nodesToRename.Any())
+                {
+                    var updatedDocRoot = docRoot.ReplaceNodes(nodesToRename, (original, _) =>
+                    {
+                        return original switch
+                        {
+                            MethodDeclarationSyntax method =>
+                                method.WithIdentifier(SyntaxFactory.Identifier(newName)),
+                            IdentifierNameSyntax identifier =>
+                                identifier.WithIdentifier(SyntaxFactory.Identifier(newName)),
+                            MemberAccessExpressionSyntax memberAccess when memberAccess.Name is IdentifierNameSyntax memberName =>
+                                memberAccess.WithName(memberName.WithIdentifier(SyntaxFactory.Identifier(newName))),
+                            _ => original
+                        };
+                    });
+
+                    updatedSolution = updatedSolution.WithDocumentSyntaxRoot(doc.Id, updatedDocRoot);
+                }
+            }
+        }
+
+        // Return the updated document from the updated solution
+        var resultDocument = updatedSolution.GetDocument(document.Id);
+        return resultDocument ?? document;
     }
 
     private static SyntaxNode? FindDeclarationScope(VariableDeclaratorSyntax variableDeclarator)
