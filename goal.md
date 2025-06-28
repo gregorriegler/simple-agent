@@ -43,7 +43,7 @@ User wants to rename a local variable `oldName` to `newName` within a single met
 - [ ] **One usage**: Rename variable with single usage `int count = 0; return count;`
   - Input: File path, cursor on `count` (declaration), new name `total`
   - Output: Both declaration and usage updated to `total`
-- [ ] **Many usages**: Rename variable used multiple times in method
+- [x] **Many usages**: Rename variable used multiple times in method
   - Input: File path, cursor on variable used 5+ times in calculations, new name
   - Output: All usages within method scope updated
 - [ ] **Variable in different scopes**: Rename variable that shadows outer scope variable

@@ -42,33 +42,110 @@ public class RenameSymbol : IRefactoring
         var position = sourceText.Lines[cursor.Line - 1].Start + cursor.Column - 1;
         
         var token = root.FindToken(position);
-        if (token.IsKind(SyntaxKind.IdentifierToken))
+        if (!token.IsKind(SyntaxKind.IdentifierToken))
+            return document;
+
+        // Find the variable declarator at the cursor position
+        var variableDeclarator = token.Parent as VariableDeclaratorSyntax;
+        if (variableDeclarator == null)
+            return document;
+
+        var oldName = token.ValueText;
+        
+        // Find the scope of this variable declaration
+        var declarationScope = FindDeclarationScope(variableDeclarator);
+        if (declarationScope == null)
+            return document;
+
+        // Find all references to this variable within its scope
+        var referencesToRename = new List<SyntaxNode> { variableDeclarator };
+        
+        // Find all identifier usages within the same scope
+        var identifiersInScope = declarationScope.DescendantNodes()
+            .OfType<IdentifierNameSyntax>()
+            .Where(id => id.Identifier.ValueText == oldName);
+
+        foreach (var identifier in identifiersInScope)
         {
-            var variableDeclarator = token.Parent as VariableDeclaratorSyntax;
-            if (variableDeclarator != null)
+            // Check if this identifier refers to our variable by checking if it's in the right scope
+            if (IsReferenceToVariable(identifier, variableDeclarator, declarationScope))
             {
-                var oldName = token.ValueText;
-                var newRoot = root.ReplaceNodes(
-                    root.DescendantNodes().OfType<IdentifierNameSyntax>()
-                        .Where(id => id.Identifier.ValueText == oldName)
-                        .Cast<SyntaxNode>()
-                        .Concat(new[] { variableDeclarator }),
-                    (original, _) =>
-                    {
-                        if (original is VariableDeclaratorSyntax declarator)
-                        {
-                            return declarator.WithIdentifier(SyntaxFactory.Identifier(newName));
-                        }
-                        if (original is IdentifierNameSyntax identifier)
-                        {
-                            return identifier.WithIdentifier(SyntaxFactory.Identifier(newName));
-                        }
-                        return original;
-                    });
-                return document.WithSyntaxRoot(newRoot);
+                referencesToRename.Add(identifier);
             }
         }
 
-        return document;
+        // Replace all references
+        var newRoot = root.ReplaceNodes(referencesToRename, (original, _) =>
+        {
+            return original switch
+            {
+                VariableDeclaratorSyntax declarator =>
+                    declarator.WithIdentifier(SyntaxFactory.Identifier(newName)),
+                IdentifierNameSyntax identifier =>
+                    identifier.WithIdentifier(SyntaxFactory.Identifier(newName)),
+                _ => original
+            };
+        });
+
+        return document.WithSyntaxRoot(newRoot);
+    }
+
+    private static SyntaxNode? FindDeclarationScope(VariableDeclaratorSyntax variableDeclarator)
+    {
+        // Walk up the syntax tree to find the containing scope
+        var current = variableDeclarator.Parent;
+        while (current != null)
+        {
+            // Look for block statements, method declarations, etc.
+            if (current is BlockSyntax or MethodDeclarationSyntax or ConstructorDeclarationSyntax)
+            {
+                return current;
+            }
+            current = current.Parent;
+        }
+        return null;
+    }
+
+    private static bool IsReferenceToVariable(IdentifierNameSyntax identifier, VariableDeclaratorSyntax targetVariable, SyntaxNode scope)
+    {
+        // Simple scope-based check: if the identifier is in the same scope and there's no
+        // shadowing variable declaration between the target and the identifier, it's a reference
+        
+        var identifierPosition = identifier.SpanStart;
+        var targetPosition = targetVariable.SpanStart;
+        
+        // The identifier must come after the declaration
+        if (identifierPosition <= targetPosition)
+            return false;
+
+        // Check if there's a shadowing declaration between target and identifier
+        var blocksBetween = GetBlocksBetween(targetVariable, identifier, scope);
+        
+        foreach (var block in blocksBetween)
+        {
+            // Check if this block contains a variable declaration with the same name
+            var shadowingDeclarations = block.DescendantNodes()
+                .OfType<VariableDeclaratorSyntax>()
+                .Where(v => v.Identifier.ValueText == targetVariable.Identifier.ValueText &&
+                           v.SpanStart > targetPosition &&
+                           v.SpanStart < identifierPosition);
+                           
+            if (shadowingDeclarations.Any())
+            {
+                // There's a shadowing declaration, so this identifier doesn't refer to our target
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    private static IEnumerable<SyntaxNode> GetBlocksBetween(SyntaxNode start, SyntaxNode end, SyntaxNode scope)
+    {
+        // Find all block syntax nodes that could contain shadowing declarations
+        // between the start and end positions within the given scope
+        return scope.DescendantNodes()
+            .OfType<BlockSyntax>()
+            .Where(block => block.SpanStart >= start.SpanStart && block.Span.End <= end.Span.End);
     }
 }

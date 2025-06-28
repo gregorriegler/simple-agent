@@ -1,0 +1,13 @@
+﻿
+public class Test
+{
+    public void Method()
+    {
+        int value = 10;
+        {
+            int innerValue = 20; // inner scope variable
+            Console.WriteLine(innerValue);
+        }
+        Console.WriteLine(value); // outer scope variable
+    }
+}

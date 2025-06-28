@@ -1,0 +1,11 @@
+﻿
+public class Test
+{
+    public void Method()
+    {
+        int number = 10;
+        int result = number + number * 2;
+        Console.WriteLine(number);
+        return result + number;
+    }
+}

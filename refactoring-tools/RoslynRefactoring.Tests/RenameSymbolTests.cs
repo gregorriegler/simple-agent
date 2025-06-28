@@ -38,6 +38,44 @@ public class Test
         await VerifyRename(code, Cursor.Parse("6:13"), "total");
     }
 
+    [Test]
+    public async Task CanRenameVariableWithManyUsages()
+    {
+        var code = @"
+public class Test
+{
+    public void Method()
+    {
+        int value = 10;
+        int result = value + value * 2;
+        Console.WriteLine(value);
+        return result + value;
+    }
+}";
+
+        await VerifyRename(code, Cursor.Parse("6:13"), "number");
+    }
+
+    [Test]
+    public async Task CanRenameVariableInDifferentScopes()
+    {
+        var code = @"
+public class Test
+{
+    public void Method()
+    {
+        int value = 10;
+        {
+            int value = 20; // inner scope variable
+            Console.WriteLine(value);
+        }
+        Console.WriteLine(value); // outer scope variable
+    }
+}";
+
+        await VerifyRename(code, Cursor.Parse("8:17"), "innerValue");
+    }
+
     private static async Task VerifyRename(string code, Cursor cursor, string newName)
     {
         var document = CreateDocument(code);
