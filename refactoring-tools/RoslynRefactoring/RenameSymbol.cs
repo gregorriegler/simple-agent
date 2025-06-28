@@ -53,7 +53,10 @@ public class RenameSymbol : IRefactoring
     private Document IdentifyAndRenameSymbol(Document document, SyntaxNode root, SyntaxToken token)
     {
         if (!token.IsKind(SyntaxKind.IdentifierToken))
-            throw new InvalidOperationException("No renameable symbol found at cursor location. Supported symbol types: variables, methods");
+        {
+            Console.WriteLine("Error: No renameable symbol found at cursor location. Supported symbol types: variables, methods");
+            return document;
+        }
 
         var oldName = token.ValueText;
 
@@ -71,7 +74,8 @@ public class RenameSymbol : IRefactoring
             return RenameMethod(document, root, methodDeclaration, oldName);
         }
 
-        throw new InvalidOperationException("No renameable symbol found at cursor location. Supported symbol types: variables, methods");
+        Console.WriteLine("Error: No renameable symbol found at cursor location. Supported symbol types: variables, methods");
+        return document;
     }
 
     private Document RenameVariable(Document document, SyntaxNode root, VariableDeclaratorSyntax variableDeclarator, string oldName)
