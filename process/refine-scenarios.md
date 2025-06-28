@@ -7,4 +7,4 @@ STARTER_SYMBOL=📝
 1. Stop. Let me review the examples. When I say its ok, you can continue. 
 1. Change the scenario status from "- DRAFT" to "- REFINED"
 1. commit the changes
-1. Start a new context with the prompt "Read the `process/development-process.md` and apply it working on `goal.md`. Attach the `README.md`, the `process/development-process.md` and the `goal.md` to the new context. 
+1. Start a new context with the prompt "Read the `process/development-process.md` and apply it.

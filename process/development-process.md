@@ -5,7 +5,8 @@ STARTER_SYMBOL=🛠️
 Your answers should be succinct and concise
 
 1. Identify where we are
-    - Read the `README.md` to understand where we are
+    - Read the `README.md` to understand where we are.
+    - Run `pwd` to understand the current working directory.
     - Read the `goal.md` to understand our next goal, scenarios and examples.
 1. Pick the first item of the examples that is not yet implemented
     - If there are no more items left to be implemented in the currently REFINED scenario, we'll have to refine the next scenario.
@@ -22,4 +23,4 @@ Your answers should be succinct and concise
 1. Check off the item in the examples
 1. Commit the code
 1. Refactor the code using the [refactoring process](./refactoring-process.md).
-1. Start a new context with the prompt "Read the `process/development-process.md` and apply it working on `goal.md`. Attach the `README.md`, the `process/development-process.md` and the `goal.md` to the new context. 
+1. Start a new context with the prompt "Read the `process/development-process.md` and apply it.
