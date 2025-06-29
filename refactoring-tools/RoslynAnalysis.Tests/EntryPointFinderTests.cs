@@ -1,8 +1,4 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.MSBuild;
-using System.IO;
-using System.Text.Json;
 
 namespace RoslynAnalysis.Tests;
 
