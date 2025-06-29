@@ -15,31 +15,23 @@ class MutationTool(BaseTool):
             return {'success': False, 'output': 'No project specified'}
         
         parts = args.split()
-        project = parts[0]
         specific_files = parts[1:] if len(parts) > 1 else None
-        
+        stryker_args = [
+            'stryker',
+            '--reporter', 'json',
+            '--verbosity', 'Error'
+        ]
+        cwd = None
+        project = parts[0]
         if project.endswith('.csproj'):
-            project_dir = os.path.dirname(project)
-            project_name = os.path.basename(project)
-            result = self.runcommand('dotnet', [
-                'stryker',
-                '--project', project_name,
-                '--reporter', 'json',
-                '--verbosity', 'Error'
-            ], cwd=project_dir)
+            stryker_args += ['--project', os.path.basename(project)]
+            cwd = os.path.dirname(project)
         elif '/' in project or '\\' in project:
-            result = self.runcommand('dotnet', [
-                'stryker',
-                '--reporter', 'json',
-                '--verbosity', 'Error'
-            ], cwd=project)
+            cwd = project
         else:
-            result = self.runcommand('dotnet', [
-                'stryker',
-                '--project', project,
-                '--reporter', 'json',
-                '--verbosity', 'Error'
-            ])
+            stryker_args += ['--project', project]
+        
+        result = self.runcommand('dotnet', stryker_args, cwd=cwd)
         
         if result['success']:
             formatted_output = self._read_stryker_report(project, result['output'], specific_files)

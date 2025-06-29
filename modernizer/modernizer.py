@@ -1,6 +1,3 @@
-import os
-
-from helpers import read_file
 from chat import Chat, load_chat, save_chat
 from tools import ToolLibrary
 from system_prompt_generator import SystemPromptGenerator
