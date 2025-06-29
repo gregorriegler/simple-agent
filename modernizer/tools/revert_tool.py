@@ -3,6 +3,7 @@ from .base_tool import BaseTool
 
 class RevertTool(BaseTool):
     name = 'revert'
+    description = "Revert changes in a directory to previous state"
     
     def __init__(self, runcommand):
         super().__init__()

@@ -4,6 +4,7 @@ from .base_tool import BaseTool
 class TestTool(BaseTool):
     __test__ = False
     name = 'test'
+    description = "Run tests for a specified directory or project"
     
     def __init__(self, runcommand):
         super().__init__()

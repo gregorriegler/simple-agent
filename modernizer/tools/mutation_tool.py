@@ -1,10 +1,10 @@
 import json
-import subprocess
 import os
 from .base_tool import BaseTool
 
 class MutationTool(BaseTool):
     name = 'mutation'
+    description = "Run mutation testing to assess test suite quality"
     
     def __init__(self, runcommand):
         super().__init__()

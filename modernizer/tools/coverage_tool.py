@@ -1,10 +1,10 @@
 import xml.etree.ElementTree as ET
 import re
-import os
 from .base_tool import BaseTool
 
 class CoverageTool(BaseTool):
     name = 'coverage'
+    description = "Generate code coverage reports for test suites"
     
     def __init__(self, runcommand):
         super().__init__()
