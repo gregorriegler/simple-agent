@@ -27,7 +27,7 @@ User wants to create a new empty file in the current directory.
 
 **Examples (ordered by simplicity):**
 - [x] Create file with single character name: `/create a` → creates empty file `a`
-- [ ] Create file with simple name and extension: `/create test.txt` → creates empty file `test.txt`
+- [x] Create file with simple name and extension: `/create test.txt` → creates empty file `test.txt`
 
 ### Create File with Content - DRAFT
 User wants to create a new file with initial content.
