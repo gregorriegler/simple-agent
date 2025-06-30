@@ -1,6 +1,11 @@
+
+- Have it come up with an expectation before running the test
+
+
 ttyd
 ngrok
 tmux
+task master ai
 
 - Edit tool: Change only 1, or maybe N lines at a time
 
