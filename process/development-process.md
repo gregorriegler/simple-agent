@@ -10,7 +10,7 @@ Your answers should be succinct and concise
     - Run `pwd` to understand the current working directory.
 1. Pick the first item of the examples that is not yet implemented
     - If there are no more items left to be implemented in the currently REFINED scenario, we'll have to refine the next scenario.
-    Do that by starting a new context with the prompt "Read and follow the `process/refine-scenarios.md` instructions, we are working on refining a scenario described in `goal.md`". Attach the `README.md`, the `process/refine-scenarios.md` and the `goal.md` to the new context. 
+    Do that by starting a new context with the prompt "Read and follow the `process/refine-scenarios.md` instructions. 
 1. Make sure the system has at least a walking skeleton for the feature we are building in place. If that's not the case, we'll build the walking skeleton with this first example.
 1. Write a failing test for it. The test should be the simplest possible test that drives the desired change. Writing a failing test is ALWAYS the first step to initiate a change in production code.
     - However, we only ever add a failing test when all the current tests are passing, and there are no uncommitted changes. 
