@@ -26,7 +26,7 @@ User wants to create a new empty file in the current directory.
 - Tool executes: `touch myfile.txt` (Linux/Mac) or equivalent Windows command
 
 **Examples (ordered by simplicity):**
-- [ ] Create file with single character name: `/create a` → creates empty file `a`
+- [x] Create file with single character name: `/create a` → creates empty file `a`
 - [ ] Create file with simple name and extension: `/create test.txt` → creates empty file `test.txt`
 
 ### Create File with Content - DRAFT

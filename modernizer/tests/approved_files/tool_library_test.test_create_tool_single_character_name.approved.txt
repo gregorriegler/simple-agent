@@ -1,0 +1,5 @@
+Command:
+/create a
+
+Result:
+Created empty file: a

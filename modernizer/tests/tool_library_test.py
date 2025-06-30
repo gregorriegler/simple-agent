@@ -50,3 +50,17 @@ def test_auto_generated_tools_discovered():
     
     assert len(auto_generated_tools) > 1, f"Expected more than 1 auto-generated tool, found {len(auto_generated_tools)}"
     assert 'extract-method' in discovered_tool_names, f"extract-method not found in discovered tools: {discovered_tool_names}"
+
+def test_create_tool_single_character_name(tmp_path):
+    # Change to temp directory for test
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    
+    try:
+        verifyTool(library, "/create a")
+        
+        # Verify file was created
+        assert os.path.exists("a"), "File 'a' should have been created"
+        assert os.path.getsize("a") == 0, "File 'a' should be empty"
+    finally:
+        os.chdir(original_cwd)
