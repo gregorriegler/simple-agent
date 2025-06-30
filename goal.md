@@ -37,7 +37,7 @@ User wants to create a new file with initial content.
 
 **Examples (ordered by simplicity):**
 - [x] Create file with single character content: `/create test.txt a` → creates file `test.txt` with content "a"
-- [ ] Create file with simple text content: `/create readme.txt Hello World` → creates file `readme.txt` with content "Hello World"
+- [x] Create file with simple text content: `/create readme.txt Hello World` → creates file `readme.txt` with content "Hello World"
 - [ ] Create file with multi-word content: `/create note.txt This is a test note` → creates file `note.txt` with content "This is a test note"
 - [ ] Create file with newline content: `/create multi.txt "Line 1\nLine 2"` → creates file `multi.txt` with two lines
 - [ ] Create file with JSON content: `/create config.json {"name": "test"}` → creates file `config.json` with JSON content

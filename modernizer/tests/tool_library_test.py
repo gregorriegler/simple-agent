@@ -94,3 +94,19 @@ def test_create_tool_single_character_content(tmp_path):
         assert content == "a", f"File 'test.txt' should contain 'a', but contains '{content}'"
     finally:
         os.chdir(original_cwd)
+
+def test_create_tool_simple_text_content(tmp_path):
+    # Change to temp directory for test
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    
+    try:
+        verifyTool(library, "/create readme.txt Hello World")
+        
+        # Verify file was created with correct content
+        assert os.path.exists("readme.txt"), "File 'readme.txt' should have been created"
+        with open("readme.txt", "r") as f:
+            content = f.read()
+        assert content == "Hello World", f"File 'readme.txt' should contain 'Hello World', but contains '{content}'"
+    finally:
+        os.chdir(original_cwd)
