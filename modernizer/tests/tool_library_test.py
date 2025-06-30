@@ -64,3 +64,17 @@ def test_create_tool_single_character_name(tmp_path):
         assert os.path.getsize("a") == 0, "File 'a' should be empty"
     finally:
         os.chdir(original_cwd)
+
+def test_create_tool_simple_name_with_extension(tmp_path):
+    # Change to temp directory for test
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    
+    try:
+        verifyTool(library, "/create test.txt")
+        
+        # Verify file was created
+        assert os.path.exists("test.txt"), "File 'test.txt' should have been created"
+        assert os.path.getsize("test.txt") == 0, "File 'test.txt' should be empty"
+    finally:
+        os.chdir(original_cwd)
