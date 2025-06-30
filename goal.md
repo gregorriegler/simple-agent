@@ -25,6 +25,13 @@ User wants to create a new empty file in the current directory.
 - Expected: New empty file `myfile.txt` is created
 - Tool executes: `touch myfile.txt` (Linux/Mac) or equivalent Windows command
 
+**Examples (ordered by simplicity):**
+- [ ] Create file with single character name: `/create a` → creates empty file `a`
+- [ ] Create file with simple name and extension: `/create test.txt` → creates empty file `test.txt`
+- [ ] Create file with no extension: `/create README` → creates empty file `README`
+- [ ] Create file with multiple dots in name: `/create config.dev.json` → creates empty file `config.dev.json`
+- [ ] Create file with numbers and underscores: `/create file_123.log` → creates empty file `file_123.log`
+
 ### Create File with Content - DRAFT
 User wants to create a new file with initial content.
 - Input: `/create config.json {"name": "test"}`
