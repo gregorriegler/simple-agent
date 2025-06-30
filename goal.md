@@ -29,11 +29,19 @@ User wants to create a new empty file in the current directory.
 - [x] Create file with single character name: `/create a` → creates empty file `a`
 - [x] Create file with simple name and extension: `/create test.txt` → creates empty file `test.txt`
 
-### Create File with Content - DRAFT
+### Create File with Content - REFINED
 User wants to create a new file with initial content.
 - Input: `/create config.json {"name": "test"}`
 - Expected: New file `config.json` is created with the specified JSON content
 - Tool writes the content directly to the file
+
+**Examples (ordered by simplicity):**
+- [ ] Create file with single character content: `/create test.txt a` → creates file `test.txt` with content "a"
+- [ ] Create file with simple text content: `/create readme.txt Hello World` → creates file `readme.txt` with content "Hello World"
+- [ ] Create file with multi-word content: `/create note.txt This is a test note` → creates file `note.txt` with content "This is a test note"
+- [ ] Create file with newline content: `/create multi.txt "Line 1\nLine 2"` → creates file `multi.txt` with two lines
+- [ ] Create file with JSON content: `/create config.json {"name": "test"}` → creates file `config.json` with JSON content
+- [ ] Create file with empty content (explicit): `/create empty.txt ""` → creates file `empty.txt` with empty content
 
 ### Create File in Non-existent Directory - DRAFT
 User wants to create a file in a directory that doesn't exist yet.
