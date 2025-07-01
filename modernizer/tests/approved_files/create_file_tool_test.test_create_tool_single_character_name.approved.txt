@@ -5,4 +5,7 @@ Result:
 Created empty file: a
 
 File created: a
-File content: ''
+File content:
+--- FILE CONTENT START ---
+
+--- FILE CONTENT END ---

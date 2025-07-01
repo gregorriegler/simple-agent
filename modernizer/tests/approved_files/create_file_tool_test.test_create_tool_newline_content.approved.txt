@@ -5,4 +5,8 @@ Result:
 Created file: multi.txt with content
 
 File created: multi.txt
-File content: 'Line 1\nLine 2'
+File content:
+--- FILE CONTENT START ---
+Line 1
+Line 2
+--- FILE CONTENT END ---

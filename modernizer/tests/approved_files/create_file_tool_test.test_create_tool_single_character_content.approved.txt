@@ -5,4 +5,7 @@ Result:
 Created file: test.txt with content
 
 File created: test.txt
-File content: 'a'
+File content:
+--- FILE CONTENT START ---
+a
+--- FILE CONTENT END ---

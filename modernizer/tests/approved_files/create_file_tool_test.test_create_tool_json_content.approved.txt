@@ -5,4 +5,7 @@ Result:
 Created file: config.json with content
 
 File created: config.json
-File content: '{"name": "test"}'
+File content:
+--- FILE CONTENT START ---
+{"name": "test"}
+--- FILE CONTENT END ---

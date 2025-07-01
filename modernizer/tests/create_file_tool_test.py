@@ -55,7 +55,7 @@ def verifyCreateTool(framework, command, expected_filename, expected_content=Non
             raise AssertionError(f"File '{expected_filename}' should contain '{expected_content}', but contains '{actual_content}'")
         
         # Create verification output including file content
-        file_info = f"File created: {expected_filename}\nFile content: {repr(actual_content)}"
+        file_info = f"File created: {expected_filename}\nFile content:\n--- FILE CONTENT START ---\n{actual_content}\n--- FILE CONTENT END ---"
         verify(f"Command:\n{cmd}\n\nResult:\n{result}\n\n{file_info}", options=Options().with_scrubber(multi_scrubber))
     
     if tmp_path:
