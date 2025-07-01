@@ -17,10 +17,16 @@ class CreateFileTool(BaseTool):
         filename = parts[0]
         content = parts[1] if len(parts) > 1 else None
         
+        # Remove surrounding quotes if present
+        if content and content.startswith('"') and content.endswith('"'):
+            content = content[1:-1]
+        
         try:
             with open(filename, 'w') as f:
                 if content is not None:
-                    f.write(content)
+                    # Process escape sequences like \n
+                    processed_content = content.encode().decode('unicode_escape')
+                    f.write(processed_content)
             if content is not None:
                 return {'success': True, 'output': f"Created file: {filename} with content", 'returncode': 0}
             else:

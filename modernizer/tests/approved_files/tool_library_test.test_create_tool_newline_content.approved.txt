@@ -1,0 +1,5 @@
+Command:
+/create multi.txt "Line 1\nLine 2"
+
+Result:
+Created file: multi.txt with content

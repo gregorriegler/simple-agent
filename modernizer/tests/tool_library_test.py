@@ -110,3 +110,19 @@ def test_create_tool_simple_text_content(tmp_path):
         assert content == "Hello World", f"File 'readme.txt' should contain 'Hello World', but contains '{content}'"
     finally:
         os.chdir(original_cwd)
+
+def test_create_tool_newline_content(tmp_path):
+    # Change to temp directory for test
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    
+    try:
+        verifyTool(library, '/create multi.txt "Line 1\\nLine 2"')
+        
+        # Verify file was created with correct content
+        assert os.path.exists("multi.txt"), "File 'multi.txt' should have been created"
+        with open("multi.txt", "r") as f:
+            content = f.read()
+        assert content == "Line 1\nLine 2", f"File 'multi.txt' should contain 'Line 1\\nLine 2', but contains '{repr(content)}'"
+    finally:
+        os.chdir(original_cwd)
