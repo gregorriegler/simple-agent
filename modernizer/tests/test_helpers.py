@@ -84,3 +84,4 @@ multi_scrubber = create_multi_scrubber()
 def verifyTool(framework, command):
     cmd, result = framework.parse_and_execute(command)
     verify(f"Command:\n{cmd}\n\nResult:\n{result}", options=Options().with_scrubber(multi_scrubber))
+

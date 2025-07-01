@@ -3,3 +3,6 @@ Command:
 
 Result:
 Created file: multi.txt with content
+
+File created: multi.txt
+File content: 'Line 1\nLine 2'

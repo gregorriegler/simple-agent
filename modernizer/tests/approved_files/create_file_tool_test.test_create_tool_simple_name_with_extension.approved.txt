@@ -3,3 +3,6 @@ Command:
 
 Result:
 Created empty file: test.txt
+
+File created: test.txt
+File content: ''

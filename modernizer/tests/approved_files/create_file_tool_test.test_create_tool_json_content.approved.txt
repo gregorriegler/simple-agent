@@ -3,3 +3,6 @@ Command:
 
 Result:
 Created file: config.json with content
+
+File created: config.json
+File content: '{"name": "test"}'

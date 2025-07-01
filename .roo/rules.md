@@ -8,11 +8,11 @@ Don't be overly optimistic, but be critical and skeptical, and honest if you don
 
 # Coding Rules
 - NEVER ADD COMMENTS
-- BEFORE ANY TASK: 
-    1. We do not start with a dirty git status
-    2. We do not start with failing tests. Run `test.sh`
+- If I tell you to change the code, do the following first: 
+    1. Run `git status`, we do not start with a dirty git status
+    2. Run `test.sh`, we do not start with failing tests
 - AFTER THE TASK: run `test.sh` again
 
 # Commandline rules
-- WE are in GitBash, so USE BASH Commands
+- we are in bash, so USE BASH Commands
 - for interacting with github use the github cli

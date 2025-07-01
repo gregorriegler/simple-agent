@@ -3,3 +3,6 @@ Command:
 
 Result:
 Created file: readme.txt with content
+
+File created: readme.txt
+File content: 'Hello World'
