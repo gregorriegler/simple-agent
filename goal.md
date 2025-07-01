@@ -42,11 +42,15 @@ User wants to create a new file with initial content.
 - [x] Create file with JSON content: `/create config.json {"name": "test"}` → creates file `config.json` with JSON content
 - [x] Create file with empty content (explicit): `/create empty.txt ""` → creates file `empty.txt` with empty content
 
-### Create File in Non-existent Directory - DRAFT
+### Create File in Non-existent Directory - REFINED
 User wants to create a file in a directory that doesn't exist yet.
 - Input: `/create src/utils/helper.py`
 - Expected: Directory structure `src/utils/` is created automatically, then `helper.py` is created
 - Tool creates parent directories as needed before creating the file
+
+**Examples (ordered by simplicity):**
+- [x] Create file in one level deep non-existent directory: `/create src/helper.py "# Helper module"` → creates `src/` directory and `helper.py` with content
+- [x] Create file in multiple levels of non-existent directories: `/create src/utils/helpers/helper.py "# Helper module"` → creates all necessary directories and `helper.py` with content
 
 ### Handle File Creation Errors - DRAFT
 User tries to create a file in a location without write permissions.

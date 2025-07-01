@@ -22,6 +22,9 @@ class CreateFileTool(BaseTool):
             content = content[1:-1]
         
         try:
+            # Create parent directories if they don't exist
+            os.makedirs(os.path.dirname(filename) or '.', exist_ok=True)
+            
             with open(filename, 'w') as f:
                 if content is not None:
                     # Process escape sequences like \n
@@ -31,5 +34,7 @@ class CreateFileTool(BaseTool):
                 return {'success': True, 'output': f"Created file: {filename} with content", 'returncode': 0}
             else:
                 return {'success': True, 'output': f"Created empty file: {filename}", 'returncode': 0}
-        except Exception as e:
+        except OSError as e:
             return {'success': False, 'output': f"Error creating file '{filename}': {str(e)}", 'returncode': 1}
+        except Exception as e:
+            return {'success': False, 'output': f"Unexpected error creating file '{filename}': {str(e)}", 'returncode': 1}
