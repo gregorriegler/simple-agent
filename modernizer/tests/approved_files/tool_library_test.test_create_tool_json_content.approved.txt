@@ -1,0 +1,5 @@
+Command:
+/create config.json {"name": "test"}
+
+Result:
+Created file: config.json with content

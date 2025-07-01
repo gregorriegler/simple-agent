@@ -126,3 +126,19 @@ def test_create_tool_newline_content(tmp_path):
         assert content == "Line 1\nLine 2", f"File 'multi.txt' should contain 'Line 1\\nLine 2', but contains '{repr(content)}'"
     finally:
         os.chdir(original_cwd)
+
+def test_create_tool_json_content(tmp_path):
+    # Change to temp directory for test
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    
+    try:
+        verifyTool(library, '/create config.json {"name": "test"}')
+        
+        # Verify file was created with correct content
+        assert os.path.exists("config.json"), "File 'config.json' should have been created"
+        with open("config.json", "r") as f:
+            content = f.read()
+        assert content == '{"name": "test"}', f"File 'config.json' should contain JSON content, but contains '{repr(content)}'"
+    finally:
+        os.chdir(original_cwd)
