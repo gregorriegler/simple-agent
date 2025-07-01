@@ -2,7 +2,7 @@ from .base_tool import BaseTool
 import os
 
 class CreateFileTool(BaseTool):
-    name = "create"
+    name = "create-file"
     description = "Create new empty files"
 
     def __init__(self, runcommand):

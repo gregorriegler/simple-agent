@@ -1,5 +1,5 @@
 Command:
-/create a
+/create-file a
 
 Result:
 Created empty file: a

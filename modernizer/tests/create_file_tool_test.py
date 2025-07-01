@@ -65,22 +65,22 @@ def verifyCreateTool(framework, command, expected_filename, expected_content=Non
         _execute_and_verify()
 
 def test_create_tool_single_character_name(tmp_path):
-    verifyCreateTool(library, "/create a", "a", tmp_path=tmp_path)
+    verifyCreateTool(library, "/create-file a", "a", tmp_path=tmp_path)
 
 def test_create_tool_simple_name_with_extension(tmp_path):
-    verifyCreateTool(library, "/create test.txt", "test.txt", tmp_path=tmp_path)
+    verifyCreateTool(library, "/create-file test.txt", "test.txt", tmp_path=tmp_path)
 
 def test_create_tool_single_character_content(tmp_path):
-    verifyCreateTool(library, "/create test.txt a", "test.txt", "a", tmp_path=tmp_path)
+    verifyCreateTool(library, "/create-file test.txt a", "test.txt", "a", tmp_path=tmp_path)
 
 def test_create_tool_simple_text_content(tmp_path):
-    verifyCreateTool(library, "/create readme.txt Hello World", "readme.txt", "Hello World", tmp_path=tmp_path)
+    verifyCreateTool(library, "/create-file readme.txt Hello World", "readme.txt", "Hello World", tmp_path=tmp_path)
 
 def test_create_tool_newline_content(tmp_path):
-    verifyCreateTool(library, '/create multi.txt "Line 1\\nLine 2"', "multi.txt", "Line 1\nLine 2", tmp_path=tmp_path)
+    verifyCreateTool(library, '/create-file multi.txt "Line 1\\nLine 2"', "multi.txt", "Line 1\nLine 2", tmp_path=tmp_path)
 
 def test_create_tool_json_content(tmp_path):
-    verifyCreateTool(library, '/create config.json {"name": "test"}', "config.json", '{"name": "test"}', tmp_path=tmp_path)
+    verifyCreateTool(library, '/create-file config.json {"name": "test"}', "config.json", '{"name": "test"}', tmp_path=tmp_path)
 
 def test_create_tool_explicit_empty_content(tmp_path):
-    verifyCreateTool(library, '/create empty.txt ""', "empty.txt", "", tmp_path=tmp_path)
+    verifyCreateTool(library, '/create-file empty.txt ""', "empty.txt", "", tmp_path=tmp_path)

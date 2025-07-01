@@ -1,5 +1,5 @@
 Command:
-/create readme.txt Hello World
+/create-file readme.txt Hello World
 
 Result:
 Created file: readme.txt with content
