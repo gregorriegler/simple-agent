@@ -142,3 +142,19 @@ def test_create_tool_json_content(tmp_path):
         assert content == '{"name": "test"}', f"File 'config.json' should contain JSON content, but contains '{repr(content)}'"
     finally:
         os.chdir(original_cwd)
+
+def test_create_tool_explicit_empty_content(tmp_path):
+    # Change to temp directory for test
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    
+    try:
+        verifyTool(library, '/create empty.txt ""')
+        
+        # Verify file was created with empty content
+        assert os.path.exists("empty.txt"), "File 'empty.txt' should have been created"
+        with open("empty.txt", "r") as f:
+            content = f.read()
+        assert content == "", f"File 'empty.txt' should be empty, but contains '{repr(content)}'"
+    finally:
+        os.chdir(original_cwd)

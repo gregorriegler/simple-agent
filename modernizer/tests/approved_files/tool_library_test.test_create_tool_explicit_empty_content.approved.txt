@@ -1,0 +1,5 @@
+Command:
+/create empty.txt ""
+
+Result:
+Created file: empty.txt with content
