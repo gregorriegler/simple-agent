@@ -167,11 +167,3 @@ cd modernizer
 # Test the System Prompt
 python system_prompt_generator.py
 ```
-
-### Run all Tests of the whole projects, both Python and C#
-
-```bash
-# Stay in project root
-
-# Run ALL tests
-./test.sh
