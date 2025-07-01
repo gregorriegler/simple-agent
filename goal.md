@@ -38,9 +38,9 @@ User wants to create a new file with initial content.
 **Examples (ordered by simplicity):**
 - [x] Create file with single character content: `/create test.txt a` → creates file `test.txt` with content "a"
 - [x] Create file with simple text content: `/create readme.txt Hello World` → creates file `readme.txt` with content "Hello World"
-- [ ] Create file with newline content: `/create multi.txt "Line 1\nLine 2"` → creates file `multi.txt` with two lines
-- [ ] Create file with JSON content: `/create config.json {"name": "test"}` → creates file `config.json` with JSON content
-- [ ] Create file with empty content (explicit): `/create empty.txt ""` → creates file `empty.txt` with empty content
+- [x] Create file with newline content: `/create multi.txt "Line 1\nLine 2"` → creates file `multi.txt` with two lines
+- [x] Create file with JSON content: `/create config.json {"name": "test"}` → creates file `config.json` with JSON content
+- [x] Create file with empty content (explicit): `/create empty.txt ""` → creates file `empty.txt` with empty content
 
 ### Create File in Non-existent Directory - DRAFT
 User wants to create a file in a directory that doesn't exist yet.
