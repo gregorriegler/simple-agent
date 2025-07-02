@@ -1,15 +1,6 @@
 import os
-import pytest
-from approvaltests import Options
-from approvaltests import verify
-from approvaltests import set_default_reporter
-from approvaltests.reporters.diff_reporter import DiffReporter
-from approvaltests.reporters.python_native_reporter import PythonNativeReporter
+from approvaltests import Options, verify
 from approvaltests.scrubbers import create_regex_scrubber, combine_scrubbers
-
-@pytest.fixture(scope="session", autouse=True)
-def set_default_reporter_for_all_tests() -> None:
-    set_default_reporter(PythonNativeReporter())
 
 def create_temp_file(tmp_path, filename, contents):
     temp_file = tmp_path / filename

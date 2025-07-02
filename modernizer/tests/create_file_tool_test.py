@@ -1,19 +1,12 @@
 import os
 import sys
 from contextlib import contextmanager
-from approvaltests import Options, verify, set_default_reporter
-from approvaltests.reporters.diff_reporter import DiffReporter
-from approvaltests.reporters.python_native_reporter import PythonNativeReporter
+from approvaltests import Options, verify
 from approvaltests.scrubbers import create_regex_scrubber, combine_scrubbers
-import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from modernizer.tools.tool_library import ToolLibrary
 from .test_helpers import create_path_scrubber, create_date_scrubber, create_ls_error_scrubber
-
-@pytest.fixture(scope="session", autouse=True)
-def set_default_reporter_for_all_tests() -> None:
-    set_default_reporter(PythonNativeReporter())
 
 library = ToolLibrary()
 
