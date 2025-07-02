@@ -27,6 +27,16 @@ class EditFileTool(BaseTool):
         except ValueError:
             return None, {'success': False, 'output': 'Line numbers must be integers', 'returncode': 1}
 
+    def _validate_line_range(self, start_line, end_line, total_lines):
+        """Validate that the line range is valid for the file."""
+        if start_line < 1 or end_line < 1 or start_line > total_lines or end_line > total_lines:
+            return {'success': False, 'output': f"Invalid line range: {start_line}-{end_line} for file with {total_lines} lines", 'returncode': 1}
+        
+        if start_line > end_line:
+            return {'success': False, 'output': f"Start line ({start_line}) cannot be greater than end line ({end_line})", 'returncode': 1}
+        
+        return None
+
     def execute(self, args):
         parsed_args, error = self._parse_arguments(args)
         if error:
@@ -44,11 +54,9 @@ class EditFileTool(BaseTool):
                 lines = f.readlines()
             
             # Validate line range
-            if start_line < 1 or end_line < 1 or start_line > len(lines) or end_line > len(lines):
-                return {'success': False, 'output': f"Invalid line range: {start_line}-{end_line} for file with {len(lines)} lines", 'returncode': 1}
-            
-            if start_line > end_line:
-                return {'success': False, 'output': f"Start line ({start_line}) cannot be greater than end line ({end_line})", 'returncode': 1}
+            validation_error = self._validate_line_range(start_line, end_line, len(lines))
+            if validation_error:
+                return validation_error
             
             # Replace the specified lines with new content
             # Convert to 0-based indexing
