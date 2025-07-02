@@ -51,13 +51,16 @@ Edit a file by replacing a block of consecutive lines.
 **Examples (ordered by simplicity):**
 - [x] Replace 2 consecutive lines in 3-line file with with 1 other line
 - [x] Replace 2 consecutive lines in 3-line file with 2 other lines
-- [ ] Replace 2 consecutive lines in 3-line file with with 4 other lines
+- [x] Replace 2 consecutive lines in 3-line file with with 4 other lines
 
-### Insert Content by Replacing Empty Lines - DRAFT
+### Insert Content by Replacing Empty Lines - REFINED
 Replace empty lines with new content.
 - File: `template.py` with empty lines 3-5
 - Replace lines 3-5 with function definition
 - Expected: Function is inserted where empty lines were
+
+**Examples (ordered by simplicity):**
+- [x] Replace empty lines 3-5 with function definition in 6-line file
 
 ### Invalid Line Range Error - DRAFT
 Attempt to edit lines that don't exist in the file.
