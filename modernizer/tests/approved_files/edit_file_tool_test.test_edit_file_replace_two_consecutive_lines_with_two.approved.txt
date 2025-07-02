@@ -1,5 +1,5 @@
 Command:
-/edit-file test.txt 2 3 newline
+/edit-file test.txt 2 3 newline1
 
 Result:
 Successfully edited test.txt, lines 2-3
@@ -16,6 +16,7 @@ File after edit: test.txt
 Final content:
 --- FINAL CONTENT START ---
 line1
-newline
+newline1
+newline2
 
 --- FINAL CONTENT END ---

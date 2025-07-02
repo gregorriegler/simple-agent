@@ -72,3 +72,8 @@ def test_edit_file_replace_single_word(tmp_path):
 
 def test_edit_file_replace_two_consecutive_lines_with_one(tmp_path):
     verifyEditTool(library, "test.txt", "line1\nline2\nline3", "/edit-file test.txt 2 3 newline", "line1\nnewline\n", tmp_path=tmp_path)
+
+def test_edit_file_replace_two_consecutive_lines_with_two(tmp_path):
+    # Use actual newline character in the command, not literal \n
+    command = "/edit-file test.txt 2 3 newline1\nnewline2"
+    verifyEditTool(library, "test.txt", "line1\nline2\nline3", command, "line1\nnewline1\nnewline2\n", tmp_path=tmp_path)

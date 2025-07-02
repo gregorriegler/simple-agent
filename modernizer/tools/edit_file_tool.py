@@ -31,11 +31,13 @@ class EditFileTool(BaseTool):
             return None, {'success': False, 'output': 'Usage: edit-file <filename> <start_line> <end_line> <new_content>', 'returncode': 1}
         
         try:
+            # Convert literal \n in the new_content to actual newlines
+            new_content = parts[3].replace('\\n', '\n')
             edit_args = EditFileArgs(
                 filename=parts[0],
                 start_line=int(parts[1]),
                 end_line=int(parts[2]),
-                new_content=parts[3]
+                new_content=new_content
             )
             return edit_args, None
         except ValueError:
@@ -73,7 +75,19 @@ class EditFileTool(BaseTool):
             end_idx = edit_args.end_line - 1
             
             # Replace the lines
-            new_lines = lines[:start_idx] + [edit_args.new_content] + lines[end_idx + 1:]
+            # Handle multi-line content by splitting on \n and ensuring proper line endings
+            if '\n' in edit_args.new_content:
+                replacement_lines = [line + '\n' for line in edit_args.new_content.split('\n') if line]
+            else:
+                # For single-line content, preserve the original line ending behavior
+                # Check if the original line had a newline
+                original_line = lines[start_idx] if start_idx < len(lines) else ''
+                if original_line.endswith('\n'):
+                    replacement_lines = [edit_args.new_content + '\n']
+                else:
+                    replacement_lines = [edit_args.new_content]
+            
+            new_lines = lines[:start_idx] + replacement_lines + lines[end_idx + 1:]
             
             # Write back to file
             with open(edit_args.filename, 'w') as f:

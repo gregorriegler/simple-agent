@@ -70,6 +70,30 @@ class ToolLibrary:
         
     def parse_and_execute(self, text):
         pattern = r'^/([\w-]+)(?:\s+(.*))?$'
+        
+        # Handle multi-line commands by treating the entire text as one command
+        if '\n' in text:
+            # For multi-line text, extract command from first line but use entire text for arguments
+            first_line = text.splitlines()[0].strip()
+            match = re.match(pattern, first_line)
+            if match:
+                cmd, _ = match.groups()
+                tool = self.tool_dict.get(cmd)
+                if tool:
+                    # Extract arguments from the entire text, preserving newlines
+                    # Find the position after "/{cmd} " in the text
+                    cmd_prefix = f"/{cmd} "
+                    if text.startswith(cmd_prefix):
+                        full_args = text[len(cmd_prefix):]
+                        result = tool.execute(full_args.strip() if full_args else None)
+                        return first_line, result['output']
+                    else:
+                        result = tool.execute(None)
+                        return first_line, result['output']
+                else:
+                    return first_line, f"Unknown command: {cmd}"
+        
+        # Single-line processing (original behavior)
         for line in text.splitlines():
             line = line.strip()
             match = re.match(pattern, line)
