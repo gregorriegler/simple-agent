@@ -49,7 +49,7 @@ Edit a file by replacing a block of consecutive lines.
 - Expected: Lines 2-4 are replaced, lines 1 and 5 remain unchanged
 
 **Examples (ordered by simplicity):**
-- [ ] Replace 2 consecutive lines in 3-line file with with 1 other line
+- [x] Replace 2 consecutive lines in 3-line file with with 1 other line
 - [ ] Replace 2 consecutive lines in 3-line file with 2 other lines
 - [ ] Replace 2 consecutive lines in 3-line file with with 4 other lines
 
