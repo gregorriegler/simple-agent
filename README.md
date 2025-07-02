@@ -59,33 +59,6 @@ Central registry and execution engine for all available tools, combining static 
 #### [`SystemPromptGenerator`](modernizer/system_prompt_generator.py:3)
 Dynamically generates system prompts for Claude AI by discovering and documenting available tools.
 
-### C# Roslyn Refactoring Tools
-
-#### [`RenameSymbol`](refactoring-tools/RoslynRefactoring/RenameSymbol.cs:11)
-Renames C# symbols (variables, methods, properties, classes) at specified cursor locations.
-
-**Usage:** Cursor position + new name → Updated symbol references
-
-#### [`ExtractMethod`](refactoring-tools/RoslynRefactoring/ExtractMethod.cs:12)
-Extracts selected code into a new method with appropriate parameters and return values.
-
-**Usage:** Code selection + method name → New method + method call
-
-#### [`InlineMethod`](refactoring-tools/RoslynRefactoring/InlineMethod.cs:10)
-Inlines method calls by replacing them with the method's body content.
-
-**Usage:** Method call cursor → Inlined method body
-
-#### [`BreakHardDependency`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:21)
-Refactors singleton dependencies into constructor-injected dependencies.
-
-**Usage:** Field selection → Constructor injection pattern
-
-#### [`ExtractCollaboratorInterface`](refactoring-tools/RoslynRefactoring/ExtractCollaboratorInterface.cs:13)
-Creates interfaces from collaborator classes and updates dependencies.
-
-**Usage:** Collaborator type selection → Interface extraction + dependency updates
-
 ### Tool Discovery System
 
 #### [`RefactoringToolDiscovery`](modernizer/tools/refactoring_tool_discovery.py:6)
@@ -98,26 +71,6 @@ Automatically discovers C# refactoring tools by executing the RoslynRefactoring 
 
 #### [`AnalysisToolDiscovery`](modernizer/tools/analysis_tool_discovery.py)
 Discovers C# code analysis tools from the RoslynAnalysis project.
-
-### Static Tools
-
-- **[`LsTool`](modernizer/tools/ls_tool.py)** - Directory listing functionality
-- **[`CatTool`](modernizer/tools/cat_tool.py)** - File content display
-- **[`TestTool`](modernizer/tools/test_tool.py)** - Test execution
-- **[`CoverageTool`](modernizer/tools/coverage_tool.py)** - Code coverage analysis
-- **[`RevertTool`](modernizer/tools/revert_tool.py)** - Git revert operations
-
-### Chat & AI Integration
-
-#### [`Chat`](modernizer/chat.py:8)
-Immutable chat session management with message history persistence.
-
-**Features:**
-- [`load_chat()`](modernizer/chat.py:35) / [`save_chat()`](modernizer/chat.py:48) for session persistence
-- Immutable message chain with [`userSays()`](modernizer/chat.py:17) / [`assistantSays()`](modernizer/chat.py:17)
-
-#### [`claude_client.py`](modernizer/claude_client.py:6)
-HTTP client for Anthropic's Claude API with proper message formatting.
 
 ## Usage
 
@@ -134,6 +87,8 @@ HTTP client for Anthropic's Claude API with proper message formatting.
 ### Direct Tool Usage
 
 ```bash
+./list_tools.sh
+
 ./run_tool.sh ls .
 
 # Execute refactoring
@@ -152,6 +107,9 @@ cd refactoring-tools
 # Run tests
 ./test.sh
 
+# Approve received files
+./approve.sh
+
 # List available refactorings
 dotnet run --project RoslynRefactoring -- --list-tools
 ```
@@ -164,6 +122,9 @@ cd modernizer
 # Run tests
 ./test.sh
 
+# Approve received files
+./approve.sh
+
 # Test the System Prompt
-python system_prompt_generator.py
+./system_prompt.sh
 ```
