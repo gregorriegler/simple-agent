@@ -1,10 +1,10 @@
 Command:
-/create-file src\utils\helper.py "# Helper module"
+/create-file src/utils/helper.py "# Helper module"
 
 Result:
-Created file: src\utils\helper.py with content
+Created file: src/utils/helper.py with content
 
-File created: src\utils\helper.py
+File created: src/utils/helper.py
 File content:
 --- FILE CONTENT START ---
 # Helper module

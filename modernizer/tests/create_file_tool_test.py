@@ -93,6 +93,4 @@ def test_create_tool_explicit_empty_content(tmp_path):
     verifyCreateTool(library, '/create-file empty.txt ""', "empty.txt", "", tmp_path=tmp_path)
 
 def test_create_file_in_nonexistent_directory(tmp_path):
-    nested_dir = os.path.join("src", "utils")
-    file_path = os.path.join(nested_dir, "helper.py")
-    verifyCreateTool(library, f'/create-file {file_path} "# Helper module"', file_path, "# Helper module", tmp_path=tmp_path)
+    verifyCreateTool(library, f'/create-file src/utils/helper.py "# Helper module"', "src/utils/helper.py", "# Helper module", tmp_path=tmp_path)
