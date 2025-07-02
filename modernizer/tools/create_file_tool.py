@@ -17,7 +17,11 @@ class CreateFileTool(BaseTool):
         filename = parts[0]
         content = parts[1] if len(parts) > 1 else None
         
-        # Remove surrounding quotes if present
+        # Remove surrounding quotes from filename if present
+        if filename.startswith('"') and filename.endswith('"'):
+            filename = filename[1:-1]
+        
+        # Remove surrounding quotes from content if present
         if content and content.startswith('"') and content.endswith('"'):
             content = content[1:-1]
         
