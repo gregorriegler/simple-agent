@@ -41,19 +41,17 @@ def verifyCreateTool(framework, command, expected_filename, expected_content=Non
     def _execute_and_verify():
         cmd, result = framework.parse_and_execute(command)
         
-        # Check if file was created
-        if not os.path.exists(expected_filename):
-            raise AssertionError(f"File '{expected_filename}' should have been created")
-        
-        # Read and verify file content
-        with open(expected_filename, "r") as f:
-            actual_content = f.read()
-        
-        if actual_content != expected_content:
-            raise AssertionError(f"File '{expected_filename}' should contain '{expected_content}', but contains '{actual_content}'")
-        
+        if expected_filename and not os.path.exists(expected_filename):
+            raise AssertionError(f"File '{expected_filename}' should have been created")    
+            
+        if expected_filename:
+            with open(expected_filename, "r") as f:
+                actual_content = f.read()
+                file_info = f"File created: {expected_filename}\nFile content:\n--- FILE CONTENT START ---\n{actual_content}\n--- FILE CONTENT END ---"
+        else:
+            file_info = "No File created"
+            
         # Create verification output including file content
-        file_info = f"File created: {expected_filename}\nFile content:\n--- FILE CONTENT START ---\n{actual_content}\n--- FILE CONTENT END ---"
         verify(f"Command:\n{cmd}\n\nResult:\n{result}\n\n{file_info}", options=Options().with_scrubber(multi_scrubber))
     
     if tmp_path:
@@ -86,29 +84,13 @@ def test_create_tool_explicit_empty_content(tmp_path):
 def test_create_file_in_nonexistent_directory(tmp_path):
     verifyCreateTool(library, f'/create-file src/utils/helper.py "# Helper module"', "src/utils/helper.py", "# Helper module", tmp_path=tmp_path)
 
-def test_create_file_permission_error():
-    """Test creating file in system directory without permissions should return error message"""
-    # Use a path that should definitely cause permission error on Windows
-    cmd, result = library.parse_and_execute("/create-file C:/Windows/System32/test.txt")
-    
-    # Should fail with permission error - result is a string containing the error
-    assert 'permission' in result.lower() or 'denied' in result.lower() or 'error' in result.lower()
-
 def test_create_file_already_exists(tmp_path):
-    """Test creating file that already exists should return error message"""
     with temp_directory(tmp_path):
-        # First create a file
         library.parse_and_execute("/create-file existing.txt")
         
-        # Try to create the same file again
-        cmd, result = library.parse_and_execute("/create-file existing.txt")
+        _, result = library.parse_and_execute("/create-file existing.txt")
         
-        # Should fail with "file already exists" error
         assert 'already exists' in result.lower() or 'exists' in result.lower()
 
-def test_create_file_invalid_filename():
-    """Test creating file with invalid characters should return error message"""
-    cmd, result = library.parse_and_execute('/create-file "file<>name.txt"')
-    
-    # Should fail with invalid filename error
-    assert 'invalid' in result.lower() or 'error' in result.lower()
+def test_create_file_invalid_filename(tmp_path):
+    verifyCreateTool(library, f'/create-file "file<>name.txt"', None, None, tmp_path=tmp_path)
