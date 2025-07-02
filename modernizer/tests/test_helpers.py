@@ -4,11 +4,16 @@ from approvaltests import Options
 from approvaltests import verify
 from approvaltests import set_default_reporter
 from approvaltests.reporters.diff_reporter import DiffReporter
+from approvaltests.reporters.python_native_reporter import PythonNativeReporter
 from approvaltests.scrubbers import create_regex_scrubber, combine_scrubbers
 
 @pytest.fixture(scope="session", autouse=True)
 def set_default_reporter_for_all_tests() -> None:
-    set_default_reporter(DiffReporter())
+    # Use PythonNativeReporter for CI environments that don't have diff tools
+    if os.environ.get('CI') or os.environ.get('GITHUB_ACTIONS'):
+        set_default_reporter(PythonNativeReporter())
+    else:
+        set_default_reporter(DiffReporter())
 
 def create_temp_file(tmp_path, filename, contents):
     temp_file = tmp_path / filename
