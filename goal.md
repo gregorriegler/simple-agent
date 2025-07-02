@@ -42,11 +42,14 @@ Edit a file by replacing one line with new content.
 - [x] Replace single character in one-line file: file with "a", replace line 1 with "b"
 - [ ] Replace single word in one-line file: file with "old", replace line 1 with "new"
 
-### Replace Multiple Consecutive Lines - DRAFT
+### Replace Multiple Consecutive Lines - REFINED
 Edit a file by replacing a block of consecutive lines.
 - File: `config.py` with 5 lines of configuration
 - Replace lines 2-4 with new configuration block
 - Expected: Lines 2-4 are replaced, lines 1 and 5 remain unchanged
+
+**Examples (ordered by simplicity):**
+- [ ] Replace 2 consecutive lines in 3-line file: file with "a\nb\nc", replace lines 1-2 with "x\ny"
 
 ### Replace 1 Line with 3 Other Lines - DRAFT
 Replace a single line with multiple lines of content.
