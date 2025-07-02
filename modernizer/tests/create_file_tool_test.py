@@ -85,3 +85,11 @@ def test_create_tool_explicit_empty_content(tmp_path):
 
 def test_create_file_in_nonexistent_directory(tmp_path):
     verifyCreateTool(library, f'/create-file src/utils/helper.py "# Helper module"', "src/utils/helper.py", "# Helper module", tmp_path=tmp_path)
+
+def test_create_file_permission_error():
+    """Test creating file in system directory without permissions should return error message"""
+    # Use a path that should definitely cause permission error on Windows
+    cmd, result = library.parse_and_execute("/create-file C:/Windows/System32/test.txt")
+    
+    # Should fail with permission error - result is a string containing the error
+    assert 'permission' in result.lower() or 'denied' in result.lower() or 'error' in result.lower()

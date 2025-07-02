@@ -59,7 +59,7 @@ User tries to create a file in a location without write permissions.
 - Tool handles the error gracefully and provides helpful feedback
 
 **Examples (ordered by simplicity):**
-- [ ] Create file in system directory without permissions: `/create /root/test.txt` → returns permission error message
+- [x] Create file in system directory without permissions: `/create /root/test.txt` → returns permission error message
 
 ### Handle File Already Exists - REFINED
 User tries to create a file that already exists.
