@@ -77,4 +77,4 @@ User tries to create a file with invalid characters.
 - Tool validates filename before attempting creation
 
 **Examples (ordered by simplicity):**
-- [ ] Create file with invalid characters: `/create "file<>name.txt"` → returns invalid filename error message
+- [x] Create file with invalid characters: `/create "file<>name.txt"` → returns invalid filename error message

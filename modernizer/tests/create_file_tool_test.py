@@ -105,3 +105,10 @@ def test_create_file_already_exists(tmp_path):
         
         # Should fail with "file already exists" error
         assert 'already exists' in result.lower() or 'exists' in result.lower()
+
+def test_create_file_invalid_filename():
+    """Test creating file with invalid characters should return error message"""
+    cmd, result = library.parse_and_execute('/create-file "file<>name.txt"')
+    
+    # Should fail with invalid filename error
+    assert 'invalid' in result.lower() or 'error' in result.lower()
