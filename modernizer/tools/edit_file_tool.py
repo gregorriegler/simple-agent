@@ -1,5 +1,13 @@
 from .base_tool import BaseTool
 import os
+from dataclasses import dataclass
+
+@dataclass
+class EditFileArgs:
+    filename: str
+    start_line: int
+    end_line: int
+    new_content: str
 
 class EditFileTool(BaseTool):
     name = "edit-file"
@@ -22,12 +30,14 @@ class EditFileTool(BaseTool):
         if len(parts) < self.EXPECTED_ARG_COUNT:
             return None, {'success': False, 'output': 'Usage: edit-file <filename> <start_line> <end_line> <new_content>', 'returncode': 1}
         
-        filename = parts[0]
         try:
-            start_line = int(parts[1])
-            end_line = int(parts[2])
-            new_content = parts[3]
-            return (filename, start_line, end_line, new_content), None
+            edit_args = EditFileArgs(
+                filename=parts[0],
+                start_line=int(parts[1]),
+                end_line=int(parts[2]),
+                new_content=parts[3]
+            )
+            return edit_args, None
         except ValueError:
             return None, {'success': False, 'output': 'Line numbers must be integers', 'returncode': 1}
 
@@ -41,45 +51,44 @@ class EditFileTool(BaseTool):
         
         return None
 
-    def _perform_file_edit(self, filename, start_line, end_line, new_content):
+    def _perform_file_edit(self, edit_args):
         """Perform the actual file reading, editing, and writing operations."""
         try:
             # Check if file exists
-            if not os.path.exists(filename):
-                return {'success': False, 'output': f"File '{filename}' not found", 'returncode': 1}
+            if not os.path.exists(edit_args.filename):
+                return {'success': False, 'output': f"File '{edit_args.filename}' not found", 'returncode': 1}
             
             # Read the file
-            with open(filename, 'r') as f:
+            with open(edit_args.filename, 'r') as f:
                 lines = f.readlines()
             
             # Validate line range
-            validation_error = self._validate_line_range(start_line, end_line, len(lines))
+            validation_error = self._validate_line_range(edit_args.start_line, edit_args.end_line, len(lines))
             if validation_error:
                 return validation_error
             
             # Replace the specified lines with new content
             # Convert to 0-based indexing
-            start_idx = start_line - 1
-            end_idx = end_line - 1
+            start_idx = edit_args.start_line - 1
+            end_idx = edit_args.end_line - 1
             
             # Replace the lines
-            new_lines = lines[:start_idx] + [new_content] + lines[end_idx + 1:]
+            new_lines = lines[:start_idx] + [edit_args.new_content] + lines[end_idx + 1:]
             
             # Write back to file
-            with open(filename, 'w') as f:
+            with open(edit_args.filename, 'w') as f:
                 f.writelines(new_lines)
             
-            return {'success': True, 'output': f"Successfully edited {filename}, lines {start_line}-{end_line}", 'returncode': 0}
+            return {'success': True, 'output': f"Successfully edited {edit_args.filename}, lines {edit_args.start_line}-{edit_args.end_line}", 'returncode': 0}
             
         except OSError as e:
-            return {'success': False, 'output': f"Error editing file '{filename}': {str(e)}", 'returncode': 1}
+            return {'success': False, 'output': f"Error editing file '{edit_args.filename}': {str(e)}", 'returncode': 1}
         except Exception as e:
-            return {'success': False, 'output': f"Unexpected error editing file '{filename}': {str(e)}", 'returncode': 1}
+            return {'success': False, 'output': f"Unexpected error editing file '{edit_args.filename}': {str(e)}", 'returncode': 1}
 
     def execute(self, args):
-        parsed_args, error = self._parse_arguments(args)
+        edit_args, error = self._parse_arguments(args)
         if error:
             return error
         
-        filename, start_line, end_line, new_content = parsed_args
-        return self._perform_file_edit(filename, start_line, end_line, new_content)
+        return self._perform_file_edit(edit_args)
