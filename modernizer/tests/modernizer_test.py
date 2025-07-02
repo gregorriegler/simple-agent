@@ -4,6 +4,7 @@ import sys
 from approvaltests import set_default_reporter, verify
 from approvaltests import Options
 from approvaltests.reporters.diff_reporter import DiffReporter
+from approvaltests.reporters.python_native_reporter import PythonNativeReporter
 import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from modernizer.modernizer import start_chat
@@ -15,7 +16,7 @@ from .test_helpers import (
 
 @pytest.fixture(scope="session", autouse=True)
 def set_default_reporter_for_all_tests() -> None:
-    set_default_reporter(DiffReporter())
+    set_default_reporter(PythonNativeReporter())
 
 def enter(_):
     return "\n"
