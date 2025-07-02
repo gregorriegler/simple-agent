@@ -1,0 +1,17 @@
+Command:
+/edit-file test.txt 1 1 new
+
+Result:
+Successfully edited test.txt, lines 1-1
+
+Initial file: test.txt
+Initial content:
+--- INITIAL CONTENT START ---
+old
+--- INITIAL CONTENT END ---
+
+File after edit: test.txt
+Final content:
+--- FINAL CONTENT START ---
+new
+--- FINAL CONTENT END ---

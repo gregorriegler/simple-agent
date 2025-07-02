@@ -66,3 +66,6 @@ def verifyEditTool(framework, setup_file, setup_content, command, expected_conte
 
 def test_edit_file_replace_single_character(tmp_path):
     verifyEditTool(library, "test.txt", "a", "/edit-file test.txt 1 1 b", "b", tmp_path=tmp_path)
+
+def test_edit_file_replace_single_word(tmp_path):
+    verifyEditTool(library, "test.txt", "old", "/edit-file test.txt 1 1 new", "new", tmp_path=tmp_path)
