@@ -93,3 +93,15 @@ def test_create_file_permission_error():
     
     # Should fail with permission error - result is a string containing the error
     assert 'permission' in result.lower() or 'denied' in result.lower() or 'error' in result.lower()
+
+def test_create_file_already_exists(tmp_path):
+    """Test creating file that already exists should return error message"""
+    with temp_directory(tmp_path):
+        # First create a file
+        library.parse_and_execute("/create-file existing.txt")
+        
+        # Try to create the same file again
+        cmd, result = library.parse_and_execute("/create-file existing.txt")
+        
+        # Should fail with "file already exists" error
+        assert 'already exists' in result.lower() or 'exists' in result.lower()

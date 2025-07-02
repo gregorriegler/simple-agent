@@ -68,7 +68,7 @@ User tries to create a file that already exists.
 - Tool prevents accidental overwrites during creation
 
 **Examples (ordered by simplicity):**
-- [ ] Create file that already exists: `/create existing.txt` → returns "file already exists" error message
+- [x] Create file that already exists: `/create existing.txt` → returns "file already exists" error message
 
 ### Handle Invalid File Names - REFINED
 User tries to create a file with invalid characters.

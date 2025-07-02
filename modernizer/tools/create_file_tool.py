@@ -22,6 +22,10 @@ class CreateFileTool(BaseTool):
             content = content[1:-1]
         
         try:
+            # Check if file already exists
+            if os.path.exists(filename):
+                return {'success': False, 'output': f"Error creating file '{filename}': File already exists", 'returncode': 1}
+            
             # Create parent directories if they don't exist
             os.makedirs(os.path.dirname(filename) or '.', exist_ok=True)
             
