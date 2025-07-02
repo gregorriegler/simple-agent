@@ -80,9 +80,9 @@ class EditFileTool(BaseTool):
                 replacement_lines = [line + '\n' for line in edit_args.new_content.split('\n') if line]
             else:
                 # For single-line content, preserve the original line ending behavior
-                # Check if the original line had a newline
-                original_line = lines[start_idx] if start_idx < len(lines) else ''
-                if original_line.endswith('\n'):
+                # Check if the last line being replaced had a newline to determine if we should add one
+                last_replaced_line = lines[end_idx] if end_idx < len(lines) else ''
+                if last_replaced_line.endswith('\n'):
                     replacement_lines = [edit_args.new_content + '\n']
                 else:
                     replacement_lines = [edit_args.new_content]

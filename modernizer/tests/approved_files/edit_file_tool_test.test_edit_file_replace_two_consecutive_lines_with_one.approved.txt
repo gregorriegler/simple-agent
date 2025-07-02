@@ -17,5 +17,4 @@ Final content:
 --- FINAL CONTENT START ---
 line1
 newline
-
 --- FINAL CONTENT END ---
