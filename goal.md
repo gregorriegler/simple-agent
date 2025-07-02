@@ -40,7 +40,7 @@ Edit a file by replacing one line with new content.
 
 **Examples (ordered by simplicity):**
 - [x] Replace single character in one-line file: file with "a", replace line 1 with "b"
-- [ ] Replace single word in one-line file: file with "old", replace line 1 with "new"
+- [x] Replace single word in one-line file: file with "old", replace line 1 with "new"
 
 ### Replace Multiple Consecutive Lines - REFINED
 Edit a file by replacing a block of consecutive lines.

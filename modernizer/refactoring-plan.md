@@ -2,14 +2,18 @@
 
 ## Identified Improvements
 
-### mutation_tool.py
-- [x] Long method: `_format_mutation_output` is doing too many things (parsing JSON, counting mutants, formatting output)
-- [x] Extract method for mutant counting and statistics calculation
-- [x] Extract method for survived mutant formatting
-- [x] Magic numbers: hardcoded mutation score calculation could be extracted to a constant or method
-- [x] Improve variable naming: `stryker_data` could be more descriptive like `mutation_report`
+### edit_file_tool.py
+- [ ] Long method: `execute` method is doing too many things (parsing args, validation, file operations)
+- [ ] Extract method for argument parsing and validation
+- [ ] Extract method for line range validation
+- [ ] Extract method for file reading and writing operations
+- [ ] Magic numbers: hardcoded split parameter (3) could be more descriptive
+- [ ] Long parameter list in argument parsing (4 parts) - consider using a data class or named tuple
+- [ ] Improve error message consistency - some use single quotes, some use double quotes
 
-### mutation_tool_test.py
-- [ ] Long test method: `test_parse_stryker_output` is testing multiple aspects (parsing, counting, formatting)
-- [ ] Extract helper method for creating mock Stryker JSON data
-- [ ] Consider splitting into separate tests for different aspects (summary calculation, survived mutants formatting)
+### edit_file_tool_test.py
+- [ ] Long method: `verifyEditTool` is doing multiple things (setup, execution, verification)
+- [ ] Extract method for file setup operations
+- [ ] Extract method for creating verification output
+- [ ] Long string formatting in line 45 and 54 - could be extracted to helper methods
+- [ ] Duplicated scrubber creation pattern - could be extracted to a helper method
