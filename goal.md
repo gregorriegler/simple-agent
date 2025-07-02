@@ -53,12 +53,6 @@ Edit a file by replacing a block of consecutive lines.
 - [x] Replace 2 consecutive lines in 3-line file with 2 other lines
 - [ ] Replace 2 consecutive lines in 3-line file with with 4 other lines
 
-### Replace 1 Line with 3 Other Lines - DRAFT
-Replace a single line with multiple lines of content.
-- File: `code.py` with "# TODO: implement function"
-- Replace line 5 with 3 lines of actual function implementation
-- Expected: Single line becomes 3 lines, total file length increases
-
 ### Insert Content by Replacing Empty Lines - DRAFT
 Replace empty lines with new content.
 - File: `template.py` with empty lines 3-5
