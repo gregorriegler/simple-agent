@@ -86,12 +86,12 @@ class ToolLibrary:
                     if text.startswith(cmd_prefix):
                         full_args = text[len(cmd_prefix):]
                         result = tool.execute(full_args.strip() if full_args else None)
-                        return first_line, result['output']
+                        return text, result['output']
                     else:
                         result = tool.execute(None)
-                        return first_line, result['output']
+                        return text, result['output']
                 else:
-                    return first_line, f"Unknown command: {cmd}"
+                    return text, f"Unknown command: {cmd}"
         
         # Single-line processing (original behavior)
         for line in text.splitlines():

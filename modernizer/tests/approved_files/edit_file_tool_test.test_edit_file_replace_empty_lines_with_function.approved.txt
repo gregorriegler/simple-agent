@@ -1,5 +1,6 @@
 Command:
 /edit-file template.py 3 5 def hello():
+    return 'world'
 
 Result:
 Successfully edited template.py, lines 3-5
