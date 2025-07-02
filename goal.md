@@ -52,20 +52,29 @@ User wants to create a file in a directory that doesn't exist yet.
 - [x] Create file in one level deep non-existent directory: `/create src/helper.py "# Helper module"` → creates `src/` directory and `helper.py` with content
 - [x] Create file in multiple levels of non-existent directories: `/create src/utils/helpers/helper.py "# Helper module"` → creates all necessary directories and `helper.py` with content
 
-### Handle File Creation Errors - DRAFT
+### Handle File Creation Errors - REFINED
 User tries to create a file in a location without write permissions.
 - Input: `/create /root/restricted.txt`
 - Expected: Tool returns error message about insufficient permissions
 - Tool handles the error gracefully and provides helpful feedback
 
-### Handle File Already Exists - DRAFT
+**Examples (ordered by simplicity):**
+- [ ] Create file in system directory without permissions: `/create /root/test.txt` → returns permission error message
+
+### Handle File Already Exists - REFINED
 User tries to create a file that already exists.
 - Input: `/create existing.txt`
 - Expected: Tool returns error message that file already exists
 - Tool prevents accidental overwrites during creation
 
-### Handle Invalid File Names - DRAFT
+**Examples (ordered by simplicity):**
+- [ ] Create file that already exists: `/create existing.txt` → returns "file already exists" error message
+
+### Handle Invalid File Names - REFINED
 User tries to create a file with invalid characters.
 - Input: `/create "file<>name.txt"`
 - Expected: Tool returns error message about invalid filename
 - Tool validates filename before attempting creation
+
+**Examples (ordered by simplicity):**
+- [ ] Create file with invalid characters: `/create "file<>name.txt"` → returns invalid filename error message
