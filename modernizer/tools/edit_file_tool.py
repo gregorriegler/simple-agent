@@ -9,21 +9,30 @@ class EditFileTool(BaseTool):
         super().__init__()
         self.runcommand = runcommand
 
-    def execute(self, args):
+    def _parse_arguments(self, args):
+        """Parse and validate command arguments."""
         if not args:
-            return {'success': False, 'output': 'No arguments specified', 'returncode': 1}
+            return None, {'success': False, 'output': 'No arguments specified', 'returncode': 1}
         
         parts = args.split(' ', 3)  # Split into filename, start_line, end_line, new_content
         if len(parts) < 4:
-            return {'success': False, 'output': 'Usage: edit-file <filename> <start_line> <end_line> <new_content>', 'returncode': 1}
+            return None, {'success': False, 'output': 'Usage: edit-file <filename> <start_line> <end_line> <new_content>', 'returncode': 1}
         
         filename = parts[0]
         try:
             start_line = int(parts[1])
             end_line = int(parts[2])
             new_content = parts[3]
+            return (filename, start_line, end_line, new_content), None
         except ValueError:
-            return {'success': False, 'output': 'Line numbers must be integers', 'returncode': 1}
+            return None, {'success': False, 'output': 'Line numbers must be integers', 'returncode': 1}
+
+    def execute(self, args):
+        parsed_args, error = self._parse_arguments(args)
+        if error:
+            return error
+        
+        filename, start_line, end_line, new_content = parsed_args
         
         try:
             # Check if file exists
