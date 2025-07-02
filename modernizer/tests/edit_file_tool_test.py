@@ -41,6 +41,9 @@ def verifyEditTool(framework, setup_file, setup_content, command, expected_conte
         with open(setup_file, "w") as f:
             f.write(setup_content)
         
+        # Show initial file content
+        initial_file_info = f"Initial file: {setup_file}\nInitial content:\n--- INITIAL CONTENT START ---\n{setup_content}\n--- INITIAL CONTENT END ---"
+        
         # Execute the edit command
         cmd, result = framework.parse_and_execute(command)
         
@@ -48,12 +51,12 @@ def verifyEditTool(framework, setup_file, setup_content, command, expected_conte
         if os.path.exists(setup_file):
             with open(setup_file, "r") as f:
                 actual_content = f.read()
-                file_info = f"File after edit: {setup_file}\nFile content:\n--- FILE CONTENT START ---\n{actual_content}\n--- FILE CONTENT END ---"
+                final_file_info = f"File after edit: {setup_file}\nFinal content:\n--- FINAL CONTENT START ---\n{actual_content}\n--- FINAL CONTENT END ---"
         else:
-            file_info = "File not found after edit"
+            final_file_info = "File not found after edit"
             
-        # Create verification output including file content
-        verify(f"Command:\n{cmd}\n\nResult:\n{result}\n\n{file_info}", options=Options().with_scrubber(multi_scrubber))
+        # Create verification output including both initial and final file content
+        verify(f"Command:\n{cmd}\n\nResult:\n{result}\n\n{initial_file_info}\n\n{final_file_info}", options=Options().with_scrubber(multi_scrubber))
     
     if tmp_path:
         with temp_directory(tmp_path):

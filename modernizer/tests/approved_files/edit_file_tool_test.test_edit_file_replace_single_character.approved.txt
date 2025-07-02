@@ -4,8 +4,14 @@ Command:
 Result:
 Successfully edited test.txt, lines 1-1
 
+Initial file: test.txt
+Initial content:
+--- INITIAL CONTENT START ---
+a
+--- INITIAL CONTENT END ---
+
 File after edit: test.txt
-File content:
---- FILE CONTENT START ---
+Final content:
+--- FINAL CONTENT START ---
 b
---- FILE CONTENT END ---
+--- FINAL CONTENT END ---

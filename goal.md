@@ -39,7 +39,7 @@ Edit a file by replacing one line with new content.
 - Expected: File contains "new_variable = 10"
 
 **Examples (ordered by simplicity):**
-- [ ] Replace single character in one-line file: file with "a", replace line 1 with "b"
+- [x] Replace single character in one-line file: file with "a", replace line 1 with "b"
 - [ ] Replace single word in one-line file: file with "old", replace line 1 with "new"
 
 ### Replace Multiple Consecutive Lines - DRAFT
