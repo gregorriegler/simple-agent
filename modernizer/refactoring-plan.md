@@ -7,7 +7,7 @@
 - [x] Extract method for argument parsing and validation
 - [x] Extract method for line range validation
 - [x] Extract method for file reading and writing operations
-- [ ] Magic numbers: hardcoded split parameter (3) could be more descriptive
+- [x] Magic numbers: hardcoded split parameter (3) could be more descriptive
 - [ ] Long parameter list in argument parsing (4 parts) - consider using a data class or named tuple
 - [ ] Improve error message consistency - some use single quotes, some use double quotes
 

@@ -4,6 +4,10 @@ import os
 class EditFileTool(BaseTool):
     name = "edit-file"
     description = "Edit files by replacing content in specified line ranges"
+    
+    # Constants for argument parsing
+    MAX_SPLIT_PARTS = 3  # Split into filename, start_line, end_line, new_content
+    EXPECTED_ARG_COUNT = 4
 
     def __init__(self, runcommand):
         super().__init__()
@@ -14,8 +18,8 @@ class EditFileTool(BaseTool):
         if not args:
             return None, {'success': False, 'output': 'No arguments specified', 'returncode': 1}
         
-        parts = args.split(' ', 3)  # Split into filename, start_line, end_line, new_content
-        if len(parts) < 4:
+        parts = args.split(' ', self.MAX_SPLIT_PARTS)
+        if len(parts) < self.EXPECTED_ARG_COUNT:
             return None, {'success': False, 'output': 'Usage: edit-file <filename> <start_line> <end_line> <new_content>', 'returncode': 1}
         
         filename = parts[0]
