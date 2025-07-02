@@ -58,7 +58,7 @@ class EditFileTool(BaseTool):
         try:
             # Check if file exists
             if not os.path.exists(edit_args.filename):
-                return {'success': False, 'output': f"File '{edit_args.filename}' not found", 'returncode': 1}
+                return {'success': False, 'output': f'File "{edit_args.filename}" not found', 'returncode': 1}
             
             # Read the file
             with open(edit_args.filename, 'r') as f:
@@ -96,9 +96,9 @@ class EditFileTool(BaseTool):
             return {'success': True, 'output': f"Successfully edited {edit_args.filename}, lines {edit_args.start_line}-{edit_args.end_line}", 'returncode': 0}
             
         except OSError as e:
-            return {'success': False, 'output': f"Error editing file '{edit_args.filename}': {str(e)}", 'returncode': 1}
+            return {'success': False, 'output': f'Error editing file "{edit_args.filename}": {str(e)}', 'returncode': 1}
         except Exception as e:
-            return {'success': False, 'output': f"Unexpected error editing file '{edit_args.filename}': {str(e)}", 'returncode': 1}
+            return {'success': False, 'output': f'Unexpected error editing file "{edit_args.filename}": {str(e)}', 'returncode': 1}
 
     def execute(self, args):
         edit_args, error = self._parse_arguments(args)

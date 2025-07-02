@@ -9,7 +9,7 @@
 - [x] Extract method for file reading and writing operations
 - [x] Magic numbers: hardcoded split parameter (3) could be more descriptive
 - [x] Long parameter list in argument parsing (4 parts) - consider using a data class or named tuple
-- [ ] Improve error message consistency - some use single quotes, some use double quotes
+- [x] Improve error message consistency - some use single quotes, some use double quotes
 
 ### edit_file_tool_test.py
 - [ ] Long method: `verifyEditTool` is doing multiple things (setup, execution, verification)
