@@ -1,0 +1,11 @@
+Command:
+/edit-file test.txt 1 1 b
+
+Result:
+Successfully edited test.txt, lines 1-1
+
+File after edit: test.txt
+File content:
+--- FILE CONTENT START ---
+b
+--- FILE CONTENT END ---

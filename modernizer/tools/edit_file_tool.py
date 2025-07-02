@@ -1,0 +1,61 @@
+from .base_tool import BaseTool
+import os
+
+class EditFileTool(BaseTool):
+    name = "edit-file"
+    description = "Edit files by replacing content in specified line ranges"
+
+    def __init__(self, runcommand):
+        super().__init__()
+        self.runcommand = runcommand
+
+    def execute(self, args):
+        if not args:
+            return {'success': False, 'output': 'No arguments specified', 'returncode': 1}
+        
+        parts = args.split(' ', 3)  # Split into filename, start_line, end_line, new_content
+        if len(parts) < 4:
+            return {'success': False, 'output': 'Usage: edit-file <filename> <start_line> <end_line> <new_content>', 'returncode': 1}
+        
+        filename = parts[0]
+        try:
+            start_line = int(parts[1])
+            end_line = int(parts[2])
+            new_content = parts[3]
+        except ValueError:
+            return {'success': False, 'output': 'Line numbers must be integers', 'returncode': 1}
+        
+        try:
+            # Check if file exists
+            if not os.path.exists(filename):
+                return {'success': False, 'output': f"File '{filename}' not found", 'returncode': 1}
+            
+            # Read the file
+            with open(filename, 'r') as f:
+                lines = f.readlines()
+            
+            # Validate line range
+            if start_line < 1 or end_line < 1 or start_line > len(lines) or end_line > len(lines):
+                return {'success': False, 'output': f"Invalid line range: {start_line}-{end_line} for file with {len(lines)} lines", 'returncode': 1}
+            
+            if start_line > end_line:
+                return {'success': False, 'output': f"Start line ({start_line}) cannot be greater than end line ({end_line})", 'returncode': 1}
+            
+            # Replace the specified lines with new content
+            # Convert to 0-based indexing
+            start_idx = start_line - 1
+            end_idx = end_line - 1
+            
+            # Replace the lines
+            new_lines = lines[:start_idx] + [new_content] + lines[end_idx + 1:]
+            
+            # Write back to file
+            with open(filename, 'w') as f:
+                f.writelines(new_lines)
+            
+            return {'success': True, 'output': f"Successfully edited {filename}, lines {start_line}-{end_line}", 'returncode': 0}
+            
+        except OSError as e:
+            return {'success': False, 'output': f"Error editing file '{filename}': {str(e)}", 'returncode': 1}
+        except Exception as e:
+            return {'success': False, 'output': f"Unexpected error editing file '{filename}': {str(e)}", 'returncode': 1}
