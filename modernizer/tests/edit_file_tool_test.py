@@ -77,3 +77,8 @@ def test_edit_file_replace_two_consecutive_lines_with_two(tmp_path):
     # Use actual newline character in the command, not literal \n
     command = "/edit-file test.txt 2 3 newline1\nnewline2"
     verifyEditTool(library, "test.txt", "line1\nline2\nline3", command, "line1\nnewline1\nnewline2\n", tmp_path=tmp_path)
+
+def test_edit_file_replace_two_consecutive_lines_with_four(tmp_path):
+    # Replace 2 consecutive lines in 3-line file with 4 other lines
+    command = "/edit-file test.txt 2 3 newline1\nnewline2\nnewline3\nnewline4"
+    verifyEditTool(library, "test.txt", "line1\nline2\nline3", command, "line1\nnewline1\nnewline2\nnewline3\nnewline4\n", tmp_path=tmp_path)
