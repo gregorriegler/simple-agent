@@ -29,3 +29,46 @@ The tool should enable:
 - Integrates with the modernizer.sh interface
 - Provides reliable file modification functionality
 - Follows project coding standards and patterns
+
+## Scenarios
+
+### Replace Single Line - DRAFT
+Edit a file by replacing one line with new content.
+- File: `test.py` with content "old_variable = 5"
+- Replace line 1 with "new_variable = 10"
+- Expected: File contains "new_variable = 10"
+
+### Replace Multiple Consecutive Lines - DRAFT
+Edit a file by replacing a block of consecutive lines.
+- File: `config.py` with 5 lines of configuration
+- Replace lines 2-4 with new configuration block
+- Expected: Lines 2-4 are replaced, lines 1 and 5 remain unchanged
+
+### Replace 1 Line with 3 Other Lines - DRAFT
+Replace a single line with multiple lines of content.
+- File: `code.py` with "# TODO: implement function"
+- Replace line 5 with 3 lines of actual function implementation
+- Expected: Single line becomes 3 lines, total file length increases
+
+### Insert Content by Replacing Empty Lines - DRAFT
+Replace empty lines with new content.
+- File: `template.py` with empty lines 3-5
+- Replace lines 3-5 with function definition
+- Expected: Function is inserted where empty lines were
+
+### Invalid Line Range Error - DRAFT
+Attempt to edit lines that don't exist in the file.
+- File: `short.py` with 5 lines
+- Try to replace lines 10-15
+- Expected: Clear error message about invalid line range
+
+### File Not Found Error - DRAFT
+Attempt to edit a non-existent file.
+- Try to edit `nonexistent.py`
+- Expected: Clear error message about file not found
+
+### Empty File Handling - DRAFT
+Attempt to edit an empty file.
+- File: `empty.py` with 0 lines
+- Try to replace lines 1-2
+- Expected: Clear error message about empty file or invalid range
