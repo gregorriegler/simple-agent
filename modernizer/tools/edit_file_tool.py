@@ -37,13 +37,8 @@ class EditFileTool(BaseTool):
         
         return None
 
-    def execute(self, args):
-        parsed_args, error = self._parse_arguments(args)
-        if error:
-            return error
-        
-        filename, start_line, end_line, new_content = parsed_args
-        
+    def _perform_file_edit(self, filename, start_line, end_line, new_content):
+        """Perform the actual file reading, editing, and writing operations."""
         try:
             # Check if file exists
             if not os.path.exists(filename):
@@ -76,3 +71,11 @@ class EditFileTool(BaseTool):
             return {'success': False, 'output': f"Error editing file '{filename}': {str(e)}", 'returncode': 1}
         except Exception as e:
             return {'success': False, 'output': f"Unexpected error editing file '{filename}': {str(e)}", 'returncode': 1}
+
+    def execute(self, args):
+        parsed_args, error = self._parse_arguments(args)
+        if error:
+            return error
+        
+        filename, start_line, end_line, new_content = parsed_args
+        return self._perform_file_edit(filename, start_line, end_line, new_content)
