@@ -49,7 +49,9 @@ Edit a file by replacing a block of consecutive lines.
 - Expected: Lines 2-4 are replaced, lines 1 and 5 remain unchanged
 
 **Examples (ordered by simplicity):**
-- [ ] Replace 2 consecutive lines in 3-line file: file with "a\nb\nc", replace lines 1-2 with "x\ny"
+- [ ] Replace 2 consecutive lines in 3-line file with with 1 other line
+- [ ] Replace 2 consecutive lines in 3-line file with 2 other lines
+- [ ] Replace 2 consecutive lines in 3-line file with with 4 other lines
 
 ### Replace 1 Line with 3 Other Lines - DRAFT
 Replace a single line with multiple lines of content.
