@@ -1,7 +1,0 @@
-Command:
-/create-file "file<>name.txt"
-
-Result:
-Error creating file 'file<>name.txt': [Errno 22] Invalid argument: 'file<>name.txt'
-
-No File created

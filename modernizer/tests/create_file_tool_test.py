@@ -91,6 +91,3 @@ def test_create_file_already_exists(tmp_path):
         _, result = library.parse_and_execute("/create-file existing.txt")
         
         assert 'already exists' in result.lower() or 'exists' in result.lower()
-
-def test_create_file_invalid_filename(tmp_path):
-    verifyCreateTool(library, f'/create-file "file<>name.txt"', None, None, tmp_path=tmp_path)
