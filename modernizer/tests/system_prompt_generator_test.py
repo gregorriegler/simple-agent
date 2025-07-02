@@ -2,7 +2,6 @@ import os
 import sys
 import subprocess
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from modernizer.system_prompt_generator import SystemPromptGenerator
 
 def test_system_prompt_generator_outputs_prompt_without_args():

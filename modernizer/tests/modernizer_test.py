@@ -1,8 +1,6 @@
 import builtins
-import os
-import sys
 from approvaltests import verify, Options
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from modernizer.modernizer import start_chat
 from .test_helpers import (
     create_temp_file,
