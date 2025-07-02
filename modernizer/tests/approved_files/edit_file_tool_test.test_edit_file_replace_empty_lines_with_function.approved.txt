@@ -1,0 +1,26 @@
+Command:
+/edit-file template.py 3 5 def hello():
+
+Result:
+Successfully edited template.py, lines 3-5
+
+Initial file: template.py
+Initial content:
+--- INITIAL CONTENT START ---
+line1
+line2
+
+
+
+line6
+--- INITIAL CONTENT END ---
+
+File after edit: template.py
+Final content:
+--- FINAL CONTENT START ---
+line1
+line2
+def hello():
+    return 'world'
+line6
+--- FINAL CONTENT END ---

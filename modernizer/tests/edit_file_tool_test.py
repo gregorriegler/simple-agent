@@ -82,3 +82,11 @@ def test_edit_file_replace_two_consecutive_lines_with_four(tmp_path):
     # Replace 2 consecutive lines in 3-line file with 4 other lines
     command = "/edit-file test.txt 2 3 newline1\nnewline2\nnewline3\nnewline4"
     verifyEditTool(library, "test.txt", "line1\nline2\nline3", command, "line1\nnewline1\nnewline2\nnewline3\nnewline4\n", tmp_path=tmp_path)
+
+def test_edit_file_replace_empty_lines_with_function(tmp_path):
+    # Replace empty lines 3-5 with function definition
+    initial_content = "line1\nline2\n\n\n\nline6"
+    function_def = "def hello():\n    return 'world'"
+    command = f"/edit-file template.py 3 5 {function_def}"
+    expected_content = "line1\nline2\ndef hello():\n    return 'world'\nline6"
+    verifyEditTool(library, "template.py", initial_content, command, expected_content, tmp_path=tmp_path)
