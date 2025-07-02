@@ -32,11 +32,15 @@ The tool should enable:
 
 ## Scenarios
 
-### Replace Single Line - DRAFT
+### Replace Single Line - REFINED
 Edit a file by replacing one line with new content.
 - File: `test.py` with content "old_variable = 5"
 - Replace line 1 with "new_variable = 10"
 - Expected: File contains "new_variable = 10"
+
+**Examples (ordered by simplicity):**
+- [ ] Replace single character in one-line file: file with "a", replace line 1 with "b"
+- [ ] Replace single word in one-line file: file with "old", replace line 1 with "new"
 
 ### Replace Multiple Consecutive Lines - DRAFT
 Edit a file by replacing a block of consecutive lines.
