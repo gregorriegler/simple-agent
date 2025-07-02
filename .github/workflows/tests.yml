@@ -42,15 +42,18 @@ jobs:
       run: dotnet test --no-build --verbosity normal
       working-directory: refactoring-tools
     
-    - name: Setup Python
-      uses: actions/setup-python@v5
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
       with:
-        python-version: '3.11'
+        version: "latest"
+
+    - name: Set up Python
+      run: uv python install 3.11
     
     - name: Install Python dependencies
-      run: pip install -r requirements-dev.txt
+      run: uv sync --dev
       working-directory: modernizer
     
     - name: Run modernizer tests
-      run: bash test.sh
+      run: uv run bash test.sh
       working-directory: modernizer
