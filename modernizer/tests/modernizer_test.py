@@ -3,7 +3,6 @@ import os
 import sys
 from approvaltests import set_default_reporter, verify
 from approvaltests import Options
-from approvaltests.reporters.diff_reporter import DiffReporter
 from approvaltests.reporters.python_native_reporter import PythonNativeReporter
 import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -51,17 +50,18 @@ def test_tool_cat(capsys, tmp_path):
     temp_file = create_temp_file(tmp_path, "testfile.txt", "Hello world")
     verify_chat(capsys, enter, "Test message", f"/cat {temp_file}")
 
+def test_tool_cat_integration(capsys, tmp_path):
+    temp_file = create_temp_file(tmp_path, "integration_test.txt", "Integration test content\nLine 2")
+    verify_chat(capsys, enter, "Test message", f"/cat {temp_file}")
+
 def test_tool_ls_integration(capsys, tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
     verify_chat(capsys, enter, "Test message", f"/ls {directory_path}")
 
-def test_tool_cat_integration(capsys, tmp_path):
-    temp_file = create_temp_file(tmp_path, "integration_test.txt", "Integration test content\nLine 2")
-    verify_chat(capsys, enter, "Test message", f"/cat {temp_file}")
+def test_chat_with_regular_response(capsys):
+    verify_chat(capsys, enter, "Hello", "Hello! How can I help you?")
 
 def verify_chat(capsys, input_stub, message, answer):
     result = run_chat_test(capsys, input_stub=input_stub, message=message, answer=answer)
     verify(result, options=Options().with_scrubber(multi_scrubber))
 
-def test_chat_with_regular_response(capsys):
-    verify_chat(capsys, enter, "Hello", "Hello! How can I help you?")
