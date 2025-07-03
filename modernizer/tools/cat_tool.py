@@ -45,7 +45,10 @@ class CatTool(BaseTool):
         if error:
             return error
         
-        # Read file and extract line range
+        return self._read_file_range(filename, start_line, end_line)
+    
+    def _read_file_range(self, filename, start_line, end_line):
+        """Read file and extract specified line range with formatting."""
         try:
             with open(filename, 'r') as f:
                 lines = f.readlines()
@@ -61,15 +64,18 @@ class CatTool(BaseTool):
             if start_idx >= len(lines):
                 return {'success': True, 'output': ""}  # Range beyond file length, no output
             
-            # Format output with line numbers
-            result_lines = []
-            for i in range(start_idx, end_idx):
-                result_lines.append(f"{i + 1:6}\t{lines[i]}")
-            
-            output = "".join(result_lines).rstrip('\n')
-            return {'success': True, 'output': output}
+            return self._format_output(lines, start_idx, end_idx)
             
         except FileNotFoundError:
             return {'success': False, 'output': f"STDERR: cat: '{filename}': No such file or directory"}
         except Exception as e:
             return {'success': False, 'output': f"STDERR: cat: '{filename}': {str(e)}"}
+    
+    def _format_output(self, lines, start_idx, end_idx):
+        """Format output lines with line numbers."""
+        result_lines = []
+        for i in range(start_idx, end_idx):
+            result_lines.append(f"{i + 1:6}\t{lines[i]}")
+        
+        output = "".join(result_lines).rstrip('\n')
+        return {'success': True, 'output': output}
