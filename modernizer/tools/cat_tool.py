@@ -8,14 +8,22 @@ class CatTool(BaseTool):
         super().__init__()
         self.runcommand = runcommand
         
-    def execute(self, args):
+    def _parse_arguments(self, args):
+        """Parse command arguments into filename and optional line range."""
         if not args:
-            return {'success': False, 'output': 'STDERR: cat: missing file operand'}
+            return None, None, {'success': False, 'output': 'STDERR: cat: missing file operand'}
         
         # Parse arguments - split by space to separate filename and optional range
         parts = args.split()
         filename = parts[0]
         line_range = parts[1] if len(parts) > 1 else None
+        
+        return filename, line_range, None
+    
+    def execute(self, args):
+        filename, line_range, error = self._parse_arguments(args)
+        if error:
+            return error
         
         if line_range is None:
             return self.runcommand('cat', ['-n', filename])
