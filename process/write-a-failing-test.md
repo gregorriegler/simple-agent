@@ -36,10 +36,11 @@ Your answers should be succinct and concise.
 7. Run the test using `./test.sh` and observe the outcome
 
     * **Note**: Verify or ApprovalTests will fail initially because they require approval.
-    * If the `received.txt` content matches your expectations, approve it using: `./approve.sh name_of_the_test`
-    * After approval, consider it a **PASSING** test and commit using: "t <message>"
 
-8. Handle passing tests
+8. If it was an approval or Verify test and the `received.txt` content matches your expectations, approve it using: `./approve.sh name_of_the_test`
+    
+9. Commit if passes. If all the tests pass now commit using the message: "t <message>"
 
-    * If the test passes immediately, no changes to the production code are necessary.
-    * Initiate the next context using the prompt: "Read `process/write-a-failing-test.md` and follow the process."
+10. If the tests fail, STOP and END there.
+
+11. Initiate the next context using the prompt: "Read `process/write-a-failing-test.md` and follow the process."
