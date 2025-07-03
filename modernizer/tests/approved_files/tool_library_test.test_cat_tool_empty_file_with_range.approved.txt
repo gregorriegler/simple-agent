@@ -1,0 +1,5 @@
+Command:
+/cat /tmp/test_path/empty.txt 1-5
+
+Result:
+STDERR: cat: 'C:\Users\riegl\AppData\Local\Temp\pytest-of-riegl\pytest-496\test_cat_tool_empty_file_with_0\empty.txt 1-5': No such file or directory

@@ -46,3 +46,8 @@ def test_auto_generated_tools_discovered():
     
     assert len(auto_generated_tools) > 1, f"Expected more than 1 auto-generated tool, found {len(auto_generated_tools)}"
     assert 'extract-method' in discovered_tool_names, f"extract-method not found in discovered tools: {discovered_tool_names}"
+
+def test_cat_tool_empty_file_with_range(tmp_path):
+    temp_file = create_temp_file(tmp_path, "empty.txt", "")
+    
+    verifyTool(library, f"/cat {temp_file} 1-5")
