@@ -45,7 +45,7 @@ Enable the cat tool to accept an optional line range parameter in the format `st
 User executes `/cat filename 1-5` and expects to see the first 5 lines of the file with line numbers.
 
 **Examples (ordered by simplicity):**
-- [ ] Zero lines: `/cat empty.txt 1-5` → displays nothing (file has no lines)
+- [x] Zero lines: `/cat empty.txt 1-5` → displays nothing (file has no lines)
 - [ ] Single line from beginning: `/cat file.txt 1-1` → displays "1 | first line content"
 - [ ] Multiple lines from beginning: `/cat file.txt 1-3` → displays first 3 lines with line numbers (1 | first, 2 | second, 3 | third)
 
