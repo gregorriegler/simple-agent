@@ -20,6 +20,19 @@ class CatTool(BaseTool):
         
         return filename, line_range, None
     
+    def _validate_range(self, line_range):
+        """Validate and parse line range string into start and end line numbers."""
+        # Parse line range (e.g., "1-5")
+        try:
+            start_line, end_line = map(int, line_range.split('-'))
+        except ValueError:
+            return None, None, {'success': False, 'output': f"STDERR: Invalid range format '{line_range}'. Use format 'start-end' (e.g., '1-5')"}
+        
+        if start_line > end_line:
+            return None, None, {'success': False, 'output': f"STDERR: Start line ({start_line}) cannot be greater than end line ({end_line})"}
+        
+        return start_line, end_line, None
+    
     def execute(self, args):
         filename, line_range, error = self._parse_arguments(args)
         if error:
@@ -28,14 +41,9 @@ class CatTool(BaseTool):
         if line_range is None:
             return self.runcommand('cat', ['-n', filename])
         
-        # Parse line range (e.g., "1-5")
-        try:
-            start_line, end_line = map(int, line_range.split('-'))
-        except ValueError:
-            return {'success': False, 'output': f"STDERR: Invalid range format '{line_range}'. Use format 'start-end' (e.g., '1-5')"}
-        
-        if start_line > end_line:
-            return {'success': False, 'output': f"STDERR: Start line ({start_line}) cannot be greater than end line ({end_line})"}
+        start_line, end_line, error = self._validate_range(line_range)
+        if error:
+            return error
         
         # Read file and extract line range
         try:
