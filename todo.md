@@ -1,5 +1,5 @@
 
-- Have it come up with an expectation before running the test
+- Have it archive the goal after its finished
 
 
 ttyd
