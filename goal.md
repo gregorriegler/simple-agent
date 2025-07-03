@@ -41,14 +41,16 @@ Enable the cat tool to accept an optional line range parameter in the format `st
 
 ## Scenarios
 
-### Display entire file (backward compatibility) - DRAFT
-User executes `/cat filename` without any range parameter and expects to see the complete file content with line numbers, maintaining the current behavior.
+### Display range from beginning - REFINED
+User executes `/cat filename 1-5` and expects to see the first 5 lines of the file with line numbers.
+
+**Examples (ordered by simplicity):**
+- [ ] Zero lines: `/cat empty.txt 1-5` → displays nothing (file has no lines)
+- [ ] Single line from beginning: `/cat file.txt 1-1` → displays "1 | first line content"
+- [ ] Multiple lines from beginning: `/cat file.txt 1-3` → displays first 3 lines with line numbers (1 | first, 2 | second, 3 | third)
 
 ### Display specific line range - DRAFT
 User executes `/cat filename 5-10` and expects to see only lines 5 through 10 of the file with their original line numbers preserved.
-
-### Display range from beginning - DRAFT
-User executes `/cat filename 1-5` and expects to see the first 5 lines of the file with line numbers.
 
 ### Handle invalid range format - DRAFT
 User executes `/cat filename abc-def` with invalid range format and expects a clear error message explaining the correct format.
