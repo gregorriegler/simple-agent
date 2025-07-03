@@ -38,3 +38,26 @@ Enable the cat tool to accept an optional line range parameter in the format `st
 - Correctly displays only the specified line range with proper line numbers
 - Handles all edge cases gracefully with appropriate error messages
 - Maintains integration with the existing ToolLibrary system
+
+## Scenarios
+
+### Display entire file (backward compatibility) - DRAFT
+User executes `/cat filename` without any range parameter and expects to see the complete file content with line numbers, maintaining the current behavior.
+
+### Display specific line range - DRAFT
+User executes `/cat filename 5-10` and expects to see only lines 5 through 10 of the file with their original line numbers preserved.
+
+### Display range from beginning - DRAFT
+User executes `/cat filename 1-5` and expects to see the first 5 lines of the file with line numbers.
+
+### Handle invalid range format - DRAFT
+User executes `/cat filename abc-def` with invalid range format and expects a clear error message explaining the correct format.
+
+### Handle reversed range - DRAFT
+User executes `/cat filename 10-5` where start line is greater than end line and expects an error message.
+
+### Handle range beyond file length - DRAFT
+User executes `/cat filename 100-200` on a file with only 50 lines and expects an appropriate message indicating the range is beyond file boundaries.
+
+### Handle non-existent file - DRAFT
+User executes `/cat nonexistent.txt 1-5` and expects the same file not found error as the current implementation.
