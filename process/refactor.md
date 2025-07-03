@@ -6,7 +6,7 @@ Refactoring means to improve the structure of the code in tiny steps while maint
 
 ## 1. Identify things to improve
 1. If there is already a `refactoring-plan.md` file, clean it so it's empty.
-1. Find things to improve.
+1. Find 3 things to improve.
     - Remove Comments
     - Remove Dead code
     - Remove production code that is not exercised by any tests. If you are unsure whether you can remove production code, run a [mutation test](./mutation-test.md)
@@ -30,3 +30,4 @@ For each task
 1. Check off the task
 1. Commit the code using git. Refactoring commit messages start with an "r", e.g. "r extract class ..."
 1. Go to the next step
+1. When all the refactorings are completed, initiate a new context with the prompt. "Write the next failing test [](./process/write-a-failing-test.md)"
