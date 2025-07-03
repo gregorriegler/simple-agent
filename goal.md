@@ -1,80 +1,40 @@
-# Goal: Implement Edit-File Tool
+# Goal: Enhance Cat Tool with Line Range Support
 
 ## Objective
-Implement a Python-based edit-file tool that allows selecting a block of lines, deleting their contents, and inserting replacement content.
+Adapt the existing [`CatTool`](modernizer/tools/cat_tool.py:3) in the Code Modernizer project to support reading only specific line ranges instead of displaying the entire file content.
 
-## Core Functionality
-The tool should enable:
-- Select a range of lines in a file (e.g., lines 5-10)
-- Delete the contents of those selected lines
-- Insert new content in place of the deleted lines
-- Save the modified file
+## Current State
+- The [`CatTool`](modernizer/tools/cat_tool.py:3) currently uses the system `cat -n` command to display entire files with line numbers
+- It's integrated into the [`ToolLibrary`](modernizer/tools/tool_library.py:20) as a static tool
+- Usage: `/cat filename`
 
-## Requirements
-- Create a Python tool that integrates with the existing ToolLibrary system
-- Support line-based editing operations (select, delete, insert)
-- Handle file reading and writing safely
-- Provide clear error messages for invalid operations
-- Follow the project's tool architecture patterns
+## Desired Enhancement
+Enable the cat tool to accept an optional line range parameter in the format `startline-endline`.
 
-## Implementation Details
-- Tool should be discoverable by the ToolLibrary system
-- Accept parameters: file_path, start_line, end_line, new_content
-- Validate line ranges and file existence
-- Preserve file encoding and line endings
-- Include proper error handling
+### Examples:
+- `/cat filename` - Display entire file (current behavior)
+- `/cat filename 2-5` - Display only lines 2 through 5
+- `/cat filename 10-15` - Display only lines 10 through 15
+
+## Implementation Requirements
+1. Maintain backward compatibility - existing usage without range should continue to work
+2. Parse the range parameter (e.g., "2-5") to extract start and end line numbers
+3. Implement line filtering logic to extract only the specified range
+4. Preserve line numbering in the output to maintain context
+5. Handle edge cases:
+   - Invalid range formats
+   - Start line greater than end line
+   - Line numbers beyond file length
+   - Empty files
+
+## Technical Approach
+- Modify the [`CatTool.execute()`](modernizer/tools/cat_tool.py:11) method to accept and parse optional range parameters
+- Implement custom line filtering since standard `cat` command doesn't support arbitrary line ranges
+- Use Python file reading with line enumeration for precise control
+- Update the tool description to reflect the new capability
 
 ## Success Criteria
-- Tool can select and replace content in specified line ranges
-- Integrates with the modernizer.sh interface
-- Provides reliable file modification functionality
-- Follows project coding standards and patterns
-
-## Scenarios
-
-### Replace Single Line - REFINED
-Edit a file by replacing one line with new content.
-- File: `test.py` with content "old_variable = 5"
-- Replace line 1 with "new_variable = 10"
-- Expected: File contains "new_variable = 10"
-
-**Examples (ordered by simplicity):**
-- [x] Replace single character in one-line file: file with "a", replace line 1 with "b"
-- [x] Replace single word in one-line file: file with "old", replace line 1 with "new"
-
-### Replace Multiple Consecutive Lines - REFINED
-Edit a file by replacing a block of consecutive lines.
-- File: `config.py` with 5 lines of configuration
-- Replace lines 2-4 with new configuration block
-- Expected: Lines 2-4 are replaced, lines 1 and 5 remain unchanged
-
-**Examples (ordered by simplicity):**
-- [x] Replace 2 consecutive lines in 3-line file with with 1 other line
-- [x] Replace 2 consecutive lines in 3-line file with 2 other lines
-- [x] Replace 2 consecutive lines in 3-line file with with 4 other lines
-
-### Insert Content by Replacing Empty Lines - REFINED
-Replace empty lines with new content.
-- File: `template.py` with empty lines 3-5
-- Replace lines 3-5 with function definition
-- Expected: Function is inserted where empty lines were
-
-**Examples (ordered by simplicity):**
-- [x] Replace empty lines 3-5 with function definition in 6-line file
-
-### Invalid Line Range Error - DRAFT
-Attempt to edit lines that don't exist in the file.
-- File: `short.py` with 5 lines
-- Try to replace lines 10-15
-- Expected: Clear error message about invalid line range
-
-### File Not Found Error - DRAFT
-Attempt to edit a non-existent file.
-- Try to edit `nonexistent.py`
-- Expected: Clear error message about file not found
-
-### Empty File Handling - DRAFT
-Attempt to edit an empty file.
-- File: `empty.py` with 0 lines
-- Try to replace lines 1-2
-- Expected: Clear error message about empty file or invalid range
+- Tool accepts both old format (`/cat filename`) and new format (`/cat filename 2-5`)
+- Correctly displays only the specified line range with proper line numbers
+- Handles all edge cases gracefully with appropriate error messages
+- Maintains integration with the existing ToolLibrary system
