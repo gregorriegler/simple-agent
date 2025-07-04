@@ -1,7 +1,5 @@
 STARTER_SYMBOL=📜
 
-When you write a bash script always start your answer with the STARTER_SYMBOL (📜)
-
 Use #!/usr/bin/env bash as shebang.
 Always use set -euo pipefail for safety and debugging.
 Keep scripts minimal: avoid comments or echoes.

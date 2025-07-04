@@ -4,9 +4,9 @@ STARTER_SYMBOL=🧹
 
 Refactoring means to improve the structure of the code in tiny steps while maintaining its current observable behavior. All the tests need to keep passing. Treat warnings as errors.
 
-## 1. Identify things to improve
+## 1. Identify a thing to improve
 1. If there is already a `refactoring-plan.md` file, clean it so it's empty.
-1. Find 3 things to improve.
+1. Find one thing to improve.
     - Remove Comments
     - Remove Dead code
     - Remove production code that is not exercised by any tests. If you are unsure whether you can remove production code, run a [mutation test](./mutation-test.md)

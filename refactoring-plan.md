@@ -26,4 +26,3 @@ The [`ToolLibrary.__init__()`](modernizer/tools/tool_library.py:17) method creat
 - [ ] Extract method: Create `_discover_dynamic_tools()` method in ToolLibrary to group tool discovery logic
 - [ ] Improve variable names: Rename `cmd` to `command` in ToolLibrary.parse_and_execute()
 - [ ] Improve variable names: Rename `arg` to `arguments` in ToolLibrary.parse_and_execute()
-- [ ] Remove dead code: Remove unused `description` attribute assignment in BaseTool if not used

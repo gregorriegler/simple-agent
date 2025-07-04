@@ -2,15 +2,11 @@
 
 STARTER_SYMBOL=🟢
 
-Your answers should be succinct and concise
-
-1. Identify where we are
-    - Read the `README.md` to understand where we are.
-    - Read the `goal.md` to understand our next goal, scenarios and examples.
-    - Run `pwd` to understand the current working directory.
-2. Run the test using `./test.sh`. There should be exactly one failing test.
-    - If there are more failing tests STOP. 
-3. Make sure the system has at least a walking skeleton for the feature we are building in place. If that's not the case, we'll build the walking skeleton with this test.
+1. Understand where we are
+    - Read the `README.md` and `goal.md`.
+    - Run `pwd`.
+2. Run the test using `./test.sh`. There should be exactly one failing test. If there are more failing tests STOP. 
+3. Make sure the system has at least a walking skeleton for the feature we are building in place. If that's not the case, create the walking skeleton now.
 4. Implement the smallest possible change to make the failing test and all other tests pass
 5. Run the tests, and see it pass
 6. Check off the item in the examples in `goal.md`
