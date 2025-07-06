@@ -32,36 +32,7 @@ public class EntryPointFinder
 
         var documents = projects.SelectMany(p => p.Documents).ToList();
 
-        var allPublicMethods = new List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)>();
-        var allMethods = new List<(Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel, string fullyQualifiedName)>();
-
-        foreach (var document in documents)
-        {
-            var syntaxTree = await document.GetSyntaxTreeAsync();
-            if (syntaxTree == null) continue;
-
-            var semanticModel = await document.GetSemanticModelAsync();
-            if (semanticModel == null) continue;
-
-            var root = await syntaxTree.GetRootAsync();
-            var methodDeclarations = root.DescendantNodes().OfType<MethodDeclarationSyntax>();
-
-            foreach (var methodDeclaration in methodDeclarations)
-            {
-                var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration);
-                if (methodSymbol != null)
-                {
-                    var fullyQualifiedName = GetFullyQualifiedMethodName(methodSymbol);
-                    allMethods.Add((document, methodDeclaration, semanticModel, fullyQualifiedName));
-
-                    var entryPoint = TryCreateEntryPoint(document, methodDeclaration, semanticModel);
-                    if (entryPoint != null)
-                    {
-                        allPublicMethods.Add((entryPoint, document, methodDeclaration, semanticModel));
-                    }
-                }
-            }
-        }
+        var (allPublicMethods, allMethods) = await CollectAllMethods(documents);
 
         var calledMethods = new HashSet<string>();
 
@@ -239,5 +210,43 @@ public class EntryPointFinder
     private string GetFullyQualifiedMethodName(IMethodSymbol methodSymbol)
     {
         return $"{methodSymbol.ContainingType.ContainingNamespace.ToDisplayString()}.{methodSymbol.ContainingType.Name}.{methodSymbol.Name}";
+    }
+
+    private async Task<(List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)> allPublicMethods,
+                        List<(Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel, string fullyQualifiedName)> allMethods)>
+        CollectAllMethods(List<Document> documents)
+    {
+        var allPublicMethods = new List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)>();
+        var allMethods = new List<(Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel, string fullyQualifiedName)>();
+
+        foreach (var document in documents)
+        {
+            var syntaxTree = await document.GetSyntaxTreeAsync();
+            if (syntaxTree == null) continue;
+
+            var semanticModel = await document.GetSemanticModelAsync();
+            if (semanticModel == null) continue;
+
+            var root = await syntaxTree.GetRootAsync();
+            var methodDeclarations = root.DescendantNodes().OfType<MethodDeclarationSyntax>();
+
+            foreach (var methodDeclaration in methodDeclarations)
+            {
+                var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration);
+                if (methodSymbol != null)
+                {
+                    var fullyQualifiedName = GetFullyQualifiedMethodName(methodSymbol);
+                    allMethods.Add((document, methodDeclaration, semanticModel, fullyQualifiedName));
+
+                    var entryPoint = TryCreateEntryPoint(document, methodDeclaration, semanticModel);
+                    if (entryPoint != null)
+                    {
+                        allPublicMethods.Add((entryPoint, document, methodDeclaration, semanticModel));
+                    }
+                }
+            }
+        }
+
+        return (allPublicMethods, allMethods);
     }
 }
