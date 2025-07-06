@@ -73,5 +73,8 @@ User executes `/cat filename 100-200` on a file with only 50 lines and expects a
 **Examples (ordered by simplicity):**
 - [x] Range beyond file length: `/cat file.txt 100-200` → displays nothing (empty result when range is beyond file boundaries)
 
-### Handle non-existent file - DRAFT
+### Handle non-existent file - REFINED
 User executes `/cat nonexistent.txt 1-5` and expects the same file not found error as the current implementation.
+
+**Examples (ordered by simplicity):**
+- [x] Non-existent file with range: `/cat /nonexistent/file.txt 1-5` → displays "STDERR: cat: '/nonexistent/file.txt': No such file or directory"
