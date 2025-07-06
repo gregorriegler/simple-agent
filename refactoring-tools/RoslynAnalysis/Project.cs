@@ -29,7 +29,12 @@ public class AnalysisProject
             var slnFiles = Directory.GetFiles(path, "*.sln");
             if (slnFiles.Length > 0)
             {
-                return slnFiles[0];
+                // Parse the solution file to extract the first .csproj file
+                var csprojFromSolution = ExtractFirstCsprojFromSolution(slnFiles[0]);
+                if (csprojFromSolution != null)
+                {
+                    return csprojFromSolution;
+                }
             }
 
             // Then look for .csproj files
@@ -44,6 +49,46 @@ public class AnalysisProject
 
         // If neither file nor directory exists, throw original error
         throw new FileNotFoundException($"Project file not found: '{path}'");
+    }
+
+    private static string? ExtractFirstCsprojFromSolution(string solutionPath)
+    {
+        try
+        {
+            var solutionDir = Path.GetDirectoryName(solutionPath)!;
+            var lines = File.ReadAllLines(solutionPath);
+
+            foreach (var line in lines)
+            {
+                // Look for project lines in the format:
+                // Project("{GUID}") = "ProjectName", "ProjectPath.csproj", "{GUID}"
+                if (line.StartsWith("Project(") && line.Contains(".csproj"))
+                {
+                    var parts = line.Split(',');
+                    if (parts.Length >= 2)
+                    {
+                        // Extract the project path (second part, between quotes)
+                        var projectPathPart = parts[1].Trim();
+                        if (projectPathPart.StartsWith("\"") && projectPathPart.EndsWith("\""))
+                        {
+                            var relativePath = projectPathPart.Substring(1, projectPathPart.Length - 2);
+                            var fullPath = Path.Combine(solutionDir, relativePath);
+
+                            if (File.Exists(fullPath))
+                            {
+                                return fullPath;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // If parsing fails, return null to fall back to .csproj search
+        }
+
+        return null;
     }
 
     public async Task OpenAndApplyAnalysis(IAnalysis analysis)
