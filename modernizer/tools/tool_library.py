@@ -86,34 +86,34 @@ class ToolLibrary:
             first_line = text.splitlines()[0].strip()
             match = re.match(pattern, first_line)
             if match:
-                cmd, _ = match.groups()
-                tool = self.tool_dict.get(cmd)
+                command, _ = match.groups()
+                tool = self.tool_dict.get(command)
                 if tool:
                     # Extract arguments from the entire text, preserving newlines
-                    # Find the position after "/{cmd} " in the text
-                    cmd_prefix = f"/{cmd} "
-                    if text.startswith(cmd_prefix):
-                        full_args = text[len(cmd_prefix):]
+                    # Find the position after "/{command} " in the text
+                    command_prefix = f"/{command} "
+                    if text.startswith(command_prefix):
+                        full_args = text[len(command_prefix):]
                         result = tool.execute(full_args.strip() if full_args else None)
                         return text, result['output']
                     else:
                         result = tool.execute(None)
                         return text, result['output']
                 else:
-                    return text, f"Unknown command: {cmd}"
+                    return text, f"Unknown command: {command}"
         
         # Single-line processing (original behavior)
         for line in text.splitlines():
             line = line.strip()
             match = re.match(pattern, line)
             if match:
-                cmd, arg = match.groups()
-                tool = self.tool_dict.get(cmd)
+                command, arguments = match.groups()
+                tool = self.tool_dict.get(command)
                 if tool:
-                    result = tool.execute(arg.strip() if arg else None)
+                    result = tool.execute(arguments.strip() if arguments else None)
                     return line, result['output']
                 else:
-                    return line, f"Unknown command: {cmd}"
+                    return line, f"Unknown command: {command}"
         return text.splitlines()[0].strip(), ""
 
     def runcommand(self, cmd, args=None, cwd=None):

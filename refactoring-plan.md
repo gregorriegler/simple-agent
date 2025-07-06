@@ -24,5 +24,5 @@ The [`ToolLibrary.__init__()`](modernizer/tools/tool_library.py:17) method creat
 - [x] Extract method: Create `_format_output()` method in CatTool to handle output formatting
 - [x] Extract method: Create `_create_static_tools()` method in ToolLibrary to reduce constructor complexity
 - [x] Extract method: Create `_discover_dynamic_tools()` method in ToolLibrary to group tool discovery logic
-- [ ] Improve variable names: Rename `cmd` to `command` in ToolLibrary.parse_and_execute()
-- [ ] Improve variable names: Rename `arg` to `arguments` in ToolLibrary.parse_and_execute()
+- [x] Improve variable names: Rename `cmd` to `command` in ToolLibrary.parse_and_execute()
+- [x] Improve variable names: Rename `arg` to `arguments` in ToolLibrary.parse_and_execute()
