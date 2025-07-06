@@ -11,4 +11,4 @@ STARTER_SYMBOL=🟢
 5. Run the tests, and see it pass
 6. Check off the item in the examples in `goal.md`
 7. Commit the code. Prefix the commit message with "f", e.g. "f can rename methods"
-8. Initiate a new context with the prompt "Refactor the code using the [refactoring process](./process/refactor.md)"
+8. End this process by creating a new context with the prompt "Refactor the code using the [refactoring process](./process/refactor.md)"

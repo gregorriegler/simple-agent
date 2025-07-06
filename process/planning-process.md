@@ -9,4 +9,4 @@ STARTER_SYMBOL=📝
 5. Think of exception path scenarios, and add the most important to the list
 6. Ask me to read through the scenarios and make adaptions
 7. commit the changes using the message "d plan ..."
-8. Then create a new context with the prompt "Read and follow the `process/refine-scenarios.md` instructions."
+8. End the process by creating a new context with the prompt "Read and follow the `process/refine-scenarios.md` instructions."
