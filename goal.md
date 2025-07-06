@@ -61,8 +61,11 @@ User executes `/cat filename abc-def` with invalid range format and expects a cl
 **Examples (ordered by simplicity):**
 - [x] Invalid range format: `/cat file.txt abc-def` → displays "STDERR: Invalid range format 'abc-def'. Use format 'start-end' (e.g., '1-5')"
 
-### Handle reversed range - DRAFT
+### Handle reversed range - REFINED
 User executes `/cat filename 10-5` where start line is greater than end line and expects an error message.
+
+**Examples (ordered by simplicity):**
+- [x] Reversed range: `/cat file.txt 10-5` → displays "STDERR: Start line (10) cannot be greater than end line (5)"
 
 ### Handle range beyond file length - DRAFT
 User executes `/cat filename 100-200` on a file with only 50 lines and expects an appropriate message indicating the range is beyond file boundaries.

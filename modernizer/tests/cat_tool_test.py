@@ -65,3 +65,9 @@ def test_cat_tool_reversed_range(tmp_path):
     temp_file = create_temp_file(tmp_path, "test.txt", "line 1\nline 2\nline 3")
     
     verifyTool(library, f"/cat {temp_file} 10-5")
+
+def test_cat_tool_range_beyond_file_length(tmp_path):
+    """Test cat tool with range beyond file length (100-200) on a file with only 3 lines"""
+    temp_file = create_temp_file(tmp_path, "test.txt", "line 1\nline 2\nline 3")
+    
+    verifyTool(library, f"/cat {temp_file} 100-200")
