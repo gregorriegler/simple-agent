@@ -42,41 +42,49 @@ class MutationTool(BaseTool):
             
         return result
     
+    def _resolve_stryker_output_directory(self, project_path):
+        """Resolve the working directory and find the StrykerOutput directory"""
+        if project_path.endswith('.csproj'):
+            work_dir = os.path.dirname(project_path)
+        elif '/' in project_path or '\\' in project_path:
+            work_dir = project_path
+        else:
+            work_dir = '.'
+        
+        possible_dirs = [
+            os.path.join(work_dir, 'StrykerOutput'),  # Same directory
+            os.path.join(os.path.dirname(work_dir), 'StrykerOutput'),  # Parent directory
+            os.path.join(work_dir, '..', 'StrykerOutput')  # Explicit parent
+        ]
+        
+        for dir_path in possible_dirs:
+            if os.path.exists(dir_path):
+                return dir_path
+        
+        return None
+    
+    def _find_latest_report_file(self, stryker_output_dir):
+        """Find the latest mutation report file in the StrykerOutput directory"""
+        report_dirs = [d for d in os.listdir(stryker_output_dir)
+                      if os.path.isdir(os.path.join(stryker_output_dir, d))]
+        if not report_dirs:
+            return None
+        
+        latest_dir = sorted(report_dirs)[-1]
+        return os.path.join(stryker_output_dir, latest_dir, 'reports', 'mutation-report.json')
+    
     def _read_stryker_report(self, project_path, stdout_output, specific_files=None):
         """Read Stryker JSON report from file system instead of stdout"""
         try:
-            if project_path.endswith('.csproj'):
-                work_dir = os.path.dirname(project_path)
-            elif '/' in project_path or '\\' in project_path:
-                work_dir = project_path
-            else:
-                work_dir = '.'
-            
-            possible_dirs = [
-                os.path.join(work_dir, 'StrykerOutput'),  # Same directory
-                os.path.join(os.path.dirname(work_dir), 'StrykerOutput'),  # Parent directory
-                os.path.join(work_dir, '..', 'StrykerOutput')  # Explicit parent
-            ]
-            
-            stryker_output_dir = None
-            for dir_path in possible_dirs:
-                if os.path.exists(dir_path):
-                    stryker_output_dir = dir_path
-                    break
+            stryker_output_dir = self._resolve_stryker_output_directory(project_path)
             
             if not stryker_output_dir:
                 return self._format_mutation_output(stdout_output, specific_files)
             
-            report_dirs = [d for d in os.listdir(stryker_output_dir)
-                          if os.path.isdir(os.path.join(stryker_output_dir, d))]
-            if not report_dirs:
-                return self._format_mutation_output(stdout_output, specific_files)
+            report_file_path = self._find_latest_report_file(stryker_output_dir)
             
-            latest_dir = sorted(report_dirs)[-1]
-            json_report_path = os.path.join(stryker_output_dir, latest_dir, 'reports', 'mutation-report.json')
-            
-            if os.path.exists(json_report_path):
-                with open(json_report_path, 'r', encoding='utf-8') as f:
+            if report_file_path and os.path.exists(report_file_path):
+                with open(report_file_path, 'r', encoding='utf-8') as f:
                     report_content = f.read()
                 return self._format_mutation_output(report_content, specific_files)
             else:
