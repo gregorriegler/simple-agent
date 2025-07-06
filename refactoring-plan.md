@@ -20,9 +20,9 @@ The [`ToolLibrary.__init__()`](modernizer/tools/tool_library.py:17) method creat
 
 - [x] Extract method: Create `_parse_arguments()` method in CatTool to handle argument parsing
 - [x] Extract method: Create `_validate_range()` method in CatTool to handle range validation
-- [ ] Extract method: Create `_read_file_range()` method in CatTool to handle file reading and line filtering
-- [ ] Extract method: Create `_format_output()` method in CatTool to handle output formatting
-- [ ] Extract method: Create `_create_static_tools()` method in ToolLibrary to reduce constructor complexity
-- [ ] Extract method: Create `_discover_dynamic_tools()` method in ToolLibrary to group tool discovery logic
+- [x] Extract method: Create `_read_file_range()` method in CatTool to handle file reading and line filtering
+- [x] Extract method: Create `_format_output()` method in CatTool to handle output formatting
+- [x] Extract method: Create `_create_static_tools()` method in ToolLibrary to reduce constructor complexity
+- [x] Extract method: Create `_discover_dynamic_tools()` method in ToolLibrary to group tool discovery logic
 - [ ] Improve variable names: Rename `cmd` to `command` in ToolLibrary.parse_and_execute()
 - [ ] Improve variable names: Rename `arg` to `arguments` in ToolLibrary.parse_and_execute()

@@ -15,7 +15,15 @@ from .analysis_tool_discovery import AnalysisToolDiscovery
 
 class ToolLibrary:
     def __init__(self):
-        static_tools = [
+        static_tools = self._create_static_tools()
+        dynamic_tools = self._discover_dynamic_tools()
+        
+        self.tools = static_tools + dynamic_tools
+        self._build_tool_dict()
+    
+    def _create_static_tools(self):
+        """Create the core static tools that are always available."""
+        return [
             LsTool(self.runcommand),
             CatTool(self.runcommand),
             TestTool(self.runcommand),
@@ -25,15 +33,16 @@ class ToolLibrary:
             CreateFileTool(self.runcommand),
             EditFileTool(self.runcommand)
         ]
-        
+    
+    def _discover_dynamic_tools(self):
+        """Discover and create dynamic tools from external sources."""
         refactoring_discovery = RefactoringToolDiscovery(self.runcommand)
         refactoring_tools = refactoring_discovery.discover_refactoring_tools()
         
         analysis_discovery = AnalysisToolDiscovery(self.runcommand)
         analysis_tools = analysis_discovery.discover_analysis_tools()
         
-        self.tools = static_tools + refactoring_tools + analysis_tools
-        self._build_tool_dict()
+        return refactoring_tools + analysis_tools
     
     def _build_tool_dict(self):
         self.tool_dict = {tool.name: tool for tool in self.tools}
