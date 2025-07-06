@@ -46,7 +46,7 @@ class EditFileTool(BaseTool):
     def _validate_line_range(self, start_line, end_line, total_lines):
         """Validate that the line range is valid for the file."""
         # Special case: allow 0-0 for empty files (append mode)
-        if total_lines == 0 and start_line == 0 and end_line == 0:
+        if total_lines == 0 and start_line == 0:
             return None
 
         if start_line < 1 or end_line < 1 or start_line > total_lines or end_line > total_lines:
