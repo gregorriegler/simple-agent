@@ -1,0 +1,5 @@
+Command:
+/cat /tmp/test_path/file.txt 1-5
+
+Result:
+STDERR: cat: '/nonexistent/file.txt': No such file or directory

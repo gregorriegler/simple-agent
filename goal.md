@@ -67,8 +67,11 @@ User executes `/cat filename 10-5` where start line is greater than end line and
 **Examples (ordered by simplicity):**
 - [x] Reversed range: `/cat file.txt 10-5` → displays "STDERR: Start line (10) cannot be greater than end line (5)"
 
-### Handle range beyond file length - DRAFT
+### Handle range beyond file length - REFINED
 User executes `/cat filename 100-200` on a file with only 50 lines and expects an appropriate message indicating the range is beyond file boundaries.
+
+**Examples (ordered by simplicity):**
+- [x] Range beyond file length: `/cat file.txt 100-200` → displays nothing (empty result when range is beyond file boundaries)
 
 ### Handle non-existent file - DRAFT
 User executes `/cat nonexistent.txt 1-5` and expects the same file not found error as the current implementation.

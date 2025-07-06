@@ -71,3 +71,7 @@ def test_cat_tool_range_beyond_file_length(tmp_path):
     temp_file = create_temp_file(tmp_path, "test.txt", "line 1\nline 2\nline 3")
     
     verifyTool(library, f"/cat {temp_file} 100-200")
+
+def test_cat_tool_nonexistent_file_with_range():
+    """Test cat tool with nonexistent file and range expects same file not found error"""
+    verifyTool(library, "/cat /nonexistent/file.txt 1-5")
