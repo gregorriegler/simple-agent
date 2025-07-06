@@ -20,6 +20,20 @@ public class MethodInfo
     }
 }
 
+public class PublicMethodCollection
+{
+    public List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)> AllPublicMethods { get; }
+    public List<MethodInfo> AllMethods { get; }
+
+    public PublicMethodCollection(
+        List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)> allPublicMethods,
+        List<MethodInfo> allMethods)
+    {
+        AllPublicMethods = allPublicMethods;
+        AllMethods = allMethods;
+    }
+}
+
 public class EntryPointFinder
 {
     private const int DEFAULT_REACHABLE_COUNT = 1;
@@ -48,11 +62,11 @@ public class EntryPointFinder
 
         var documents = projects.SelectMany(p => p.Documents).ToList();
 
-        var (allPublicMethods, allMethodInfos) = await CollectAllMethods(documents);
+        var methodCollection = await CollectAllMethods(documents);
 
-        var calledMethods = AnalyzeMethodCalls(allPublicMethods);
+        var calledMethods = AnalyzeMethodCalls(methodCollection.AllPublicMethods);
 
-        return FilterUncalledEntryPoints(allPublicMethods, calledMethods, allMethodInfos);
+        return FilterUncalledEntryPoints(methodCollection.AllPublicMethods, calledMethods, methodCollection.AllMethods);
     }
 
 
@@ -155,9 +169,7 @@ public class EntryPointFinder
         return $"{methodSymbol.ContainingType.ContainingNamespace.ToDisplayString()}.{methodSymbol.ContainingType.Name}.{methodSymbol.Name}";
     }
 
-    private async Task<(List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)> allPublicMethods,
-                        List<MethodInfo> allMethods)>
-        CollectAllMethods(List<Document> documents)
+    private async Task<PublicMethodCollection> CollectAllMethods(List<Document> documents)
     {
         var allPublicMethods = new List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)>();
         var allMethods = new List<MethodInfo>();
@@ -190,7 +202,7 @@ public class EntryPointFinder
             }
         }
 
-        return (allPublicMethods, allMethods);
+        return new PublicMethodCollection(allPublicMethods, allMethods);
     }
 
     private HashSet<string> AnalyzeMethodCalls(List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)> allPublicMethods)
