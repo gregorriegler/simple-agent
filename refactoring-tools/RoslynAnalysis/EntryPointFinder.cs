@@ -115,6 +115,14 @@ public class EntryPointFinder
         if (!_validator.IsValidEntryPoint(methodDeclaration, methodSymbol))
             return null;
 
+        return CreateEntryPointFromMethod(document, methodDeclaration, methodSymbol);
+    }
+
+    private EntryPoint CreateEntryPointFromMethod(
+        Document document,
+        MethodDeclarationSyntax methodDeclaration,
+        IMethodSymbol methodSymbol)
+    {
         var containingType = methodSymbol.ContainingType;
         var fullyQualifiedName = $"{containingType.ContainingNamespace.ToDisplayString()}.{containingType.Name}.{methodSymbol.Name}";
 
