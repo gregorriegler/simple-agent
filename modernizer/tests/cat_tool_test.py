@@ -45,3 +45,11 @@ def test_cat_tool_multiple_lines_from_beginning(tmp_path):
     temp_file = create_temp_file(tmp_path, "multiple_lines_test.txt", "first line content\nsecond line\nthird line\nfourth line")
     
     verifyTool(library, f"/cat {temp_file} 1-3")
+
+def test_cat_tool_specific_line_range(tmp_path):
+    """Test displaying specific line range (5-10) with original line numbers preserved"""
+    # Create a file with 15 lines to test range 5-10
+    content = "\n".join([f"Line {i} content" for i in range(1, 16)])
+    temp_file = create_temp_file(tmp_path, "range_test.txt", content)
+    
+    verifyTool(library, f"/cat {temp_file} 5-10")
