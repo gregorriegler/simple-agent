@@ -46,8 +46,8 @@ User executes `/cat filename 1-5` and expects to see the first 5 lines of the fi
 
 **Examples (ordered by simplicity):**
 - [x] Zero lines: `/cat empty.txt 1-5` → displays nothing (file has no lines)
-- [ ] Single line from beginning: `/cat file.txt 1-1` → displays "1 | first line content"
-- [ ] Multiple lines from beginning: `/cat file.txt 1-3` → displays first 3 lines with line numbers (1 | first, 2 | second, 3 | third)
+- [x] Single line from beginning: `/cat file.txt 1-1` → displays "1 | first line content"
+- [x] Multiple lines from beginning: `/cat file.txt 1-3` → displays first 3 lines with line numbers (1 | first, 2 | second, 3 | third)
 
 ### Display specific line range - DRAFT
 User executes `/cat filename 5-10` and expects to see only lines 5 through 10 of the file with their original line numbers preserved.
