@@ -34,9 +34,8 @@ public class PublicMethodCollection
     }
 }
 
-public class EntryPointFinder
+public class EntryPointValidator
 {
-    private const int DEFAULT_REACHABLE_COUNT = 1;
     private static readonly string[] TEST_ATTRIBUTES = new[]
     {
         "Test",
@@ -46,11 +45,38 @@ public class EntryPointFinder
         "TestCase"
     };
 
+    public bool IsValidEntryPoint(MethodDeclarationSyntax methodDeclaration, IMethodSymbol methodSymbol)
+    {
+        if (!methodDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)))
+            return false;
+
+        if (methodSymbol.ContainingType == null)
+            return false;
+
+        if (IsTestMethod(methodSymbol))
+            return false;
+
+        return true;
+    }
+
+    private bool IsTestMethod(IMethodSymbol methodSymbol)
+    {
+        return methodSymbol.GetAttributes().Any(attr =>
+            TEST_ATTRIBUTES.Any(testAttr =>
+                attr.AttributeClass?.Name.Contains(testAttr) == true));
+    }
+}
+
+public class EntryPointFinder
+{
+    private const int DEFAULT_REACHABLE_COUNT = 1;
     private readonly IWorkspaceLoader _workspaceLoader;
+    private readonly EntryPointValidator _validator;
 
     public EntryPointFinder(IWorkspaceLoader workspaceLoader)
     {
         _workspaceLoader = workspaceLoader;
+        _validator = new EntryPointValidator();
     }
 
     public async Task<List<EntryPoint>> FindEntryPointsAsync(string projectPath)
@@ -82,20 +108,14 @@ public class EntryPointFinder
         SemanticModel semanticModel
     )
     {
-        if (!methodDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)))
-            return null;
-
         var methodSymbol = CreateMethodSymbolResolver(methodDeclaration, semanticModel);
         if (methodSymbol == null)
             return null;
 
+        if (!_validator.IsValidEntryPoint(methodDeclaration, methodSymbol))
+            return null;
+
         var containingType = methodSymbol.ContainingType;
-        if (containingType == null)
-            return null;
-
-        if (IsTestMethod(methodSymbol))
-            return null;
-
         var fullyQualifiedName = $"{containingType.ContainingNamespace.ToDisplayString()}.{containingType.Name}.{methodSymbol.Name}";
 
         var filePath = document.FilePath ?? string.Empty;
@@ -157,12 +177,6 @@ public class EntryPointFinder
         return typeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
     }
 
-    private bool IsTestMethod(IMethodSymbol methodSymbol)
-    {
-        return methodSymbol.GetAttributes().Any(attr =>
-            TEST_ATTRIBUTES.Any(testAttr =>
-                attr.AttributeClass?.Name.Contains(testAttr) == true));
-    }
 
     private string GetFullyQualifiedMethodName(IMethodSymbol methodSymbol)
     {
