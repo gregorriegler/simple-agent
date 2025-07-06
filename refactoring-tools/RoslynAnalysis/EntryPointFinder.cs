@@ -4,6 +4,22 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace RoslynAnalysis;
 
+public class MethodInfo
+{
+    public Document Document { get; }
+    public MethodDeclarationSyntax MethodDeclaration { get; }
+    public SemanticModel SemanticModel { get; }
+    public string FullyQualifiedName { get; }
+
+    public MethodInfo(Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel, string fullyQualifiedName)
+    {
+        Document = document;
+        MethodDeclaration = methodDeclaration;
+        SemanticModel = semanticModel;
+        FullyQualifiedName = fullyQualifiedName;
+    }
+}
+
 public class EntryPointFinder
 {
     private const int DEFAULT_REACHABLE_COUNT = 1;
@@ -32,11 +48,11 @@ public class EntryPointFinder
 
         var documents = projects.SelectMany(p => p.Documents).ToList();
 
-        var (allPublicMethods, allMethods) = await CollectAllMethods(documents);
+        var (allPublicMethods, allMethodInfos) = await CollectAllMethods(documents);
 
         var calledMethods = AnalyzeMethodCalls(allPublicMethods);
 
-        return FilterUncalledEntryPoints(allPublicMethods, calledMethods, allMethods);
+        return FilterUncalledEntryPoints(allPublicMethods, calledMethods, allMethodInfos);
     }
 
 
@@ -81,7 +97,7 @@ public class EntryPointFinder
     private int CalculateReachableMethodsCount(
         MethodDeclarationSyntax methodDeclaration,
         SemanticModel semanticModel,
-        List<(Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel, string fullyQualifiedName)> allMethods)
+        List<MethodInfo> allMethods)
     {
         var reachableMethods = new HashSet<string>();
         var methodsToProcess = new Queue<(MethodDeclarationSyntax method, SemanticModel model)>();
@@ -134,13 +150,13 @@ public class EntryPointFinder
                     if (calledMethodFullName != null)
                     {
                         var calledMethodInfo = allMethods
-                            .FirstOrDefault(m => m.fullyQualifiedName == calledMethodFullName);
+                            .FirstOrDefault(m => m.FullyQualifiedName == calledMethodFullName);
 
-                        if (calledMethodInfo.methodDeclaration != null)
+                        if (calledMethodInfo?.MethodDeclaration != null)
                         {
                             if (!processedMethods.Contains(calledMethodFullName))
                             {
-                                methodsToProcess.Enqueue((calledMethodInfo.methodDeclaration, calledMethodInfo.semanticModel));
+                                methodsToProcess.Enqueue((calledMethodInfo.MethodDeclaration, calledMethodInfo.SemanticModel));
                             }
                         }
                     }
@@ -176,11 +192,11 @@ public class EntryPointFinder
     }
 
     private async Task<(List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)> allPublicMethods,
-                        List<(Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel, string fullyQualifiedName)> allMethods)>
+                        List<MethodInfo> allMethods)>
         CollectAllMethods(List<Document> documents)
     {
         var allPublicMethods = new List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)>();
-        var allMethods = new List<(Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel, string fullyQualifiedName)>();
+        var allMethods = new List<MethodInfo>();
 
         foreach (var document in documents)
         {
@@ -199,7 +215,7 @@ public class EntryPointFinder
                 if (methodSymbol != null)
                 {
                     var fullyQualifiedName = GetFullyQualifiedMethodName(methodSymbol);
-                    allMethods.Add((document, methodDeclaration, semanticModel, fullyQualifiedName));
+                    allMethods.Add(new MethodInfo(document, methodDeclaration, semanticModel, fullyQualifiedName));
 
                     var entryPoint = TryCreateEntryPoint(document, methodDeclaration, semanticModel);
                     if (entryPoint != null)
@@ -240,7 +256,7 @@ public class EntryPointFinder
     private List<EntryPoint> FilterUncalledEntryPoints(
         List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)> allPublicMethods,
         HashSet<string> calledMethods,
-        List<(Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel, string fullyQualifiedName)> allMethods)
+        List<MethodInfo> allMethods)
     {
         var entryPoints = new List<EntryPoint>();
 

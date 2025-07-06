@@ -44,4 +44,4 @@ The [`CalculateReachableMethodsCount()`](refactoring-tools/RoslynAnalysis/EntryP
 - [ ] Extract method: Create `ResolveMethodSymbol()` from CalculateReachableMethodsCount to handle symbol resolution
 - [x] Extract constant: Create `DEFAULT_REACHABLE_COUNT` constant for the initial reachable count
 - [x] Extract constant: Create `TEST_ATTRIBUTES` constant for test attribute names
-- [ ] Introduce parameter object: Create `MethodInfo` class to replace complex tuple parameter
+- [x] Introduce parameter object: Create `MethodInfo` class to replace complex tuple parameter
