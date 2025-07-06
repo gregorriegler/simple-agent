@@ -36,27 +36,7 @@ public class EntryPointFinder
 
         var calledMethods = AnalyzeMethodCalls(allPublicMethods);
 
-        var entryPoints = new List<EntryPoint>();
-
-        foreach (var (entryPoint, document, methodDeclaration, semanticModel) in allPublicMethods)
-        {
-            if (calledMethods.Contains(entryPoint.FullyQualifiedName))
-                continue;
-
-            var reachableCount = CalculateReachableMethodsCount(methodDeclaration, semanticModel, allMethods);
-
-            var updatedEntryPoint = new EntryPoint(
-                entryPoint.FullyQualifiedName,
-                entryPoint.FilePath,
-                entryPoint.LineNumber,
-                entryPoint.MethodSignature,
-                reachableCount
-            );
-
-            entryPoints.Add(updatedEntryPoint);
-        }
-
-        return entryPoints.OrderByDescending(ep => ep.ReachableMethodsCount).ToList();
+        return FilterUncalledEntryPoints(allPublicMethods, calledMethods, allMethods);
     }
 
 
@@ -255,5 +235,33 @@ public class EntryPointFinder
         }
 
         return calledMethods;
+    }
+
+    private List<EntryPoint> FilterUncalledEntryPoints(
+        List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)> allPublicMethods,
+        HashSet<string> calledMethods,
+        List<(Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel, string fullyQualifiedName)> allMethods)
+    {
+        var entryPoints = new List<EntryPoint>();
+
+        foreach (var (entryPoint, document, methodDeclaration, semanticModel) in allPublicMethods)
+        {
+            if (calledMethods.Contains(entryPoint.FullyQualifiedName))
+                continue;
+
+            var reachableCount = CalculateReachableMethodsCount(methodDeclaration, semanticModel, allMethods);
+
+            var updatedEntryPoint = new EntryPoint(
+                entryPoint.FullyQualifiedName,
+                entryPoint.FilePath,
+                entryPoint.LineNumber,
+                entryPoint.MethodSignature,
+                reachableCount
+            );
+
+            entryPoints.Add(updatedEntryPoint);
+        }
+
+        return entryPoints.OrderByDescending(ep => ep.ReachableMethodsCount).ToList();
     }
 }
