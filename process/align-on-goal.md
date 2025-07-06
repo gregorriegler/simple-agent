@@ -4,11 +4,12 @@ STARTER_SYMBOL=💡
 
 ASK ONE QUESTION AT A TIME
 
-1. Read the `README.md`
-2. Analyze the goal and tell me what you understood briefly
-3. Ask questions about the goal if something is not clear
-4. Iterate with me on the goal until we are aligned
-5. Save the goal in a new `goal.md` file
-6. Ask me to review the `goal.md` so I can make final changes.
-7. commit the changes. start your commit message with "d ", e.g. "d aligned on goal bla bla bla"
-8. Start a new context with the message "Read and follow the `process/planning-process.md` instructions. 
+1. Archive the old `goal.md` if exists by moving it to `<expressive-name>-goal.md`
+2. Read the `README.md`
+3. Analyze the goal and tell me what you understood briefly
+4. Ask questions about the goal if something is not clear
+5. Iterate with me on the goal until we are aligned
+6. Save the goal in a new `goal.md` file
+7. Ask me to review the `goal.md` so I can make final changes.
+8. commit the changes. start your commit message with "d ", e.g. "d aligned on goal bla bla bla"
+9. Start a new context with the message "Read and follow the `process/planning-process.md` instructions. 
