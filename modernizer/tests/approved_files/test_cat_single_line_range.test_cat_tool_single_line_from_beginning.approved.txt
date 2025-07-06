@@ -1,0 +1,5 @@
+Command:
+/cat /tmp/test_path/single_line_test.txt 1-1
+
+Result:
+     1	first line content
