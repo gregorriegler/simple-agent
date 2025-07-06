@@ -1,4 +1,4 @@
 {
-  "reporter": "PythonNativeReporter",
+  "reporter": "ApproveShReporter",
   "subdirectory": "approved_files"
 }
