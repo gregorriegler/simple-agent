@@ -37,8 +37,8 @@ The [`CollectAllMethods()`](refactoring-tools/RoslynAnalysis/EntryPointFinder.cs
 
 ## Refactoring Tasks
 
-- [ ] Extract method: Create `CreateMethodSymbolResolver()` to encapsulate the common pattern of getting and validating method symbols
-- [ ] Introduce parameter object: Create `PublicMethodCollection` class to replace the complex tuple return type in `CollectAllMethods()`
-- [ ] Extract method: Create `ProcessDocument()` from `CollectAllMethods()` to handle individual document processing
-- [ ] Move method: Move entry point validation logic from `TryCreateEntryPoint()` to a new `EntryPointValidator` class to reduce Feature Envy
-- [ ] Extract method: Create `CreateEntryPointFromMethod()` to separate the entry point creation logic from validation
+- [x] Extract method: Create `CreateMethodSymbolResolver()` to encapsulate the common pattern of getting and validating method symbols
+- [x] Introduce parameter object: Create `PublicMethodCollection` class to replace the complex tuple return type in `CollectAllMethods()`
+- [x] Extract method: Create `ProcessDocument()` from `CollectAllMethods()` to handle individual document processing
+- [x] Move method: Move entry point validation logic from `TryCreateEntryPoint()` to a new `EntryPointValidator` class to reduce Feature Envy
+- [x] Extract method: Create `CreateEntryPointFromMethod()` to separate the entry point creation logic from validation
