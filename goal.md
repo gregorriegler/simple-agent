@@ -49,8 +49,11 @@ User executes `/cat filename 1-5` and expects to see the first 5 lines of the fi
 - [x] Single line from beginning: `/cat file.txt 1-1` → displays "1 | first line content"
 - [x] Multiple lines from beginning: `/cat file.txt 1-3` → displays first 3 lines with line numbers (1 | first, 2 | second, 3 | third)
 
-### Display specific line range - DRAFT
+### Display specific line range - REFINED
 User executes `/cat filename 5-10` and expects to see only lines 5 through 10 of the file with their original line numbers preserved.
+
+**Examples (ordered by simplicity):**
+- [x] Specific middle range: `/cat file.txt 5-10` → displays lines 5-10 with original line numbers (5 | Line 5 content, 6 | Line 6 content, etc.)
 
 ### Handle invalid range format - DRAFT
 User executes `/cat filename abc-def` with invalid range format and expects a clear error message explaining the correct format.
