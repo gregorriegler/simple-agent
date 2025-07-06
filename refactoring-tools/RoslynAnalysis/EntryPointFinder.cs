@@ -6,6 +6,16 @@ namespace RoslynAnalysis;
 
 public class EntryPointFinder
 {
+    private const int DEFAULT_REACHABLE_COUNT = 1;
+    private static readonly string[] TEST_ATTRIBUTES = new[]
+    {
+        "Test",
+        "TestMethod",
+        "Fact",
+        "Theory",
+        "TestCase"
+    };
+
     private readonly IWorkspaceLoader _workspaceLoader;
 
     public EntryPointFinder(IWorkspaceLoader workspaceLoader)
@@ -130,7 +140,7 @@ public class EntryPointFinder
             filePath,
             lineNumber,
             methodSignature,
-            1
+            DEFAULT_REACHABLE_COUNT
         );
     }
 
@@ -221,17 +231,8 @@ public class EntryPointFinder
 
     private bool IsTestMethod(IMethodSymbol methodSymbol)
     {
-        var testAttributes = new[]
-        {
-            "Test",
-            "TestMethod",
-            "Fact",
-            "Theory",
-            "TestCase"
-        };
-
         return methodSymbol.GetAttributes().Any(attr =>
-            testAttributes.Any(testAttr =>
+            TEST_ATTRIBUTES.Any(testAttr =>
                 attr.AttributeClass?.Name.Contains(testAttr) == true));
     }
 
