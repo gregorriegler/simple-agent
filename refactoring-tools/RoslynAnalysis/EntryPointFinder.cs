@@ -176,33 +176,41 @@ public class EntryPointFinder
 
         foreach (var document in documents)
         {
-            var syntaxTree = await document.GetSyntaxTreeAsync();
-            if (syntaxTree == null) continue;
-
-            var semanticModel = await document.GetSemanticModelAsync();
-            if (semanticModel == null) continue;
-
-            var root = await syntaxTree.GetRootAsync();
-            var methodDeclarations = root.DescendantNodes().OfType<MethodDeclarationSyntax>();
-
-            foreach (var methodDeclaration in methodDeclarations)
-            {
-                var methodSymbol = CreateMethodSymbolResolver(methodDeclaration, semanticModel);
-                if (methodSymbol != null)
-                {
-                    var fullyQualifiedName = GetFullyQualifiedMethodName(methodSymbol);
-                    allMethods.Add(new MethodInfo(document, methodDeclaration, semanticModel, fullyQualifiedName));
-
-                    var entryPoint = TryCreateEntryPoint(document, methodDeclaration, semanticModel);
-                    if (entryPoint != null)
-                    {
-                        allPublicMethods.Add((entryPoint, document, methodDeclaration, semanticModel));
-                    }
-                }
-            }
+            await ProcessDocument(document, allPublicMethods, allMethods);
         }
 
         return new PublicMethodCollection(allPublicMethods, allMethods);
+    }
+
+    private async Task ProcessDocument(
+        Document document,
+        List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)> allPublicMethods,
+        List<MethodInfo> allMethods)
+    {
+        var syntaxTree = await document.GetSyntaxTreeAsync();
+        if (syntaxTree == null) return;
+
+        var semanticModel = await document.GetSemanticModelAsync();
+        if (semanticModel == null) return;
+
+        var root = await syntaxTree.GetRootAsync();
+        var methodDeclarations = root.DescendantNodes().OfType<MethodDeclarationSyntax>();
+
+        foreach (var methodDeclaration in methodDeclarations)
+        {
+            var methodSymbol = CreateMethodSymbolResolver(methodDeclaration, semanticModel);
+            if (methodSymbol != null)
+            {
+                var fullyQualifiedName = GetFullyQualifiedMethodName(methodSymbol);
+                allMethods.Add(new MethodInfo(document, methodDeclaration, semanticModel, fullyQualifiedName));
+
+                var entryPoint = TryCreateEntryPoint(document, methodDeclaration, semanticModel);
+                if (entryPoint != null)
+                {
+                    allPublicMethods.Add((entryPoint, document, methodDeclaration, semanticModel));
+                }
+            }
+        }
     }
 
     private HashSet<string> AnalyzeMethodCalls(List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)> allPublicMethods)
