@@ -45,7 +45,7 @@ Enable the entry-point-analysis tool to accept just a directory path and automat
 
 ## Scenarios
 
-### [ ] Basic Directory Analysis - REFINED
+### [x] Basic Directory Analysis - REFINED
 User provides a directory path containing a single .csproj file. The tool automatically detects and uses the .csproj file for entry point analysis.
 
 ### [ ] Solution File Priority - REFINED
