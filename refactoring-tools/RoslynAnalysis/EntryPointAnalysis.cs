@@ -7,21 +7,21 @@ public class EntryPointAnalysis : IAnalysis
 {
     private readonly IWorkspaceLoader _workspaceLoader;
 
-    public EntryPointAnalysis(IWorkspaceLoader workspaceLoader)
+    public EntryPointAnalysis()
     {
-        _workspaceLoader = workspaceLoader;
+        _workspaceLoader = new MSBuildWorkspaceLoader();
     }
 
     public static EntryPointAnalysis Create(string[] args)
     {
-        return new EntryPointAnalysis(new MSBuildWorkspaceLoader());
+        return new EntryPointAnalysis();
     }
 
     public async Task<object> AnalyzeAsync(Microsoft.CodeAnalysis.Project project, string fileName)
     {
         var entryPointFinder = new EntryPointFinder(_workspaceLoader);
         var entryPoints = await entryPointFinder.FindEntryPointsAsync(project.FilePath!);
-        
+
         return new
         {
             project = project.Name,

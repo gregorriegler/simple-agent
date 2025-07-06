@@ -4,8 +4,7 @@
     "description": "Analyzes the C# project to find the best entry points for characterization tests",
     "arguments": [
       "project_path: string - Path to the project file",
-      "file_name: string - Name of the file to analyze",
-      "workspaceLoader: IWorkspaceLoader"
+      "file_name: string - Name of the file to analyze"
     ]
   }
 ]
