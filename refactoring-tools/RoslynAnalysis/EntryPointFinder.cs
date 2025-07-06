@@ -56,6 +56,12 @@ public class EntryPointFinder
     }
 
 
+    private IMethodSymbol? CreateMethodSymbolResolver(MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)
+    {
+        var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration);
+        return methodSymbol;
+    }
+
     private EntryPoint? TryCreateEntryPoint(
         Document document,
         MethodDeclarationSyntax methodDeclaration,
@@ -65,7 +71,7 @@ public class EntryPointFinder
         if (!methodDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)))
             return null;
 
-        var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration);
+        var methodSymbol = CreateMethodSymbolResolver(methodDeclaration, semanticModel);
         if (methodSymbol == null)
             return null;
 
@@ -108,7 +114,7 @@ public class EntryPointFinder
         while (methodsToProcess.Count > 0)
         {
             var (currentMethod, currentSemanticModel) = methodsToProcess.Dequeue();
-            var currentMethodSymbol = currentSemanticModel.GetDeclaredSymbol(currentMethod);
+            var currentMethodSymbol = CreateMethodSymbolResolver(currentMethod, currentSemanticModel);
             if (currentMethodSymbol == null) continue;
 
             var currentMethodFullName = GetFullyQualifiedMethodName(currentMethodSymbol);
@@ -169,7 +175,7 @@ public class EntryPointFinder
 
             foreach (var methodDeclaration in methodDeclarations)
             {
-                var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration);
+                var methodSymbol = CreateMethodSymbolResolver(methodDeclaration, semanticModel);
                 if (methodSymbol != null)
                 {
                     var fullyQualifiedName = GetFullyQualifiedMethodName(methodSymbol);
@@ -282,7 +288,7 @@ public class EntryPointFinder
         if (invocation.Expression is IdentifierNameSyntax identifierName)
         {
             var methodName = identifierName.Identifier.ValueText;
-            var fallbackMethodSymbol = semanticModel.GetDeclaredSymbol(currentMethod);
+            var fallbackMethodSymbol = CreateMethodSymbolResolver(currentMethod, semanticModel);
             if (fallbackMethodSymbol != null)
             {
                 var currentNamespace = fallbackMethodSymbol.ContainingType.ContainingNamespace.ToDisplayString();
