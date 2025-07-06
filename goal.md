@@ -55,8 +55,11 @@ User executes `/cat filename 5-10` and expects to see only lines 5 through 10 of
 **Examples (ordered by simplicity):**
 - [x] Specific middle range: `/cat file.txt 5-10` → displays lines 5-10 with original line numbers (5 | Line 5 content, 6 | Line 6 content, etc.)
 
-### Handle invalid range format - DRAFT
+### Handle invalid range format - REFINED
 User executes `/cat filename abc-def` with invalid range format and expects a clear error message explaining the correct format.
+
+**Examples (ordered by simplicity):**
+- [x] Invalid range format: `/cat file.txt abc-def` → displays "STDERR: Invalid range format 'abc-def'. Use format 'start-end' (e.g., '1-5')"
 
 ### Handle reversed range - DRAFT
 User executes `/cat filename 10-5` where start line is greater than end line and expects an error message.

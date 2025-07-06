@@ -59,3 +59,9 @@ def test_cat_tool_invalid_range_format(tmp_path):
     temp_file = create_temp_file(tmp_path, "test.txt", "line 1\nline 2\nline 3")
     
     verifyTool(library, f"/cat {temp_file} abc-def")
+
+def test_cat_tool_reversed_range(tmp_path):
+    """Test cat tool with reversed range (10-5) where start line is greater than end line"""
+    temp_file = create_temp_file(tmp_path, "test.txt", "line 1\nline 2\nline 3")
+    
+    verifyTool(library, f"/cat {temp_file} 10-5")
