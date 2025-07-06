@@ -119,49 +119,7 @@ public class EntryPointFinder
             processedMethods.Add(currentMethodFullName);
             reachableMethods.Add(currentMethodFullName);
 
-            if (currentMethod.Body != null)
-            {
-                var invocationExpressions = currentMethod.Body.DescendantNodes().OfType<InvocationExpressionSyntax>();
-
-                foreach (var invocation in invocationExpressions)
-                {
-                    var symbolInfo = currentSemanticModel.GetSymbolInfo(invocation);
-                    string? calledMethodFullName = null;
-
-                    if (symbolInfo.Symbol is IMethodSymbol calledMethodSymbol)
-                    {
-                        calledMethodFullName = GetFullyQualifiedMethodName(calledMethodSymbol);
-                    }
-                    else
-                    {
-                        if (invocation.Expression is IdentifierNameSyntax identifierName)
-                        {
-                            var methodName = identifierName.Identifier.ValueText;
-                            var fallbackMethodSymbol = currentSemanticModel.GetDeclaredSymbol(currentMethod);
-                            if (fallbackMethodSymbol != null)
-                            {
-                                var currentNamespace = fallbackMethodSymbol.ContainingType.ContainingNamespace.ToDisplayString();
-                                var currentTypeName = fallbackMethodSymbol.ContainingType.Name;
-                                calledMethodFullName = $"{currentNamespace}.{currentTypeName}.{methodName}";
-                            }
-                        }
-                    }
-
-                    if (calledMethodFullName != null)
-                    {
-                        var calledMethodInfo = allMethods
-                            .FirstOrDefault(m => m.FullyQualifiedName == calledMethodFullName);
-
-                        if (calledMethodInfo?.MethodDeclaration != null)
-                        {
-                            if (!processedMethods.Contains(calledMethodFullName))
-                            {
-                                methodsToProcess.Enqueue((calledMethodInfo.MethodDeclaration, calledMethodInfo.SemanticModel));
-                            }
-                        }
-                    }
-                }
-            }
+            ProcessMethodInvocations(currentMethod, currentSemanticModel, allMethods, methodsToProcess, processedMethods);
         }
 
         return reachableMethods.Count;
@@ -279,5 +237,60 @@ public class EntryPointFinder
         }
 
         return entryPoints.OrderByDescending(ep => ep.ReachableMethodsCount).ToList();
+    }
+
+    private void ProcessMethodInvocations(
+        MethodDeclarationSyntax currentMethod,
+        SemanticModel currentSemanticModel,
+        List<MethodInfo> allMethods,
+        Queue<(MethodDeclarationSyntax method, SemanticModel model)> methodsToProcess,
+        HashSet<string> processedMethods)
+    {
+        if (currentMethod.Body == null) return;
+
+        var invocationExpressions = currentMethod.Body.DescendantNodes().OfType<InvocationExpressionSyntax>();
+
+        foreach (var invocation in invocationExpressions)
+        {
+            var calledMethodFullName = ResolveMethodSymbol(invocation, currentSemanticModel, currentMethod);
+
+            if (calledMethodFullName != null)
+            {
+                var calledMethodInfo = allMethods
+                    .FirstOrDefault(m => m.FullyQualifiedName == calledMethodFullName);
+
+                if (calledMethodInfo?.MethodDeclaration != null)
+                {
+                    if (!processedMethods.Contains(calledMethodFullName))
+                    {
+                        methodsToProcess.Enqueue((calledMethodInfo.MethodDeclaration, calledMethodInfo.SemanticModel));
+                    }
+                }
+            }
+        }
+    }
+
+    private string? ResolveMethodSymbol(InvocationExpressionSyntax invocation, SemanticModel semanticModel, MethodDeclarationSyntax currentMethod)
+    {
+        var symbolInfo = semanticModel.GetSymbolInfo(invocation);
+
+        if (symbolInfo.Symbol is IMethodSymbol calledMethodSymbol)
+        {
+            return GetFullyQualifiedMethodName(calledMethodSymbol);
+        }
+
+        if (invocation.Expression is IdentifierNameSyntax identifierName)
+        {
+            var methodName = identifierName.Identifier.ValueText;
+            var fallbackMethodSymbol = semanticModel.GetDeclaredSymbol(currentMethod);
+            if (fallbackMethodSymbol != null)
+            {
+                var currentNamespace = fallbackMethodSymbol.ContainingType.ContainingNamespace.ToDisplayString();
+                var currentTypeName = fallbackMethodSymbol.ContainingType.Name;
+                return $"{currentNamespace}.{currentTypeName}.{methodName}";
+            }
+        }
+
+        return null;
     }
 }

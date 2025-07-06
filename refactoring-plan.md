@@ -40,8 +40,8 @@ The [`CalculateReachableMethodsCount()`](refactoring-tools/RoslynAnalysis/EntryP
 - [ ] Extract method: Create `CollectPublicEntryPoints()` from FindEntryPointsAsync to handle entry point creation
 - [x] Extract method: Create `AnalyzeMethodCalls()` from FindEntryPointsAsync to handle call graph analysis
 - [x] Extract method: Create `FilterUncalledEntryPoints()` from FindEntryPointsAsync to handle filtering
-- [ ] Extract method: Create `ProcessMethodInvocations()` from CalculateReachableMethodsCount to handle invocation analysis
-- [ ] Extract method: Create `ResolveMethodSymbol()` from CalculateReachableMethodsCount to handle symbol resolution
+- [x] Extract method: Create `ProcessMethodInvocations()` from CalculateReachableMethodsCount to handle invocation analysis
+- [x] Extract method: Create `ResolveMethodSymbol()` from CalculateReachableMethodsCount to handle symbol resolution
 - [x] Extract constant: Create `DEFAULT_REACHABLE_COUNT` constant for the initial reachable count
 - [x] Extract constant: Create `TEST_ATTRIBUTES` constant for test attribute names
 - [x] Introduce parameter object: Create `MethodInfo` class to replace complex tuple parameter
