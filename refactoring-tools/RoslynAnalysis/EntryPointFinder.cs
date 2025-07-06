@@ -34,24 +34,7 @@ public class EntryPointFinder
 
         var (allPublicMethods, allMethods) = await CollectAllMethods(documents);
 
-        var calledMethods = new HashSet<string>();
-
-        foreach (var (_, document, methodDeclaration, semanticModel) in allPublicMethods)
-        {
-            if (methodDeclaration.Body != null)
-            {
-                var invocationExpressions = methodDeclaration.Body.DescendantNodes().OfType<InvocationExpressionSyntax>();
-                foreach (var invocation in invocationExpressions)
-                {
-                    var symbolInfo = semanticModel.GetSymbolInfo(invocation);
-                    if (symbolInfo.Symbol is IMethodSymbol calledMethodSymbol)
-                    {
-                        var calledMethodFullName = GetFullyQualifiedMethodName(calledMethodSymbol);
-                        calledMethods.Add(calledMethodFullName);
-                    }
-                }
-            }
-        }
+        var calledMethods = AnalyzeMethodCalls(allPublicMethods);
 
         var entryPoints = new List<EntryPoint>();
 
@@ -248,5 +231,29 @@ public class EntryPointFinder
         }
 
         return (allPublicMethods, allMethods);
+    }
+
+    private HashSet<string> AnalyzeMethodCalls(List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)> allPublicMethods)
+    {
+        var calledMethods = new HashSet<string>();
+
+        foreach (var (_, document, methodDeclaration, semanticModel) in allPublicMethods)
+        {
+            if (methodDeclaration.Body != null)
+            {
+                var invocationExpressions = methodDeclaration.Body.DescendantNodes().OfType<InvocationExpressionSyntax>();
+                foreach (var invocation in invocationExpressions)
+                {
+                    var symbolInfo = semanticModel.GetSymbolInfo(invocation);
+                    if (symbolInfo.Symbol is IMethodSymbol calledMethodSymbol)
+                    {
+                        var calledMethodFullName = GetFullyQualifiedMethodName(calledMethodSymbol);
+                        calledMethods.Add(calledMethodFullName);
+                    }
+                }
+            }
+        }
+
+        return calledMethods;
     }
 }
