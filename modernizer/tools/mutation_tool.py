@@ -120,15 +120,14 @@ class MutationTool(BaseTool):
                 'survived_mutants': []
             }, indent=2)
     
-    def _calculate_mutation_statistics(self, mutation_report):
-        """Calculate mutation testing statistics and collect survived mutants"""
+    def _process_mutants(self, files):
+        """Process mutants from all files and collect statistics"""
         total_mutants = 0
         killed = 0
         survived = 0
         timeout = 0
         survived_mutants = []
         
-        files = mutation_report.get('files', {})
         for file_path, file_data in files.items():
             mutants = file_data.get('mutants', [])
             
@@ -144,7 +143,14 @@ class MutationTool(BaseTool):
                 elif status == 'Timeout':
                     timeout += 1
         
-        mutation_score = self._calculate_mutation_score(killed, total_mutants)
+        return total_mutants, killed, survived, timeout, survived_mutants
+    
+    def _calculate_mutation_statistics(self, mutation_report):
+        """Calculate mutation testing statistics and collect survived mutants"""
+        files = mutation_report.get('files', {})
+        total_mutants, killed, survived, timeout, survived_mutants = self._process_mutants(files)
+        
+        mutation_score = (killed / total_mutants * 100) if total_mutants > 0 else 0
         
         stats = {
             'total_mutants': total_mutants,
@@ -169,10 +175,6 @@ class MutationTool(BaseTool):
             'method': '',    # Would need additional analysis to determine method
             'test_coverage': True  # Assume covered if mutant was generated
         }
-    
-    def _calculate_mutation_score(self, killed, total_mutants):
-        """Calculate the mutation score percentage"""
-        return (killed / total_mutants * 100) if total_mutants > 0 else 0
     
     def _normalize_mutator_name(self, mutator_name):
         """Convert Stryker mutator names to our standardized format"""
