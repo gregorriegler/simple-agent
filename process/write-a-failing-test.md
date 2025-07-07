@@ -11,8 +11,6 @@ Your answers should be succinct and concise.
     - **STOP** immediately if uncommitted changes are detected.
 3. Confirm all current tests pass by executing `./test.sh`
     - Proceed only if all tests pass.
-4. Select the next example to implement from the task list.
-    - If no examples remain in the current refined scenario, begin a new context using the prompt: "Read and follow the `process/refine-scenarios.md` instructions."
 5. Think: Will this example already work given the current production code? Do we already have testcode forcing this behavior?
 6. If the answer two both is yes, then we don't have to add any code. Check off the item in `goal.md` and proceed with 3. 
 7. Otherwise, write a failing test
