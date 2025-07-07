@@ -8,6 +8,7 @@ ASK ONE QUESTION AT A TIME
 2. Read the `README.md`
 3. Analyze the goal and tell me what you understood briefly
 4. Ask questions about the goal if something is not clear
+  - before you ask notify me using say.py
 5. Iterate with me on the goal until we are aligned
 6. Save the goal in a new `goal.md` file
 7. Ask me to review the `goal.md` so I can make final changes.

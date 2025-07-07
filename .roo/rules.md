@@ -2,8 +2,7 @@
 ALWAYS start your answers with a STARTING_CHARACTER
 The default STARTING_CHARACTER is 🐙
 
-Whenever you need to stop, you cannot continue, or you need my answer, notify me using the `say.py` script.
-Run it using `./say.py "<your message>"
+Whenever you need to stop, you cannot continue, or you have a question for me, notify me using the `say.py` script using `./say.py "<your message>"
 
 I prefer SHORT, SUCCINCT and CONCISE answers
 
