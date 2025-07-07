@@ -12,4 +12,3 @@ STARTER_SYMBOL=🧹
     6. Check off the task
     7. Commit the code using git. Refactoring commit messages start with an "r", e.g. "r extract class ..."
     8. When there is still a task left end this process by creating a new context with the prompt: "Read `process/execute-refactoring-md` and follow it"
-    9. When all the refactorings are completed end this process by creating a new context with the prompt. "Write the next failing test `./process/write-a-failing-test.md`"

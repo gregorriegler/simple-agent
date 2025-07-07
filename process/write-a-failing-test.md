@@ -23,5 +23,5 @@ Your answers should be succinct and concise.
 9. Run the test using `./test.sh` and observe the outcome
     - **Note**: Verify or ApprovalTests will fail initially because they require approval.
 10. If it surprisingly already passes, or the received.txt is already what it should be, we approve it using `./approve.sh`. We then commit with the message "t ..."
-11. Only if we have a failing test to make pass, end this process by creating a new context using the prompt: "Read `process/make-it-pass.md` and follow the process."
-12. Otherwise end this process by creating a new context with the prompt: "Read `process/write-a-failing-test.md` and follow the process."
+11. Only if we have a failing test to make pass, end this task with the message: "Added a failing Test"
+12. Otherwise continue from 2.
