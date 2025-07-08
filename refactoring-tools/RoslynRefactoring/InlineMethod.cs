@@ -20,11 +20,7 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         var (root, semanticModel) = await PrepareDocumentAsync(document);
         if (root == null || semanticModel == null) return document;
 
-        var position = GetPositionFromLineColumn(root, cursor);
-        var node = root.FindNode(new Microsoft.CodeAnalysis.Text.TextSpan(position, 0));
-
-        var invocation = node.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault() ??
-                        node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
+        var invocation = FindInvocationAtCursor(root, cursor);
         if (invocation == null) return document;
 
         var symbolInfo = semanticModel.GetSymbolInfo(invocation);
@@ -67,6 +63,15 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         var text = root.GetText();
         var linePosition = new Microsoft.CodeAnalysis.Text.LinePosition(cursor.Line - 1, cursor.Column - 1);
         return text.Lines.GetPosition(linePosition);
+    }
+
+    private static InvocationExpressionSyntax? FindInvocationAtCursor(SyntaxNode root, Cursor cursor)
+    {
+        var position = GetPositionFromLineColumn(root, cursor);
+        var node = root.FindNode(new Microsoft.CodeAnalysis.Text.TextSpan(position, 0));
+
+        return node.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault() ??
+               node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
     }
 
     private static async Task<MethodDeclarationSyntax?> FindMethodDeclarationAsync(IMethodSymbol methodSymbol)
