@@ -21,5 +21,5 @@ This method violates the Single Responsibility Principle and makes the code hard
 - [x] Extract method: Create `FindInvocationAtCursor()` to handle cursor position resolution and invocation finding (lines 26-31)
 - [x] Extract method: Create `ValidateAndGetMethodSymbol()` to handle method symbol validation (lines 33-35)
 - [x] Extract method: Create `PrepareMethodForInlining()` to handle method declaration finding and body preparation (lines 37-46)
-- [ ] Extract method: Create `PerformInlining()` to handle the actual inlining process (lines 48-52)
+- [x] Extract method: Create `PerformInlining()` to handle the actual inlining process (lines 48-52)
 - [ ] Refactor `PerformAsync()` to orchestrate these smaller methods, making the main flow clearer and easier to follow
