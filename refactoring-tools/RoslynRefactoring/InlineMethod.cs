@@ -29,9 +29,7 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         var (methodDeclaration, methodBody, parameterMap) = await PrepareMethodForInlining(methodSymbol, invocation);
         if (methodDeclaration == null || methodBody == null) return document;
 
-        var inlinedStatements = InlineMethodBody(methodBody, parameterMap!);
-
-        var newRoot = ReplaceInvocationWithInlinedCode(root, invocation, inlinedStatements);
+        var newRoot = PerformInlining(root, invocation, methodBody, parameterMap!);
 
         return document.WithSyntaxRoot(newRoot);
     }
@@ -87,6 +85,15 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         return (methodDeclaration, methodBody, parameterMap);
     }
 
+    private static SyntaxNode PerformInlining(
+        SyntaxNode root,
+        InvocationExpressionSyntax invocation,
+        BlockSyntax methodBody,
+        Dictionary<string, ExpressionSyntax> parameterMap)
+    {
+        var inlinedStatements = InlineMethodBody(methodBody, parameterMap);
+        return ReplaceInvocationWithInlinedCode(root, invocation, inlinedStatements);
+    }
     private static async Task<MethodDeclarationSyntax?> FindMethodDeclarationAsync(IMethodSymbol methodSymbol)
     {
         foreach (var syntaxReference in methodSymbol.DeclaringSyntaxReferences)
