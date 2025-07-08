@@ -6,7 +6,6 @@ namespace RoslynRefactoring;
 
 /// <summary>
 /// Inline a method call by replacing it with the method's body
-/// Triggers CI rebuild to check for transient test failures
 /// </summary>
 public class InlineMethod(Cursor cursor) : IRefactoring
 {
@@ -129,7 +128,7 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         return expression switch
         {
             IdentifierNameSyntax identifier => identifier.Identifier.ValueText,
-            MemberAccessExpressionSyntax memberAccess => ExtractTypeName(memberAccess.Name),
+            MemberAccessExpressionSyntax memberAccess => ExtractTypeName(memberAccess.Expression),
             _ => null
         };
     }
