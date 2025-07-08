@@ -135,8 +135,8 @@ namespace MyProject.Validators
 - [x] Single expression static method with no parameters: `MathHelper.GetPi()` → `3.14159`
 - [x] Single expression static method with one parameter: `MathHelper.Square(x)` → `x * x`
 - [x] Single expression static method with two parameters: `MathHelper.Add(a, b)` → `a + b`
-- [ ] Static method with simple block body and return: `MathHelper.Max(a, b)` → `{ return a > b ? a : b; }`
-- [ ] Static method called multiple times in same file (inline all occurrences)
+- [x] Static method with simple block body and return: `MathHelper.Max(a, b)` → `{ return a > b ? a : b; }`
+- [x] Static method called multiple times in same file (inline all occurrences)
 - [ ] Static method with fully qualified name: `MyProject.Utils.MathHelper.Add(1, 2)`
 - [ ] Static method in different namespace requiring using statement resolution
 
@@ -174,4 +174,4 @@ namespace MyProject.Validators
 
 **Scenario:** Should detect when inlining would cause compilation errors and provide helpful feedback.
 
-## TDD Phase: 🔴
+## TDD Phase: 🧹
