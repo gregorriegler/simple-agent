@@ -14,5 +14,5 @@ STARTER_SYMBOL=🔄
    - 🟢: Create new context with "Read and follow `process/make-it-pass.md`"
    - 🧹: Create new context with "Read and follow `process/refactor.md`"
 5. If no TDD phase is found in `goal.md`, default to RED phase and add `## TDD Phase: 🔴` to `goal.md`
-6. After all phases are completed, check the example we were working on in the `goal.md` 
-7. End this task creating a new context with the message: "Read and follow `process/development-process.md`
+6. After the make it pass phase is completed, check the example we were working on in the `goal.md` 
+7. After the refactoring phase is completed, end this task creating a new context with the message: "Read and follow `process/development-process.md`
