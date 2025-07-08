@@ -44,10 +44,24 @@ public class InlineMethodTests
             .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
     }
 
+    private static Document CreateDocumentInProject(Microsoft.CodeAnalysis.Project project, string fileName, string code)
+    {
+        return project.AddDocument(fileName, code);
+    }
+
     private static Document CreateDocument(string code)
     {
         var project = CreateWorkspaceWithProject();
-        return project.AddDocument("Test.cs", code);
+        return CreateDocumentInProject(project, "Test.cs", code);
+    }
+
+    private static Document CreateTwoDocumentProject(string sourceFileCode, string targetFileCode)
+    {
+        var project = CreateWorkspaceWithProject();
+
+        // Add both files to the project
+        project = CreateDocumentInProject(project, "Utils/MathHelper.cs", sourceFileCode).Project;
+        return CreateDocumentInProject(project, "Services/Calculator.cs", targetFileCode);
     }
     [Test]
     public async Task CanInlineStaticMethodAcrossFiles()
@@ -82,11 +96,7 @@ public class InlineMethodTests
 
     private static async Task VerifyInlineAcrossFiles(string sourceFileCode, string targetFileCode, Cursor cursor)
     {
-        var project = CreateWorkspaceWithProject();
-
-        // Add both files to the project
-        project = project.AddDocument("Utils/MathHelper.cs", sourceFileCode).Project;
-        var targetDocument = project.AddDocument("Services/Calculator.cs", targetFileCode);
+        var targetDocument = CreateTwoDocumentProject(sourceFileCode, targetFileCode);
 
         var inlineMethod = new InlineMethod(cursor);
         var updatedDocument = await inlineMethod.PerformAsync(targetDocument);
