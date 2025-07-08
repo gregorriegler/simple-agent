@@ -78,7 +78,70 @@ public class InlineMethod(Cursor cursor) : IRefactoring
     private static IMethodSymbol? ValidateAndGetMethodSymbol(SemanticModel semanticModel, InvocationExpressionSyntax invocation)
     {
         var symbolInfo = semanticModel.GetSymbolInfo(invocation);
-        return symbolInfo.Symbol as IMethodSymbol;
+        var methodSymbol = symbolInfo.Symbol as IMethodSymbol;
+
+        // If we found the symbol directly, return it
+        if (methodSymbol != null)
+        {
+            return methodSymbol;
+        }
+
+        // If symbol resolution failed, try to find it across the project
+        return FindMethodSymbolAcrossProject(semanticModel, invocation);
+    }
+
+    private static IMethodSymbol? FindMethodSymbolAcrossProject(SemanticModel semanticModel, InvocationExpressionSyntax invocation)
+    {
+        // Extract method name and containing type from the invocation
+        if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess)
+            return null;
+
+        var methodName = memberAccess.Name.Identifier.ValueText;
+        var typeName = ExtractTypeName(memberAccess.Expression);
+
+        if (string.IsNullOrEmpty(typeName))
+            return null;
+
+        // Search in the current compilation for the type
+        return SearchInCompilation(semanticModel.Compilation, typeName, methodName);
+    }
+
+    private static string? ExtractTypeName(ExpressionSyntax expression)
+    {
+        return expression switch
+        {
+            IdentifierNameSyntax identifier => identifier.Identifier.ValueText,
+            MemberAccessExpressionSyntax memberAccess => ExtractTypeName(memberAccess.Name),
+            _ => null
+        };
+    }
+
+    private static IMethodSymbol? SearchInCompilation(Compilation compilation, string typeName, string methodName)
+    {
+        // Search for types with the given name across all namespaces in the compilation
+        var allTypes = GetAllTypesFromCompilation(compilation.GlobalNamespace);
+
+        return allTypes
+            .Where(type => type.Name == typeName)
+            .SelectMany(type => type.GetMembers(methodName))
+            .OfType<IMethodSymbol>()
+            .FirstOrDefault();
+    }
+
+    private static IEnumerable<INamedTypeSymbol> GetAllTypesFromCompilation(INamespaceSymbol namespaceSymbol)
+    {
+        foreach (var type in namespaceSymbol.GetTypeMembers())
+        {
+            yield return type;
+        }
+
+        foreach (var childNamespace in namespaceSymbol.GetNamespaceMembers())
+        {
+            foreach (var type in GetAllTypesFromCompilation(childNamespace))
+            {
+                yield return type;
+            }
+        }
     }
 
     private static async Task<(MethodDeclarationSyntax? methodDeclaration, BlockSyntax? methodBody, Dictionary<string, ExpressionSyntax>? parameterMap)> PrepareMethodForInlining(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocation)
@@ -119,7 +182,15 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         foreach (var invocation in root.DescendantNodes().OfType<InvocationExpressionSyntax>())
         {
             var symbolInfo = semanticModel.GetSymbolInfo(invocation);
-            if (symbolInfo.Symbol is IMethodSymbol methodSymbol &&
+            IMethodSymbol? methodSymbol = symbolInfo.Symbol as IMethodSymbol;
+
+            // If direct resolution failed, try cross-project search
+            if (methodSymbol == null)
+            {
+                methodSymbol = FindMethodSymbolAcrossProject(semanticModel, invocation);
+            }
+
+            if (methodSymbol != null &&
                 SymbolEqualityComparer.Default.Equals(methodSymbol, targetMethodSymbol))
             {
                 invocations.Add(invocation);

@@ -138,7 +138,7 @@ namespace MyProject.Validators
 - [x] Static method with simple block body and return: `MathHelper.Max(a, b)` → `{ return a > b ? a : b; }`
 - [x] Static method called multiple times in same file (inline all occurrences)
 - [x] Static method with fully qualified name: `MyProject.Utils.MathHelper.Add(1, 2)`
-- [ ] Static method in different namespace requiring using statement resolution
+- [x] Static method in different namespace requiring using statement resolution
 
 ### Instance Method with Simple Return - DRAFT
 **File Structure:**
@@ -174,4 +174,4 @@ namespace MyProject.Validators
 
 **Scenario:** Should detect when inlining would cause compilation errors and provide helpful feedback.
 
-## TDD Phase: 🔴
+## TDD Phase: 🧹

@@ -261,4 +261,33 @@ public class InlineMethodTests
 
         await VerifyInlineAcrossFiles(mathHelperCode, calculatorCode, new Cursor(6, 50)); // Position of Add() call in fully qualified name
     }
+
+    [Test]
+    public async Task CanInlineStaticMethodInDifferentNamespaceRequiringUsingStatement()
+    {
+        const string mathHelperCode = """
+                                      namespace MyProject.Utils
+                                      {
+                                          public static class MathHelper
+                                          {
+                                              public static int Add(int a, int b) => a + b;
+                                          }
+                                      }
+                                      """;
+
+        const string calculatorCode = """
+                                      namespace MyProject.Services
+                                      {
+                                          public class Calculator
+                                          {
+                                              public int CalculateSum(int x, int y)
+                                              {
+                                                  return MathHelper.Add(x, y);
+                                              }
+                                          }
+                                      }
+                                      """;
+
+        await VerifyInlineAcrossFiles(mathHelperCode, calculatorCode, new Cursor(6, 32)); // Position of Add() call
+    }
 }
