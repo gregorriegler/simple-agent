@@ -26,20 +26,10 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         var methodSymbol = ValidateAndGetMethodSymbol(semanticModel, invocation);
         if (methodSymbol == null) return document;
 
-        var methodDeclaration = await FindMethodDeclarationAsync(methodSymbol);
-        if (methodDeclaration == null) return document;
+        var (methodDeclaration, methodBody, parameterMap) = await PrepareMethodForInlining(methodSymbol, invocation);
+        if (methodDeclaration == null || methodBody == null) return document;
 
-        var methodBody = methodDeclaration.Body ??
-                         (methodDeclaration.ExpressionBody != null
-                             ? SyntaxFactory.Block(
-                                 SyntaxFactory.ReturnStatement(methodDeclaration.ExpressionBody.Expression))
-                             : null);
-
-        if (methodBody == null) return document;
-
-        var parameterMap = CreateParameterMapping(methodDeclaration, invocation);
-
-        var inlinedStatements = InlineMethodBody(methodBody, parameterMap);
+        var inlinedStatements = InlineMethodBody(methodBody, parameterMap!);
 
         var newRoot = ReplaceInvocationWithInlinedCode(root, invocation, inlinedStatements);
 
@@ -77,6 +67,24 @@ public class InlineMethod(Cursor cursor) : IRefactoring
     {
         var symbolInfo = semanticModel.GetSymbolInfo(invocation);
         return symbolInfo.Symbol as IMethodSymbol;
+    }
+
+    private static async Task<(MethodDeclarationSyntax? methodDeclaration, BlockSyntax? methodBody, Dictionary<string, ExpressionSyntax>? parameterMap)> PrepareMethodForInlining(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocation)
+    {
+        var methodDeclaration = await FindMethodDeclarationAsync(methodSymbol);
+        if (methodDeclaration == null) return (null, null, null);
+
+        var methodBody = methodDeclaration.Body ??
+                         (methodDeclaration.ExpressionBody != null
+                             ? SyntaxFactory.Block(
+                                 SyntaxFactory.ReturnStatement(methodDeclaration.ExpressionBody.Expression))
+                             : null);
+
+        if (methodBody == null) return (null, null, null);
+
+        var parameterMap = CreateParameterMapping(methodDeclaration, invocation);
+
+        return (methodDeclaration, methodBody, parameterMap);
     }
 
     private static async Task<MethodDeclarationSyntax?> FindMethodDeclarationAsync(IMethodSymbol methodSymbol)
