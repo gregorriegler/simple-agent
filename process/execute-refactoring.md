@@ -4,7 +4,7 @@ STARTER_SYMBOL=🧹
 
 1. Read the `refactoring-plan.md`
 2. Pick the next task
-    1. Make sure all the tests pass before we start
+    1. Make sure all the tests pass before we start. Use `test.sh`
     2. Make sure there are no uncommitted changes before we start
     3. Make the change/improvement
     4. Run the tests again to see everything still works
