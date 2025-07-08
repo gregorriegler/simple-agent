@@ -1,12 +1,11 @@
-# Refactoring Plan: Extract Test Helper Methods
+# Refactoring Plan: Extract Methods from PerformAsync
 
 ## Goal
-Remove duplicated code in [`InlineMethodTests.cs`](refactoring-tools/RoslynRefactoring.Tests/InlineMethodTests.cs) by extracting common workspace and document creation patterns into reusable helper methods.
+Break down the long [`PerformAsync`](refactoring-tools/RoslynRefactoring/InlineMethod.cs:18) method (30 lines) into smaller, focused methods with single responsibilities.
 
 ## Steps
 
-- [x] Extract method `CreateWorkspaceWithProject()` to eliminate duplication in workspace/project setup (lines 42-44, 82-83)
-- [x] Extract method `CreateDocumentInProject()` to simplify single document creation
-- [x] Extract method `CreateTwoDocumentProject()` to handle the cross-file test setup pattern
-- [x] Update all test methods to use the new helper methods
-- [x] Run tests to ensure refactoring doesn't break functionality
+- [ ] Extract method `ProcessAllInvocations()` to handle finding and processing all invocations (lines 32-46)
+- [ ] Extract method `ValidateInvocationContext()` to handle initial validation steps (lines 20-30)
+- [ ] Update [`PerformAsync`](refactoring-tools/RoslynRefactoring/InlineMethod.cs:18) to use the new extracted methods
+- [ ] Run tests to ensure refactoring doesn't break functionality
