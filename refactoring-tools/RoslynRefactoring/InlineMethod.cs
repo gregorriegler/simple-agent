@@ -26,10 +26,24 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         var methodSymbol = ValidateAndGetMethodSymbol(semanticModel, invocation);
         if (methodSymbol == null) return document;
 
-        var (methodDeclaration, methodBody, parameterMap) = await PrepareMethodForInlining(methodSymbol, invocation);
+        var (methodDeclaration, methodBody, _) = await PrepareMethodForInlining(methodSymbol, invocation);
         if (methodDeclaration == null || methodBody == null) return document;
 
-        var newRoot = PerformInlining(root, invocation, methodBody, parameterMap!);
+        // Find all invocations of the same method in the document
+        var allInvocations = FindAllInvocationsOfMethod(root, semanticModel, methodSymbol);
+
+        // Process invocations in reverse order (bottom to top) to avoid invalidating node references
+        var newRoot = root;
+        foreach (var inv in allInvocations.OrderByDescending(i => i.SpanStart))
+        {
+            // Find the current invocation in the updated tree
+            var currentInvocation = newRoot.FindNode(inv.Span) as InvocationExpressionSyntax;
+            if (currentInvocation != null)
+            {
+                var parameterMap = CreateParameterMapping(methodDeclaration, currentInvocation);
+                newRoot = PerformInlining(newRoot, currentInvocation, methodBody, parameterMap);
+            }
+        }
 
         return document.WithSyntaxRoot(newRoot);
     }
@@ -94,6 +108,27 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         var inlinedStatements = InlineMethodBody(methodBody, parameterMap);
         return ReplaceInvocationWithInlinedCode(root, invocation, inlinedStatements);
     }
+
+    private static List<InvocationExpressionSyntax> FindAllInvocationsOfMethod(
+        SyntaxNode root,
+        SemanticModel semanticModel,
+        IMethodSymbol targetMethodSymbol)
+    {
+        var invocations = new List<InvocationExpressionSyntax>();
+
+        foreach (var invocation in root.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        {
+            var symbolInfo = semanticModel.GetSymbolInfo(invocation);
+            if (symbolInfo.Symbol is IMethodSymbol methodSymbol &&
+                SymbolEqualityComparer.Default.Equals(methodSymbol, targetMethodSymbol))
+            {
+                invocations.Add(invocation);
+            }
+        }
+
+        return invocations;
+    }
+
     private static async Task<MethodDeclarationSyntax?> FindMethodDeclarationAsync(IMethodSymbol methodSymbol)
     {
         foreach (var syntaxReference in methodSymbol.DeclaringSyntaxReferences)

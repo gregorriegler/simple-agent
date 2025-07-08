@@ -1,0 +1,14 @@
+﻿using MyProject.Utils;
+
+namespace MyProject.Services
+{
+    public class Calculator
+    {
+        public int ProcessNumbers(int a, int b)
+        {
+            var first = a * 2;
+            var second = b * 2;
+            return first + second;
+        }
+    }
+}

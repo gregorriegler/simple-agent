@@ -187,4 +187,37 @@ public class InlineMethodTests
 
         await VerifyInlineAcrossFiles(mathHelperCode, calculatorCode, new Cursor(8, 32)); // Position of Max() call
     }
+
+    [Test]
+    public async Task CanInlineStaticMethodCalledMultipleTimesAcrossFiles()
+    {
+        const string mathHelperCode = """
+                                      namespace MyProject.Utils
+                                      {
+                                          public static class MathHelper
+                                          {
+                                              public static int Double(int x) => x * 2;
+                                          }
+                                      }
+                                      """;
+
+        const string calculatorCode = """
+                                      using MyProject.Utils;
+
+                                      namespace MyProject.Services
+                                      {
+                                          public class Calculator
+                                          {
+                                              public int ProcessNumbers(int a, int b)
+                                              {
+                                                  var first = MathHelper.Double(a);
+                                                  var second = MathHelper.Double(b);
+                                                  return first + second;
+                                              }
+                                          }
+                                      }
+                                      """;
+
+        await VerifyInlineAcrossFiles(mathHelperCode, calculatorCode, new Cursor(9, 32)); // Position of first Double() call
+    }
 }
