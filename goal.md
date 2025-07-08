@@ -132,7 +132,7 @@ namespace MyProject.Validators
 **Scenario:** Inline a basic static method call across files with no dependencies.
 
 **Examples (ordered by simplicity):**
-- [ ] Single expression static method with no parameters: `MathHelper.GetPi()` → `3.14159`
+- [x] Single expression static method with no parameters: `MathHelper.GetPi()` → `3.14159`
 - [ ] Single expression static method with one parameter: `MathHelper.Square(x)` → `x * x`
 - [ ] Single expression static method with two parameters: `MathHelper.Add(a, b)` → `a + b`
 - [ ] Static method with simple block body and return: `MathHelper.Max(a, b)` → `{ return a > b ? a : b; }`

@@ -26,7 +26,8 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         var position = GetPositionFromLineColumn(root, cursor);
         var node = root.FindNode(new Microsoft.CodeAnalysis.Text.TextSpan(position, 0));
 
-        var invocation = node.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
+        var invocation = node.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault() ??
+                        node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
         if (invocation == null) return document;
 
         var symbolInfo = semanticModel.GetSymbolInfo(invocation);
@@ -132,6 +133,13 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         InvocationExpressionSyntax invocation,
         List<StatementSyntax> inlinedStatements)
     {
+        // If we have exactly one return statement, replace the invocation with the return expression
+        if (inlinedStatements.Count == 1 && inlinedStatements[0] is ReturnStatementSyntax returnStatement && returnStatement.Expression != null)
+        {
+            return root.ReplaceNode(invocation, returnStatement.Expression.WithTriviaFrom(invocation));
+        }
+
+        // For multiple statements or non-return statements, replace the containing statement
         var containingStatement = invocation.FirstAncestorOrSelf<StatementSyntax>();
         if (containingStatement == null) return root;
 
