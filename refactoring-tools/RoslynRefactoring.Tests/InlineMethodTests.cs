@@ -122,4 +122,35 @@ public class InlineMethodTests
 
         await VerifyInlineAcrossFiles(mathHelperCode, calculatorCode, new Cursor(8, 32)); // Position of Square() call
     }
+
+    [Test]
+    public async Task CanInlineStaticMethodWithTwoParametersAcrossFiles()
+    {
+        const string mathHelperCode = """
+                                      namespace MyProject.Utils
+                                      {
+                                          public static class MathHelper
+                                          {
+                                              public static int Add(int a, int b) => a + b;
+                                          }
+                                      }
+                                      """;
+
+        const string calculatorCode = """
+                                      using MyProject.Utils;
+
+                                      namespace MyProject.Services
+                                      {
+                                          public class Calculator
+                                          {
+                                              public int CalculateSum(int x, int y)
+                                              {
+                                                  return MathHelper.Add(x, y);
+                                              }
+                                          }
+                                      }
+                                      """;
+
+        await VerifyInlineAcrossFiles(mathHelperCode, calculatorCode, new Cursor(8, 32)); // Position of Add() call
+    }
 }

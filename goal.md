@@ -133,7 +133,7 @@ namespace MyProject.Validators
 
 **Examples (ordered by simplicity):**
 - [x] Single expression static method with no parameters: `MathHelper.GetPi()` → `3.14159`
-- [ ] Single expression static method with one parameter: `MathHelper.Square(x)` → `x * x`
+- [x] Single expression static method with one parameter: `MathHelper.Square(x)` → `x * x`
 - [ ] Single expression static method with two parameters: `MathHelper.Add(a, b)` → `a + b`
 - [ ] Static method with simple block body and return: `MathHelper.Max(a, b)` → `{ return a > b ? a : b; }`
 - [ ] Static method called multiple times in same file (inline all occurrences)
