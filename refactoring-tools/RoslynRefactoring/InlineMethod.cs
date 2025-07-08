@@ -17,11 +17,8 @@ public class InlineMethod(Cursor cursor) : IRefactoring
 
     public async Task<Document> PerformAsync(Document document)
     {
-        var root = await document.GetSyntaxRootAsync();
-        if (root == null) return document;
-
-        var semanticModel = await document.GetSemanticModelAsync();
-        if (semanticModel == null) return document;
+        var (root, semanticModel) = await PrepareDocumentAsync(document);
+        if (root == null || semanticModel == null) return document;
 
         var position = GetPositionFromLineColumn(root, cursor);
         var node = root.FindNode(new Microsoft.CodeAnalysis.Text.TextSpan(position, 0));
@@ -52,6 +49,17 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         var newRoot = ReplaceInvocationWithInlinedCode(root, invocation, inlinedStatements);
 
         return document.WithSyntaxRoot(newRoot);
+    }
+
+    private static async Task<(SyntaxNode? root, SemanticModel? semanticModel)> PrepareDocumentAsync(Document document)
+    {
+        var root = await document.GetSyntaxRootAsync();
+        if (root == null) return (null, null);
+
+        var semanticModel = await document.GetSemanticModelAsync();
+        if (semanticModel == null) return (null, null);
+
+        return (root, semanticModel);
     }
 
     private static int GetPositionFromLineColumn(SyntaxNode root, Cursor cursor)
