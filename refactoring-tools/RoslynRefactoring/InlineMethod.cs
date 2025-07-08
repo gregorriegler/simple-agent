@@ -227,6 +227,14 @@ public class InlineMethod(Cursor cursor) : IRefactoring
             return root.ReplaceNode(containingStatement, newStatements.First());
         }
 
+        return ReplaceInBlock(root, containingStatement, newStatements);
+    }
+
+    private static SyntaxNode ReplaceInBlock(
+        SyntaxNode root,
+        StatementSyntax containingStatement,
+        IEnumerable<StatementSyntax> newStatements)
+    {
         var parent = containingStatement.Parent;
         if (parent is BlockSyntax block)
         {
