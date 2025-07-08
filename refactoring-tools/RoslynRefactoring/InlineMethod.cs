@@ -17,18 +17,35 @@ public class InlineMethod(Cursor cursor) : IRefactoring
 
     public async Task<Document> PerformAsync(Document document)
     {
+        var validationResult = await ValidateInvocationContext(document);
+        if (validationResult == null) return document;
+
+        var (root, semanticModel, invocation, methodSymbol, methodDeclaration, methodBody) = validationResult.Value;
+
+        var allInvocations = ProcessAllInvocations(root, semanticModel, methodSymbol, methodDeclaration, methodBody);
+
+        return document.WithSyntaxRoot(allInvocations);
+    }
+
+    private async Task<(SyntaxNode root, SemanticModel semanticModel, InvocationExpressionSyntax invocation, IMethodSymbol methodSymbol, MethodDeclarationSyntax methodDeclaration, BlockSyntax methodBody)?> ValidateInvocationContext(Document document)
+    {
         var (root, semanticModel) = await PrepareDocumentAsync(document);
-        if (root == null || semanticModel == null) return document;
+        if (root == null || semanticModel == null) return null;
 
         var invocation = FindInvocationAtCursor(root, cursor);
-        if (invocation == null) return document;
+        if (invocation == null) return null;
 
         var methodSymbol = ValidateAndGetMethodSymbol(semanticModel, invocation);
-        if (methodSymbol == null) return document;
+        if (methodSymbol == null) return null;
 
         var (methodDeclaration, methodBody, _) = await PrepareMethodForInlining(methodSymbol, invocation);
-        if (methodDeclaration == null || methodBody == null) return document;
+        if (methodDeclaration == null || methodBody == null) return null;
 
+        return (root, semanticModel, invocation, methodSymbol, methodDeclaration, methodBody);
+    }
+
+    private SyntaxNode ProcessAllInvocations(SyntaxNode root, SemanticModel semanticModel, IMethodSymbol methodSymbol, MethodDeclarationSyntax methodDeclaration, BlockSyntax methodBody)
+    {
         // Find all invocations of the same method in the document
         var allInvocations = FindAllInvocationsOfMethod(root, semanticModel, methodSymbol);
 
@@ -45,7 +62,7 @@ public class InlineMethod(Cursor cursor) : IRefactoring
             }
         }
 
-        return document.WithSyntaxRoot(newRoot);
+        return newRoot;
     }
 
     private static async Task<(SyntaxNode? root, SemanticModel? semanticModel)> PrepareDocumentAsync(Document document)
