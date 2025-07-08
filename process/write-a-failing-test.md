@@ -8,9 +8,9 @@ Your answers should be succinct and concise.
     - Read the `README.md` and `goal.md`.
     - Run `pwd`.
 2. Ensure there are no uncommitted changes
-    - **STOP** immediately if uncommitted changes are detected.
-3. Confirm all current tests pass by executing `./test.sh`
-    - Proceed only if all tests pass.
+    - **STOP** immediately if uncommitted changes are detected. use `./say.py` to notify me
+3. Confirm all current tests pass by executing `test.sh`
+    - Proceed only if all tests pass. If they don't stop and notify me using `./say.py`
 5. Think: Will this example already work given the current production code? Do we already have testcode forcing this behavior?
 6. If the answer two both is yes, then we don't have to add any code. Check off the item in `goal.md` and proceed with 3. 
 7. Otherwise, write a failing test
