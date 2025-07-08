@@ -6,6 +6,7 @@ namespace RoslynRefactoring;
 
 /// <summary>
 /// Inline a method call by replacing it with the method's body
+/// Triggers CI rebuild to check for transient test failures
 /// </summary>
 public class InlineMethod(Cursor cursor) : IRefactoring
 {
