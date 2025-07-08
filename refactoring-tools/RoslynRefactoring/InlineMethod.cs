@@ -202,9 +202,10 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         List<StatementSyntax> inlinedStatements)
     {
         // If we have exactly one return statement, replace the invocation with the return expression
-        if (inlinedStatements.Count == 1 && inlinedStatements[0] is ReturnStatementSyntax returnStatement && returnStatement.Expression != null)
+        var singleReturnResult = HandleSingleReturnStatement(root, invocation, inlinedStatements);
+        if (singleReturnResult != null)
         {
-            return root.ReplaceNode(invocation, returnStatement.Expression.WithTriviaFrom(invocation));
+            return singleReturnResult;
         }
 
         // For multiple statements or non-return statements, replace the containing statement
@@ -233,6 +234,18 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         }
 
         return root;
+    }
+
+    private static SyntaxNode? HandleSingleReturnStatement(
+        SyntaxNode root,
+        InvocationExpressionSyntax invocation,
+        List<StatementSyntax> inlinedStatements)
+    {
+        if (inlinedStatements.Count == 1 && inlinedStatements[0] is ReturnStatementSyntax returnStatement && returnStatement.Expression != null)
+        {
+            return root.ReplaceNode(invocation, returnStatement.Expression.WithTriviaFrom(invocation));
+        }
+        return null;
     }
 
     private class ParameterReplacementRewriter(Dictionary<string, ExpressionSyntax> parameterMap) : CSharpSyntaxRewriter
