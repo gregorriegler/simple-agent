@@ -124,12 +124,21 @@ namespace MyProject.Validators
 
 ## Scenarios
 
-### Simple Static Method Call - DRAFT
+### Simple Static Method Call - REFINED
 **File Structure:**
 - `Utils/MathHelper.cs` - Contains simple static method
 - `Services/Calculator.cs` - Calls the static method
 
 **Scenario:** Inline a basic static method call across files with no dependencies.
+
+**Examples (ordered by simplicity):**
+- [ ] Single expression static method with no parameters: `MathHelper.GetPi()` → `3.14159`
+- [ ] Single expression static method with one parameter: `MathHelper.Square(x)` → `x * x`
+- [ ] Single expression static method with two parameters: `MathHelper.Add(a, b)` → `a + b`
+- [ ] Static method with simple block body and return: `MathHelper.Max(a, b)` → `{ return a > b ? a : b; }`
+- [ ] Static method called multiple times in same file (inline all occurrences)
+- [ ] Static method with fully qualified name: `MyProject.Utils.MathHelper.Add(1, 2)`
+- [ ] Static method in different namespace requiring using statement resolution
 
 ### Instance Method with Simple Return - DRAFT
 **File Structure:**
