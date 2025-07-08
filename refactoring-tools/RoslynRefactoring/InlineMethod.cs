@@ -209,6 +209,14 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         }
 
         // For multiple statements or non-return statements, replace the containing statement
+        return HandleMultipleStatements(root, invocation, inlinedStatements);
+    }
+
+    private static SyntaxNode HandleMultipleStatements(
+        SyntaxNode root,
+        InvocationExpressionSyntax invocation,
+        List<StatementSyntax> inlinedStatements)
+    {
         var containingStatement = invocation.FirstAncestorOrSelf<StatementSyntax>();
         if (containingStatement == null) return root;
 
