@@ -23,8 +23,7 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         var invocation = FindInvocationAtCursor(root, cursor);
         if (invocation == null) return document;
 
-        var symbolInfo = semanticModel.GetSymbolInfo(invocation);
-        var methodSymbol = symbolInfo.Symbol as IMethodSymbol;
+        var methodSymbol = ValidateAndGetMethodSymbol(semanticModel, invocation);
         if (methodSymbol == null) return document;
 
         var methodDeclaration = await FindMethodDeclarationAsync(methodSymbol);
@@ -72,6 +71,12 @@ public class InlineMethod(Cursor cursor) : IRefactoring
 
         return node.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault() ??
                node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
+    }
+
+    private static IMethodSymbol? ValidateAndGetMethodSymbol(SemanticModel semanticModel, InvocationExpressionSyntax invocation)
+    {
+        var symbolInfo = semanticModel.GetSymbolInfo(invocation);
+        return symbolInfo.Symbol as IMethodSymbol;
     }
 
     private static async Task<MethodDeclarationSyntax?> FindMethodDeclarationAsync(IMethodSymbol methodSymbol)
