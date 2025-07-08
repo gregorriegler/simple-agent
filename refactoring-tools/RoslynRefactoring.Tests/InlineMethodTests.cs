@@ -91,4 +91,35 @@ public class InlineMethodTests
         var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
         await Verify(formatted.ToFullString());
     }
+
+    [Test]
+    public async Task CanInlineStaticMethodWithOneParameterAcrossFiles()
+    {
+        const string mathHelperCode = """
+                                      namespace MyProject.Utils
+                                      {
+                                          public static class MathHelper
+                                          {
+                                              public static int Square(int x) => x * x;
+                                          }
+                                      }
+                                      """;
+
+        const string calculatorCode = """
+                                      using MyProject.Utils;
+
+                                      namespace MyProject.Services
+                                      {
+                                          public class Calculator
+                                          {
+                                              public int CalculateArea(int side)
+                                              {
+                                                  return MathHelper.Square(side);
+                                              }
+                                          }
+                                      }
+                                      """;
+
+        await VerifyInlineAcrossFiles(mathHelperCode, calculatorCode, new Cursor(8, 32)); // Position of Square() call
+    }
 }
