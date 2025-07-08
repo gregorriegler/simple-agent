@@ -37,12 +37,16 @@ public class InlineMethodTests
         await Verify(formatted.ToFullString());
     }
 
-    private static Document CreateDocument(string code)
+    private static Microsoft.CodeAnalysis.Project CreateWorkspaceWithProject()
     {
         var workspace = new AdhocWorkspace();
-        var project = workspace.CurrentSolution.AddProject("TestProject", "TestProject.dll", LanguageNames.CSharp)
+        return workspace.CurrentSolution.AddProject("TestProject", "TestProject.dll", LanguageNames.CSharp)
             .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
+    }
 
+    private static Document CreateDocument(string code)
+    {
+        var project = CreateWorkspaceWithProject();
         return project.AddDocument("Test.cs", code);
     }
     [Test]
@@ -78,9 +82,7 @@ public class InlineMethodTests
 
     private static async Task VerifyInlineAcrossFiles(string sourceFileCode, string targetFileCode, Cursor cursor)
     {
-        var workspace = new AdhocWorkspace();
-        var project = workspace.CurrentSolution.AddProject("TestProject", "TestProject.dll", LanguageNames.CSharp)
-            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
+        var project = CreateWorkspaceWithProject();
 
         // Add both files to the project
         project = project.AddDocument("Utils/MathHelper.cs", sourceFileCode).Project;
