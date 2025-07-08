@@ -1,44 +1,25 @@
 # Refactoring Plan
 
-## Identified Issues to Improve
+## Identified Issue to Improve
 
-### 1. Feature Envy - TryCreateEntryPoint Method
-The [`TryCreateEntryPoint()`](refactoring-tools/RoslynAnalysis/EntryPointFinder.cs:59) method shows Feature Envy by directly accessing multiple properties of the `methodSymbol` and `containingType` objects:
-- Line 72: `methodSymbol.ContainingType`
-- Line 79: `containingType.ContainingNamespace.ToDisplayString()`, `containingType.Name`, `methodSymbol.Name`
-- Line 86: `GetMethodSignature(methodSymbol)`
-- Line 76: `IsTestMethod(methodSymbol)`
+### Long Method - InlineMethod.PerformAsync()
+The [`PerformAsync()`](refactoring-tools/RoslynRefactoring/InlineMethod.cs:18) method is 37 lines long and handles multiple responsibilities:
+- Document preparation (getting syntax root and semantic model)
+- Cursor position resolution and node finding
+- Method invocation discovery and validation
+- Method symbol resolution and declaration finding
+- Method body extraction and transformation
+- Parameter mapping creation
+- Method body inlining
+- Final code replacement
 
-This method is more interested in the `IMethodSymbol` and `INamedTypeSymbol` data than its own class data, suggesting the logic should be moved closer to where the data lives or encapsulated in a more cohesive way.
-
-### 2. Long Parameter List - CollectAllMethods Return Type
-The [`CollectAllMethods()`](refactoring-tools/RoslynAnalysis/EntryPointFinder.cs:152) method returns a complex tuple with a very long type signature that makes the code hard to read and understand:
-```csharp
-(List<(EntryPoint entryPoint, Document document, MethodDeclarationSyntax methodDeclaration, SemanticModel semanticModel)> allPublicMethods, List<MethodInfo> allMethods)
-```
-
-### 3. Duplicated Code - Method Symbol Resolution Pattern
-The pattern for getting method symbols from syntax nodes appears multiple times:
-- Line 68: `semanticModel.GetDeclaredSymbol(methodDeclaration)`
-- Line 111: `currentSemanticModel.GetDeclaredSymbol(currentMethod)`
-- Line 172: `semanticModel.GetDeclaredSymbol(methodDeclaration)`
-- Line 285: `semanticModel.GetDeclaredSymbol(currentMethod)`
-
-Each follows the same pattern of null checking and casting.
-
-### 4. Long Method - CollectAllMethods
-The [`CollectAllMethods()`](refactoring-tools/RoslynAnalysis/EntryPointFinder.cs:152) method is 36 lines long and handles multiple responsibilities:
-- Document iteration and syntax tree loading
-- Semantic model retrieval
-- Method declaration discovery
-- Method symbol resolution
-- MethodInfo creation
-- Entry point creation and collection
+This method violates the Single Responsibility Principle and makes the code harder to understand, test, and maintain.
 
 ## Refactoring Tasks
 
-- [x] Extract method: Create `CreateMethodSymbolResolver()` to encapsulate the common pattern of getting and validating method symbols
-- [x] Introduce parameter object: Create `PublicMethodCollection` class to replace the complex tuple return type in `CollectAllMethods()`
-- [x] Extract method: Create `ProcessDocument()` from `CollectAllMethods()` to handle individual document processing
-- [x] Move method: Move entry point validation logic from `TryCreateEntryPoint()` to a new `EntryPointValidator` class to reduce Feature Envy
-- [x] Extract method: Create `CreateEntryPointFromMethod()` to separate the entry point creation logic from validation
+- [ ] Extract method: Create `PrepareDocumentAsync()` to handle document preparation (lines 20-24)
+- [ ] Extract method: Create `FindInvocationAtCursor()` to handle cursor position resolution and invocation finding (lines 26-31)
+- [ ] Extract method: Create `ValidateAndGetMethodSymbol()` to handle method symbol validation (lines 33-35)
+- [ ] Extract method: Create `PrepareMethodForInlining()` to handle method declaration finding and body preparation (lines 37-46)
+- [ ] Extract method: Create `PerformInlining()` to handle the actual inlining process (lines 48-52)
+- [ ] Refactor `PerformAsync()` to orchestrate these smaller methods, making the main flow clearer and easier to follow
