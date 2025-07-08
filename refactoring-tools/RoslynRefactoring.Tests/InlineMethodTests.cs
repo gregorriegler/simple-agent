@@ -153,4 +153,38 @@ public class InlineMethodTests
 
         await VerifyInlineAcrossFiles(mathHelperCode, calculatorCode, new Cursor(8, 32)); // Position of Add() call
     }
+
+    [Test]
+    public async Task CanInlineStaticMethodWithBlockBodyAcrossFiles()
+    {
+        const string mathHelperCode = """
+                                      namespace MyProject.Utils
+                                      {
+                                          public static class MathHelper
+                                          {
+                                              public static int Max(int a, int b)
+                                              {
+                                                  return a > b ? a : b;
+                                              }
+                                          }
+                                      }
+                                      """;
+
+        const string calculatorCode = """
+                                      using MyProject.Utils;
+
+                                      namespace MyProject.Services
+                                      {
+                                          public class Calculator
+                                          {
+                                              public int FindMaximum(int x, int y)
+                                              {
+                                                  return MathHelper.Max(x, y);
+                                              }
+                                          }
+                                      }
+                                      """;
+
+        await VerifyInlineAcrossFiles(mathHelperCode, calculatorCode, new Cursor(8, 32)); // Position of Max() call
+    }
 }
