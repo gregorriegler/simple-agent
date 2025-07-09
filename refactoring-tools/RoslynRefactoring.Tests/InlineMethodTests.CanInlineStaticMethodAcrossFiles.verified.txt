@@ -1,6 +1,6 @@
-﻿using MyProject.Utils;
+﻿using CanInlineStaticMethodAcrossFiles.Utils;
 
-namespace MyProject.Services
+namespace CanInlineStaticMethodAcrossFiles.Services
 {
     public class Calculator
     {
