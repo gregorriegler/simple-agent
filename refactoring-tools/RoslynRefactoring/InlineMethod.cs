@@ -48,8 +48,8 @@ public class InlineMethod(Cursor cursor) : IRefactoring
     {
         // Find all invocations of the same method in the document
         var allInvocations = FindAllInvocationsOfMethod(root, semanticModel, methodSymbol);
-        System.Console.WriteLine("*** DEBUG");
-        System.Console.WriteLine(allInvocations.Count);
+        Console.WriteLine("*** DEBUG allInvocations.Count");
+        Console.WriteLine(allInvocations.Count);
         // Process invocations in reverse order (bottom to top) to avoid invalidating node references
         var newRoot = root;
         foreach (var inv in allInvocations.OrderByDescending(i => i.SpanStart))
@@ -290,6 +290,8 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         InvocationExpressionSyntax invocation,
         List<StatementSyntax> inlinedStatements)
     {
+        Console.WriteLine("*** DEBUG ReplaceInvocationWithInlinedCode");
+        Console.WriteLine(root.ToString());
         // If we have exactly one return statement, replace the invocation with the return expression
         var singleReturnResult = HandleSingleReturnStatement(root, invocation, inlinedStatements);
         if (singleReturnResult != null)
@@ -348,6 +350,7 @@ public class InlineMethod(Cursor cursor) : IRefactoring
     {
         if (inlinedStatements.Count == 1 && inlinedStatements[0] is ReturnStatementSyntax returnStatement && returnStatement.Expression != null)
         {
+            Console.WriteLine("HandleSingleReturnStatement: in IF");
             return root.ReplaceNode(invocation, returnStatement.Expression.WithTriviaFrom(invocation));
         }
         return null;
