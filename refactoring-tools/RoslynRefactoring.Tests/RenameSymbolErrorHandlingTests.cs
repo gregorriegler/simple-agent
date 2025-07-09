@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis;
 using RoslynRefactoring.Tests.TestHelpers;
 
 namespace RoslynRefactoring.Tests;
