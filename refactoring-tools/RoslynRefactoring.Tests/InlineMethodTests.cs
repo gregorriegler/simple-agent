@@ -29,14 +29,6 @@ public class InlineMethodTests
         await VerifyInline(code, new Cursor(5,16));
     }
 
-    private static async Task VerifyInline(string code, Cursor cursor)
-    {
-        var document = DocumentTestHelper.CreateDocument(code);
-        var inlineMethod = new InlineMethod(cursor);
-        var updatedDocument = await inlineMethod.PerformAsync(document);
-        var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
-        await Verify(formatted.ToFullString());
-    }
     [Test]
     public async Task CanInlineStaticMethodAcrossFiles()
     {
@@ -263,5 +255,14 @@ public class InlineMethodTests
                                       """;
 
         await VerifyInlineAcrossFiles(mathHelperCode, calculatorCode, new Cursor(6, 32)); // Position of Add() call
+    }
+
+    private static async Task VerifyInline(string code, Cursor cursor)
+    {
+        var document = DocumentTestHelper.CreateDocument(code);
+        var inlineMethod = new InlineMethod(cursor);
+        var updatedDocument = await inlineMethod.PerformAsync(document);
+        var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
+        await Verify(formatted.ToFullString());
     }
 }
