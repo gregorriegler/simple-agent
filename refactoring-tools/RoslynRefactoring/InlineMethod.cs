@@ -48,7 +48,8 @@ public class InlineMethod(Cursor cursor) : IRefactoring
     {
         // Find all invocations of the same method in the document
         var allInvocations = FindAllInvocationsOfMethod(root, semanticModel, methodSymbol);
-
+        System.Console.WriteLine("*** DEBUG");
+        System.Console.WriteLine(allInvocations.Count);
         // Process invocations in reverse order (bottom to top) to avoid invalidating node references
         var newRoot = root;
         foreach (var inv in allInvocations.OrderByDescending(i => i.SpanStart))
