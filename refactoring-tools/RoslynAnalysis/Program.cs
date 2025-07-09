@@ -1,3 +1,4 @@
+using Microsoft.Build.Locator;
 using RoslynAnalysis;
 
 if (args.Length == 0)
@@ -26,6 +27,8 @@ if (args.Length < 2)
     Console.WriteLine("Usage: RoslynAnalysis <analysis-name> <project-path> [file-name] [analysis-args...]");
     return;
 }
+MSBuildLocator.RegisterDefaults();
+
 var projectPath = args[1].Trim('"');
 var fileName = args.Length > 2 ? args[2] : "";
 var analysisArgs = args.Skip(3).ToArray();

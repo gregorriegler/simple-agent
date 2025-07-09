@@ -1,4 +1,4 @@
-using Microsoft.CodeAnalysis;
+using Microsoft.Build.Locator;
 
 namespace RoslynAnalysis.Tests;
 
@@ -6,14 +6,26 @@ namespace RoslynAnalysis.Tests;
 public class EntryPointFinderTests
 {
     private EntryPointFinder _entryPointFinder;
-    
+
+    [OneTimeSetUp]
+    public void OneTimeSetup()
+    {
+        try
+        {
+            MSBuildLocator.RegisterDefaults();
+        }
+        catch (Exception)
+        {
+
+        }
+    }
+
     [SetUp]
     public void Setup()
     {
-        var workspaceLoader = new MSBuildWorkspaceLoader();
-        _entryPointFinder = new EntryPointFinder(workspaceLoader);
+        _entryPointFinder = new EntryPointFinder();
     }
-    
+
     [Test]
     public async Task SinglePublicMethod_IsIdentifiedAsEntryPoint()
     {
@@ -28,7 +40,7 @@ public class EntryPointFinderTests
         Assert.That(entryPoint.MethodSignature, Is.EqualTo("void SimpleMethod()"));
         Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(1));
     }
-    
+
     [Test]
     public async Task MultiplePublicMethods_AllIdentifiedAsEntryPoints()
     {
@@ -40,20 +52,20 @@ public class EntryPointFinderTests
         Assert.That(entryPoints[0].FullyQualifiedName, Does.EndWith("Add"));
         Assert.That(entryPoints[1].FullyQualifiedName, Does.EndWith("Subtract").Or.EndsWith("GetName"));
         Assert.That(entryPoints[2].FullyQualifiedName, Does.EndWith("Subtract").Or.EndsWith("GetName"));
-        
+
         var addMethod = entryPoints[0];
         Assert.That(addMethod.MethodSignature, Is.EqualTo("int Add(int a, int b)"));
         Assert.That(addMethod.ReachableMethodsCount, Is.EqualTo(2));
-        
+
         var subtractMethod = entryPoints[1].FullyQualifiedName.EndsWith("Subtract") ? entryPoints[1] : entryPoints[2];
         Assert.That(subtractMethod.MethodSignature, Is.EqualTo("int Subtract(int a, int b)"));
         Assert.That(subtractMethod.ReachableMethodsCount, Is.EqualTo(1));
-        
+
         var getNameMethod = entryPoints[1].FullyQualifiedName.EndsWith("GetName") ? entryPoints[1] : entryPoints[2];
         Assert.That(getNameMethod.MethodSignature, Is.EqualTo("string GetName()"));
         Assert.That(getNameMethod.ReachableMethodsCount, Is.EqualTo(1));
     }
-    
+
     [Test]
     public async Task EntryPoints_AreSortedByReachableMethodsCountDescending()
     {
@@ -64,18 +76,18 @@ public class EntryPointFinderTests
         Assert.That(entryPoints, Has.Count.EqualTo(3));
         Assert.That(entryPoints[0].FullyQualifiedName, Does.EndWith("Add"), "First method should be Add");
         Assert.That(entryPoints[0].ReachableMethodsCount, Is.EqualTo(2));
-        Assert.That(entryPoints[1].ReachableMethodsCount, Is.EqualTo(1), 
+        Assert.That(entryPoints[1].ReachableMethodsCount, Is.EqualTo(1),
             $"Method {entryPoints[1].FullyQualifiedName} should have ReachableMethodsCount = 1");
-        Assert.That(entryPoints[2].ReachableMethodsCount, Is.EqualTo(1), 
+        Assert.That(entryPoints[2].ReachableMethodsCount, Is.EqualTo(1),
             $"Method {entryPoints[2].FullyQualifiedName} should have ReachableMethodsCount = 1");
-        Assert.That(entryPoints[1].FullyQualifiedName, 
+        Assert.That(entryPoints[1].FullyQualifiedName,
             Does.EndWith("GetName").Or.EndsWith("Subtract"),
             $"Unexpected method: {entryPoints[1].FullyQualifiedName}");
-        Assert.That(entryPoints[2].FullyQualifiedName, 
+        Assert.That(entryPoints[2].FullyQualifiedName,
             Does.EndWith("GetName").Or.EndsWith("Subtract"),
             $"Unexpected method: {entryPoints[2].FullyQualifiedName}");
     }
-    
+
     [Test]
     public async Task MultipleClasses_AllPublicMethodsIdentifiedAsEntryPoints()
     {
@@ -84,13 +96,13 @@ public class EntryPointFinderTests
         var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(5));
-        
+
         bool hasAdd = false;
         bool hasSubtract = false;
         bool hasLog = false;
         bool hasIsValid = false;
         bool hasGetErrorMessage = false;
-        
+
         foreach (var entryPoint in entryPoints)
         {
             if (entryPoint.FullyQualifiedName.Contains("Calculator.Add"))
@@ -119,7 +131,7 @@ public class EntryPointFinderTests
                 Assert.That(entryPoint.MethodSignature, Is.EqualTo("string GetErrorMessage()"));
             }
         }
-        
+
         // Verify all expected methods were found
         Assert.That(hasAdd, Is.True, "Could not find Calculator.Add method");
         Assert.That(hasSubtract, Is.True, "Could not find Calculator.Subtract method");
@@ -127,7 +139,7 @@ public class EntryPointFinderTests
         Assert.That(hasIsValid, Is.True, "Could not find Validator.IsValid method");
         Assert.That(hasGetErrorMessage, Is.True, "Could not find Validator.GetErrorMessage method");
     }
-    
+
     [Test]
     public async Task PublicMethodCallingOtherMethods_CountsReachableMethods()
     {
@@ -136,13 +148,13 @@ public class EntryPointFinderTests
         var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(1));
-        
+
         var entryPoint = entryPoints[0];
         Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo("CallProject.BusinessLogic.ProcessData"));
         Assert.That(entryPoint.MethodSignature, Is.EqualTo("string ProcessData(string input)"));
         Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(4)); // ProcessData + ValidateInput + TransformData + FormatOutput
     }
-    
+
     [Test]
     public async Task MainMethod_IsRecognizedAsEntryPoint()
     {
@@ -151,13 +163,13 @@ public class EntryPointFinderTests
         var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(1));
-        
+
         var entryPoint = entryPoints[0];
         Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo("MainProject.Program.Main"));
         Assert.That(entryPoint.MethodSignature, Is.EqualTo("void Main(string[] args)"));
         Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(1));
     }
-    
+
     [Test]
     public async Task MethodWithParameters_IncludesParameterTypesInSignature()
     {
@@ -166,12 +178,12 @@ public class EntryPointFinderTests
         var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(3));
-        
+
         // Find methods by their known signatures since we know the expected outcome
         EntryPoint? addMethod = null;
         EntryPoint? processMethod = null;
         EntryPoint? calculateMethod = null;
-        
+
         for (int i = 0; i < entryPoints.Count; i++)
         {
             if (entryPoints[i].FullyQualifiedName.EndsWith("Add"))
@@ -181,17 +193,17 @@ public class EntryPointFinderTests
             else if (entryPoints[i].FullyQualifiedName.EndsWith("Calculate"))
                 calculateMethod = entryPoints[i];
         }
-        
+
         Assert.That(addMethod, Is.Not.Null, "Could not find Add method");
         Assert.That(addMethod.MethodSignature, Is.EqualTo("int Add(int a, int b)"));
-        
+
         Assert.That(processMethod, Is.Not.Null, "Could not find ProcessData method");
         Assert.That(processMethod.MethodSignature, Is.EqualTo("string ProcessData(string input, bool validate)"));
-        
+
         Assert.That(calculateMethod, Is.Not.Null, "Could not find Calculate method");
         Assert.That(calculateMethod.MethodSignature, Is.EqualTo("double Calculate(double x, double y, int precision)"));
     }
-    
+
     [Test]
     public async Task MethodWithReturnValue_IncludesReturnTypeInSignature()
     {
@@ -200,20 +212,20 @@ public class EntryPointFinderTests
         var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(4));
-        
+
         var getNameMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("GetName"));
         Assert.That(getNameMethod.MethodSignature, Is.EqualTo("string GetName()"));
-        
+
         var getCountMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("GetCount"));
         Assert.That(getCountMethod.MethodSignature, Is.EqualTo("int GetCount()"));
-        
+
         var isValidMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("IsValid"));
         Assert.That(isValidMethod.MethodSignature, Is.EqualTo("bool IsValid()"));
-        
+
         var getDataMethod = entryPoints.First(ep => ep.FullyQualifiedName.EndsWith("GetData"));
         Assert.That(getDataMethod.MethodSignature, Is.EqualTo("List<string> GetData()"));
     }
-    
+
     [Test]
     public async Task CrossClassMethodCalls_CountsReachableMethodsAcrossClasses()
     {
@@ -222,19 +234,19 @@ public class EntryPointFinderTests
         var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(1));
-        
+
         var entryPoint = entryPoints[0];
         Assert.That(entryPoint.FullyQualifiedName, Is.EqualTo("CrossCallProject.OrderService.ProcessOrder"));
         Assert.That(entryPoint.MethodSignature, Is.EqualTo("string ProcessOrder(string orderId)"));
         Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(6));
     }
-    
+
     private string CreateProjectBase(string projectName)
     {
         var uniqueProjectName = $"{projectName}_{Guid.NewGuid():N}";
         var projectDir = Path.Combine(Path.GetTempPath(), uniqueProjectName);
         Directory.CreateDirectory(projectDir);
-        
+
         var projectPath = Path.Combine(projectDir, $"{uniqueProjectName}.csproj");
         File.WriteAllText(projectPath, @"
 <Project Sdk=""Microsoft.NET.Sdk"">
@@ -245,23 +257,23 @@ public class EntryPointFinderTests
   </PropertyGroup>
 </Project>"
         );
-        
+
         return projectPath;
     }
-    
+
     private string CreateSourceFile(string projectDir, string fileName, string fileContent)
     {
         var sourceFilePath = Path.Combine(projectDir, fileName);
         File.WriteAllText(sourceFilePath, fileContent);
         return sourceFilePath;
     }
-    
+
     private string CreateSingleClassProject()
     {
         var projectPath = CreateProjectBase("SimpleProject");
         var projectDir = Path.GetDirectoryName(projectPath)!;
         var projectName = Path.GetFileNameWithoutExtension(projectPath);
-        
+
         CreateSourceFile(projectDir, "SimpleClass.cs", $@"
 namespace {projectName}
 {{
@@ -269,20 +281,20 @@ namespace {projectName}
     {{
         public void SimpleMethod()
         {{
-            
+
         }}
     }}
 }}"
         );
-        
+
         return projectPath;
     }
-    
+
     private string CreateProjectWithMultiplePublicMethods()
     {
         var projectPath = CreateProjectBase("MultiMethodProject");
         var projectDir = Path.GetDirectoryName(projectPath)!;
-        
+
         CreateSourceFile(projectDir, "Calculator.cs", @"
 namespace MultiMethodProject
 {
@@ -292,17 +304,17 @@ namespace MultiMethodProject
         {
             return Multiply(a, 1) + Multiply(b, 1);
         }
-        
+
         public int Subtract(int a, int b)
         {
             return a - b;
         }
-        
+
         public string GetName()
         {
             return ""Calculator"";
         }
-        
+
         private int Multiply(int a, int b)
         {
             return a * b;
@@ -310,15 +322,15 @@ namespace MultiMethodProject
     }
 }"
         );
-        
+
         return projectPath;
     }
-    
+
     private string CreateProjectWithMultipleClasses()
     {
         var projectPath = CreateProjectBase("MultiClassProject");
         var projectDir = Path.GetDirectoryName(projectPath)!;
-        
+
         CreateSourceFile(projectDir, "Calculator.cs", @"
 namespace MultiClassProject
 {
@@ -328,12 +340,12 @@ namespace MultiClassProject
         {
             return a + b;
         }
-        
+
         public int Subtract(int a, int b)
         {
             return a - b;
         }
-        
+
         private int Multiply(int a, int b)
         {
             return a * b;
@@ -341,7 +353,7 @@ namespace MultiClassProject
     }
 }"
         );
-        
+
         CreateSourceFile(projectDir, "Logger.cs", @"
 namespace MultiClassProject
 {
@@ -351,7 +363,7 @@ namespace MultiClassProject
         {
             // Log the message
         }
-        
+
         private void LogToFile(string message)
         {
             // Log to file
@@ -359,7 +371,7 @@ namespace MultiClassProject
     }
 }"
         );
-        
+
         CreateSourceFile(projectDir, "Validator.cs", @"
 namespace MultiClassProject
 {
@@ -369,7 +381,7 @@ namespace MultiClassProject
         {
             return !string.IsNullOrEmpty(input);
         }
-        
+
         public string GetErrorMessage()
         {
             return ""Invalid input"";
@@ -377,15 +389,15 @@ namespace MultiClassProject
     }
 }"
         );
-        
+
         return projectPath;
     }
-    
+
     private string CreateProjectWithMethodCalls()
     {
         var projectPath = CreateProjectBase("CallProject");
         var projectDir = Path.GetDirectoryName(projectPath)!;
-        
+
         CreateSourceFile(projectDir, "BusinessLogic.cs", @"
 namespace CallProject
 {
@@ -397,17 +409,17 @@ namespace CallProject
             var transformedData = TransformData(validatedInput);
             return FormatOutput(transformedData);
         }
-        
+
         private string ValidateInput(string input)
         {
             return string.IsNullOrEmpty(input) ? ""default"" : input;
         }
-        
+
         private string TransformData(string data)
         {
             return data.ToUpper();
         }
-        
+
         private string FormatOutput(string data)
         {
             return $""Result: {data}"";
@@ -415,15 +427,15 @@ namespace CallProject
     }
 }"
         );
-        
+
         return projectPath;
     }
-    
+
     private string CreateProjectWithMainMethod()
     {
         var projectPath = CreateProjectBase("MainProject");
         var projectDir = Path.GetDirectoryName(projectPath)!;
-        
+
         CreateSourceFile(projectDir, "Program.cs", @"
 namespace MainProject
 {
@@ -436,15 +448,15 @@ namespace MainProject
     }
 }"
         );
-        
+
         return projectPath;
     }
-    
+
     private string CreateProjectWithParameterizedMethods()
     {
         var projectPath = CreateProjectBase("ParameterProject");
         var projectDir = Path.GetDirectoryName(projectPath)!;
-        
+
         CreateSourceFile(projectDir, "MathOperations.cs", @"
 namespace ParameterProject
 {
@@ -454,14 +466,14 @@ namespace ParameterProject
         {
             return a + b;
         }
-        
+
         public string ProcessData(string input, bool validate)
         {
             if (validate && string.IsNullOrEmpty(input))
                 return ""Invalid"";
             return input?.ToUpper() ?? ""Empty"";
         }
-        
+
         public double Calculate(double x, double y, int precision)
         {
             var result = x * y;
@@ -470,15 +482,15 @@ namespace ParameterProject
     }
 }"
         );
-        
+
         return projectPath;
     }
-    
+
     private string CreateProjectWithReturnValueMethods()
     {
         var projectPath = CreateProjectBase("ReturnValueProject");
         var projectDir = Path.GetDirectoryName(projectPath)!;
-        
+
         CreateSourceFile(projectDir, "DataService.cs", @"
 using System.Collections.Generic;
 
@@ -490,17 +502,17 @@ namespace ReturnValueProject
         {
             return ""DataService"";
         }
-        
+
         public int GetCount()
         {
             return 42;
         }
-        
+
         public bool IsValid()
         {
             return true;
         }
-        
+
         public List<string> GetData()
         {
             return new List<string> { ""item1"", ""item2"", ""item3"" };
@@ -508,10 +520,10 @@ namespace ReturnValueProject
     }
 }"
         );
-        
+
         return projectPath;
     }
-    
+
     [Test]
     public async Task CircularReferences_HandledGracefully()
     {
@@ -520,7 +532,7 @@ namespace ReturnValueProject
         var entryPoints = await _entryPointFinder.FindEntryPointsAsync(projectPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(1));
-        
+
         var entryPoint = entryPoints[0];
         Assert.That(entryPoint.FullyQualifiedName, Does.EndWith(".CircularService.StartProcess"));
         Assert.That(entryPoint.MethodSignature, Is.EqualTo("string StartProcess(string input)"));
@@ -529,13 +541,13 @@ namespace ReturnValueProject
         // Total unique methods: StartProcess, ProcessA, ProcessB = 3
         Assert.That(entryPoint.ReachableMethodsCount, Is.EqualTo(3));
     }
-    
+
     private string CreateProjectWithCircularReferences()
     {
         var projectName = $"CircularProject_{Guid.NewGuid():N}";
         var projectDir = Path.Combine(Path.GetTempPath(), projectName);
         Directory.CreateDirectory(projectDir);
-        
+
         var projectPath = Path.Combine(projectDir, $"{projectName}.csproj");
         File.WriteAllText(projectPath, @"
 <Project Sdk=""Microsoft.NET.Sdk"">
@@ -546,7 +558,7 @@ namespace ReturnValueProject
   </PropertyGroup>
 </Project>"
         );
-        
+
         // Create only the one source file we want
         var sourceFilePath = Path.Combine(projectDir, "CircularService.cs");
         File.WriteAllText(sourceFilePath, $@"
@@ -558,33 +570,33 @@ namespace {projectName}
         {{
             return ProcessA(input);
         }}
-        
+
         private string ProcessA(string data)
         {{
             // This creates a circular reference: ProcessA -> ProcessB -> ProcessA
             return ProcessB(data + ""_A"");
         }}
-        
+
         private string ProcessB(string data)
         {{
             if (data.Length > 10)
                 return data; // Break the cycle conditionally
-            
+
             // This creates the circular reference back to ProcessA
             return ProcessA(data + ""_B"");
         }}
     }}
 }}"
         );
-        
+
         return projectPath;
     }
-    
+
     private string CreateProjectWithCrossClassCalls()
     {
         var projectPath = CreateProjectBase("CrossCallProject");
         var projectDir = Path.GetDirectoryName(projectPath)!;
-        
+
         CreateSourceFile(projectDir, "OrderService.cs", @"
 namespace CrossCallProject
 {
@@ -592,18 +604,18 @@ namespace CrossCallProject
     {
         private PaymentService _paymentService = new PaymentService();
         private EmailService _emailService = new EmailService();
-        
+
         public string ProcessOrder(string orderId)
         {
             var isValid = ValidateOrder(orderId);
             if (!isValid) return ""Invalid order"";
-            
+
             var paymentResult = _paymentService.ProcessPayment(orderId);
             _emailService.SendConfirmation(orderId);
-            
+
             return $""Order {orderId} processed successfully"";
         }
-        
+
         private bool ValidateOrder(string orderId)
         {
             return !string.IsNullOrEmpty(orderId);
@@ -611,7 +623,7 @@ namespace CrossCallProject
     }
 }"
         );
-        
+
         CreateSourceFile(projectDir, "PaymentService.cs", @"
 namespace CrossCallProject
 {
@@ -622,7 +634,7 @@ namespace CrossCallProject
             LogPayment(orderId);
             return $""Payment processed for {orderId}"";
         }
-        
+
         private void LogPayment(string orderId)
         {
             // Log payment details
@@ -630,7 +642,7 @@ namespace CrossCallProject
     }
 }"
         );
-        
+
         CreateSourceFile(projectDir, "EmailService.cs", @"
 namespace CrossCallProject
 {
@@ -641,7 +653,7 @@ namespace CrossCallProject
             var emailContent = FormatEmail(orderId);
             // Send email
         }
-        
+
         private string FormatEmail(string orderId)
         {
             return $""Your order {orderId} has been confirmed."";
@@ -649,10 +661,10 @@ namespace CrossCallProject
     }
 }"
         );
-        
+
         return projectPath;
     }
-    
+
     [Test]
     public async Task SolutionFile_LoadsAllProjectsAndFindsEntryPoints()
     {
@@ -661,27 +673,27 @@ namespace CrossCallProject
         var entryPoints = await _entryPointFinder.FindEntryPointsAsync(solutionPath);
 
         Assert.That(entryPoints, Has.Count.EqualTo(3));
-        
+
         // Should find entry points from both projects
         var project1Methods = entryPoints.Where(ep => ep.FullyQualifiedName.Contains("Project1")).ToList();
         Assert.That(project1Methods, Has.Count.EqualTo(1));
         Assert.That(project1Methods.First().FullyQualifiedName, Does.EndWith("Calculator.Add"));
-        
+
         var project2Methods = entryPoints.Where(ep => ep.FullyQualifiedName.Contains("Project2")).ToList();
         Assert.That(project2Methods, Has.Count.EqualTo(2));
         Assert.That(project2Methods.Any(ep => ep.FullyQualifiedName.EndsWith("Logger.Log")), Is.True);
         Assert.That(project2Methods.Any(ep => ep.FullyQualifiedName.EndsWith("Validator.IsValid")), Is.True);
     }
-    
+
     private string CreateSolutionWithMultipleProjects()
     {
         var solutionName = $"TestSolution_{Guid.NewGuid():N}";
         var solutionDir = Path.Combine(Path.GetTempPath(), solutionName);
         Directory.CreateDirectory(solutionDir);
-        
+
         // Create solution file
         var solutionPath = Path.Combine(solutionDir, $"{solutionName}.sln");
-        
+
         // Create Project1
         var project1Dir = Path.Combine(solutionDir, "Project1");
         Directory.CreateDirectory(project1Dir);
@@ -694,7 +706,7 @@ namespace CrossCallProject
     <Nullable>enable</Nullable>
   </PropertyGroup>
 </Project>");
-        
+
         CreateSourceFile(project1Dir, "Calculator.cs", @"
 namespace Project1
 {
@@ -706,7 +718,7 @@ namespace Project1
         }
     }
 }");
-        
+
         // Create Project2
         var project2Dir = Path.Combine(solutionDir, "Project2");
         Directory.CreateDirectory(project2Dir);
@@ -719,7 +731,7 @@ namespace Project1
     <Nullable>enable</Nullable>
   </PropertyGroup>
 </Project>");
-        
+
         CreateSourceFile(project2Dir, "Logger.cs", @"
 namespace Project2
 {
@@ -731,7 +743,7 @@ namespace Project2
         }
     }
 }");
-        
+
         CreateSourceFile(project2Dir, "Validator.cs", @"
 namespace Project2
 {
@@ -743,12 +755,12 @@ namespace Project2
         }
     }
 }");
-        
+
         // Create solution file content
         var project1Guid = Guid.NewGuid().ToString().ToUpper();
         var project2Guid = Guid.NewGuid().ToString().ToUpper();
         var solutionGuid = Guid.NewGuid().ToString().ToUpper();
-        
+
         var solutionContent = $@"
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
@@ -780,12 +792,12 @@ Global
 		SolutionGuid = {{{solutionGuid}}}
 	EndGlobalSection
 EndGlobal";
-        
+
         File.WriteAllText(solutionPath, solutionContent);
-        
+
         return solutionPath;
     }
-    
+
     [Test]
     public async Task TestMethod_ExcludedFromEntryPoints()
     {
@@ -797,13 +809,13 @@ EndGlobal";
         Assert.That(entryPoints, Has.Count.EqualTo(1));
         Assert.That(entryPoints[0].FullyQualifiedName, Does.EndWith("Calculator.Add"));
     }
-    
-    
+
+
     private string CreateProjectWithTestMethod()
     {
         var projectPath = CreateProjectBase("TestMethodProject");
         var projectDir = Path.GetDirectoryName(projectPath)!;
-        
+
         // Add NUnit package reference to the project file
         var projectContent = @"
 <Project Sdk=""Microsoft.NET.Sdk"">
@@ -817,7 +829,7 @@ EndGlobal";
   </ItemGroup>
 </Project>";
         File.WriteAllText(projectPath, projectContent);
-        
+
         CreateSourceFile(projectDir, "Calculator.cs", @"
 using NUnit.Framework;
 
@@ -829,7 +841,7 @@ namespace TestMethodProject
         {
             return a + b;
         }
-        
+
         [Test]
         public void TestAdd()
         {
@@ -838,7 +850,7 @@ namespace TestMethodProject
         }
     }
 }");
-        
+
         return projectPath;
     }
 }

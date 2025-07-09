@@ -5,11 +5,8 @@ namespace RoslynAnalysis;
 /// </summary>
 public class EntryPointAnalysis : IAnalysis
 {
-    private readonly IWorkspaceLoader _workspaceLoader;
-
     public EntryPointAnalysis()
     {
-        _workspaceLoader = new MSBuildWorkspaceLoader();
     }
 
     public static EntryPointAnalysis Create(string[] args)
@@ -19,7 +16,7 @@ public class EntryPointAnalysis : IAnalysis
 
     public async Task<object> AnalyzeAsync(Microsoft.CodeAnalysis.Project project, string fileName)
     {
-        var entryPointFinder = new EntryPointFinder(_workspaceLoader);
+        var entryPointFinder = new EntryPointFinder();
         var entryPoints = await entryPointFinder.FindEntryPointsAsync(project.FilePath!);
 
         return new

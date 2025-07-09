@@ -1,6 +1,8 @@
+using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.MSBuild;
 
 namespace RoslynAnalysis;
 
@@ -70,18 +72,16 @@ public class EntryPointValidator
 public class EntryPointFinder
 {
     private const int DEFAULT_REACHABLE_COUNT = 1;
-    private readonly IWorkspaceLoader _workspaceLoader;
     private readonly EntryPointValidator _validator;
 
-    public EntryPointFinder(IWorkspaceLoader workspaceLoader)
+    public EntryPointFinder()
     {
-        _workspaceLoader = workspaceLoader;
         _validator = new EntryPointValidator();
     }
 
     public async Task<List<EntryPoint>> FindEntryPointsAsync(string projectPath)
     {
-        var projects = await _workspaceLoader.LoadProjectsAsync(projectPath);
+        var projects = await LoadProjectsAsync(projectPath);
 
         if (!projects.Any())
             return new List<EntryPoint>();
@@ -93,6 +93,22 @@ public class EntryPointFinder
         var calledMethods = AnalyzeMethodCalls(methodCollection.AllPublicMethods);
 
         return FilterUncalledEntryPoints(methodCollection.AllPublicMethods, calledMethods, methodCollection.AllMethods);
+    }
+
+    private async Task<IEnumerable<Project>> LoadProjectsAsync(string projectPath)
+    {
+        using var workspace = MSBuildWorkspace.Create();
+
+        if (Path.GetExtension(projectPath).Equals(".sln", StringComparison.OrdinalIgnoreCase))
+        {
+            var solution = await workspace.OpenSolutionAsync(projectPath);
+
+            return solution.Projects.ToList();
+        }
+
+        var project = await workspace.OpenProjectAsync(projectPath);
+
+        return [project];
     }
 
 
