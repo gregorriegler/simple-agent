@@ -33,7 +33,7 @@ public class InlineMethodTests
     public async Task CanInlineStaticMethodAcrossFiles()
     {
         const string mathHelperCode = """
-                                      namespace MyProject.Utils
+                                      namespace CanInlineStaticMethodAcrossFiles.Utils
                                       {
                                           public static class MathHelper
                                           {
@@ -43,9 +43,9 @@ public class InlineMethodTests
                                       """;
 
         const string calculatorCode = """
-                                      using MyProject.Utils;
+                                      using CanInlineStaticMethodAcrossFiles.Utils;
 
-                                      namespace MyProject.Services
+                                      namespace CanInlineStaticMethodAcrossFiles.Services
                                       {
                                           public class Calculator
                                           {
