@@ -39,7 +39,7 @@ jobs:
       working-directory: refactoring-tools
 
     - name: Run .NET tests
-      run: dotnet test RoslynRefactoring --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity normal
       working-directory: refactoring-tools
 
     - name: Install uv
