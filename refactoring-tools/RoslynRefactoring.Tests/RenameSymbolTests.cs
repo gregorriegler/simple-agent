@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Formatting;
+using RoslynRefactoring.Tests.TestHelpers;
 
 namespace RoslynRefactoring.Tests;
 
@@ -104,7 +105,7 @@ public class Test
     {
         Console.WriteLine(""Hello"");
     }
-    
+
     public void Main()
     {
         Console.WriteLine(""Main method"");
@@ -124,7 +125,7 @@ public class Test
     {
         Console.WriteLine(""Hello"");
     }
-    
+
     public void Main()
     {
         DoSomething();
@@ -144,7 +145,7 @@ public class Test
     {
         Console.WriteLine(""Hello"");
     }
-    
+
     public void Main()
     {
         DoSomething();
@@ -168,7 +169,7 @@ public class Test
     {
         return x + y;
     }
-    
+
     public void Main()
     {
         int result = Calculate(5, 3);
@@ -181,19 +182,10 @@ public class Test
 
     private static async Task VerifyRename(string code, Cursor cursor, string newName)
     {
-        var document = CreateDocument(code);
+        var document = DocumentTestHelper.CreateDocument(code);
         var renameSymbol = new RenameSymbol(cursor, newName);
         var updatedDocument = await renameSymbol.PerformAsync(document);
         var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
         await Verify(formatted.ToFullString());
-    }
-
-    private static Document CreateDocument(string code)
-    {
-        var workspace = new AdhocWorkspace();
-        var project = workspace.CurrentSolution.AddProject("TestProject", "TestProject.dll", LanguageNames.CSharp)
-            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-
-        return project.AddDocument("Test.cs", code);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Formatting;
+using RoslynRefactoring.Tests.TestHelpers;
 
 namespace RoslynRefactoring.Tests;
 
@@ -97,19 +98,10 @@ public class Bird
 
     private static async Task VerifyExtract(string code, CodeSelection codeSelection, string newMethodName)
     {
-        var document = CreateDocument(code);
+        var document = DocumentTestHelper.CreateDocument(code);
         var extractMethod = new ExtractMethod(codeSelection, newMethodName);
         var updatedDocument = await extractMethod.PerformAsync(document);
         var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
         await Verify(formatted.ToFullString());
-    }
-
-    private static Document CreateDocument(string code)
-    {
-        var workspace = new AdhocWorkspace();
-        var project = workspace.CurrentSolution.AddProject("TestProject", "TestProject.dll", LanguageNames.CSharp)
-            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-
-        return project.AddDocument("Test.cs", code);
     }
 }

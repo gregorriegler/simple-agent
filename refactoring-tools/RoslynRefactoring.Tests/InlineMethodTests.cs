@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Formatting;
+using RoslynRefactoring.Tests.TestHelpers;
 
 namespace RoslynRefactoring.Tests;
 
@@ -30,38 +31,11 @@ public class InlineMethodTests
 
     private static async Task VerifyInline(string code, Cursor cursor)
     {
-        var document = CreateDocument(code);
+        var document = DocumentTestHelper.CreateDocument(code);
         var inlineMethod = new InlineMethod(cursor);
         var updatedDocument = await inlineMethod.PerformAsync(document);
         var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
         await Verify(formatted.ToFullString());
-    }
-
-    private static Microsoft.CodeAnalysis.Project CreateWorkspaceWithProject()
-    {
-        var workspace = new AdhocWorkspace();
-        return workspace.CurrentSolution.AddProject("TestProject", "TestProject.dll", LanguageNames.CSharp)
-            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-    }
-
-    private static Document CreateDocumentInProject(Microsoft.CodeAnalysis.Project project, string fileName, string code)
-    {
-        return project.AddDocument(fileName, code);
-    }
-
-    private static Document CreateDocument(string code)
-    {
-        var project = CreateWorkspaceWithProject();
-        return CreateDocumentInProject(project, "Test.cs", code);
-    }
-
-    private static Document CreateTwoDocumentProject(string sourceFileCode, string targetFileCode)
-    {
-        var project = CreateWorkspaceWithProject();
-
-        // Add both files to the project
-        project = CreateDocumentInProject(project, "Utils/MathHelper.cs", sourceFileCode).Project;
-        return CreateDocumentInProject(project, "Services/Calculator.cs", targetFileCode);
     }
     [Test]
     public async Task CanInlineStaticMethodAcrossFiles()
@@ -96,7 +70,7 @@ public class InlineMethodTests
 
     private static async Task VerifyInlineAcrossFiles(string sourceFileCode, string targetFileCode, Cursor cursor)
     {
-        var targetDocument = CreateTwoDocumentProject(sourceFileCode, targetFileCode);
+        var targetDocument = DocumentTestHelper.CreateTwoDocumentProject(sourceFileCode, targetFileCode);
 
         var inlineMethod = new InlineMethod(cursor);
         var updatedDocument = await inlineMethod.PerformAsync(targetDocument);

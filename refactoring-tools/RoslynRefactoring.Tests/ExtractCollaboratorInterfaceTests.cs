@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Formatting;
+using RoslynRefactoring.Tests.TestHelpers;
 
 namespace RoslynRefactoring.Tests;
 
@@ -29,12 +30,12 @@ public class ExtractCollaboratorInterfaceTests
                             public class OrderService
                             {
                                 private readonly PaymentProcessor _paymentProcessor;
-                                
+
                                 public OrderService(PaymentProcessor paymentProcessor)
                                 {
                                     _paymentProcessor = paymentProcessor;
                                 }
-                                
+
                                 public void ProcessOrder(Order order)
                                 {
                                     _paymentProcessor.ProcessPayment();
@@ -52,12 +53,12 @@ public class ExtractCollaboratorInterfaceTests
                             public class OrderService
                             {
                                 private readonly PaymentProcessor _paymentProcessor;
-                                
+
                                 public OrderService(PaymentProcessor paymentProcessor)
                                 {
                                     _paymentProcessor = paymentProcessor;
                                 }
-                                
+
                                 public void ProcessOrder(Order order)
                                 {
                                     var status = _paymentProcessor.Status;
@@ -75,12 +76,12 @@ public class ExtractCollaboratorInterfaceTests
                             public class OrderService
                             {
                                 private readonly PaymentProcessor _paymentProcessor;
-                                
+
                                 public OrderService(PaymentProcessor paymentProcessor)
                                 {
                                     _paymentProcessor = paymentProcessor;
                                 }
-                                
+
                                 public void ProcessOrder(Order order)
                                 {
                                     _paymentProcessor.ProcessPayment();
@@ -100,21 +101,21 @@ public class ExtractCollaboratorInterfaceTests
                             {
                                 void ProcessPayment();
                             }
-                            
+
                             public class PaymentProcessor : IPaymentProcessor
                             {
                                 public void ProcessPayment() { }
                             }
-                            
+
                             public class OrderService
                             {
                                 private readonly PaymentProcessor _paymentProcessor;
-                                
+
                                 public OrderService(PaymentProcessor paymentProcessor)
                                 {
                                     _paymentProcessor = paymentProcessor;
                                 }
-                                
+
                                 public void ProcessOrder(Order order)
                                 {
                                     _paymentProcessor.ProcessPayment();
@@ -132,7 +133,7 @@ public class ExtractCollaboratorInterfaceTests
                             public class OrderService
                             {
                                 public PaymentProcessor PaymentProcessor { get; set; }
-                                
+
                                 public void ProcessOrder(Order order)
                                 {
                                     PaymentProcessor.ProcessPayment();
@@ -152,14 +153,14 @@ public class ExtractCollaboratorInterfaceTests
                                 private readonly ILogger _logger;
                                 private readonly PaymentProcessor _paymentProcessor;
                                 private readonly IEmailService _emailService;
-                                
+
                                 public OrderService(ILogger logger, PaymentProcessor paymentProcessor, IEmailService emailService)
                                 {
                                     _logger = logger;
                                     _paymentProcessor = paymentProcessor;
                                     _emailService = emailService;
                                 }
-                                
+
                                 public void ProcessOrder(Order order)
                                 {
                                     _logger.Log("Processing order");
@@ -174,24 +175,15 @@ public class ExtractCollaboratorInterfaceTests
 
     private static async Task VerifyExtractCollaboratorInterface(string code, string selectionText = "")
     {
-        var document = CreateDocument(code);
-        
+        var document = DocumentTestHelper.CreateDocument(code);
+
         var selection = string.IsNullOrEmpty(selectionText)
             ? CodeSelection.Parse("1:0-1:0")
             : CodeSelection.Parse(selectionText);
-            
+
         var extractCollaboratorInterface = new ExtractCollaboratorInterface(selection);
         var updatedDocument = await extractCollaboratorInterface.PerformAsync(document);
         var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
         await Verify(formatted.ToFullString());
-    }
-
-    private static Document CreateDocument(string code)
-    {
-        var workspace = new AdhocWorkspace();
-        var project = workspace.CurrentSolution.AddProject("TestProject", "TestProject.dll", LanguageNames.CSharp)
-            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-
-        return project.AddDocument("Test.cs", code);
     }
 }

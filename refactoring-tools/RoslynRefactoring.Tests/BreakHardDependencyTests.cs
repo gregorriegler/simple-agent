@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Formatting;
+using RoslynRefactoring.Tests.TestHelpers;
 
 namespace RoslynRefactoring.Tests;
 
@@ -97,24 +98,15 @@ public class BreakHardDependencyTests
 
     private static async Task VerifyBreakHardDependency(string code, string selectionText = "")
     {
-        var document = CreateDocument(code);
-        
+        var document = DocumentTestHelper.CreateDocument(code);
+
         var selection = string.IsNullOrEmpty(selectionText)
             ? CodeSelection.Parse("1:0-1:0")
             : CodeSelection.Parse(selectionText);
-            
+
         var breakHardDependency = new BreakHardDependency(selection);
         var updatedDocument = await breakHardDependency.PerformAsync(document);
         var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
         await Verify(formatted.ToFullString());
-    }
-
-    private static Document CreateDocument(string code)
-    {
-        var workspace = new AdhocWorkspace();
-        var project = workspace.CurrentSolution.AddProject("TestProject", "TestProject.dll", LanguageNames.CSharp)
-            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-
-        return project.AddDocument("Test.cs", code);
     }
 }

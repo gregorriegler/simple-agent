@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using RoslynRefactoring.Tests.TestHelpers;
 
 namespace RoslynRefactoring.Tests;
 
@@ -17,9 +18,9 @@ public class Test
     }
 }";
 
-        var document = CreateDocument(code);
+        var document = DocumentTestHelper.CreateDocument(code);
         var renameSymbol = new RenameSymbol(Cursor.Parse("5:1"), "newName"); // cursor on whitespace
-        
+
         AssertMeaningfulErrorResponse(document, renameSymbol);
     }
 
@@ -32,9 +33,9 @@ public class Test
     public string Name { get; set; }
 }";
 
-        var document = CreateDocument(code);
+        var document = DocumentTestHelper.CreateDocument(code);
         var renameSymbol = new RenameSymbol(Cursor.Parse("4:19"), "NewName"); // cursor on property name
-        
+
         AssertMeaningfulErrorResponse(document, renameSymbol);
     }
 
@@ -42,22 +43,14 @@ public class Test
     {
         using var consoleOutput = new StringWriter();
         Console.SetOut(consoleOutput);
-        
+
         var result = renameSymbol.PerformAsync(document).Result;
-        
+
         Assert.That(result, Is.EqualTo(document));
-        
+
         var output = consoleOutput.ToString();
         Assert.That(output, Does.Contain("Error: No renameable symbol found at cursor location"));
         Assert.That(output, Does.Contain("Supported symbol types: variables, methods"));
     }
 
-    private static Document CreateDocument(string code)
-    {
-        var workspace = new AdhocWorkspace();
-        var project = workspace.CurrentSolution.AddProject("TestProject", "TestProject.dll", LanguageNames.CSharp)
-            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-
-        return project.AddDocument("Test.cs", code);
-    }
 }
