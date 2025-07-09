@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.MSBuild;
 
 namespace RoslynRefactoring;
 
-public class Project(string projectPath, string fileName)
+public class CsProject(string projectPath, string fileName)
 {
     public async Task OpenAndApplyRefactoring(IRefactoring refactoring)
     {

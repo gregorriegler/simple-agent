@@ -60,16 +60,6 @@ public class InlineMethodTests
         await VerifyInlineAcrossFiles(mathHelperCode, calculatorCode, new Cursor(8, 32)); // Position of GetPi() call
     }
 
-    private static async Task VerifyInlineAcrossFiles(string sourceFileCode, string targetFileCode, Cursor cursor)
-    {
-        var targetDocument = DocumentTestHelper.CreateTwoDocumentProject(sourceFileCode, targetFileCode);
-
-        var inlineMethod = new InlineMethod(cursor);
-        var updatedDocument = await inlineMethod.PerformAsync(targetDocument);
-        var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
-        await Verify(formatted.ToFullString());
-    }
-
     [Test]
     public async Task CanInlineStaticMethodWithOneParameterAcrossFiles()
     {
@@ -263,6 +253,20 @@ public class InlineMethodTests
         var inlineMethod = new InlineMethod(cursor);
         var updatedDocument = await inlineMethod.PerformAsync(document);
         var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, new AdhocWorkspace());
+        await Verify(formatted.ToFullString());
+    }
+
+    private static async Task VerifyInlineAcrossFiles(string sourceFileCode, string targetFileCode, Cursor cursor)
+    {
+        var (workspace, project) = DocumentTestHelper.CreateWorkspaceWithProject();
+
+        // Add both files to the project
+        project = project.AddDocument("Utils/MathHelper.cs", sourceFileCode).Project;
+        var targetDocument = project.AddDocument("Services/Calculator.cs", targetFileCode);
+
+        var inlineMethod = new InlineMethod(cursor);
+        var updatedDocument = await inlineMethod.PerformAsync(targetDocument);
+        var formatted = Formatter.Format((await updatedDocument.GetSyntaxRootAsync())!, workspace);
         await Verify(formatted.ToFullString());
     }
 }

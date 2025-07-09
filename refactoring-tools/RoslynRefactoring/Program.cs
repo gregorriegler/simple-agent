@@ -18,6 +18,6 @@ var refactoring = RefactoringInfoGenerator.CreateRefactoring(refactoringName, re
 
 var projectPath = args[1].Trim('"');
 var fileName = args[2];
-var project = new Project(projectPath, fileName);
+var project = new CsProject(projectPath, fileName);
 
 await project.OpenAndApplyRefactoring(refactoring);

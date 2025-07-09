@@ -14,28 +14,6 @@ public static class DocumentTestHelper
         return project.AddDocument("Test.cs", code);
     }
 
-    public static Microsoft.CodeAnalysis.Project CreateWorkspaceWithProject()
-    {
-        var projectName = $"TestProject_{Guid.NewGuid():N}";
-        var workspace = new AdhocWorkspace();
-        return workspace.CurrentSolution.AddProject(projectName, $"{projectName}.dll", LanguageNames.CSharp)
-            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-    }
-
-    public static Document CreateDocumentInProject(Microsoft.CodeAnalysis.Project project, string fileName, string code)
-    {
-        return project.AddDocument(fileName, code);
-    }
-
-    public static Document CreateTwoDocumentProject(string sourceFileCode, string targetFileCode)
-    {
-        var project = CreateWorkspaceWithProject();
-
-        // Add both files to the project
-        project = CreateDocumentInProject(project, "Utils/MathHelper.cs", sourceFileCode).Project;
-        return CreateDocumentInProject(project, "Services/Calculator.cs", targetFileCode);
-    }
-
     public static Solution CreateSolutionWithFiles(params (string fileName, string code)[] files)
     {
         var projectName = $"TestProject_{Guid.NewGuid():N}";
@@ -51,5 +29,14 @@ public static class DocumentTestHelper
         }
 
         return project.Solution;
+    }
+
+    public static (Workspace, Project) CreateWorkspaceWithProject()
+    {
+        var projectName = $"TestProject_{Guid.NewGuid():N}";
+        var workspace = new AdhocWorkspace();
+        var project = workspace.CurrentSolution.AddProject(projectName, $"{projectName}.dll", LanguageNames.CSharp)
+            .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
+        return (workspace, project);
     }
 }
