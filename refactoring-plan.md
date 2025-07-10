@@ -1,11 +1,31 @@
-# Refactoring Plan: Extract Methods from PerformAsync
+# Refactoring Plan: Improve Code Quality and Maintainability
 
 ## Goal
-Break down the long [`PerformAsync`](refactoring-tools/RoslynRefactoring/InlineMethod.cs:18) method (30 lines) into smaller, focused methods with single responsibilities.
+Improve code quality by addressing long methods, removing debug code, extracting duplicated logic, and improving method names across the refactoring tools.
 
 ## Steps
 
-- [x] Extract method `ProcessAllInvocations()` to handle finding and processing all invocations (lines 32-46)
-- [x] Extract method `ValidateInvocationContext()` to handle initial validation steps (lines 20-30)
-- [x] Update [`PerformAsync`](refactoring-tools/RoslynRefactoring/InlineMethod.cs:18) to use the new extracted methods
-- [x] Run tests to ensure refactoring doesn't break functionality
+### 2. Extract Long Methods
+- [ ] Extract method `ValidateDocumentAndGetRoot()` from [`BreakHardDependency.PerformAsync()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:42) (lines 44-53)
+- [ ] Extract method `CreateSelectionSpan()` from [`BreakHardDependency.GetTextSpanFromSelection()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:126) to simplify position calculations
+- [ ] Extract method `CreateInterfaceMembers()` from [`ExtractCollaboratorInterface.CreateInterface()`](refactoring-tools/RoslynRefactoring/ExtractCollaboratorInterface.cs:229) (lines 234-255)
+
+### 3. Improve Method Names
+- [ ] Rename [`FirstCharToLower()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:489) to `ToCamelCase()` in [`BreakHardDependency`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:21)
+- [ ] Rename [`FirstCharToLower()`](refactoring-tools/RoslynRefactoring/ExtractCollaboratorInterface.cs:273) to `ToCamelCase()` in [`ExtractCollaboratorInterface`](refactoring-tools/RoslynRefactoring/ExtractCollaboratorInterface.cs:12)
+
+### 4. Extract Duplicated Code
+- [ ] Extract common `ToCamelCase()` method to a shared utility class
+- [ ] Extract common document validation pattern used in [`BreakHardDependency.PerformAsync()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:42) and [`ExtractCollaboratorInterface.PerformAsync()`](refactoring-tools/RoslynRefactoring/ExtractCollaboratorInterface.cs:30)
+
+### 5. Simplify Long Parameter Lists
+- [ ] Create parameter object for [`BreakHardDependency.MoveMemberToBaseClass()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:86) method (4+ parameters)
+- [ ] Create parameter object for [`BreakHardDependency.UpdateObjectCreationExpressions()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:270) method (4+ parameters)
+
+### 6. Reduce Method Complexity
+- [ ] Split [`BreakHardDependency.CreateDependencyInjectionConstructor()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:363) into smaller focused methods
+- [ ] Split [`InlineMethod.ProcessAllInvocations()`](refactoring-tools/RoslynRefactoring/InlineMethod.cs:47) to separate finding invocations from processing them
+
+### 7. Run Tests
+- [ ] Run all tests to ensure refactoring doesn't break functionality
+- [ ] Verify that debug output removal doesn't affect test expectations
