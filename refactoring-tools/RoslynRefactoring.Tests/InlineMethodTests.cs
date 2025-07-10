@@ -58,6 +58,7 @@ public class InlineMethodTests
                                       }
                                       """;
         Console.WriteLine("******** CanInlineStaticMethodAcrossFiles");
+        Console.WriteLine(calculatorCode);
         await VerifyInlineAcrossFiles(mathHelperCode, calculatorCode, new Cursor(8, 32)); // Position of GetPi() call
     }
 
