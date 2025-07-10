@@ -16,5 +16,5 @@ Don't be overly optimistic, but be critical and skeptical, and honest if you don
 - AFTER THE TASK: run `test.sh` again
 
 # Commandline rules
-- we are in bash, so USE BASH Commands
+- We are in a Git Bash!!! ALWAYS USE BASH Commands!!!
 - for interacting with github use the github cli
