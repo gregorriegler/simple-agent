@@ -17,17 +17,13 @@ public class InlineMethod(Cursor cursor) : IRefactoring
 
     public async Task<Document> PerformAsync(Document document)
     {
-        Console.WriteLine("******** InlineMethod PerformAsync");
         var root = await document.GetSyntaxRootAsync();
-        Console.WriteLine("******** root" + root);
         if (root == null) return document;
         var semanticModel = await document.GetSemanticModelAsync();
         if (semanticModel == null) return document;
         var invocation = FindInvocationAtCursor(root, cursor);
-        Console.WriteLine("******** invocation" + invocation);
         if (invocation == null) return document;
         var methodSymbol = ValidateAndGetMethodSymbol(semanticModel, invocation);
-        Console.WriteLine("******** methodSymbol " + methodSymbol);
         if (methodSymbol == null) return document;
         var (methodDeclaration, methodBody, _) = await PrepareMethodForInlining(methodSymbol, invocation);
         if (methodDeclaration == null || methodBody == null) return document;
@@ -69,8 +65,6 @@ public class InlineMethod(Cursor cursor) : IRefactoring
     {
         // Find all invocations of the same method in the document
         var allInvocations = FindAllInvocationsOfMethod(root, semanticModel, methodSymbol);
-        Console.WriteLine("*** DEBUG allInvocations.Count");
-        Console.WriteLine(allInvocations.Count);
         // Process invocations in reverse order (bottom to top) to avoid invalidating node references
         var newRoot = root;
         foreach (var inv in allInvocations.OrderByDescending(i => i.SpanStart))
@@ -96,16 +90,9 @@ public class InlineMethod(Cursor cursor) : IRefactoring
 
     private static InvocationExpressionSyntax? FindInvocationAtCursor(SyntaxNode root, Cursor cursor)
     {
-        Console.WriteLine("**** FindInvocationAtCursor");
-        Console.WriteLine("**** root: " + root);
-        Console.WriteLine("**** cursor: " + cursor);
         var position = GetPositionFromLineColumn(root, cursor);
-        Console.WriteLine("**** position: " + position);
         var textSpan = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
-        Console.WriteLine("**** textSpan: " + textSpan);
         var node = root.FindNode(textSpan);
-        Console.WriteLine("**** node: " + node);
-
         return node.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault() ??
                node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
     }
@@ -307,9 +294,6 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         InvocationExpressionSyntax invocation,
         List<StatementSyntax> inlinedStatements)
     {
-        Console.WriteLine("*** DEBUG ReplaceInvocationWithInlinedCode");
-        Console.WriteLine(root.ToString());
-        // If we have exactly one return statement, replace the invocation with the return expression
         var singleReturnResult = HandleSingleReturnStatement(root, invocation, inlinedStatements);
         if (singleReturnResult != null)
         {
@@ -367,7 +351,6 @@ public class InlineMethod(Cursor cursor) : IRefactoring
     {
         if (inlinedStatements.Count == 1 && inlinedStatements[0] is ReturnStatementSyntax returnStatement && returnStatement.Expression != null)
         {
-            Console.WriteLine("HandleSingleReturnStatement: in IF");
             return root.ReplaceNode(invocation, returnStatement.Expression.WithTriviaFrom(invocation));
         }
         return null;

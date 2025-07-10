@@ -57,13 +57,10 @@ public class InlineMethodTests
                                           }
                                       }
                                       """;
-        Console.WriteLine("******** CanInlineStaticMethodAcrossFiles");
-        Console.WriteLine(calculatorCode);
         await VerifyInlineAcrossFiles(mathHelperCode, calculatorCode, new Cursor(8, 32)); // Position of GetPi() call
     }
 
     [Test]
-    [Ignore("debug")]
     public async Task CanInlineStaticMethodWithOneParameterAcrossFiles()
     {
         const string mathHelperCode = """
@@ -95,7 +92,6 @@ public class InlineMethodTests
     }
 
     [Test]
-    [Ignore("debug")]
     public async Task CanInlineStaticMethodWithTwoParametersAcrossFiles()
     {
         const string mathHelperCode = """
@@ -127,7 +123,6 @@ public class InlineMethodTests
     }
 
     [Test]
-    [Ignore("debug")]
     public async Task CanInlineStaticMethodWithBlockBodyAcrossFiles()
     {
         const string mathHelperCode = """
@@ -162,7 +157,6 @@ public class InlineMethodTests
     }
 
     [Test]
-    [Ignore("debug")]
     public async Task CanInlineStaticMethodCalledMultipleTimesAcrossFiles()
     {
         const string mathHelperCode = """
@@ -196,7 +190,6 @@ public class InlineMethodTests
     }
 
     [Test]
-    [Ignore("debug")]
     public async Task CanInlineStaticMethodWithFullyQualifiedNameAcrossFiles()
     {
         const string mathHelperCode = """
@@ -226,7 +219,6 @@ public class InlineMethodTests
     }
 
     [Test]
-    [Ignore("debug")]
     public async Task CanInlineStaticMethodInDifferentNamespaceRequiringUsingStatement()
     {
         const string mathHelperCode = """
@@ -266,9 +258,7 @@ public class InlineMethodTests
 
     private static async Task VerifyInlineAcrossFiles(string sourceFileCode, string targetFileCode, Cursor cursor)
     {
-        Console.WriteLine("******** VerifyInlineAcrossFiles");
         var (workspace, project) = DocumentTestHelper.CreateWorkspaceWithProject();
-        Console.WriteLine("******** Workspace created");
 
         // Add both files to the project
         project = project.AddDocument("Utils/MathHelper.cs", sourceFileCode).Project;
