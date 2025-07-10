@@ -96,8 +96,18 @@ public class Car : Vehicle
 
 ## Scenarios
 
-### Simple Instance Method - Same File - DRAFT
+### Simple Instance Method - Same File - REFINED
 Move an instance method that only uses base class members within the same file.
 - Method uses only base class properties/fields
 - No derived-specific dependencies
 - Preserve access modifiers
+
+**Examples (ordered by simplicity):**
+- [ ] **Zero dependencies**: Move method with no member access (e.g., `public void DoNothing() { }`)
+- [ ] **One base property**: Move method accessing single base class property (e.g., `public void ShowName() => Console.WriteLine(Name);`)
+- [ ] **One base field**: Move method accessing single base class field
+- [ ] **Multiple base members**: Move method accessing multiple base class properties/fields
+- [ ] **Base method call**: Move method that calls another base class method
+- [ ] **Mixed access**: Move method using both base properties and calling base methods
+- [ ] **Protected member access**: Move method accessing protected base class members
+- [ ] **Private method**: Move private method that only uses base members
