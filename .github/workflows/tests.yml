@@ -3,14 +3,8 @@ name: Tests
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'refactoring-tools/**'
-      - 'modernizer/**'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'refactoring-tools/**'
-      - 'modernizer/**'
   workflow_dispatch:
 
 jobs:
@@ -25,23 +19,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-
-    - name: Restore dependencies
-      run: dotnet restore
-      working-directory: refactoring-tools
-
-    - name: Build
-      run: dotnet build --no-restore
-      working-directory: refactoring-tools
-
-    - name: Run .NET tests
-      run: dotnet test --no-build --verbosity normal
-      working-directory: refactoring-tools
-
     - name: Install uv
       uses: astral-sh/setup-uv@v4
       with:
@@ -52,8 +29,6 @@ jobs:
 
     - name: Install Python dependencies
       run: uv sync --dev
-      working-directory: modernizer
 
     - name: Run modernizer tests
       run: uv run bash test.sh
-      working-directory: modernizer
