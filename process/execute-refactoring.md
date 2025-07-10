@@ -10,4 +10,4 @@ STARTER_SYMBOL=🧹
     4. Run the tests again to see everything still works
     5. If any tests fail after your change, revert the changes using `./revert.sh` and start over. Never proceed with broken tests during refactoring.
     6. Check off the task
-    7. Commit the code using git. Refactoring commit messages start with an "r", e.g. "r extract class ..."
+    7. Commit the code using git using a commit message starting with "r ", e.g. "r extract class ..."
