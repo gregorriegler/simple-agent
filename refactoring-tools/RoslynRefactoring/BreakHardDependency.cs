@@ -131,15 +131,22 @@ public class BreakHardDependency : IRefactoring
 
     private TextSpan? GetTextSpanFromSelection(TextLineCollection lines)
     {
-        var startPos = lines[_selection.Start.Line - 1].Start +
-            Math.Min(_selection.Start.Column - 1, lines[_selection.Start.Line - 1].End - lines[_selection.Start.Line - 1].Start);
-        var endPos = lines[_selection.End.Line - 1].Start +
-            Math.Min(_selection.End.Column - 1, lines[_selection.End.Line - 1].End - lines[_selection.End.Line - 1].Start);
+        var (startPos, endPos) = CreateSelectionSpan(lines);
 
         if (startPos <= endPos && startPos >= 0)
             return new TextSpan(startPos, endPos - startPos);
 
         return null;
+    }
+
+    private (int startPos, int endPos) CreateSelectionSpan(TextLineCollection lines)
+    {
+        var startPos = lines[_selection.Start.Line - 1].Start +
+            Math.Min(_selection.Start.Column - 1, lines[_selection.Start.Line - 1].End - lines[_selection.Start.Line - 1].Start);
+        var endPos = lines[_selection.End.Line - 1].Start +
+            Math.Min(_selection.End.Column - 1, lines[_selection.End.Line - 1].End - lines[_selection.End.Line - 1].Start);
+
+        return (startPos, endPos);
     }
 
     private (FieldDeclarationSyntax Field, string TypeName)? FindSingletonField(FieldDeclarationSyntax fieldDeclaration)
