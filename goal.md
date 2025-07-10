@@ -93,3 +93,11 @@ public class Car : Vehicle
 - Preserve access modifiers
 
 ## TDD Phase: 🔴
+
+## Scenarios
+
+### Simple Instance Method - Same File - DRAFT
+Move an instance method that only uses base class members within the same file.
+- Method uses only base class properties/fields
+- No derived-specific dependencies
+- Preserve access modifiers
