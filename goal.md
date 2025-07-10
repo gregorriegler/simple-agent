@@ -92,7 +92,7 @@ public class Car : Vehicle
 - No derived-specific dependencies
 - Preserve access modifiers
 
-## TDD Phase: 🔴
+## TDD Phase: 🧹
 
 ## Scenarios
 
@@ -103,7 +103,7 @@ Move an instance method that only uses base class members within the same file.
 - Preserve access modifiers
 
 **Examples (ordered by simplicity):**
-- [ ] **Zero dependencies**: Move method with no member access (e.g., `public void DoNothing() { }`)
+- [x] **Zero dependencies**: Move method with no member access (e.g., `public void DoNothing() { }`)
 - [ ] **One base property**: Move method accessing single base class property (e.g., `public void ShowName() => Console.WriteLine(Name);`)
 - [ ] **One base field**: Move method accessing single base class field
 - [ ] **Multiple base members**: Move method accessing multiple base class properties/fields
