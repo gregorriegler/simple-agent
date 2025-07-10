@@ -37,6 +37,16 @@
     ]
   },
   {
+    "name": "move-member-up",
+    "description": "Moves a member from a derived class to its base class when the member only uses base class members",
+    "arguments": [
+      "project_path: string - Path to the project file",
+      "file_name: string - Name of the file to refactor",
+      "derivedClassName: String",
+      "memberName: String"
+    ]
+  },
+  {
     "name": "rename-symbol",
     "description": "Renames a symbol at the specified cursor location to a new name",
     "arguments": [
