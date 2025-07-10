@@ -19,12 +19,15 @@ public class InlineMethod(Cursor cursor) : IRefactoring
     {
         Console.WriteLine("******** InlineMethod PerformAsync");
         var root = await document.GetSyntaxRootAsync();
+        Console.WriteLine("******** root" + root);
         if (root == null) return document;
         var semanticModel = await document.GetSemanticModelAsync();
         if (semanticModel == null) return document;
         var invocation = FindInvocationAtCursor(root, cursor);
+        Console.WriteLine("******** invocation" + invocation);
         if (invocation == null) return document;
         var methodSymbol = ValidateAndGetMethodSymbol(semanticModel, invocation);
+        Console.WriteLine("******** methodSymbol " + methodSymbol);
         if (methodSymbol == null) return document;
         var (methodDeclaration, methodBody, _) = await PrepareMethodForInlining(methodSymbol, invocation);
         if (methodDeclaration == null || methodBody == null) return document;
