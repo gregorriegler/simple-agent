@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from approvaltests import Options, verify
 from approvaltests.scrubbers import combine_scrubbers
 
-from modernizer.tools.tool_library import ToolLibrary
+from tools.tool_library import ToolLibrary
 from .test_helpers import create_path_scrubber, create_date_scrubber, create_ls_error_scrubber
 
 library = ToolLibrary()
@@ -21,7 +21,7 @@ def temp_directory(tmp_path):
 def verifyCreateTool(framework, command, expected_filename, expected_content=None, tmp_path=None):
     """
     Verify a create tool command and check the created file's content.
-    
+
     Args:
         framework: The tool framework to execute the command
         command: The command to execute
@@ -31,29 +31,29 @@ def verifyCreateTool(framework, command, expected_filename, expected_content=Non
     """
     if expected_content is None:
         expected_content = ""
-    
+
     # Create scrubber for consistent output
     path_scrubber = create_path_scrubber()
     date_scrubber = create_date_scrubber()
     ls_error_scrubber = create_ls_error_scrubber()
     multi_scrubber = combine_scrubbers(path_scrubber, date_scrubber, ls_error_scrubber)
-    
+
     def _execute_and_verify():
         cmd, result = framework.parse_and_execute(command)
-        
+
         if expected_filename and not os.path.exists(expected_filename):
-            raise AssertionError(f"File '{expected_filename}' should have been created")    
-            
+            raise AssertionError(f"File '{expected_filename}' should have been created")
+
         if expected_filename:
             with open(expected_filename, "r") as f:
                 actual_content = f.read()
                 file_info = f"File created: {expected_filename}\nFile content:\n--- FILE CONTENT START ---\n{actual_content}\n--- FILE CONTENT END ---"
         else:
             file_info = "No File created"
-            
+
         # Create verification output including file content
         verify(f"Command:\n{cmd}\n\nResult:\n{result}\n\n{file_info}", options=Options().with_scrubber(multi_scrubber))
-    
+
     if tmp_path:
         with temp_directory(tmp_path):
             _execute_and_verify()
@@ -87,7 +87,7 @@ def test_create_file_in_nonexistent_directory(tmp_path):
 def test_create_file_already_exists(tmp_path):
     with temp_directory(tmp_path):
         library.parse_and_execute("/create-file existing.txt")
-        
+
         _, result = library.parse_and_execute("/create-file existing.txt")
-        
+
         assert 'already exists' in result.lower() or 'exists' in result.lower()

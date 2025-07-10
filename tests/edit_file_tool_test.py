@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from approvaltests import Options, verify
 from approvaltests.scrubbers import combine_scrubbers
 
-from modernizer.tools.tool_library import ToolLibrary
+from tools.tool_library import ToolLibrary
 from .test_helpers import create_path_scrubber, create_date_scrubber, create_ls_error_scrubber
 
 library = ToolLibrary()

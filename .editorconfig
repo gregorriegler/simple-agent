@@ -30,13 +30,3 @@ indent_size = 2
 [*.json]
 indent_style = space
 indent_size = 2
-
-# JavaScript/TypeScript files
-[*.{js,ts,jsx,tsx}]
-indent_style = space
-indent_size = 2
-
-# HTML/CSS files
-[*.{html,css,scss}]
-indent_style = space
-indent_size = 2

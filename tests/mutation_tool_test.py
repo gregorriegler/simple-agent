@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 import json
-from modernizer.tools.tool_library import ToolLibrary
-from modernizer.tools.mutation_tool import MutationTool
+from tools.tool_library import ToolLibrary
+from tools.mutation_tool import MutationTool
 
 
 def test_mutation_tool_is_available():
@@ -12,10 +12,10 @@ def test_mutation_tool_is_available():
 def test_mutation_tool_executes_successfully():
     mock_runcommand = Mock()
     mock_runcommand.return_value = {'success': True, 'output': 'Stryker.NET mutation testing completed'}
-    
+
     mutation_tool = MutationTool(mock_runcommand)
     result = mutation_tool.execute('test-project')
-    
+
     assert result['success'] is True
 
 
@@ -52,27 +52,27 @@ def test_parse_stryker_output():
             "low": 60
         }
     }
-    
+
     mock_runcommand = Mock()
     mock_runcommand.return_value = {'success': True, 'output': json.dumps(stryker_json)}
-    
+
     mutation_tool = MutationTool(mock_runcommand)
     result = mutation_tool.execute('test-project')
-    
+
     assert result['success'] is True
-    
+
     output_data = json.loads(result['output'])
-    
+
     assert 'success' in output_data
     assert 'summary' in output_data
     assert 'survived_mutants' in output_data
-    
+
     summary = output_data['summary']
     assert summary['total_mutants'] == 2
     assert summary['killed'] == 1
     assert summary['survived'] == 1
     assert summary['mutation_score'] == 50.0
-    
+
     survived = output_data['survived_mutants']
     assert len(survived) == 1
     assert survived[0]['file'] == 'Calculator.cs'
@@ -88,9 +88,9 @@ def test_stryker_not_installed():
         'success': False,
         'output': 'Could not execute because the specified command or file was not found.'
     }
-    
+
     mutation_tool = MutationTool(mock_runcommand)
     result = mutation_tool.execute('test-project')
-    
+
     assert result['success'] is False
     assert 'Stryker.NET is not installed' in result['output']

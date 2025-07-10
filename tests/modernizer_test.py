@@ -1,7 +1,7 @@
 import builtins
 from approvaltests import verify, Options
 
-from modernizer.modernizer import start_chat
+from modernizer import start_chat
 from .test_helpers import (
     create_temp_file,
     create_temp_directory_structure,
@@ -13,7 +13,7 @@ def enter(_):
 
 def keyboard_interrupt(_):
     raise KeyboardInterrupt()
-    
+
 def run_chat_test(capsys, input_stub, message, answer):
     builtins.input = input_stub
     claude_stub = lambda messages, system_prompt: answer
@@ -22,12 +22,12 @@ def run_chat_test(capsys, input_stub, message, answer):
     def save_chat(chat):
         nonlocal saved_messages
         saved_messages = "\n".join(f"{msg['role']}: {msg['content']}" for msg in chat)
-    
+
     try:
         start_chat(message, new=True, message_claude=claude_stub, rounds=1, save_chat=save_chat)
     except KeyboardInterrupt:
         pass
-        
+
     captured = capsys.readouterr()
     return f"# Standard out:\n{captured.out}\n\n# Saved messages:\n{saved_messages}"
 

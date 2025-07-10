@@ -1,6 +1,6 @@
 from unittest.mock import Mock
-from modernizer.tools.tool_library import ToolLibrary
-from modernizer.tools.coverage_tool import CoverageTool
+from tools.tool_library import ToolLibrary
+from tools.coverage_tool import CoverageTool
 
 
 def test_coverage_tool_is_available():
@@ -11,10 +11,10 @@ def test_coverage_tool_is_available():
 def test_coverage_tool_runs_dotnet_test_with_coverlet():
     mock_runcommand = Mock()
     mock_runcommand.return_value = {'success': True, 'output': 'Coverage report generated'}
-    
+
     coverage_tool = CoverageTool(mock_runcommand)
     result = coverage_tool.execute('test-project')
-    
+
     mock_runcommand.assert_called_with('dotnet', ['test', 'test-project', '--collect:"XPlat Code Coverage"'])
     assert result['success'] is True
 
@@ -25,7 +25,7 @@ def test_coverage_tool_shows_specific_uncovered_lines():
         'success': True,
         'output': 'Coverage report generated: TestResults/12345/coverage.cobertura.xml'
     }
-    
+
     mock_xml_content = '''<?xml version="1.0" encoding="utf-8"?>
 <coverage>
   <packages>
@@ -42,12 +42,12 @@ def test_coverage_tool_shows_specific_uncovered_lines():
     </package>
   </packages>
 </coverage>'''
-    
+
     coverage_tool = CoverageTool(mock_runcommand)
     coverage_tool._read_coverage_file = Mock(return_value=mock_xml_content)
-    
+
     result = coverage_tool.execute('test-project')
-    
+
     assert 'Calculator.cs:' in result['output']
     assert 'Line 15: Not covered' in result['output']
     assert 'Line 20: Not covered' in result['output']
@@ -60,10 +60,10 @@ def test_coverage_tool_with_project_only():
         'success': True,
         'output': 'Coverage report generated: TestResults/12345/coverage.cobertura.xml'
     }
-    
+
     coverage_tool = CoverageTool(mock_runcommand)
     result = coverage_tool.execute('MyProject.csproj')
-    
+
     mock_runcommand.assert_called_with('dotnet', ['test', 'MyProject.csproj', '--collect:"XPlat Code Coverage"'])
 
 
@@ -73,7 +73,7 @@ def test_coverage_tool_with_project_and_single_file():
         'success': True,
         'output': 'Coverage report generated: TestResults/12345/coverage.cobertura.xml'
     }
-    
+
     mock_xml_content = '''<?xml version="1.0" encoding="utf-8"?>
 <coverage>
   <packages>
@@ -93,12 +93,12 @@ def test_coverage_tool_with_project_and_single_file():
     </package>
   </packages>
 </coverage>'''
-    
+
     coverage_tool = CoverageTool(mock_runcommand)
     coverage_tool._read_coverage_file = Mock(return_value=mock_xml_content)
-    
+
     result = coverage_tool.execute('MyProject.csproj Calculator.cs')
-    
+
     assert 'Calculator.cs:' in result['output']
     assert 'Helper.cs:' not in result['output']
 
@@ -109,7 +109,7 @@ def test_coverage_tool_with_project_and_multiple_files():
         'success': True,
         'output': 'Coverage report generated: TestResults/12345/coverage.cobertura.xml'
     }
-    
+
     mock_xml_content = '''<?xml version="1.0" encoding="utf-8"?>
 <coverage>
   <packages>
@@ -134,12 +134,12 @@ def test_coverage_tool_with_project_and_multiple_files():
     </package>
   </packages>
 </coverage>'''
-    
+
     coverage_tool = CoverageTool(mock_runcommand)
     coverage_tool._read_coverage_file = Mock(return_value=mock_xml_content)
-    
+
     result = coverage_tool.execute('MyProject.csproj Calculator.cs Helper.cs')
-    
+
     assert 'Calculator.cs:' in result['output']
     assert 'Helper.cs:' in result['output']
     assert 'Utils.cs:' not in result['output']
@@ -152,7 +152,7 @@ def test_coverage_tool_with_real_xml_structure():
         'success': True,
         'output': 'Coverage report generated: TestResults/12345/coverage.cobertura.xml'
     }
-    
+
     mock_xml_content = '''<?xml version="1.0" encoding="utf-8"?>
 <coverage line-rate="0.75" branch-rate="1" version="1.9" timestamp="1750966760" lines-covered="9" lines-valid="12" branches-covered="0" branches-valid="0">
   <sources>
@@ -191,12 +191,12 @@ def test_coverage_tool_with_real_xml_structure():
     </package>
   </packages>
 </coverage>'''
-    
+
     coverage_tool = CoverageTool(mock_runcommand)
     coverage_tool._read_coverage_file = Mock(return_value=mock_xml_content)
-    
+
     result = coverage_tool.execute('test-project')
-    
+
     assert 'Domain\\Category.cs:' in result['output']
     assert 'Line 9: Not covered' in result['output']
     assert 'Line 10: Not covered' in result['output']
@@ -211,11 +211,11 @@ def test_coverage_tool_integration_with_file_not_found():
         'success': True,
         'output': 'Coverage report generated: TestResults/nonexistent/coverage.cobertura.xml'
     }
-    
+
     coverage_tool = CoverageTool(mock_runcommand)
-    
+
     result = coverage_tool.execute('test-project')
-    
+
     assert 'Error parsing coverage:' in result['output']
     assert result['success'] is True  # The dotnet test succeeded, just parsing failed
 
@@ -227,7 +227,7 @@ def test_coverage_tool_should_not_duplicate_lines():
         'success': True,
         'output': 'Coverage report generated: TestResults/12345/coverage.cobertura.xml'
     }
-    
+
     mock_xml_content = '''<?xml version="1.0" encoding="utf-8"?>
 <coverage line-rate="0.5" branch-rate="1" version="1.9">
   <packages>
@@ -251,12 +251,12 @@ def test_coverage_tool_should_not_duplicate_lines():
     </package>
   </packages>
 </coverage>'''
-    
+
     coverage_tool = CoverageTool(mock_runcommand)
     coverage_tool._read_coverage_file = Mock(return_value=mock_xml_content)
-    
+
     result = coverage_tool.execute('test-project')
-    
+
     output_lines = result['output'].split('\n')
     line_11_count = sum(1 for line in output_lines if 'Line 11: Not covered' in line)
     assert line_11_count == 1, f"Expected line 11 to appear once, but appeared {line_11_count} times"

@@ -5,8 +5,8 @@ build-backend = "hatchling.build"
 [project]
 name = "modernizer"
 version = "0.1.0"
-description = "A Python modernization tool with Claude AI integration"
-readme = "../README.md"
+description = "An agent for code modernization"
+readme = "README.md"
 authors = [
     {name = "Your Name", email = "your.email@example.com"},
 ]
