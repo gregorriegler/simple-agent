@@ -96,8 +96,15 @@ public class InlineMethod(Cursor cursor) : IRefactoring
 
     private static InvocationExpressionSyntax? FindInvocationAtCursor(SyntaxNode root, Cursor cursor)
     {
+        Console.WriteLine("**** FindInvocationAtCursor");
+        Console.WriteLine("**** root: " + root);
+        Console.WriteLine("**** cursor: " + cursor);
         var position = GetPositionFromLineColumn(root, cursor);
-        var node = root.FindNode(new Microsoft.CodeAnalysis.Text.TextSpan(position, 0));
+        Console.WriteLine("**** position: " + position);
+        var textSpan = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
+        Console.WriteLine("**** textSpan: " + textSpan);
+        var node = root.FindNode(textSpan);
+        Console.WriteLine("**** node: " + node);
 
         return node.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault() ??
                node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
