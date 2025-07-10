@@ -11,7 +11,7 @@ Improve code quality by addressing long methods, removing debug code, extracting
 - [x] Extract method `CreateInterfaceMembers()` from [`ExtractCollaboratorInterface.CreateInterface()`](refactoring-tools/RoslynRefactoring/ExtractCollaboratorInterface.cs:229) (lines 234-255)
 
 ### 3. Improve Method Names
-- [ ] Rename [`FirstCharToLower()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:489) to `ToCamelCase()` in [`BreakHardDependency`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:21)
+- [x] Rename [`FirstCharToLower()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:489) to `ToCamelCase()` in [`BreakHardDependency`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:21)
 - [ ] Rename [`FirstCharToLower()`](refactoring-tools/RoslynRefactoring/ExtractCollaboratorInterface.cs:273) to `ToCamelCase()` in [`ExtractCollaboratorInterface`](refactoring-tools/RoslynRefactoring/ExtractCollaboratorInterface.cs:12)
 
 ### 4. Extract Duplicated Code
