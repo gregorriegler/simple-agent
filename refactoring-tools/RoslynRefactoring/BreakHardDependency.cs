@@ -392,7 +392,7 @@ public class BreakHardDependency : IRefactoring
         foreach (var singletonField in singletonFields)
         {
             var fieldName = singletonField.Field.Declaration.Variables.First().Identifier.Text;
-            var paramName = FirstCharToLower(singletonField.TypeName);
+            var paramName = ToCamelCase(singletonField.TypeName);
 
             var parameterExists = updatedParameters.Any(p =>
                 p.Type?.ToString() == singletonField.TypeName);
@@ -448,7 +448,7 @@ public class BreakHardDependency : IRefactoring
         var parameters = singletonFields
             .Select(f =>
                 SyntaxFactory.Parameter(
-                    SyntaxFactory.Identifier(FirstCharToLower(f.TypeName)))
+                    SyntaxFactory.Identifier(ToCamelCase(f.TypeName)))
                 .WithType(SyntaxFactory.IdentifierName(f.TypeName)))
             .ToArray();
 
@@ -457,7 +457,7 @@ public class BreakHardDependency : IRefactoring
         var assignments = singletonFields
             .Select(f => {
                 var fieldName = f.Field.Declaration.Variables.First().Identifier.Text;
-                return CreateParameterAssignment(fieldName, FirstCharToLower(f.TypeName));
+                return CreateParameterAssignment(fieldName, ToCamelCase(f.TypeName));
             })
             .ToArray();
 
@@ -499,7 +499,7 @@ public class BreakHardDependency : IRefactoring
         );
     }
 
-    private string FirstCharToLower(string text)
+    private string ToCamelCase(string text)
     {
         if (string.IsNullOrEmpty(text))
             return text;
