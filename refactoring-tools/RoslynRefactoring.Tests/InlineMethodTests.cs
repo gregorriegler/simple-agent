@@ -265,7 +265,9 @@ public class InlineMethodTests
 
     private static async Task VerifyInlineAcrossFiles(string sourceFileCode, string targetFileCode, Cursor cursor)
     {
+        Console.WriteLine("******** VerifyInlineAcrossFiles");
         var (workspace, project) = DocumentTestHelper.CreateWorkspaceWithProject();
+        Console.WriteLine("******** Workspace created");
 
         // Add both files to the project
         project = project.AddDocument("Utils/MathHelper.cs", sourceFileCode).Project;

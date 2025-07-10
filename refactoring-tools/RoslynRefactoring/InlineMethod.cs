@@ -17,9 +17,12 @@ public class InlineMethod(Cursor cursor) : IRefactoring
 
     public async Task<Document> PerformAsync(Document document)
     {
+        Console.WriteLine("******** InlineMethod PerformAsync");
         var validationResult = await ValidateInvocationContext(document);
+        Console.WriteLine("******** ValidationResult");
+        Console.WriteLine(validationResult);
         if (validationResult == null) return document;
-
+        Console.WriteLine("******** Past Validation");
         var (root, semanticModel, invocation, methodSymbol, methodDeclaration, methodBody) = validationResult.Value;
 
         var allInvocations = ProcessAllInvocations(root, semanticModel, methodSymbol, methodDeclaration, methodBody);
