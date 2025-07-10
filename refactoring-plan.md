@@ -6,9 +6,9 @@ Improve code quality by addressing long methods, removing debug code, extracting
 ## Steps
 
 ### 2. Extract Long Methods
-- [ ] Extract method `ValidateDocumentAndGetRoot()` from [`BreakHardDependency.PerformAsync()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:42) (lines 44-53)
-- [ ] Extract method `CreateSelectionSpan()` from [`BreakHardDependency.GetTextSpanFromSelection()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:126) to simplify position calculations
-- [ ] Extract method `CreateInterfaceMembers()` from [`ExtractCollaboratorInterface.CreateInterface()`](refactoring-tools/RoslynRefactoring/ExtractCollaboratorInterface.cs:229) (lines 234-255)
+- [x] Extract method `ValidateDocumentAndGetRoot()` from [`BreakHardDependency.PerformAsync()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:42) (lines 44-53)
+- [x] Extract method `CreateSelectionSpan()` from [`BreakHardDependency.GetTextSpanFromSelection()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:126) to simplify position calculations
+- [x] Extract method `CreateInterfaceMembers()` from [`ExtractCollaboratorInterface.CreateInterface()`](refactoring-tools/RoslynRefactoring/ExtractCollaboratorInterface.cs:229) (lines 234-255)
 
 ### 3. Improve Method Names
 - [ ] Rename [`FirstCharToLower()`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:489) to `ToCamelCase()` in [`BreakHardDependency`](refactoring-tools/RoslynRefactoring/BreakHardDependency.cs:21)
