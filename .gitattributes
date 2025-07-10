@@ -2,6 +2,7 @@
 * text=auto
 
 # Force LF line endings for specific file types
+*.cs text eol=lf
 *.py text eol=lf
 *.md text eol=lf
 *.txt text eol=lf
