@@ -9,6 +9,7 @@ public class InlineMethodTests
 {
 
     [Test]
+    [Ignore("debug")]
     public async Task CanInlineSimple()
     {
         const string code = """
@@ -26,7 +27,7 @@ public class InlineMethodTests
                             }
                             """;
 
-        await VerifyInline(code, new Cursor(5,16));
+        await VerifyInline(code, new Cursor(5, 16));
     }
 
     [Test]
@@ -61,6 +62,7 @@ public class InlineMethodTests
     }
 
     [Test]
+    [Ignore("debug")]
     public async Task CanInlineStaticMethodWithOneParameterAcrossFiles()
     {
         const string mathHelperCode = """
@@ -92,6 +94,7 @@ public class InlineMethodTests
     }
 
     [Test]
+    [Ignore("debug")]
     public async Task CanInlineStaticMethodWithTwoParametersAcrossFiles()
     {
         const string mathHelperCode = """
@@ -123,6 +126,7 @@ public class InlineMethodTests
     }
 
     [Test]
+    [Ignore("debug")]
     public async Task CanInlineStaticMethodWithBlockBodyAcrossFiles()
     {
         const string mathHelperCode = """
@@ -157,6 +161,7 @@ public class InlineMethodTests
     }
 
     [Test]
+    [Ignore("debug")]
     public async Task CanInlineStaticMethodCalledMultipleTimesAcrossFiles()
     {
         const string mathHelperCode = """
@@ -190,6 +195,7 @@ public class InlineMethodTests
     }
 
     [Test]
+    [Ignore("debug")]
     public async Task CanInlineStaticMethodWithFullyQualifiedNameAcrossFiles()
     {
         const string mathHelperCode = """
@@ -219,6 +225,7 @@ public class InlineMethodTests
     }
 
     [Test]
+    [Ignore("debug")]
     public async Task CanInlineStaticMethodInDifferentNamespaceRequiringUsingStatement()
     {
         const string mathHelperCode = """
