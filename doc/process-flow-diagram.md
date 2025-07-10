@@ -31,22 +31,37 @@ flowchart TD
     R3 --> R4[Review examples]
     R4 --> R5[Change DRAFT to REFINED]
     R5 --> R6[Commit with 'd refined' prefix]
-    R6 --> WriteTest[write-a-failing-test.md]
+    R6 --> DevProcess[development-process.md]
+    
+    DevProcess --> D1[Read goal.md]
+    D1 --> D2[Select next example]
+    D2 --> D3{No examples in current scenario?}
+    D3 --> |Yes| RefineScenarios
+    D3 --> |No| D4[Check TDD phase indicator]
+    D4 --> D5{TDD Phase?}
+    D5 --> |🔴 RED| WriteTest[write-a-failing-test.md]
+    D5 --> |🟢 GREEN| MakePass[make-it-pass.md]
+    D5 --> |🧹 REFACTOR| Refactor[refactor.md]
+    D5 --> |None found| D6[Set phase to 🔴]
+    D6 --> WriteTest
     
     WriteTest --> W1[Read README.md & goal.md]
     W1 --> W2[Check no uncommitted changes]
     W2 --> W3[Run ./test.sh - all pass]
     W3 --> W4[Select next example]
     W4 --> W5{Example already works?}
-    W5 --> |Yes| W6[Check off item, go to step 3]
+    W5 --> |Yes| W6[Check off item, continue]
     W5 --> |No| W7[Write failing test]
     W7 --> W8[Hypothesize outcome]
     W8 --> W9[Run ./test.sh]
     W9 --> W10{Test passes unexpectedly?}
     W10 --> |Yes| W11[Approve with ./approve.sh]
     W11 --> W12[Commit with 't ' prefix]
-    W12 --> WriteTest
-    W10 --> |No| MakePass[make-it-pass.md]
+    W12 --> W13[Set phase to 🟢]
+    W13 --> DevProcess
+    W10 --> |No| W14[Set phase to 🟢]
+    W14 --> DevProcess
+    W6 --> DevProcess
     
     MakePass --> M1[Read README.md & goal.md]
     M1 --> M2[Run ./test.sh - exactly 1 failing]
@@ -55,7 +70,8 @@ flowchart TD
     M4 --> M5[Run tests - all pass]
     M5 --> M6[Check off item in goal.md]
     M6 --> M7[Commit with 'f ' prefix]
-    M7 --> Refactor[refactor.md]
+    M7 --> M8[Set phase to 🧹]
+    M8 --> DevProcess
     
     Refactor --> RF1[SubTask: plan-refactoring.md]
     RF1 --> PlanRef[plan-refactoring.md]
@@ -79,11 +95,8 @@ flowchart TD
     ER9 --> ER10[Commit with 'r ' prefix]
     ER10 --> ER11{More tasks?}
     ER11 --> |Yes| ExecRef
-    ER11 --> |No| WriteTest
-    
-    W4 --> W13{No examples in current scenario?}
-    W13 --> |Yes| RefineScenarios
-    W6 --> WriteTest
+    ER11 --> |No| ER12[Set phase to 🔴]
+    ER12 --> DevProcess
     
     %% Support processes
     SimpleTask[simple-task.md] --> ST1[Check git status clean]
@@ -97,13 +110,20 @@ flowchart TD
     MT2 --> MT3{Tests still pass?}
     MT3 --> |Yes| MT4[Found mutant - remove code]
     
+    WriteBashScripts[write-bash-scripts.md] --> WB1[Use #!/usr/bin/env bash]
+    WB1 --> WB2[Add set -euo pipefail]
+    WB2 --> WB3[Keep minimal & concise]
+    WB3 --> WB4[Make executable with chmod +x]
+    
     %% Styling
     classDef processFile fill:#e1f5fe
     classDef subTask fill:#fff3e0
     classDef decision fill:#f3e5f5
     classDef action fill:#e8f5e8
+    classDef tddOrchestrator fill:#fff9c4
     
-    class AlignGoal,Planning,RefineScenarios,WriteTest,MakePass,Refactor,PlanRef,ExecRef,SimpleTask,MutationTest,DepBreaking processFile
+    class AlignGoal,Planning,RefineScenarios,WriteTest,MakePass,Refactor,PlanRef,ExecRef,SimpleTask,MutationTest,WriteBashScripts processFile
+    class DevProcess tddOrchestrator
     class RF1,RF2 subTask
-    class W5,W10,ER7,ER11,W13,MT3 decision
+    class W5,W10,ER7,ER11,MT3,D3,D5 decision
 ```
