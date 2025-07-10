@@ -18,21 +18,36 @@ public class InlineMethod(Cursor cursor) : IRefactoring
     public async Task<Document> PerformAsync(Document document)
     {
         Console.WriteLine("******** InlineMethod PerformAsync");
-        var validationResult = await ValidateInvocationContext(document);
-        Console.WriteLine("******** ValidationResult");
-        Console.WriteLine(validationResult);
-        if (validationResult == null) return document;
-        Console.WriteLine("******** Past Validation");
-        var (root, semanticModel, invocation, methodSymbol, methodDeclaration, methodBody) = validationResult.Value;
-
+        var root = await document.GetSyntaxRootAsync();
+        if (root == null) return document;
+        var semanticModel = await document.GetSemanticModelAsync();
+        if (semanticModel == null) return document;
+        var invocation = FindInvocationAtCursor(root, cursor);
+        if (invocation == null) return document;
+        var methodSymbol = ValidateAndGetMethodSymbol(semanticModel, invocation);
+        if (methodSymbol == null) return document;
+        var (methodDeclaration, methodBody, _) = await PrepareMethodForInlining(methodSymbol, invocation);
+        if (methodDeclaration == null || methodBody == null) return document;
         var allInvocations = ProcessAllInvocations(root, semanticModel, methodSymbol, methodDeclaration, methodBody);
-
         return document.WithSyntaxRoot(allInvocations);
     }
 
     private async Task<(SyntaxNode root, SemanticModel semanticModel, InvocationExpressionSyntax invocation, IMethodSymbol methodSymbol, MethodDeclarationSyntax methodDeclaration, BlockSyntax methodBody)?> ValidateInvocationContext(Document document)
     {
-        var (root, semanticModel) = await PrepareDocumentAsync(document);
+        (SyntaxNode? root, SemanticModel? semanticModel) ret;
+        var root1 = await document.GetSyntaxRootAsync();
+        if (root1 == null) ret = (null, null);
+        else
+        {
+            var semanticModel1 = await document.GetSemanticModelAsync();
+            if (semanticModel1 == null) ret = (null, null);
+            else
+            {
+                ret = (root: root1, semanticModel: semanticModel1);
+            }
+        }
+
+        var (root, semanticModel) = ret;
         if (root == null || semanticModel == null) return null;
 
         var invocation = FindInvocationAtCursor(root, cursor);
@@ -67,17 +82,6 @@ public class InlineMethod(Cursor cursor) : IRefactoring
         }
 
         return newRoot;
-    }
-
-    private static async Task<(SyntaxNode? root, SemanticModel? semanticModel)> PrepareDocumentAsync(Document document)
-    {
-        var root = await document.GetSyntaxRootAsync();
-        if (root == null) return (null, null);
-
-        var semanticModel = await document.GetSemanticModelAsync();
-        if (semanticModel == null) return (null, null);
-
-        return (root, semanticModel);
     }
 
     private static int GetPositionFromLineColumn(SyntaxNode root, Cursor cursor)
