@@ -3,7 +3,6 @@ import subprocess
 
 from .ls_tool import LsTool
 from .cat_tool import CatTool
-from .revert_tool import RevertTool
 from .create_file_tool import CreateFileTool
 from .edit_file_tool import EditFileTool
 
@@ -20,7 +19,6 @@ class ToolLibrary:
         return [
             LsTool(self.runcommand),
             CatTool(self.runcommand),
-            RevertTool(self.runcommand),
             CreateFileTool(self.runcommand),
             EditFileTool(self.runcommand)
         ]
