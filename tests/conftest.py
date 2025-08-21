@@ -1,7 +1,7 @@
 """Global pytest configuration for all tests."""
 import pytest
 from approvaltests import set_default_reporter
-from custom_reporter import ApproveShReporter
+from .custom_reporter import ApproveShReporter
 
 
 @pytest.fixture(scope="session", autouse=True)
