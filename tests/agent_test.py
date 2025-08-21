@@ -1,7 +1,7 @@
 import builtins
 from approvaltests import verify, Options
 
-from modernizer import start_chat
+from agent import start_chat
 from .test_helpers import (
     create_temp_file,
     create_temp_directory_structure,

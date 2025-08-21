@@ -7,7 +7,7 @@ A comprehensive code modernization toolkit that combines Python-based orchestrat
 ```mermaid
 graph TB
     subgraph "Python Modernizer Core"
-        A[modernizer.py] --> D[System Prompt Generator]
+        A[agent.py] --> D[System Prompt Generator]
         A --> B[ToolLibrary]
         A --> C[Chat System]
         A --> E[Claude Client]
@@ -45,7 +45,7 @@ graph TB
 
 ### Python Modernizer Core
 
-#### [`modernizer.py`](modernizer/modernizer.py:1)
+#### [`agent.py`](agent.py:1)
 Agent that manages chat sessions with Claude AI, integrates tool execution, and coordinates the modernization workflow.
 
 #### [`ToolLibrary`](modernizer/tools/tool_library.py:13)
@@ -78,10 +78,10 @@ Discovers C# code analysis tools from the RoslynAnalysis project.
 
 ```bash
 # Start interactive modernization session
-./modernizer.sh --new Modernize Project Xy
+./agent.sh --new Modernize Project Xy
 
 # Continue existing session
-./modernizer.sh Optional Message
+./agent.sh Optional Message
 ```
 
 ### Direct Tool Usage
@@ -117,7 +117,7 @@ dotnet run --project RoslynRefactoring -- --list-tools
 ### Python Modernizer Development
 
 ```bash
-cd modernizer
+cd .
 
 # Run tests
 ./test.sh

@@ -4,14 +4,14 @@ import argparse
 import sys
 
 from claude_client import message_claude
-from modernizer import start_chat, save_chat
+from agent import start_chat, save_chat
 
 
 def main():
     parser = argparse.ArgumentParser(description="Claude API CLI with session support")
     parser.add_argument("--new", action="store_true", help="Start a new session (clear history)")
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
-    
+
     args = parser.parse_args()
     start_message = None
     if len(sys.argv) > 1:
