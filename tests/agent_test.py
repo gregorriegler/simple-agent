@@ -2,6 +2,7 @@ import builtins
 from approvaltests import verify, Options
 
 from agent import start_chat
+from chat import Chat
 from .test_helpers import (
     create_temp_file,
     create_temp_directory_structure,
@@ -26,8 +27,15 @@ def run_chat_test(capsys, input_stub, message, answer):
     # Mock system prompt for tests
     system_prompt = "Test system prompt"
 
+    # Create chat with message (simulating new=True behavior)
+    chat = Chat()
+    print("Starting new session")
+
+    if message:
+        chat = chat.userSays(message)
+
     try:
-        start_chat(system_prompt, message, new=True, message_claude=claude_stub, rounds=1, save_chat=save_chat)
+        start_chat(system_prompt, chat, message_claude=claude_stub, rounds=1, save_chat=save_chat)
     except KeyboardInterrupt:
         pass
 

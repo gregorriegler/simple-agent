@@ -6,6 +6,7 @@ import sys
 from claude_client import message_claude
 from agent import start_chat, save_chat
 from system_prompt_generator import SystemPromptGenerator
+from chat import Chat, load_chat
 
 
 def get_system_prompt():
@@ -28,7 +29,15 @@ def main():
     new = args.new
 
     system_prompt = get_system_prompt()
-    start_chat(system_prompt, start_message, new, message_claude, save_chat=save_chat)
+
+    # Handle chat creation logic that was previously in start_chat
+    chat = Chat() if new else load_chat("claude-session.json")
+    print("Starting new session" if new else "Continuing session")
+
+    if start_message:
+        chat = chat.userSays(start_message)
+
+    start_chat(system_prompt, chat, message_claude, save_chat=save_chat)
 
 
 if __name__ == "__main__":

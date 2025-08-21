@@ -2,14 +2,8 @@ from chat import Chat, load_chat, save_chat
 from tools import ToolLibrary
 
 
-def start_chat(system_prompt, start_message, new, message_claude, rounds=999999, save_chat=save_chat):
+def start_chat(system_prompt, chat, message_claude, rounds=999999, save_chat=save_chat):
     tools = ToolLibrary()
-
-    chat = Chat() if new else load_chat("claude-session.json")
-    print("Starting new session" if new else "Continuing session")
-
-    if start_message:
-        chat = chat.userSays(start_message)
 
     for _ in range(rounds):
         answer = message_claude(chat.to_list(), system_prompt)
