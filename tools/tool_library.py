@@ -109,7 +109,7 @@ class ToolLibrary:
             else:
                 command_line = [command]
 
-            timeout = 300 if (args and 'stryker' in args) else 30
+            timeout = 30
 
             result = subprocess.run(
                 command_line,
