@@ -23,8 +23,11 @@ def run_chat_test(capsys, input_stub, message, answer):
         nonlocal saved_messages
         saved_messages = "\n".join(f"{msg['role']}: {msg['content']}" for msg in chat)
 
+    # Mock system prompt for tests
+    system_prompt = "Test system prompt"
+
     try:
-        start_chat(message, new=True, message_claude=claude_stub, rounds=1, save_chat=save_chat)
+        start_chat(system_prompt, message, new=True, message_claude=claude_stub, rounds=1, save_chat=save_chat)
     except KeyboardInterrupt:
         pass
 

@@ -1,21 +1,13 @@
 from chat import Chat, load_chat, save_chat
 from tools import ToolLibrary
-from system_prompt_generator import SystemPromptGenerator
 
 
-def get_system_prompt():
-    """Get the system prompt with dynamically populated tools"""
-    generator = SystemPromptGenerator()
-    return generator.get_system_prompt_for_llm()
-
-
-def start_chat(start_message, new, message_claude, rounds=999999, save_chat=save_chat):
-    system_prompt = get_system_prompt()
+def start_chat(system_prompt, start_message, new, message_claude, rounds=999999, save_chat=save_chat):
     tools = ToolLibrary()
 
     chat = Chat() if new else load_chat("claude-session.json")
     print("Starting new session" if new else "Continuing session")
-    
+
     if start_message:
         chat = chat.userSays(start_message)
 
