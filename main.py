@@ -17,7 +17,7 @@ def get_system_prompt():
 
 def main():
     parser = argparse.ArgumentParser(description="Claude API CLI with session support")
-    parser.add_argument("--new", action="store_true", help="Start a new session (clear history)")
+    parser.add_argument("-c", "--continue", action="store_true", help="Continue previous session")
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
 
     args = parser.parse_args()
@@ -26,13 +26,13 @@ def main():
         start_message = " ".join(sys.argv[1:])
     if args.message:
         start_message = " ".join(args.message)
-    new = args.new
+    continue_session = getattr(args, 'continue')
 
     system_prompt = get_system_prompt()
 
     # Handle chat creation logic that was previously in start_chat
-    chat = Chat() if new else load_chat("claude-session.json")
-    print("Starting new session" if new else "Continuing session")
+    chat = load_chat("claude-session.json") if continue_session else Chat()
+    print("Continuing session" if continue_session else "Starting new session")
 
     if start_message:
         chat = chat.userSays(start_message)
