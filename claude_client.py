@@ -1,7 +1,5 @@
 import requests
 
-from helpers import *
-
 
 def message_claude(messages, system_prompt):
     url = "https://api.anthropic.com/v1/messages"
@@ -32,4 +30,16 @@ def message_claude(messages, system_prompt):
         sys.exit(1)
     except KeyboardInterrupt:
         print("\n\nExiting...")
+        sys.exit(1)
+
+def read_file(filename):
+    """Read content from a file, handling errors gracefully."""
+    try:
+        with open(filename, 'r') as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        print(f"Error: {filename} not found", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error reading {filename}: {e}", file=sys.stderr)
         sys.exit(1)
