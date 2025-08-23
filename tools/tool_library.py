@@ -56,10 +56,10 @@ class ToolLibrary:
             if match:
                 command, arguments = match.groups()
                 tool = self.tool_dict.get(command)
-                if tool:
-                    return self.strip_arguments_and_execute_tool(arguments, tool)
-                else:
+                if not tool:
                     return f"Unknown command: {command}"
+                else:
+                    return self.strip_arguments_and_execute_tool(arguments, tool)
         return ""
 
     def _parse_multiline_command(self, text, pattern):
@@ -68,15 +68,15 @@ class ToolLibrary:
         if match:
             command, _ = match.groups()
             tool = self.tool_dict.get(command)
-            if tool:
-                command_prefix = f"/{command} "
-                if text.startswith(command_prefix):
-                    arguments = text[len(command_prefix):]
-                    return self.strip_arguments_and_execute_tool(arguments, tool)
-                else:
-                    return self.strip_arguments_and_execute_tool(None, tool)
-            else:
+            if not tool:
                 return f"Unknown command: {command}"
+            else:
+                if text.startswith(f"/{command} "):
+                    arguments = text[len(f"/{command} "):]
+                else:
+                    arguments = None
+
+                return self.strip_arguments_and_execute_tool(arguments, tool)
         return ""
 
     @staticmethod
