@@ -1,22 +1,9 @@
-import os
-from contextlib import contextmanager
-
 from approvaltests import Options, verify
 
 from tools.tool_library import ToolLibrary
-from .test_helpers import all_scrubbers
+from .test_helpers import all_scrubbers, temp_directory
 
 library = ToolLibrary()
-
-
-@contextmanager
-def temp_directory(tmp_path):
-    original_cwd = os.getcwd()
-    os.chdir(tmp_path)
-    try:
-        yield
-    finally:
-        os.chdir(original_cwd)
 
 
 def verify_create_tool(framework, command, expected_filename, tmp_path):

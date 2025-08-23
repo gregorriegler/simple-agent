@@ -1,4 +1,5 @@
 import os
+from contextlib import contextmanager
 
 from approvaltests import Options, verify
 from approvaltests.scrubbers import create_regex_scrubber, combine_scrubbers
@@ -8,6 +9,17 @@ def create_temp_file(tmp_path, filename, contents):
     temp_file = tmp_path / filename
     temp_file.write_text(contents)
     return temp_file
+
+
+@contextmanager
+def temp_directory(tmp_path):
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    try:
+        yield
+    finally:
+        os.chdir(original_cwd)
+
 
 def create_temp_directory_structure(tmp_path):
     file1 = tmp_path / "file1.txt"
@@ -23,9 +35,9 @@ def create_temp_directory_structure(tmp_path):
 
     return tmp_path, file1, file2, subdir, subfile
 
+
 def create_path_scrubber():
     def path_replacer(text):
-
         lines = text.split('\n')
         result_lines = []
 
@@ -34,6 +46,7 @@ def create_path_scrubber():
             result_lines.append(new_line)
 
         return '\n'.join(result_lines)
+
     return path_replacer
 
 
@@ -55,14 +68,18 @@ def create_date_scrubber():
         '[DATE]'
     )
 
+
 def create_ls_error_scrubber():
     """Normalize ls error messages between Mac and Windows"""
+
     def ls_error_replacer(text):
         import re
         pattern = r"ls: cannot access '([^']+)': No such file or directory"
         replacement = r"ls: \1: No such file or directory"
         return re.sub(pattern, replacement, text)
+
     return ls_error_replacer
+
 
 def all_scrubbers():
     return combine_scrubbers(
@@ -76,4 +93,3 @@ def verify_tool(framework, command):
     result = framework.parse_and_execute(command)
     verify(f"Command:\n{command}\n\nResult:\n{result}", options=Options()
            .with_scrubber(all_scrubbers()))
-
