@@ -37,10 +37,7 @@ class Agent:
                 if user_input.strip():
                     chat = chat.user_says(user_input)
                     continue
-            except EOFError:
-                self.display.exit()
-                break
-            except KeyboardInterrupt:
+            except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break
 
