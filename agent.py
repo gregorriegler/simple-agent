@@ -13,6 +13,10 @@ class Display(ABC):
         pass
 
     @abstractmethod
+    def input(self):
+        pass
+
+    @abstractmethod
     def exit(self):
         pass
 
@@ -33,7 +37,7 @@ class Agent:
             chat = chat.assistant_says(answer)
 
             try:
-                user_input = input("\nPress Enter to continue or type a message to add: ")
+                user_input = self.display.input()
                 if user_input.strip():
                     chat = chat.user_says(user_input)
                     continue
