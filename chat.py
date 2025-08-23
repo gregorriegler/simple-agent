@@ -8,26 +8,26 @@ from typing import List, Dict
 class Chat:
     _messages: List[Dict[str, str]] = field(default_factory=list)
 
-    def userSays(self, content: str) -> 'Chat':
+    def user_says(self, content: str) -> 'Chat':
         return self.add("user", content)
 
-    def assistantSays(self, content: str) -> 'Chat':
+    def assistant_says(self, content: str) -> 'Chat':
         return self.add("assistant", content)
 
     def add(self, role: str, content: str) -> 'Chat':
         new_messages = list(self._messages)
         new_messages.append({"role": role, "content": content})
         return Chat(new_messages)
-    
+
     def to_list(self) -> List[Dict[str, str]]:
         return list(self._messages)
-    
+
     def __len__(self) -> int:
         return len(self._messages)
-    
+
     def __iter__(self):
         return iter(self._messages)
-    
+
     def __str__(self) -> str:
         return str(self._messages)
 
@@ -35,7 +35,7 @@ class Chat:
 def load_chat(session_file: str = "claude-session.json") -> 'Chat':
     if not os.path.exists(session_file):
         return Chat()
-    
+
     try:
         with open(session_file, 'r') as f:
             chat_data = json.load(f)

@@ -7,6 +7,7 @@ from claude_client import message_claude
 from agent import Agent
 from system_prompt_generator import SystemPromptGenerator
 from chat import Chat, load_chat
+from console_display import ConsoleDisplay
 
 
 def get_system_prompt():
@@ -37,7 +38,7 @@ def main():
     if start_message:
         chat = chat.userSays(start_message)
 
-    Agent(system_prompt, message_claude).start(chat)
+    Agent(system_prompt, message_claude, ConsoleDisplay()).start(chat)
 
 
 if __name__ == "__main__":

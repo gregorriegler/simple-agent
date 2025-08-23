@@ -3,6 +3,7 @@ from approvaltests import verify, Options
 
 from agent import Agent
 from chat import Chat
+from console_display import ConsoleDisplay
 from .test_helpers import (
     create_temp_file,
     create_temp_directory_structure,
@@ -32,10 +33,10 @@ def run_chat_test(capsys, input_stub, message, answer):
     print("Starting new session")
 
     if message:
-        chat = chat.userSays(message)
+        chat = chat.user_says(message)
 
     try:
-        Agent(system_prompt, claude_stub, save_chat).start(chat, rounds=1)
+        Agent(system_prompt, claude_stub, ConsoleDisplay(), save_chat).start(chat, rounds=1)
     except KeyboardInterrupt:
         pass
 
