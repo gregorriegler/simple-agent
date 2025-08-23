@@ -1,0 +1,5 @@
+- The Agent with its main loop might become a class
+- the print will be abstracted and injected (then we can have a subagent be indented or prefixed)
+- add subagent tool that reuses the agent class and its loop
+- a subagent ends with a summary and returns that
+- a subagent might have its own tool library and system prompt

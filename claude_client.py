@@ -15,11 +15,9 @@ def message_claude(messages, system_prompt):
     data = {
         "model": model,
         "max_tokens": 4000,
+        "system": system_prompt,
         "messages": messages
     }
-
-    if system_prompt is not None:
-        data["system"] = system_prompt
 
     try:
         response = requests.post(url, headers=headers, json=data)
