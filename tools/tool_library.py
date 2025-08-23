@@ -50,15 +50,12 @@ class ToolLibrary:
 
 
     def _parse_multiline_command(self, text, pattern):
-        """Handle multi-line commands by treating the entire text as one command"""
         first_line = text.splitlines()[0].strip()
         match = re.match(pattern, first_line)
         if match:
             command, _ = match.groups()
             tool = self.tool_dict.get(command)
             if tool:
-                # Extract arguments from the entire text, preserving newlines
-                # Find the position after "/{command} " in the text
                 command_prefix = f"/{command} "
                 if text.startswith(command_prefix):
                     full_args = text[len(command_prefix):]
@@ -72,7 +69,6 @@ class ToolLibrary:
         return None
 
     def _parse_single_line_command(self, text, pattern):
-        """Handle single-line command processing"""
         for line in text.splitlines():
             line = line.strip()
             match = re.match(pattern, line)
@@ -89,26 +85,21 @@ class ToolLibrary:
     def parse_and_execute(self, text):
         pattern = r'^/([\w-]+)(?:\s+(.*))?$'
 
-        # Handle multi-line commands by treating the entire text as one command
         if '\n' in text:
             result = self._parse_multiline_command(text, pattern)
             if result:
                 return result
 
-        # Single-line processing (original behavior)
         return self._parse_single_line_command(text, pattern)
 
     @staticmethod
     def run_command(command, args=None, cwd=None):
         try:
+            command_line = [command]
             if args:
                 if isinstance(args, str):
                     args = [args]
-                command_line = [command] + args
-            else:
-                command_line = [command]
-
-            timeout = 30
+                command_line += args
 
             result = subprocess.run(
                 command_line,
@@ -116,7 +107,7 @@ class ToolLibrary:
                 text=True,
                 encoding='utf-8',
                 errors='replace',
-                timeout=timeout,
+                timeout=30,
                 cwd=cwd
             )
 
