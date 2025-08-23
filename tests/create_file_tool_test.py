@@ -10,7 +10,6 @@ library = ToolLibrary()
 
 @contextmanager
 def temp_directory(tmp_path):
-    """Context manager to handle directory changes for tests."""
     original_cwd = os.getcwd()
     os.chdir(tmp_path)
     try:
@@ -19,16 +18,6 @@ def temp_directory(tmp_path):
         os.chdir(original_cwd)
 
 def verify_create_tool(framework, command, expected_filename, expected_content=None, tmp_path=None):
-    """
-    Verify a create tool command and check the created file's content.
-
-    Args:
-        framework: The tool framework to execute the command
-        command: The command to execute
-        expected_filename: The filename that should be created
-        expected_content: The expected content of the file (None for empty file)
-        tmp_path: Optional temporary path to change to during execution
-    """
     if expected_content is None:
         ""
 

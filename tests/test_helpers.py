@@ -73,7 +73,7 @@ def create_multi_scrubber(path_scrubber=None, date_scrubber=None, ls_error_scrub
 
 multi_scrubber = create_multi_scrubber()
 
-def verifyTool(framework, command):
+def verify_tool(framework, command):
     result = framework.parse_and_execute(command)
     verify(f"Command:\n{command}\n\nResult:\n{result}", options=Options().with_scrubber(multi_scrubber))
 
