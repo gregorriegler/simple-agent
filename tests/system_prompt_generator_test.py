@@ -1,8 +1,7 @@
 import os
-import sys
 import subprocess
+import sys
 
-from system_prompt_generator import SystemPromptGenerator
 
 def test_system_prompt_generator_outputs_prompt_without_args():
     script_path = os.path.join(os.path.dirname(__file__), '..', 'system_prompt_generator.py')

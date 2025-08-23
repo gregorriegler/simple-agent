@@ -1,6 +1,8 @@
 import os
+
 from approvaltests import Options, verify
 from approvaltests.scrubbers import create_regex_scrubber, combine_scrubbers
+
 
 def create_temp_file(tmp_path, filename, contents):
     temp_file = tmp_path / filename
@@ -62,18 +64,16 @@ def create_ls_error_scrubber():
         return re.sub(pattern, replacement, text)
     return ls_error_replacer
 
-def create_multi_scrubber(path_scrubber=None, date_scrubber=None, ls_error_scrubber=None):
-    if path_scrubber is None:
-        path_scrubber = create_path_scrubber()
-    if date_scrubber is None:
-        date_scrubber = create_date_scrubber()
-    if ls_error_scrubber is None:
-        ls_error_scrubber = create_ls_error_scrubber()
-    return combine_scrubbers(path_scrubber, date_scrubber, ls_error_scrubber)
+def all_scrubbers():
+    return combine_scrubbers(
+        create_path_scrubber(),
+        create_date_scrubber(),
+        create_ls_error_scrubber()
+    )
 
-multi_scrubber = create_multi_scrubber()
 
 def verify_tool(framework, command):
     result = framework.parse_and_execute(command)
-    verify(f"Command:\n{command}\n\nResult:\n{result}", options=Options().with_scrubber(multi_scrubber))
+    verify(f"Command:\n{command}\n\nResult:\n{result}", options=Options()
+           .with_scrubber(all_scrubbers()))
 

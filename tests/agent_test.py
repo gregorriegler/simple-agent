@@ -6,8 +6,7 @@ from chat import Chat
 from console_display import ConsoleDisplay
 from .test_helpers import (
     create_temp_file,
-    create_temp_directory_structure,
-    multi_scrubber
+    create_temp_directory_structure, all_scrubbers
 )
 
 def enter(_):
@@ -66,5 +65,5 @@ def test_chat_with_regular_response(capsys):
 
 def verify_chat(capsys, input_stub, message, answer):
     result = run_chat_test(capsys, input_stub=input_stub, message=message, answer=answer)
-    verify(result, options=Options().with_scrubber(multi_scrubber))
+    verify(result, options=Options().with_scrubber(all_scrubbers()))
 
