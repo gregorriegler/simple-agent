@@ -6,6 +6,7 @@ from .cat_tool import CatTool
 from .create_file_tool import CreateFileTool
 from .edit_file_tool import EditFileTool
 
+
 class ToolLibrary:
     def __init__(self):
         static_tools = self._create_static_tools()
@@ -48,6 +49,18 @@ class ToolLibrary:
                 info_lines.append(f"  {tool.name}: {description}")
             return "\n".join(info_lines)
 
+    def _parse_single_line_command(self, text, pattern):
+        for line in text.splitlines():
+            line = line.strip()
+            match = re.match(pattern, line)
+            if match:
+                command, arguments = match.groups()
+                tool = self.tool_dict.get(command)
+                if tool:
+                    return self.strip_arguments_and_execute_tool(arguments, tool)
+                else:
+                    return f"Unknown command: {command}"
+        return ""
 
     def _parse_multiline_command(self, text, pattern):
         first_line = text.splitlines()[0].strip()
@@ -58,29 +71,19 @@ class ToolLibrary:
             if tool:
                 command_prefix = f"/{command} "
                 if text.startswith(command_prefix):
-                    full_args = text[len(command_prefix):]
-                    result = tool.execute(full_args.strip() if full_args else None)
-                    return result['output']
+                    arguments = text[len(command_prefix):]
+                    return self.strip_arguments_and_execute_tool(arguments, tool)
                 else:
-                    result = tool.execute(None)
-                    return result['output']
+                    return self.strip_arguments_and_execute_tool(None, tool)
             else:
                 return f"Unknown command: {command}"
-        return None
-
-    def _parse_single_line_command(self, text, pattern):
-        for line in text.splitlines():
-            line = line.strip()
-            match = re.match(pattern, line)
-            if match:
-                command, arguments = match.groups()
-                tool = self.tool_dict.get(command)
-                if tool:
-                    result = tool.execute(arguments.strip() if arguments else None)
-                    return result['output']
-                else:
-                    return f"Unknown command: {command}"
         return ""
+
+    @staticmethod
+    def strip_arguments_and_execute_tool(arguments, tool):
+        args = arguments.strip() if arguments else None
+        result = tool.execute(args)
+        return result['output']
 
     def parse_and_execute(self, text):
         pattern = r'^/([\w-]+)(?:\s+(.*))?$'
