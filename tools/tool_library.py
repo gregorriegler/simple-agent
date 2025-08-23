@@ -123,11 +123,9 @@ class ToolLibrary:
             output = result.stdout.rstrip('\n')
 
             if result.stderr:
-                stderr = result.stderr
-                if output:  # Only add newline if there's stdout content
-                    output += f"\nSTDERR: {stderr}"
-                else:
-                    output = f"STDERR: {stderr}"
+                if output:
+                    output += f"\n";
+                output += f"STDERR: {result.stderr}"
 
             return {
                 'success': result.returncode == 0,
