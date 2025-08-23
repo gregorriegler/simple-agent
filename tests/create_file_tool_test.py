@@ -18,7 +18,7 @@ def temp_directory(tmp_path):
     finally:
         os.chdir(original_cwd)
 
-def verifyCreateTool(framework, command, expected_filename, expected_content=None, tmp_path=None):
+def verify_create_tool(framework, command, expected_filename, expected_content=None, tmp_path=None):
     """
     Verify a create tool command and check the created file's content.
 
@@ -30,7 +30,7 @@ def verifyCreateTool(framework, command, expected_filename, expected_content=Non
         tmp_path: Optional temporary path to change to during execution
     """
     if expected_content is None:
-        expected_content = ""
+        ""
 
     # Create scrubber for consistent output
     path_scrubber = create_path_scrubber()
@@ -39,7 +39,7 @@ def verifyCreateTool(framework, command, expected_filename, expected_content=Non
     multi_scrubber = combine_scrubbers(path_scrubber, date_scrubber, ls_error_scrubber)
 
     def _execute_and_verify():
-        cmd, result = framework.parse_and_execute(command)
+        result = framework.parse_and_execute(command)
 
         if expected_filename and not os.path.exists(expected_filename):
             raise AssertionError(f"File '{expected_filename}' should have been created")
@@ -52,7 +52,7 @@ def verifyCreateTool(framework, command, expected_filename, expected_content=Non
             file_info = "No File created"
 
         # Create verification output including file content
-        verify(f"Command:\n{cmd}\n\nResult:\n{result}\n\n{file_info}", options=Options().with_scrubber(multi_scrubber))
+        verify(f"Command:\n{command}\n\nResult:\n{result}\n\n{file_info}", options=Options().with_scrubber(multi_scrubber))
 
     if tmp_path:
         with temp_directory(tmp_path):
@@ -61,33 +61,33 @@ def verifyCreateTool(framework, command, expected_filename, expected_content=Non
         _execute_and_verify()
 
 def test_create_tool_single_character_name(tmp_path):
-    verifyCreateTool(library, "/create-file a", "a", tmp_path=tmp_path)
+    verify_create_tool(library, "/create-file a", "a", tmp_path=tmp_path)
 
 def test_create_tool_simple_name_with_extension(tmp_path):
-    verifyCreateTool(library, "/create-file test.txt", "test.txt", tmp_path=tmp_path)
+    verify_create_tool(library, "/create-file test.txt", "test.txt", tmp_path=tmp_path)
 
 def test_create_tool_single_character_content(tmp_path):
-    verifyCreateTool(library, "/create-file test.txt a", "test.txt", "a", tmp_path=tmp_path)
+    verify_create_tool(library, "/create-file test.txt a", "test.txt", "a", tmp_path=tmp_path)
 
 def test_create_tool_simple_text_content(tmp_path):
-    verifyCreateTool(library, "/create-file readme.txt Hello World", "readme.txt", "Hello World", tmp_path=tmp_path)
+    verify_create_tool(library, "/create-file readme.txt Hello World", "readme.txt", "Hello World", tmp_path=tmp_path)
 
 def test_create_tool_newline_content(tmp_path):
-    verifyCreateTool(library, '/create-file multi.txt "Line 1\\nLine 2"', "multi.txt", "Line 1\nLine 2", tmp_path=tmp_path)
+    verify_create_tool(library, '/create-file multi.txt "Line 1\\nLine 2"', "multi.txt", "Line 1\nLine 2", tmp_path=tmp_path)
 
 def test_create_tool_json_content(tmp_path):
-    verifyCreateTool(library, '/create-file config.json {"name": "test"}', "config.json", '{"name": "test"}', tmp_path=tmp_path)
+    verify_create_tool(library, '/create-file config.json {"name": "test"}', "config.json", '{"name": "test"}', tmp_path=tmp_path)
 
 def test_create_tool_explicit_empty_content(tmp_path):
-    verifyCreateTool(library, '/create-file empty.txt ""', "empty.txt", "", tmp_path=tmp_path)
+    verify_create_tool(library, '/create-file empty.txt ""', "empty.txt", "", tmp_path=tmp_path)
 
 def test_create_file_in_nonexistent_directory(tmp_path):
-    verifyCreateTool(library, f'/create-file src/utils/helper.py "# Helper module"', "src/utils/helper.py", "# Helper module", tmp_path=tmp_path)
+    verify_create_tool(library, f'/create-file src/utils/helper.py "# Helper module"', "src/utils/helper.py", "# Helper module", tmp_path=tmp_path)
 
 def test_create_file_already_exists(tmp_path):
     with temp_directory(tmp_path):
         library.parse_and_execute("/create-file existing.txt")
 
-        _, result = library.parse_and_execute("/create-file existing.txt")
+        result = library.parse_and_execute("/create-file existing.txt")
 
         assert 'already exists' in result.lower() or 'exists' in result.lower()

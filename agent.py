@@ -41,7 +41,7 @@ class Agent:
                 self.display.exit()
                 break
 
-            _, tool_result = tools.parse_and_execute(answer)
+            tool_result = tools.parse_and_execute(answer)
             self.display.tool_result(tool_result)
 
             if tool_result:

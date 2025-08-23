@@ -10,27 +10,27 @@ def create_temp_file(tmp_path, filename, contents):
 def create_temp_directory_structure(tmp_path):
     file1 = tmp_path / "file1.txt"
     file1.write_text("Hello world\nLine 2\nLine 3")
-    
+
     file2 = tmp_path / "file2.py"
     file2.write_text("def hello():\n    print('Hello')\n    return 42")
-    
+
     subdir = tmp_path / "subdir"
     subdir.mkdir()
     subfile = subdir / "subfile.txt"
     subfile.write_text("Subdirectory file content")
-    
+
     return tmp_path, file1, file2, subdir, subfile
 
 def create_path_scrubber():
     def path_replacer(text):
-        
+
         lines = text.split('\n')
         result_lines = []
-        
+
         for line in lines:
             new_line = scrub_line(line)
             result_lines.append(new_line)
-        
+
         return '\n'.join(result_lines)
     return path_replacer
 
@@ -74,6 +74,6 @@ def create_multi_scrubber(path_scrubber=None, date_scrubber=None, ls_error_scrub
 multi_scrubber = create_multi_scrubber()
 
 def verifyTool(framework, command):
-    cmd, result = framework.parse_and_execute(command)
-    verify(f"Command:\n{cmd}\n\nResult:\n{result}", options=Options().with_scrubber(multi_scrubber))
+    result = framework.parse_and_execute(command)
+    verify(f"Command:\n{command}\n\nResult:\n{result}", options=Options().with_scrubber(multi_scrubber))
 

@@ -17,10 +17,10 @@ class ToolLibrary:
     def _create_static_tools(self):
         """Create the core static tools that are always available."""
         return [
-            LsTool(self.runcommand),
-            CatTool(self.runcommand),
-            CreateFileTool(self.runcommand),
-            EditFileTool(self.runcommand)
+            LsTool(self.run_command),
+            CatTool(self.run_command),
+            CreateFileTool(self.run_command),
+            EditFileTool(self.run_command)
         ]
 
     def _discover_dynamic_tools(self):
@@ -63,12 +63,12 @@ class ToolLibrary:
                 if text.startswith(command_prefix):
                     full_args = text[len(command_prefix):]
                     result = tool.execute(full_args.strip() if full_args else None)
-                    return text, result['output']
+                    return result['output']
                 else:
                     result = tool.execute(None)
-                    return text, result['output']
+                    return result['output']
             else:
-                return text, f"Unknown command: {command}"
+                return f"Unknown command: {command}"
         return None
 
     def _parse_single_line_command(self, text, pattern):
@@ -81,10 +81,10 @@ class ToolLibrary:
                 tool = self.tool_dict.get(command)
                 if tool:
                     result = tool.execute(arguments.strip() if arguments else None)
-                    return line, result['output']
+                    return result['output']
                 else:
-                    return line, f"Unknown command: {command}"
-        return text.splitlines()[0].strip(), ""
+                    return f"Unknown command: {command}"
+        return ""
 
     def parse_and_execute(self, text):
         pattern = r'^/([\w-]+)(?:\s+(.*))?$'
@@ -98,7 +98,8 @@ class ToolLibrary:
         # Single-line processing (original behavior)
         return self._parse_single_line_command(text, pattern)
 
-    def runcommand(self, command, args=None, cwd=None):
+    @staticmethod
+    def run_command(command, args=None, cwd=None):
         try:
             if args:
                 if isinstance(args, str):
