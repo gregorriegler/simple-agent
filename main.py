@@ -4,7 +4,7 @@ import argparse
 import sys
 
 from claude_client import message_claude
-from agent import start_chat, save_chat
+from agent import Agent
 from system_prompt_generator import SystemPromptGenerator
 from chat import Chat, load_chat
 
@@ -37,7 +37,7 @@ def main():
     if start_message:
         chat = chat.userSays(start_message)
 
-    start_chat(system_prompt, chat, message_claude, save_chat=save_chat)
+    Agent(system_prompt, message_claude).start(chat)
 
 
 if __name__ == "__main__":

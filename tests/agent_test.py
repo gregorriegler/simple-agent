@@ -1,7 +1,7 @@
 import builtins
 from approvaltests import verify, Options
 
-from agent import start_chat
+from agent import Agent
 from chat import Chat
 from .test_helpers import (
     create_temp_file,
@@ -35,7 +35,7 @@ def run_chat_test(capsys, input_stub, message, answer):
         chat = chat.userSays(message)
 
     try:
-        start_chat(system_prompt, chat, message_claude=claude_stub, rounds=1, save_chat=save_chat)
+        Agent(system_prompt, claude_stub, save_chat).start(chat, rounds=1)
     except KeyboardInterrupt:
         pass
 
