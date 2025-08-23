@@ -4,20 +4,18 @@ import sys
 from dataclasses import dataclass, field
 from typing import List, Dict
 
-@dataclass(frozen=True)
+@dataclass()
 class Chat:
     _messages: List[Dict[str, str]] = field(default_factory=list)
 
-    def user_says(self, content: str) -> 'Chat':
-        return self.add("user", content)
+    def user_says(self, content: str):
+        self.add("user", content)
 
-    def assistant_says(self, content: str) -> 'Chat':
-        return self.add("assistant", content)
+    def assistant_says(self, content: str):
+        self.add("assistant", content)
 
-    def add(self, role: str, content: str) -> 'Chat':
-        new_messages = list(self._messages)
-        new_messages.append({"role": role, "content": content})
-        return Chat(new_messages)
+    def add(self, role: str, content: str):
+        self._messages.append({"role": role, "content": content})
 
     def to_list(self) -> List[Dict[str, str]]:
         return list(self._messages)

@@ -32,7 +32,7 @@ def run_chat_test(capsys, input_stub, message, answer):
     print("Starting new session")
 
     if message:
-        chat = chat.user_says(message)
+        chat.user_says(message)
 
     try:
         Agent(system_prompt, claude_stub, ConsoleDisplay(), save_chat).start(chat, rounds=1)

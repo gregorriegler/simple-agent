@@ -34,12 +34,12 @@ class Agent:
         for _ in range(rounds):
             answer = self.message_claude(chat.to_list(), self.system_prompt)
             self.display.assistant_says(answer)
-            chat = chat.assistant_says(answer)
+            chat.assistant_says(answer)
 
             try:
                 user_input = self.display.input()
                 if user_input.strip():
-                    chat = chat.user_says(user_input)
+                    chat.user_says(user_input)
                     continue
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
@@ -49,6 +49,6 @@ class Agent:
             self.display.tool_result(tool_result)
 
             if tool_result:
-                chat = chat.user_says(tool_result)
+                chat.user_says(tool_result)
 
             self.save_chat(chat)
