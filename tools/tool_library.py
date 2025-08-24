@@ -9,7 +9,6 @@ from .subagent_tool import SubagentTool
 
 
 class ParsedTool:
-    """Represents a parsed tool with its name, arguments, and tool instance."""
     def __init__(self, name, arguments, tool_instance):
         self.name = name
         self.arguments = arguments
