@@ -93,7 +93,7 @@ class ToolLibrary:
             line = line.strip()
             match = re.match(pattern, line)
             if match:
-                command, first_line_args = match.groups()
+                command, same_line_args = match.groups()
                 tool = self.tool_dict.get(command)
                 if not tool:
                     return None
@@ -101,26 +101,26 @@ class ToolLibrary:
                 # All content after the tool call line belongs to the tool's args
                 if i == 0:
                     # Tool call is on the first line
-                    if first_line_args:
+                    if same_line_args:
                         # Arguments start on the same line as the tool call
                         remaining_lines = lines[1:]
                         if remaining_lines:
-                            arguments = first_line_args + '\n' + '\n'.join(remaining_lines)
+                            arguments = same_line_args + '\n' + '\n'.join(remaining_lines)
                         else:
-                            arguments = first_line_args
+                            arguments = same_line_args
                     else:
                         # Arguments start on the next line
-                        remaining_lines = lines[1:]
+                        remaining_lines = lines[i+1:]
                         arguments = '\n'.join(remaining_lines) if remaining_lines else None
                 else:
                     # Tool call is not on the first line
-                    if first_line_args:
+                    if same_line_args:
                         # Arguments start on the same line as the tool call
                         remaining_lines = lines[i+1:]
                         if remaining_lines:
-                            arguments = first_line_args + '\n' + '\n'.join(remaining_lines)
+                            arguments = same_line_args + '\n' + '\n'.join(remaining_lines)
                         else:
-                            arguments = first_line_args
+                            arguments = same_line_args
                     else:
                         # Arguments start on the next line
                         remaining_lines = lines[i+1:]
