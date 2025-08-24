@@ -2,6 +2,8 @@
 Starting new session
 
 Claude: /cat /tmp/test_path/testfile.txt
+
+Executing Tool: cat C:\Users\riegl\AppData\Local\Temp\pytest-of-riegl\pytest-705\test_tool_cat0\testfile.txt
      1	Hello world
 
 # Saved messages:

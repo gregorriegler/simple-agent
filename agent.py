@@ -8,6 +8,10 @@ class Display(ABC):
         pass
 
     @abstractmethod
+    def tool_about_to_execute(self, parsed_tool):
+        pass
+
+    @abstractmethod
     def tool_result(self, result):
         pass
 
@@ -43,10 +47,14 @@ class Agent:
                 self.display.exit()
                 break
 
-            tool_result = self.tools.parse_and_execute(answer)
-            self.display.tool_result(tool_result)
+            parsed_tool = self.tools.parse_tool(answer)
 
-            if tool_result:
-                chat.user_says(tool_result)
+            if parsed_tool:
+                self.display.tool_about_to_execute(parsed_tool)
+                tool_result = self.tools.execute_parsed_tool(parsed_tool)
+                self.display.tool_result(tool_result)
+
+                if tool_result:
+                    chat.user_says(tool_result)
 
             self.save_chat(chat)

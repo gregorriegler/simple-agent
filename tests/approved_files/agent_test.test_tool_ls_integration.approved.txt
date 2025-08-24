@@ -2,6 +2,8 @@
 Starting new session
 
 Claude: /ls /tmp/test_path
+
+Executing Tool: ls C:\Users\riegl\AppData\Local\Temp\pytest-of-riegl\pytest-704\test_tool_ls_integration0
 .
 ..
 file1.txt

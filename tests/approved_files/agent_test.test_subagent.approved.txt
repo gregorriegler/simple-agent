@@ -2,6 +2,8 @@
 Starting new session
 
 Claude: /subagent say hello
+
+Executing Tool: subagent say hello
 Subagent Task: say hello
 
 hello

@@ -8,6 +8,18 @@ from .edit_file_tool import EditFileTool
 from .subagent_tool import SubagentTool
 
 
+class ParsedTool:
+    """Represents a parsed tool with its name, arguments, and tool instance."""
+    def __init__(self, name, arguments, tool_instance):
+        self.name = name
+        self.arguments = arguments
+        self.tool_instance = tool_instance
+
+    def __str__(self):
+        args_str = f" {self.arguments}" if self.arguments else ""
+        return f"Tool: {self.name}{args_str}"
+
+
 class ToolLibrary:
     def __init__(self, message_claude = lambda messages, system_prompt: ""):
         self.message_claude = message_claude
@@ -53,6 +65,14 @@ class ToolLibrary:
                 info_lines.append(f"  {tool.name}: {description}")
             return "\n".join(info_lines)
 
+    def parse_tool(self, text):
+        pattern = r'^/([\w-]+)(?:\s+(.*))?$'
+
+        if '\n' in text:
+            return self._parse_multiline_command(text, pattern)
+
+        return self._parse_single_line_command(text, pattern)
+
     def _parse_single_line_command(self, text, pattern):
         for line in text.splitlines():
             line = line.strip()
@@ -61,10 +81,10 @@ class ToolLibrary:
                 command, arguments = match.groups()
                 tool = self.tool_dict.get(command)
                 if not tool:
-                    return f"Unknown command: {command}"
+                    return None, f"Unknown command: {command}"
                 else:
-                    return self.strip_arguments_and_execute_tool(arguments, tool)
-        return ""
+                    return ParsedTool(command, arguments, tool)
+        return None
 
     def _parse_multiline_command(self, text, pattern):
         first_line = text.splitlines()[0].strip()
@@ -73,31 +93,20 @@ class ToolLibrary:
             command, _ = match.groups()
             tool = self.tool_dict.get(command)
             if not tool:
-                return f"Unknown command: {command}"
+                return None, f"Unknown command: {command}"
             else:
                 if text.startswith(f"/{command} "):
                     arguments = text[len(f"/{command} "):]
                 else:
                     arguments = None
 
-                return self.strip_arguments_and_execute_tool(arguments, tool)
-        return ""
+                return ParsedTool(command, arguments, tool)
+        return None
 
-    @staticmethod
-    def strip_arguments_and_execute_tool(arguments, tool):
-        args = arguments.strip() if arguments else None
-        result = tool.execute(args)
+    def execute_parsed_tool(self, parsed_tool):
+        args = parsed_tool.arguments.strip() if parsed_tool.arguments else None
+        result = parsed_tool.tool_instance.execute(args)
         return result['output']
-
-    def parse_and_execute(self, text):
-        pattern = r'^/([\w-]+)(?:\s+(.*))?$'
-
-        if '\n' in text:
-            result = self._parse_multiline_command(text, pattern)
-            if result:
-                return result
-
-        return self._parse_single_line_command(text, pattern)
 
     @staticmethod
     def run_command(command, args=None, cwd=None):

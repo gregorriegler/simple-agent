@@ -6,6 +6,9 @@ class ConsoleDisplay(Display):
     def assistant_says(self, message):
         print(f"\nClaude: {message}")
 
+    def tool_about_to_execute(self, parsed_tool):
+        print(f"\nExecuting {parsed_tool}")
+
     def tool_result(self, result):
         print(result, end='')
 
