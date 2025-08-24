@@ -47,7 +47,7 @@ def test_chat_with_regular_response(capsys):
 
 
 def test_subagent(capsys):
-    verify_chat(capsys, enter, "Create a subagent that says hello", f"/subagent say hello")
+    verify_chat(capsys, enter, "Create a subagent that says hello", ["/subagent say hello", "hello"])
 
 
 def verify_chat(capsys, input_stub, message, answer):
@@ -57,7 +57,21 @@ def verify_chat(capsys, input_stub, message, answer):
 
 def run_chat_test(capsys, input_stub, message, answer):
     builtins.input = input_stub
-    claude_stub = lambda messages, system_prompt: answer
+
+    # Handle answer as either string or array
+    if isinstance(answer, list):
+        answer_index = 0
+        def claude_stub(messages, system_prompt):
+            nonlocal answer_index
+            if answer_index < len(answer):
+                result = answer[answer_index]
+                answer_index += 1
+                return result
+            else:
+                # Return last answer if we've exhausted the array
+                return answer[-1] if answer else ""
+    else:
+        claude_stub = lambda messages, system_prompt: answer
 
     saved_messages = "None"
 

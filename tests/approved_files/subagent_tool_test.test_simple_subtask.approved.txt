@@ -1,0 +1,6 @@
+Command:
+/subagent say hello
+
+Result:
+Subagent Task: say hello
+

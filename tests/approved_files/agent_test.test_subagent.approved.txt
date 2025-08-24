@@ -1,0 +1,14 @@
+# Standard out:
+Starting new session
+
+Claude: /subagent say hello
+Subagent Task: say hello
+
+hello
+
+# Saved messages:
+user: Create a subagent that says hello
+assistant: /subagent say hello
+user: Subagent Task: say hello
+
+hello
