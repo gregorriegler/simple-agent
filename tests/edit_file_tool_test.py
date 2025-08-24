@@ -6,27 +6,6 @@ from .test_helpers import all_scrubbers, temp_directory
 library = ToolLibrary()
 
 
-def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
-    with temp_directory(tmp_path):
-        with open(setup_file, "w", encoding='utf-8') as f:
-            f.write(setup_content)
-
-        initial_file_info = f"Initial file: {setup_file}\nInitial content:\n--- INITIAL CONTENT START ---\n{setup_content}\n--- INITIAL CONTENT END ---"
-
-        tool = library.parse_tool(command)
-        result = library.execute_parsed_tool(tool)
-
-        with open(setup_file, "r", encoding='utf-8') as f:
-                actual_content = f.read()
-
-        final_file_info = f"File after edit: {setup_file}\nFinal content:\n--- FINAL CONTENT START ---\n{actual_content}\n--- FINAL CONTENT END ---"
-
-        verify(
-            f"Command:\n{command}\n\nResult:\n{result}\n\n{initial_file_info}\n\n{final_file_info}",
-            options=Options().with_scrubber(all_scrubbers())
-        )
-
-
 def test_edit_file_replace_single_character(tmp_path):
     verify_edit_tool(library, "test.txt", "a", "/edit-file test.txt 1 1 b", tmp_path=tmp_path)
 
@@ -59,3 +38,24 @@ def test_edit_file_replace_empty_lines_with_function(tmp_path):
 def test_edit_file_add_two_lines_to_empty_file(tmp_path):
     command = "/edit-file empty.txt 0 0 line1\\nline2"
     verify_edit_tool(library, "empty.txt", "", command, tmp_path=tmp_path)
+
+
+def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
+    with temp_directory(tmp_path):
+        with open(setup_file, "w", encoding='utf-8') as f:
+            f.write(setup_content)
+
+        initial_file_info = f"Initial file: {setup_file}\nInitial content:\n--- INITIAL CONTENT START ---\n{setup_content}\n--- INITIAL CONTENT END ---"
+
+        tool = library.parse_tool(command)
+        result = library.execute_parsed_tool(tool)
+
+        with open(setup_file, "r", encoding='utf-8') as f:
+            actual_content = f.read()
+
+        final_file_info = f"File after edit: {setup_file}\nFinal content:\n--- FINAL CONTENT START ---\n{actual_content}\n--- FINAL CONTENT END ---"
+
+        verify(
+            f"Command:\n{command}\n\nResult:\n{result}\n\n{initial_file_info}\n\n{final_file_info}",
+            options=Options().with_scrubber(all_scrubbers())
+        )

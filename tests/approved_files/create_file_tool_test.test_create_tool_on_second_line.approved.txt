@@ -1,0 +1,12 @@
+Command:
+let me create a file
+/create-file a
+
+Result:
+Created empty file: a
+
+File created: a
+File content:
+--- FILE CONTENT START ---
+
+--- FILE CONTENT END ---

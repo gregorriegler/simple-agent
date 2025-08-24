@@ -6,21 +6,6 @@ from .test_helpers import all_scrubbers, temp_directory
 library = ToolLibrary()
 
 
-def verify_create_tool(library, command, expected_filename, tmp_path):
-    with temp_directory(tmp_path):
-        tool = library.parse_tool(command)
-        result = library.execute_parsed_tool(tool)
-
-        with open(expected_filename, "r", encoding='utf-8') as f:
-                actual_content = f.read()
-                file_info = f"File created: {expected_filename}\nFile content:\n--- FILE CONTENT START ---\n{actual_content}\n--- FILE CONTENT END ---"
-
-        verify(
-            f"Command:\n{command}\n\nResult:\n{result}\n\n{file_info}",
-            options=Options().with_scrubber(all_scrubbers())
-        )
-
-
 def test_create_tool_single_character_name(tmp_path):
     verify_create_tool(library, "/create-file a", "a", tmp_path=tmp_path)
 
@@ -62,3 +47,24 @@ def test_create_file_already_exists(tmp_path):
         tool = library.parse_tool("/create-file existing.txt")
         result = library.execute_parsed_tool(tool)
         assert 'already exists' in result.lower() or 'exists' in result.lower()
+
+def test_create_tool_on_second_line(tmp_path):
+    verify_create_tool(library, "let me create a file\n/create-file a", "a", tmp_path=tmp_path)
+
+def test_create_tool_on_second_line_with_multiline_content(tmp_path):
+    verify_create_tool(library, "let me create a file\n/create-file test.txt Line1\nLine2", "test.txt", tmp_path=tmp_path)
+
+
+def verify_create_tool(library, command, expected_filename, tmp_path):
+    with temp_directory(tmp_path):
+        tool = library.parse_tool(command)
+        result = library.execute_parsed_tool(tool)
+
+        with open(expected_filename, "r", encoding='utf-8') as f:
+            actual_content = f.read()
+            file_info = f"File created: {expected_filename}\nFile content:\n--- FILE CONTENT START ---\n{actual_content}\n--- FILE CONTENT END ---"
+
+        verify(
+            f"Command:\n{command}\n\nResult:\n{result}\n\n{file_info}",
+            options=Options().with_scrubber(all_scrubbers())
+        )
