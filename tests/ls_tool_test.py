@@ -4,7 +4,9 @@ from .test_helpers import (
     verify_tool
 )
 
+claude_stub = lambda messages, system_prompt: ""
 library = ToolLibrary()
+
 
 def test_ls_tool_basic_directory(tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)

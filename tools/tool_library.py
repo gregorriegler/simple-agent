@@ -5,12 +5,15 @@ from .ls_tool import LsTool
 from .cat_tool import CatTool
 from .create_file_tool import CreateFileTool
 from .edit_file_tool import EditFileTool
+from .subagent_tool import SubagentTool
 
 
 class ToolLibrary:
-    def __init__(self):
+    def __init__(self, message_claude = lambda messages, system_prompt: ""):
+        self.message_claude = message_claude
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
+
 
         self.tools = static_tools + dynamic_tools
         self._build_tool_dict()
@@ -21,7 +24,8 @@ class ToolLibrary:
             LsTool(self.run_command),
             CatTool(self.run_command),
             CreateFileTool(self.run_command),
-            EditFileTool(self.run_command)
+            EditFileTool(self.run_command),
+            SubagentTool(self.run_command, self.message_claude)
         ]
 
     def _discover_dynamic_tools(self):

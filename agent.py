@@ -1,5 +1,4 @@
 from chat import save_chat
-from tools import ToolLibrary
 from abc import ABC, abstractmethod
 
 class Display(ABC):
@@ -22,15 +21,14 @@ class Display(ABC):
 
 class Agent:
 
-    def __init__(self, system_prompt, message_claude, display, save_chat=save_chat):
+    def __init__(self, system_prompt, message_claude, display, tools, save_chat=save_chat):
         self.system_prompt = system_prompt
         self.message_claude = message_claude
         self.display = display
+        self.tools = tools
         self.save_chat = save_chat
 
     def start(self, chat, rounds=999999):
-        tools = ToolLibrary()
-
         for _ in range(rounds):
             answer = self.message_claude(chat.to_list(), self.system_prompt)
             self.display.assistant_says(answer)
@@ -45,7 +43,7 @@ class Agent:
                 self.display.exit()
                 break
 
-            tool_result = tools.parse_and_execute(answer)
+            tool_result = self.tools.parse_and_execute(answer)
             self.display.tool_result(tool_result)
 
             if tool_result:

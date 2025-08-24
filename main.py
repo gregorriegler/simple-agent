@@ -8,12 +8,13 @@ from agent import Agent
 from system_prompt_generator import SystemPromptGenerator
 from chat import Chat, load_chat
 from console_display import ConsoleDisplay
+from tools import ToolLibrary
 
 
 def get_system_prompt():
     """Get the system prompt with dynamically populated tools"""
     generator = SystemPromptGenerator()
-    return generator.get_system_prompt_for_llm()
+    return generator.generate_system_prompt()
 
 
 def main():
@@ -36,9 +37,9 @@ def main():
     print("Continuing session" if continue_session else "Starting new session")
 
     if start_message:
-        chat = chat.userSays(start_message)
+        chat.user_says(start_message)
 
-    Agent(system_prompt, message_claude, ConsoleDisplay()).start(chat)
+    Agent(system_prompt, message_claude, ConsoleDisplay(), ToolLibrary(message_claude)).start(chat)
 
 
 if __name__ == "__main__":
