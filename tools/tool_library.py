@@ -81,7 +81,7 @@ class ToolLibrary:
                 command, arguments = match.groups()
                 tool = self.tool_dict.get(command)
                 if not tool:
-                    return None, f"Unknown command: {command}"
+                    return None
                 else:
                     return ParsedTool(command, arguments, tool)
         return None
@@ -93,7 +93,7 @@ class ToolLibrary:
             command, _ = match.groups()
             tool = self.tool_dict.get(command)
             if not tool:
-                return None, f"Unknown command: {command}"
+                return None
             else:
                 if text.startswith(f"/{command} "):
                     arguments = text[len(f"/{command} "):]

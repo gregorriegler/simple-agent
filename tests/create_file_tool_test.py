@@ -6,13 +6,14 @@ from .test_helpers import all_scrubbers, temp_directory
 library = ToolLibrary()
 
 
-def verify_create_tool(framework, command, expected_filename, tmp_path):
+def verify_create_tool(library, command, expected_filename, tmp_path):
     with temp_directory(tmp_path):
-        result = framework.parse_and_execute(command)
+        tool = library.parse_tool(command)
+        result = library.execute_parsed_tool(tool)
 
         with open(expected_filename, "r") as f:
-            actual_content = f.read()
-            file_info = f"File created: {expected_filename}\nFile content:\n--- FILE CONTENT START ---\n{actual_content}\n--- FILE CONTENT END ---"
+                actual_content = f.read()
+                file_info = f"File created: {expected_filename}\nFile content:\n--- FILE CONTENT START ---\n{actual_content}\n--- FILE CONTENT END ---"
 
         verify(
             f"Command:\n{command}\n\nResult:\n{result}\n\n{file_info}",
@@ -55,8 +56,9 @@ def test_create_file_in_nonexistent_directory(tmp_path):
 
 def test_create_file_already_exists(tmp_path):
     with temp_directory(tmp_path):
-        library.parse_and_execute("/create-file existing.txt")
+        tool = library.parse_tool("/create-file existing.txt")
+        library.execute_parsed_tool(tool)
 
-        result = library.parse_and_execute("/create-file existing.txt")
-
+        tool = library.parse_tool("/create-file existing.txt")
+        result = library.execute_parsed_tool(tool)
         assert 'already exists' in result.lower() or 'exists' in result.lower()

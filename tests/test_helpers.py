@@ -51,6 +51,8 @@ def create_path_scrubber():
 
 
 def scrub_line(line):
+    import re
+
     if '/cat ' in line:
         parts = line.split('/cat ')
         filename = os.path.basename(parts[1].strip())
@@ -58,8 +60,25 @@ def scrub_line(line):
     elif '/ls ' in line:
         parts = line.split('/ls ')
         return parts[0] + '/ls /tmp/test_path'
-    else:
-        return line
+    elif line.startswith('Executing Tool: cat '):
+        # Handle "Executing Tool: cat <full_path>" lines
+        # Replace pytest session number with a consistent one, but keep the test directory name
+        pattern = r'Executing Tool: cat C:\\Users\\riegl\\AppData\\Local\\Temp\\pytest-of-riegl\\pytest-\d+\\([^\\]+)\\(.+)'
+        match = re.match(pattern, line)
+        if match:
+            test_dir = match.group(1)
+            filename = match.group(2)
+            # Normalize pytest session to 705 but keep the original test directory structure
+            return f'Executing Tool: cat C:\\Users\\riegl\\AppData\\Local\\Temp\\pytest-of-riegl\\pytest-705\\{test_dir}\\{filename}'
+    elif line.startswith('Executing Tool: ls '):
+        # Handle "Executing Tool: ls <full_path>" lines
+        pattern = r'Executing Tool: ls C:\\Users\\riegl\\AppData\\Local\\Temp\\pytest-of-riegl\\pytest-\d+\\([^\\]+)'
+        match = re.match(pattern, line)
+        if match:
+            test_dir = match.group(1)
+            return f'Executing Tool: ls C:\\Users\\riegl\\AppData\\Local\\Temp\\pytest-of-riegl\\pytest-705\\{test_dir}'
+
+    return line
 
 
 def create_date_scrubber():
@@ -89,7 +108,8 @@ def all_scrubbers():
     )
 
 
-def verify_tool(framework, command):
-    result = framework.parse_and_execute(command)
+def verify_tool(library, command):
+    tool = library.parse_tool(command)
+    result = library.execute_parsed_tool(tool)
     verify(f"Command:\n{command}\n\nResult:\n{result}", options=Options()
            .with_scrubber(all_scrubbers()))

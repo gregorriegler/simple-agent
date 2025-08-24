@@ -1,4 +1,0 @@
-Command:
-This is just regular text without commands
-
-Result:

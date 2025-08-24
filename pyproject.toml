@@ -36,6 +36,9 @@ dev = [
 [project.scripts]
 modernizer = "main:main"
 
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
 [tool.uv]
 dev-dependencies = [
     "pytest",

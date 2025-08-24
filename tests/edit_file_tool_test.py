@@ -6,17 +6,18 @@ from .test_helpers import all_scrubbers, temp_directory
 library = ToolLibrary()
 
 
-def verify_edit_tool(framework, setup_file, setup_content, command, tmp_path):
+def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
     with temp_directory(tmp_path):
         with open(setup_file, "w") as f:
             f.write(setup_content)
 
         initial_file_info = f"Initial file: {setup_file}\nInitial content:\n--- INITIAL CONTENT START ---\n{setup_content}\n--- INITIAL CONTENT END ---"
 
-        result = framework.parse_and_execute(command)
+        tool = library.parse_tool(command)
+        result = library.execute_parsed_tool(tool)
 
         with open(setup_file, "r") as f:
-            actual_content = f.read()
+                actual_content = f.read()
 
         final_file_info = f"File after edit: {setup_file}\nFinal content:\n--- FINAL CONTENT START ---\n{actual_content}\n--- FINAL CONTENT END ---"
 
