@@ -79,8 +79,25 @@ def scrub_line_with_path(line):
 
     # Pattern 2: Unix absolute paths starting with / (but not single commands)
     # Match /path/to/something or /file.ext but not /command
-    unix_pattern = r'/(?:[^/\s<>:"|?*\n\r]+/)+[^/\s<>:"|?*\n\r]*|/[^/\s<>:"|?*\n\r]*\.[A-Za-z0-9]+'
-    result = re.sub(unix_pattern, replace_path, result)
+    # Be more careful to preserve quotes around paths in error messages
+    unix_pattern = r"'(/(?:[^/\s<>:\"|?*\n\r]+/)*[^/\s<>:\"|?*\n\r]*)'|(/(?:[^/\s<>:\"|?*\n\r]+/)+[^/\s<>:\"|?*\n\r]*)|(/[^/\s<>:\"|?*\n\r]*\.[A-Za-z0-9]+)"
+
+    def replace_unix_path(match):
+        if match.group(1):  # Quoted path
+            path = match.group(1)
+            # Create a simple mock match object for the path
+            class MockMatch:
+                def group(self, n):
+                    return path
+            replaced = replace_path(MockMatch())
+            return f"'{replaced}'"
+        elif match.group(2):  # Unquoted directory path
+            return replace_path(match)
+        elif match.group(3):  # Unquoted file path
+            return replace_path(match)
+        return match.group(0)
+
+    result = re.sub(unix_pattern, replace_unix_path, result)
 
     return result
 
