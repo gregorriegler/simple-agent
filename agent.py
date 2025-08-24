@@ -48,13 +48,10 @@ class Agent:
                 break
 
             parsed_tool = self.tools.parse_tool(answer)
-
             if parsed_tool:
                 self.display.tool_about_to_execute(parsed_tool)
                 tool_result = self.tools.execute_parsed_tool(parsed_tool)
                 self.display.tool_result(tool_result)
-
-                if tool_result:
-                    chat.user_says(tool_result)
+                chat.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
 
             self.save_chat(chat)

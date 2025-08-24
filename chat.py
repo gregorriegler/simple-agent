@@ -35,7 +35,7 @@ def load_chat(session_file: str = "claude-session.json") -> 'Chat':
         return Chat()
 
     try:
-        with open(session_file, 'r') as f:
+        with open(session_file, 'r', encoding='utf-8') as f:
             chat_data = json.load(f)
             return Chat(chat_data if isinstance(chat_data, list) else [])
     except (json.JSONDecodeError, Exception) as e:
@@ -46,7 +46,7 @@ def load_chat(session_file: str = "claude-session.json") -> 'Chat':
 def save_chat(chat):
     session_file = "claude-session.json"
     try:
-        with open(session_file, 'w') as f:
+        with open(session_file, 'w', encoding='utf-8') as f:
             json.dump(chat.to_list(), f, indent=2)
     except Exception as e:
         print(f"Warning: Could not save session file {session_file}: {e}", file=sys.stderr)

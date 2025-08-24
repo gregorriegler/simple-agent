@@ -65,7 +65,7 @@ class EditFileTool(BaseTool):
                 return {'success': False, 'output': f'File "{edit_args.filename}" not found', 'returncode': 1}
 
             # Read the file
-            with open(edit_args.filename, 'r') as f:
+            with open(edit_args.filename, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
 
             # Validate line range
@@ -103,7 +103,7 @@ class EditFileTool(BaseTool):
                 new_lines = lines[:start_idx] + replacement_lines + lines[end_idx + 1:]
 
             # Write back to file
-            with open(edit_args.filename, 'w') as f:
+            with open(edit_args.filename, 'w', encoding='utf-8') as f:
                 f.writelines(new_lines)
 
             return {'success': True, 'output': f"Successfully edited {edit_args.filename}, lines {edit_args.start_line}-{edit_args.end_line}", 'returncode': 0}

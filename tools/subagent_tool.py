@@ -1,30 +1,25 @@
-# Use dynamic imports to avoid circular import issues
+from agent import Display
 from chat import Chat
 
 from .base_tool import BaseTool
 
 
-class SubagentDisplay:
-    """Display class that captures output instead of printing to console"""
-
-    def __init__(self):
-        self.output_buffer = []
-        self.user_input_buffer = []
+class SubagentDisplay(Display):
 
     def assistant_says(self, message):
-        self.output_buffer.append(f">>Assistant: {message}")
+        print(f">>Assistant: {message}")
 
     def tool_result(self, result):
-        if result:
-            self.output_buffer.append(f">>Tool Result: {result}")
+        print(f">>Tool Result: {result}")
 
     def input(self):
-        # For subagent, we don't want interactive input, so return empty string
-        # This will cause the agent to continue processing
-        return ""
+        return input("\n>>Press Enter to continue or type a message to add: ")
+
+    def tool_about_to_execute(self, parsed_tool):
+        print(f"\n>>Executing {parsed_tool}")
 
     def exit(self):
-        self.output_buffer.append(">>Subagent completed.")
+        print(">>Subagent completed.")
 
 
 class SubagentTool(BaseTool):
@@ -54,11 +49,6 @@ class SubagentTool(BaseTool):
             # Create a new ToolLibrary instance for the subagent to avoid recursion
             from tools.tool_library import ToolLibrary
             subagent_tools = ToolLibrary(self.message_claude)
-
-            # Remove SubagentTool from subagent's tools to prevent infinite recursion
-            subagent_tools.tools = [tool for tool in subagent_tools.tools if tool.name != 'subagent']
-            subagent_tools._build_tool_dict()
-
             subagent = Agent(system_prompt, self.message_claude, subagent_display, subagent_tools)
 
             subagent_chat = Chat()

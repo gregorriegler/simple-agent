@@ -87,23 +87,52 @@ class ToolLibrary:
         return None
 
     def _parse_multiline_command(self, text, pattern):
-        first_line = text.splitlines()[0].strip()
-        match = re.match(pattern, first_line)
-        if match:
-            command, _ = match.groups()
-            tool = self.tool_dict.get(command)
-            if not tool:
-                return None
-            else:
-                if text.startswith(f"/{command} "):
-                    arguments = text[len(f"/{command} "):]
+        lines = text.splitlines()
+
+        # Find the first line that contains a tool call
+        for i, line in enumerate(lines):
+            line = line.strip()
+            match = re.match(pattern, line)
+            if match:
+                command, first_line_args = match.groups()
+                tool = self.tool_dict.get(command)
+                if not tool:
+                    return None
+
+                # All content after the tool call line belongs to the tool's args
+                if i == 0:
+                    # Tool call is on the first line
+                    if first_line_args:
+                        # Arguments start on the same line as the tool call
+                        remaining_lines = lines[1:]
+                        if remaining_lines:
+                            arguments = first_line_args + '\n' + '\n'.join(remaining_lines)
+                        else:
+                            arguments = first_line_args
+                    else:
+                        # Arguments start on the next line
+                        remaining_lines = lines[1:]
+                        arguments = '\n'.join(remaining_lines) if remaining_lines else None
                 else:
-                    arguments = None
+                    # Tool call is not on the first line
+                    if first_line_args:
+                        # Arguments start on the same line as the tool call
+                        remaining_lines = lines[i+1:]
+                        if remaining_lines:
+                            arguments = first_line_args + '\n' + '\n'.join(remaining_lines)
+                        else:
+                            arguments = first_line_args
+                    else:
+                        # Arguments start on the next line
+                        remaining_lines = lines[i+1:]
+                        arguments = '\n'.join(remaining_lines) if remaining_lines else None
 
                 return ParsedTool(command, arguments, tool)
+
         return None
 
-    def execute_parsed_tool(self, parsed_tool):
+    @staticmethod
+    def execute_parsed_tool(parsed_tool):
         args = parsed_tool.arguments.strip() if parsed_tool.arguments else None
         result = parsed_tool.tool_instance.execute(args)
         return result['output']
