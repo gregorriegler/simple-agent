@@ -93,13 +93,19 @@ def create_date_scrubber():
 
 
 def create_ls_error_scrubber():
-    """Normalize ls error messages between Mac and Windows"""
+    """Normalize ls error messages between Mac and Linux"""
 
     def ls_error_replacer(text):
         import re
-        pattern = r"ls: cannot access '([^']+)': No such file or directory"
-        replacement = r"ls: \1: No such file or directory"
-        return re.sub(pattern, replacement, text)
+        # Convert Mac format to Linux format
+        # Mac: "ls: /path: No such file or directory"
+        # Linux: "ls: cannot access '/path': No such file or directory"
+        # Only convert if it's NOT already in Linux format
+        if "cannot access" not in text:
+            pattern = r"ls: ([^:]+): No such file or directory"
+            replacement = r"ls: cannot access '\1': No such file or directory"
+            return re.sub(pattern, replacement, text)
+        return text
 
     return ls_error_replacer
 
