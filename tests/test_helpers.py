@@ -42,7 +42,7 @@ def create_path_scrubber():
         result_lines = []
 
         for line in lines:
-            new_line = scrub_line(line)
+            new_line = scrub_line_with_path(line)
             result_lines.append(new_line)
 
         return '\n'.join(result_lines)
@@ -50,35 +50,39 @@ def create_path_scrubber():
     return path_replacer
 
 
-def scrub_line(line):
+def scrub_line_with_path(line):
     import re
 
-    if '/cat ' in line:
-        parts = line.split('/cat ')
-        filename = os.path.basename(parts[1].strip())
-        return parts[0] + '/cat /tmp/test_path/' + filename
-    elif '/ls ' in line:
-        parts = line.split('/ls ')
-        return parts[0] + '/ls /tmp/test_path'
-    elif line.startswith('Executing Tool: cat '):
-        # Handle "Executing Tool: cat <full_path>" lines
-        # Replace pytest session number with a consistent one, but keep the test directory name
-        pattern = r'Executing Tool: cat C:\\Users\\riegl\\AppData\\Local\\Temp\\pytest-of-riegl\\pytest-\d+\\([^\\]+)\\(.+)'
-        match = re.match(pattern, line)
-        if match:
-            test_dir = match.group(1)
-            filename = match.group(2)
-            # Normalize pytest session to 705 but keep the original test directory structure
-            return f'Executing Tool: cat C:\\Users\\riegl\\AppData\\Local\\Temp\\pytest-of-riegl\\pytest-705\\{test_dir}\\{filename}'
-    elif line.startswith('Executing Tool: ls '):
-        # Handle "Executing Tool: ls <full_path>" lines
-        pattern = r'Executing Tool: ls C:\\Users\\riegl\\AppData\\Local\\Temp\\pytest-of-riegl\\pytest-\d+\\([^\\]+)'
-        match = re.match(pattern, line)
-        if match:
-            test_dir = match.group(1)
-            return f'Executing Tool: ls C:\\Users\\riegl\\AppData\\Local\\Temp\\pytest-of-riegl\\pytest-705\\{test_dir}'
+    # Comprehensive pattern to match any path (Windows or Unix)
+    # This approach looks for path-like patterns and then validates them
 
-    return line
+    def replace_path(match):
+        path = match.group(0)
+
+        # Skip if it's just a command like /cat, /ls, etc.
+        if re.match(r'^/[a-z-]+$', path):
+            return path
+
+        # Check if this looks like a file (has an extension)
+        if re.search(r'\.[A-Za-z0-9]+$', path):
+            # It's a file, extract just the filename
+            filename = os.path.basename(path)
+            return f'/tmp/test_path/{filename}'
+        else:
+            # It's a directory, replace with /tmp/test_path
+            return '/tmp/test_path'
+
+    # Pattern 1: Windows absolute paths (C:\... or C:/...)
+    # Handle paths with spaces by matching until we hit a space followed by a non-path character
+    windows_pattern = r'[A-Za-z]:[/\\](?:[^<>:"|?*\n\r]+[/\\])*[^<>:"|?*\n\r\s]*(?:\.[A-Za-z0-9]+)?'
+    result = re.sub(windows_pattern, replace_path, line)
+
+    # Pattern 2: Unix absolute paths starting with / (but not single commands)
+    # Match /path/to/something or /file.ext but not /command
+    unix_pattern = r'/(?:[^/\s<>:"|?*\n\r]+/)+[^/\s<>:"|?*\n\r]*|/[^/\s<>:"|?*\n\r]*\.[A-Za-z0-9]+'
+    result = re.sub(unix_pattern, replace_path, result)
+
+    return result
 
 
 def create_date_scrubber():

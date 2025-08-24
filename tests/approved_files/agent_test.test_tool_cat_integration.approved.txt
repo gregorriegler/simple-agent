@@ -3,12 +3,13 @@ Starting new session
 
 Claude: /cat /tmp/test_path/integration_test.txt
 
-Executing Tool: cat C:\Users\riegl\AppData\Local\Temp\pytest-of-riegl\pytest-705\test_tool_cat_integration0\integration_test.txt
+🛠️ Tool: cat /tmp/test_path/integration_test.txt
      1	Integration test content
      2	Line 2
 
 # Saved messages:
 user: Test message
 assistant: /cat /tmp/test_path/integration_test.txt
-user:      1	Integration test content
+user: Result of Tool: cat /tmp/test_path/integration_test.txt
+     1	Integration test content
      2	Line 2

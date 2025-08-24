@@ -3,7 +3,7 @@ Starting new session
 
 Claude: /ls /tmp/test_path
 
-Executing Tool: ls C:\Users\riegl\AppData\Local\Temp\pytest-of-riegl\pytest-705\test_tool_ls_integration0
+🛠️ Tool: ls /tmp/test_path
 .
 ..
 file1.txt
@@ -13,7 +13,8 @@ subdir
 # Saved messages:
 user: Test message
 assistant: /ls /tmp/test_path
-user: .
+user: Result of Tool: ls /tmp/test_path
+.
 ..
 file1.txt
 file2.py
