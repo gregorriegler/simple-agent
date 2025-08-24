@@ -20,11 +20,10 @@ class ParsedTool:
 
 
 class ToolLibrary:
-    def __init__(self, message_claude = lambda messages, system_prompt: ""):
+    def __init__(self, message_claude=lambda messages, system_prompt: ""):
         self.message_claude = message_claude
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
-
 
         self.tools = static_tools + dynamic_tools
         self._build_tool_dict()
@@ -66,29 +65,8 @@ class ToolLibrary:
 
     def parse_tool(self, text):
         pattern = r'^/([\w-]+)(?:\s+(.*))?$'
-
-        if '\n' in text:
-            return self._parse_multiline_command(text, pattern)
-
-        return self._parse_single_line_command(text, pattern)
-
-    def _parse_single_line_command(self, text, pattern):
-        for line in text.splitlines():
-            line = line.strip()
-            match = re.match(pattern, line)
-            if match:
-                command, arguments = match.groups()
-                tool = self.tool_dict.get(command)
-                if not tool:
-                    return None
-                else:
-                    return ParsedTool(command, arguments, tool)
-        return None
-
-    def _parse_multiline_command(self, text, pattern):
         lines = text.splitlines()
 
-        # Find the first line that contains a tool call
         for i, line in enumerate(lines):
             line = line.strip()
             match = re.match(pattern, line)
@@ -98,36 +76,12 @@ class ToolLibrary:
                 if not tool:
                     return None
 
-                # All content after the tool call line belongs to the tool's args
-                if i == 0:
-                    # Tool call is on the first line
-                    if same_line_args:
-                        # Arguments start on the same line as the tool call
-                        remaining_lines = lines[1:]
-                        if remaining_lines:
-                            arguments = same_line_args + '\n' + '\n'.join(remaining_lines)
-                        else:
-                            arguments = same_line_args
-                    else:
-                        # Arguments start on the next line
-                        remaining_lines = lines[i+1:]
-                        arguments = '\n'.join(remaining_lines) if remaining_lines else None
-                else:
-                    # Tool call is not on the first line
-                    if same_line_args:
-                        # Arguments start on the same line as the tool call
-                        remaining_lines = lines[i+1:]
-                        if remaining_lines:
-                            arguments = same_line_args + '\n' + '\n'.join(remaining_lines)
-                        else:
-                            arguments = same_line_args
-                    else:
-                        # Arguments start on the next line
-                        remaining_lines = lines[i+1:]
-                        arguments = '\n'.join(remaining_lines) if remaining_lines else None
+                all_arg_lines=[]
+                if same_line_args: all_arg_lines.append(same_line_args)
+                if lines[i + 1:]: all_arg_lines.extend(lines[i + 1:])
+                arguments = '\n'.join(all_arg_lines)
 
                 return ParsedTool(command, arguments, tool)
-
         return None
 
     @staticmethod
