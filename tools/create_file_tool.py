@@ -29,7 +29,7 @@ class CreateFileTool(BaseTool):
 
     def execute(self, args):
         if not args:
-            return {'success': False, 'output': 'No filename specified', 'returncode': 1}
+            return {'output': 'No filename specified'}
 
         parts = args.split(' ', 1)  # Split into at most 2 parts: filename and content
         filename = parts[0]
@@ -46,7 +46,7 @@ class CreateFileTool(BaseTool):
         try:
             # Check if file already exists
             if os.path.exists(filename):
-                return {'success': False, 'output': f"Error creating file '{filename}': File already exists", 'returncode': 1}
+                return {'output': f"Error creating file '{filename}': File already exists"}
 
             # Create parent directories if they don't exist
             os.makedirs(os.path.dirname(filename) or '.', exist_ok=True)
@@ -57,10 +57,10 @@ class CreateFileTool(BaseTool):
                     processed_content = content.encode().decode('unicode_escape')
                     f.write(processed_content)
             if content is not None:
-                return {'success': True, 'output': f"Created file: {filename} with content", 'returncode': 0}
+                return {'output': f"Created file: {filename} with content"}
             else:
-                return {'success': True, 'output': f"Created empty file: {filename}", 'returncode': 0}
+                return {'output': f"Created empty file: {filename}"}
         except OSError as e:
-            return {'success': False, 'output': f"Error creating file '{filename}': {str(e)}", 'returncode': 1}
+            return {'output': f"Error creating file '{filename}': {str(e)}"}
         except Exception as e:
-            return {'success': False, 'output': f"Unexpected error creating file '{filename}': {str(e)}", 'returncode': 1}
+            return {'output': f"Unexpected error creating file '{filename}': {str(e)}"}

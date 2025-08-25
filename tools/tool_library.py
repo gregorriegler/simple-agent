@@ -116,11 +116,9 @@ class ToolLibrary:
                 output += f"STDERR: {result.stderr}"
 
             return {
-                'success': result.returncode == 0,
-                'output': output,
-                'returncode': result.returncode
+                'output': output
             }
         except subprocess.TimeoutExpired:
-            return {'success': False, 'output': 'Command timed out (30s limit)', 'returncode': -1}
+            return {'output': 'Command timed out (30s limit)'}
         except Exception as e:
-            return {'success': False, 'output': f'Error: {str(e)}', 'returncode': -1}
+            return {'output': f'Error: {str(e)}'}

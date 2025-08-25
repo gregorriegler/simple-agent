@@ -46,7 +46,6 @@ class SubagentTool(BaseTool):
     def execute(self, args):
         if not args or not args.strip():
             return {
-                'success': False,
                 'output': 'STDERR: subagent: missing task description'
             }
 
@@ -79,13 +78,11 @@ class SubagentTool(BaseTool):
                 output = 'No messages generated'
 
             return {
-                'success': True,
                 'output': f"Subagent Task: {args}\n\n{output}"
             }
 
         except Exception as e:
             return {
-                'success': False,
                 'output': f'STDERR: subagent error: {str(e)}'
             }
 

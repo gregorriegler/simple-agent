@@ -29,7 +29,7 @@ class CatTool(BaseTool):
     def _parse_arguments(self, args):
         """Parse command arguments into filename and optional line range."""
         if not args:
-            return None, None, {'success': False, 'output': 'STDERR: cat: missing file operand'}
+            return None, None, {'output': 'STDERR: cat: missing file operand'}
 
         # Parse arguments - split by space to separate filename and optional range
         parts = args.split()
@@ -44,10 +44,10 @@ class CatTool(BaseTool):
         try:
             start_line, end_line = map(int, line_range.split('-'))
         except ValueError:
-            return None, None, {'success': False, 'output': f"STDERR: Invalid range format '{line_range}'. Use format 'start-end' (e.g., '1-5')"}
+            return None, None, {'output': f"STDERR: Invalid range format '{line_range}'. Use format 'start-end' (e.g., '1-5')"}
 
         if start_line > end_line:
-            return None, None, {'success': False, 'output': f"STDERR: Start line ({start_line}) cannot be greater than end line ({end_line})"}
+            return None, None, {'output': f"STDERR: Start line ({start_line}) cannot be greater than end line ({end_line})"}
 
         return start_line, end_line, None
 
@@ -73,21 +73,21 @@ class CatTool(BaseTool):
 
             # Handle empty file or range beyond file length
             if not lines:
-                return {'success': True, 'output': ""}  # Empty file, no output
+                return {'output': ""}  # Empty file, no output
 
             # Convert to 0-based indexing and extract range
             start_idx = start_line - 1
             end_idx = min(end_line, len(lines))
 
             if start_idx >= len(lines):
-                return {'success': True, 'output': ""}  # Range beyond file length, no output
+                return {'output': ""}  # Range beyond file length, no output
 
             return self._format_output(lines, start_idx, end_idx)
 
         except FileNotFoundError:
-            return {'success': False, 'output': f"STDERR: cat: '{filename}': No such file or directory"}
+            return {'output': f"STDERR: cat: '{filename}': No such file or directory"}
         except Exception as e:
-            return {'success': False, 'output': f"STDERR: cat: '{filename}': {str(e)}"}
+            return {'output': f"STDERR: cat: '{filename}': {str(e)}"}
 
     def _format_output(self, lines, start_idx, end_idx):
         """Format output lines with line numbers."""
@@ -96,4 +96,4 @@ class CatTool(BaseTool):
             result_lines.append(f"{i + 1:6}\t{lines[i]}")
 
         output = "".join(result_lines).rstrip('\n')
-        return {'success': True, 'output': output}
+        return {'output': output}

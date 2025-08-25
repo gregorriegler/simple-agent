@@ -47,11 +47,11 @@ class EditFileTool(BaseTool):
 
     def _parse_arguments(self, args):
         if not args:
-            return None, {'success': False, 'output': 'No arguments specified', 'returncode': 1}
+            return None, {'output': 'No arguments specified'}
 
         parts = args.split(' ', self.MAX_SPLIT_PARTS)
         if len(parts) < self.EXPECTED_ARG_COUNT:
-            return None, {'success': False, 'output': 'Usage: edit-file <filename> <line_range> <new_content>', 'returncode': 1}
+            return None, {'output': 'Usage: edit-file <filename> <line_range> <new_content>'}
 
         try:
             line_range = parts[1]
@@ -66,7 +66,7 @@ class EditFileTool(BaseTool):
             )
             return edit_args, None
         except ValueError:
-            return None, {'success': False, 'output': 'Invalid line range format. Use format "start-end" (e.g., "1-5")', 'returncode': 1}
+            return None, {'output': 'Invalid line range format. Use format "start-end" (e.g., "1-5")'}
 
     def _validate_line_range(self, start_line, end_line, total_lines):
         """Validate that the line range is valid for the file."""
@@ -75,17 +75,17 @@ class EditFileTool(BaseTool):
             return None
 
         if start_line < 1 or end_line < 1 or start_line > total_lines or end_line > total_lines:
-            return {'success': False, 'output': f"Invalid line range: {start_line} {end_line} for file with {total_lines} lines", 'returncode': 1}
+            return {'output': f"Invalid line range: {start_line} {end_line} for file with {total_lines} lines"}
 
         if start_line > end_line:
-            return {'success': False, 'output': f"Start line ({start_line}) cannot be greater than end line ({end_line})", 'returncode': 1}
+            return {'output': f"Start line ({start_line}) cannot be greater than end line ({end_line})"}
 
         return None
 
     def _perform_file_edit(self, edit_args):
         try:
             if not os.path.exists(edit_args.filename):
-                return {'success': False, 'output': f'File "{edit_args.filename}" not found', 'returncode': 1}
+                return {'output': f'File "{edit_args.filename}" not found'}
 
             with open(edit_args.filename, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
@@ -125,12 +125,12 @@ class EditFileTool(BaseTool):
             with open(edit_args.filename, 'w', encoding='utf-8') as f:
                 f.writelines(new_lines)
 
-            return {'success': True, 'output': f"Successfully edited {edit_args.filename}, lines {edit_args.start_line}-{edit_args.end_line}", 'returncode': 0}
+            return {'output': f"Successfully edited {edit_args.filename}, lines {edit_args.start_line}-{edit_args.end_line}"}
 
         except OSError as e:
-            return {'success': False, 'output': f'Error editing file "{edit_args.filename}": {str(e)}', 'returncode': 1}
+            return {'output': f'Error editing file "{edit_args.filename}": {str(e)}'}
         except Exception as e:
-            return {'success': False, 'output': f'Unexpected error editing file "{edit_args.filename}": {str(e)}', 'returncode': 1}
+            return {'output': f'Unexpected error editing file "{edit_args.filename}": {str(e)}'}
 
 
     def execute(self, args):

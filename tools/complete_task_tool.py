@@ -23,12 +23,10 @@ class CompleteTaskTool(BaseTool):
     def execute(self, args):
         if not args or not args.strip():
             return {
-                'success': False,
                 'output': 'STDERR: complete-task: missing summary'
             }
 
         summary = args.strip()
         return {
-            'success': True,
             'output': summary,
         }
