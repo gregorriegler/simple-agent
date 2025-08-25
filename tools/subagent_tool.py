@@ -45,9 +45,7 @@ class SubagentTool(BaseTool):
 
     def execute(self, args):
         if not args or not args.strip():
-            return {
-                'output': 'STDERR: subagent: missing task description'
-            }
+            return 'STDERR: subagent: missing task description'
 
         try:
             # Import Agent and SystemPromptGenerator here to avoid circular dependency
@@ -77,12 +75,8 @@ class SubagentTool(BaseTool):
             else:
                 output = 'No messages generated'
 
-            return {
-                'output': f"Subagent Task: {args}\n\n{output}"
-            }
+            return f"Subagent Task: {args}\n\n{output}"
 
         except Exception as e:
-            return {
-                'output': f'STDERR: subagent error: {str(e)}'
-            }
+            return f'STDERR: subagent error: {str(e)}'
 

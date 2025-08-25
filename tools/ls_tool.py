@@ -21,4 +21,5 @@ class LsTool(BaseTool):
         self.runcommand = runcommand
 
     def execute(self, path="."):
-        return self.runcommand("ls", ["-a", path] if path else ["-a"])
+        result = self.runcommand("ls", ["-a", path] if path else ["-a"])
+        return result['output']

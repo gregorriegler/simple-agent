@@ -29,7 +29,7 @@ class CatTool(BaseTool):
     def _parse_arguments(self, args):
         """Parse command arguments into filename and optional line range."""
         if not args:
-            return None, None, {'output': 'STDERR: cat: missing file operand'}
+            return None, None, 'STDERR: cat: missing file operand'
 
         # Parse arguments - split by space to separate filename and optional range
         parts = args.split()
@@ -44,10 +44,10 @@ class CatTool(BaseTool):
         try:
             start_line, end_line = map(int, line_range.split('-'))
         except ValueError:
-            return None, None, {'output': f"STDERR: Invalid range format '{line_range}'. Use format 'start-end' (e.g., '1-5')"}
+            return None, None, f"STDERR: Invalid range format '{line_range}'. Use format 'start-end' (e.g., '1-5')"
 
         if start_line > end_line:
-            return None, None, {'output': f"STDERR: Start line ({start_line}) cannot be greater than end line ({end_line})"}
+            return None, None, f"STDERR: Start line ({start_line}) cannot be greater than end line ({end_line})"
 
         return start_line, end_line, None
 
@@ -57,13 +57,15 @@ class CatTool(BaseTool):
             return error
 
         if line_range is None:
-            return self.runcommand('cat', ['-n', filename])
+            result = self.runcommand('cat', ['-n', filename])
+            return result['output']
 
         start_line, end_line, error = self._validate_range(line_range)
         if error:
             return error
 
-        return self._read_file_range(filename, start_line, end_line)
+        result = self._read_file_range(filename, start_line, end_line)
+        return result['output']
 
     def _read_file_range(self, filename, start_line, end_line):
         """Read file and extract specified line range with formatting."""

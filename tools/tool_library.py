@@ -87,7 +87,7 @@ class ToolLibrary:
     def execute_parsed_tool(parsed_tool):
         args = parsed_tool.arguments.strip() if parsed_tool.arguments else None
         result = parsed_tool.tool_instance.execute(args)
-        return result['output']
+        return result
 
     @staticmethod
     def run_command(command, args=None, cwd=None):
