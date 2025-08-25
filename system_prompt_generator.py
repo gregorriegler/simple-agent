@@ -32,19 +32,12 @@ class SystemPromptGenerator:
 
         for tool in self.tool_library.tools:
             tool_doc = self._generate_tool_documentation(tool)
-            if tool_doc:
-                tools_lines.append(tool_doc)
+            tools_lines.append(tool_doc)
 
         return "\n\n".join(tools_lines)
 
     def _generate_tool_documentation(self, tool):
-        if hasattr(tool, 'get_usage_info'):
-            usage_info = tool.get_usage_info()
-            return self._format_detailed_tool_doc(usage_info)
-        else:
-            return self._format_simple_tool_doc(tool)
-
-    def _format_detailed_tool_doc(self, usage_info):
+        usage_info = tool.get_usage_info()
         lines = usage_info.split('\n')
         if not lines:
             return ""
@@ -85,76 +78,6 @@ class SystemPromptGenerator:
             doc_lines.extend(remaining_lines)
 
         return "\n".join(doc_lines)
-
-    def _format_simple_tool_doc(self, tool):
-        """Format documentation for simple static tools"""
-        tool_name = tool.name
-        description = getattr(tool, 'description', '')
-
-        doc_lines = [f"## {tool_name}"]
-        if description:
-            doc_lines.append(description)
-
-        doc_lines.append("Syntax:")
-
-        if tool_name == 'ls':
-            doc_lines.append("/ls {path}")
-        elif tool_name == 'cat':
-            doc_lines.append("/cat {path}")
-        elif tool_name == 'test':
-            doc_lines.append("/test {directory}")
-        elif tool_name == 'revert':
-            doc_lines.append("/revert {directory}")
-        else:
-            doc_lines.append(f"/{tool_name} {{arguments}}")
-
-        return "\n".join(doc_lines)
-
-    def _extract_arguments_from_usage_info(self, usage_info):
-        """Extract arguments section from usage info"""
-        lines = usage_info.split('\n')
-        arguments_lines = []
-        in_arguments_section = False
-
-        for line in lines:
-            if line.strip() == "Arguments:":
-                in_arguments_section = True
-                arguments_lines.append("Arguments:")
-                continue
-            elif in_arguments_section:
-                if line.strip() and not line.startswith(' ') and not line.startswith('-') and ':' not in line:
-                    break  # End of arguments section
-                elif line.strip():
-                    arguments_lines.append(line)
-
-        return "\n".join(arguments_lines) if arguments_lines else None
-
-    def _extract_usage_from_usage_info(self, usage_info):
-        """Extract usage section from usage info"""
-        lines = usage_info.split('\n')
-        for line in lines:
-            if line.startswith("Usage:"):
-                return line
-        return None
-
-    def _extract_examples_from_usage_info(self, usage_info):
-        """Extract examples section from usage info"""
-        lines = usage_info.split('\n')
-        examples_lines = []
-        in_examples_section = False
-
-        for line in lines:
-            if line.strip() == "Examples:":
-                in_examples_section = True
-                examples_lines.append("Examples:")
-                continue
-            elif in_examples_section:
-                if line.strip() and not line.startswith(' ') and not line.startswith('/') and ':' not in line:
-                    break  # End of examples section
-                elif line.strip():
-                    examples_lines.append(line)
-
-        return "\n".join(examples_lines) if examples_lines else None
 
 
 def main():
