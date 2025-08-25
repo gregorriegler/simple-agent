@@ -6,6 +6,7 @@ from .cat_tool import CatTool
 from .create_file_tool import CreateFileTool
 from .edit_file_tool import EditFileTool
 from .subagent_tool import SubagentTool
+from .complete_task_tool import CompleteTaskTool
 
 
 class ParsedTool:
@@ -34,7 +35,8 @@ class ToolLibrary:
             CatTool(self.run_command),
             CreateFileTool(self.run_command),
             EditFileTool(self.run_command),
-            SubagentTool(self.run_command, self.message_claude)
+            SubagentTool(self.run_command, self.message_claude),
+            CompleteTaskTool(self.run_command)
         ]
 
     def _discover_dynamic_tools(self):

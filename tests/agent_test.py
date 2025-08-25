@@ -45,6 +45,8 @@ def test_tool_ls_integration(capsys, tmp_path):
 def test_chat_with_regular_response(capsys):
     verify_chat(capsys, enter, "Hello", "Hello! How can I help you?")
 
+def test_chat_with_task_completion(capsys):
+    verify_chat(capsys, enter, "Say Hello", "Hello!\n/task-complete I successfully said hello")
 
 def test_subagent(capsys):
     verify_chat(capsys, enter, "Create a subagent that says hello", ["/subagent say hello", "hello"])

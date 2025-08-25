@@ -1,0 +1,11 @@
+# Standard out:
+Starting new session
+
+Claude: Hello!
+/task-complete I successfully said hello
+
+
+# Saved messages:
+user: Say Hello
+assistant: Hello!
+/task-complete I successfully said hello

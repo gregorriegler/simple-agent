@@ -61,3 +61,15 @@ Usage: /subagent <task_description>
 Examples:
   /subagent Write a Python function to calculate fibonacci numbers
   /subagent Create a simple HTML page with a form
+
+## complete-task
+Signal task completion with a summary of what was accomplished
+
+Arguments:
+ - summary: string (required) - Final summary of what was accomplished
+
+Usage: /complete-task <summary>
+
+Examples:
+  /complete-task Successfully created the user registration system
+  /complete-task Fixed the bug in the payment processing module
