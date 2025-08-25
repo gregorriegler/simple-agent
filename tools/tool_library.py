@@ -29,7 +29,6 @@ class ToolLibrary:
         self._build_tool_dict()
 
     def _create_static_tools(self):
-        """Create the core static tools that are always available."""
         return [
             LsTool(self.run_command),
             CatTool(self.run_command),
@@ -39,14 +38,12 @@ class ToolLibrary:
         ]
 
     def _discover_dynamic_tools(self):
-        """Discover and create dynamic tools from external sources."""
         return []
 
     def _build_tool_dict(self):
         self.tool_dict = {tool.name: tool for tool in self.tools}
 
     def get_tool_info(self, tool_name=None):
-        """Get comprehensive information about tools"""
         if tool_name:
             tool = self.tool_dict.get(tool_name)
             if not tool:

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from tools.tool_library import ToolLibrary
 
 class SystemPromptGenerator:
@@ -27,7 +28,6 @@ class SystemPromptGenerator:
             raise FileNotFoundError(f"system-prompt.md template file not found at {template_path}")
 
     def _generate_tools_content(self):
-        """Generate the tools content to replace the placeholder"""
         tools_lines = []
 
         for tool in self.tool_library.tools:
@@ -38,7 +38,6 @@ class SystemPromptGenerator:
         return "\n\n".join(tools_lines)
 
     def _generate_tool_documentation(self, tool):
-        """Generate documentation for a single tool"""
         if hasattr(tool, 'get_usage_info'):
             usage_info = tool.get_usage_info()
             return self._format_detailed_tool_doc(usage_info)
@@ -46,7 +45,6 @@ class SystemPromptGenerator:
             return self._format_simple_tool_doc(tool)
 
     def _format_detailed_tool_doc(self, usage_info):
-        """Format detailed tool documentation from usage info"""
         lines = usage_info.split('\n')
         if not lines:
             return ""
@@ -136,7 +134,6 @@ class SystemPromptGenerator:
 
 
 def main():
-    """Main function to handle command line arguments"""
     import argparse
 
     parser = argparse.ArgumentParser(

@@ -22,7 +22,6 @@ class EditFileTool(BaseTool):
         self.runcommand = runcommand
 
     def _parse_arguments(self, args):
-        """Parse and validate command arguments."""
         if not args:
             return None, {'success': False, 'output': 'No arguments specified', 'returncode': 1}
 
@@ -50,7 +49,7 @@ class EditFileTool(BaseTool):
             return None
 
         if start_line < 1 or end_line < 1 or start_line > total_lines or end_line > total_lines:
-            return {'success': False, 'output': f"Invalid line range: {start_line}-{end_line} for file with {total_lines} lines", 'returncode': 1}
+            return {'success': False, 'output': f"Invalid line range: {start_line} {end_line} for file with {total_lines} lines", 'returncode': 1}
 
         if start_line > end_line:
             return {'success': False, 'output': f"Start line ({start_line}) cannot be greater than end line ({end_line})", 'returncode': 1}
@@ -58,7 +57,6 @@ class EditFileTool(BaseTool):
         return None
 
     def _perform_file_edit(self, edit_args):
-        """Perform the actual file reading, editing, and writing operations."""
         try:
             # Check if file exists
             if not os.path.exists(edit_args.filename):
@@ -112,6 +110,7 @@ class EditFileTool(BaseTool):
             return {'success': False, 'output': f'Error editing file "{edit_args.filename}": {str(e)}', 'returncode': 1}
         except Exception as e:
             return {'success': False, 'output': f'Unexpected error editing file "{edit_args.filename}": {str(e)}', 'returncode': 1}
+
 
     def execute(self, args):
         edit_args, error = self._parse_arguments(args)
