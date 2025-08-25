@@ -1,5 +1,5 @@
 Command:
-/edit-file test.txt 2 3 newline1
+/edit-file test.txt 2-3 newline1
 newline2
 newline3
 newline4

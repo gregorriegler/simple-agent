@@ -1,5 +1,5 @@
 Command:
-/edit-file test.txt 1 1 new
+/edit-file test.txt 1-1 new
 
 Result:
 Successfully edited test.txt, lines 1-1

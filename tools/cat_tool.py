@@ -3,6 +3,24 @@ from .base_tool import BaseTool
 class CatTool(BaseTool):
     name = 'cat'
     description = "Display file contents with line numbers"
+    arguments = [
+        {
+            "name": "filename",
+            "type": "string",
+            "required": True,
+            "description": "Path to the file to display"
+        },
+        {
+            "name": "line_range",
+            "type": "string",
+            "required": False,
+            "description": "Optional line range in format 'start-end' (e.g., '1-10')"
+        }
+    ]
+    examples = [
+        "/cat myfile.txt",
+        "/cat script.py 1-20"
+    ]
 
     def __init__(self, runcommand):
         super().__init__()

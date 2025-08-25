@@ -12,10 +12,34 @@ class EditFileArgs:
 class EditFileTool(BaseTool):
     name = "edit-file"
     description = "Edit files by replacing content in specified line ranges"
+    arguments = [
+        {
+            "name": "filename",
+            "type": "string",
+            "required": True,
+            "description": "Path to the file to edit"
+        },
+        {
+            "name": "line_range",
+            "type": "string",
+            "required": True,
+            "description": "Line range in format 'start-end' (e.g., '1-3' or '10-10' for single line)"
+        },
+        {
+            "name": "new_content",
+            "type": "string",
+            "required": True,
+            "description": "New content to replace the specified lines (use \\n for newlines)"
+        }
+    ]
+    examples = [
+        "/edit-file myfile.txt 1-3 Hello World",
+        "/edit-file script.py 10-10 print(\"debug\")"
+    ]
 
     # Constants for argument parsing
-    MAX_SPLIT_PARTS = 3  # Split into filename, start_line, end_line, new_content
-    EXPECTED_ARG_COUNT = 4
+    MAX_SPLIT_PARTS = 2  # Split into filename, line_range, new_content
+    EXPECTED_ARG_COUNT = 3
 
     def __init__(self, runcommand):
         super().__init__()
@@ -27,20 +51,22 @@ class EditFileTool(BaseTool):
 
         parts = args.split(' ', self.MAX_SPLIT_PARTS)
         if len(parts) < self.EXPECTED_ARG_COUNT:
-            return None, {'success': False, 'output': 'Usage: edit-file <filename> <start_line> <end_line> <new_content>', 'returncode': 1}
+            return None, {'success': False, 'output': 'Usage: edit-file <filename> <line_range> <new_content>', 'returncode': 1}
 
         try:
-            # Convert literal \n in the new_content to actual newlines
-            new_content = parts[3].replace('\\n', '\n')
+            line_range = parts[1]
+            start_line, end_line = map(int, line_range.split('-'))
+
+            new_content = parts[2].replace('\\n', '\n')
             edit_args = EditFileArgs(
                 filename=parts[0],
-                start_line=int(parts[1]),
-                end_line=int(parts[2]),
+                start_line=start_line,
+                end_line=end_line,
                 new_content=new_content
             )
             return edit_args, None
         except ValueError:
-            return None, {'success': False, 'output': 'Line numbers must be integers', 'returncode': 1}
+            return None, {'success': False, 'output': 'Invalid line range format. Use format "start-end" (e.g., "1-5")', 'returncode': 1}
 
     def _validate_line_range(self, start_line, end_line, total_lines):
         """Validate that the line range is valid for the file."""
@@ -58,21 +84,16 @@ class EditFileTool(BaseTool):
 
     def _perform_file_edit(self, edit_args):
         try:
-            # Check if file exists
             if not os.path.exists(edit_args.filename):
                 return {'success': False, 'output': f'File "{edit_args.filename}" not found', 'returncode': 1}
 
-            # Read the file
             with open(edit_args.filename, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
 
-            # Validate line range
             validation_error = self._validate_line_range(edit_args.start_line, edit_args.end_line, len(lines))
             if validation_error:
                 return validation_error
 
-            # Replace the specified lines with new content
-            # Special case: handle empty file with 0-0 range (append mode)
             if len(lines) == 0 and edit_args.start_line == 0 and edit_args.end_line == 0:
                 # For empty files, just add the content
                 if '\n' in edit_args.new_content:

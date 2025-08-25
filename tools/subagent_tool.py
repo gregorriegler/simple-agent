@@ -25,6 +25,18 @@ class SubagentDisplay(Display):
 class SubagentTool(BaseTool):
     name = 'subagent'
     description = "Create a subagent to handle a specific task using the same agent architecture"
+    arguments = [
+        {
+            "name": "task_description",
+            "type": "string",
+            "required": True,
+            "description": "Detailed description of the task for the subagent to perform"
+        }
+    ]
+    examples = [
+        "/subagent Write a Python function to calculate fibonacci numbers",
+        "/subagent Create a simple HTML page with a form"
+    ]
 
     def __init__(self, runcommand, message_claude):
         super().__init__()
@@ -77,20 +89,3 @@ class SubagentTool(BaseTool):
                 'output': f'STDERR: subagent error: {str(e)}'
             }
 
-    def get_usage_info(self):
-        return """Tool: subagent
-Description: Create a subagent to handle a specific task using the same agent architecture
-
-Usage: /subagent <task_description>
-
-Examples:
-  /subagent Write a Python function to calculate fibonacci numbers
-  /subagent Create a simple HTML page with a form
-  /subagent Explain how to implement a binary search algorithm
-
-The subagent will:
-- Use the same system prompt and tools as the main agent
-- Process the task in a separate chat context
-- Run for a limited number of rounds to prevent infinite loops
-- Return all output captured during execution
-"""

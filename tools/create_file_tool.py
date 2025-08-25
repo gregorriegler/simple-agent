@@ -3,7 +3,25 @@ import os
 
 class CreateFileTool(BaseTool):
     name = "create-file"
-    description = "Create new empty files"
+    description = "Create new files with optional content"
+    arguments = [
+        {
+            "name": "filename",
+            "type": "string",
+            "required": True,
+            "description": "Path to the file to create (directories will be created automatically)"
+        },
+        {
+            "name": "content",
+            "type": "string",
+            "required": False,
+            "description": "Initial content for the file (supports \\n for newlines)"
+        }
+    ]
+    examples = [
+        "/create-file newfile.txt",
+        "/create-file script.py print(\"Hello World\")"
+    ]
 
     def __init__(self, runcommand):
         super().__init__()
