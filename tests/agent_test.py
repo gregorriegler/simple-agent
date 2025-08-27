@@ -47,19 +47,20 @@ def test_chat_with_regular_response(capsys):
 
 
 def test_chat_with_task_completion(capsys):
-    verify_chat(capsys, enter, "Say Hello", "Hello!\n/task-complete I successfully said hello")
+    verify_chat(capsys, enter, "Say Hello", ["Hello!", "/complete-task I successfully said hello", "ignored"], rounds=3)
+
 
 
 def test_subagent(capsys):
     verify_chat(capsys, enter, "Create a subagent that says hello", ["/subagent say hello", "hello"])
 
 
-def verify_chat(capsys, input_stub, message, answer):
-    result = run_chat_test(capsys, input_stub=input_stub, message=message, answer=answer)
+def verify_chat(capsys, input_stub, message, answer, rounds=1):
+    result = run_chat_test(capsys, input_stub, message, answer, rounds)
     verify(result, options=Options().with_scrubber(all_scrubbers()))
 
 
-def run_chat_test(capsys, input_stub, message, answer):
+def run_chat_test(capsys, input_stub, message, answer, rounds=1):
     builtins.input = input_stub
 
     # Handle answer as either string or array
@@ -95,7 +96,8 @@ def run_chat_test(capsys, input_stub, message, answer):
         chat.user_says(message)
 
     try:
-        Agent(system_prompt, claude_stub, ConsoleDisplay(), ToolLibrary(claude_stub), save_chat).start(chat, rounds=1)
+        agent = Agent(system_prompt, claude_stub, ConsoleDisplay(), ToolLibrary(claude_stub), save_chat)
+        agent.start(chat, rounds)
     except KeyboardInterrupt:
         pass
 

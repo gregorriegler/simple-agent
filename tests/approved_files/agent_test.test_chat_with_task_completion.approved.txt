@@ -2,10 +2,13 @@
 Starting new session
 
 Claude: Hello!
-/task-complete I successfully said hello
+
+Claude: /complete-task I successfully said hello
+
+🛠️ Tool: complete-task I successfully said hello
 
 
 # Saved messages:
 user: Say Hello
 assistant: Hello!
-/task-complete I successfully said hello
+assistant: /complete-task I successfully said hello
