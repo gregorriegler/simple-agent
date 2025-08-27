@@ -3,7 +3,7 @@ Starting new session
 
 Claude: /ls /tmp/test_path
 
-🛠️ Tool: ls /tmp/test_path
+🛠️ ls: /tmp/test_path
 .
 ..
 file1.txt
@@ -13,7 +13,7 @@ subdir
 # Saved messages:
 user: Test message
 assistant: /ls /tmp/test_path
-user: Result of Tool: ls /tmp/test_path
+user: Result of 🛠️ ls: /tmp/test_path
 .
 ..
 file1.txt

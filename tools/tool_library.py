@@ -16,8 +16,8 @@ class ParsedTool:
         self.tool_instance = tool_instance
 
     def __str__(self):
-        args_str = f" {self.arguments}" if self.arguments else ""
-        return f"Tool: {self.name}{args_str}"
+        args_str = f"{self.arguments}" if self.arguments else ""
+        return f"🛠️ {self.name}: {args_str}"
 
 
 class ToolLibrary:

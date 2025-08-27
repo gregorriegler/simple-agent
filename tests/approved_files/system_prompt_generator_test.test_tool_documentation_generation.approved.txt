@@ -1,0 +1,40 @@
+=== ls ===
+## ls
+List directory contents with detailed information
+
+Arguments:
+ - path: string (optional) - Directory path to list (defaults to current directory)
+
+Usage: /ls [path]
+
+Examples:
+  /ls
+  /ls /tmp/test_path
+
+=== cat ===
+## cat
+Display file contents with line numbers
+
+Arguments:
+ - filename: string (required) - Path to the file to display
+ - line_range: string (optional) - Optional line range in format 'start-end' (e.g., '1-10')
+
+Usage: /cat <filename> [line_range]
+
+Examples:
+  /cat myfile.txt
+  /cat script.py 1-20
+
+=== create-file ===
+## create-file
+Create new files with optional content
+
+Arguments:
+ - filename: string (required) - Path to the file to create (directories will be created automatically)
+ - content: string (optional) - Initial content for the file (supports \n for newlines)
+
+Usage: /create-file <filename> [content]
+
+Examples:
+  /create-file newfile.txt
+  /create-file script.py print("Hello World")

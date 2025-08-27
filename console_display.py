@@ -7,7 +7,7 @@ class ConsoleDisplay(Display):
         print(f"\nClaude: {message}")
 
     def tool_about_to_execute(self, parsed_tool):
-        print(f"\n🛠️ {parsed_tool}")
+        print(f"\n{parsed_tool}")
 
     def tool_result(self, result):
         print(result, end='')

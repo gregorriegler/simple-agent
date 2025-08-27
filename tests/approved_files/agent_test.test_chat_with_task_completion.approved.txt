@@ -5,7 +5,7 @@ Claude: Hello!
 
 Claude: /complete-task I successfully said hello
 
-🛠️ Tool: complete-task I successfully said hello
+🛠️ complete-task: I successfully said hello
 
 
 # Saved messages:

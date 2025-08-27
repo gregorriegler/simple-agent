@@ -3,7 +3,7 @@ Starting new session
 
 Claude: /subagent say hello
 
-🛠️ Tool: subagent say hello
+🛠️ subagent: say hello
 >>Assistant: hello
 >>Assistant: hello
 >>Assistant: hello
@@ -16,7 +16,7 @@ hello
 # Saved messages:
 user: Create a subagent that says hello
 assistant: /subagent say hello
-user: Result of Tool: subagent say hello
+user: Result of 🛠️ subagent: say hello
 Subagent Task: say hello
 
 hello

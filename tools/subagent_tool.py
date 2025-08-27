@@ -75,7 +75,7 @@ class SubagentDisplay(Display):
         return input("\n>>Press Enter to continue or type a message to add: ")
 
     def tool_about_to_execute(self, parsed_tool):
-        print(f"\n>>🛠️ {parsed_tool}")
+        print(f"\n>>{parsed_tool}")
 
     def exit(self):
         print(">>Subagent completed.")
