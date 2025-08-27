@@ -4,11 +4,11 @@ Starting new session
 Claude: /subagent say hello
 
 🛠️ subagent: say hello
->>Assistant: hello
->>Assistant: hello
->>Assistant: hello
->>Assistant: hello
->>Assistant: hello
+    >Assistant: hello
+    >Assistant: hello
+    >Assistant: hello
+    >Assistant: hello
+    >Assistant: hello
 Subagent Task: say hello
 
 hello

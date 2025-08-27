@@ -66,16 +66,16 @@ class SubagentTool(BaseTool):
 class SubagentDisplay(Display):
 
     def assistant_says(self, message):
-        print(f">>Assistant: {message}")
+        print(f"    >Assistant: {message}")
 
     def tool_result(self, result):
-        print(f">>{result}")
+        print(f"    >{result}")
 
     def input(self):
-        return input("\n>>Press Enter to continue or type a message to add: ")
+        return input("\n    >Press Enter to continue or type a message to add: ")
 
     def tool_about_to_execute(self, parsed_tool):
-        print(f"\n>>{parsed_tool}")
+        print(f"\n    >{parsed_tool}")
 
     def exit(self):
-        print(">>Subagent completed.")
+        print("    >Subagent completed.")
