@@ -50,7 +50,6 @@ def test_chat_with_task_completion(capsys):
     verify_chat(capsys, enter, "Say Hello", ["Hello!", "/complete-task I successfully said hello", "ignored"], rounds=3)
 
 
-
 def test_subagent(capsys):
     verify_chat(capsys, enter, "Create a subagent that says hello", ["/subagent say hello", "hello"])
 
