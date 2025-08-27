@@ -1,129 +1,195 @@
-# Process Flow Analysis
+# Process Flow
 
-## Current Process Flow
+This document contains a comprehensive mermaid diagram representing the development process workflow based on the process files.
 
 ```mermaid
 flowchart TD
-    Start([Start Project]) --> AlignGoal[align-on-goal.md]
+    Start([Start Project]) --> AlignGoal[💡 Align on Goal<br/>align-on-goal.md]
     
-    AlignGoal --> |Archive old goal| A1[Move goal.md to expressive-name-goal.md]
-    A1 --> A2[Read README.md]
-    A2 --> A3[Analyze & understand goal]
-    A3 --> A4[Ask clarifying questions]
-    A4 --> A5[Iterate until aligned]
-    A5 --> A6[Save new goal.md]
-    A6 --> A7[Review goal.md]
-    A7 --> A8[Commit with 'd ' prefix]
-    A8 --> Planning[planning-process.md]
+    AlignGoal --> ReadREADME[Read README.md]
+    ReadREADME --> AnalyzeGoal[Analyze & understand goal]
+    AnalyzeGoal --> AskQuestions{Questions about goal?}
+    AskQuestions -->|Yes| NotifyUser[Notify using say.py]
+    NotifyUser --> IterateGoal[Iterate on goal]
+    IterateGoal --> AskQuestions
+    AskQuestions -->|No| SaveGoal[Save goal.md]
+    SaveGoal --> ReviewGoal[Ask for goal.md review]
+    ReviewGoal --> CommitGoal[Commit: d aligned on goal...]
+    CommitGoal --> Planning[📝 Planning Process<br/>planning-process.md]
     
-    Planning --> P1[Read README.md & goal.md]
-    P1 --> P2[Add Scenarios section to goal.md]
-    P2 --> P3[Create simple happy path scenarios]
-    P3 --> P4[Remove complex scenarios for MVP]
-    P4 --> P5[Add exception path scenarios]
-    P5 --> P6[Review scenarios]
-    P6 --> P7[Commit with 'd plan' prefix]
-    P7 --> RefineScenarios[refine-scenarios.md]
+    Planning --> ReadGoalPlanning[Read README.md & goal.md]
+    ReadGoalPlanning --> CreateScenarios[Create Scenarios section in goal.md]
+    CreateScenarios --> ThinkScenarios[Think of simple happy path scenarios]
+    ThinkScenarios --> OrderScenarios[Order by simplicity ascending]
+    OrderScenarios --> AddScenarios[Add scenarios with - DRAFT suffix]
+    AddScenarios --> RemoveComplex[Remove complex scenarios for MVP]
+    RemoveComplex --> AddExceptions[Add important exception scenarios]
+    AddExceptions --> AskReview[Ask user to review scenarios]
+    AskReview --> CommitPlan[Commit: d plan...]
+    CommitPlan --> RefineScenarios[📝 Refine Scenarios<br/>refine-scenarios.md]
     
-    RefineScenarios --> R1[Read README.md & goal.md]
-    R1 --> R2[Pick first DRAFT scenario]
-    R2 --> R3[Create examples list]
-    R3 --> R4[Review examples]
-    R4 --> R5[Change DRAFT to REFINED]
-    R5 --> R6[Commit with 'd refined' prefix]
-    R6 --> DevProcess[development-process.md]
+    RefineScenarios --> ReadGoalRefine[Read README.md & goal.md]
+    ReadGoalRefine --> PickDraftScenario[Pick first DRAFT scenario]
+    PickDraftScenario --> CheckScenarioSize{Can make scenario smaller?}
+    CheckScenarioSize -->|Yes| CreateExamples[Create list of examples<br/>Zero/One/Many approach]
+    CheckScenarioSize -->|No| MakeTask[Make scenario a checkable task]
+    CreateExamples --> OrderExamples[Order examples by simplicity]
+    OrderExamples --> AddTodoList[Add as todo list to goal.md]
+    AddTodoList --> StopReview[Stop - Let user review examples]
+    MakeTask --> StopReview
+    StopReview --> ChangeStatus[Change - DRAFT to - REFINED]
+    ChangeStatus --> CommitRefined[Commit: d refined...]
+    CommitRefined --> Development[🔄 Development Process<br/>development-process.md]
     
-    DevProcess --> D1[Read goal.md]
-    D1 --> D2[Select next example]
-    D2 --> D3{No examples in current scenario?}
-    D3 --> |Yes| RefineScenarios
-    D3 --> |No| D4[Check TDD phase indicator]
-    D4 --> D5{TDD Phase?}
-    D5 --> |🔴 RED| WriteTest[write-a-failing-test.md]
-    D5 --> |🟢 GREEN| MakePass[make-it-pass.md]
-    D5 --> |🧹 REFACTOR| Refactor[refactor.md]
-    D5 --> |None found| D6[Set phase to 🔴]
-    D6 --> WriteTest
+    Development --> ReadGoalDev[Read goal.md]
+    ReadGoalDev --> SelectExample[Select next example from task list]
+    SelectExample --> CheckExamplesRemain{Examples remain in<br/>current scenario?}
+    CheckExamplesRemain -->|No| BackToRefine[Back to Refine Scenarios]
+    BackToRefine --> RefineScenarios
+    CheckExamplesRemain -->|Yes| CheckTDDPhase{Check TDD Phase in goal.md}
+    CheckTDDPhase -->|🔴 RED| WriteFailingTest[🔴 Write Failing Test<br/>write-a-failing-test.md]
+    CheckTDDPhase -->|🟢 GREEN| MakeItPass[🟢 Make It Pass<br/>make-it-pass.md]
+    CheckTDDPhase -->|🧹 REFACTOR| RefactorCode[🧹 Refactor<br/>refactor.md]
+    CheckTDDPhase -->|No Phase| SetRed[Set phase to 🔴 and commit]
+    SetRed --> WriteFailingTest
     
-    WriteTest --> W1[Read README.md & goal.md]
-    W1 --> W2[Check no uncommitted changes]
-    W2 --> W3[Run ./test.sh - all pass]
-    W3 --> W4[Select next example]
-    W4 --> W5{Example already works?}
-    W5 --> |Yes| W6[Check off item, continue]
-    W5 --> |No| W7[Write failing test]
-    W7 --> W8[Hypothesize outcome]
-    W8 --> W9[Run ./test.sh]
-    W9 --> W10{Test passes unexpectedly?}
-    W10 --> |Yes| W11[Approve with ./approve.sh]
-    W11 --> W12[Commit with 't ' prefix]
-    W12 --> W13[Set phase to 🟢]
-    W13 --> DevProcess
-    W10 --> |No| W14[Set phase to 🟢]
-    W14 --> DevProcess
-    W6 --> DevProcess
+    WriteFailingTest --> CheckUncommitted{Uncommitted changes?}
+    CheckUncommitted -->|Yes| StopNotify1[STOP - Notify with say.py]
+    CheckUncommitted -->|No| RunTestsCheck[Run ./test.sh - all pass?]
+    RunTestsCheck -->|No| StopNotify2[STOP - Notify with say.py]
+    RunTestsCheck -->|Yes| AnalyzeCode[Analyze recent code for hardcoded/faked parts]
+    AnalyzeCode --> FindIncomplete{Found incomplete implementation?}
+    FindIncomplete -->|Yes| InsertExample[Insert minimum example before next]
+    FindIncomplete -->|No| PickNextExample[Pick next example from goal.md]
+    InsertExample --> PickNextExample
+    PickNextExample --> CheckAlreadyWorks{Example already works<br/>& has test?}
+    CheckAlreadyWorks -->|Yes| CheckOffItem[Check off item in goal.md]
+    CheckOffItem --> WriteFailingTest
+    CheckAlreadyWorks -->|No| WriteTest[Write simplest failing test]
+    WriteTest --> HypothesizeOutcome[Hypothesize test outcome]
+    HypothesizeOutcome --> RunTest[Run ./test.sh]
+    RunTest --> TestPasses{Test passes unexpectedly?}
+    TestPasses -->|Yes| ApproveTest[Approve with ./approve.sh]
+    ApproveTest --> CommitTest[Commit: t ...]
+    CommitTest --> WriteFailingTest
+    TestPasses -->|No| SetGreenPhase[Set phase to 🟢 in goal.md]
+    SetGreenPhase --> EndFailingTest[End: Added a failing Test]
+    EndFailingTest --> Development
     
-    MakePass --> M1[Read README.md & goal.md]
-    M1 --> M2[Run ./test.sh - exactly 1 failing]
-    M2 --> M3[Create walking skeleton if needed]
-    M3 --> M4[Implement smallest change]
-    M4 --> M5[Run tests - all pass]
-    M5 --> M6[Check off item in goal.md]
-    M6 --> M7[Commit with 'f ' prefix]
-    M7 --> M8[Set phase to 🧹]
-    M8 --> DevProcess
+    MakeItPass --> ReadGoalMake[Read README.md & goal.md]
+    ReadGoalMake --> RunTestsMake[Run ./test.sh]
+    RunTestsMake --> OneFailingTest{Exactly one failing test?}
+    OneFailingTest -->|No| StopProcess[STOP]
+    OneFailingTest -->|Zero| EndNoFailing[End: No failing test found]
+    OneFailingTest -->|Yes| ThinkDesign{Different design would<br/>make passing easier?}
+    ThinkDesign -->|Yes| PrepRefactor[✨ Preparatory Refactoring<br/>preparatory-refactoring.md]
+    ThinkDesign -->|No| MakeSmallestChange[Make smallest change to pass test]
     
-    Refactor --> RF1[SubTask: plan-refactoring.md]
-    RF1 --> PlanRef[plan-refactoring.md]
-    PlanRef --> PR1[Clean refactoring-plan.md]
-    PR1 --> PR2[Identify improvement]
-    PR2 --> PR3[Decompose into small steps]
-    PR3 --> PR4[List tasks in refactoring-plan.md]
-    PR4 --> RF2[SubTask: execute-refactoring.md]
+    PrepRefactor --> RunTestsPrep[Run ./test.sh - one failing?]
+    RunTestsPrep --> DisableTest[Disable the test]
+    DisableTest --> RunTestsPass[Run tests - should pass]
+    RunTestsPass --> CommitDisable[Commit: t ...]
+    CommitDisable --> MakeDesignImprovement[Make desired design improvement]
+    MakeDesignImprovement --> RunTestsStillPass[Run tests - should still pass]
+    RunTestsStillPass --> CommitPrep[Commit: r preparatory ...]
+    CommitPrep --> EndPrepSummary[End with summary]
+    EndPrepSummary --> MakeItPass
     
-    RF2 --> ExecRef[execute-refactoring.md]
-    ExecRef --> ER1[Read refactoring-plan.md]
-    ER1 --> ER2[Pick next task]
-    ER2 --> ER3[Ensure tests pass]
-    ER3 --> ER4[No uncommitted changes]
-    ER4 --> ER5[Make change]
-    ER5 --> ER6[Run tests]
-    ER6 --> ER7{Tests pass?}
-    ER7 --> |No| ER8[Revert with revert.sh]
-    ER8 --> ER5
-    ER7 --> |Yes| ER9[Check off task]
-    ER9 --> ER10[Commit with 'r ' prefix]
-    ER10 --> ER11{More tasks?}
-    ER11 --> |Yes| ExecRef
-    ER11 --> |No| ER12[Set phase to 🔴]
-    ER12 --> DevProcess
+    MakeSmallestChange --> TestsPass{Tests pass?}
+    TestsPass -->|No| DebugTests[🤔 Debug<br/>debug.md]
+    TestsPass -->|Yes| CheckWalkingSkeleton[Ensure walking skeleton exists]
+    CheckWalkingSkeleton --> RunTestsConfirm[Run tests - confirm pass]
+    RunTestsConfirm --> CheckOffExample[Check off example in goal.md]
+    CheckOffExample --> CommitFeature[Commit: f ...]
+    CommitFeature --> SetRefactorPhase[Set phase to 🧹 in goal.md]
+    SetRefactorPhase --> EndMadePass[End: Made the test pass]
+    EndMadePass --> Development
     
-    %% Support processes
-    SimpleTask[simple-task.md] --> ST1[Check git status clean]
-    ST1 --> ST2[Run test.sh]
-    ST2 --> ST3[Execute task]
-    ST3 --> ST4[Run test.sh again]
-    ST4 --> ST5[Ask to commit]
+    DebugTests --> RunFailingTests[Run tests and see them fail]
+    RunFailingTests --> MakeHypothesis[Make hypothesis on what's wrong]
+    MakeHypothesis --> ProveHypothesis[Prove hypothesis with debug logging]
+    ProveHypothesis --> FixIssue[Fix the issue]
+    FixIssue --> RemoveDebugLogs[Remove all debug log statements]
+    RemoveDebugLogs --> CommitFix[Commit: f ...]
+    CommitFix --> MakeItPass
     
-    MutationTest[mutation-test.md] --> MT1[Change small thing in production]
-    MT1 --> MT2[Run test.sh]
-    MT2 --> MT3{Tests still pass?}
-    MT3 --> |Yes| MT4[Found mutant - remove code]
+    RefactorCode --> EliminateDeadCode[💀 Eliminate Dead Code<br/>eliminate-dead-code.md]
+    EliminateDeadCode --> RunCoverage[Run ./coverage.sh]
+    RunCoverage --> FocusRemoval[Focus on lines to remove]
+    FocusRemoval --> RemoveDeadCode[Remove dead code keeping tests passing]
+    RemoveDeadCode --> TestsPassAfterRemoval{Tests pass after removal?}
+    TestsPassAfterRemoval -->|Yes| CommitDeadCode[Commit: r dead code]
+    TestsPassAfterRemoval -->|No| RevertChanges[Revert changes]
+    CommitDeadCode --> AddTestsForUncovered[Add tests for lines that should be covered]
+    AddTestsForUncovered --> CommitNewTests[Commit each test: t ...]
+    CommitNewTests --> EndCoverage[End: Coverage analysis completed]
+    RevertChanges --> AddTestsForUncovered
     
-    WriteBashScripts[write-bash-scripts.md] --> WB1[Use #!/usr/bin/env bash]
-    WB1 --> WB2[Add set -euo pipefail]
-    WB2 --> WB3[Keep minimal & concise]
-    WB3 --> WB4[Make executable with chmod +x]
+    EndCoverage --> AnalyzeDesign[Analyze code for design improvements]
+    AnalyzeDesign --> FindSmallStep[Find small step towards better design]
+    FindSmallStep --> DecomposeImprovement[Decompose improvement into small steps]
+    DecomposeImprovement --> ExecuteSteps[Execute refactoring steps]
+    ExecuteSteps --> RunTestsRefactor[Run ./test.sh before and after each step]
+    RunTestsRefactor --> CommitRefactorStep[Commit each step: r ...]
+    CommitRefactorStep --> SetRedPhase[Set phase to 🔴 in goal.md]
+    SetRedPhase --> EndRefactor[End refactoring phase]
+    EndRefactor --> Development
+    
+    %% Simple Task Process
+    SimpleTask[✅ Simple Task<br/>simple-task.md] --> CheckGitClean[Check git status is clean]
+    CheckGitClean --> RunTestsSimple[Run test.sh]
+    RunTestsSimple --> ExecuteTask[Execute the task]
+    ExecuteTask --> RunTestsAgain[Run test.sh again]
+    RunTestsAgain --> AskCommit[Ask user to commit]
+    
+    %% Bash Scripts Guidelines
+    BashScripts[📜 Write Bash Scripts<br/>write-bash-scripts.md] --> UseShebang[Use #!/usr/bin/env bash]
+    UseShebang --> SetSafety[Use set -euo pipefail]
+    SetSafety --> KeepMinimal[Keep scripts minimal]
+    KeepMinimal --> MinimalValidation[Minimal input validation]
+    MinimalValidation --> PortablePaths[Use portable paths]
+    PortablePaths --> MakeExecutable[chmod +x script]
+    MakeExecutable --> ConciseLogic[Prefer concise, direct logic]
     
     %% Styling
-    classDef processFile fill:#e1f5fe
-    classDef subTask fill:#fff3e0
-    classDef decision fill:#f3e5f5
-    classDef action fill:#e8f5e8
-    classDef tddOrchestrator fill:#fff9c4
+    classDef processFile fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef decision fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef action fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef endpoint fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+    classDef error fill:#ffebee,stroke:#c62828,stroke-width:2px
     
-    class AlignGoal,Planning,RefineScenarios,WriteTest,MakePass,Refactor,PlanRef,ExecRef,SimpleTask,MutationTest,WriteBashScripts processFile
-    class DevProcess tddOrchestrator
-    class RF1,RF2 subTask
-    class W5,W10,ER7,ER11,MT3,D3,D5 decision
+    class AlignGoal,Planning,RefineScenarios,Development,WriteFailingTest,MakeItPass,RefactorCode,PrepRefactor,DebugTests,EliminateDeadCode,SimpleTask,BashScripts processFile
+    class AskQuestions,CheckExamplesRemain,CheckTDDPhase,CheckUncommitted,RunTestsCheck,FindIncomplete,CheckAlreadyWorks,TestPasses,OneFailingTest,ThinkDesign,TestsPass,TestsPassAfterRemoval decision
+    class ReadREADME,AnalyzeGoal,SaveGoal,CreateScenarios,WriteTest,MakeSmallestChange,RunCoverage action
+    class EndFailingTest,EndMadePass,EndCoverage,EndRefactor,EndNoFailing,EndPrepSummary endpoint
+    class StopNotify1,StopNotify2,StopProcess error
 ```
+
+## Process Overview
+
+This workflow represents a comprehensive Test-Driven Development (TDD) process with the following key phases:
+
+### 1. Project Initialization
+- **Align on Goal**: Establish clear project objectives and save them in `goal.md`
+- **Planning**: Create scenarios for the project features
+- **Refine Scenarios**: Break scenarios into concrete, testable examples
+
+### 2. TDD Development Loop
+The core development follows a strict TDD cycle:
+- **🔴 RED**: Write a failing test
+- **🟢 GREEN**: Make the test pass with minimal code
+- **🧹 REFACTOR**: Improve code design while keeping tests green
+
+### 3. Supporting Processes
+- **Debug**: Systematic approach to fixing failing tests
+- **Preparatory Refactoring**: Improve design before implementing features
+- **Eliminate Dead Code**: Remove untested code and improve coverage
+- **Simple Task**: For straightforward, non-TDD tasks
+
+### 4. Quality Assurance
+- Git status checks before major operations
+- Test execution before and after changes
+- Code coverage analysis
+- Systematic commit messages with risk-based prefixes
+
+The process ensures continuous feedback, maintains code quality, and follows disciplined development practices throughout the project lifecycle.
