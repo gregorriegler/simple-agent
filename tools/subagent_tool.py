@@ -53,17 +53,28 @@ class SubagentTool(BaseTool):
 
 class SubagentDisplay(Display):
 
+    def _indent_lines(self, text, prefix="    >"):
+        """Helper method to indent all lines of text"""
+        lines = str(text).split('\n')
+        return '\n'.join(f"{prefix}{line}" for line in lines)
+
     def assistant_says(self, message):
-        print(f"    >Assistant: {message}")
+        lines = str(message).split('\n')
+        if lines:
+            print(f"    >Assistant: {lines[0]}")
+            for line in lines[1:]:
+                print(f"    >           {line}")
 
     def tool_result(self, result):
-        print(f"    >{result}")
+        indented_result = self._indent_lines(result)
+        print(indented_result)
 
     def input(self):
         return input("\n    >Press Enter to continue or type a message to add: ")
 
     def tool_about_to_execute(self, parsed_tool):
-        print(f"\n    >{parsed_tool}")
+        indented_tool = self._indent_lines(parsed_tool, "\n    >")
+        print(indented_tool)
 
     def exit(self):
         print("    >Subagent completed.")
