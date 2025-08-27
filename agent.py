@@ -54,8 +54,9 @@ class Agent:
                 if parsed_tool.tool_instance.is_completing():
                     self.save_chat(chat)
                     self.display.exit()
-                    break
+                    return tool_result
                 self.display.tool_result(tool_result)
                 chat.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
 
             self.save_chat(chat)
+        return None

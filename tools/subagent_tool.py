@@ -44,20 +44,8 @@ class SubagentTool(BaseTool):
 
             subagent_chat = Chat()
             subagent_chat.user_says(args.strip())
-            subagent.start(subagent_chat, rounds=5)
-
-            # Get the captured output from the last assistant message
-            messages = subagent_chat.to_list()
-            if messages:
-                last_message = messages[-1]
-                if last_message.get('role') == 'assistant':
-                    output = last_message.get('content', 'No output generated')
-                else:
-                    output = 'No assistant response generated'
-            else:
-                output = 'No messages generated'
-
-            return f"Subagent Task: {args}\n\n{output}"
+            result = subagent.start(subagent_chat)
+            return f"{result}"
 
         except Exception as e:
             return f'STDERR: subagent error: {str(e)}'
