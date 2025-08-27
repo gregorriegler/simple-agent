@@ -26,3 +26,6 @@ class CompleteTaskTool(BaseTool):
 
         summary = args.strip()
         return summary
+
+    def is_completing(self):
+        return True

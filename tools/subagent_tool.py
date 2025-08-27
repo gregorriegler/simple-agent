@@ -4,24 +4,6 @@ from chat import Chat
 from .base_tool import BaseTool
 
 
-class SubagentDisplay(Display):
-
-    def assistant_says(self, message):
-        print(f">>Assistant: {message}")
-
-    def tool_result(self, result):
-        print(f">>Tool Result: {result}")
-
-    def input(self):
-        return input("\n>>Press Enter to continue or type a message to add: ")
-
-    def tool_about_to_execute(self, parsed_tool):
-        print(f"\n>>Executing {parsed_tool}")
-
-    def exit(self):
-        print(">>Subagent completed.")
-
-
 class SubagentTool(BaseTool):
     name = 'subagent'
     description = "Create a subagent to handle a specific task using the same agent architecture"
@@ -80,3 +62,20 @@ class SubagentTool(BaseTool):
         except Exception as e:
             return f'STDERR: subagent error: {str(e)}'
 
+
+class SubagentDisplay(Display):
+
+    def assistant_says(self, message):
+        print(f">>Assistant: {message}")
+
+    def tool_result(self, result):
+        print(f">>{result}")
+
+    def input(self):
+        return input("\n>>Press Enter to continue or type a message to add: ")
+
+    def tool_about_to_execute(self, parsed_tool):
+        print(f"\n>>🛠️ {parsed_tool}")
+
+    def exit(self):
+        print(">>Subagent completed.")

@@ -9,6 +9,9 @@ class BaseTool:
     def execute(self, *args, **kwargs):
         raise NotImplementedError("Subclasses must implement execute()")
 
+    def is_completing(self):
+        return False
+
     def get_usage_info(self):
         """Generate usage information from argument metadata or return custom info"""
         if hasattr(self, '_custom_usage_info'):
