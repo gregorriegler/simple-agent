@@ -1,7 +1,7 @@
 # Standard out:
 Starting new session
 
-Claude: /ls /tmp/test_path
+Agent: /ls /tmp/test_path
 
 🛠️ ls: /tmp/test_path
 .

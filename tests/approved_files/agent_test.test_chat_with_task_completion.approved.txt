@@ -1,9 +1,9 @@
 # Standard out:
 Starting new session
 
-Claude: Hello!
+Agent: Hello!
 
-Claude: /complete-task I successfully said hello
+Agent: /complete-task I successfully said hello
 
 🛠️ complete-task: I successfully said hello
 

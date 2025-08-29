@@ -1,11 +1,13 @@
 # Standard out:
 Starting new session
 
-Claude: /subagent say hello
+Agent: /subagent say hello
 
 🛠️ subagent: say hello
-    Assistant: hello
-    Assistant: /complete-task I successfully said hello
+
+    Subagent: hello
+
+    Subagent: /complete-task I successfully said hello
 
     🛠️ complete-task: I successfully said hello
     Subagent completed.

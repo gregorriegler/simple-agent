@@ -1,7 +1,7 @@
 # Standard out:
 Starting new session
 
-Claude: /cat /tmp/test_path/integration_test.txt
+Agent: /cat /tmp/test_path/integration_test.txt
 
 🛠️ cat: /tmp/test_path/integration_test.txt
      1	Integration test content

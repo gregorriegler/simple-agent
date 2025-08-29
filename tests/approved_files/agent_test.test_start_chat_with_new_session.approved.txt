@@ -1,7 +1,7 @@
 # Standard out:
 Starting new session
 
-Claude: Test answer
+Agent: Test answer
 
 
 # Saved messages:

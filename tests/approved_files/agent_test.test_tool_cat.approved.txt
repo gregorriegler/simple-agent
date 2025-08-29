@@ -1,7 +1,7 @@
 # Standard out:
 Starting new session
 
-Claude: /cat /tmp/test_path/testfile.txt
+Agent: /cat /tmp/test_path/testfile.txt
 
 🛠️ cat: /tmp/test_path/testfile.txt
      1	Hello world

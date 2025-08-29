@@ -1,7 +1,7 @@
 # Standard out:
 Starting new session
 
-Claude: Hello! How can I help you?
+Agent: Hello! How can I help you?
 
 
 # Saved messages:
