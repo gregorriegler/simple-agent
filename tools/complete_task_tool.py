@@ -12,8 +12,8 @@ class CompleteTaskTool(BaseTool):
         }
     ]
     examples = [
-        "/complete-task Successfully created the user registration system",
-        "/complete-task Fixed the bug in the payment processing module"
+        "🛠️ complete-task Successfully created the user registration system",
+        "🛠️ complete-task Fixed the bug in the payment processing module"
     ]
 
     def __init__(self, runcommand):

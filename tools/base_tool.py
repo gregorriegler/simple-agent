@@ -13,14 +13,12 @@ class BaseTool:
         return False
 
     def get_usage_info(self):
-        """Generate usage information from argument metadata or return custom info"""
         if hasattr(self, '_custom_usage_info'):
             return self._custom_usage_info()
 
         return self._generate_usage_info_from_metadata()
 
     def _generate_usage_info_from_metadata(self):
-        """Generate standardized usage info from argument metadata"""
         lines = [f"Tool: {self.name}"]
 
         if self.description:
@@ -41,7 +39,7 @@ class BaseTool:
             required_args = [f"<{arg['name']}>" for arg in self.arguments if arg.get('required', False)]
             optional_args = [f"[{arg['name']}]" for arg in self.arguments if not arg.get('required', False)]
             all_args = required_args + optional_args
-            syntax = f"/{self.name}"
+            syntax = f"🛠️ {self.name}"
             if all_args:
                 syntax += " " + " ".join(all_args)
             lines.append(f"Usage: {syntax}")

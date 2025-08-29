@@ -5,12 +5,11 @@ Agent: Hello!
 
 Agent: /complete-task I successfully said hello
 
-🛠️ complete-task: I successfully said hello
-
-Exiting...
+Agent: ignored
 
 
 # Saved messages:
 user: Say Hello
 assistant: Hello!
 assistant: /complete-task I successfully said hello
+assistant: ignored

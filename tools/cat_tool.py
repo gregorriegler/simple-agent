@@ -18,8 +18,8 @@ class CatTool(BaseTool):
         }
     ]
     examples = [
-        "/cat myfile.txt",
-        "/cat script.py 1-20"
+        "🛠️ cat myfile.txt",
+        "🛠️ cat script.py 1-20"
     ]
 
     def __init__(self, runcommand):
@@ -27,11 +27,9 @@ class CatTool(BaseTool):
         self.runcommand = runcommand
 
     def _parse_arguments(self, args):
-        """Parse command arguments into filename and optional line range."""
         if not args:
             return None, None, 'STDERR: cat: missing file operand'
 
-        # Parse arguments - split by space to separate filename and optional range
         parts = args.split()
         filename = parts[0]
         line_range = parts[1] if len(parts) > 1 else None
@@ -39,8 +37,6 @@ class CatTool(BaseTool):
         return filename, line_range, None
 
     def _validate_range(self, line_range):
-        """Validate and parse line range string into start and end line numbers."""
-        # Parse line range (e.g., "1-5")
         try:
             start_line, end_line = map(int, line_range.split('-'))
         except ValueError:

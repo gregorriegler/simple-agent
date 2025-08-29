@@ -16,8 +16,8 @@ class SubagentTool(BaseTool):
         }
     ]
     examples = [
-        "/subagent Write a Python function to calculate fibonacci numbers",
-        "/subagent Create a simple HTML page with a form"
+        "🛠️ subagent Write a Python function to calculate fibonacci numbers",
+        "🛠️ subagent Create a simple HTML page with a form"
     ]
 
     def __init__(self, runcommand, message_claude):
@@ -45,7 +45,7 @@ class SubagentTool(BaseTool):
             subagent_chat = Chat()
             subagent_chat.user_says(args.strip())
             result = subagent.start(subagent_chat)
-            return f"{result}"
+            return f"{result}\n"
 
         except Exception as e:
             return f'STDERR: subagent error: {str(e)}'
@@ -59,24 +59,24 @@ class SubagentDisplay(Display):
     def assistant_says(self, message):
         lines = str(message).split('\n')
         if lines:
-            print(f"\n    Subagent: {lines[0]}")
+            print(f"\n       Subagent: {lines[0]}")
             for line in lines[1:]:
-                print(f"              {line}")
+                print(f"                 {line}")
 
     def tool_result(self, result):
-        indented_result = self._indent_lines(result)
-        print(indented_result)
+        indented_result = self._indent_lines(result, "                 ")
+        print(f"\n{indented_result}")
 
     def input(self):
-        return input("\n    Press Enter to continue or type a message to add: ")
+        return input("\n       Press Enter to continue or type a message to add: ")
 
     def tool_about_to_execute(self, parsed_tool):
         indented_tool = self._indent_lines(parsed_tool, "\n    ")
         print(indented_tool)
 
     def exit(self):
-        print("    Subagent completed.")
+        pass
 
-    def _indent_lines(self, text, prefix="    "):
+    def _indent_lines(self, text, prefix="           "):
         lines = str(text).split('\n')
         return '\n'.join(f"{prefix}{line}" for line in lines)

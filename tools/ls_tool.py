@@ -12,8 +12,8 @@ class LsTool(BaseTool):
         }
     ]
     examples = [
-        "/ls",
-        "/ls /home/user"
+        "🛠️ ls",
+        "🛠️ ls /home/user"
     ]
 
     def __init__(self, runcommand):

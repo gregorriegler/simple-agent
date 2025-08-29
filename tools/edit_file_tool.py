@@ -33,8 +33,8 @@ class EditFileTool(BaseTool):
         }
     ]
     examples = [
-        "/edit-file myfile.txt 1-3 Hello World",
-        "/edit-file script.py 10-10 print(\"debug\")"
+        "🛠️ edit-file myfile.txt 1-3 Hello World",
+        "🛠️ edit-file script.py 10-10 print(\"debug\")"
     ]
 
     # Constants for argument parsing

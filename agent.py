@@ -48,7 +48,7 @@ class Agent:
 
                 parsed_tool = self.tools.parse_tool(answer)
                 if parsed_tool:
-                    self.display.tool_about_to_execute(parsed_tool)
+                    #self.display.tool_about_to_execute(parsed_tool)
                     tool_result = self.tools.execute_parsed_tool(parsed_tool)
                     if parsed_tool.tool_instance.is_completing():
                         self.save_chat(chat)

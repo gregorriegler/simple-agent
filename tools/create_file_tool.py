@@ -19,8 +19,8 @@ class CreateFileTool(BaseTool):
         }
     ]
     examples = [
-        "/create-file newfile.txt",
-        "/create-file script.py print(\"Hello World\")"
+        "🛠️ create-file newfile.txt",
+        "🛠️ create-file script.py print(\"Hello World\")"
     ]
 
     def __init__(self, runcommand):

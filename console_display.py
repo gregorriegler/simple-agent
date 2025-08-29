@@ -14,7 +14,8 @@ class ConsoleDisplay(Display):
         print(f"\n{parsed_tool}")
 
     def tool_result(self, result):
-        print(result, end='')
+        result = self._indent_lines(result, "       ")
+        print(f"\n\n{result}", end='')
 
     def input(self):
         return input("\nPress Enter to continue or type a message to add: ")

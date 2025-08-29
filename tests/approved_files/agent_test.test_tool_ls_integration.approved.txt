@@ -3,19 +3,7 @@ Starting new session
 
 Agent: /ls /tmp/test_path
 
-🛠️ ls: /tmp/test_path
-.
-..
-file1.txt
-file2.py
-subdir
 
 # Saved messages:
 user: Test message
 assistant: /ls /tmp/test_path
-user: Result of 🛠️ ls: /tmp/test_path
-.
-..
-file1.txt
-file2.py
-subdir

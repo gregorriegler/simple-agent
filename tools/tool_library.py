@@ -17,7 +17,7 @@ class ParsedTool:
 
     def __str__(self):
         args_str = f"{self.arguments}" if self.arguments else ""
-        return f"🛠️ {self.name}: {args_str}"
+        return f"🛠️ {self.name}"
 
 
 class ToolLibrary:
@@ -63,7 +63,7 @@ class ToolLibrary:
             return "\n".join(info_lines)
 
     def parse_tool(self, text):
-        pattern = r'^/([\w-]+)(?:\s+(.*))?$'
+        pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?$'
         lines = text.splitlines()
 
         for i, line in enumerate(lines):

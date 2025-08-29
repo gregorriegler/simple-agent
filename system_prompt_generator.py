@@ -2,13 +2,11 @@
 from tools.tool_library import ToolLibrary
 
 class SystemPromptGenerator:
-    """Generates system prompts with dynamically discovered tools"""
 
     def __init__(self):
         self.tool_library = ToolLibrary()
 
     def generate_system_prompt(self):
-        """Generate the complete system prompt with dynamic tool descriptions"""
         template_content = self._read_system_prompt_template()
 
         tools_content = self._generate_tools_content()
@@ -16,7 +14,6 @@ class SystemPromptGenerator:
         return template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
 
     def _read_system_prompt_template(self):
-        """Read the system prompt template file"""
         import os
         script_dir = os.path.dirname(os.path.abspath(__file__))
         template_path = os.path.join(script_dir, "system-prompt.md")
