@@ -9,9 +9,12 @@ Agent: 🛠️ subagent say hello
 
        I successfully said hello
 
+Agent: goodbye
+
 
 # Saved messages:
-user: Create a subagent that says hello
+user: Create a subagent that says hello, then say goodbye
 assistant: 🛠️ subagent say hello
 user: Result of 🛠️ subagent
 I successfully said hello
+assistant: goodbye

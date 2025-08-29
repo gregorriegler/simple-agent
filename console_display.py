@@ -21,7 +21,7 @@ class ConsoleDisplay(Display):
 
     def tool_result(self, result):
         result = self._indent_lines(result, self.base_indent)
-        print(f"\n{result}", end='')
+        print(f"\n{result}")
 
     def input(self):
         prompt = "       " * self.indent_level + "Press Enter to continue or type a message to add: "
@@ -33,4 +33,4 @@ class ConsoleDisplay(Display):
 
     def _indent_lines(self, text, prefix="    "):
         lines = str(text).split('\n')
-        return '\n'.join(f"{prefix}{line}" for line in lines)
+        return '\n'.join(f"{prefix}{line}" if line.strip() else line for line in lines)

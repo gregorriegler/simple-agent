@@ -64,6 +64,15 @@ def test_agent_test(capsys):
     ])
 
 
+def test_agent_says_after_subagent(capsys):
+    verify_chat(capsys, enter, "Create a subagent that says hello, then say goodbye", [
+        "🛠️ subagent say hello",
+        "hello",
+        "🛠️ complete-task I successfully said hello",
+        "goodbye"
+    ], rounds=2)
+
+
 def verify_chat(capsys, input_stub, message, answer, rounds=1):
     result = run_chat_test(capsys, input_stub, message, answer, rounds)
     verify(result, options=Options().with_scrubber(all_scrubbers()))

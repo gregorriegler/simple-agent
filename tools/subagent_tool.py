@@ -46,7 +46,7 @@ class SubagentTool(BaseTool):
             subagent_chat = Chat()
             subagent_chat.user_says(args.strip())
             result = subagent.start(subagent_chat)
-            return f"{result}\n"
+            return result
 
         except Exception as e:
             return f'STDERR: subagent error: {str(e)}'
@@ -84,4 +84,4 @@ class SubagentDisplay(Display):
 
     def _indent_lines(self, text, prefix="           "):
         lines = str(text).split('\n')
-        return '\n'.join(f"{prefix}{line}" for line in lines)
+        return '\n'.join(f"{prefix}{line}" if line.strip() else line for line in lines)
