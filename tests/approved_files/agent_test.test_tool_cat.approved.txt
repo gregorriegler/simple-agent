@@ -3,7 +3,6 @@ Starting new session
 
 Agent: 🛠️ cat /tmp/test_path/testfile.txt
 
-
             1	Hello world
 
 # Saved messages:

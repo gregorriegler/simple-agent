@@ -7,7 +7,6 @@ Agent: 🛠️ subagent say hello
 
        Subagent: 🛠️ complete-task I successfully said hello
 
-
        I successfully said hello
        
 

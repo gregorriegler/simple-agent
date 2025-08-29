@@ -54,6 +54,16 @@ def test_subagent(capsys):
     verify_chat(capsys, enter, "Create a subagent that says hello", ["🛠️ subagent say hello", "hello", "🛠️ complete-task I successfully said hello"])
 
 
+def test_agent_test(capsys):
+    verify_chat(capsys, enter, "Create a subagent that creates another subagent", [
+        "🛠️ subagent create another subagent",
+        "🛠️ subagent say nested hello",
+        "nested hello",
+        "🛠️ complete-task I successfully said nested hello",
+        "🛠️ complete-task I successfully created another subagent"
+    ])
+
+
 def verify_chat(capsys, input_stub, message, answer, rounds=1):
     result = run_chat_test(capsys, input_stub, message, answer, rounds)
     verify(result, options=Options().with_scrubber(all_scrubbers()))

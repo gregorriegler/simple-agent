@@ -3,7 +3,6 @@ Starting new session
 
 Agent: 🛠️ ls /tmp/test_path
 
-
        .
        ..
        file1.txt
