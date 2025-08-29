@@ -21,8 +21,9 @@ class ParsedTool:
 
 
 class ToolLibrary:
-    def __init__(self, message_claude=lambda messages, system_prompt: ""):
+    def __init__(self, message_claude=lambda messages, system_prompt: "", indent_level=0):
         self.message_claude = message_claude
+        self.indent_level = indent_level
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
 
@@ -35,7 +36,7 @@ class ToolLibrary:
             CatTool(self.run_command),
             CreateFileTool(self.run_command),
             EditFileTool(self.run_command),
-            SubagentTool(self.run_command, self.message_claude),
+            SubagentTool(self.run_command, self.message_claude, self.indent_level),
             CompleteTaskTool(self.run_command)
         ]
 

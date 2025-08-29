@@ -29,17 +29,17 @@ def test_abort(capsys):
 
 def test_tool_cat(capsys, tmp_path):
     temp_file = create_temp_file(tmp_path, "testfile.txt", "Hello world")
-    verify_chat(capsys, enter, "Test message", f"/cat {temp_file}")
+    verify_chat(capsys, enter, "Test message", f"🛠️ cat {temp_file}")
 
 
 def test_tool_cat_integration(capsys, tmp_path):
     temp_file = create_temp_file(tmp_path, "integration_test.txt", "Integration test content\nLine 2")
-    verify_chat(capsys, enter, "Test message", f"/cat {temp_file}")
+    verify_chat(capsys, enter, "Test message", f"🛠️ cat {temp_file}")
 
 
 def test_tool_ls_integration(capsys, tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
-    verify_chat(capsys, enter, "Test message", f"/ls {directory_path}")
+    verify_chat(capsys, enter, "Test message", f"🛠️ ls {directory_path}")
 
 
 def test_chat_with_regular_response(capsys):
@@ -47,11 +47,11 @@ def test_chat_with_regular_response(capsys):
 
 
 def test_chat_with_task_completion(capsys):
-    verify_chat(capsys, enter, "Say Hello", ["Hello!", "/complete-task I successfully said hello", "ignored"], rounds=3)
+    verify_chat(capsys, enter, "Say Hello", ["Hello!", "🛠️ complete-task I successfully said hello", "ignored"], rounds=3)
 
 
 def test_subagent(capsys):
-    verify_chat(capsys, enter, "Create a subagent that says hello", ["/subagent say hello", "hello", "/complete-task I successfully said hello"])
+    verify_chat(capsys, enter, "Create a subagent that says hello", ["🛠️ subagent say hello", "hello", "🛠️ complete-task I successfully said hello"])
 
 
 def verify_chat(capsys, input_stub, message, answer, rounds=1):

@@ -1,5 +1,5 @@
 Command:
-/edit-file empty.txt 0-0 line1\nline2
+🛠️ edit-file empty.txt 0-0 line1\nline2
 
 Result:
 Successfully edited empty.txt, lines 0-0

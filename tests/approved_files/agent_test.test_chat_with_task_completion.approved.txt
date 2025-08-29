@@ -3,13 +3,12 @@ Starting new session
 
 Agent: Hello!
 
-Agent: /complete-task I successfully said hello
+Agent: 🛠️ complete-task I successfully said hello
 
-Agent: ignored
+Exiting...
 
 
 # Saved messages:
 user: Say Hello
 assistant: Hello!
-assistant: /complete-task I successfully said hello
-assistant: ignored
+assistant: 🛠️ complete-task I successfully said hello

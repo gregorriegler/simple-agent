@@ -1,5 +1,5 @@
 Command:
-/create-file src/tmp/test_path/helper.py "# Helper module"
+🛠️ create-file src/tmp/test_path/helper.py "# Helper module"
 
 Result:
 Created file: src/tmp/test_path/helper.py with content

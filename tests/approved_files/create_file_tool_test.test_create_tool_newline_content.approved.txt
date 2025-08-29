@@ -1,5 +1,5 @@
 Command:
-/create-file multi.txt "Line 1\nLine 2"
+🛠️ create-file multi.txt "Line 1\nLine 2"
 
 Result:
 Created file: multi.txt with content

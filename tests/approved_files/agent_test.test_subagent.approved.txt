@@ -1,9 +1,18 @@
 # Standard out:
 Starting new session
 
-Agent: /subagent say hello
+Agent: 🛠️ subagent say hello
 
+       Subagent: hello
+
+       Subagent: 🛠️ complete-task I successfully said hello
+
+
+       I successfully said hello
+       
 
 # Saved messages:
 user: Create a subagent that says hello
-assistant: /subagent say hello
+assistant: 🛠️ subagent say hello
+user: Result of 🛠️ subagent
+I successfully said hello

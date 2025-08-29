@@ -1,5 +1,5 @@
 Command:
-/create-file config.json {"name": "test"}
+🛠️ create-file config.json {"name": "test"}
 
 Result:
 Created file: config.json with content

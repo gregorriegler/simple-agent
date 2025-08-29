@@ -1,5 +1,5 @@
 Command:
-/create-file empty.txt ""
+🛠️ create-file empty.txt ""
 
 Result:
 Created file: empty.txt with content

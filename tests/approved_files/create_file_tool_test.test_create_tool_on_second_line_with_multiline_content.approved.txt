@@ -1,6 +1,6 @@
 Command:
 let me create a file
-/create-file test.txt Line1
+🛠️ create-file test.txt Line1
 Line2
 
 Result:
