@@ -94,3 +94,7 @@ ENV/
 claude-api-key.txt
 claude-session.json
 config.ini
+
+# Coverage reports
+htmlcov/
+.coverage
