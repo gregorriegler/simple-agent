@@ -19,9 +19,11 @@ def configure_approvals():
         original_write_received_file = StringWriter.write_received_file
 
         def utf8_write_received_file(self, received_file):
-            """Write the received file using UTF-8 encoding."""
-            with open(received_file, 'w', encoding='utf-8') as file:
-                file.write(self.contents)
+            """Write the received file using UTF-8 encoding with normalized line endings."""
+            # Normalize line endings to LF to match .gitattributes and .editorconfig
+            content = self.contents.replace('\r\n', '\n').replace('\r', '\n')
+            with open(received_file, 'w', encoding='utf-8', newline='\n') as file:
+                file.write(content)
             return received_file
 
         StringWriter.write_received_file = utf8_write_received_file
