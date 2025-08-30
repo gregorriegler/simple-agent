@@ -1,4 +1,4 @@
-# Minimal Agent
+# Simple Agent
 
 ## Components
 
@@ -13,17 +13,15 @@ Dynamically generates system prompts for Claude AI by discovering and documentin
 
 ## Usage
 
-### Basic Modernization Session
-
 ```bash
 # Start interactive modernization session
-./agent.sh --new Modernize Project Xy
+./agent.sh say hello
 
 # Continue existing session
 ./agent.sh Optional Message
 ```
 
-### Direct Tool Usage
+## Direct Tool Usage
 
 ```bash
 ./list_tools.sh
