@@ -1,4 +1,4 @@
-# Minimal Agent
+# Simple Agent
 
 ## Components
 
