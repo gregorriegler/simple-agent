@@ -2,8 +2,10 @@ STARTER_SYMBOL=✅
 
 # Simple Task
 
+Intent: Work on a small task making sure the tests keep passing, and we don't accidentally add unwanted changes. 
+
 1. Make sure the `git status` is clean and shows no changes
-1. Make sure the tests work before we start. Run `test.sh`
-1. Execute the Task
-1. Make sure the test work again afterwards.
-1. Ask me to commit
+2. Make sure the tests pass before we start. Run `test.sh`.
+3. Execute the given Task.
+4. Make sure the tests pass again afterwards.
+5. Ask me to commit.
