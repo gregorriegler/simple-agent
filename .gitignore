@@ -98,3 +98,7 @@ config.ini
 # Coverage reports
 htmlcov/
 .coverage
+
+# Large model files
+*.onnx
+*.onnx.json

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run --script
 
 import argparse
 import sys
@@ -32,7 +32,6 @@ def main():
 
     system_prompt = get_system_prompt()
 
-    # Handle chat creation logic that was previously in start_chat
     chat = load_chat("claude-session.json") if continue_session else Chat()
     print("Continuing session" if continue_session else "Starting new session")
 

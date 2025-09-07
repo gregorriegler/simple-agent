@@ -41,3 +41,25 @@ Dynamically generates system prompts for Claude AI by discovering and documentin
 # Test the System Prompt
 ./system_prompt.sh
 ```
+
+## Text-to-Speech Setup
+
+The `say.py` script requires a Piper TTS voice model to function. Download the required model:
+
+```bash
+# Download the voice model (61MB)
+curl -L -o en_US-lessac-medium.onnx "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx"
+curl -L -o en_US-lessac-medium.onnx.json "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json"
+```
+
+Or use the provided script:
+```bash
+./download_voice_model.sh
+```
+
+Then use:
+```bash
+./say.py "Hello world"
+# or
+./say.sh "Hello world"
+```
