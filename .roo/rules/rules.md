@@ -19,6 +19,9 @@ Let's not assume we are always right.
 - Avoid else if possible
 - Avoid overly defensive programming and focus on the happy path first
 
+# Python specific
+- We use uv
+
 ## Design rules
 - Each class goes into its own file, unless its only used by the other class in the file and it both fits into 100 lines
 - declare a variable as late as possible and as close as possible to where it is used
