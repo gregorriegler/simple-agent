@@ -73,6 +73,10 @@ def test_agent_says_after_subagent(capsys):
     ], rounds=2)
 
 
+def test_tool_bash(capsys, tmp_path):
+    verify_chat(capsys, enter, "use bash", f"🛠️ bash echo hello")
+
+
 def verify_chat(capsys, input_stub, message, answer, rounds=1):
     result = run_chat_test(capsys, input_stub, message, answer, rounds)
     verify(result, options=Options().with_scrubber(all_scrubbers()))
