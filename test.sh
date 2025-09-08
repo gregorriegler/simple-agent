@@ -5,7 +5,7 @@ export USE_APPROVE_SH_REPORTER=true
 
 cd "$(dirname "$0")"
 
-if ! output=$(python -m pytest tests/ -v 2>&1); then
+if ! output=$(uv run pytest tests/ -v 2>&1); then
     echo "$output"
     exit 1
 fi
