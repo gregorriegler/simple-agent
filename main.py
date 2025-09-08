@@ -9,6 +9,7 @@ from system_prompt_generator import SystemPromptGenerator
 from chat import Chat, load_chat
 from console_display import ConsoleDisplay
 from tools import ToolLibrary
+from path_utils import get_absolute_path
 
 
 def get_system_prompt():
@@ -32,7 +33,7 @@ def main():
 
     system_prompt = get_system_prompt()
 
-    chat = load_chat("claude-session.json") if continue_session else Chat()
+    chat = load_chat(get_absolute_path("claude-session.json")) if continue_session else Chat()
     print("Continuing session" if continue_session else "Starting new session")
 
     if start_message:

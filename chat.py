@@ -3,6 +3,7 @@ import os
 import sys
 from dataclasses import dataclass, field
 from typing import List, Dict
+from path_utils import get_absolute_path
 
 @dataclass()
 class Chat:
@@ -30,7 +31,9 @@ class Chat:
         return str(self._messages)
 
 
-def load_chat(session_file: str = "claude-session.json") -> 'Chat':
+def load_chat(session_file: str | None = None) -> 'Chat':
+    if session_file is None:
+        session_file = get_absolute_path("claude-session.json")
     if not os.path.exists(session_file):
         return Chat()
 
@@ -44,7 +47,7 @@ def load_chat(session_file: str = "claude-session.json") -> 'Chat':
 
 
 def save_chat(chat):
-    session_file = "claude-session.json"
+    session_file = get_absolute_path("claude-session.json")
     try:
         with open(session_file, 'w', encoding='utf-8') as f:
             json.dump(chat.to_list(), f, indent=2)

@@ -2,14 +2,15 @@ import sys
 import json
 import requests
 import logging
+from path_utils import get_absolute_path
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='request.log', encoding='utf-8', level=logging.DEBUG)
 
 def message_claude(messages, system_prompt):
     url = "https://api.anthropic.com/v1/messages"
-    api_key = read_file("claude-api-key.txt")
-    model = read_file("claude-model.txt")
+    api_key = read_file(get_absolute_path("claude-api-key.txt"))
+    model = read_file(get_absolute_path("claude-model.txt"))
 
     headers = {
         "Content-Type": "application/json",
