@@ -73,3 +73,16 @@ Usage: 🛠️ complete-task <summary>
 Examples:
   🛠️ complete-task Successfully created the user registration system
   🛠️ complete-task Fixed the bug in the payment processing module
+
+## bash
+Execute bash commands
+
+Arguments:
+ - command: string (required) - The bash command to execute
+
+Usage: 🛠️ bash <command>
+
+Examples:
+  🛠️ bash echo hello
+  🛠️ bash ls -la
+  🛠️ bash pwd

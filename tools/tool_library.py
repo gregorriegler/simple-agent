@@ -7,6 +7,7 @@ from .create_file_tool import CreateFileTool
 from .edit_file_tool import EditFileTool
 from .subagent_tool import SubagentTool
 from .complete_task_tool import CompleteTaskTool
+from .bash_tool import BashTool
 
 
 class ParsedTool:
@@ -37,7 +38,8 @@ class ToolLibrary:
             CreateFileTool(self.run_command),
             EditFileTool(self.run_command),
             SubagentTool(self.run_command, self.message_claude, self.indent_level),
-            CompleteTaskTool(self.run_command)
+            CompleteTaskTool(self.run_command),
+            BashTool(self.run_command)
         ]
 
     def _discover_dynamic_tools(self):
