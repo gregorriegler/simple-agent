@@ -19,14 +19,18 @@ class ApproveShReporter(Reporter):
         print(f"\nApproval test failed!")
         print(f"Received: {received_path}")
         print(f"Approved: {approved_path}")
-        print(f"\nto approve this result: ./approve.sh {test_name}")
 
         # Also show the diff if possible
         try:
             with open(received_path, 'r', encoding='utf-8') as f:
                 received_content = f.read()
-            with open(approved_path, 'r', encoding='utf-8') as f:
-                approved_content = f.read()
+            
+            # Try to read approved file, default to empty if it doesn't exist
+            try:
+                with open(approved_path, 'r', encoding='utf-8') as f:
+                    approved_content = f.read()
+            except FileNotFoundError:
+                approved_content = ""
 
             print(f"\n--- Expected")
             print(f"+++ Received")
@@ -48,6 +52,11 @@ class ApproveShReporter(Reporter):
 
         except Exception as e:
             print(f"Could not show diff: {e}")
+        
+        print()
+        print()
+        print(f"to approve this result: ./approve.sh {test_name}")
+        print()
 
         # Return True to indicate the reporter worked successfully
         return True
