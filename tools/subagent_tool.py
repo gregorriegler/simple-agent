@@ -1,4 +1,3 @@
-from agent import Display
 from chat import Chat
 from console_display import ConsoleDisplay
 
@@ -34,13 +33,11 @@ class SubagentTool(BaseTool):
             return 'STDERR: subagent: missing task description'
 
         try:
-            # Import Agent and SystemPromptGenerator here to avoid circular dependency
             from agent import Agent
             from system_prompt_generator import SystemPromptGenerator
 
             system_prompt = SystemPromptGenerator().generate_system_prompt()
 
-            # Create a new ToolLibrary instance for the subagent to avoid recursion
             from tools.tool_library import ToolLibrary
             subagent_tools = ToolLibrary(self.message_claude, self.indent_level + 1, self.print_fn)
             subagent = Agent(system_prompt, self.message_claude, self.subagent_display, subagent_tools)
