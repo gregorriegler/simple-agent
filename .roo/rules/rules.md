@@ -18,7 +18,7 @@ Do not assume that I (the user) am always right.
 - If I tell you to change the code, do the following first:
   1. Run `git status`, we do not start with a dirty git status
   2. Run `test.sh`, we do not start with failing tests
-- AFTER EACH STEP: run `test.sh` again
+- AFTER EACH STEP: run `./test.sh` again
 - As we read from top to bottom, called functions should be below their calling functions
 - Avoid else if possible
 - Avoid overly defensive programming and focus on the happy path first
