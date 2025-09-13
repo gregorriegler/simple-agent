@@ -40,12 +40,6 @@ class Agent:
                 self.display.assistant_says(answer)
                 chat.assistant_says(answer)
 
-                if self._check_for_escape():
-                    user_input = self.display.input()
-                    if user_input:
-                        chat.user_says(user_input)
-                        continue
-
                 parsed_tool = self.tools.parse_tool(answer)
                 if parsed_tool:
                     tool_result = self.tools.execute_parsed_tool(parsed_tool)
@@ -55,7 +49,8 @@ class Agent:
                         return tool_result
                     self.display.tool_result(tool_result)
                     chat.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
-                else:
+
+                if not parsed_tool or self._check_for_escape():
                     user_input = self.display.input()
                     if user_input:
                         chat.user_says(user_input)
