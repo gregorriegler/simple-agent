@@ -25,6 +25,10 @@ def test_chat_with_regular_response(capsys):
     verify_chat(capsys, enter, "Hello", "Hello! How can I help you?")
 
 
+#def test_chat_with_two_regular_responses(capsys):
+#    verify_chat(capsys, enter, "Hello", ["Answer 1", "Answer 2"])
+
+
 def test_abort(capsys):
     verify_chat(capsys, keyboard_interrupt, "Test message", "Test answer")
 
