@@ -6,7 +6,7 @@ import pytest
 from approvaltests import set_default_reporter
 from approvaltests.reporters import ReportWithWinMerge
 
-from .custom_reporter import ApproveShReporter
+from .approve_sh_reporter import ApproveShReporter
 
 
 @pytest.fixture(scope="session", autouse=True)
