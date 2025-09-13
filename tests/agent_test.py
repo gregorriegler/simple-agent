@@ -1,7 +1,6 @@
 import builtins
-import platform
-import sys
 from unittest.mock import patch, Mock
+
 from approvaltests import verify, Options
 
 from agent import Agent

@@ -1,5 +1,6 @@
 from agent import Display
 from chat import Chat
+from console_display import ConsoleDisplay
 
 from .base_tool import BaseTool
 
@@ -53,7 +54,7 @@ class SubagentTool(BaseTool):
             return f'STDERR: subagent error: {str(e)}'
 
 
-class SubagentDisplay(Display):
+class SubagentDisplay(ConsoleDisplay):
 
     def __init__(self, indent_level=1, print_fn=print):
         super().__init__()
@@ -61,13 +62,6 @@ class SubagentDisplay(Display):
         self.print = print_fn
         self.base_indent = "       " * (indent_level + 1)  # 7 spaces per level
         self.agent_prefix = "       " * indent_level + "Subagent: "
-
-    def assistant_says(self, message):
-        lines = str(message).split('\n')
-        if lines:
-            self.print(f"\n{self.agent_prefix}{lines[0]}")
-            for line in lines[1:]:
-                self.print(f"{self.base_indent}{line}")
 
     def tool_result(self, result):
         indented_result = self._indent_lines(result, self.base_indent)
