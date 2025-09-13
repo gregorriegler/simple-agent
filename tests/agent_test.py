@@ -1,4 +1,6 @@
 import builtins
+import platform
+from unittest.mock import patch, Mock
 from approvaltests import verify, Options
 
 from agent import Agent
@@ -73,7 +75,15 @@ def test_agent_says_after_subagent(capsys):
     ], rounds=2)
 
 
-def test_tool_bash(capsys, tmp_path):
+@patch('tools.bash_tool.subprocess.run')
+def test_tool_bash(mock_subprocess, capsys):
+    if platform.system() == 'Windows':
+        mock_result = Mock()
+        mock_result.stdout = "hello"
+        mock_result.stderr = ""
+        mock_result.returncode = 0
+        mock_subprocess.return_value = mock_result
+
     verify_chat(capsys, enter, "use bash", f"🛠️ bash echo hello")
 
 
