@@ -3,13 +3,12 @@
 import argparse
 import sys
 
-from claude_client import message_claude
+from claude.claude_client import message_claude
 from agent import Agent
 from system_prompt_generator import SystemPromptGenerator
 from chat import Chat, load_chat
 from console_display import ConsoleDisplay
 from tools import ToolLibrary
-from claude_config import claude_config
 
 
 def get_system_prompt():
