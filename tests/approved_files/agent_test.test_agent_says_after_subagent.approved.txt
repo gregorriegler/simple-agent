@@ -11,6 +11,7 @@ Agent: 🛠️ subagent say hello
 
 Agent: goodbye
 
+Press Enter to continue or type a message to add: 
 
 # Saved messages:
 user: Create a subagent that says hello, then say goodbye

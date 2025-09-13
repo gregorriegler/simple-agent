@@ -1,5 +1,6 @@
 import builtins
 import platform
+import sys
 from unittest.mock import patch, Mock
 from approvaltests import verify, Options
 
@@ -13,6 +14,22 @@ from .test_helpers import (
 )
 
 
+class PrintSpy:
+    def __init__(self):
+        self.captured_output = []
+
+    def __call__(self, *args, **kwargs):
+        if args:
+            message = ' '.join(str(arg) for arg in args)
+        else:
+            message = ''
+
+        self.captured_output.append(message)
+
+    def get_output(self):
+        return '\n'.join(self.captured_output)
+
+
 def enter(_):
     return "\n"
 
@@ -21,43 +38,43 @@ def keyboard_interrupt(_):
     raise KeyboardInterrupt()
 
 
-def test_chat_with_regular_response(capsys):
-    verify_chat(capsys, enter, "Hello", "Hello! How can I help you?")
+def test_chat_with_regular_response():
+    verify_chat(enter, "Hello", "Hello! How can I help you?")
 
 
-def test_chat_with_two_regular_responses(capsys):
-    verify_chat(capsys, lambda _ : "User Answer", "Hello", ["Answer 1", "Answer 2"], 2)
+def test_chat_with_two_regular_responses():
+    verify_chat(lambda _ : "User Answer", "Hello", ["Answer 1", "Answer 2"], 2)
 
 
-def test_abort(capsys):
-    verify_chat(capsys, keyboard_interrupt, "Test message", "Test answer")
+def test_abort():
+    verify_chat(keyboard_interrupt, "Test message", "Test answer")
 
 
-def test_tool_cat(capsys, tmp_path):
+def test_tool_cat(tmp_path):
     temp_file = create_temp_file(tmp_path, "testfile.txt", "Hello world")
-    verify_chat(capsys, enter, "Test message", f"🛠️ cat {temp_file}")
+    verify_chat(enter, "Test message", f"🛠️ cat {temp_file}")
 
 
-def test_tool_cat_integration(capsys, tmp_path):
+def test_tool_cat_integration(tmp_path):
     temp_file = create_temp_file(tmp_path, "integration_test.txt", "Integration test content\nLine 2")
-    verify_chat(capsys, enter, "Test message", f"🛠️ cat {temp_file}")
+    verify_chat(enter, "Test message", f"🛠️ cat {temp_file}")
 
 
-def test_tool_ls_integration(capsys, tmp_path):
+def test_tool_ls_integration(tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
-    verify_chat(capsys, enter, "Test message", f"🛠️ ls {directory_path}")
+    verify_chat(enter, "Test message", f"🛠️ ls {directory_path}")
 
 
-def test_chat_with_task_completion(capsys):
-    verify_chat(capsys, enter, "Say Hello", ["Hello!", "🛠️ complete-task I successfully said hello", "ignored"], rounds=3)
+def test_chat_with_task_completion():
+    verify_chat(enter, "Say Hello", ["Hello!", "🛠️ complete-task I successfully said hello", "ignored"], rounds=3)
 
 
-def test_subagent(capsys):
-    verify_chat(capsys, enter, "Create a subagent that says hello", ["🛠️ subagent say hello", "hello", "🛠️ complete-task I successfully said hello"])
+def test_subagent():
+    verify_chat(enter, "Create a subagent that says hello", ["🛠️ subagent say hello", "hello", "🛠️ complete-task I successfully said hello"])
 
 
-def test_nested_agent_test(capsys):
-    verify_chat(capsys, enter, "Create a subagent that creates another subagent", [
+def test_nested_agent_test():
+    verify_chat(enter, "Create a subagent that creates another subagent", [
         "🛠️ subagent create another subagent",
         "🛠️ subagent say nested hello",
         "nested hello",
@@ -66,8 +83,8 @@ def test_nested_agent_test(capsys):
     ])
 
 
-def test_agent_says_after_subagent(capsys):
-    verify_chat(capsys, enter, "Create a subagent that says hello, then say goodbye", [
+def test_agent_says_after_subagent():
+    verify_chat(enter, "Create a subagent that says hello, then say goodbye", [
         "🛠️ subagent say hello",
         "hello",
         "🛠️ complete-task I successfully said hello",
@@ -76,14 +93,14 @@ def test_agent_says_after_subagent(capsys):
 
 
 @patch('tools.bash_tool.subprocess.run')
-def test_tool_bash(mock_subprocess, capsys):
+def test_tool_bash(mock_subprocess):
     mock_result = Mock()
     mock_result.stdout = "hello"
     mock_result.stderr = ""
     mock_result.returncode = 0
     mock_subprocess.return_value = mock_result
 
-    verify_chat(capsys, enter, "use bash", f"🛠️ bash echo hello")
+    verify_chat(enter, "use bash", f"🛠️ bash echo hello")
 
 
 def create_claude_stub(answer):
@@ -103,13 +120,13 @@ def create_claude_stub(answer):
         return lambda messages, system_prompt: answer
 
 
-def verify_chat(capsys, input_stub, message, answer, rounds=1):
+def verify_chat(input_stub, message, answer, rounds=1):
     claude_stub = create_claude_stub(answer)
-    result = run_chat_test(capsys, input_stub, message, claude_stub, rounds)
+    result = run_chat_test(input_stub, message, claude_stub, rounds)
     verify(result, options=Options().with_scrubber(all_scrubbers()))
 
 
-def run_chat_test(capsys, input_stub, message, claude_stub, rounds=1):
+def run_chat_test(input_stub, message, claude_stub, rounds=1):
     builtins.input = input_stub
 
     saved_messages = "None"
@@ -119,18 +136,18 @@ def run_chat_test(capsys, input_stub, message, claude_stub, rounds=1):
         saved_messages = "\n".join(f"{msg['role']}: {msg['content']}" for msg in chat)
 
     system_prompt = "Test system prompt"
+    print_spy = PrintSpy()
 
     chat = Chat()
-    print("Starting new session")
+    print_spy("Starting new session")
 
     if message:
         chat.user_says(message)
 
     try:
-        agent = Agent(system_prompt, claude_stub, ConsoleDisplay(), ToolLibrary(claude_stub), save_chat)
+        agent = Agent(system_prompt, claude_stub, ConsoleDisplay(print_fn=print_spy), ToolLibrary(claude_stub, print_fn=print_spy), save_chat)
         agent.start(chat, rounds)
     except KeyboardInterrupt:
         pass
 
-    captured = capsys.readouterr()
-    return f"# Standard out:\n{captured.out}\n\n# Saved messages:\n{saved_messages}"
+    return f"# Standard out:\n{print_spy.get_output()}\n\n# Saved messages:\n{saved_messages}"

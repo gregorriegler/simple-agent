@@ -5,7 +5,6 @@ Agent: 🛠️ cat /tmp/test_path/testfile.txt
 
             1	Hello world
 
-
 # Saved messages:
 user: Test message
 assistant: 🛠️ cat /tmp/test_path/testfile.txt

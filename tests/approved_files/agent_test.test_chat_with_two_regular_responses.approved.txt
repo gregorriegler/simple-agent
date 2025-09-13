@@ -3,8 +3,11 @@ Starting new session
 
 Agent: Answer 1
 
+Press Enter to continue or type a message to add: 
+
 Agent: Answer 2
 
+Press Enter to continue or type a message to add: 
 
 # Saved messages:
 user: Hello

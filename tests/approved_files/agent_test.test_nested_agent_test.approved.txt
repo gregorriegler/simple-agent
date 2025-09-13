@@ -15,7 +15,6 @@ Agent: 🛠️ subagent create another subagent
 
        I successfully created another subagent
 
-
 # Saved messages:
 user: Create a subagent that creates another subagent
 assistant: 🛠️ subagent create another subagent

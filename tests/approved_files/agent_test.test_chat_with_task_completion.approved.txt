@@ -3,10 +3,11 @@ Starting new session
 
 Agent: Hello!
 
+Press Enter to continue or type a message to add: 
+
 Agent: 🛠️ complete-task I successfully said hello
 
 Exiting...
-
 
 # Saved messages:
 user: Say Hello

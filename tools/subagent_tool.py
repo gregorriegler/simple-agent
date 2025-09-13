@@ -20,11 +20,12 @@ class SubagentTool(BaseTool):
         "🛠️ subagent Create a simple HTML page with a form"
     ]
 
-    def __init__(self, runcommand, message_claude, indent_level=0):
+    def __init__(self, runcommand, message_claude, indent_level=0, print_fn=print):
         super().__init__()
         self.runcommand = runcommand
         self.message_claude = message_claude
         self.indent_level = indent_level
+        self.print_fn = print_fn
 
     def execute(self, args):
         if not args or not args.strip():
@@ -36,11 +37,11 @@ class SubagentTool(BaseTool):
             from system_prompt_generator import SystemPromptGenerator
 
             system_prompt = SystemPromptGenerator().generate_system_prompt()
-            subagent_display = SubagentDisplay(self.indent_level + 1)
+            subagent_display = SubagentDisplay(self.indent_level + 1, self.print_fn)
 
             # Create a new ToolLibrary instance for the subagent to avoid recursion
             from tools.tool_library import ToolLibrary
-            subagent_tools = ToolLibrary(self.message_claude, self.indent_level + 1)
+            subagent_tools = ToolLibrary(self.message_claude, self.indent_level + 1, self.print_fn)
             subagent = Agent(system_prompt, self.message_claude, subagent_display, subagent_tools)
 
             subagent_chat = Chat()
@@ -54,22 +55,23 @@ class SubagentTool(BaseTool):
 
 class SubagentDisplay(Display):
 
-    def __init__(self, indent_level=1):
+    def __init__(self, indent_level=1, print_fn=print):
         super().__init__()
         self.indent_level = indent_level
+        self.print = print_fn
         self.base_indent = "       " * (indent_level + 1)  # 7 spaces per level
         self.agent_prefix = "       " * indent_level + "Subagent: "
 
     def assistant_says(self, message):
         lines = str(message).split('\n')
         if lines:
-            print(f"\n{self.agent_prefix}{lines[0]}")
+            self.print(f"\n{self.agent_prefix}{lines[0]}")
             for line in lines[1:]:
-                print(f"{self.base_indent}{line}")
+                self.print(f"{self.base_indent}{line}")
 
     def tool_result(self, result):
         indented_result = self._indent_lines(result, self.base_indent)
-        print(f"\n{indented_result}")
+        self.print(f"\n{indented_result}")
 
     def input(self):
         prompt = "       " * self.indent_level + "Press Enter to continue or type a message to add: "
@@ -77,7 +79,7 @@ class SubagentDisplay(Display):
 
     def tool_about_to_execute(self, parsed_tool):
         indented_tool = self._indent_lines(str(parsed_tool), "       " * self.indent_level)
-        print(f"\n{indented_tool}")
+        self.print(f"\n{indented_tool}")
 
     def exit(self):
         pass

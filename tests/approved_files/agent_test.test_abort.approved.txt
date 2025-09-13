@@ -3,8 +3,9 @@ Starting new session
 
 Agent: Test answer
 
-Exiting...
+Press Enter to continue or type a message to add: 
 
+Exiting...
 
 # Saved messages:
 None

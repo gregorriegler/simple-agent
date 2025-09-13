@@ -5,7 +5,6 @@ Agent: 🛠️ bash echo hello
 
        hello
 
-
 # Saved messages:
 user: use bash
 assistant: 🛠️ bash echo hello
