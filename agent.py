@@ -42,7 +42,7 @@ class Agent:
 
                 if self._check_for_escape():
                     user_input = self.display.input()
-                    if user_input.strip():
+                    if user_input:
                         chat.user_says(user_input)
                         continue
 
@@ -57,7 +57,7 @@ class Agent:
                     chat.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
                 else:
                     user_input = self.display.input()
-                    if user_input.strip():
+                    if user_input:
                         chat.user_says(user_input)
 
                 self.save_chat(chat)
