@@ -61,7 +61,3 @@ class SubagentDisplay(ConsoleDisplay):
 
     def exit(self):
         pass
-
-    def _indent_lines(self, text, prefix="           "):
-        lines = str(text).split('\n')
-        return '\n'.join(f"{prefix}{line}" if line.strip() else line for line in lines)
