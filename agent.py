@@ -55,6 +55,10 @@ class Agent:
                         return tool_result
                     self.display.tool_result(tool_result)
                     chat.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
+                else:
+                    user_input = self.display.input()
+                    if user_input.strip():
+                        chat.user_says(user_input)
 
                 self.save_chat(chat)
             except (EOFError, KeyboardInterrupt):

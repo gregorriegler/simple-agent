@@ -1,0 +1,14 @@
+# Standard out:
+Starting new session
+
+Agent: Answer 1
+
+Agent: Answer 2
+
+
+# Saved messages:
+user: Hello
+assistant: Answer 1
+user: User Answer
+assistant: Answer 2
+user: User Answer

@@ -3,7 +3,8 @@ Starting new session
 
 Agent: Test answer
 
+Exiting...
+
 
 # Saved messages:
-user: Test message
-assistant: Test answer
+None
