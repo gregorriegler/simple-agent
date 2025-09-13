@@ -63,9 +63,6 @@ class SubagentDisplay(ConsoleDisplay):
         self.base_indent = "       " * (indent_level + 1)  # 7 spaces per level
         self.agent_prefix = "       " * indent_level + "Subagent: "
 
-    def input(self):
-        prompt = "       " * self.indent_level + "Press Enter to continue or type a message to add: "
-        return input(f"\n{prompt}")
 
     def exit(self):
         pass

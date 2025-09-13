@@ -7,6 +7,8 @@ Agent: 🛠️ subagent create another subagent
 
               Subagent: nested hello
 
+              Press Enter to continue or type a message to add: 
+
               Subagent: 🛠️ complete-task I successfully said nested hello
 
               I successfully said nested hello
