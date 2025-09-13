@@ -2,15 +2,15 @@ import sys
 import json
 import requests
 import logging
-from path_utils import get_absolute_path
+from config import claude_config
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='request.log', encoding='utf-8', level=logging.DEBUG)
 
 def message_claude(messages, system_prompt):
     url = "https://api.anthropic.com/v1/messages"
-    api_key = read_file(get_absolute_path("claude-api-key.txt"))
-    model = read_file(get_absolute_path("claude-model.txt"))
+    api_key = claude_config.api_key
+    model = claude_config.model
 
     headers = {
         "Content-Type": "application/json",
@@ -38,14 +38,3 @@ def message_claude(messages, system_prompt):
         print("\n\nExiting...")
         sys.exit(1)
 
-def read_file(filename):
-    """Read content from a file, handling errors gracefully."""
-    try:
-        with open(filename, 'r', encoding='utf-8') as f:
-            return f.read().strip()
-    except FileNotFoundError:
-        print(f"Error: {filename} not found", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"Error reading {filename}: {e}", file=sys.stderr)
-        sys.exit(1)

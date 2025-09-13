@@ -3,7 +3,7 @@ import os
 import sys
 from dataclasses import dataclass, field
 from typing import List, Dict
-from path_utils import get_absolute_path
+from config import claude_config
 
 @dataclass()
 class Chat:
@@ -33,7 +33,7 @@ class Chat:
 
 def load_chat(session_file: str | None = None) -> 'Chat':
     if session_file is None:
-        session_file = get_absolute_path("claude-session.json")
+        session_file = claude_config.session_file_path
     if not os.path.exists(session_file):
         return Chat()
 
@@ -47,7 +47,7 @@ def load_chat(session_file: str | None = None) -> 'Chat':
 
 
 def save_chat(chat):
-    session_file = get_absolute_path("claude-session.json")
+    session_file = claude_config.session_file_path
     try:
         with open(session_file, 'w', encoding='utf-8') as f:
             json.dump(chat.to_list(), f, indent=2)
