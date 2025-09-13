@@ -45,10 +45,15 @@ class Agent:
                     tool_result = self.tools.execute_parsed_tool(parsed_tool)
                     if parsed_tool.tool_instance.is_completing():
                         self.save_chat(chat)
-                        self.display.exit()
-                        return tool_result
-                    self.display.tool_result(tool_result)
-                    chat.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
+                        user_input = self.display.input()
+                        if user_input:
+                            chat.user_says(user_input)
+                        else:
+                            self.display.exit()
+                            return tool_result
+                    else:
+                        self.display.tool_result(tool_result)
+                        chat.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
 
                 if not parsed_tool or self._check_for_escape():
                     user_input = self.display.input()
