@@ -17,7 +17,7 @@ class Display(ABC):
         pass
 
     @abstractmethod
-    def input(self):
+    def input(self) -> str:
         pass
 
     @abstractmethod

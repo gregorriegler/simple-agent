@@ -26,7 +26,7 @@ class ConsoleDisplay(Display):
         result = self._indent_lines(result, self.base_indent)
         self.print(f"\n{result}")
 
-    def input(self):
+    def input(self) -> str:
         prompt = "       " * self.indent_level + "Press Enter to continue or type a message to add: "
         self.print(f"\n{prompt}", file=sys.stderr)
         return input("").strip()
