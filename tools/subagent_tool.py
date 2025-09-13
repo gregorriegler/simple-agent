@@ -57,12 +57,7 @@ class SubagentTool(BaseTool):
 class SubagentDisplay(ConsoleDisplay):
 
     def __init__(self, indent_level=1, print_fn=print):
-        super().__init__()
-        self.indent_level = indent_level
-        self.print = print_fn
-        self.base_indent = "       " * (indent_level + 1)  # 7 spaces per level
-        self.agent_prefix = "       " * indent_level + "Subagent: "
-
+        super().__init__(indent_level, print_fn, "Subagent")
 
     def exit(self):
         pass
