@@ -31,9 +31,8 @@ class Chat:
         return str(self._messages)
 
 
-def load_chat(session_file: str | None = None) -> 'Chat':
-    if session_file is None:
-        session_file = claude_config.session_file_path
+def load_chat() -> 'Chat':
+    session_file = claude_config.session_file_path
     if not os.path.exists(session_file):
         return Chat()
 

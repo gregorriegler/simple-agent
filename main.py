@@ -33,7 +33,7 @@ def main():
 
     system_prompt = get_system_prompt()
 
-    chat = load_chat(claude_config.session_file_path) if continue_session else Chat()
+    chat = load_chat() if continue_session else Chat()
     print("Continuing session" if continue_session else "Starting new session")
 
     if start_message:
