@@ -2,7 +2,7 @@ import sys
 import json
 import requests
 import logging
-from config import claude_config
+from claude_config import claude_config
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='request.log', encoding='utf-8', level=logging.DEBUG)

@@ -9,7 +9,7 @@ from system_prompt_generator import SystemPromptGenerator
 from chat import Chat, load_chat
 from console_display import ConsoleDisplay
 from tools import ToolLibrary
-from config import claude_config
+from claude_config import claude_config
 
 
 def get_system_prompt():

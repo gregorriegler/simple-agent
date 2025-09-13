@@ -3,7 +3,7 @@ import os
 import sys
 from dataclasses import dataclass, field
 from typing import List, Dict
-from config import claude_config
+from claude_config import claude_config
 
 @dataclass()
 class Chat:
