@@ -23,7 +23,11 @@ class ConsoleDisplay(Display):
         self.print(f"\n{indented_tool}")
 
     def tool_result(self, result):
-        result = self._indent_lines(result, self.base_indent)
+        lines = str(result).split('\n')
+        first_three_lines = '\n'.join(lines[:3])
+        if len(lines) > 3:
+            first_three_lines += '\n... (truncated)'
+        result = self._indent_lines(first_three_lines, self.base_indent)
         self.print(f"\n{result}")
 
     def input(self) -> str:
