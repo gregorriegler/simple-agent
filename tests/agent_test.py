@@ -86,14 +86,7 @@ def test_tool_bash(mock_subprocess, capsys):
     verify_chat(capsys, enter, "use bash", f"🛠️ bash echo hello")
 
 
-def verify_chat(capsys, input_stub, message, answer, rounds=1):
-    result = run_chat_test(capsys, input_stub, message, answer, rounds)
-    verify(result, options=Options().with_scrubber(all_scrubbers()))
-
-
-def run_chat_test(capsys, input_stub, message, answer, rounds=1):
-    builtins.input = input_stub
-
+def create_claude_stub(answer):
     if isinstance(answer, list):
         answer_index = 0
 
@@ -105,8 +98,19 @@ def run_chat_test(capsys, input_stub, message, answer, rounds=1):
                 return result
             else:
                 return answer[-1] if answer else ""
+        return claude_stub
     else:
-        claude_stub = lambda messages, system_prompt: answer
+        return lambda messages, system_prompt: answer
+
+
+def verify_chat(capsys, input_stub, message, answer, rounds=1):
+    claude_stub = create_claude_stub(answer)
+    result = run_chat_test(capsys, input_stub, message, claude_stub, rounds)
+    verify(result, options=Options().with_scrubber(all_scrubbers()))
+
+
+def run_chat_test(capsys, input_stub, message, claude_stub, rounds=1):
+    builtins.input = input_stub
 
     saved_messages = "None"
 
