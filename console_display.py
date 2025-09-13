@@ -3,25 +3,27 @@ from agent import Display
 
 class ConsoleDisplay(Display):
 
-    def __init__(self, indent_level=0):
+    def __init__(self, indent_level=0, print_fn=print):
         self.indent_level = indent_level
+        self.print = print_fn
         self.base_indent = "       " * (indent_level + 1)  # 7 spaces per level
         self.agent_prefix = "       " * indent_level + "Agent: "
 
     def assistant_says(self, message):
         lines = str(message).split('\n')
         if lines:
-            print(f"\n{self.agent_prefix}{lines[0]}")
+
+            self.print(f"\n{self.agent_prefix}{lines[0]}")
             for line in lines[1:]:
-                print(f"{self.base_indent}{line}")
+                self.print(f"{self.base_indent}{line}")
 
     def tool_about_to_execute(self, parsed_tool):
         indented_tool = self._indent_lines(str(parsed_tool), "       " * self.indent_level)
-        print(f"\n{indented_tool}")
+        self.print(f"\n{indented_tool}")
 
     def tool_result(self, result):
         result = self._indent_lines(result, self.base_indent)
-        print(f"\n{result}")
+        self.print(f"\n{result}")
 
     def input(self):
         prompt = "       " * self.indent_level + "Press Enter to continue or type a message to add: "
@@ -29,7 +31,7 @@ class ConsoleDisplay(Display):
 
     def exit(self):
         exit_msg = "       " * self.indent_level + "Exiting..."
-        print(f"\n{exit_msg}")
+        self.print(f"\n{exit_msg}")
 
     def _indent_lines(self, text, prefix="    "):
         lines = str(text).split('\n')
