@@ -27,6 +27,7 @@ class SubagentTool(BaseTool):
         self.message_claude = message_claude
         self.indent_level = indent_level
         self.print_fn = print_fn
+        self.subagent_display = SubagentDisplay(self.indent_level + 1, self.print_fn)
 
     def execute(self, args):
         if not args or not args.strip():
@@ -38,12 +39,11 @@ class SubagentTool(BaseTool):
             from system_prompt_generator import SystemPromptGenerator
 
             system_prompt = SystemPromptGenerator().generate_system_prompt()
-            subagent_display = SubagentDisplay(self.indent_level + 1, self.print_fn)
 
             # Create a new ToolLibrary instance for the subagent to avoid recursion
             from tools.tool_library import ToolLibrary
             subagent_tools = ToolLibrary(self.message_claude, self.indent_level + 1, self.print_fn)
-            subagent = Agent(system_prompt, self.message_claude, subagent_display, subagent_tools)
+            subagent = Agent(system_prompt, self.message_claude, self.subagent_display, subagent_tools)
 
             subagent_chat = Chat()
             subagent_chat.user_says(args.strip())
