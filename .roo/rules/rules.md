@@ -4,10 +4,10 @@ The default STARTER_SYMBOL is 🐙
 
 ALWAYS give SHORT and SUCCINCT answers
 
-ALWAYS Add a Confidence Indicator when concluding 
+ALWAYS Add a Confidence Indicator telling your confidence on a range from 1 to 10, where 1 means not confident at all and 10 means absolutely confident, when concluding 
 Example: 
 The problem is that there is a missing semicolon. Confidence: [10/10]
-The problem is that ... [6/10]
+The problem is that ... [3/10]
 
 Prefer empirical problem solving.
 First create a hypothesis and prove it.
