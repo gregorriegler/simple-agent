@@ -21,8 +21,8 @@ def keyboard_interrupt(_):
     raise KeyboardInterrupt()
 
 
-def test_start_chat_with_new_session(capsys):
-    verify_chat(capsys, enter, "Test message", "Test answer")
+def test_chat_with_regular_response(capsys):
+    verify_chat(capsys, enter, "Hello", "Hello! How can I help you?")
 
 
 def test_abort(capsys):
@@ -42,11 +42,6 @@ def test_tool_cat_integration(capsys, tmp_path):
 def test_tool_ls_integration(capsys, tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
     verify_chat(capsys, enter, "Test message", f"🛠️ ls {directory_path}")
-
-
-def test_chat_with_regular_response(capsys):
-    verify_chat(capsys, enter, "Hello", "Hello! How can I help you?")
-
 
 def test_chat_with_task_completion(capsys):
     verify_chat(capsys, enter, "Say Hello", ["Hello!", "🛠️ complete-task I successfully said hello", "ignored"], rounds=3)
