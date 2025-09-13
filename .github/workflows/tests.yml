@@ -31,4 +31,5 @@ jobs:
       run: uv sync --dev
 
     - name: Run modernizer tests
+      shell: bash
       run: uv run bash test.sh
