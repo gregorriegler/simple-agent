@@ -3,7 +3,7 @@ import sys
 
 class ClaudeConfig:
     def __init__(self):
-        self._script_dir = os.path.dirname(os.path.abspath(__file__))
+        self._script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     def _get_absolute_path(self, filename):
         return os.path.join(self._script_dir, filename)
