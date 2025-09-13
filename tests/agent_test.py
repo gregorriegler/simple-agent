@@ -43,6 +43,7 @@ def test_tool_ls_integration(capsys, tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
     verify_chat(capsys, enter, "Test message", f"🛠️ ls {directory_path}")
 
+
 def test_chat_with_task_completion(capsys):
     verify_chat(capsys, enter, "Say Hello", ["Hello!", "🛠️ complete-task I successfully said hello", "ignored"], rounds=3)
 
@@ -51,7 +52,7 @@ def test_subagent(capsys):
     verify_chat(capsys, enter, "Create a subagent that says hello", ["🛠️ subagent say hello", "hello", "🛠️ complete-task I successfully said hello"])
 
 
-def test_agent_test(capsys):
+def test_nested_agent_test(capsys):
     verify_chat(capsys, enter, "Create a subagent that creates another subagent", [
         "🛠️ subagent create another subagent",
         "🛠️ subagent say nested hello",
@@ -89,7 +90,6 @@ def verify_chat(capsys, input_stub, message, answer, rounds=1):
 def run_chat_test(capsys, input_stub, message, answer, rounds=1):
     builtins.input = input_stub
 
-    # Handle answer as either string or array
     if isinstance(answer, list):
         answer_index = 0
 
@@ -100,7 +100,6 @@ def run_chat_test(capsys, input_stub, message, answer, rounds=1):
                 answer_index += 1
                 return result
             else:
-                # Return last answer if we've exhausted the array
                 return answer[-1] if answer else ""
     else:
         claude_stub = lambda messages, system_prompt: answer
@@ -111,10 +110,8 @@ def run_chat_test(capsys, input_stub, message, answer, rounds=1):
         nonlocal saved_messages
         saved_messages = "\n".join(f"{msg['role']}: {msg['content']}" for msg in chat)
 
-    # Mock system prompt for tests
     system_prompt = "Test system prompt"
 
-    # Create chat with message (simulating new=True behavior)
     chat = Chat()
     print("Starting new session")
 
