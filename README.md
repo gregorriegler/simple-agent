@@ -1,5 +1,7 @@
 # Simple Agent
 
+[![Tests](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml)
+
 ## Components
 
 ### [`agent.py`](agent.py:1)
