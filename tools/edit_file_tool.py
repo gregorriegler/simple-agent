@@ -36,7 +36,13 @@ class EditFileTool(BaseTool):
             "name": "new_content",
             "type": "string",
             "required": False,
-            "description": "New content to replace the specified lines. You may surround the content with quotes, but you don't have to. If you do not use quotes, every character and all following lines are counted as the new_content."
+            "description": "New content to replace or insert at the specified lines. "
+                            "Newline behavior depends on how content is provided: "
+                            "When using quotes, you can use \n for newlines. Without quotes, "
+                            "actual line breaks in the input create newlines. "
+                            "The content will be used exactly as provided, "
+                            "so if you don't end with a newline, "
+                            "it will concatenate with existing content."
         }
     ]
     examples = [

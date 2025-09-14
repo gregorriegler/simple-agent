@@ -43,7 +43,8 @@ Arguments:
  - filename: string (required) - Path to the file to edit
  - edit_mode: string (required) - Edit mode ('replace', 'insert', 'delete')
  - line_range: string (required) - Line range in format 'start-end' or 'line_number' (e.g., '1-3' or '10' for single line)
- - new_content: string (optional) - New content to replace the specified lines. You may surround the content with quotes, but you don't have to. If you do not use quotes, every character and all following lines are counted as the new_content.
+ - new_content: string (optional) - New content to replace or insert at the specified lines. Newline behavior depends on how content is provided: When using quotes, you can use 
+ for newlines. Without quotes, actual line breaks in the input create newlines. The content will be used exactly as provided, so if you don't end with a newline, it will concatenate with existing content.
 
 Usage: 🛠️ edit-file <filename> <edit_mode> <line_range> [new_content]
 
