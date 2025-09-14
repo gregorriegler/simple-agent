@@ -89,6 +89,14 @@ class EditFileTool(BaseTool):
 
         return None
 
+    def execute(self, args):
+        edit_args, error = self._parse_arguments(args)
+        if error:
+            return error
+
+        return self._perform_file_edit(edit_args)
+
+
     def _perform_file_edit(self, edit_args):
         try:
             if not os.path.exists(edit_args.filename):
@@ -101,54 +109,46 @@ class EditFileTool(BaseTool):
             if validation_error:
                 return validation_error
 
-            if len(lines) == 0 and edit_args.start_line == 0 and edit_args.end_line == 0:
-                # For empty files, just add the content if provided
-                if edit_args.new_content is None:
-                    new_lines = []
-                elif '\n' in edit_args.new_content:
-                    replacement_lines = [line + '\n' for line in edit_args.new_content.split('\n') if line]
-                    new_lines = replacement_lines
-                else:
-                    new_lines = [edit_args.new_content + '\n']
-            else:
-                # Convert to 0-based indexing
-                start_idx = edit_args.start_line - 1
-                end_idx = edit_args.end_line - 1
-
-                # Handle deletion or replacement
-                if edit_args.new_content is None:
-                    # Delete lines
-                    replacement_lines = []
-                elif '\n' in edit_args.new_content:
-                    replacement_lines = [line + '\n' for line in edit_args.new_content.split('\n') if line]
-                else:
-                    # For single-line content, preserve the original line ending behavior
-                    last_replaced_line = lines[end_idx] if end_idx < len(lines) else ''
-                    if last_replaced_line.endswith('\n'):
-                        replacement_lines = [edit_args.new_content + '\n']
+            if edit_args.edit_mode == "insert":
+                new_content = edit_args.new_content.splitlines(keepends=True)
+                lines[edit_args.start_line-1:edit_args.start_line-1] = new_content
+                new_lines = lines
+            if edit_args.edit_mode == "replace":
+                if len(lines) == 0 and edit_args.start_line == 0 and edit_args.end_line == 0:
+                    if edit_args.new_content is None:
+                        new_lines = []
+                    elif '\n' in edit_args.new_content:
+                        new_lines = [line + '\n' for line in edit_args.new_content.split('\n') if line]
                     else:
-                        replacement_lines = [edit_args.new_content]
+                        new_lines = [edit_args.new_content + '\n']
+                else:
+                    # Convert to 0-based indexing
+                    start_idx = edit_args.start_line - 1
+                    end_idx = edit_args.end_line - 1
 
-                new_lines = lines[:start_idx] + replacement_lines + lines[end_idx + 1:]
+                    # Handle deletion or replacement
+                    if edit_args.new_content is None:
+                        # Delete lines
+                        replacement_lines = []
+                    elif '\n' in edit_args.new_content:
+                        replacement_lines = [line + '\n' for line in edit_args.new_content.split('\n') if line]
+                    else:
+                        # For single-line content, preserve the original line ending behavior
+                        last_replaced_line = lines[end_idx] if end_idx < len(lines) else ''
+                        if last_replaced_line.endswith('\n'):
+                            replacement_lines = [edit_args.new_content + '\n']
+                        else:
+                            replacement_lines = [edit_args.new_content]
+
+                    new_lines = lines[:start_idx] + replacement_lines + lines[end_idx + 1:]
 
             # Write back to file
             with open(edit_args.filename, 'w', encoding='utf-8') as f:
                 f.writelines(new_lines)
 
-            return f"Successfully edited {edit_args.filename}, lines {edit_args.start_line}-{edit_args.end_line}"
+            return f"Successfully edited {edit_args.filename}"
 
         except OSError as e:
             return f'Error editing file "{edit_args.filename}": {str(e)}'
         except Exception as e:
             return f'Unexpected error editing file "{edit_args.filename}": {str(e)}'
-
-
-    def execute(self, args):
-        edit_args, error = self._parse_arguments(args)
-        if error:
-            return error
-
-        if edit_args.edit_mode == "replace":
-            return self._perform_file_edit(edit_args)
-        else:
-            return "Error: Unknown mode"

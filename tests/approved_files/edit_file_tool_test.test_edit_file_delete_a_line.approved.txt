@@ -2,7 +2,7 @@ Command:
 🛠️ edit-file test.txt replace 1-1
 
 Result:
-Successfully edited test.txt, lines 1-1
+Successfully edited test.txt
 
 Initial file: test.txt
 Initial content:

@@ -2,7 +2,7 @@ Command:
 🛠️ edit-file test.txt replace 2-3 newline
 
 Result:
-Successfully edited test.txt, lines 2-3
+Successfully edited test.txt
 
 Initial file: test.txt
 Initial content:

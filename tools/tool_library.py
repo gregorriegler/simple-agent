@@ -67,12 +67,11 @@ class ToolLibrary:
             return "\n".join(info_lines)
 
     def parse_tool(self, text):
-        pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?$'
-        lines = text.splitlines()
+        pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?'
+        lines = text.splitlines(keepends=True)
 
         for i, line in enumerate(lines):
-            line = line.strip()
-            match = re.match(pattern, line)
+            match = re.match(pattern, line, re.DOTALL)
             if match:
                 command, same_line_args = match.groups()
                 tool = self.tool_dict.get(command)
@@ -82,14 +81,14 @@ class ToolLibrary:
                 all_arg_lines=[]
                 if same_line_args: all_arg_lines.append(same_line_args)
                 if lines[i + 1:]: all_arg_lines.extend(lines[i + 1:])
-                arguments = '\n'.join(all_arg_lines)
+                arguments = ''.join(all_arg_lines)
 
                 return ParsedTool(command, arguments, tool)
         return None
 
     @staticmethod
     def execute_parsed_tool(parsed_tool):
-        args = parsed_tool.arguments.strip() if parsed_tool.arguments else None
+        args = parsed_tool.arguments if parsed_tool.arguments else None
         result = parsed_tool.tool_instance.execute(args)
         return result
 

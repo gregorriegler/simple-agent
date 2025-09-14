@@ -35,9 +35,20 @@ def test_edit_file_replace_empty_lines_with_function(tmp_path):
     verify_edit_tool(library, "template.py", initial_content, command, tmp_path=tmp_path)
 
 
-def test_edit_file_add_two_lines_to_empty_file(tmp_path):
-    command = "🛠️ edit-file empty.txt replace 0-0 line1\nline2"
+def test_edit_file_insert_two_lines_to_empty_file(tmp_path):
+    command = "🛠️ edit-file empty.txt insert 1 line1\nline2"
     verify_edit_tool(library, "empty.txt", "", command, tmp_path=tmp_path)
+
+
+def test_edit_file_insert_three_lines_to_empty_file(tmp_path):
+    command = "🛠️ edit-file empty.txt insert 1 line1\nline2\nline3"
+    verify_edit_tool(library, "empty.txt", "", command, tmp_path=tmp_path)
+
+
+def test_edit_file_insert_a_line_between_two_lines(tmp_path):
+    initial_content = "line1\nline2"
+    command = "🛠️ edit-file test.txt insert 2 line1.5\n"
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_delete_a_line(tmp_path):

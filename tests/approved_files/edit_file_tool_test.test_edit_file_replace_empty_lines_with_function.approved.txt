@@ -3,7 +3,7 @@ Command:
     return 'world'
 
 Result:
-Successfully edited template.py, lines 3-5
+Successfully edited template.py
 
 Initial file: template.py
 Initial content:

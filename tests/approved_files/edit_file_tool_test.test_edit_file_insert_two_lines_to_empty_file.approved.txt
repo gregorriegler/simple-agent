@@ -1,17 +1,19 @@
 Command:
-🛠️ edit-file test.txt replace 1 b
+🛠️ edit-file empty.txt insert 1 line1
+line2
 
 Result:
-Successfully edited test.txt
+Successfully edited empty.txt
 
-Initial file: test.txt
+Initial file: empty.txt
 Initial content:
 --- INITIAL CONTENT START ---
-a
+
 --- INITIAL CONTENT END ---
 
-File after edit: test.txt
+File after edit: empty.txt
 Final content:
 --- FINAL CONTENT START ---
-b
+line1
+line2
 --- FINAL CONTENT END ---
