@@ -30,7 +30,7 @@ class EditFileTool(BaseTool):
             "name": "line_range",
             "type": "string",
             "required": True,
-            "description": "Line range in format 'start-end' (e.g., '1-3' or '10-10' for single line)"
+            "description": "Line range in format 'start-end' or 'line_number' (e.g., '1-3' or '10' for single line)"
         },
         {
             "name": "new_content",
@@ -58,7 +58,10 @@ class EditFileTool(BaseTool):
 
         try:
             line_range = parts[2]
-            start_line, end_line = map(int, line_range.split('-'))
+            if '-' in line_range:
+                start_line, end_line = map(int, line_range.split('-'))
+            else:
+                start_line = end_line = int(parts[2])
             new_content = parts[3].replace('\\n', '\n') if len(parts) > 3 else None
 
             edit_args = EditFileArgs(

@@ -7,7 +7,7 @@ library = ToolLibrary()
 
 
 def test_edit_file_replace_single_character(tmp_path):
-    verify_edit_tool(library, "test.txt", "a", "🛠️ edit-file test.txt replace 1-1 b", tmp_path=tmp_path)
+    verify_edit_tool(library, "test.txt", "a", "🛠️ edit-file test.txt replace 1 b", tmp_path=tmp_path)
 
 
 def test_edit_file_replace_single_word(tmp_path):
