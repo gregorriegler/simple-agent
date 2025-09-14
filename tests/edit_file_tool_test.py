@@ -7,42 +7,42 @@ library = ToolLibrary()
 
 
 def test_edit_file_replace_single_character(tmp_path):
-    verify_edit_tool(library, "test.txt", "a", "🛠️ edit-file test.txt 1-1 b", tmp_path=tmp_path)
+    verify_edit_tool(library, "test.txt", "a", "🛠️ edit-file test.txt replace 1-1 b", tmp_path=tmp_path)
 
 
 def test_edit_file_replace_single_word(tmp_path):
-    verify_edit_tool(library, "test.txt", "old", "🛠️ edit-file test.txt 1-1 new", tmp_path=tmp_path)
+    verify_edit_tool(library, "test.txt", "old", "🛠️ edit-file test.txt replace 1-1 new", tmp_path=tmp_path)
 
 
 def test_edit_file_replace_two_consecutive_lines_with_one(tmp_path):
-    verify_edit_tool(library, "test.txt", "line1\nline2\nline3", "🛠️ edit-file test.txt 2-3 newline", tmp_path=tmp_path)
+    verify_edit_tool(library, "test.txt", "line1\nline2\nline3", "🛠️ edit-file test.txt replace 2-3 newline", tmp_path=tmp_path)
 
 
 def test_edit_file_replace_two_consecutive_lines_with_two(tmp_path):
-    command = "🛠️ edit-file test.txt 2-3 newline1\nnewline2"
+    command = "🛠️ edit-file test.txt replace 2-3 newline1\nnewline2"
     verify_edit_tool(library, "test.txt", "line1\nline2\nline3", command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_two_consecutive_lines_with_four(tmp_path):
-    command = "🛠️ edit-file test.txt 2-3 newline1\nnewline2\nnewline3\nnewline4"
+    command = "🛠️ edit-file test.txt replace 2-3 newline1\nnewline2\nnewline3\nnewline4"
     verify_edit_tool(library, "test.txt", "line1\nline2\nline3", command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_empty_lines_with_function(tmp_path):
     initial_content = "line1\nline2\n\n\n\nline6"
     function_def = "def hello():\n    return 'world'"
-    command = f"🛠️ edit-file template.py 3-5 {function_def}"
+    command = f"🛠️ edit-file template.py replace 3-5 {function_def}"
     verify_edit_tool(library, "template.py", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_add_two_lines_to_empty_file(tmp_path):
-    command = "🛠️ edit-file empty.txt 0-0 line1\\nline2"
+    command = "🛠️ edit-file empty.txt replace 0-0 line1\\nline2"
     verify_edit_tool(library, "empty.txt", "", command, tmp_path=tmp_path)
 
 
 def test_edit_file_delete_a_line(tmp_path):
     initial_content = "line1\nline2"
-    command = "🛠️ edit-file test.txt 1-1"
+    command = "🛠️ edit-file test.txt replace 1-1"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 

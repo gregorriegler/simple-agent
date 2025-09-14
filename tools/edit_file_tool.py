@@ -5,6 +5,7 @@ from dataclasses import dataclass
 @dataclass
 class EditFileArgs:
     filename: str
+    edit_mode: str
     start_line: int
     end_line: int
     new_content: str | None
@@ -20,6 +21,12 @@ class EditFileTool(BaseTool):
             "description": "Path to the file to edit"
         },
         {
+            "name": "edit_mode",
+            "type": "string",
+            "required": True,
+            "description": "Edit mode ('replace', 'insert', 'delete')"
+        },
+        {
             "name": "line_range",
             "type": "string",
             "required": True,
@@ -33,9 +40,8 @@ class EditFileTool(BaseTool):
         }
     ]
     examples = [
-        "🛠️ edit-file myfile.txt 1-3 Hello World",
+        "🛠️ edit-file myfile.txt replace 1-3 Hello World",
         "to delete the first line\n🛠️ edit-file test.txt 1-1",
-
     ]
 
     def __init__(self, runcommand):
@@ -46,18 +52,18 @@ class EditFileTool(BaseTool):
         if not args:
             return None, 'No arguments specified'
 
-        parts = args.split(' ', 2)
-        if len(parts) < 2:
-            return None, 'Usage: edit-file <filename> <line_range> [new_content]'
+        parts = args.split(' ', 3)
+        if len(parts) < 3:
+            return None, 'Usage: edit-file <filename> <edit_mode> <line_range> [new_content]'
 
         try:
-            line_range = parts[1]
+            line_range = parts[2]
             start_line, end_line = map(int, line_range.split('-'))
-
-            new_content = parts[2].replace('\\n', '\n') if len(parts) > 2 else None
+            new_content = parts[3].replace('\\n', '\n') if len(parts) > 3 else None
 
             edit_args = EditFileArgs(
                 filename=parts[0],
+                edit_mode=parts[1],
                 start_line=start_line,
                 end_line=end_line,
                 new_content=new_content
@@ -139,4 +145,7 @@ class EditFileTool(BaseTool):
         if error:
             return error
 
-        return self._perform_file_edit(edit_args)
+        if edit_args.edit_mode == "replace":
+            return self._perform_file_edit(edit_args)
+        else:
+            return "Error: Unknown mode"

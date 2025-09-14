@@ -1,5 +1,5 @@
 Command:
-🛠️ edit-file test.txt 1-1
+🛠️ edit-file test.txt replace 1-1
 
 Result:
 Successfully edited test.txt, lines 1-1
