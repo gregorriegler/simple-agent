@@ -80,7 +80,12 @@ class ToolLibrary:
 
                 all_arg_lines=[]
                 if same_line_args: all_arg_lines.append(same_line_args)
-                if lines[i + 1:]: all_arg_lines.extend(lines[i + 1:])
+
+                for j in range(i + 1, len(lines)):
+                    if re.match(r'^🛠️ ', lines[j]):
+                        break
+                    all_arg_lines.append(lines[j])
+
                 arguments = ''.join(all_arg_lines)
 
                 return ParsedTool(command, arguments, tool)

@@ -55,6 +55,10 @@ def test_create_tool_on_second_line_with_multiline_content(tmp_path):
     verify_create_tool(library, "let me create a file\n🛠️ create-file test.txt Line1\nLine2", "test.txt", tmp_path=tmp_path)
 
 
+def test_create_tool_stops_at_next_command(tmp_path):
+    verify_create_tool(library, "🛠️ create-file test.txt Line1\nLine2\n🛠️ ls", "test.txt", tmp_path=tmp_path)
+
+
 def verify_create_tool(library, command, expected_filename, tmp_path):
     with temp_directory(tmp_path):
         tool = library.parse_tool(command)
