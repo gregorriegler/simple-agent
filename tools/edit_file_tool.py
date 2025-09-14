@@ -36,7 +36,7 @@ class EditFileTool(BaseTool):
             "name": "new_content",
             "type": "string",
             "required": False,
-            "description": "New content to replace the specified lines (use \\n for newlines). If omitted, lines will be deleted."
+            "description": "New content to replace the specified lines."
         }
     ]
     examples = [
@@ -62,7 +62,7 @@ class EditFileTool(BaseTool):
                 start_line, end_line = map(int, line_range.split('-'))
             else:
                 start_line = end_line = int(parts[2])
-            new_content = parts[3].replace('\\n', '\n') if len(parts) > 3 else None
+            new_content = parts[3] if len(parts) > 3 else None
 
             edit_args = EditFileArgs(
                 filename=parts[0],
