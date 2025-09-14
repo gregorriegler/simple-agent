@@ -65,6 +65,10 @@ class EditFileTool(BaseTool):
                 start_line = end_line = int(parts[2])
             new_content = parts[3] if len(parts) > 3 else None
 
+            if new_content and new_content.startswith('"') and new_content.endswith('"'):
+                new_content = new_content[1:-1]  # Remove surrounding quotes
+                new_content = new_content.replace('\\n', '\n')  # Convert \n to actual newlines
+
             edit_args = EditFileArgs(
                 filename=parts[0],
                 edit_mode=parts[1],
@@ -114,11 +118,10 @@ class EditFileTool(BaseTool):
                 new_content = edit_args.new_content.splitlines(keepends=True)
                 lines[edit_args.start_line-1:edit_args.start_line-1] = new_content
                 new_lines = lines
-            if edit_args.edit_mode == "delete":
+            elif edit_args.edit_mode == "delete":
                 lines_to_delete = list(range(edit_args.start_line, edit_args.end_line + 1))
                 new_lines = [line for i, line in enumerate(lines, start=1) if i not in lines_to_delete]
-
-            if edit_args.edit_mode == "replace":
+            elif edit_args.edit_mode == "replace":
                 if len(lines) == 0 and edit_args.start_line == 0 and edit_args.end_line == 0:
                     if edit_args.new_content is None:
                         new_lines = []
@@ -146,6 +149,8 @@ class EditFileTool(BaseTool):
                             replacement_lines = [edit_args.new_content]
 
                     new_lines = lines[:start_idx] + replacement_lines + lines[end_idx + 1:]
+            else:
+                return f"Invalid edit mode: {edit_args.edit_mode}. Supported modes: insert, delete, replace"
 
             # Write back to file
             with open(edit_args.filename, 'w', encoding='utf-8') as f:
