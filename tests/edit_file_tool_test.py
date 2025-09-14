@@ -40,6 +40,12 @@ def test_edit_file_add_two_lines_to_empty_file(tmp_path):
     verify_edit_tool(library, "empty.txt", "", command, tmp_path=tmp_path)
 
 
+def test_edit_file_delete_a_line(tmp_path):
+    initial_content = "line1\nline2"
+    command = "🛠️ edit-file test.txt 1-1"
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
 def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
     with temp_directory(tmp_path):
         with open(setup_file, "w", encoding='utf-8') as f:

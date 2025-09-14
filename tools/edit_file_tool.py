@@ -7,7 +7,7 @@ class EditFileArgs:
     filename: str
     start_line: int
     end_line: int
-    new_content: str
+    new_content: str | None
 
 class EditFileTool(BaseTool):
     name = "edit-file"
@@ -28,18 +28,15 @@ class EditFileTool(BaseTool):
         {
             "name": "new_content",
             "type": "string",
-            "required": True,
-            "description": "New content to replace the specified lines (use \\n for newlines)"
+            "required": False,
+            "description": "New content to replace the specified lines (use \\n for newlines). If omitted, lines will be deleted."
         }
     ]
     examples = [
         "🛠️ edit-file myfile.txt 1-3 Hello World",
-        "🛠️ edit-file script.py 10-10 print(\"debug\")"
-    ]
+        "to delete the first line\n🛠️ edit-file test.txt 1-1",
 
-    # Constants for argument parsing
-    MAX_SPLIT_PARTS = 2  # Split into filename, line_range, new_content
-    EXPECTED_ARG_COUNT = 3
+    ]
 
     def __init__(self, runcommand):
         super().__init__()
@@ -49,15 +46,16 @@ class EditFileTool(BaseTool):
         if not args:
             return None, 'No arguments specified'
 
-        parts = args.split(' ', self.MAX_SPLIT_PARTS)
-        if len(parts) < self.EXPECTED_ARG_COUNT:
-            return None, 'Usage: edit-file <filename> <line_range> <new_content>'
+        parts = args.split(' ', 2)
+        if len(parts) < 2:
+            return None, 'Usage: edit-file <filename> <line_range> [new_content]'
 
         try:
             line_range = parts[1]
             start_line, end_line = map(int, line_range.split('-'))
 
-            new_content = parts[2].replace('\\n', '\n')
+            new_content = parts[2].replace('\\n', '\n') if len(parts) > 2 else None
+
             edit_args = EditFileArgs(
                 filename=parts[0],
                 start_line=start_line,
@@ -95,24 +93,27 @@ class EditFileTool(BaseTool):
                 return validation_error
 
             if len(lines) == 0 and edit_args.start_line == 0 and edit_args.end_line == 0:
-                # For empty files, just add the content
-                if '\n' in edit_args.new_content:
+                # For empty files, just add the content if provided
+                if edit_args.new_content is None:
+                    new_lines = []
+                elif '\n' in edit_args.new_content:
                     replacement_lines = [line + '\n' for line in edit_args.new_content.split('\n') if line]
+                    new_lines = replacement_lines
                 else:
-                    replacement_lines = [edit_args.new_content + '\n']
-                new_lines = replacement_lines
+                    new_lines = [edit_args.new_content + '\n']
             else:
                 # Convert to 0-based indexing
                 start_idx = edit_args.start_line - 1
                 end_idx = edit_args.end_line - 1
 
-                # Replace the lines
-                # Handle multi-line content by splitting on \n and ensuring proper line endings
-                if '\n' in edit_args.new_content:
+                # Handle deletion or replacement
+                if edit_args.new_content is None:
+                    # Delete lines
+                    replacement_lines = []
+                elif '\n' in edit_args.new_content:
                     replacement_lines = [line + '\n' for line in edit_args.new_content.split('\n') if line]
                 else:
                     # For single-line content, preserve the original line ending behavior
-                    # Check if the last line being replaced had a newline to determine if we should add one
                     last_replaced_line = lines[end_idx] if end_idx < len(lines) else ''
                     if last_replaced_line.endswith('\n'):
                         replacement_lines = [edit_args.new_content + '\n']

@@ -7,8 +7,8 @@ Arguments:
 Usage: 🛠️ ls [path]
 
 Examples:
-  🛠️ ls
-  🛠️ ls /home/user
+🛠️ ls
+🛠️ ls /home/user
 
 ## cat
 Display file contents with line numbers
@@ -20,8 +20,8 @@ Arguments:
 Usage: 🛠️ cat <filename> [line_range]
 
 Examples:
-  🛠️ cat myfile.txt
-  🛠️ cat script.py 1-20
+🛠️ cat myfile.txt
+🛠️ cat script.py 1-20
 
 ## create-file
 Create new files with optional content
@@ -33,8 +33,8 @@ Arguments:
 Usage: 🛠️ create-file <filename> [content]
 
 Examples:
-  🛠️ create-file newfile.txt
-  🛠️ create-file script.py print("Hello World")
+🛠️ create-file newfile.txt
+🛠️ create-file script.py print("Hello World")
 
 ## edit-file
 Edit files by replacing content in specified line ranges
@@ -42,13 +42,14 @@ Edit files by replacing content in specified line ranges
 Arguments:
  - filename: string (required) - Path to the file to edit
  - line_range: string (required) - Line range in format 'start-end' (e.g., '1-3' or '10-10' for single line)
- - new_content: string (required) - New content to replace the specified lines (use \n for newlines)
+ - new_content: string (optional) - New content to replace the specified lines (use \n for newlines). If omitted, lines will be deleted.
 
-Usage: 🛠️ edit-file <filename> <line_range> <new_content>
+Usage: 🛠️ edit-file <filename> <line_range> [new_content]
 
 Examples:
-  🛠️ edit-file myfile.txt 1-3 Hello World
-  🛠️ edit-file script.py 10-10 print("debug")
+🛠️ edit-file myfile.txt 1-3 Hello World
+to delete the first line
+🛠️ edit-file test.txt 1-1
 
 ## subagent
 Create a subagent to handle a specific task using the same agent architecture
@@ -59,8 +60,8 @@ Arguments:
 Usage: 🛠️ subagent <task_description>
 
 Examples:
-  🛠️ subagent Write a Python function to calculate fibonacci numbers
-  🛠️ subagent Create a simple HTML page with a form
+🛠️ subagent Write a Python function to calculate fibonacci numbers
+🛠️ subagent Create a simple HTML page with a form
 
 ## complete-task
 Signal task completion with a summary of what was accomplished
@@ -71,8 +72,8 @@ Arguments:
 Usage: 🛠️ complete-task <summary>
 
 Examples:
-  🛠️ complete-task Successfully created the user registration system
-  🛠️ complete-task Fixed the bug in the payment processing module
+🛠️ complete-task Successfully created the user registration system
+🛠️ complete-task Fixed the bug in the payment processing module
 
 ## bash
 Execute bash commands
@@ -83,6 +84,6 @@ Arguments:
 Usage: 🛠️ bash <command>
 
 Examples:
-  🛠️ bash echo hello
-  🛠️ bash ls -la
-  🛠️ bash pwd
+🛠️ bash echo hello
+🛠️ bash ls -la
+🛠️ bash pwd

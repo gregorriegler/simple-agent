@@ -48,6 +48,6 @@ class BaseTool:
             lines.append("")
             lines.append("Examples:")
             for example in self.examples:
-                lines.append(f"  {example}")
+                lines.append(f"{example}")
 
         return "\n".join(lines)
