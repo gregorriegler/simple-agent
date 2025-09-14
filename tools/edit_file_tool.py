@@ -122,7 +122,8 @@ class EditFileTool(BaseTool):
                 return validation_error
 
             if edit_args.edit_mode == "insert":
-                if edit_args.new_content and not edit_args.new_content.endswith('\n') and '\n' not in edit_args.new_content:
+                inserting_between_lines = edit_args.start_line <= len(lines)
+                if edit_args.new_content and not edit_args.new_content.endswith('\n') and inserting_between_lines:
                     content_with_newline = edit_args.new_content + '\n'
                     new_content = content_with_newline.splitlines(keepends=True)
                 else:

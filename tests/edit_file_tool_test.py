@@ -62,6 +62,12 @@ def test_edit_file_insert_line_without_explicit_newline_adds_newline_automatical
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
+def test_edit_file_insert_multiline_without_trailing_newline_adds_newline_automatically(tmp_path):
+    initial_content = "line1\nline2"
+    command = "🛠️ edit-file test.txt insert 2 inserted_line1\ninserted_line2"
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
 def test_edit_file_delete_a_line(tmp_path):
     initial_content = "line1\nline2"
     command = "🛠️ edit-file test.txt delete 1"
