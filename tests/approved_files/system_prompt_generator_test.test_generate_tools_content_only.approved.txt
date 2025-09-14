@@ -49,8 +49,10 @@ Usage: 🛠️ edit-file <filename> <edit_mode> <line_range> [new_content]
 
 Examples:
 🛠️ edit-file myfile.txt replace 1-3 Hello World
+to insert a new line at the top
+🛠️ edit-file test.txt insert 1 New Headline
 to delete the first line
-🛠️ edit-file test.txt 1-1
+🛠️ edit-file test.txt delete 1
 
 ## subagent
 Create a subagent to handle a specific task using the same agent architecture

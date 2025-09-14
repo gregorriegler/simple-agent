@@ -41,7 +41,8 @@ class EditFileTool(BaseTool):
     ]
     examples = [
         "🛠️ edit-file myfile.txt replace 1-3 Hello World",
-        "to delete the first line\n🛠️ edit-file test.txt 1-1",
+        "to insert a new line at the top\n🛠️ edit-file test.txt insert 1 New Headline\n"
+        "to delete the first line\n🛠️ edit-file test.txt delete 1",
     ]
 
     def __init__(self, runcommand):
@@ -113,6 +114,10 @@ class EditFileTool(BaseTool):
                 new_content = edit_args.new_content.splitlines(keepends=True)
                 lines[edit_args.start_line-1:edit_args.start_line-1] = new_content
                 new_lines = lines
+            if edit_args.edit_mode == "delete":
+                lines_to_delete = list(range(edit_args.start_line, edit_args.end_line + 1))
+                new_lines = [line for i, line in enumerate(lines, start=1) if i not in lines_to_delete]
+
             if edit_args.edit_mode == "replace":
                 if len(lines) == 0 and edit_args.start_line == 0 and edit_args.end_line == 0:
                     if edit_args.new_content is None:

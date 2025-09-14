@@ -53,7 +53,7 @@ def test_edit_file_insert_a_line_between_two_lines(tmp_path):
 
 def test_edit_file_delete_a_line(tmp_path):
     initial_content = "line1\nline2"
-    command = "🛠️ edit-file test.txt replace 1-1"
+    command = "🛠️ edit-file test.txt delete 1"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
