@@ -28,6 +28,11 @@ def test_edit_file_replace_two_consecutive_lines_with_four(tmp_path):
     verify_edit_tool(library, "test.txt", "line1\nline2\nline3", command, tmp_path=tmp_path)
 
 
+def test_edit_file_replace_a_lines_with_lines_in_quotes(tmp_path):
+    command = "🛠️ edit-file test.txt replace 2 \"insert1\ninsert2\""
+    verify_edit_tool(library, "test.txt", "line1\nline2", command, tmp_path=tmp_path)
+
+
 def test_edit_file_replace_empty_lines_with_function(tmp_path):
     initial_content = "line1\nline2\n\n\n\nline6"
     function_def = "def hello():\n    return 'world'"

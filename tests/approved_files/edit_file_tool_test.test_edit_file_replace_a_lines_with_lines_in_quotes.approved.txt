@@ -1,0 +1,22 @@
+Command:
+🛠️ edit-file test.txt replace 2 "insert1
+insert2"
+
+Result:
+Successfully edited test.txt
+
+Initial file: test.txt
+Initial content:
+--- INITIAL CONTENT START ---
+line1
+line2
+--- INITIAL CONTENT END ---
+
+File after edit: test.txt
+Final content:
+--- FINAL CONTENT START ---
+line1
+insert1
+insert2
+
+--- FINAL CONTENT END ---
