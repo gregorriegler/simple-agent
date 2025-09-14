@@ -36,13 +36,14 @@ class EditFileTool(BaseTool):
             "name": "new_content",
             "type": "string",
             "required": False,
-            "description": "New content to replace the specified lines."
+            "description": "New content to replace the specified lines. You may surround the content with quotes, but you don't have to. If you do not use quotes, every character and all following lines are counted as the new_content."
         }
     ]
     examples = [
-        "🛠️ edit-file myfile.txt replace 1-3 Hello World",
-        "to insert a new line at the top\n🛠️ edit-file test.txt insert 1 New Headline\n"
+        "🛠️ edit-file myfile.txt replace 1-3 \"Hello World\"",
         "to delete the first line\n🛠️ edit-file test.txt delete 1",
+        "to insert a new line at the top\n🛠️ edit-file test.txt insert 1 New Headline\n",
+        "to insert a multiline string at the top\n🛠️ edit-file test.txt insert 1 New Headline\nNew Subheadline\n"
     ]
 
     def __init__(self, runcommand):
