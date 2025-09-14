@@ -88,8 +88,6 @@ class EditFileTool(BaseTool):
             return None, 'Invalid line range format. Use format "start-end" (e.g., "1-5")'
 
     def _validate_line_range(self, start_line, end_line, total_lines):
-        """Validate that the line range is valid for the file."""
-        # Special case: allow 0-0 for empty files (append mode)
         if total_lines == 0:
             return None
 
@@ -117,23 +115,34 @@ class EditFileTool(BaseTool):
             with open(edit_args.filename, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
 
-            validation_error = self._validate_line_range(edit_args.start_line, edit_args.end_line, len(lines))
-            if validation_error:
-                return validation_error
-
             if edit_args.edit_mode == "insert":
+                if edit_args.start_line > len(lines) + 1:
+                    return f"Invalid line range: {edit_args.start_line} {edit_args.end_line} for file with {len(lines)} lines"
+
                 inserting_between_lines = edit_args.start_line <= len(lines)
                 if edit_args.new_content and not edit_args.new_content.endswith('\n') and inserting_between_lines:
                     content_with_newline = edit_args.new_content + '\n'
                     new_content = content_with_newline.splitlines(keepends=True)
                 else:
                     new_content = edit_args.new_content.splitlines(keepends=True)
-                lines[edit_args.start_line-1:edit_args.start_line-1] = new_content
+
+                if edit_args.start_line > len(lines):
+                    if lines and not lines[-1].endswith('\n'):
+                        lines[-1] = lines[-1] + '\n'
+                    lines.extend(new_content)
+                else:
+                    lines[edit_args.start_line-1:edit_args.start_line-1] = new_content
                 new_lines = lines
             elif edit_args.edit_mode == "delete":
+                validation_error = self._validate_line_range(edit_args.start_line, edit_args.end_line, len(lines))
+                if validation_error:
+                    return validation_error
                 lines_to_delete = list(range(edit_args.start_line, edit_args.end_line + 1))
                 new_lines = [line for i, line in enumerate(lines, start=1) if i not in lines_to_delete]
             elif edit_args.edit_mode == "replace":
+                validation_error = self._validate_line_range(edit_args.start_line, edit_args.end_line, len(lines))
+                if validation_error:
+                    return validation_error
                 if len(lines) == 0 and edit_args.start_line == 0 and edit_args.end_line == 0:
                     if edit_args.new_content is None:
                         new_lines = []
