@@ -116,9 +116,6 @@ class EditFileTool(BaseTool):
                 lines = f.readlines()
 
             if edit_args.edit_mode == "insert":
-                if edit_args.start_line > len(lines) + 1:
-                    return f"Invalid line range: {edit_args.start_line} {edit_args.end_line} for file with {len(lines)} lines"
-
                 inserting_between_lines = edit_args.start_line <= len(lines)
                 if edit_args.new_content and not edit_args.new_content.endswith('\n') and inserting_between_lines:
                     content_with_newline = edit_args.new_content + '\n'
@@ -127,8 +124,15 @@ class EditFileTool(BaseTool):
                     new_content = edit_args.new_content.splitlines(keepends=True)
 
                 if edit_args.start_line > len(lines):
+                    # Ensure last line has newline if it exists
                     if lines and not lines[-1].endswith('\n'):
                         lines[-1] = lines[-1] + '\n'
+                    
+                    # Pad with empty lines if inserting far beyond the end
+                    lines_to_add = edit_args.start_line - len(lines) - 1
+                    if lines_to_add > 0:
+                        lines.extend(['\n'] * lines_to_add)
+                    
                     lines.extend(new_content)
                 else:
                     lines[edit_args.start_line-1:edit_args.start_line-1] = new_content

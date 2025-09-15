@@ -74,6 +74,12 @@ def test_edit_file_insert_beyond_last_line_appends_to_end(tmp_path):
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
+def test_edit_file_insert_far_beyond_last_line_appends_to_end_and_pads_with_empty_lines(tmp_path):
+    initial_content = "line1\nline2"
+    command = "🛠️ edit-file test.txt insert 10 line10"
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
 def test_edit_file_delete_a_line(tmp_path):
     initial_content = "line1\nline2"
     command = "🛠️ edit-file test.txt delete 1"

@@ -1,0 +1,27 @@
+Command:
+🛠️ edit-file test.txt insert 10 line10
+
+Result:
+Successfully edited test.txt
+
+Initial file: test.txt
+Initial content:
+--- INITIAL CONTENT START ---
+line1
+line2
+--- INITIAL CONTENT END ---
+
+File after edit: test.txt
+Final content:
+--- FINAL CONTENT START ---
+line1
+line2
+
+
+
+
+
+
+
+line10
+--- FINAL CONTENT END ---
