@@ -16,8 +16,7 @@ Do not assume that I (the user) am always right.
 # Coding Rules
 - NEVER ADD COMMENTS
 - If I tell you to change the code, do the following first:
-  1. Run `git status`, we do not start with a dirty git status
-  2. Run `test.sh`, we do not start with failing tests
+  1. Run `test.sh`, we do not start with failing tests
 - AFTER EACH STEP: run `./test.sh` again
 - As we read from top to bottom, called functions should be below their calling functions
 - Avoid else if possible
@@ -27,20 +26,20 @@ Do not assume that I (the user) am always right.
 - We use uv
 
 ## Design rules
-- Each class goes into its own file, unless its only used by the other class in the file and it both fits into 100 lines
-- declare a variable as late as possible and as close as possible to where it is used
+- Each class goes into its own file, unless its only used by the other class in the same file and it both fits into 100 lines
+- declare a variable as late as possible and as close as possible to where it is used, except imports
 - When a function uses only a derived, or a small percentage of properties of a passed object, pass the specific elements instead.
 - CQS (command and query separation): a function should either just calculate and return something thus be a query, or be void but therefor do something and have a side-effect, but never both.
 
 ## Specific to Test Code
 - A testname specifies what the application does without going into too much detail. The name describes a fact. The name should not contain can/should/handle in its name.
 - Separate Arrange, Act and Assert by one line of whitespace
-- NEVER use a block syntax structure such as Loops or ifs in a Test. The test has only one path and it knows the expected outcome. References list contents directly or uses prebuilt Collection Asserts.
+- NEVER use a block syntax structure such as Loops or ifs in a test. The test has only one path and it knows the expected outcome. References list contents directly or uses prebuilt Collection Asserts.
 - Test readability trumps code reuse!
   - Keep test data inline when the data structure IS what's being tested.
 
 # Commandline rules
-- We are in Bash!!! ALWAYS USE BASH Commands!!!
+- We are in Bash
 - for interacting with github use the github cli
 - avoid interactive commands such as `git diff`.
   - E.g. use `git --no-pager diff` instead
