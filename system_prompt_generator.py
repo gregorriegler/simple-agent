@@ -8,10 +8,14 @@ class SystemPromptGenerator:
 
     def generate_system_prompt(self):
         template_content = self._read_system_prompt_template()
-
+        agents_content = self._read_agents_content()
         tools_content = self._generate_tools_content()
-
-        return template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
+        
+        # Replace the dynamic tools placeholder
+        result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
+        
+        # Add agents content at the beginning
+        return agents_content + "\n\n" + result
 
     def _read_system_prompt_template(self):
         import os
@@ -23,6 +27,18 @@ class SystemPromptGenerator:
                 return f.read()
         except FileNotFoundError:
             raise FileNotFoundError(f"system-prompt.md template file not found at {template_path}")
+
+    def _read_agents_content(self):
+        import os
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        agents_path = os.path.join(script_dir, "AGENTS.md")
+        
+        try:
+            with open(agents_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except FileNotFoundError:
+            # If AGENTS.md doesn't exist, return empty string to avoid breaking
+            return ""
 
     def _generate_tools_content(self):
         tools_lines = []
@@ -105,3 +121,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
