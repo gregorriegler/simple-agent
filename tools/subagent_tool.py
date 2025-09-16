@@ -1,4 +1,4 @@
-from chat import Chat
+from chat import Messages
 from console_display import ConsoleDisplay
 
 from .base_tool import BaseTool
@@ -20,10 +20,10 @@ class SubagentTool(BaseTool):
         "🛠️ subagent Create a simple HTML page with a form"
     ]
 
-    def __init__(self, runcommand, message_claude, indent_level=0, print_fn=print):
+    def __init__(self, runcommand, chat, indent_level=0, print_fn=print):
         super().__init__()
         self.runcommand = runcommand
-        self.message_claude = message_claude
+        self.chat = chat
         self.indent_level = indent_level
         self.print_fn = print_fn
         self.subagent_display = SubagentDisplay(self.indent_level + 1, self.print_fn)
@@ -39,10 +39,10 @@ class SubagentTool(BaseTool):
             system_prompt = SystemPromptGenerator().generate_system_prompt()
 
             from tools.tool_library import ToolLibrary
-            subagent_tools = ToolLibrary(self.message_claude, self.indent_level + 1, self.print_fn)
-            subagent = Agent(system_prompt, self.message_claude, self.subagent_display, subagent_tools)
+            subagent_tools = ToolLibrary(self.chat, self.indent_level + 1, self.print_fn)
+            subagent = Agent(system_prompt, self.chat, self.subagent_display, subagent_tools)
 
-            subagent_chat = Chat()
+            subagent_chat = Messages()
             subagent_chat.user_says(args.strip())
             result = subagent.start(subagent_chat)
             return result

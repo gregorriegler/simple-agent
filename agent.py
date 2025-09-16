@@ -1,6 +1,7 @@
-from chat import save_chat
+from chat import save_messages
 from abc import ABC, abstractmethod
 import sys
+
 
 class Display(ABC):
 
@@ -24,43 +25,44 @@ class Display(ABC):
     def exit(self):
         pass
 
+
 class Agent:
 
-    def __init__(self, system_prompt, message_claude, display, tools, save_chat=save_chat):
+    def __init__(self, system_prompt, chat, display, tools, save_messages_fn=save_messages):
         self.system_prompt = system_prompt
-        self.message_claude = message_claude
+        self.chat = chat
         self.display = display
         self.tools = tools
-        self.save_chat = save_chat
+        self.save_messages = save_messages_fn
 
-    def start(self, chat, rounds=999999):
+    def start(self, messages, rounds=999999):
         for _ in range(rounds):
             try:
-                answer = self.message_claude(chat.to_list(), self.system_prompt)
+                answer = self.chat(messages.to_list(), self.system_prompt)
                 self.display.assistant_says(answer)
-                chat.assistant_says(answer)
+                messages.assistant_says(answer)
 
                 parsed_tool = self.tools.parse_tool(answer)
                 if parsed_tool:
                     tool_result = self.tools.execute_parsed_tool(parsed_tool)
                     if parsed_tool.tool_instance.is_completing():
-                        self.save_chat(chat)
+                        self.save_messages(messages)
                         user_input = self.display.input()
                         if user_input:
-                            chat.user_says(user_input)
+                            messages.user_says(user_input)
                         else:
                             self.display.exit()
                             return tool_result
                     else:
                         self.display.tool_result(tool_result)
-                        chat.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
+                        messages.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
 
                 if not parsed_tool or self._check_for_escape():
                     user_input = self.display.input()
                     if user_input:
-                        chat.user_says(user_input)
+                        messages.user_says(user_input)
 
-                self.save_chat(chat)
+                self.save_messages(messages)
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break

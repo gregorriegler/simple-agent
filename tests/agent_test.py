@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 from approvaltests import verify, Options
 
 from agent import Agent
-from chat import Chat
+from chat import Messages
 from console_display import ConsoleDisplay
 from tools import ToolLibrary
 from .test_helpers import (
@@ -137,7 +137,7 @@ def run_chat_test(input_stub, message, claude_stub, rounds=1):
     system_prompt = "Test system prompt"
     print_spy = PrintSpy()
 
-    chat = Chat()
+    chat = Messages()
     print_spy("Starting new session")
 
     if message:
