@@ -8,5 +8,5 @@ Agent: 🛠️ bash echo hello
 # Saved messages:
 user: use bash
 assistant: 🛠️ bash echo hello
-user: Result of 🛠️ bash
+user: Result of 🛠️ bash echo hello
 hello

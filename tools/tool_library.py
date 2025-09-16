@@ -17,7 +17,8 @@ class ParsedTool:
         self.tool_instance = tool_instance
 
     def __str__(self):
-        args_str = f"{self.arguments}" if self.arguments else ""
+        if self.arguments:
+            return f"🛠️ {self.name} {self.arguments}"
         return f"🛠️ {self.name}"
 
 
