@@ -1,6 +1,6 @@
 from .base_tool import BaseTool
+from .argument_parser import create_lexer, split_arguments
 import os
-import shlex
 from dataclasses import dataclass
 
 @dataclass
@@ -62,7 +62,7 @@ class EditFileTool(BaseTool):
             return None, 'No arguments specified'
 
         try:
-            parts = shlex.split(args, posix=True)
+            parts = split_arguments(args)
         except ValueError as e:
             return None, f"Error parsing arguments: {str(e)}"
 
@@ -71,9 +71,7 @@ class EditFileTool(BaseTool):
 
         filename, edit_mode, line_range_token = parts[:3]
 
-        lexer = shlex.shlex(args, posix=True)
-        lexer.whitespace_split = True
-        lexer.commenters = ''
+        lexer = create_lexer(args)
 
         try:
             lexer.get_token()
