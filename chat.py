@@ -3,7 +3,10 @@ import os
 import sys
 from dataclasses import dataclass, field
 from typing import List, Dict
-from claude.claude_config import claude_config
+
+
+DEFAULT_SESSION_FILE_NAME = "chat-session.json"
+SESSION_FILE_ENV = "CHAT_SESSION_FILE"
 
 
 @dataclass()
@@ -33,7 +36,7 @@ class Messages:
 
 
 def load_messages() -> 'Messages':
-    session_file = claude_config.session_file_path
+    session_file = _session_file_path()
     if not os.path.exists(session_file):
         return Messages()
 
@@ -47,9 +50,23 @@ def load_messages() -> 'Messages':
 
 
 def save_messages(messages):
-    session_file = claude_config.session_file_path
+    session_file = _session_file_path()
     try:
+        directory = os.path.dirname(session_file)
+        if directory:
+            os.makedirs(directory, exist_ok=True)
         with open(session_file, 'w', encoding='utf-8') as f:
             json.dump(messages.to_list(), f, indent=2)
     except Exception as e:
         print(f"Warning: Could not save session file {session_file}: {e}", file=sys.stderr)
+
+
+def _session_file_path():
+    override = os.getenv(SESSION_FILE_ENV)
+    path = override if override else _default_session_file_path()
+    return os.path.abspath(path)
+
+
+def _default_session_file_path():
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_dir, DEFAULT_SESSION_FILE_NAME)

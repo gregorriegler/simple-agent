@@ -92,6 +92,7 @@ ENV/
 
 *.received.txt
 claude-api-key.txt
+chat-session.json
 claude-session.json
 config.ini
 
