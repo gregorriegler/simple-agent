@@ -7,7 +7,7 @@ from claude.claude_client import chat
 from message_exceptions import ChatError, ChatInterruptError
 from agent import Agent
 from system_prompt_generator import SystemPromptGenerator
-from chat import Messages, load_messages
+from messages import Messages, load_messages
 from console_display import ConsoleDisplay
 from tools import ToolLibrary
 

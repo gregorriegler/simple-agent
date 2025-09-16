@@ -1,4 +1,4 @@
-from chat import Messages
+from messages import Messages
 from console_display import ConsoleDisplay
 
 from .base_tool import BaseTool

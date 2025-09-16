@@ -1,4 +1,4 @@
-from chat import save_messages
+from messages import save_messages
 from abc import ABC, abstractmethod
 import sys
 

@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 from approvaltests import verify, Options
 
 from agent import Agent
-from chat import Messages
+from messages import Messages
 from console_display import ConsoleDisplay
 from tools import ToolLibrary
 from .test_helpers import (
