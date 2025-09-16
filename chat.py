@@ -6,7 +6,7 @@ from typing import List, Dict
 from claude.claude_config import claude_config
 
 @dataclass()
-class Chat:
+class Messages:
     _messages: List[Dict[str, str]] = field(default_factory=list)
 
     def user_says(self, content: str):
@@ -31,24 +31,24 @@ class Chat:
         return str(self._messages)
 
 
-def load_chat() -> 'Chat':
+def load_chat() -> 'Messages':
     session_file = claude_config.session_file_path
     if not os.path.exists(session_file):
-        return Chat()
+        return Messages()
 
     try:
         with open(session_file, 'r', encoding='utf-8') as f:
             chat_data = json.load(f)
-            return Chat(chat_data if isinstance(chat_data, list) else [])
+            return Messages(chat_data if isinstance(chat_data, list) else [])
     except (json.JSONDecodeError, Exception) as e:
         print(f"Warning: Could not load session file {session_file}: {e}", file=sys.stderr)
-        return Chat()
+        return Messages()
 
 
-def save_chat(chat):
+def save_chat(messages):
     session_file = claude_config.session_file_path
     try:
         with open(session_file, 'w', encoding='utf-8') as f:
-            json.dump(chat.to_list(), f, indent=2)
+            json.dump(messages.to_list(), f, indent=2)
     except Exception as e:
         print(f"Warning: Could not save session file {session_file}: {e}", file=sys.stderr)
