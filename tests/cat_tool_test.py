@@ -60,5 +60,15 @@ def test_cat_tool_range_beyond_file_length(tmp_path):
 
     verify_tool(library, f"🛠️ cat {temp_file} 100-200")
 
+def test_cat_tool_file_with_spaces(tmp_path):
+    temp_file = create_temp_file(tmp_path, "file with spaces.txt", "line 1\nline 2")
+
+    verify_tool(library, f"🛠️ cat '{temp_file}'")
+
+def test_cat_tool_range_with_spaces(tmp_path):
+    temp_file = create_temp_file(tmp_path, "range spaces.txt", "first\nsecond\nthird")
+
+    verify_tool(library, f"🛠️ cat '{temp_file}' '1 - 2'")
+
 def test_cat_tool_nonexistent_file_with_range():
     verify_tool(library, "🛠️ cat /nonexistent/file.txt 1-5")
