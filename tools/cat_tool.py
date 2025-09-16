@@ -1,3 +1,5 @@
+import shlex
+
 from .base_tool import BaseTool
 
 class CatTool(BaseTool):
@@ -30,7 +32,14 @@ class CatTool(BaseTool):
         if not args:
             return None, None, 'STDERR: cat: missing file operand'
 
-        parts = args.split()
+        try:
+            parts = shlex.split(args)
+        except ValueError as exc:
+            return None, None, f"STDERR: cat: {exc}"
+
+        if not parts:
+            return None, None, 'STDERR: cat: missing file operand'
+
         filename = parts[0]
         line_range = parts[1] if len(parts) > 1 else None
 
@@ -60,38 +69,32 @@ class CatTool(BaseTool):
         if error:
             return error
 
-        result = self._read_file_range(filename, start_line, end_line)
-        return result['output']
+        return self._read_file_range(filename, start_line, end_line)
 
     def _read_file_range(self, filename, start_line, end_line):
-        """Read file and extract specified line range with formatting."""
         try:
             with open(filename, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
 
-            # Handle empty file or range beyond file length
             if not lines:
-                return {'output': ""}  # Empty file, no output
+                return ""
 
-            # Convert to 0-based indexing and extract range
             start_idx = start_line - 1
             end_idx = min(end_line, len(lines))
 
             if start_idx >= len(lines):
-                return {'output': ""}  # Range beyond file length, no output
+                return ""
 
             return self._format_output(lines, start_idx, end_idx)
 
         except FileNotFoundError:
-            return {'output': f"STDERR: cat: '{filename}': No such file or directory"}
+            return f"STDERR: cat: '{filename}': No such file or directory"
         except Exception as e:
-            return {'output': f"STDERR: cat: '{filename}': {str(e)}"}
+            return f"STDERR: cat: '{filename}': {str(e)}"
 
     def _format_output(self, lines, start_idx, end_idx):
-        """Format output lines with line numbers."""
         result_lines = []
         for i in range(start_idx, end_idx):
             result_lines.append(f"{i + 1:6}\t{lines[i]}")
 
-        output = "".join(result_lines).rstrip('\n')
-        return {'output': output}
+        return "".join(result_lines).rstrip('\n')
