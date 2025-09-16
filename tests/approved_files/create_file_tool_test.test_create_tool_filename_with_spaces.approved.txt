@@ -1,0 +1,12 @@
+Command:
+🛠️ create-file "notes folder/note file.txt" "First line\nSecond line"
+
+Result:
+Created file: notes folder/note file.txt with content
+
+File created: notes folder/note file.txt
+File content:
+--- FILE CONTENT START ---
+First line
+Second line
+--- FILE CONTENT END ---

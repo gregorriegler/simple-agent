@@ -1,5 +1,6 @@
 from .base_tool import BaseTool
 import os
+import shlex
 from dataclasses import dataclass
 
 @dataclass
@@ -60,32 +61,53 @@ class EditFileTool(BaseTool):
         if not args:
             return None, 'No arguments specified'
 
-        parts = args.split(' ', 3)
+        try:
+            parts = shlex.split(args, posix=True)
+        except ValueError as e:
+            return None, f"Error parsing arguments: {str(e)}"
+
         if len(parts) < 3:
             return None, 'Usage: edit-file <filename> <edit_mode> <line_range> [new_content]'
 
+        filename, edit_mode, line_range_token = parts[:3]
+
+        lexer = shlex.shlex(args, posix=True)
+        lexer.whitespace_split = True
+        lexer.commenters = ''
+
         try:
-            line_range = parts[2]
-            if '-' in line_range:
-                start_line, end_line = map(int, line_range.split('-'))
+            lexer.get_token()
+            lexer.get_token()
+            lexer.get_token()
+        except ValueError as e:
+            return None, f"Error parsing arguments: {str(e)}"
+
+        remainder = lexer.instream.read() if lexer.instream else ''
+        new_content = remainder.lstrip() if remainder else None
+
+        if new_content == '':
+            new_content = None
+
+        if new_content and new_content.startswith('"') and new_content.endswith('"'):
+            new_content = new_content[1:-1]
+            new_content = new_content.replace('\\n', '\n')
+
+        try:
+            if '-' in line_range_token:
+                start_line, end_line = map(int, line_range_token.split('-'))
             else:
-                start_line = end_line = int(parts[2])
-            new_content = parts[3] if len(parts) > 3 else None
-
-            if new_content and new_content.startswith('"') and new_content.endswith('"'):
-                new_content = new_content[1:-1]  # Remove surrounding quotes
-                new_content = new_content.replace('\\n', '\n')  # Convert \n to actual newlines
-
-            edit_args = EditFileArgs(
-                filename=parts[0],
-                edit_mode=parts[1],
-                start_line=start_line,
-                end_line=end_line,
-                new_content=new_content
-            )
-            return edit_args, None
+                start_line = end_line = int(line_range_token)
         except ValueError:
             return None, 'Invalid line range format. Use format "start-end" (e.g., "1-5")'
+
+        edit_args = EditFileArgs(
+            filename=filename,
+            edit_mode=edit_mode,
+            start_line=start_line,
+            end_line=end_line,
+            new_content=new_content
+        )
+        return edit_args, None
 
     def _normalize_line_range(self, start_line, end_line, total_lines):
         if total_lines == 0:

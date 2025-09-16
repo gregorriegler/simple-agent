@@ -1,0 +1,17 @@
+Command:
+🛠️ edit-file "notes folder/note file.txt" replace 1 "updated line"
+
+Result:
+Successfully edited notes folder/note file.txt
+
+Initial file: notes folder/note file.txt
+Initial content:
+--- INITIAL CONTENT START ---
+original line
+--- INITIAL CONTENT END ---
+
+File after edit: notes folder/note file.txt
+Final content:
+--- FINAL CONTENT START ---
+updated line
+--- FINAL CONTENT END ---
