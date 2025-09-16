@@ -24,5 +24,5 @@ Agent: 🛠️ subagent create another subagent
 # Saved messages:
 user: Create a subagent that creates another subagent
 assistant: 🛠️ subagent create another subagent
-user: Result of 🛠️ subagent
+user: Result of 🛠️ subagent create another subagent
 I successfully created another subagent

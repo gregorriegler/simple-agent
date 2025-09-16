@@ -20,6 +20,6 @@ Press Enter to continue or type a message to add:
 # Saved messages:
 user: Create a subagent that says hello, then say goodbye
 assistant: 🛠️ subagent say hello
-user: Result of 🛠️ subagent
+user: Result of 🛠️ subagent say hello
 I successfully said hello
 assistant: goodbye

@@ -16,5 +16,5 @@ Agent: 🛠️ subagent say hello
 # Saved messages:
 user: Create a subagent that says hello
 assistant: 🛠️ subagent say hello
-user: Result of 🛠️ subagent
+user: Result of 🛠️ subagent say hello
 I successfully said hello

@@ -9,6 +9,6 @@ Agent: 🛠️ cat /tmp/test_path/integration_test.txt
 # Saved messages:
 user: Test message
 assistant: 🛠️ cat /tmp/test_path/integration_test.txt
-user: Result of 🛠️ cat
+user: Result of 🛠️ cat /tmp/test_path/integration_test.txt
      1	Integration test content
      2	Line 2
