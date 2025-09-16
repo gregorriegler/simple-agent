@@ -87,17 +87,20 @@ class EditFileTool(BaseTool):
         except ValueError:
             return None, 'Invalid line range format. Use format "start-end" (e.g., "1-5")'
 
-    def _validate_line_range(self, start_line, end_line, total_lines):
+    def _normalize_line_range(self, start_line, end_line, total_lines):
         if total_lines == 0:
             return None
 
-        if start_line < 1 or end_line < 1 or start_line > total_lines or end_line > total_lines:
-            return f"Invalid line range: {start_line} {end_line} for file with {total_lines} lines"
+        if end_line < 1 or start_line > total_lines:
+            return None
 
-        if start_line > end_line:
-            return f"Start line ({start_line}) cannot be greater than end line ({end_line})"
+        normalized_start = max(1, start_line)
+        normalized_end = min(total_lines, end_line)
 
-        return None
+        if normalized_start > normalized_end:
+            return None
+
+        return normalized_start, normalized_end
 
     def execute(self, args):
         edit_args, error = self._parse_arguments(args)
@@ -115,6 +118,8 @@ class EditFileTool(BaseTool):
             with open(edit_args.filename, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
 
+            normalized_range = self._normalize_line_range(edit_args.start_line, edit_args.end_line, len(lines))
+
             if edit_args.edit_mode == "insert":
                 inserting_between_lines = edit_args.start_line <= len(lines)
                 if edit_args.new_content and not edit_args.new_content.endswith('\n') and inserting_between_lines:
@@ -127,26 +132,25 @@ class EditFileTool(BaseTool):
                     # Ensure last line has newline if it exists
                     if lines and not lines[-1].endswith('\n'):
                         lines[-1] = lines[-1] + '\n'
-                    
+
                     # Pad with empty lines if inserting far beyond the end
                     lines_to_add = edit_args.start_line - len(lines) - 1
                     if lines_to_add > 0:
                         lines.extend(['\n'] * lines_to_add)
-                    
+
                     lines.extend(new_content)
                 else:
                     lines[edit_args.start_line-1:edit_args.start_line-1] = new_content
                 new_lines = lines
             elif edit_args.edit_mode == "delete":
-                validation_error = self._validate_line_range(edit_args.start_line, edit_args.end_line, len(lines))
-                if validation_error:
-                    return validation_error
-                lines_to_delete = list(range(edit_args.start_line, edit_args.end_line + 1))
-                new_lines = [line for i, line in enumerate(lines, start=1) if i not in lines_to_delete]
+                if normalized_range is None:
+                    new_lines = lines
+                else:
+                    start_line, end_line = normalized_range
+                    new_lines = self._delete_lines(lines, start_line, end_line)
+                    if self._range_reaches_file_end(normalized_range, len(lines)):
+                        new_lines = self._trim_terminal_newline(lines, new_lines)
             elif edit_args.edit_mode == "replace":
-                validation_error = self._validate_line_range(edit_args.start_line, edit_args.end_line, len(lines))
-                if validation_error:
-                    return validation_error
                 if len(lines) == 0 and edit_args.start_line == 0 and edit_args.end_line == 0:
                     if edit_args.new_content is None:
                         new_lines = []
@@ -155,25 +159,14 @@ class EditFileTool(BaseTool):
                     else:
                         new_lines = [edit_args.new_content + '\n']
                 else:
-                    # Convert to 0-based indexing
-                    start_idx = edit_args.start_line - 1
-                    end_idx = edit_args.end_line - 1
-
-                    # Handle deletion or replacement
-                    if edit_args.new_content is None:
-                        # Delete lines
-                        replacement_lines = []
-                    elif '\n' in edit_args.new_content:
-                        replacement_lines = [line + '\n' for line in edit_args.new_content.split('\n') if line]
+                    if normalized_range is None:
+                        new_lines = lines
                     else:
-                        # For single-line content, preserve the original line ending behavior
-                        last_replaced_line = lines[end_idx] if end_idx < len(lines) else ''
-                        if last_replaced_line.endswith('\n'):
-                            replacement_lines = [edit_args.new_content + '\n']
-                        else:
-                            replacement_lines = [edit_args.new_content]
-
-                    new_lines = lines[:start_idx] + replacement_lines + lines[end_idx + 1:]
+                        start_line, end_line = normalized_range
+                        new_lines = self._replace_lines(lines, start_line, end_line, edit_args.new_content)
+                        if edit_args.new_content is None:
+                            if self._range_reaches_file_end(normalized_range, len(lines)):
+                                new_lines = self._trim_terminal_newline(lines, new_lines)
             else:
                 return f"Invalid edit mode: {edit_args.edit_mode}. Supported modes: insert, delete, replace"
 
@@ -187,3 +180,41 @@ class EditFileTool(BaseTool):
             return f'Error editing file "{edit_args.filename}": {str(e)}'
         except Exception as e:
             return f'Unexpected error editing file "{edit_args.filename}": {str(e)}'
+
+    def _delete_lines(self, lines, start_line, end_line):
+        lines_to_delete = set(range(start_line, end_line + 1))
+        return [line for i, line in enumerate(lines, start=1) if i not in lines_to_delete]
+
+    def _replace_lines(self, lines, start_line, end_line, new_content):
+        start_idx = start_line - 1
+        end_idx = end_line - 1
+
+        if new_content is None:
+            replacement_lines = []
+        elif '\n' in new_content:
+            replacement_lines = [line + '\n' for line in new_content.split('\n') if line]
+        else:
+            last_replaced_line = lines[end_idx]
+            if last_replaced_line.endswith('\n'):
+                replacement_lines = [new_content + '\n']
+            else:
+                replacement_lines = [new_content]
+
+        return lines[:start_idx] + replacement_lines + lines[end_idx + 1:]
+
+    def _range_reaches_file_end(self, normalized_range, total_lines):
+        if normalized_range is None:
+            return False
+        _, normalized_end = normalized_range
+        return normalized_end == total_lines
+
+    def _trim_terminal_newline(self, original_lines, new_lines):
+        if not original_lines or not new_lines:
+            return new_lines
+        if original_lines[-1].endswith('\n'):
+            return new_lines
+        if not new_lines[-1].endswith('\n'):
+            return new_lines
+        adjusted_lines = new_lines[:]
+        adjusted_lines[-1] = adjusted_lines[-1][:-1]
+        return adjusted_lines

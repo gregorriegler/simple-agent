@@ -86,6 +86,18 @@ def test_edit_file_delete_a_line(tmp_path):
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
+def test_edit_file_delete_range_extending_past_file_end(tmp_path):
+    initial_content = "line1\nline2\nline3"
+    command = "🛠️ edit-file test.txt delete 2-10"
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_replace_range_beyond_file_end_leaves_file_unchanged(tmp_path):
+    initial_content = "line1\nline2"
+    command = "🛠️ edit-file test.txt replace 5-7 replacement"
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
 def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
     with temp_directory(tmp_path):
         with open(setup_file, "w", encoding='utf-8') as f:
