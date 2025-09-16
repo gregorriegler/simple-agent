@@ -6,7 +6,10 @@ if __name__ == "__main__":
     command = ' '.join(sys.argv[1:])
     tools = ToolLibrary()
     try:
-        tool = tools.parse_tool("/" + command)
+        tool = tools.parse_tool(f"🛠️ {command}")
+        if not tool:
+            print(f"Unknown tool: {command}")
+            sys.exit(1)
         output = tools.execute_parsed_tool(tool)
         print(output)
     except Exception as e:
