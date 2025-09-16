@@ -30,6 +30,15 @@ def test_create_tool_json_content(tmp_path):
     verify_create_tool(library, '🛠️ create-file config.json {"name": "test"}', "config.json", tmp_path=tmp_path)
 
 
+def test_create_tool_filename_with_spaces(tmp_path):
+    verify_create_tool(library, '🛠️ create-file "notes folder/note file.txt" "First line\\nSecond line"',
+                      "notes folder/note file.txt", tmp_path=tmp_path)
+
+
+def test_create_tool_content_with_leading_and_trailing_spaces(tmp_path):
+    verify_create_tool(library, '🛠️ create-file padded.txt "  spaced content  "', "padded.txt", tmp_path=tmp_path)
+
+
 def test_create_tool_explicit_empty_content(tmp_path):
     verify_create_tool(library, '🛠️ create-file empty.txt ""', "empty.txt", tmp_path=tmp_path)
 

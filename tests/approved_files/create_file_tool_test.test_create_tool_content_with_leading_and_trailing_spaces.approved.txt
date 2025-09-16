@@ -1,0 +1,11 @@
+Command:
+🛠️ create-file padded.txt "  spaced content  "
+
+Result:
+Created file: padded.txt with content
+
+File created: padded.txt
+File content:
+--- FILE CONTENT START ---
+  spaced content  
+--- FILE CONTENT END ---

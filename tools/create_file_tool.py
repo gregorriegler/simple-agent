@@ -1,5 +1,6 @@
 from .base_tool import BaseTool
 import os
+import shlex
 
 class CreateFileTool(BaseTool):
     name = "create-file"
@@ -31,17 +32,33 @@ class CreateFileTool(BaseTool):
         if not args:
             return 'No filename specified'
 
-        parts = args.split(' ', 1)  # Split into at most 2 parts: filename and content
-        filename = parts[0]
-        content = parts[1] if len(parts) > 1 else None
+        try:
+            tokens = shlex.split(args, posix=True)
+        except ValueError as e:
+            return f"Error parsing arguments: {str(e)}"
 
-        # Remove surrounding quotes from filename if present
-        if filename.startswith('"') and filename.endswith('"'):
-            filename = filename[1:-1]
+        if not tokens:
+            return 'No filename specified'
 
-        # Remove surrounding quotes from content if present
+        lexer = shlex.shlex(args, posix=True)
+        lexer.whitespace_split = True
+        lexer.commenters = ''
+
+        try:
+            lexer.get_token()
+        except ValueError as e:
+            return f"Error parsing arguments: {str(e)}"
+
+        remainder = lexer.instream.read() if lexer.instream else ''
+        content = remainder.lstrip() if remainder else None
+
+        if content == '':
+            content = None
+
         if content and content.startswith('"') and content.endswith('"'):
             content = content[1:-1]
+
+        filename = tokens[0]
 
         try:
             # Check if file already exists

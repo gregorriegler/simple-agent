@@ -1,3 +1,4 @@
+import os
 from approvaltests import Options, verify
 
 from tools.tool_library import ToolLibrary
@@ -31,6 +32,11 @@ def test_edit_file_replace_two_consecutive_lines_with_four(tmp_path):
 def test_edit_file_replace_a_lines_with_lines_in_quotes(tmp_path):
     command = "🛠️ edit-file test.txt replace 2 \"insert1\ninsert2\""
     verify_edit_tool(library, "test.txt", "line1\nline2", command, tmp_path=tmp_path)
+
+
+def test_edit_file_replace_path_with_spaces(tmp_path):
+    command = '🛠️ edit-file "notes folder/note file.txt" replace 1 "updated line"'
+    verify_edit_tool(library, "notes folder/note file.txt", "original line", command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_empty_lines_with_function(tmp_path):
@@ -68,6 +74,12 @@ def test_edit_file_insert_multiline_without_trailing_newline_adds_newline_automa
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
+def test_edit_file_insert_content_with_leading_spaces(tmp_path):
+    initial_content = "line1\nline2"
+    command = '🛠️ edit-file test.txt insert 2 "    indented line"'
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
 def test_edit_file_insert_beyond_last_line_appends_to_end(tmp_path):
     initial_content = "line1\nline2"
     command = "🛠️ edit-file test.txt insert 3 line3"
@@ -100,6 +112,7 @@ def test_edit_file_replace_range_beyond_file_end_leaves_file_unchanged(tmp_path)
 
 def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
     with temp_directory(tmp_path):
+        os.makedirs(os.path.dirname(setup_file) or '.', exist_ok=True)
         with open(setup_file, "w", encoding='utf-8') as f:
             f.write(setup_content)
 
