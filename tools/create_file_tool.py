@@ -1,6 +1,6 @@
 from .base_tool import BaseTool
+from .argument_parser import create_lexer, split_arguments
 import os
-import shlex
 
 class CreateFileTool(BaseTool):
     name = "create-file"
@@ -33,16 +33,14 @@ class CreateFileTool(BaseTool):
             return 'No filename specified'
 
         try:
-            tokens = shlex.split(args, posix=True)
+            tokens = split_arguments(args)
         except ValueError as e:
             return f"Error parsing arguments: {str(e)}"
 
         if not tokens:
             return 'No filename specified'
 
-        lexer = shlex.shlex(args, posix=True)
-        lexer.whitespace_split = True
-        lexer.commenters = ''
+        lexer = create_lexer(args)
 
         try:
             lexer.get_token()

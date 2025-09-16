@@ -1,6 +1,5 @@
-import shlex
-
 from .base_tool import BaseTool
+from .argument_parser import split_arguments
 
 class CatTool(BaseTool):
     name = 'cat'
@@ -33,7 +32,7 @@ class CatTool(BaseTool):
             return None, None, 'STDERR: cat: missing file operand'
 
         try:
-            parts = shlex.split(args)
+            parts = split_arguments(args)
         except ValueError as exc:
             return None, None, f"STDERR: cat: {exc}"
 
