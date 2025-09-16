@@ -6,7 +6,7 @@ import sys
 from claude.claude_client import message_claude
 from agent import Agent
 from system_prompt_generator import SystemPromptGenerator
-from chat import Chat, load_chat
+from chat import Messages, load_chat
 from console_display import ConsoleDisplay
 from tools import ToolLibrary
 
@@ -32,7 +32,7 @@ def main():
 
     system_prompt = get_system_prompt()
 
-    chat = load_chat() if continue_session else Chat()
+    chat = load_chat() if continue_session else Messages()
     print("Continuing session" if continue_session else "Starting new session")
 
     if start_message:

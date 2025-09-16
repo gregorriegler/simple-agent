@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 from approvaltests import verify, Options
 
 from agent import Agent
-from chat import Chat
+from chat import Messages
 from console_display import ConsoleDisplay
 from tools import ToolLibrary
 from .test_helpers import (
@@ -130,22 +130,22 @@ def run_chat_test(input_stub, message, claude_stub, rounds=1):
 
     saved_messages = "None"
 
-    def save_chat(chat):
+    def save_chat(messages):
         nonlocal saved_messages
-        saved_messages = "\n".join(f"{msg['role']}: {msg['content']}" for msg in chat)
+        saved_messages = "\n".join(f"{msg['role']}: {msg['content']}" for msg in messages)
 
     system_prompt = "Test system prompt"
     print_spy = PrintSpy()
 
-    chat = Chat()
+    messages = Messages()
     print_spy("Starting new session")
 
     if message:
-        chat.user_says(message)
+        messages.user_says(message)
 
     try:
         agent = Agent(system_prompt, claude_stub, ConsoleDisplay(print_fn=print_spy), ToolLibrary(claude_stub, print_fn=print_spy), save_chat)
-        agent.start(chat, rounds)
+        agent.start(messages, rounds)
     except KeyboardInterrupt:
         pass
 

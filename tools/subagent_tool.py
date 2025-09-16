@@ -1,4 +1,4 @@
-from chat import Chat
+from chat import Messages
 from console_display import ConsoleDisplay
 
 from .base_tool import BaseTool
@@ -42,9 +42,9 @@ class SubagentTool(BaseTool):
             subagent_tools = ToolLibrary(self.message_claude, self.indent_level + 1, self.print_fn)
             subagent = Agent(system_prompt, self.message_claude, self.subagent_display, subagent_tools)
 
-            subagent_chat = Chat()
-            subagent_chat.user_says(args.strip())
-            result = subagent.start(subagent_chat)
+            subagent_messages = Messages()
+            subagent_messages.user_says(args.strip())
+            result = subagent.start(subagent_messages)
             return result
 
         except Exception as e:
