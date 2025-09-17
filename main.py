@@ -10,12 +10,6 @@ from console_display import ConsoleDisplay
 from tools import ToolLibrary
 
 
-def get_system_prompt():
-    """Get the system prompt with dynamically populated tools"""
-    generator = SystemPromptGenerator()
-    return generator.generate_system_prompt()
-
-
 def main():
     parser = argparse.ArgumentParser(description="Claude API CLI with session support")
     parser.add_argument("-c", "--continue", action="store_true", help="Continue previous session")
@@ -27,7 +21,8 @@ def main():
         start_message = " ".join(args.message)
     continue_session = getattr(args, 'continue')
 
-    system_prompt = get_system_prompt()
+    generator = SystemPromptGenerator()
+    system_prompt = generator.generate_system_prompt()
 
     messages = load_chat() if continue_session else Messages()
     print("Continuing session" if continue_session else "Starting new session")
