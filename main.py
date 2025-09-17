@@ -20,7 +20,7 @@ class SessionArgs:
 def main():
     args = parse_args()
     display = ConsoleDisplay()
-    run_session(args, display, load_messages, save_messages)
+    run_session(args, display, load_messages, save_messages, chat)
 
 
 def parse_args(argv=None):
@@ -37,7 +37,7 @@ def build_start_message(message_parts):
     return " ".join(message_parts)
 
 
-def run_session(args: SessionArgs, display, load_messages, save_messages):
+def run_session(args: SessionArgs, display, load_messages, save_messages, chat):
     messages = load_messages() if args.continue_session else Messages()
     if args.start_message:
         messages.user_says(args.start_message)
