@@ -1,7 +1,6 @@
 #!/usr/bin/env -S uv run --script
 
 import argparse
-import sys
 
 from claude.claude_client import message_claude
 from agent import Agent
@@ -24,21 +23,19 @@ def main():
 
     args = parser.parse_args()
     start_message = None
-    if len(sys.argv) > 1:
-        start_message = " ".join(sys.argv[1:])
     if args.message:
         start_message = " ".join(args.message)
     continue_session = getattr(args, 'continue')
 
     system_prompt = get_system_prompt()
 
-    chat = load_chat() if continue_session else Messages()
+    messages = load_chat() if continue_session else Messages()
     print("Continuing session" if continue_session else "Starting new session")
 
     if start_message:
-        chat.user_says(start_message)
+        messages.user_says(start_message)
 
-    Agent(system_prompt, message_claude, ConsoleDisplay(), ToolLibrary(message_claude)).start(chat)
+    Agent(system_prompt, message_claude, ConsoleDisplay(), ToolLibrary(message_claude)).start(messages)
 
 
 if __name__ == "__main__":
