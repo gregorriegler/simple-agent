@@ -106,7 +106,7 @@ def create_claude_stub(answer):
     if isinstance(answer, list):
         answer_index = 0
 
-        def claude_stub(messages, system_prompt):
+        def claude_stub(system_prompt, messages):
             nonlocal answer_index
             if answer_index < len(answer):
                 result = answer[answer_index]
@@ -116,7 +116,7 @@ def create_claude_stub(answer):
                 return answer[-1] if answer else ""
         return claude_stub
     else:
-        return lambda messages, system_prompt: answer
+        return lambda system_prompt, messages: answer
 
 
 def verify_chat(input_stub, message, answer, rounds=1):

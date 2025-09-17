@@ -4,7 +4,7 @@ from .test_helpers import (
     verify_tool
 )
 
-claude_stub = lambda messages, system_prompt: ""
+claude_stub = lambda system_prompt, messages: ""
 library = ToolLibrary()
 
 

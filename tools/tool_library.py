@@ -23,7 +23,7 @@ class ParsedTool:
 
 
 class ToolLibrary:
-    def __init__(self, message_claude=lambda messages, system_prompt: "", indent_level=0, print_fn=print):
+    def __init__(self, message_claude=lambda system_prompt, messages: "", indent_level=0, print_fn=print):
         self.message_claude = message_claude
         self.indent_level = indent_level
         self.print_fn = print_fn

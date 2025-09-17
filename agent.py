@@ -36,7 +36,7 @@ class Agent:
     def start(self, context, rounds=999999):
         for _ in range(rounds):
             try:
-                answer = self.chat(context.to_list(), self.system_prompt)
+                answer = self.chat(self.system_prompt, context.to_list())
                 self.display.assistant_says(answer)
                 context.assistant_says(answer)
 
