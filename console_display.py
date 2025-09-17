@@ -30,6 +30,12 @@ class ConsoleDisplay(Display):
         result = self._indent_lines(first_three_lines, self.base_indent)
         self.print(f"\n{result}")
 
+    def continue_session(self):
+        self.print("Continuing session")
+
+    def start_new_session(self):
+        self.print("Starting new session")
+
     def input(self) -> str:
         prompt = "       " * self.indent_level + "Press Enter to continue or type a message to add: "
         self.print(f"\n{prompt}", file=sys.stderr)
