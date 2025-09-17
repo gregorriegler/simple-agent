@@ -31,7 +31,7 @@ class Messages:
         return str(self._messages)
 
 
-def load_chat() -> 'Messages':
+def load_messages() -> 'Messages':
     session_file = claude_config.session_file_path
     if not os.path.exists(session_file):
         return Messages()
