@@ -22,9 +22,9 @@ def main():
 
     system_prompt = SystemPromptGenerator().generate_system_prompt()
 
+    display = ConsoleDisplay()
     print("Continuing session" if continue_session else "Starting new session")
 
-    display = ConsoleDisplay()
     tool_library = ToolLibrary(message_claude)
     agent = Agent(system_prompt, message_claude, display, tool_library)
     agent.start(messages)
