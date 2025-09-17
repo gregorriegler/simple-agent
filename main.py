@@ -20,7 +20,6 @@ def main():
     start_message = get_start_message(args)
     messages = get_starting_messages(continue_session, start_message)
 
-
     display = ConsoleDisplay()
     if continue_session:
         display.continue_session()
