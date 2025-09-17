@@ -33,34 +33,34 @@ class Agent:
         self.tools = tools
         self.save_chat = save_messages
 
-    def start(self, context, rounds=999999):
+    def start(self, messages, rounds=999999):
         for _ in range(rounds):
             try:
-                answer = self.chat(self.system_prompt, context.to_list())
+                answer = self.chat(self.system_prompt, messages.to_list())
                 self.display.assistant_says(answer)
-                context.assistant_says(answer)
+                messages.assistant_says(answer)
 
                 parsed_tool = self.tools.parse_tool(answer)
                 if parsed_tool:
                     tool_result = self.tools.execute_parsed_tool(parsed_tool)
                     if parsed_tool.tool_instance.is_completing():
-                        self.save_chat(context)
+                        self.save_chat(messages)
                         user_input = self.display.input()
                         if user_input:
-                            context.user_says(user_input)
+                            messages.user_says(user_input)
                         else:
                             self.display.exit()
                             return tool_result
                     else:
                         self.display.tool_result(tool_result)
-                        context.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
+                        messages.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
 
                 if not parsed_tool or self._check_for_escape():
                     user_input = self.display.input()
                     if user_input:
-                        context.user_says(user_input)
+                        messages.user_says(user_input)
 
-                self.save_chat(context)
+                self.save_chat(messages)
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break
