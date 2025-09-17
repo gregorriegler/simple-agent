@@ -11,7 +11,7 @@ from tools import ToolLibrary
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Claude API CLI with session support")
+    parser = argparse.ArgumentParser(description="Simple Agent")
     parser.add_argument("-c", "--continue", action="store_true", help="Continue previous session")
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
     args = parser.parse_args()
