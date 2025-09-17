@@ -14,8 +14,8 @@ def main():
     parser = argparse.ArgumentParser(description="Claude API CLI with session support")
     parser.add_argument("-c", "--continue", action="store_true", help="Continue previous session")
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
-
     args = parser.parse_args()
+
     continue_session = get_continue_session(args)
     start_message = get_start_message(args)
     messages = get_starting_messages(continue_session, start_message)
