@@ -1,4 +1,4 @@
-from chat import save_chat
+from chat import save_messages
 from abc import ABC, abstractmethod
 import sys
 
@@ -26,41 +26,41 @@ class Display(ABC):
 
 class Agent:
 
-    def __init__(self, system_prompt, message_claude, display, tools, save_chat=save_chat):
+    def __init__(self, chat, system_prompt, tools, display, save_messages=save_messages):
+        self.chat = chat
         self.system_prompt = system_prompt
-        self.message_claude = message_claude
         self.display = display
         self.tools = tools
-        self.save_chat = save_chat
+        self.save_chat = save_messages
 
-    def start(self, chat, rounds=999999):
+    def start(self, context, rounds=999999):
         for _ in range(rounds):
             try:
-                answer = self.message_claude(chat.to_list(), self.system_prompt)
+                answer = self.chat(context.to_list(), self.system_prompt)
                 self.display.assistant_says(answer)
-                chat.assistant_says(answer)
+                context.assistant_says(answer)
 
                 parsed_tool = self.tools.parse_tool(answer)
                 if parsed_tool:
                     tool_result = self.tools.execute_parsed_tool(parsed_tool)
                     if parsed_tool.tool_instance.is_completing():
-                        self.save_chat(chat)
+                        self.save_chat(context)
                         user_input = self.display.input()
                         if user_input:
-                            chat.user_says(user_input)
+                            context.user_says(user_input)
                         else:
                             self.display.exit()
                             return tool_result
                     else:
                         self.display.tool_result(tool_result)
-                        chat.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
+                        context.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
 
                 if not parsed_tool or self._check_for_escape():
                     user_input = self.display.input()
                     if user_input:
-                        chat.user_says(user_input)
+                        context.user_says(user_input)
 
-                self.save_chat(chat)
+                self.save_chat(context)
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break

@@ -40,7 +40,7 @@ class SubagentTool(BaseTool):
 
             from tools.tool_library import ToolLibrary
             subagent_tools = ToolLibrary(self.message_claude, self.indent_level + 1, self.print_fn)
-            subagent = Agent(system_prompt, self.message_claude, self.subagent_display, subagent_tools)
+            subagent = Agent(self.message_claude, system_prompt, subagent_tools, self.subagent_display)
 
             subagent_messages = Messages()
             subagent_messages.user_says(args.strip())

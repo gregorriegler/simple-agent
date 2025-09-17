@@ -144,7 +144,8 @@ def run_chat_test(input_stub, message, claude_stub, rounds=1):
         messages.user_says(message)
 
     try:
-        agent = Agent(system_prompt, claude_stub, ConsoleDisplay(print_fn=print_spy), ToolLibrary(claude_stub, print_fn=print_spy), save_chat)
+        agent = Agent(claude_stub, system_prompt, ToolLibrary(claude_stub, print_fn=print_spy),
+                      ConsoleDisplay(print_fn=print_spy), save_chat)
         agent.start(messages, rounds)
     except KeyboardInterrupt:
         pass

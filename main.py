@@ -2,7 +2,7 @@
 
 import argparse
 
-from claude.claude_client import message_claude
+from claude.claude_client import chat
 from agent import Agent
 from system_prompt_generator import SystemPromptGenerator
 from chat import Messages, load_chat
@@ -27,9 +27,9 @@ def main():
     else:
         display.start_new_session()
 
-    tool_library = ToolLibrary(message_claude)
+    tool_library = ToolLibrary(chat)
     system_prompt = SystemPromptGenerator().generate_system_prompt()
-    agent = Agent(system_prompt, message_claude, display, tool_library)
+    agent = Agent(chat, system_prompt, tool_library, display)
     agent.start(messages)
 
 

@@ -45,7 +45,7 @@ def load_chat() -> 'Messages':
         return Messages()
 
 
-def save_chat(messages):
+def save_messages(messages):
     session_file = claude_config.session_file_path
     try:
         with open(session_file, 'w', encoding='utf-8') as f:
