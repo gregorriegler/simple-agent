@@ -20,7 +20,7 @@ class SessionArgs:
 def main():
     args = parse_args()
     display = ConsoleDisplay()
-    run_session(args, display, load_messages, save_messages, chat)
+    run_session(args, display, load_messages, save_messages, chat, 999999)
 
 
 def parse_args(argv=None):
@@ -37,7 +37,7 @@ def build_start_message(message_parts):
     return " ".join(message_parts)
 
 
-def run_session(args: SessionArgs, display, load_messages, save_messages, chat):
+def run_session(args: SessionArgs, display, load_messages, save_messages, chat, rounds):
     messages = load_messages() if args.continue_session else Messages()
     if args.start_message:
         messages.user_says(args.start_message)
@@ -48,7 +48,7 @@ def run_session(args: SessionArgs, display, load_messages, save_messages, chat):
     tool_library = ToolLibrary(chat)
     system_prompt = SystemPromptGenerator().generate_system_prompt()
     agent = Agent(chat, system_prompt, tool_library, display, save_messages)
-    agent.start(messages)
+    agent.start(messages, rounds)
 
 
 if __name__ == "__main__":
