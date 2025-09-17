@@ -1,4 +1,3 @@
-from chat import save_messages
 from abc import ABC, abstractmethod
 import sys
 
@@ -26,12 +25,12 @@ class Display(ABC):
 
 class Agent:
 
-    def __init__(self, chat, system_prompt, tools, display, save_messages=save_messages):
+    def __init__(self, chat, system_prompt, tools, display, save_messages):
         self.chat = chat
         self.system_prompt = system_prompt
         self.display = display
         self.tools = tools
-        self.save_chat = save_messages
+        self.save_messages = save_messages
 
     def start(self, messages, rounds=999999):
         for _ in range(rounds):
@@ -44,7 +43,7 @@ class Agent:
                 if parsed_tool:
                     tool_result = self.tools.execute_parsed_tool(parsed_tool)
                     if parsed_tool.tool_instance.is_completing():
-                        self.save_chat(messages)
+                        self.save_messages(messages)
                         user_input = self.display.input()
                         if user_input:
                             messages.user_says(user_input)
@@ -60,7 +59,7 @@ class Agent:
                     if user_input:
                         messages.user_says(user_input)
 
-                self.save_chat(messages)
+                self.save_messages(messages)
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break

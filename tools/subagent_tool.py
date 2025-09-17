@@ -39,8 +39,9 @@ class SubagentTool(BaseTool):
             system_prompt = SystemPromptGenerator().generate_system_prompt()
 
             from tools.tool_library import ToolLibrary
+            subagent_save_messages = lambda messages: None
             subagent_tools = ToolLibrary(self.message_claude, self.indent_level + 1, self.print_fn)
-            subagent = Agent(self.message_claude, system_prompt, subagent_tools, self.subagent_display)
+            subagent = Agent(self.message_claude, system_prompt, subagent_tools, self.subagent_display, subagent_save_messages)
 
             subagent_messages = Messages()
             subagent_messages.user_says(args.strip())

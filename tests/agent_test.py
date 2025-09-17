@@ -130,7 +130,7 @@ def run_chat_test(input_stub, message, claude_stub, rounds=1):
 
     saved_messages = "None"
 
-    def save_chat(messages):
+    def save_messages(messages):
         nonlocal saved_messages
         saved_messages = "\n".join(f"{msg['role']}: {msg['content']}" for msg in messages)
 
@@ -145,7 +145,7 @@ def run_chat_test(input_stub, message, claude_stub, rounds=1):
 
     try:
         agent = Agent(claude_stub, system_prompt, ToolLibrary(claude_stub, print_fn=print_spy),
-                      ConsoleDisplay(print_fn=print_spy), save_chat)
+                      ConsoleDisplay(print_fn=print_spy), save_messages)
         agent.start(messages, rounds)
     except KeyboardInterrupt:
         pass

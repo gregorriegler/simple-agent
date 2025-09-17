@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from claude.claude_client import chat
 from agent import Agent
 from system_prompt_generator import SystemPromptGenerator
-from chat import Messages, load_messages
+from chat import Messages, load_messages, save_messages
 from console_display import ConsoleDisplay
 from tools import ToolLibrary
 
@@ -20,7 +20,7 @@ class SessionArgs:
 def main():
     args = parse_args()
     display = ConsoleDisplay()
-    run_session(args, display)
+    run_session(args, display, load_messages, save_messages)
 
 
 def parse_args(argv=None):
@@ -37,7 +37,7 @@ def build_start_message(message_parts):
     return " ".join(message_parts)
 
 
-def run_session(args: SessionArgs, display):
+def run_session(args: SessionArgs, display, load_messages, save_messages):
     messages = load_messages() if args.continue_session else Messages()
     if args.start_message:
         messages.user_says(args.start_message)
@@ -47,7 +47,7 @@ def run_session(args: SessionArgs, display):
         display.start_new_session()
     tool_library = ToolLibrary(chat)
     system_prompt = SystemPromptGenerator().generate_system_prompt()
-    agent = Agent(chat, system_prompt, tool_library, display)
+    agent = Agent(chat, system_prompt, tool_library, display, save_messages)
     agent.start(messages)
 
 
