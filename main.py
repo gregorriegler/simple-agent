@@ -16,21 +16,36 @@ def main():
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
 
     args = parser.parse_args()
+    continue_session = get_continue_session(args)
+    start_message = get_start_message(args)
+    messages = get_starting_messages(continue_session, start_message)
+
+    system_prompt = SystemPromptGenerator().generate_system_prompt()
+
+    print("Continuing session" if continue_session else "Starting new session")
+
+    display = ConsoleDisplay()
+    tool_library = ToolLibrary(message_claude)
+    agent = Agent(system_prompt, message_claude, display, tool_library)
+    agent.start(messages)
+
+
+def get_starting_messages(continue_session, start_message):
+    messages = load_chat() if continue_session else Messages()
+    if start_message:
+        messages.user_says(start_message)
+    return messages
+
+
+def get_continue_session(args):
+    return getattr(args, 'continue')
+
+
+def get_start_message(args):
     start_message = None
     if args.message:
         start_message = " ".join(args.message)
-    continue_session = getattr(args, 'continue')
-
-    generator = SystemPromptGenerator()
-    system_prompt = generator.generate_system_prompt()
-
-    messages = load_chat() if continue_session else Messages()
-    print("Continuing session" if continue_session else "Starting new session")
-
-    if start_message:
-        messages.user_says(start_message)
-
-    Agent(system_prompt, message_claude, ConsoleDisplay(), ToolLibrary(message_claude)).start(messages)
+    return start_message
 
 
 if __name__ == "__main__":
