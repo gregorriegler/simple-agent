@@ -7,7 +7,7 @@ from .claude_config import claude_config
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='request.log', encoding='utf-8', level=logging.DEBUG)
 
-def chat(system_prompt, messages):
+def chat(messages, system_prompt):
     url = "https://api.anthropic.com/v1/messages"
     api_key = claude_config.api_key
     model = claude_config.model
@@ -52,4 +52,3 @@ def chat(system_prompt, messages):
     except KeyboardInterrupt:
         print("\n\nExiting...")
         sys.exit(1)
-
