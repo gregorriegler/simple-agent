@@ -20,7 +20,6 @@ def main():
     start_message = get_start_message(args)
     messages = get_starting_messages(continue_session, start_message)
 
-    system_prompt = SystemPromptGenerator().generate_system_prompt()
 
     display = ConsoleDisplay()
     if continue_session:
@@ -29,6 +28,7 @@ def main():
         display.start_new_session()
 
     tool_library = ToolLibrary(message_claude)
+    system_prompt = SystemPromptGenerator().generate_system_prompt()
     agent = Agent(system_prompt, message_claude, display, tool_library)
     agent.start(messages)
 
