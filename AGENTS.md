@@ -39,7 +39,7 @@ Do not assume that I (the user) am always right.
   - Keep test data inline when the data structure IS what's being tested.
 
 # Commandline rules
-- We are in Bash
+- We are in Bash, so USE BASH
 - for interacting with github use the github cli
 - avoid interactive commands such as `git diff`.
   - E.g. use `git --no-pager diff` instead
