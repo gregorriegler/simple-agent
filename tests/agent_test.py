@@ -64,11 +64,17 @@ def test_tool_ls_integration(tmp_path):
 
 
 def test_chat_with_task_completion():
-    verify_chat(enter, "Say Hello", ["Hello!", "🛠️ complete-task I successfully said hello", "ignored"], rounds=3)
+    verify_chat(enter, "Say Hello", [
+        "Hello!",
+        "🛠️ complete-task I successfully said hello", "ignored"
+    ], rounds=3)
 
 
 def test_subagent():
-    verify_chat(enter, "Create a subagent that says hello", ["🛠️ subagent say hello", "hello", "🛠️ complete-task I successfully said hello"])
+    verify_chat(enter, "Create a subagent that says hello", [
+        "🛠️ subagent say hello", "hello",
+        "🛠️ complete-task I successfully said hello"
+    ])
 
 
 def test_nested_agent_test():
@@ -101,11 +107,11 @@ def test_tool_bash(mock_subprocess):
     verify_chat(enter, "use bash", f"🛠️ bash echo hello")
 
 
-def create_claude_stub(answer):
+def create_chat_stub(answer):
     if isinstance(answer, list):
         answer_index = 0
 
-        def claude_stub(system_prompt, messages):
+        def chat_stub():
             nonlocal answer_index
             if answer_index < len(answer):
                 result = answer[answer_index]
@@ -113,18 +119,19 @@ def create_claude_stub(answer):
                 return result
             else:
                 return answer[-1] if answer else ""
-        return claude_stub
+
+        return chat_stub
     else:
         return lambda system_prompt, messages: answer
 
 
 def verify_chat(input_stub, message, answer, rounds=1):
-    claude_stub = create_claude_stub(answer)
-    result = run_chat_test(input_stub, message, claude_stub, rounds)
+    chat_stub = create_chat_stub(answer)
+    result = run_chat_test(input_stub, message, chat_stub, rounds)
     verify(result, options=Options().with_scrubber(all_scrubbers()))
 
 
-def run_chat_test(input_stub, message, claude_stub, rounds=1):
+def run_chat_test(input_stub, message, chat_stub, rounds=1):
     saved_messages = "None"
 
     def save_messages(messages):
@@ -138,8 +145,8 @@ def run_chat_test(input_stub, message, claude_stub, rounds=1):
     display = ConsoleDisplay(print_fn=print_spy)
 
     class TestToolLibrary(ToolLibrary):
-        def __init__(self, message_claude):
-            super().__init__(message_claude, print_fn=print_spy)
+        def __init__(self, chat):
+            super().__init__(chat, print_fn=print_spy)
 
     class TestSystemPromptGenerator:
         def generate_system_prompt(self):
@@ -150,6 +157,6 @@ def run_chat_test(input_stub, message, claude_stub, rounds=1):
     with patch('builtins.input', input_stub):
         with patch('main.ToolLibrary', TestToolLibrary):
             with patch('main.SystemPromptGenerator', TestSystemPromptGenerator):
-                run_session(args, display, load_messages, save_messages, claude_stub, rounds)
+                run_session(args, display, load_messages, save_messages, chat_stub, rounds)
 
     return f"# Standard out:\n{print_spy.get_output()}\n\n# Saved messages:\n{saved_messages}"
