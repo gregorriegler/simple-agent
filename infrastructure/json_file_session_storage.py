@@ -7,7 +7,7 @@ from application.session_storage import SessionStorage
 from .claude.claude_config import claude_config
 
 
-class JsonSessionStorage(SessionStorage):
+class JsonFileSessionStorage(SessionStorage):
 
     def __init__(self, path=None):
         self.path = path or claude_config.session_file_path
