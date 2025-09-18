@@ -8,7 +8,7 @@ from application.chat import Messages
 from application.session_storage import SessionStorage
 from infrastructure.claude.claude_client import ClaudeChat
 from infrastructure.console_display import ConsoleDisplay
-from infrastructure.session_storage import JsonSessionStorage
+from infrastructure.json_file_session_storage import JsonFileSessionStorage
 from system_prompt_generator import SystemPromptGenerator
 from tools import ToolLibrary
 
@@ -23,7 +23,7 @@ def main():
     args = parse_args()
     display = ConsoleDisplay()
     claude_chat = ClaudeChat()
-    session_storage = JsonSessionStorage()
+    session_storage = JsonFileSessionStorage()
     run_session(args, display, session_storage, claude_chat, 999999)
 
 
