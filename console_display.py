@@ -1,4 +1,4 @@
-from agent import Display
+from display import Display
 import sys
 
 
