@@ -111,18 +111,20 @@ def create_chat_stub(answer):
     if isinstance(answer, list):
         answer_index = 0
 
-        def chat_stub():
+        def chat_stub(system_prompt=None, messages=None):
             nonlocal answer_index
             if answer_index < len(answer):
                 result = answer[answer_index]
                 answer_index += 1
                 return result
-            else:
-                return answer[-1] if answer else ""
+            if answer:
+                return answer[-1]
+            return ""
 
         return chat_stub
-    else:
-        return lambda system_prompt, messages: answer
+    def single_chat_stub(system_prompt, messages):
+        return answer
+    return single_chat_stub
 
 
 def verify_chat(input_stub, message, answer, rounds=1):

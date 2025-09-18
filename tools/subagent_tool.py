@@ -1,5 +1,5 @@
 from chat import Messages
-from console_display import ConsoleDisplay
+from infrastructure.console_display import ConsoleDisplay
 
 from .base_tool import BaseTool
 
@@ -33,7 +33,7 @@ class SubagentTool(BaseTool):
             return 'STDERR: subagent: missing task description'
 
         try:
-            from agent import Agent
+            from application.agent import Agent
             from system_prompt_generator import SystemPromptGenerator
 
             system_prompt = SystemPromptGenerator().generate_system_prompt()

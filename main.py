@@ -3,11 +3,11 @@
 import argparse
 from dataclasses import dataclass
 
-from claude.claude_client import chat
-from agent import Agent
+from infrastructure.claude.claude_client import chat
+from application.agent import Agent
 from system_prompt_generator import SystemPromptGenerator
 from chat import Messages, load_messages, save_messages
-from console_display import ConsoleDisplay
+from infrastructure.console_display import ConsoleDisplay
 from tools import ToolLibrary
 
 
