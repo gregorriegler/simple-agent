@@ -134,14 +134,15 @@ def verify_chat(input_stub, message, answer, rounds=1):
 
 
 def run_chat_test(input_stub, message, chat_stub, rounds=1):
-    saved_messages = "None"
+    class TestSessionStorage:
+        def __init__(self):
+            self.saved = "None"
 
-    def save_messages(messages):
-        nonlocal saved_messages
-        saved_messages = "\n".join(f"{msg['role']}: {msg['content']}" for msg in messages)
+        def load(self):
+            return Messages()
 
-    def load_messages():
-        return Messages()
+        def save(self, messages):
+            self.saved = "\n".join(f"{msg['role']}: {msg['content']}" for msg in messages)
 
     print_spy = PrintSpy()
     display = ConsoleDisplay(print_fn=print_spy)
@@ -156,9 +157,11 @@ def run_chat_test(input_stub, message, chat_stub, rounds=1):
 
     args = SessionArgs(False, message)
 
+    test_session_storage = TestSessionStorage()
+
     with patch('builtins.input', input_stub):
         with patch('main.ToolLibrary', TestToolLibrary):
             with patch('main.SystemPromptGenerator', TestSystemPromptGenerator):
-                run_session(args, display, load_messages, save_messages, chat_stub, rounds)
+                run_session(args, display, test_session_storage, chat_stub, rounds)
 
-    return f"# Standard out:\n{print_spy.get_output()}\n\n# Saved messages:\n{saved_messages}"
+    return f"# Standard out:\n{print_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"

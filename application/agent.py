@@ -1,16 +1,17 @@
 import sys
 
 from .chat import Chat
+from .session_storage import SessionStorage
 
 
 class Agent:
 
-    def __init__(self, chat: Chat, system_prompt, tools, display, save_messages):
+    def __init__(self, chat: Chat, system_prompt, tools, display, session_storage: SessionStorage):
         self.chat: Chat = chat
         self.system_prompt = system_prompt
         self.display = display
         self.tools = tools
-        self.save_messages = save_messages
+        self.session_storage = session_storage
 
     def start(self, messages, rounds=999999):
         for _ in range(rounds):
@@ -23,7 +24,7 @@ class Agent:
                 if parsed_tool:
                     tool_result = self.tools.execute_parsed_tool(parsed_tool)
                     if parsed_tool.tool_instance.is_completing():
-                        self.save_messages(messages)
+                        self.session_storage.save(messages)
                         user_input = self.display.input()
                         if user_input:
                             messages.user_says(user_input)
@@ -39,7 +40,7 @@ class Agent:
                     if user_input:
                         messages.user_says(user_input)
 
-                self.save_messages(messages)
+                self.session_storage.save(messages)
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break

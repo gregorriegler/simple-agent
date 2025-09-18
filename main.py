@@ -3,12 +3,13 @@
 import argparse
 from dataclasses import dataclass
 
-from infrastructure.claude.claude_client import ClaudeChat
 from application.agent import Agent
-from system_prompt_generator import SystemPromptGenerator
 from application.chat import Messages
-from chat import load_messages, save_messages
+from application.session_storage import SessionStorage
+from infrastructure.claude.claude_client import ClaudeChat
 from infrastructure.console_display import ConsoleDisplay
+from infrastructure.session_storage import JsonSessionStorage
+from system_prompt_generator import SystemPromptGenerator
 from tools import ToolLibrary
 
 
@@ -22,7 +23,8 @@ def main():
     args = parse_args()
     display = ConsoleDisplay()
     claude_chat = ClaudeChat()
-    run_session(args, display, load_messages, save_messages, claude_chat, 999999)
+    session_storage = JsonSessionStorage()
+    run_session(args, display, session_storage, claude_chat, 999999)
 
 
 def parse_args(argv=None):
@@ -39,8 +41,8 @@ def build_start_message(message_parts):
     return " ".join(message_parts)
 
 
-def run_session(args: SessionArgs, display, load_messages, save_messages, chat, rounds):
-    messages = load_messages() if args.continue_session else Messages()
+def run_session(args: SessionArgs, display, session_storage: SessionStorage, chat, rounds):
+    messages = session_storage.load() if args.continue_session else Messages()
     if args.start_message:
         messages.user_says(args.start_message)
     if args.continue_session:
@@ -49,7 +51,7 @@ def run_session(args: SessionArgs, display, load_messages, save_messages, chat, 
         display.start_new_session()
     tool_library = ToolLibrary(chat)
     system_prompt = SystemPromptGenerator().generate_system_prompt()
-    agent = Agent(chat, system_prompt, tool_library, display, save_messages)
+    agent = Agent(chat, system_prompt, tool_library, display, session_storage)
     agent.start(messages, rounds)
 
 
