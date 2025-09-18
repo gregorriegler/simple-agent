@@ -1,4 +1,4 @@
-from chat import Messages
+from application.chat import Messages
 from infrastructure.console_display import ConsoleDisplay
 
 from .base_tool import BaseTool
@@ -59,3 +59,4 @@ class SubagentDisplay(ConsoleDisplay):
 
     def exit(self):
         pass
+

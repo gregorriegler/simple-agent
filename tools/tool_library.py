@@ -1,6 +1,8 @@
 import re
 import subprocess
 
+from application.chat import Chat
+
 from .ls_tool import LsTool
 from .cat_tool import CatTool
 from .create_file_tool import CreateFileTool
@@ -23,8 +25,10 @@ class ParsedTool:
 
 
 class ToolLibrary:
-    def __init__(self, message_claude=lambda system_prompt, messages: "", indent_level=0, print_fn=print):
-        self.message_claude = message_claude
+    def __init__(self, message_claude: Chat | None = None, indent_level=0, print_fn=print):
+        if message_claude is None:
+            message_claude = lambda system_prompt, messages: ''
+        self.message_claude: Chat = message_claude
         self.indent_level = indent_level
         self.print_fn = print_fn
         static_tools = self._create_static_tools()

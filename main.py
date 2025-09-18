@@ -3,10 +3,11 @@
 import argparse
 from dataclasses import dataclass
 
-from infrastructure.claude.claude_client import chat
+from infrastructure.claude.claude_client import ClaudeChat
 from application.agent import Agent
 from system_prompt_generator import SystemPromptGenerator
-from chat import Messages, load_messages, save_messages
+from application.chat import Messages
+from chat import load_messages, save_messages
 from infrastructure.console_display import ConsoleDisplay
 from tools import ToolLibrary
 
@@ -20,7 +21,8 @@ class SessionArgs:
 def main():
     args = parse_args()
     display = ConsoleDisplay()
-    run_session(args, display, load_messages, save_messages, chat, 999999)
+    claude_chat = ClaudeChat()
+    run_session(args, display, load_messages, save_messages, claude_chat, 999999)
 
 
 def parse_args(argv=None):
@@ -53,3 +55,4 @@ def run_session(args: SessionArgs, display, load_messages, save_messages, chat, 
 
 if __name__ == "__main__":
     main()
+

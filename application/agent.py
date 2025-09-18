@@ -1,10 +1,12 @@
 import sys
 
+from .chat import Chat
+
 
 class Agent:
 
-    def __init__(self, chat, system_prompt, tools, display, save_messages):
-        self.chat = chat
+    def __init__(self, chat: Chat, system_prompt, tools, display, save_messages):
+        self.chat: Chat = chat
         self.system_prompt = system_prompt
         self.display = display
         self.tools = tools

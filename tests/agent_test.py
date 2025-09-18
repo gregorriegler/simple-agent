@@ -3,7 +3,7 @@ from unittest.mock import patch, Mock
 from approvaltests import verify, Options
 
 from main import run_session, SessionArgs
-from chat import Messages
+from application.chat import Messages
 from console_display import ConsoleDisplay
 from tools import ToolLibrary
 from .test_helpers import (

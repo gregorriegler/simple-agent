@@ -1,37 +1,12 @@
 import json
 import os
 import sys
-from dataclasses import dataclass, field
-from typing import List, Dict
+
+from application.chat import Messages
 from infrastructure.claude.claude_config import claude_config
 
-@dataclass()
-class Messages:
-    _messages: List[Dict[str, str]] = field(default_factory=list)
 
-    def user_says(self, content: str):
-        self.add("user", content)
-
-    def assistant_says(self, content: str):
-        self.add("assistant", content)
-
-    def add(self, role: str, content: str):
-        self._messages.append({"role": role, "content": content})
-
-    def to_list(self) -> List[Dict[str, str]]:
-        return list(self._messages)
-
-    def __len__(self) -> int:
-        return len(self._messages)
-
-    def __iter__(self):
-        return iter(self._messages)
-
-    def __str__(self) -> str:
-        return str(self._messages)
-
-
-def load_messages() -> 'Messages':
+def load_messages() -> Messages:
     session_file = claude_config.session_file_path
     if not os.path.exists(session_file):
         return Messages()
@@ -45,7 +20,7 @@ def load_messages() -> 'Messages':
         return Messages()
 
 
-def save_messages(messages):
+def save_messages(messages: Messages):
     session_file = claude_config.session_file_path
     try:
         with open(session_file, 'w', encoding='utf-8') as f:
