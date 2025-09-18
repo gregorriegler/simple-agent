@@ -4,7 +4,7 @@ from approvaltests import verify, Options
 
 from main import run_session, SessionArgs
 from application.chat import Messages
-from console_display import ConsoleDisplay
+from infrastructure.console_display import ConsoleDisplay
 from tools import ToolLibrary
 from .test_helpers import (
     create_temp_file,
