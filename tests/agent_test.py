@@ -1,9 +1,8 @@
-import builtins
 from unittest.mock import patch, Mock
 
 from approvaltests import verify, Options
 
-from agent import Agent
+from main import run_session, SessionArgs
 from chat import Messages
 from console_display import ConsoleDisplay
 from tools import ToolLibrary
@@ -126,28 +125,31 @@ def verify_chat(input_stub, message, answer, rounds=1):
 
 
 def run_chat_test(input_stub, message, claude_stub, rounds=1):
-    builtins.input = input_stub
-
     saved_messages = "None"
 
     def save_messages(messages):
         nonlocal saved_messages
         saved_messages = "\n".join(f"{msg['role']}: {msg['content']}" for msg in messages)
 
-    system_prompt = "Test system prompt"
+    def load_messages():
+        return Messages()
+
     print_spy = PrintSpy()
+    display = ConsoleDisplay(print_fn=print_spy)
 
-    messages = Messages()
-    print_spy("Starting new session")
+    class TestToolLibrary(ToolLibrary):
+        def __init__(self, message_claude):
+            super().__init__(message_claude, print_fn=print_spy)
 
-    if message:
-        messages.user_says(message)
+    class TestSystemPromptGenerator:
+        def generate_system_prompt(self):
+            return "Test system prompt"
 
-    try:
-        agent = Agent(claude_stub, system_prompt, ToolLibrary(claude_stub, print_fn=print_spy),
-                      ConsoleDisplay(print_fn=print_spy), save_messages)
-        agent.start(messages, rounds)
-    except KeyboardInterrupt:
-        pass
+    args = SessionArgs(False, message)
+
+    with patch('builtins.input', input_stub):
+        with patch('main.ToolLibrary', TestToolLibrary):
+            with patch('main.SystemPromptGenerator', TestSystemPromptGenerator):
+                run_session(args, display, load_messages, save_messages, claude_stub, rounds)
 
     return f"# Standard out:\n{print_spy.get_output()}\n\n# Saved messages:\n{saved_messages}"
