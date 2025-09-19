@@ -41,7 +41,7 @@ class ClaudeChat(Chat):
                 raise ClaudeClientError("API response missing 'content' field")
             content = response_data["content"]
             if not content:
-                raise ClaudeClientError("API response has empty content array")
+                return ""
             first_content = content[0]
             if "text" not in first_content:
                 raise ClaudeClientError("API response content missing 'text' field")

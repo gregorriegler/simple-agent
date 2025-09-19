@@ -8,4 +8,5 @@ Press Enter to continue or type a message to add:
 Exiting...
 
 # Saved messages:
-None
+user: Test message
+assistant: Test answer

@@ -5,11 +5,8 @@ Agent: Test answer
 
 Press Enter to continue or type a message to add: 
 
-Agent: Test answer
-
-Press Enter to continue or type a message to add: 
+Exiting...
 
 # Saved messages:
 user: Hello
-assistant: Test answer
 assistant: Test answer

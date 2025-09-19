@@ -2,10 +2,7 @@
 Starting new session
 
 Agent: Hello!
-
-Press Enter to continue or type a message to add: 
-
-Agent: 🛠️ complete-task I successfully said hello
+       🛠️ complete-task I successfully said hello
 
 Press Enter to continue or type a message to add: 
 
@@ -14,4 +11,4 @@ Exiting...
 # Saved messages:
 user: Say Hello
 assistant: Hello!
-assistant: 🛠️ complete-task I successfully said hello
+🛠️ complete-task I successfully said hello

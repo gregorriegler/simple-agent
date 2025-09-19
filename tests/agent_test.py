@@ -1,10 +1,10 @@
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 from approvaltests import verify, Options
 
-from main import run_session, SessionArgs
 from application.chat import Messages
 from infrastructure.console_display import ConsoleDisplay
+from main import run_session, SessionArgs
 from tools import ToolLibrary
 from .test_helpers import (
     create_temp_file,
@@ -69,15 +69,14 @@ def test_tool_ls_integration(tmp_path):
 
 def test_chat_with_task_completion():
     verify_chat("Say Hello", enter, [
-        "Hello!",
-        "🛠️ complete-task I successfully said hello", "ignored"
-    ], rounds=3)
+        "Hello!\n🛠️ complete-task I successfully said hello",
+        "ignored"
+    ], rounds=2)
 
 
 def test_subagent():
     verify_chat("Create a subagent that says hello", enter, [
-        "🛠️ subagent say hello", "hello",
-        "🛠️ complete-task I successfully said hello"
+        "🛠️ subagent say hello", "hello\n🛠️ complete-task I successfully said hello"
     ])
 
 
@@ -85,8 +84,7 @@ def test_nested_agent_test():
     verify_chat("Create a subagent that creates another subagent", enter, [
         "🛠️ subagent create another subagent",
         "🛠️ subagent say nested hello",
-        "nested hello",
-        "🛠️ complete-task I successfully said nested hello",
+        "nested hello\n🛠️ complete-task I successfully said nested hello",
         "🛠️ complete-task I successfully created another subagent"
     ])
 
@@ -94,8 +92,7 @@ def test_nested_agent_test():
 def test_agent_says_after_subagent():
     verify_chat("Create a subagent that says hello, then say goodbye", enter, [
         "🛠️ subagent say hello",
-        "hello",
-        "🛠️ complete-task I successfully said hello",
+        "hello\n🛠️ complete-task I successfully said hello",
         "goodbye"
     ], rounds=2)
 

@@ -4,10 +4,7 @@ Starting new session
 Agent: 🛠️ subagent say hello
 
        Subagent: hello
-
-       Press Enter to continue or type a message to add: 
-
-       Subagent: 🛠️ complete-task I successfully said hello
+              🛠️ complete-task I successfully said hello
 
        Press Enter to continue or type a message to add: 
 
