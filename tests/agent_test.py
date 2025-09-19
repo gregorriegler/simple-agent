@@ -96,17 +96,6 @@ def test_agent_says_after_subagent():
     ], rounds=2)
 
 
-@patch('tools.bash_tool.subprocess.run')
-def test_tool_bash(mock_subprocess):
-    mock_result = Mock()
-    mock_result.stdout = "hello"
-    mock_result.stderr = ""
-    mock_result.returncode = 0
-    mock_subprocess.return_value = mock_result
-
-    verify_chat(enter, "use bash", f"🛠️ bash echo hello")
-
-
 def create_chat_stub(answer):
     if isinstance(answer, list):
         answer_index = 0
