@@ -18,6 +18,9 @@ class ParsedTool:
         self.arguments = arguments
         self.tool_instance = tool_instance
 
+    def is_completing(self):
+        return self.tool_instance.is_completing()
+
     def __str__(self):
         if self.arguments:
             return f"🛠️ {self.name} {self.arguments}"
@@ -83,7 +86,7 @@ class ToolLibrary:
                 if not tool:
                     return None
 
-                all_arg_lines=[]
+                all_arg_lines = []
                 if same_line_args: all_arg_lines.append(same_line_args)
 
                 for j in range(i + 1, len(lines)):

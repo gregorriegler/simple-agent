@@ -23,7 +23,7 @@ class Agent:
                 parsed_tool = self.tools.parse_tool(answer)
                 if parsed_tool:
                     tool_result = self.tools.execute_parsed_tool(parsed_tool)
-                    if parsed_tool.tool_instance.is_completing():
+                    if parsed_tool.is_completing():
                         self.session_storage.save(messages)
                         user_input = self.display.input()
                         if not user_input:
