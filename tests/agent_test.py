@@ -37,48 +37,48 @@ def keyboard_interrupt(_):
 
 
 def test_chat_with_regular_response():
-    verify_chat(enter, "Hello", "Hello! How can I help you?")
+    verify_chat("Hello", enter, "Hello! How can I help you?")
 
 
 def test_chat_with_two_regular_responses():
-    verify_chat(lambda _ : "User Answer", "Hello", ["Answer 1", "Answer 2"], 2)
+    verify_chat("Hello", lambda _: "User Answer", ["Answer 1", "Answer 2"], 2)
 
 
 def test_abort():
-    verify_chat(keyboard_interrupt, "Test message", "Test answer")
+    verify_chat("Test message", keyboard_interrupt, "Test answer")
 
 
 def test_tool_cat(tmp_path):
     temp_file = create_temp_file(tmp_path, "testfile.txt", "Hello world")
-    verify_chat(enter, "Test message", f"🛠️ cat {temp_file}")
+    verify_chat("Test message", enter, f"🛠️ cat {temp_file}")
 
 
 def test_tool_cat_integration(tmp_path):
     temp_file = create_temp_file(tmp_path, "integration_test.txt", "Integration test content\nLine 2")
-    verify_chat(enter, "Test message", f"🛠️ cat {temp_file}")
+    verify_chat("Test message", enter, f"🛠️ cat {temp_file}")
 
 
 def test_tool_ls_integration(tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
-    verify_chat(enter, "Test message", f"🛠️ ls {directory_path}")
+    verify_chat("Test message", enter, f"🛠️ ls {directory_path}")
 
 
 def test_chat_with_task_completion():
-    verify_chat(enter, "Say Hello", [
+    verify_chat("Say Hello", enter, [
         "Hello!",
         "🛠️ complete-task I successfully said hello", "ignored"
     ], rounds=3)
 
 
 def test_subagent():
-    verify_chat(enter, "Create a subagent that says hello", [
+    verify_chat("Create a subagent that says hello", enter, [
         "🛠️ subagent say hello", "hello",
         "🛠️ complete-task I successfully said hello"
     ])
 
 
 def test_nested_agent_test():
-    verify_chat(enter, "Create a subagent that creates another subagent", [
+    verify_chat("Create a subagent that creates another subagent", enter, [
         "🛠️ subagent create another subagent",
         "🛠️ subagent say nested hello",
         "nested hello",
@@ -88,7 +88,7 @@ def test_nested_agent_test():
 
 
 def test_agent_says_after_subagent():
-    verify_chat(enter, "Create a subagent that says hello, then say goodbye", [
+    verify_chat("Create a subagent that says hello, then say goodbye", enter, [
         "🛠️ subagent say hello",
         "hello",
         "🛠️ complete-task I successfully said hello",
@@ -116,7 +116,7 @@ def create_chat_stub(answer):
     return single_chat_stub
 
 
-def verify_chat(input_stub, message, answer, rounds=1):
+def verify_chat(message, input_stub, answer, rounds=1):
     chat_stub = create_chat_stub(answer)
     result = run_chat_test(input_stub, message, chat_stub, rounds)
     verify(result, options=Options().with_scrubber(all_scrubbers()))
