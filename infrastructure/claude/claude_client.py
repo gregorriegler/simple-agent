@@ -1,7 +1,5 @@
 import json
 import logging
-import sys
-
 import requests
 
 from application.chat import Chat, ChatMessages
@@ -9,6 +7,11 @@ from .claude_config import claude_config
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='request.log', encoding='utf-8', level=logging.DEBUG)
+
+
+class ClaudeClientError(RuntimeError):
+
+    pass
 
 
 class ClaudeChat(Chat):
@@ -35,20 +38,14 @@ class ClaudeChat(Chat):
             logger.debug("Response:" + json.dumps(response.json(), indent=4))
             response_data = response.json()
             if "content" not in response_data:
-                print("API response missing 'content' field", file=sys.stderr)
-                sys.exit(1)
+                raise ClaudeClientError("API response missing 'content' field")
             content = response_data["content"]
-            if not content or len(content) == 0:
-                print("API response has empty content array", file=sys.stderr)
-                sys.exit(1)
-            if "text" not in content[0]:
-                print("API response content missing 'text' field", file=sys.stderr)
-                sys.exit(1)
-            return content[0]["text"]
+            if not content:
+                raise ClaudeClientError("API response has empty content array")
+            first_content = content[0]
+            if "text" not in first_content:
+                raise ClaudeClientError("API response content missing 'text' field")
+            return first_content["text"]
         except requests.exceptions.RequestException as e:
-            print(f"API request failed: {e}", file=sys.stderr)
-            sys.exit(1)
-        except KeyboardInterrupt:
-            print("\n\nExiting...")
-            sys.exit(1)
+            raise ClaudeClientError(f"API request failed: {e}") from e
 

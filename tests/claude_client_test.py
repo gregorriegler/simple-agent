@@ -2,7 +2,7 @@ import pytest
 import requests
 
 from infrastructure.claude import claude_client
-from infrastructure.claude.claude_client import ClaudeChat
+from infrastructure.claude.claude_client import ClaudeChat, ClaudeClientError
 from infrastructure.claude.claude_config import claude_config
 
 
@@ -31,30 +31,26 @@ def test_claude_chat_returns_content_text(monkeypatch):
     }
 
 
-def test_claude_chat_exits_when_content_missing(monkeypatch, capsys):
+def test_claude_chat_raises_error_when_content_missing(monkeypatch):
     stub_claude_config(monkeypatch)
     monkeypatch.setattr(claude_client.requests, "post", create_missing_content_post())
     chat = ClaudeChat()
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(ClaudeClientError) as error:
         chat("system", [])
 
-    captured = capsys.readouterr()
-
-    assert captured.err.strip() == "API response missing 'content' field"
+    assert str(error.value) == "API response missing 'content' field"
 
 
-def test_claude_chat_exits_when_request_fails(monkeypatch, capsys):
+def test_claude_chat_raises_error_when_request_fails(monkeypatch):
     stub_claude_config(monkeypatch)
     monkeypatch.setattr(claude_client.requests, "post", create_failing_post())
     chat = ClaudeChat()
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(ClaudeClientError) as error:
         chat("system", [])
 
-    captured = capsys.readouterr()
-
-    assert captured.err.strip() == "API request failed: network down"
+    assert str(error.value) == "API request failed: network down"
 
 
 def stub_claude_config(monkeypatch):
