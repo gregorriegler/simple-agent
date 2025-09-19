@@ -19,7 +19,6 @@ class Agent:
                 answer = self.chat(self.system_prompt, messages.to_list())
                 self.display.assistant_says(answer)
                 messages.assistant_says(answer)
-                self.session_storage.save(messages)
 
                 parsed_tool = self.tools.parse_tool(answer)
                 if parsed_tool:
