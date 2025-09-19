@@ -21,10 +21,10 @@ class Agent:
                 messages.assistant_says(answer)
                 self.session_storage.save(messages)
 
-                parsed_tool = self.tools.parse_tool(answer)
-                if parsed_tool:
-                    tool_result = self.tools.execute_parsed_tool(parsed_tool)
-                    if parsed_tool.is_completing():
+                tool = self.tools.parse_tool(answer)
+                if tool:
+                    tool_result = self.tools.execute_parsed_tool(tool)
+                    if tool.is_completing():
                         user_input = self.display.input()
                         if not user_input:
                             self.display.exit()
@@ -32,11 +32,11 @@ class Agent:
                         messages.user_says(user_input)
                     else:
                         self.display.tool_result(tool_result)
-                        messages.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
+                        messages.user_says("Result of " + str(tool) + "\n" + tool_result)
 
                 self.session_storage.save(messages)
 
-                if not parsed_tool or self._check_for_escape():
+                if not tool or self._check_for_escape():
                     user_input = self.display.input()
                     if not user_input:
                         self.display.exit()
