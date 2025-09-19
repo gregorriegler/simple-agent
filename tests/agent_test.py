@@ -44,6 +44,10 @@ def test_chat_with_two_regular_responses():
     verify_chat("Hello", lambda _: "User Answer", ["Answer 1", "Answer 2"], 2)
 
 
+def test_chat_with_empty_answer():
+    verify_chat("Hello", lambda _ : "", "Test answer", 2)
+
+
 def test_abort():
     verify_chat("Test message", keyboard_interrupt, "Test answer")
 
