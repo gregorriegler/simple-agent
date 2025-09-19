@@ -49,7 +49,7 @@ class Agent:
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break
-        return None
+        return ""
 
     def _check_for_escape(self):
         if sys.platform == "win32":
