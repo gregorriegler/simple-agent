@@ -1,4 +1,5 @@
 from application.chat import Messages
+from application.persisted_messages import PersistedMessages
 from infrastructure.console_display import ConsoleDisplay
 
 from .base_tool import BaseTool
@@ -52,7 +53,7 @@ class SubagentTool(BaseTool):
             subagent_session_storage = NoOpSessionStorage()
             subagent = Agent(self.message_claude, system_prompt, subagent_tools, self.subagent_display, subagent_session_storage)
 
-            subagent_messages = Messages()
+            subagent_messages = PersistedMessages(Messages(), subagent_session_storage)
             subagent_messages.user_says(args.strip())
             result = subagent.start(subagent_messages)
             return result
