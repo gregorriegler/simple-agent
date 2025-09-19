@@ -50,7 +50,8 @@ class Agent:
                 break
         return ""
 
-    def _check_for_escape(self):
+    @staticmethod
+    def _check_for_escape():
         if sys.platform == "win32":
             import msvcrt
             if msvcrt.kbhit():
