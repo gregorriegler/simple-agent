@@ -19,7 +19,6 @@ class Agent:
                 answer = self.chat(self.system_prompt, messages.to_list())
                 self.display.assistant_says(answer)
                 messages.assistant_says(answer)
-                self.session_storage.save(messages)
 
                 tool = self.tools.parse_tool(answer)
                 if tool:
@@ -34,15 +33,12 @@ class Agent:
                         self.display.tool_result(tool_result)
                         messages.user_says("Result of " + str(tool) + "\n" + tool_result)
 
-                self.session_storage.save(messages)
-
                 if not tool or self._check_for_escape():
                     user_input = self.display.input()
                     if not user_input:
                         self.display.exit()
                         return ""
                     messages.user_says(user_input)
-                    self.session_storage.save(messages)
 
 
             except (EOFError, KeyboardInterrupt):
