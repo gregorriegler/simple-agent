@@ -100,7 +100,7 @@ def create_chat_stub(answer):
     if isinstance(answer, list):
         answer_index = 0
 
-        def chat_stub(system_prompt=None, messages=None):
+        def chat_stub(system_prompt, messages):
             nonlocal answer_index
             if answer_index < len(answer):
                 result = answer[answer_index]
