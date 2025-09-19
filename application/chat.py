@@ -23,7 +23,8 @@ class Messages:
         self.add("assistant", content)
 
     def add(self, role: str, content: str):
-        self._messages.append({"role": role, "content": content})
+        if content:
+            self._messages.append({"role": role, "content": content})
 
     def to_list(self) -> ChatMessages:
         return list(self._messages)

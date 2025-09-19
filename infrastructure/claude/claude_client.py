@@ -34,8 +34,8 @@ class ClaudeChat(Chat):
         try:
             logger.debug("Request:" + json.dumps(data, indent=4))
             response = requests.post(url, headers=headers, json=data)
-            response.raise_for_status()
             logger.debug("Response:" + json.dumps(response.json(), indent=4))
+            response.raise_for_status()
             response_data = response.json()
             if "content" not in response_data:
                 raise ClaudeClientError("API response missing 'content' field")

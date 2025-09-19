@@ -26,19 +26,17 @@ class Agent:
                     if parsed_tool.tool_instance.is_completing():
                         self.session_storage.save(messages)
                         user_input = self.display.input()
-                        if user_input:
-                            messages.user_says(user_input)
-                        else:
+                        if not user_input:
                             self.display.exit()
                             return tool_result
+                        messages.user_says(user_input)
                     else:
                         self.display.tool_result(tool_result)
                         messages.user_says("Result of " + str(parsed_tool) + "\n" + tool_result)
 
                 if not parsed_tool or self._check_for_escape():
                     user_input = self.display.input()
-                    if user_input:
-                        messages.user_says(user_input)
+                    messages.user_says(user_input)
 
                 self.session_storage.save(messages)
             except (EOFError, KeyboardInterrupt):
