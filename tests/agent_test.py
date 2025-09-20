@@ -5,7 +5,7 @@ from approvaltests import verify, Options
 from application.chat import Messages
 from application.input import Input
 from infrastructure.console_display import ConsoleDisplay
-from main import run_session, SessionArgs
+from application.session import run_session, SessionArgs
 from tools import ToolLibrary
 from .test_helpers import (
     create_temp_file,
@@ -204,8 +204,8 @@ def run_chat_test(input_stub, message, chat_stub, rounds=1, escape_detector=None
     user_input.stack(args.start_message)
 
     with patch('builtins.input', input_stub):
-        with patch('main.ToolLibrary', TestToolLibrary):
-            with patch('main.SystemPromptGenerator', TestSystemPromptGenerator):
+        with patch('application.session.ToolLibrary', TestToolLibrary):
+            with patch('application.session.SystemPromptGenerator', TestSystemPromptGenerator):
                 with patch('tools.subagent_tool.ConsoleEscapeDetector', TestConsoleEscapeDetector):
                     run_session(args, user_input, display, test_session_storage, chat_stub, rounds)
 
