@@ -119,7 +119,7 @@ def create_escape_detector_stub(values):
             return values[-1] if values else False
 
         return detector
-    return lambda : bool(values)
+    return lambda: bool(values)
 
 
 def create_chat_stub(answer):
@@ -137,14 +137,16 @@ def create_chat_stub(answer):
             return ""
 
         return chat_stub
+
     def single_chat_stub(system_prompt, messages):
         return answer
+
     return single_chat_stub
 
 
 def create_input_stub(inputs):
     if isinstance(inputs, str):
-        return lambda _ : inputs
+        return lambda _: inputs
     if isinstance(inputs, list):
         input_index = 0
 
@@ -171,6 +173,7 @@ def verify_chat(message, input_stub, answer, rounds=1, escape_detector=None):
 
 def run_chat_test(input_stub, message, chat_stub, rounds=1, escape_detector=None):
     detector = escape_detector or create_escape_detector_stub(False)
+
     class TestSessionStorage:
         def __init__(self):
             self.saved = "None"
@@ -192,9 +195,8 @@ def run_chat_test(input_stub, message, chat_stub, rounds=1, escape_detector=None
         def __init__(self, chat):
             super().__init__(chat, print_fn=print_spy)
 
-    class TestSystemPromptGenerator:
-        def generate_system_prompt(self):
-            return "Test system prompt"
+    def test_system_prompt():
+        return "Test system prompt"
 
     args = SessionArgs(False, message)
 
@@ -205,8 +207,7 @@ def run_chat_test(input_stub, message, chat_stub, rounds=1, escape_detector=None
 
     with patch('builtins.input', input_stub):
         with patch('application.session.ToolLibrary', TestToolLibrary):
-            with patch('application.session.SystemPromptGenerator', TestSystemPromptGenerator):
-                with patch('tools.subagent_tool.ConsoleEscapeDetector', TestConsoleEscapeDetector):
-                    run_session(args, user_input, display, test_session_storage, chat_stub, rounds)
+            with patch('tools.subagent_tool.ConsoleEscapeDetector', TestConsoleEscapeDetector):
+                run_session(args, user_input, display, test_session_storage, chat_stub, test_system_prompt, rounds)
 
     return f"# Standard out:\n{print_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
