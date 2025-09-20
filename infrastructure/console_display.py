@@ -19,8 +19,7 @@ class ConsoleDisplay(Display):
                 self.print(f"{self.base_indent}{line}")
 
     def tool_about_to_execute(self, parsed_tool):
-        indented_tool = self._indent_lines(str(parsed_tool), "       " * self.indent_level)
-        self.print(f"\n{indented_tool}")
+        pass
 
     def tool_result(self, result):
         lines = str(result).split('\n')

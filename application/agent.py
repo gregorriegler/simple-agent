@@ -28,9 +28,15 @@ class Agent:
                 self.display.assistant_says(answer)
                 messages.assistant_says(answer)
 
+                if self._check_for_escape():
+                    user_input = self.input_feed.read()
+                    if user_input:
+                        messages.user_says(user_input)
+
                 tool = self.tools.parse_tool(answer)
 
                 if tool:
+                    self.display.tool_about_to_execute(tool)
                     tool_result = self.tools.execute_parsed_tool(tool)
                     self.display.tool_result(tool_result)
                     if tool.is_completing():
