@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from application.agent import Agent
 from application.chat import Messages
+from application.input_feed import InputFeed
 from application.persisted_messages import PersistedMessages
 from application.session_storage import SessionStorage
 from infrastructure.claude.claude_client import ClaudeChat
@@ -53,7 +54,8 @@ def run_session(args: SessionArgs, display, session_storage: SessionStorage, cha
         display.start_new_session()
     tool_library = ToolLibrary(chat)
     system_prompt = SystemPromptGenerator().generate_system_prompt()
-    agent = Agent(chat, system_prompt, tool_library, display, session_storage)
+    input_feed = InputFeed(display)
+    agent = Agent(chat, system_prompt, input_feed, tool_library, display, session_storage)
     agent.start(persisted_messages, rounds)
 
 

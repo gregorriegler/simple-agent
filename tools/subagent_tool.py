@@ -1,4 +1,5 @@
 from application.chat import Messages
+from application.input_feed import InputFeed
 from application.persisted_messages import PersistedMessages
 from infrastructure.console_display import ConsoleDisplay
 
@@ -51,7 +52,8 @@ class SubagentTool(BaseTool):
             from tools.tool_library import ToolLibrary
             subagent_tools = ToolLibrary(self.message_claude, self.indent_level + 1, self.print_fn)
             subagent_session_storage = NoOpSessionStorage()
-            subagent = Agent(self.message_claude, system_prompt, subagent_tools, self.subagent_display, subagent_session_storage)
+            input_feed = InputFeed(self.subagent_display)
+            subagent = Agent(self.message_claude, system_prompt, input_feed, subagent_tools, self.subagent_display, subagent_session_storage)
 
             subagent_messages = PersistedMessages(Messages(), subagent_session_storage)
             subagent_messages.user_says(args.strip())

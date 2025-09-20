@@ -6,9 +6,10 @@ from .session_storage import SessionStorage
 
 class Agent:
 
-    def __init__(self, chat: Chat, system_prompt, tools, display, session_storage: SessionStorage):
+    def __init__(self, chat: Chat, system_prompt, input_feed, tools, display, session_storage: SessionStorage):
         self.chat: Chat = chat
         self.system_prompt = system_prompt
+        self.input_feed = input_feed
         self.display = display
         self.tools = tools
         self.session_storage = session_storage
