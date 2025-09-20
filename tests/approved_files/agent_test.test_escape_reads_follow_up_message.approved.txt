@@ -1,0 +1,11 @@
+# Standard out:
+Starting new session
+
+Agent: Assistant response
+
+Press Enter to continue or type a message to add: 
+
+# Saved messages:
+user: Hello
+assistant: Assistant response
+user: Follow-up message

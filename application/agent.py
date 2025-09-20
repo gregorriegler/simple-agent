@@ -1,15 +1,13 @@
-import sys
-
 from .chat import Chat
 from .session_storage import SessionStorage
 
 
 class Agent:
 
-    def __init__(self, chat: Chat, system_prompt, input_feed, tools, display, session_storage: SessionStorage):
+    def __init__(self, chat: Chat, system_prompt, user_input, tools, display, session_storage: SessionStorage):
         self.chat: Chat = chat
         self.system_prompt = system_prompt
-        self.input_feed = input_feed
+        self.input = user_input
         self.display = display
         self.tools = tools
         self.session_storage = session_storage
@@ -18,7 +16,7 @@ class Agent:
         result = ""
         for _ in range(rounds):
             try:
-                user_input = self.input_feed.read()
+                user_input = self.input.read()
                 if user_input:
                     messages.user_says(user_input)
                 else:
@@ -28,8 +26,8 @@ class Agent:
                 self.display.assistant_says(answer)
                 messages.assistant_says(answer)
 
-                if self._check_for_escape():
-                    user_input = self.input_feed.read()
+                if self.input.escape_requested():
+                    user_input = self.input.read()
                     if user_input:
                         messages.user_says(user_input)
 
@@ -42,19 +40,10 @@ class Agent:
                     if tool.is_completing():
                         result = tool_result
                     else:
-                        self.input_feed.stack("Result of " + str(tool) + "\n" + tool_result)
+                        self.input.stack("Result of " + str(tool) + "\n" + tool_result)
 
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break
         return ""
 
-    @staticmethod
-    def _check_for_escape():
-        if sys.platform == "win32":
-            import msvcrt
-            if msvcrt.kbhit():
-                key = msvcrt.getch()
-                if key == b'\x1b':  # ESC key
-                    return True
-        return False

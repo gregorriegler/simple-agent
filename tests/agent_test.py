@@ -3,7 +3,7 @@ from unittest.mock import patch
 from approvaltests import verify, Options
 
 from application.chat import Messages
-from application.input_feed import InputFeed
+from application.input import Input
 from infrastructure.console_display import ConsoleDisplay
 from main import run_session, SessionArgs
 from tools import ToolLibrary
@@ -101,6 +101,27 @@ def test_agent_says_after_subagent():
     ], rounds=3)
 
 
+def test_escape_reads_follow_up_message():
+    detector = create_escape_detector_stub([True, False])
+    verify_chat("Hello", ["Follow-up message", "\n"], "Assistant response", 1, detector)
+
+
+def create_escape_detector_stub(values):
+    if isinstance(values, list):
+        index = 0
+
+        def detector():
+            nonlocal index
+            if index < len(values):
+                result = values[index]
+                index += 1
+                return result
+            return values[-1] if values else False
+
+        return detector
+    return lambda : bool(values)
+
+
 def create_chat_stub(answer):
     if isinstance(answer, list):
         answer_index = 0
@@ -141,14 +162,15 @@ def create_input_stub(inputs):
     return input
 
 
-def verify_chat(message, input_stub, answer, rounds=1):
+def verify_chat(message, input_stub, answer, rounds=1, escape_detector=None):
     chat_stub = create_chat_stub(answer)
     input_stub = create_input_stub(input_stub)
-    result = run_chat_test(input_stub, message, chat_stub, rounds)
+    result = run_chat_test(input_stub, message, chat_stub, rounds, escape_detector)
     verify(result, options=Options().with_scrubber(all_scrubbers()))
 
 
-def run_chat_test(input_stub, message, chat_stub, rounds=1):
+def run_chat_test(input_stub, message, chat_stub, rounds=1, escape_detector=None):
+    detector = escape_detector or create_escape_detector_stub(False)
     class TestSessionStorage:
         def __init__(self):
             self.saved = "None"
@@ -162,6 +184,10 @@ def run_chat_test(input_stub, message, chat_stub, rounds=1):
     print_spy = PrintSpy()
     display = ConsoleDisplay(print_fn=print_spy)
 
+    class TestConsoleEscapeDetector:
+        def __call__(self):
+            return False
+
     class TestToolLibrary(ToolLibrary):
         def __init__(self, chat):
             super().__init__(chat, print_fn=print_spy)
@@ -174,12 +200,13 @@ def run_chat_test(input_stub, message, chat_stub, rounds=1):
 
     test_session_storage = TestSessionStorage()
 
-    input_feed = InputFeed(display)
-    input_feed.stack(args.start_message)
+    user_input = Input(display, detector)
+    user_input.stack(args.start_message)
 
     with patch('builtins.input', input_stub):
         with patch('main.ToolLibrary', TestToolLibrary):
             with patch('main.SystemPromptGenerator', TestSystemPromptGenerator):
-                run_session(args, input_feed, display, test_session_storage, chat_stub, rounds)
+                with patch('tools.subagent_tool.ConsoleEscapeDetector', TestConsoleEscapeDetector):
+                    run_session(args, user_input, display, test_session_storage, chat_stub, rounds)
 
     return f"# Standard out:\n{print_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"

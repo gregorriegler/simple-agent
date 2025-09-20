@@ -1,7 +1,7 @@
 from application.chat import Messages
-from application.input_feed import InputFeed
-from application.persisted_messages import PersistedMessages
+from application.input import Input
 from infrastructure.console_display import ConsoleDisplay
+from infrastructure.console_escape_detector import ConsoleEscapeDetector
 
 from .base_tool import BaseTool
 
@@ -52,9 +52,10 @@ class SubagentTool(BaseTool):
             from tools.tool_library import ToolLibrary
             subagent_tools = ToolLibrary(self.message_claude, self.indent_level + 1, self.print_fn)
             subagent_session_storage = NoOpSessionStorage()
-            input_feed = InputFeed(self.subagent_display)
-            input_feed.stack(args)
-            subagent = Agent(self.message_claude, system_prompt, input_feed, subagent_tools, self.subagent_display, subagent_session_storage)
+            detector = ConsoleEscapeDetector()
+            user_input = Input(self.subagent_display, detector)
+            user_input.stack(args)
+            subagent = Agent(self.message_claude, system_prompt, user_input, subagent_tools, self.subagent_display, subagent_session_storage)
 
             subagent_messages = Messages()
             result = subagent.start(subagent_messages)
@@ -71,4 +72,3 @@ class SubagentDisplay(ConsoleDisplay):
 
     def exit(self):
         pass
-

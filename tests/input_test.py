@@ -1,4 +1,4 @@
-from application.input_feed import InputFeed
+from application.input import Input
 
 
 class DisplayStub:
@@ -11,9 +11,9 @@ class DisplayStub:
         return self.value
 
 
-def test_input_feed_uses_display_input_when_stack_empty():
+def test_input_uses_display_input_when_stack_empty():
     display = DisplayStub("user input")
-    feed = InputFeed(display)
+    feed = Input(display)
 
     result = feed.read()
 
@@ -21,9 +21,9 @@ def test_input_feed_uses_display_input_when_stack_empty():
     assert display.calls == 1
 
 
-def test_input_feed_returns_stacked_message_before_display():
+def test_input_returns_stacked_message_before_display():
     display = DisplayStub("user input")
-    feed = InputFeed(display)
+    feed = Input(display)
     feed.stack("stacked")
 
     result = feed.read()
