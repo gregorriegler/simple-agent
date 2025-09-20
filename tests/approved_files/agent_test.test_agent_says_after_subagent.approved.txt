@@ -6,6 +6,8 @@ Agent: 🛠️ subagent say hello
        Subagent: hello
               🛠️ complete-task I successfully said hello
 
+              I successfully said hello
+
        Press Enter to continue or type a message to add: 
 
        I successfully said hello

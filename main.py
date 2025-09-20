@@ -26,7 +26,10 @@ def main():
     display = ConsoleDisplay()
     claude_chat = ClaudeChat()
     session_storage = JsonFileSessionStorage()
-    run_session(args, display, session_storage, claude_chat, 999999)
+    input_feed = InputFeed(display)
+    if args.start_message:
+        input_feed.stack(args.start_message)
+    run_session(args, input_feed, display, session_storage, claude_chat)
 
 
 def parse_args(argv=None):
@@ -43,18 +46,16 @@ def build_start_message(message_parts):
     return " ".join(message_parts)
 
 
-def run_session(args: SessionArgs, display, session_storage: SessionStorage, chat, rounds):
+def run_session(args: SessionArgs, input_feed, display, session_storage: SessionStorage, chat, rounds=9999999):
     messages = session_storage.load() if args.continue_session else Messages()
     persisted_messages = PersistedMessages(messages, session_storage)
-    if args.start_message:
-        persisted_messages.user_says(args.start_message)
+
     if args.continue_session:
         display.continue_session()
     else:
         display.start_new_session()
     tool_library = ToolLibrary(chat)
     system_prompt = SystemPromptGenerator().generate_system_prompt()
-    input_feed = InputFeed(display)
     agent = Agent(chat, system_prompt, input_feed, tool_library, display, session_storage)
     agent.start(persisted_messages, rounds)
 

@@ -53,10 +53,10 @@ class SubagentTool(BaseTool):
             subagent_tools = ToolLibrary(self.message_claude, self.indent_level + 1, self.print_fn)
             subagent_session_storage = NoOpSessionStorage()
             input_feed = InputFeed(self.subagent_display)
+            input_feed.stack(args)
             subagent = Agent(self.message_claude, system_prompt, input_feed, subagent_tools, self.subagent_display, subagent_session_storage)
 
-            subagent_messages = PersistedMessages(Messages(), subagent_session_storage)
-            subagent_messages.user_says(args.strip())
+            subagent_messages = Messages()
             result = subagent.start(subagent_messages)
             return result
 

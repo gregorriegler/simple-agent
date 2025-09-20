@@ -15,32 +15,28 @@ class Agent:
         self.session_storage = session_storage
 
     def start(self, messages, rounds=999999):
+        result = ""
         for _ in range(rounds):
             try:
+                user_input = self.input_feed.read()
+                if user_input:
+                    messages.user_says(user_input)
+                else:
+                    self.display.exit()
+                    return result
                 answer = self.chat(self.system_prompt, messages.to_list())
                 self.display.assistant_says(answer)
                 messages.assistant_says(answer)
 
                 tool = self.tools.parse_tool(answer)
+
                 if tool:
                     tool_result = self.tools.execute_parsed_tool(tool)
-                    if tool.is_completing():
-                        user_input = self.input_feed.read()
-                        if not user_input:
-                            self.display.exit()
-                            return tool_result
-                        messages.user_says(user_input)
+                    self.display.tool_result(tool_result)
+                    if not tool.is_completing():
+                        self.input_feed.stack("Result of " + str(tool) + "\n" + tool_result)
                     else:
-                        self.display.tool_result(tool_result)
-                        messages.user_says("Result of " + str(tool) + "\n" + tool_result)
-
-                if not tool or self._check_for_escape():
-                    user_input = self.input_feed.read()
-                    if not user_input:
-                        self.display.exit()
-                        return ""
-                    messages.user_says(user_input)
-
+                        result = tool_result
 
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()

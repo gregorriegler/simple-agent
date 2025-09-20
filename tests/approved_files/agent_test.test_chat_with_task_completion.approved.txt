@@ -4,6 +4,8 @@ Starting new session
 Agent: Hello!
        🛠️ complete-task I successfully said hello
 
+       I successfully said hello
+
 Press Enter to continue or type a message to add: 
 
 Exiting...

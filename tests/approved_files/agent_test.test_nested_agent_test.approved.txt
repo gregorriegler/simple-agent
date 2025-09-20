@@ -8,15 +8,21 @@ Agent: 🛠️ subagent create another subagent
               Subagent: nested hello
                      🛠️ complete-task I successfully said nested hello
 
+                     I successfully said nested hello
+
               Press Enter to continue or type a message to add: 
 
               I successfully said nested hello
 
        Subagent: 🛠️ complete-task I successfully created another subagent
 
+              I successfully created another subagent
+
        Press Enter to continue or type a message to add: 
 
        I successfully created another subagent
+
+Agent: 
 
 # Saved messages:
 user: Create a subagent that creates another subagent

@@ -9,9 +9,10 @@ Agent: Answer 2
 
 Press Enter to continue or type a message to add: 
 
+Exiting...
+
 # Saved messages:
 user: Hello
 assistant: Answer 1
 user: User Answer
 assistant: Answer 2
-user: User Answer
