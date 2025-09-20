@@ -33,10 +33,10 @@ class Agent:
                 if tool:
                     tool_result = self.tools.execute_parsed_tool(tool)
                     self.display.tool_result(tool_result)
-                    if not tool.is_completing():
-                        self.input_feed.stack("Result of " + str(tool) + "\n" + tool_result)
-                    else:
+                    if tool.is_completing():
                         result = tool_result
+                    else:
+                        self.input_feed.stack("Result of " + str(tool) + "\n" + tool_result)
 
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
