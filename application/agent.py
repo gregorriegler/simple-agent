@@ -25,7 +25,7 @@ class Agent:
                 if tool:
                     tool_result = self.tools.execute_parsed_tool(tool)
                     if tool.is_completing():
-                        user_input = self.display.input()
+                        user_input = self.input_feed.read()
                         if not user_input:
                             self.display.exit()
                             return tool_result
@@ -35,7 +35,7 @@ class Agent:
                         messages.user_says("Result of " + str(tool) + "\n" + tool_result)
 
                 if not tool or self._check_for_escape():
-                    user_input = self.display.input()
+                    user_input = self.input_feed.read()
                     if not user_input:
                         self.display.exit()
                         return ""
