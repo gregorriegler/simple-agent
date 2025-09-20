@@ -26,6 +26,13 @@ Do not assume that I (the user) am always right.
 - We use uv
 
 ## Design rules
+- We are following the A-Frame architecture which means there is main application and infrastructure where
+  - main depends on both application and infrastructure,
+  - infrastructure depends on application,
+  - and application may never depend on any of the other two.
+  - whenever application needs access to infrastructure we implement an adapter pattern
+  - whenever we unittest we work with application
+  - infrastructure is tested only via integration tests
 - Each class goes into its own file, unless its only used by the other class in the same file and it both fits into 100 lines
 - declare a variable as late as possible and as close as possible to where it is used, except imports
 - When a function uses only a derived, or a small percentage of properties of a passed object, pass the specific elements instead.
