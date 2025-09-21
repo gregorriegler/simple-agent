@@ -34,7 +34,6 @@ class Agent:
                 tool = self.tools.parse_tool(answer)
 
                 if tool:
-                    self.display.tool_about_to_execute(tool)
                     tool_result = self.tools.execute_parsed_tool(tool)
                     self.display.tool_result(tool_result)
                     if tool.is_completing():

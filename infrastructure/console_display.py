@@ -18,9 +18,6 @@ class ConsoleDisplay(Display):
             for line in lines[1:]:
                 self.print(f"{self.base_indent}{line}")
 
-    def tool_about_to_execute(self, parsed_tool):
-        pass
-
     def tool_result(self, result):
         lines = str(result).split('\n')
         first_three_lines = '\n'.join(lines[:3])
