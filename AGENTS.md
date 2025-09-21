@@ -26,11 +26,11 @@ Do not assume that I (the user) am always right.
 - We use uv
 
 ## Design rules
-- We are following the A-Frame architecture which means there is main application and infrastructure where
+- We are following a minimal ports and adapters architecture which means there is main, application and infrastructure where
   - main depends on both application and infrastructure,
   - infrastructure depends on application,
-  - and application may never depend on any of the other two.
-  - whenever application needs access to infrastructure we implement an adapter pattern
+  - and application may never depend on the other two.
+  - whenever application needs access to infrastructure we implement a port and an adapter 
   - whenever we unittest we work with application
   - infrastructure is tested only via integration tests
 - Each class goes into its own file, unless its only used by the other class in the same file and it both fits into 100 lines
