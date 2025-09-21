@@ -1,24 +1,19 @@
-from abc import ABC, abstractmethod
+from typing import Protocol
 
 
-class Display(ABC):
+class Display(Protocol):
 
-    @abstractmethod
-    def assistant_says(self, message):
-        pass
+    def assistant_says(self, message) -> None:
+        ...
 
-    @abstractmethod
-    def tool_about_to_execute(self, parsed_tool):
-        pass
+    def tool_about_to_execute(self, parsed_tool) -> None:
+        ...
 
-    @abstractmethod
-    def tool_result(self, result):
-        pass
+    def tool_result(self, result) -> None:
+        ...
 
-    @abstractmethod
     def input(self) -> str:
-        pass
+        ...
 
-    @abstractmethod
-    def exit(self):
-        pass
+    def exit(self) -> None:
+        ...
