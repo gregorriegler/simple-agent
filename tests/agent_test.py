@@ -160,12 +160,13 @@ def verify_chat(inputs, answer, rounds=1, escape_detector=None):
     else:
         input_values = remaining_inputs
     input_stub = create_input_stub(input_values)
-    result = run_chat_test(message, input_stub, llm_stub, rounds, escape_detector)
+    esc_detector = escape_detector or create_escape_detector_stub(False)
+    result = run_chat_test(message, input_stub, llm_stub, rounds, esc_detector)
     verify(result, options=Options().with_scrubber(all_scrubbers()))
 
 
-def run_chat_test(message, input_stub, llm_stub, rounds=1, escape_detector=None):
-    esc_detector = escape_detector or create_escape_detector_stub(False)
+def run_chat_test(message, input_stub, llm_stub, rounds=1, esc_detector=None):
+
     print_spy = PrintSpy()
     TestToolLibrary.set_print_fn(print_spy)
     display = ConsoleDisplay(print_fn=print_spy)
