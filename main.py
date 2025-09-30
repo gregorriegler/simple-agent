@@ -21,7 +21,7 @@ def main():
     session_storage = JsonFileSessionStorage()
     claude_chat = ClaudeChat()
     system_prompt = lambda : SystemPromptGenerator().generate_system_prompt()
-    run_session(args, user_input, display, session_storage, claude_chat, system_prompt)
+    run_session(args.continue_session, user_input, display, session_storage, claude_chat, system_prompt)
 
 
 def parse_args(argv=None):

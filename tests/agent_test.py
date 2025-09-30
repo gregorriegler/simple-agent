@@ -171,7 +171,6 @@ def run_chat_test(message, input_stub, chat_stub, rounds=1, escape_detector=None
     print_spy = PrintSpy()
     TestToolLibrary.set_print_fn(print_spy)
     display = ConsoleDisplay(print_fn=print_spy)
-    args = SessionArgs(False, "")
     test_session_storage = TestSessionStorage()
     user_input = Input(display, detector)
     user_input.stack(message)
@@ -179,6 +178,6 @@ def run_chat_test(message, input_stub, chat_stub, rounds=1, escape_detector=None
     with patch('builtins.input', input_stub):
         with patch('application.session.ToolLibrary', TestToolLibrary):
             with patch('tools.subagent_tool.ConsoleEscapeDetector', TestConsoleEscapeDetector):
-                run_session(args, user_input, display, test_session_storage, chat_stub, test_system_prompt, rounds)
+                run_session(False, user_input, display, test_session_storage, chat_stub, test_system_prompt, rounds)
 
     return f"# Standard out:\n{print_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"

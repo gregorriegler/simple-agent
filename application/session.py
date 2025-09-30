@@ -15,7 +15,7 @@ class SessionArgs:
 
 
 def run_session(
-    args: SessionArgs,
+    continue_session: bool,
     user_input,
     display,
     session_storage: SessionStorage,
@@ -23,10 +23,10 @@ def run_session(
     system_prompt: SystemPrompt,
     rounds=9999999
 ):
-    messages = session_storage.load() if args.continue_session else Messages()
+    messages = session_storage.load() if continue_session else Messages()
     persisted_messages = PersistedMessages(messages, session_storage)
 
-    if args.continue_session:
+    if continue_session:
         display.continue_session()
     else:
         display.start_new_session()
