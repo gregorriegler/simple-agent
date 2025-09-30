@@ -2,7 +2,7 @@ import pytest
 import requests
 
 from infrastructure.claude import claude_client
-from infrastructure.claude.claude_client import ClaudeChat, ClaudeClientError
+from infrastructure.claude.claude_client import ClaudeLLM, ClaudeClientError
 from infrastructure.claude.claude_config import claude_config
 
 
@@ -10,7 +10,7 @@ def test_claude_chat_returns_content_text(monkeypatch):
     stub_claude_config(monkeypatch)
     captured = {}
     monkeypatch.setattr(claude_client.requests, "post", create_successful_post(captured))
-    chat = ClaudeChat()
+    chat = ClaudeLLM()
     system_prompt = "system prompt"
     messages = [{"role": "user", "content": "Hello"}]
 
@@ -34,7 +34,7 @@ def test_claude_chat_returns_content_text(monkeypatch):
 def test_claude_chat_raises_error_when_content_missing(monkeypatch):
     stub_claude_config(monkeypatch)
     monkeypatch.setattr(claude_client.requests, "post", create_missing_content_post())
-    chat = ClaudeChat()
+    chat = ClaudeLLM()
 
     with pytest.raises(ClaudeClientError) as error:
         chat("system", [])
@@ -45,7 +45,7 @@ def test_claude_chat_raises_error_when_content_missing(monkeypatch):
 def test_claude_chat_raises_error_when_request_fails(monkeypatch):
     stub_claude_config(monkeypatch)
     monkeypatch.setattr(claude_client.requests, "post", create_failing_post())
-    chat = ClaudeChat()
+    chat = ClaudeLLM()
 
     with pytest.raises(ClaudeClientError) as error:
         chat("system", [])

@@ -1,4 +1,4 @@
-from application.chat import Messages
+from application.llm import Messages
 from application.input import Input
 from infrastructure.console_display import ConsoleDisplay
 from infrastructure.console_escape_detector import ConsoleEscapeDetector
@@ -31,10 +31,10 @@ class SubagentTool(BaseTool):
         "🛠️ subagent Create a simple HTML page with a form"
     ]
 
-    def __init__(self, runcommand, message_claude, indent_level=0, print_fn=print):
+    def __init__(self, runcommand, llm, indent_level=0, print_fn=print):
         super().__init__()
         self.runcommand = runcommand
-        self.message_claude = message_claude
+        self.llm = llm
         self.indent_level = indent_level
         self.print_fn = print_fn
         self.subagent_display = SubagentDisplay(self.indent_level + 1, self.print_fn)
@@ -50,12 +50,19 @@ class SubagentTool(BaseTool):
             system_prompt = SystemPromptGenerator().generate_system_prompt()
 
             from tools.tool_library import ToolLibrary
-            subagent_tools = ToolLibrary(self.message_claude, self.indent_level + 1, self.print_fn)
+            subagent_tools = ToolLibrary(self.llm, self.indent_level + 1, self.print_fn)
             subagent_session_storage = NoOpSessionStorage()
-            detector = ConsoleEscapeDetector()
-            user_input = Input(self.subagent_display, detector)
+            esc_detector = ConsoleEscapeDetector()
+            user_input = Input(self.subagent_display, esc_detector)
             user_input.stack(args)
-            subagent = Agent(self.message_claude, system_prompt, user_input, subagent_tools, self.subagent_display, subagent_session_storage)
+            subagent = Agent(
+                self.llm,
+                system_prompt,
+                user_input,
+                subagent_tools,
+                self.subagent_display,
+                subagent_session_storage
+            )
 
             subagent_messages = Messages()
             result = subagent.start(subagent_messages)

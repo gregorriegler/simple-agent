@@ -1,7 +1,7 @@
 import re
 import subprocess
 
-from application.chat import Chat
+from application.llm import LLM
 
 from .ls_tool import LsTool
 from .cat_tool import CatTool
@@ -28,10 +28,10 @@ class ParsedTool:
 
 
 class ToolLibrary:
-    def __init__(self, chat: Chat | None = None, indent_level=0, print_fn=print):
-        if chat is None:
-            chat = lambda system_prompt, messages: ''
-        self.chat: Chat = chat
+    def __init__(self, llm: LLM | None = None, indent_level=0, print_fn=print):
+        if llm is None:
+            llm = lambda system_prompt, messages: ''
+        self.llm: LLM = llm
         self.indent_level = indent_level
         self.print_fn = print_fn
         static_tools = self._create_static_tools()
@@ -46,7 +46,7 @@ class ToolLibrary:
             CatTool(self.run_command),
             CreateFileTool(self.run_command),
             EditFileTool(self.run_command),
-            SubagentTool(self.run_command, self.chat, self.indent_level, self.print_fn),
+            SubagentTool(self.run_command, self.llm, self.indent_level, self.print_fn),
             CompleteTaskTool(self.run_command),
             BashTool(self.run_command)
         ]

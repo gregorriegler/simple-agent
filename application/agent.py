@@ -1,11 +1,11 @@
-from .chat import Chat
+from .llm import LLM
 from .session_storage import SessionStorage
 
 
 class Agent:
 
-    def __init__(self, chat: Chat, system_prompt, user_input, tools, display, session_storage: SessionStorage):
-        self.chat: Chat = chat
+    def __init__(self, llm: LLM, system_prompt, user_input, tools, display, session_storage: SessionStorage):
+        self.llm: LLM = llm
         self.system_prompt = system_prompt
         self.input = user_input
         self.display = display
@@ -22,7 +22,7 @@ class Agent:
                 else:
                     self.display.exit()
                     return result
-                answer = self.chat(self.system_prompt, messages.to_list())
+                answer = self.llm(self.system_prompt, messages.to_list())
                 self.display.assistant_says(answer)
                 messages.assistant_says(answer)
 
@@ -30,6 +30,7 @@ class Agent:
                     user_input = self.input.read()
                     if user_input:
                         messages.user_says(user_input)
+                        break # TODO Test
 
                 tool = self.tools.parse_tool(answer)
 

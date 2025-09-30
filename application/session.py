@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from application.agent import Agent
-from application.chat import Messages
+from application.llm import Messages
 from application.persisted_messages import PersistedMessages
 from application.session_storage import SessionStorage
 from application.system_prompt import SystemPrompt

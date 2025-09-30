@@ -2,7 +2,7 @@ import json
 import os
 import sys
 
-from application.chat import Messages
+from application.llm import Messages
 from application.session_storage import SessionStorage
 from .claude.claude_config import claude_config
 

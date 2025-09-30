@@ -6,7 +6,7 @@ ChatMessage = Dict[str, str]
 ChatMessages = List[ChatMessage]
 
 
-class Chat(Protocol):
+class LLM(Protocol):
 
     def __call__(self, system_prompt: str, messages: ChatMessages) -> str:
         ...

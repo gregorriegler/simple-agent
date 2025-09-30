@@ -1,4 +1,4 @@
-from .chat import Messages
+from .llm import Messages
 from .session_storage import SessionStorage
 
 

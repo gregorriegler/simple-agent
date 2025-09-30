@@ -1,4 +1,4 @@
-from application.chat import Messages
+from application.llm import Messages
 
 
 class TestSessionStorage:

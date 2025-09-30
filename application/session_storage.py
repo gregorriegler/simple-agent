@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from .chat import Messages
+from .llm import Messages
 
 
 class SessionStorage(Protocol):

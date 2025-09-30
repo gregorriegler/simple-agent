@@ -8,5 +8,5 @@ class TestToolLibrary(ToolLibrary):
     def set_print_fn(cls, print_fn):
         cls.print_fn = print_fn
 
-    def __init__(self, chat):
-        super().__init__(chat, print_fn=self.print_fn)
+    def __init__(self, llm):
+        super().__init__(llm, print_fn=self.print_fn)

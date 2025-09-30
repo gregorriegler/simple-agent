@@ -2,7 +2,7 @@ import json
 import logging
 import requests
 
-from application.chat import Chat, ChatMessages
+from application.llm import LLM, ChatMessages
 from .claude_config import claude_config
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ class ClaudeClientError(RuntimeError):
     pass
 
 
-class ClaudeChat(Chat):
+class ClaudeLLM(LLM):
 
     def __call__(self, system_prompt: str, messages: ChatMessages) -> str:
         url = "https://api.anthropic.com/v1/messages"
