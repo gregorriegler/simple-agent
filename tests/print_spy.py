@@ -1,6 +1,8 @@
 class IOSpy:
     def __init__(self, inputs=None):
         self._inputs = []
+        self._escape_responses = []
+        self._escape_last = False
         self.outputs = []
         self.prompts = []
         if inputs is not None:
@@ -25,3 +27,16 @@ class IOSpy:
 
     def get_output(self):
         return "\n".join(self.outputs)
+
+    def set_escape_responses(self, responses):
+        self._escape_responses = list(responses)
+        self._escape_last = False
+
+    def escape_requested(self):
+        if self._escape_responses:
+            value = self._escape_responses.pop(0)
+            if callable(value):
+                value = value()
+            self._escape_last = bool(value)
+            return self._escape_last
+        return self._escape_last

@@ -42,6 +42,9 @@ class ConsoleDisplay(Display):
         exit_msg = "       " * self.indent_level + "Exiting..."
         self.io.print(f"\n{exit_msg}")
 
+    def escape_requested(self) -> bool:
+        return self.io.escape_requested()
+
     def _indent_lines(self, text, prefix="    "):
         lines = str(text).split('\n')
         return '\n'.join(f"{prefix}{line}" if line.strip() else line for line in lines)

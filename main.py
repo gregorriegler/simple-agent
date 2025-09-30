@@ -6,7 +6,6 @@ from application.input import Input
 from application.session import run_session, SessionArgs
 from infrastructure.claude.claude_client import ClaudeLLM
 from infrastructure.console_display import ConsoleDisplay
-from infrastructure.console_escape_detector import ConsoleEscapeDetector
 from infrastructure.json_file_session_storage import JsonFileSessionStorage
 from system_prompt_generator import SystemPromptGenerator
 
@@ -14,8 +13,7 @@ from system_prompt_generator import SystemPromptGenerator
 def main():
     args = parse_args()
     display = ConsoleDisplay()
-    escape_detector = ConsoleEscapeDetector()
-    user_input = Input(display, escape_detector)
+    user_input = Input(display)
     if args.start_message:
         user_input.stack(args.start_message)
     session_storage = JsonFileSessionStorage()

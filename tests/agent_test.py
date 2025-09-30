@@ -6,7 +6,6 @@ from application.input import Input
 from application.session import run_session
 from infrastructure.console_display import ConsoleDisplay
 from .print_spy import IOSpy
-from .test_console_escape_detector import TestConsoleEscapeDetector
 from .test_helpers import (
     create_temp_file,
     create_temp_directory_structure, all_scrubbers
@@ -88,24 +87,7 @@ def test_agent_says_after_subagent():
 
 
 def test_escape_reads_follow_up_message():
-    detector = create_escape_detector_stub([True, False])
-    verify_chat(["Hello", "Follow-up message", "\n"], "Assistant response", 1, detector)
-
-
-def create_escape_detector_stub(values):
-    if isinstance(values, list):
-        index = 0
-
-        def detector():
-            nonlocal index
-            if index < len(values):
-                result = values[index]
-                index += 1
-                return result
-            return values[-1] if values else False
-
-        return detector
-    return lambda: bool(values)
+    verify_chat(["Hello", "Follow-up message", "\n"], "Assistant response", 1, [True, False])
 
 
 def create_llm_stub(answer):
@@ -130,20 +112,20 @@ def create_llm_stub(answer):
     return single_chat_stub
 
 
-def verify_chat(inputs, answers, rounds=1, escape_detector=None):
+def verify_chat(inputs, answers, rounds=1, escape_responses=None):
     llm_stub = create_llm_stub(answers)
     message, *remaining_inputs = inputs
     io_spy = IOSpy(remaining_inputs)
+    if escape_responses is not None:
+        io_spy.set_escape_responses(escape_responses)
     TestToolLibrary.set_io(io_spy)
     display = ConsoleDisplay(io=io_spy)
-    esc_detector = escape_detector or create_escape_detector_stub(False)
-    user_input = Input(display, esc_detector)
+    user_input = Input(display)
     user_input.stack(message)
     test_session_storage = TestSessionStorage()
 
     with patch('application.session.ToolLibrary', TestToolLibrary):
-        with patch('tools.subagent_tool.ConsoleEscapeDetector', TestConsoleEscapeDetector):
-            run_session(False, user_input, display, test_session_storage, llm_stub, system_prompt_stub, rounds)
+        run_session(False, user_input, display, test_session_storage, llm_stub, system_prompt_stub, rounds)
 
     result = f"# Standard out:\n{io_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
     verify(result, options=Options().with_scrubber(all_scrubbers()))

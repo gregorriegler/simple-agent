@@ -1,12 +1,11 @@
-from typing import Callable, List, Optional
+from typing import List
 
 
 class Input:
 
-    def __init__(self, display, escape_detector: Optional[Callable[[], bool]] = None):
+    def __init__(self, display):
         self.display = display
         self._stack: List[str] = []
-        self._escape_detector = escape_detector
 
     def stack(self, message: str):
         self._stack.append(message)
@@ -20,9 +19,4 @@ class Input:
         return self.display.input()
 
     def escape_requested(self) -> bool:
-        if self._escape_detector is None:
-            return False
-        return self._escape_detector()
-
-    def set_escape_detector(self, escape_detector: Callable[[], bool]):
-        self._escape_detector = escape_detector
+        return self.display.escape_requested()

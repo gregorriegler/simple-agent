@@ -2,7 +2,6 @@ from application.io import IO
 from application.llm import Messages
 from application.input import Input
 from infrastructure.console_display import ConsoleDisplay
-from infrastructure.console_escape_detector import ConsoleEscapeDetector
 from infrastructure.stdio import StdIO
 
 from .base_tool import BaseTool
@@ -54,8 +53,7 @@ class SubagentTool(BaseTool):
             from tools.tool_library import ToolLibrary
             subagent_tools = ToolLibrary(self.llm, self.indent_level + 1, self.io)
             subagent_session_storage = NoOpSessionStorage()
-            esc_detector = ConsoleEscapeDetector()
-            user_input = Input(self.subagent_display, esc_detector)
+            user_input = Input(self.subagent_display)
             user_input.stack(args)
             subagent = Agent(
                 self.llm,

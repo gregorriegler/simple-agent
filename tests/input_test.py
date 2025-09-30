@@ -10,6 +10,9 @@ class DisplayStub:
         self.calls += 1
         return self.value
 
+    def escape_requested(self):
+        return False
+
 
 def test_input_uses_display_input_when_stack_empty():
     display = DisplayStub("user input")
