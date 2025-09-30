@@ -2,31 +2,17 @@ from unittest.mock import patch
 
 from approvaltests import verify, Options
 
-from application.chat import Messages
 from application.input import Input
 from infrastructure.console_display import ConsoleDisplay
 from application.session import run_session, SessionArgs
 from tools import ToolLibrary
+from .print_spy import PrintSpy
+from .test_console_escape_detector import TestConsoleEscapeDetector
 from .test_helpers import (
     create_temp_file,
     create_temp_directory_structure, all_scrubbers
 )
-
-
-class PrintSpy:
-    def __init__(self):
-        self.captured_output = []
-
-    def __call__(self, *args, **kwargs):
-        if args:
-            message = ' '.join(str(arg) for arg in args)
-        else:
-            message = ''
-
-        self.captured_output.append(message)
-
-    def get_output(self):
-        return '\n'.join(self.captured_output)
+from .test_session_storage import TestSessionStorage
 
 
 def enter(_):
@@ -172,28 +158,16 @@ def verify_chat(message, input_stub, answer, rounds=1, escape_detector=None):
 
 
 def run_chat_test(input_stub, message, chat_stub, rounds=1, escape_detector=None):
-    detector = escape_detector or create_escape_detector_stub(False)
-
-    class TestSessionStorage:
-        def __init__(self):
-            self.saved = "None"
-
-        def load(self):
-            return Messages()
-
-        def save(self, messages):
-            self.saved = "\n".join(f"{msg['role']}: {msg['content']}" for msg in messages)
-
-    print_spy = PrintSpy()
-    display = ConsoleDisplay(print_fn=print_spy)
-
-    class TestConsoleEscapeDetector:
-        def __call__(self):
-            return False
 
     class TestToolLibrary(ToolLibrary):
         def __init__(self, chat):
             super().__init__(chat, print_fn=print_spy)
+
+    detector = escape_detector or create_escape_detector_stub(False)
+
+    print_spy = PrintSpy()
+
+    display = ConsoleDisplay(print_fn=print_spy)
 
     def test_system_prompt():
         return "Test system prompt"
