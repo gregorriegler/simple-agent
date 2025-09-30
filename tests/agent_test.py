@@ -155,17 +155,17 @@ def verify_chat(inputs, answers, rounds=1, escape_detector=None):
     message, *remaining_inputs = inputs
     input_stub = create_input_stub(remaining_inputs)
     print_spy = PrintSpy()
+    TestToolLibrary.set_input_fn(input_stub)
     TestToolLibrary.set_print_fn(print_spy)
-    display = ConsoleDisplay(print_fn=print_spy)
+    display = ConsoleDisplay(input_fn=input_stub, print_fn=print_spy)
     esc_detector = escape_detector or create_escape_detector_stub(False)
     user_input = Input(display, esc_detector)
     user_input.stack(message)
     test_session_storage = TestSessionStorage()
 
-    with patch('builtins.input', input_stub):
-        with patch('application.session.ToolLibrary', TestToolLibrary):
-            with patch('tools.subagent_tool.ConsoleEscapeDetector', TestConsoleEscapeDetector):
-                run_session(False, user_input, display, test_session_storage, llm_stub, system_prompt_stub, rounds)
+    with patch('application.session.ToolLibrary', TestToolLibrary):
+        with patch('tools.subagent_tool.ConsoleEscapeDetector', TestConsoleEscapeDetector):
+            run_session(False, user_input, display, test_session_storage, llm_stub, system_prompt_stub, rounds)
 
     result = f"# Standard out:\n{print_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
     verify(result, options=Options().with_scrubber(all_scrubbers()))

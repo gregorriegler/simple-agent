@@ -4,11 +4,12 @@ import sys
 
 class ConsoleDisplay(Display):
 
-    def __init__(self, indent_level=0, print_fn=print, agent_name="Agent"):
+    def __init__(self, indent_level=0, agent_name="Agent", input_fn=input, print_fn=print):
         self.indent_level = indent_level
         self.print = print_fn
         self.base_indent = "       " * (indent_level + 1)  # 7 spaces per level
         self.agent_prefix = "       " * indent_level + f"{agent_name}: "
+        self.input_fn = input_fn
 
     def assistant_says(self, message):
         lines = str(message).split('\n')
@@ -35,7 +36,7 @@ class ConsoleDisplay(Display):
     def input(self) -> str:
         prompt = "       " * self.indent_level + "Press Enter to continue or type a message to add: "
         self.print(f"\n{prompt}", file=sys.stderr)
-        return input("").strip()
+        return self.input_fn("").strip()
 
     def exit(self):
         exit_msg = "       " * self.indent_level + "Exiting..."
