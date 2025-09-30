@@ -5,13 +5,13 @@ from approvaltests import verify, Options
 from application.input import Input
 from infrastructure.console_display import ConsoleDisplay
 from application.session import run_session, SessionArgs
-from tools import ToolLibrary
 from .print_spy import PrintSpy
 from .test_console_escape_detector import TestConsoleEscapeDetector
 from .test_helpers import (
     create_temp_file,
     create_temp_directory_structure, all_scrubbers
 )
+from .test_tool_library import TestToolLibrary
 from .test_session_storage import TestSessionStorage
 
 
@@ -159,13 +159,11 @@ def verify_chat(message, input_stub, answer, rounds=1, escape_detector=None):
 
 def run_chat_test(input_stub, message, chat_stub, rounds=1, escape_detector=None):
 
-    class TestToolLibrary(ToolLibrary):
-        def __init__(self, chat):
-            super().__init__(chat, print_fn=print_spy)
-
     detector = escape_detector or create_escape_detector_stub(False)
 
     print_spy = PrintSpy()
+
+    TestToolLibrary.set_print_fn(print_spy)
 
     display = ConsoleDisplay(print_fn=print_spy)
 
