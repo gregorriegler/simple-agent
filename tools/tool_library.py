@@ -1,7 +1,9 @@
 import re
 import subprocess
 
+from application.io import IO
 from application.llm import LLM
+from infrastructure.stdio import StdIO
 
 from .ls_tool import LsTool
 from .cat_tool import CatTool
@@ -28,13 +30,12 @@ class ParsedTool:
 
 
 class ToolLibrary:
-    def __init__(self, llm: LLM | None = None, indent_level=0, input_fn=input, print_fn=print):
+    def __init__(self, llm: LLM | None = None, indent_level=0, io: IO | None = None):
         if llm is None:
             llm = lambda system_prompt, messages: ''
         self.llm: LLM = llm
         self.indent_level = indent_level
-        self.input_fn = input_fn
-        self.print_fn = print_fn
+        self.io = io or StdIO()
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
 
@@ -47,7 +48,7 @@ class ToolLibrary:
             CatTool(self.run_command),
             CreateFileTool(self.run_command),
             EditFileTool(self.run_command),
-            SubagentTool(self.run_command, self.llm, self.indent_level, self.input_fn, self.print_fn),
+            SubagentTool(self.run_command, self.llm, self.indent_level, self.io),
             CompleteTaskTool(self.run_command),
             BashTool(self.run_command)
         ]

@@ -5,7 +5,7 @@ from approvaltests import verify, Options
 from application.input import Input
 from application.session import run_session
 from infrastructure.console_display import ConsoleDisplay
-from .print_spy import PrintSpy
+from .print_spy import IOSpy
 from .test_console_escape_detector import TestConsoleEscapeDetector
 from .test_helpers import (
     create_temp_file,
@@ -130,34 +130,12 @@ def create_llm_stub(answer):
     return single_chat_stub
 
 
-def create_input_stub(inputs):
-    if isinstance(inputs, str):
-        return lambda _: inputs
-    if isinstance(inputs, list):
-        input_index = 0
-
-        def input_stub(_):
-            nonlocal input_index
-            if input_index < len(inputs):
-                result = inputs[input_index]
-                input_index += 1
-                if isinstance(result, str):
-                    return result
-                return result(_)
-            return ""
-
-        return input_stub
-    return input
-
-
 def verify_chat(inputs, answers, rounds=1, escape_detector=None):
     llm_stub = create_llm_stub(answers)
     message, *remaining_inputs = inputs
-    input_stub = create_input_stub(remaining_inputs)
-    print_spy = PrintSpy()
-    TestToolLibrary.set_input_fn(input_stub)
-    TestToolLibrary.set_print_fn(print_spy)
-    display = ConsoleDisplay(input_fn=input_stub, print_fn=print_spy)
+    io_spy = IOSpy(remaining_inputs)
+    TestToolLibrary.set_io(io_spy)
+    display = ConsoleDisplay(io=io_spy)
     esc_detector = escape_detector or create_escape_detector_stub(False)
     user_input = Input(display, esc_detector)
     user_input.stack(message)
@@ -167,7 +145,7 @@ def verify_chat(inputs, answers, rounds=1, escape_detector=None):
         with patch('tools.subagent_tool.ConsoleEscapeDetector', TestConsoleEscapeDetector):
             run_session(False, user_input, display, test_session_storage, llm_stub, system_prompt_stub, rounds)
 
-    result = f"# Standard out:\n{print_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
+    result = f"# Standard out:\n{io_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
     verify(result, options=Options().with_scrubber(all_scrubbers()))
 
 def system_prompt_stub():

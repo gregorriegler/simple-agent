@@ -1,7 +1,9 @@
+from application.io import IO
 from application.llm import Messages
 from application.input import Input
 from infrastructure.console_display import ConsoleDisplay
 from infrastructure.console_escape_detector import ConsoleEscapeDetector
+from infrastructure.stdio import StdIO
 
 from .base_tool import BaseTool
 
@@ -31,14 +33,13 @@ class SubagentTool(BaseTool):
         "🛠️ subagent Create a simple HTML page with a form"
     ]
 
-    def __init__(self, runcommand, llm, indent_level=0, input_fn=input, print_fn=print):
+    def __init__(self, runcommand, llm, indent_level=0, io: IO | None = None):
         super().__init__()
         self.runcommand = runcommand
         self.llm = llm
         self.indent_level = indent_level
-        self.print_fn = print_fn
-        self.input_fn = input_fn
-        self.subagent_display = SubagentDisplay(self.indent_level + 1, self.input_fn, self.print_fn)
+        self.io = io or StdIO()
+        self.subagent_display = SubagentDisplay(self.indent_level + 1, self.io)
 
     def execute(self, args):
         if not args or not args.strip():
@@ -51,7 +52,7 @@ class SubagentTool(BaseTool):
             system_prompt = SystemPromptGenerator().generate_system_prompt()
 
             from tools.tool_library import ToolLibrary
-            subagent_tools = ToolLibrary(self.llm, self.indent_level + 1, self.input_fn, self.print_fn)
+            subagent_tools = ToolLibrary(self.llm, self.indent_level + 1, self.io)
             subagent_session_storage = NoOpSessionStorage()
             esc_detector = ConsoleEscapeDetector()
             user_input = Input(self.subagent_display, esc_detector)
@@ -75,8 +76,8 @@ class SubagentTool(BaseTool):
 
 class SubagentDisplay(ConsoleDisplay):
 
-    def __init__(self, indent_level=1, input_fn=input, print_fn=print):
-        super().__init__(indent_level, "Subagent", input_fn, print_fn)
+    def __init__(self, indent_level=1, io: IO | None = None):
+        super().__init__(indent_level, "Subagent", io)
 
     def exit(self):
         pass
