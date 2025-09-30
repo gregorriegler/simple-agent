@@ -150,8 +150,8 @@ def create_input_stub(inputs):
     return input
 
 
-def verify_chat(inputs, answer, rounds=1, escape_detector=None):
-    llm_stub = create_llm_stub(answer)
+def verify_chat(inputs, answers, rounds=1, escape_detector=None):
+    llm_stub = create_llm_stub(answers)
     message, *remaining_inputs = inputs
     if not remaining_inputs:
         input_values = ""
