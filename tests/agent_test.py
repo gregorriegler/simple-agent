@@ -160,13 +160,13 @@ def verify_chat(inputs, answer, rounds=1, escape_detector=None):
     else:
         input_values = remaining_inputs
     input_stub = create_input_stub(input_values)
-    esc_detector = escape_detector or create_escape_detector_stub(False)
     print_spy = PrintSpy()
     TestToolLibrary.set_print_fn(print_spy)
     display = ConsoleDisplay(print_fn=print_spy)
-    test_session_storage = TestSessionStorage()
+    esc_detector = escape_detector or create_escape_detector_stub(False)
     user_input = Input(display, esc_detector)
     user_input.stack(message)
+    test_session_storage = TestSessionStorage()
 
     with patch('builtins.input', input_stub):
         with patch('application.session.ToolLibrary', TestToolLibrary):
