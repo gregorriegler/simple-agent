@@ -153,13 +153,7 @@ def create_input_stub(inputs):
 def verify_chat(inputs, answers, rounds=1, escape_detector=None):
     llm_stub = create_llm_stub(answers)
     message, *remaining_inputs = inputs
-    if not remaining_inputs:
-        input_values = ""
-    elif len(remaining_inputs) == 1 and isinstance(remaining_inputs[0], str):
-        input_values = remaining_inputs[0]
-    else:
-        input_values = remaining_inputs
-    input_stub = create_input_stub(input_values)
+    input_stub = create_input_stub(remaining_inputs)
     print_spy = PrintSpy()
     TestToolLibrary.set_print_fn(print_spy)
     display = ConsoleDisplay(print_fn=print_spy)
