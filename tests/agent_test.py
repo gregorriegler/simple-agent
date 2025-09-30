@@ -161,12 +161,6 @@ def verify_chat(inputs, answer, rounds=1, escape_detector=None):
         input_values = remaining_inputs
     input_stub = create_input_stub(input_values)
     esc_detector = escape_detector or create_escape_detector_stub(False)
-    result = run_chat_test(message, input_stub, llm_stub, rounds, esc_detector)
-    verify(result, options=Options().with_scrubber(all_scrubbers()))
-
-
-def run_chat_test(message, input_stub, llm_stub, rounds=1, esc_detector=None):
-
     print_spy = PrintSpy()
     TestToolLibrary.set_print_fn(print_spy)
     display = ConsoleDisplay(print_fn=print_spy)
@@ -179,7 +173,8 @@ def run_chat_test(message, input_stub, llm_stub, rounds=1, esc_detector=None):
             with patch('tools.subagent_tool.ConsoleEscapeDetector', TestConsoleEscapeDetector):
                 run_session(False, user_input, display, test_session_storage, llm_stub, system_prompt_stub, rounds)
 
-    return f"# Standard out:\n{print_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
+    result = f"# Standard out:\n{print_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
+    verify(result, options=Options().with_scrubber(all_scrubbers()))
 
 def system_prompt_stub():
     return "Test system prompt"
