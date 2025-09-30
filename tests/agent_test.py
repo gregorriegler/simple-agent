@@ -108,7 +108,7 @@ def create_escape_detector_stub(values):
     return lambda: bool(values)
 
 
-def create_chat_stub(answer):
+def create_llm_stub(answer):
     if isinstance(answer, list):
         answer_index = 0
 
@@ -151,7 +151,7 @@ def create_input_stub(inputs):
 
 
 def verify_chat(inputs, answer, rounds=1, escape_detector=None):
-    chat_stub = create_chat_stub(answer)
+    llm_stub = create_llm_stub(answer)
     message, *remaining_inputs = inputs
     if not remaining_inputs:
         input_values = ""
@@ -160,29 +160,21 @@ def verify_chat(inputs, answer, rounds=1, escape_detector=None):
     else:
         input_values = remaining_inputs
     input_stub = create_input_stub(input_values)
-    result = run_chat_test(input_stub, message, chat_stub, rounds, escape_detector)
+    result = run_chat_test(message, input_stub, llm_stub, rounds, escape_detector)
     verify(result, options=Options().with_scrubber(all_scrubbers()))
 
+def test_system_prompt():
+    return "Test system prompt"
 
-def run_chat_test(input_stub, message, chat_stub, rounds=1, escape_detector=None):
-
+def run_chat_test(message, input_stub, chat_stub, rounds=1, escape_detector=None):
     detector = escape_detector or create_escape_detector_stub(False)
-
     print_spy = PrintSpy()
-
     TestToolLibrary.set_print_fn(print_spy)
-
     display = ConsoleDisplay(print_fn=print_spy)
-
-    def test_system_prompt():
-        return "Test system prompt"
-
-    args = SessionArgs(False, message)
-
+    args = SessionArgs(False, "")
     test_session_storage = TestSessionStorage()
-
     user_input = Input(display, detector)
-    user_input.stack(args.start_message)
+    user_input.stack(message)
 
     with patch('builtins.input', input_stub):
         with patch('application.session.ToolLibrary', TestToolLibrary):
