@@ -3,16 +3,16 @@ from unittest.mock import patch
 from approvaltests import verify, Options
 
 from application.input import Input
+from application.session import run_session
 from infrastructure.console_display import ConsoleDisplay
-from application.session import run_session, SessionArgs
 from .print_spy import PrintSpy
 from .test_console_escape_detector import TestConsoleEscapeDetector
 from .test_helpers import (
     create_temp_file,
     create_temp_directory_structure, all_scrubbers
 )
-from .test_tool_library import TestToolLibrary
 from .test_session_storage import TestSessionStorage
+from .test_tool_library import TestToolLibrary
 
 
 def enter(_):
