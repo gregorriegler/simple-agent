@@ -7,7 +7,7 @@ class Agent:
     def __init__(self, llm: LLM, system_prompt, user_input, tools, display, session_storage: SessionStorage):
         self.llm: LLM = llm
         self.system_prompt = system_prompt
-        self.input = user_input
+        self.user_input = user_input
         self.display = display
         self.tools = tools
         self.session_storage = session_storage
@@ -16,9 +16,9 @@ class Agent:
         result = ""
         for _ in range(rounds):
             try:
-                user_input = self.input.read()
-                if user_input:
-                    messages.user_says(user_input)
+                user_message = self.user_input.read()
+                if user_message:
+                    messages.user_says(user_message)
                 else:
                     self.display.exit()
                     return result
@@ -26,10 +26,10 @@ class Agent:
                 self.display.assistant_says(answer)
                 messages.assistant_says(answer)
 
-                if self.input.escape_requested():
-                    user_input = self.input.read()
-                    if user_input:
-                        messages.user_says(user_input)
+                if self.user_input.escape_requested():
+                    user_message = self.user_input.read()
+                    if user_message:
+                        messages.user_says(user_message)
                         break # TODO Test
 
                 tool = self.tools.parse_tool(answer)
@@ -40,7 +40,7 @@ class Agent:
                     if tool.is_completing():
                         result = tool_result
                     else:
-                        self.input.stack("Result of " + str(tool) + "\n" + tool_result)
+                        self.user_input.stack("Result of " + str(tool) + "\n" + tool_result)
 
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
