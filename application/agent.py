@@ -11,39 +11,45 @@ class Agent:
         self.display = display
         self.tools = tools
         self.session_storage = session_storage
+        self._result = ""
 
     def start(self, context, rounds=999999):
-        result = ""
+        self._result = ""
         for _ in range(rounds):
             try:
                 user_message = self.user_input.read()
-                if user_message:
-                    context.user_says(user_message)
-                else:
-                    self.display.exit()
-                    return result
-                answer = self.llm(self.system_prompt, context.to_list())
-                self.display.assistant_says(answer)
-                context.assistant_says(answer)
-
-                if self.user_input.escape_requested():
-                    user_message = self.user_input.read()
-                    if user_message:
-                        context.user_says(user_message)
-                        break
-
-                tool = self.tools.parse_tool(answer)
-
-                if tool:
-                    tool_result = self.tools.execute_parsed_tool(tool)
-                    self.display.tool_result(tool_result)
-                    if tool.is_completing():
-                        result = tool_result
-                    else:
-                        self.user_input.stack("Result of " + str(tool) + "\n" + tool_result)
-
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break
-        return ""
+
+            if not user_message:
+                self.display.exit()
+                return self._result
+
+            context.user_says(user_message)
+            answer = self.llm(self.system_prompt, context.to_list())
+            self.display.assistant_says(answer)
+            context.assistant_says(answer)
+
+            if self.user_input.escape_requested():
+                escape_message = self.user_input.read()
+                if escape_message:
+                    context.user_says(escape_message)
+                break
+
+            tool = self.tools.parse_tool(answer)
+            if not tool:
+                continue
+
+            self._handle_tool(tool)
+
+        return self._result
+
+    def _handle_tool(self, tool):
+        tool_result = self.tools.execute_parsed_tool(tool)
+        self.display.tool_result(tool_result)
+        if tool.is_completing():
+            self._result = tool_result
+            return
+        self.user_input.stack("Result of " + str(tool) + "\n" + tool_result)
 
