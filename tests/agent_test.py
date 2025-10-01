@@ -14,14 +14,6 @@ from .test_session_storage import TestSessionStorage
 from .test_tool_library import TestToolLibrary
 
 
-def enter(_):
-    return "\n"
-
-
-def keyboard_interrupt(_):
-    raise KeyboardInterrupt()
-
-
 def test_chat_with_regular_response():
     verify_chat(["Hello", "\n"], "Hello! How can I help you?", 2)
 
@@ -129,6 +121,15 @@ def create_llm_stub(answer):
         return answer
 
     return llm_answer
+
+
+def enter(_):
+    return "\n"
+
+
+def keyboard_interrupt(_):
+    raise KeyboardInterrupt()
+
 
 def system_prompt_stub():
     return "Test system prompt"
