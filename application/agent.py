@@ -30,7 +30,7 @@ class Agent:
                     user_message = self.user_input.read()
                     if user_message:
                         context.user_says(user_message)
-                        break # TODO Test
+                        break
 
                 tool = self.tools.parse_tool(answer)
 
