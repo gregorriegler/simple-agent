@@ -1,0 +1,22 @@
+Command:
+🛠️ edit-file test.py insert 3 def hello():
+    return 'world'
+
+Result:
+Successfully edited test.py
+
+Initial file: test.py
+Initial content:
+--- INITIAL CONTENT START ---
+line1
+line2
+--- INITIAL CONTENT END ---
+
+File after edit: test.py
+Final content:
+--- FINAL CONTENT START ---
+line1
+line2
+def hello():
+    return 'world'
+--- FINAL CONTENT END ---

@@ -81,7 +81,7 @@ class EditFileTool(BaseTool):
             return None, f"Error parsing arguments: {str(e)}"
 
         remainder = lexer.instream.read() if lexer.instream else ''
-        new_content = remainder.lstrip() if remainder else None
+        new_content = remainder[1:] if remainder and remainder[0] == ' ' else remainder
 
         if new_content == '':
             new_content = None
