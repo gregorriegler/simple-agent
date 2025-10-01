@@ -82,6 +82,11 @@ def test_escape_reads_follow_up_message():
     verify_chat(["Hello", "Follow-up message", "\n"], "Assistant response", 1, [True, False])
 
 
+def test_escape_reads_():
+    verify_chat(["Hello", "Follow-up message", "\n"], "🛠️ cat hello.txt", 1, [True, False])
+
+
+
 def verify_chat(inputs, answers, rounds=1, escape_responses=None):
     llm_stub = create_llm_stub(answers)
     message, *remaining_inputs = inputs
