@@ -98,6 +98,17 @@ def test_edit_file_preserves_indentation_in_multiline_content(tmp_path):
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 
+def test_edit_file_insert_content_with_multiple_leading_spaces_without_quotes(tmp_path):
+    initial_content = "line1\nline2"
+    command = "🛠️ edit-file test.txt insert 2     indented line"
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_insert_content_with_multiple_leading_spaces_with_quotes(tmp_path):
+    initial_content = "line1\nline2"
+    command = '🛠️ edit-file test.txt insert 2 "    indented line"'
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
 def test_edit_file_delete_a_line(tmp_path):
     initial_content = "line1\nline2"
     command = "🛠️ edit-file test.txt delete 1"

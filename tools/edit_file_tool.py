@@ -80,8 +80,11 @@ class EditFileTool(BaseTool):
         except ValueError as e:
             return None, f"Error parsing arguments: {str(e)}"
 
-        remainder = lexer.instream.read() if lexer.instream else ''
-        new_content = remainder[1:] if remainder and remainder[0] == ' ' else remainder
+        if lexer.instream:
+            new_content_start = lexer.instream.tell()
+        else:
+            new_content_start = len(args)
+        new_content = args[new_content_start:]
 
         if new_content == '':
             new_content = None
