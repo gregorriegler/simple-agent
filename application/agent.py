@@ -12,24 +12,24 @@ class Agent:
         self.tools = tools
         self.session_storage = session_storage
 
-    def start(self, messages, rounds=999999):
+    def start(self, context, rounds=999999):
         result = ""
         for _ in range(rounds):
             try:
                 user_message = self.user_input.read()
                 if user_message:
-                    messages.user_says(user_message)
+                    context.user_says(user_message)
                 else:
                     self.display.exit()
                     return result
-                answer = self.llm(self.system_prompt, messages.to_list())
+                answer = self.llm(self.system_prompt, context.to_list())
                 self.display.assistant_says(answer)
-                messages.assistant_says(answer)
+                context.assistant_says(answer)
 
                 if self.user_input.escape_requested():
                     user_message = self.user_input.read()
                     if user_message:
-                        messages.user_says(user_message)
+                        context.user_says(user_message)
                         break # TODO Test
 
                 tool = self.tools.parse_tool(answer)
