@@ -113,7 +113,7 @@ def create_llm_stub(answer):
     if isinstance(answer, list):
         answer_index = 0
 
-        def chat_stub(system_prompt, messages):
+        def llm_stub(system_prompt, messages):
             nonlocal answer_index
             if answer_index < len(answer):
                 result = answer[answer_index]
@@ -123,12 +123,12 @@ def create_llm_stub(answer):
                 return answer[-1]
             return ""
 
-        return chat_stub
+        return llm_stub
 
-    def single_chat_stub(system_prompt, messages):
+    def llm_answer(system_prompt, messages):
         return answer
 
-    return single_chat_stub
+    return llm_answer
 
 def system_prompt_stub():
     return "Test system prompt"
