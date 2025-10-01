@@ -90,6 +90,25 @@ def test_escape_reads_follow_up_message():
     verify_chat(["Hello", "Follow-up message", "\n"], "Assistant response", 1, [True, False])
 
 
+def verify_chat(inputs, answers, rounds=1, escape_responses=None):
+    llm_stub = create_llm_stub(answers)
+    message, *remaining_inputs = inputs
+    io_spy = IOSpy(remaining_inputs)
+    if escape_responses is not None:
+        io_spy.set_escape_responses(escape_responses)
+    TestToolLibrary.set_io(io_spy)
+    display = ConsoleDisplay(io=io_spy)
+    user_input = Input(display)
+    user_input.stack(message)
+    test_session_storage = TestSessionStorage()
+
+    with patch('application.session.ToolLibrary', TestToolLibrary):
+        run_session(False, user_input, display, test_session_storage, llm_stub, system_prompt_stub, rounds)
+
+    result = f"# Standard out:\n{io_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
+    verify(result, options=Options().with_scrubber(all_scrubbers()))
+
+
 def create_llm_stub(answer):
     if isinstance(answer, list):
         answer_index = 0
@@ -110,25 +129,6 @@ def create_llm_stub(answer):
         return answer
 
     return single_chat_stub
-
-
-def verify_chat(inputs, answers, rounds=1, escape_responses=None):
-    llm_stub = create_llm_stub(answers)
-    message, *remaining_inputs = inputs
-    io_spy = IOSpy(remaining_inputs)
-    if escape_responses is not None:
-        io_spy.set_escape_responses(escape_responses)
-    TestToolLibrary.set_io(io_spy)
-    display = ConsoleDisplay(io=io_spy)
-    user_input = Input(display)
-    user_input.stack(message)
-    test_session_storage = TestSessionStorage()
-
-    with patch('application.session.ToolLibrary', TestToolLibrary):
-        run_session(False, user_input, display, test_session_storage, llm_stub, system_prompt_stub, rounds)
-
-    result = f"# Standard out:\n{io_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
-    verify(result, options=Options().with_scrubber(all_scrubbers()))
 
 def system_prompt_stub():
     return "Test system prompt"
