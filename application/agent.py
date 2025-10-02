@@ -16,19 +16,17 @@ class Agent:
         try:
             tool_result: ToolResult = ContinueResult("")
             for _ in range(rounds):
+                user_message = self.handle_user_message(context)
+                if not user_message:
+                    self.display.exit()
+                    return tool_result
 
-                    user_message = self.handle_user_message(context)
-                    if not user_message:
-                        self.display.exit()
-                        return tool_result
+                llm_answer = self.handle_llm_answer(context)
+                if self.user_input.escape_requested():
+                    self.handle_user_message(context)
+                    break
 
-                    llm_answer = self.handle_llm_answer(context)
-                    if self.user_input.escape_requested():
-                        self.handle_user_message(context)
-                        break
-
-                    tool_result = self.handle_tool_call(llm_answer)
-
+                tool_result = self.handle_tool_call(llm_answer)
             return tool_result
         except (EOFError, KeyboardInterrupt):
             self.display.exit()
