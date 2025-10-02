@@ -9,8 +9,6 @@ class BaseTool:
     def execute(self, *args, **kwargs):
         raise NotImplementedError("Subclasses must implement execute()")
 
-    def is_completing(self):
-        return False
 
     def get_usage_info(self):
         if hasattr(self, '_custom_usage_info'):
