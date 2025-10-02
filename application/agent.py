@@ -21,14 +21,12 @@ class Agent:
                     self.display.exit()
                     return tool_result
 
-                answer = self.llm(self.system_prompt, context.to_list())
-                self.display.assistant_says(answer)
-                context.assistant_says(answer)
+                llm_answer = self.handle_llm_answer(context)
                 if self.user_input.escape_requested():
                     self.handle_user_message(context)
                     break
 
-                tool = self.tools.parse_tool(answer)
+                tool = self.tools.parse_tool(llm_answer)
                 if tool:
                     tool_result = self.tools.execute_parsed_tool(tool)
                     self.display.tool_result(str(tool_result))
@@ -44,3 +42,9 @@ class Agent:
         if user_message:
             context.user_says(user_message)
         return user_message
+
+    def handle_llm_answer(self, context):
+        answer = self.llm(self.system_prompt, context.to_list())
+        self.display.assistant_says(answer)
+        context.assistant_says(answer)
+        return answer
