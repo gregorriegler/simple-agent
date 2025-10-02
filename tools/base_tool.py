@@ -1,11 +1,11 @@
-from application.agent_result import AgentResult
+from application.tool_result import ToolResult
 class BaseTool:
     name = ''
     description = ''
     arguments = []
     def __init__(self):
         self.runcommand = None
-    def execute(self, *args, **kwargs) -> AgentResult:
+    def execute(self, *args, **kwargs) -> ToolResult:
         raise NotImplementedError("Subclasses must implement execute()")
 
     def get_usage_info(self):

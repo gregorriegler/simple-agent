@@ -1,4 +1,4 @@
-from application.agent_result import ContinueResult
+from application.tool_result import ContinueResult
 from .base_tool import BaseTool
 from .argument_parser import create_lexer, split_arguments
 import os

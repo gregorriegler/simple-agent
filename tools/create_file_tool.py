@@ -1,9 +1,10 @@
-from http.client import CONTINUE
-
-from application.agent_result import ContinueResult
-from .base_tool import BaseTool
-from .argument_parser import create_lexer, split_arguments
 import os
+
+from application.tool_result import ContinueResult
+
+from .argument_parser import create_lexer, split_arguments
+from .base_tool import BaseTool
+
 
 class CreateFileTool(BaseTool):
     name = "create-file"

@@ -1,19 +1,15 @@
 from dataclasses import dataclass
 
 @dataclass
-class AgentResult:
+class ToolResult:
     feedback: str
     pass
     def __str__(self) : return self.feedback
 
 @dataclass
-class ContinueResult(AgentResult):
+class ContinueResult(ToolResult):
     pass
 
 @dataclass
-class CompleteResult(AgentResult):
-    pass
-
-@dataclass
-class InterruptResult(AgentResult):
+class CompleteResult(ToolResult):
     pass

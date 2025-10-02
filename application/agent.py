@@ -1,6 +1,6 @@
 from .llm import LLM
 from .session_storage import SessionStorage
-from .agent_result import AgentResult, ContinueResult
+from .tool_result import ToolResult, ContinueResult
 
 
 class Agent:
@@ -13,7 +13,7 @@ class Agent:
         self.session_storage = session_storage
 
     def start(self, context, rounds=999999):
-        result: AgentResult = ContinueResult("")
+        tool_result: ToolResult = ContinueResult("")
         for _ in range(rounds):
             try:
                 user_message = self.user_input.read()
@@ -21,7 +21,8 @@ class Agent:
                     context.user_says(user_message)
                 else:
                     self.display.exit()
-                    return result
+                    return tool_result
+
                 answer = self.llm(self.system_prompt, context.to_list())
                 self.display.assistant_says(answer)
                 context.assistant_says(answer)
@@ -30,14 +31,14 @@ class Agent:
                     if user_message:
                         context.user_says(user_message)
                         break
+
                 tool = self.tools.parse_tool(answer)
                 if tool:
-                    execution_result = self.tools.execute_parsed_tool(tool)
-                    self.display.tool_result(execution_result.feedback)
-                    if isinstance(execution_result, ContinueResult):
-                        self.user_input.stack(f"Result of {tool}\n{execution_result}")
-                    result = execution_result
+                    tool_result = self.tools.execute_parsed_tool(tool)
+                    self.display.tool_result(str(tool_result))
+                    if isinstance(tool_result, ContinueResult):
+                        self.user_input.stack(f"Result of {tool}\n{tool_result}")
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break
-        return result
+        return tool_result
