@@ -9,4 +9,4 @@ STARTER_SYMBOL=📝
 5. Stop. Let me review the examples. When I say it's ok, you can continue.
 6. Change the scenario status from "- DRAFT" to "- REFINED"
 7. Commit the changes using a message prefixed with "d refined ..."
-8. End the process by starting a new context with the prompt "Read the `process/development-process.md` and apply it.
+8. Delegate by starting a fresh context that reads the `process/development-process.md` and applies it.

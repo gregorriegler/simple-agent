@@ -13,4 +13,4 @@ ASK ONE QUESTION AT A TIME
 6. Save the goal in a new `goal.md` file
 7. Ask me to review the `goal.md` so I can make final changes.
 8. commit the changes. start your commit message with "d ", e.g. "d aligned on goal bla bla bla"
-9. End the current process by starting a new context with the message "Read and follow the `process/planning-process.md` instructions. 
+9. Delegate using a fresh context so it reads and follows the `process/planning-process.md` instructions.
