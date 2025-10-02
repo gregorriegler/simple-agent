@@ -79,11 +79,11 @@ def test_agent_says_after_subagent():
 
 
 def test_escape_reads_follow_up_message():
-    verify_chat(["Hello", "Follow-up message", "\n"], "Assistant response", 1, [True, False])
+    verify_chat(["Hello", "Follow-up message", "\n"], "Assistant response", 2, [True, False])
 
 
 def test_escape_reads_():
-    verify_chat(["Hello", "Follow-up message", "\n"], "🛠️ cat hello.txt", 1, [True, False])
+    verify_chat(["Hello", "Follow-up message", "\n"], "🛠️ cat hello.txt", 2, [True, False])
 
 
 

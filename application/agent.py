@@ -14,25 +14,37 @@ class Agent:
 
     def start(self, context, rounds=999999):
         try:
-            tool_result: ToolResult = ContinueResult("")
+            tool_result: ToolResult = ContinueResult()
             for _ in range(rounds):
-                user_message = self.handle_user_message(context)
-                if not user_message:
+                prompt = self.user_prompts(context)
+                if not prompt:
                     self.display.exit()
                     return tool_result
 
-                llm_answer = self.handle_llm_answer(context)
-                if self.user_input.escape_requested():
-                    self.handle_user_message(context)
-                    break
+                llm_answer = self.llm_answers(context)
 
-                tool_result = self.handle_tool_call(llm_answer)
+                if self.user_input.escape_requested():
+                    continue
+
+                tool_result = self.call_tool(llm_answer)
             return tool_result
         except (EOFError, KeyboardInterrupt):
             self.display.exit()
-            return None
+            return ContinueResult()
 
-    def handle_tool_call(self, llm_answer):
+    def user_prompts(self, context):
+        prompt = self.user_input.read()
+        if prompt:
+            context.user_says(prompt)
+        return prompt
+
+    def llm_answers(self, context):
+        answer = self.llm(self.system_prompt, context.to_list())
+        self.display.assistant_says(answer)
+        context.assistant_says(answer)
+        return answer
+
+    def call_tool(self, llm_answer):
         tool = self.tools.parse_tool(llm_answer)
         if tool:
             tool_result = self.tools.execute_parsed_tool(tool)
@@ -40,16 +52,4 @@ class Agent:
             if isinstance(tool_result, ContinueResult):
                 self.user_input.stack(f"Result of {tool}\n{tool_result}")
             return tool_result
-        return ContinueResult("")
-
-    def handle_user_message(self, context):
-        user_message = self.user_input.read()
-        if user_message:
-            context.user_says(user_message)
-        return user_message
-
-    def handle_llm_answer(self, context):
-        answer = self.llm(self.system_prompt, context.to_list())
-        self.display.assistant_says(answer)
-        context.assistant_says(answer)
-        return answer
+        return ContinueResult()
