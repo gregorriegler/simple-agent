@@ -26,16 +26,21 @@ class Agent:
                     self.handle_user_message(context)
                     break
 
-                tool = self.tools.parse_tool(llm_answer)
-                if tool:
-                    tool_result = self.tools.execute_parsed_tool(tool)
-                    self.display.tool_result(str(tool_result))
-                    if isinstance(tool_result, ContinueResult):
-                        self.user_input.stack(f"Result of {tool}\n{tool_result}")
+                tool_result = self.handle_tool_call(llm_answer)
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break
         return tool_result
+
+    def handle_tool_call(self, llm_answer):
+        tool = self.tools.parse_tool(llm_answer)
+        if tool:
+            tool_result = self.tools.execute_parsed_tool(tool)
+            self.display.tool_result(str(tool_result))
+            if isinstance(tool_result, ContinueResult):
+                self.user_input.stack(f"Result of {tool}\n{tool_result}")
+            return tool_result
+        return ContinueResult("")
 
     def handle_user_message(self, context):
         user_message = self.user_input.read()
