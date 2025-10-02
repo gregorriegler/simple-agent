@@ -32,6 +32,7 @@ class Agent:
             return tool_result
         except (EOFError, KeyboardInterrupt):
             self.display.exit()
+            return None
 
     def handle_tool_call(self, llm_answer):
         tool = self.tools.parse_tool(llm_answer)
