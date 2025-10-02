@@ -23,7 +23,7 @@ class Agent:
 
                 llm_answer = self.llm_answers(context)
 
-                if self.user_input.escape_requested():
+                if self.user_interrupts():
                     continue
 
                 tool_result = self.call_tool(llm_answer)
@@ -43,6 +43,9 @@ class Agent:
         self.display.assistant_says(answer)
         context.assistant_says(answer)
         return answer
+
+    def user_interrupts(self):
+        return self.user_input.escape_requested()
 
     def call_tool(self, llm_answer):
         tool = self.tools.parse_tool(llm_answer)
