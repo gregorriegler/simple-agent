@@ -62,7 +62,7 @@ class SubagentTool(BaseTool):
             )
             subagent_messages = Messages()
             result = subagent.start(subagent_messages)
-            return ContinueResult(result)
+            return ContinueResult(str(result))
         except Exception as e:
             return ContinueResult(f'STDERR: subagent error: {str(e)}')
 

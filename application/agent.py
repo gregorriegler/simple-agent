@@ -1,6 +1,6 @@
 from .llm import LLM
 from .session_storage import SessionStorage
-from .agent_result import ContinueResult, CompleteResult
+from .agent_result import AgentResult, ContinueResult
 
 
 class Agent:
@@ -13,7 +13,7 @@ class Agent:
         self.session_storage = session_storage
 
     def start(self, context, rounds=999999):
-        result = ""
+        result: AgentResult = ContinueResult("")
         for _ in range(rounds):
             try:
                 user_message = self.user_input.read()
@@ -34,13 +34,10 @@ class Agent:
                 if tool:
                     execution_result = self.tools.execute_parsed_tool(tool)
                     self.display.tool_result(execution_result.feedback)
-                    match execution_result:
-                        case CompleteResult():
-                            result = execution_result.feedback
-                        case ContinueResult():
-                            self.user_input.stack(f"Result of {tool}\n{execution_result}")
-                            result = ""
+                    if isinstance(execution_result, ContinueResult):
+                        self.user_input.stack(f"Result of {tool}\n{execution_result}")
+                    result = execution_result
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break
-        return ""
+        return result
