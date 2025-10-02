@@ -16,10 +16,8 @@ class Agent:
         tool_result: ToolResult = ContinueResult("")
         for _ in range(rounds):
             try:
-                user_message = self.user_input.read()
-                if user_message:
-                    context.user_says(user_message)
-                else:
+                user_message = self.handle_user_message(context)
+                if not user_message:
                     self.display.exit()
                     return tool_result
 
@@ -27,10 +25,8 @@ class Agent:
                 self.display.assistant_says(answer)
                 context.assistant_says(answer)
                 if self.user_input.escape_requested():
-                    user_message = self.user_input.read()
-                    if user_message:
-                        context.user_says(user_message)
-                        break
+                    self.handle_user_message(context)
+                    break
 
                 tool = self.tools.parse_tool(answer)
                 if tool:
@@ -42,3 +38,9 @@ class Agent:
                 self.display.exit()
                 break
         return tool_result
+
+    def handle_user_message(self, context):
+        user_message = self.user_input.read()
+        if user_message:
+            context.user_says(user_message)
+        return user_message
