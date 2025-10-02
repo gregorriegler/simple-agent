@@ -68,9 +68,9 @@ class SubagentTool(BaseTool):
 
 
 class SubagentDisplay(ConsoleDisplay):
-
     def __init__(self, indent_level=1, io: IO | None = None):
         super().__init__(indent_level, "Subagent", io)
-
     def exit(self):
         pass
+    def escape_requested(self) -> bool:
+        return False

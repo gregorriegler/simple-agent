@@ -33,4 +33,4 @@ class StdIO(IO):
                 return False
             return stdin.read(1) == "\x1b"
         finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_attrs)
+            termios.tcsetattr(fd, termios.TCSAFLUSH, old_attrs)
