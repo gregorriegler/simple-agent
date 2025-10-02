@@ -2,17 +2,17 @@ from dataclasses import dataclass
 
 @dataclass
 class AgentResult:
-    pass
-
-@dataclass
-class ContinueResult(AgentResult):
     feedback: str
-
+    pass
     def __str__(self) : return self.feedback
 
 @dataclass
+class ContinueResult(AgentResult):
+    pass
+
+@dataclass
 class CompleteResult(AgentResult):
-    summary: str
+    pass
 
 @dataclass
 class InterruptResult(AgentResult):

@@ -33,13 +33,13 @@ class Agent:
                 tool = self.tools.parse_tool(answer)
                 if tool:
                     execution_result = self.tools.execute_parsed_tool(tool)
+                    self.display.tool_result(execution_result.feedback)
                     match execution_result:
-                        case CompleteResult(summary):
-                            self.display.tool_result(summary)
-                            result = summary
-                        case ContinueResult(feedback):
-                            self.display.tool_result(feedback)
-                            self.user_input.stack(f"Result of {tool}\n{feedback}")
+                        case CompleteResult():
+                            result = execution_result.feedback
+                        case ContinueResult():
+                            self.user_input.stack(f"Result of {tool}\n{execution_result}")
+                            result = ""
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break
