@@ -1,5 +1,5 @@
 import subprocess
-
+from application.agent_result import ContinueResult
 from .base_tool import BaseTool
 
 class BashTool(BaseTool):
@@ -25,8 +25,7 @@ class BashTool(BaseTool):
 
     def execute(self, args):
         if not args:
-            return 'STDERR: bash: missing command'
-
+            return ContinueResult('STDERR: bash: missing command')
         _ = subprocess
         result = self.runcommand("bash", ["-c", args])
-        return result['output']
+        return ContinueResult(result['output'])

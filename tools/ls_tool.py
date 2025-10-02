@@ -1,5 +1,5 @@
+from application.agent_result import ContinueResult
 from .base_tool import BaseTool
-
 class LsTool(BaseTool):
     name = "ls"
     description = "List directory contents with detailed information"
@@ -22,4 +22,4 @@ class LsTool(BaseTool):
 
     def execute(self, path="."):
         result = self.runcommand("ls", ["-a", path] if path else ["-a"])
-        return result['output']
+        return ContinueResult(result['output'])

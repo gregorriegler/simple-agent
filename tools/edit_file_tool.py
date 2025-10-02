@@ -1,3 +1,4 @@
+from application.agent_result import ContinueResult
 from .base_tool import BaseTool
 from .argument_parser import create_lexer, split_arguments
 import os
@@ -136,7 +137,7 @@ class EditFileTool(BaseTool):
     def _perform_file_edit(self, edit_args):
         try:
             if not os.path.exists(edit_args.filename):
-                return f'File "{edit_args.filename}" not found'
+                return ContinueResult(f'File "{edit_args.filename}" not found')
 
             with open(edit_args.filename, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
@@ -193,18 +194,18 @@ class EditFileTool(BaseTool):
                             if self._range_reaches_file_end(normalized_range, len(lines)):
                                 new_lines = self._trim_terminal_newline(lines, new_lines)
             else:
-                return f"Invalid edit mode: {edit_args.edit_mode}. Supported modes: insert, delete, replace"
+                return ContinueResult(f"Invalid edit mode: {edit_args.edit_mode}. Supported modes: insert, delete, replace")
 
             # Write back to file
             with open(edit_args.filename, 'w', encoding='utf-8') as f:
                 f.writelines(new_lines)
 
-            return f"Successfully edited {edit_args.filename}"
+            return ContinueResult(f"Successfully edited {edit_args.filename}")
 
         except OSError as e:
-            return f'Error editing file "{edit_args.filename}": {str(e)}'
+            return ContinueResult(f'Error editing file "{edit_args.filename}": {str(e)}')
         except Exception as e:
-            return f'Unexpected error editing file "{edit_args.filename}": {str(e)}'
+            return ContinueResult(f'Unexpected error editing file "{edit_args.filename}": {str(e)}')
 
     def _delete_lines(self, lines, start_line, end_line):
         lines_to_delete = set(range(start_line, end_line + 1))

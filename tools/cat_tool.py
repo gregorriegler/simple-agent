@@ -1,3 +1,4 @@
+from application.agent_result import ContinueResult
 from .base_tool import BaseTool
 from .argument_parser import split_arguments
 
@@ -58,17 +59,16 @@ class CatTool(BaseTool):
     def execute(self, args):
         filename, line_range, error = self._parse_arguments(args)
         if error:
-            return error
-
+            return ContinueResult(error)
+        tool_name = f"🛠️ cat {filename}" + (f" {line_range}" if line_range else "")
         if line_range is None:
             result = self.runcommand('cat', ['-n', filename])
-            return result['output']
-
+            return ContinueResult(result['output'])
         start_line, end_line, error = self._validate_range(line_range)
         if error:
-            return error
-
-        return self._read_file_range(filename, start_line, end_line)
+            return ContinueResult(error)
+        output = self._read_file_range(filename, start_line, end_line)
+        return ContinueResult(output)
 
     def _read_file_range(self, filename, start_line, end_line):
         try:

@@ -8,6 +8,8 @@ class AgentResult:
 class ContinueResult(AgentResult):
     feedback: str
 
+    def __str__(self) : return self.feedback
+
 @dataclass
 class CompleteResult(AgentResult):
     summary: str

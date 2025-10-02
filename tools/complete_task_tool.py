@@ -1,5 +1,5 @@
+from application.agent_result import CompleteResult
 from .base_tool import BaseTool
-
 class CompleteTaskTool(BaseTool):
     name = "complete-task"
     description = "Signal task completion with a summary of what was accomplished"
@@ -22,8 +22,7 @@ class CompleteTaskTool(BaseTool):
 
     def execute(self, args):
         if not args or not args.strip():
-            return 'STDERR: complete-task: missing summary'
-
+            return CompleteResult('STDERR: complete-task: missing summary')
         summary = args.strip()
-        return summary
+        return CompleteResult(summary)
 

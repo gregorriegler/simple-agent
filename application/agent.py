@@ -1,7 +1,6 @@
 from .llm import LLM
 from .session_storage import SessionStorage
 from .agent_result import ContinueResult, CompleteResult
-from tools.complete_task_tool import CompleteTaskTool
 
 
 class Agent:
@@ -33,19 +32,14 @@ class Agent:
                         break
                 tool = self.tools.parse_tool(answer)
                 if tool:
-                    tool_result = self.tools.execute_parsed_tool(tool)
-                    if isinstance(tool.tool_instance, CompleteTaskTool):
-                        execution_result = CompleteResult(tool_result)
-                    else:
-                        execution_result = ContinueResult("Result of " + str(tool) + "\n" + tool_result)
-
+                    execution_result = self.tools.execute_parsed_tool(tool)
                     match execution_result:
                         case CompleteResult(summary):
                             self.display.tool_result(summary)
                             result = summary
                         case ContinueResult(feedback):
-                            self.display.tool_result(feedback.removeprefix("Result of " + str(tool) + "\n"))
-                            self.user_input.stack(feedback)
+                            self.display.tool_result(feedback)
+                            self.user_input.stack(f"Result of {tool}\n{feedback}")
             except (EOFError, KeyboardInterrupt):
                 self.display.exit()
                 break

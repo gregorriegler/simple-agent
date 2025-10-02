@@ -55,7 +55,7 @@ def test_create_file_already_exists(tmp_path):
 
         tool = library.parse_tool("🛠️ create-file existing.txt")
         result = library.execute_parsed_tool(tool)
-        assert 'already exists' in result.lower() or 'exists' in result.lower()
+        assert 'already exists' in result.feedback.lower() or 'exists' in result.feedback.lower()
 
 def test_create_tool_on_second_line(tmp_path):
     verify_create_tool(library, "let me create a file\n🛠️ create-file a", "a", tmp_path=tmp_path)

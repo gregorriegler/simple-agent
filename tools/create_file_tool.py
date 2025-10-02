@@ -1,3 +1,6 @@
+from http.client import CONTINUE
+
+from application.agent_result import ContinueResult
 from .base_tool import BaseTool
 from .argument_parser import create_lexer, split_arguments
 import os
@@ -30,22 +33,22 @@ class CreateFileTool(BaseTool):
 
     def execute(self, args):
         if not args:
-            return 'No filename specified'
+            return ContinueResult('No filename specified')
 
         try:
             tokens = split_arguments(args)
         except ValueError as e:
-            return f"Error parsing arguments: {str(e)}"
+            return ContinueResult(f"Error parsing arguments: {str(e)}")
 
         if not tokens:
-            return 'No filename specified'
+            return ContinueResult('No filename specified')
 
         lexer = create_lexer(args)
 
         try:
             lexer.get_token()
         except ValueError as e:
-            return f"Error parsing arguments: {str(e)}"
+            return ContinueResult(f"Error parsing arguments: {str(e)}")
 
         remainder = lexer.instream.read() if lexer.instream else ''
         content = remainder.lstrip() if remainder else None
@@ -61,7 +64,7 @@ class CreateFileTool(BaseTool):
         try:
             # Check if file already exists
             if os.path.exists(filename):
-                return f"Error creating file '{filename}': File already exists"
+                return ContinueResult(f"Error creating file '{filename}': File already exists")
 
             # Create parent directories if they don't exist
             os.makedirs(os.path.dirname(filename) or '.', exist_ok=True)
@@ -72,10 +75,10 @@ class CreateFileTool(BaseTool):
                     processed_content = content.encode().decode('unicode_escape')
                     f.write(processed_content)
             if content is not None:
-                return f"Created file: {filename} with content"
+                return ContinueResult(f"Created file: {filename} with content")
             else:
-                return f"Created empty file: {filename}"
+                return ContinueResult(f"Created empty file: {filename}")
         except OSError as e:
-            return f"Error creating file '{filename}': {str(e)}"
+            return ContinueResult(f"Error creating file '{filename}': {str(e)}")
         except Exception as e:
-            return f"Unexpected error creating file '{filename}': {str(e)}"
+            return ContinueResult(f"Unexpected error creating file '{filename}': {str(e)}")

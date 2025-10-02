@@ -142,12 +142,9 @@ def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
 
         tool = library.parse_tool(command)
         result = library.execute_parsed_tool(tool)
-
         with open(setup_file, "r", encoding='utf-8') as f:
             actual_content = f.read()
-
         final_file_info = f"File after edit: {setup_file}\nFinal content:\n--- FINAL CONTENT START ---\n{actual_content}\n--- FINAL CONTENT END ---"
-
         verify(
             f"Command:\n{command}\n\nResult:\n{result}\n\n{initial_file_info}\n\n{final_file_info}",
             options=Options().with_scrubber(all_scrubbers())

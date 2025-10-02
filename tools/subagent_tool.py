@@ -1,9 +1,9 @@
 from application.io import IO
 from application.llm import Messages
 from application.input import Input
+from application.agent_result import ContinueResult
 from infrastructure.console_display import ConsoleDisplay
 from infrastructure.stdio import StdIO
-
 from .base_tool import BaseTool
 
 
@@ -42,14 +42,11 @@ class SubagentTool(BaseTool):
 
     def execute(self, args):
         if not args or not args.strip():
-            return 'STDERR: subagent: missing task description'
-
+            return ContinueResult('STDERR: subagent: missing task description')
         try:
             from application.agent import Agent
             from system_prompt_generator import SystemPromptGenerator
-
             system_prompt = SystemPromptGenerator().generate_system_prompt()
-
             from tools.tool_library import ToolLibrary
             subagent_tools = ToolLibrary(self.llm, self.indent_level + 1, self.io)
             subagent_session_storage = NoOpSessionStorage()
@@ -63,13 +60,11 @@ class SubagentTool(BaseTool):
                 self.subagent_display,
                 subagent_session_storage
             )
-
             subagent_messages = Messages()
             result = subagent.start(subagent_messages)
-            return result
-
+            return ContinueResult(result)
         except Exception as e:
-            return f'STDERR: subagent error: {str(e)}'
+            return ContinueResult(f'STDERR: subagent error: {str(e)}')
 
 
 class SubagentDisplay(ConsoleDisplay):

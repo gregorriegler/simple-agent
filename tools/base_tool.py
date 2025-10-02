@@ -1,14 +1,12 @@
+from application.agent_result import AgentResult
 class BaseTool:
     name = ''
     description = ''
-    arguments = []  # List of argument specifications
-
+    arguments = []
     def __init__(self):
         self.runcommand = None
-
-    def execute(self, *args, **kwargs):
+    def execute(self, *args, **kwargs) -> AgentResult:
         raise NotImplementedError("Subclasses must implement execute()")
-
 
     def get_usage_info(self):
         if hasattr(self, '_custom_usage_info'):
