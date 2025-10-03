@@ -26,15 +26,16 @@ class Agent:
             return ContinueResult()
 
     def run_tool_loop(self, context):
-        while True:
+        tool_result: ToolResult = ContinueResult()
+
+        while isinstance(tool_result, ContinueResult):
             llm_answer = self.llm_answers(context)
             tool = self.tools.parse_tool(llm_answer)
             if not tool or self.user_interrupts():
-                return ContinueResult()
-
+                break
             tool_result = self.execute_tool(tool, context)
-            if isinstance(tool_result, CompleteResult):
-                return tool_result
+
+        return tool_result
 
     def user_prompts(self, context):
         prompt = self.user_input.read()
