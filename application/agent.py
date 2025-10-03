@@ -15,13 +15,9 @@ class Agent:
     def start(self, context):
         try:
             tool_result: ToolResult = ContinueResult()
-            while True:
-                prompt = self.user_prompts(context)
-                if not prompt:
-                    self.display.exit()
-                    return tool_result
-
+            while self.user_prompts(context):
                 tool_result = self.run_tool_loop(context)
+            self.display.exit()
             return tool_result
         except (EOFError, KeyboardInterrupt):
             self.display.exit()
