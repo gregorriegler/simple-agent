@@ -2,6 +2,7 @@ from application.tool_result import ContinueResult
 from .base_tool import BaseTool
 from .argument_parser import split_arguments
 
+
 class CatTool(BaseTool):
     name = 'cat'
     description = "Display file contents with line numbers"
@@ -60,7 +61,6 @@ class CatTool(BaseTool):
         filename, line_range, error = self._parse_arguments(args)
         if error:
             return ContinueResult(error)
-        tool_name = f"🛠️ cat {filename}" + (f" {line_range}" if line_range else "")
         if line_range is None:
             result = self.runcommand('cat', ['-n', filename])
             return ContinueResult(result['output'])

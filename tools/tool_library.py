@@ -18,10 +18,13 @@ class ParsedTool:
         self.name = name
         self.arguments = arguments
         self.tool_instance = tool_instance
+
     def __str__(self):
         if self.arguments:
             return f"🛠️ {self.name} {self.arguments}"
         return f"🛠️ {self.name}"
+
+
 class ToolLibrary:
     def __init__(self, llm: LLM | None = None, indent_level=0, io: IO | None = None):
         if llm is None:
@@ -33,6 +36,7 @@ class ToolLibrary:
         dynamic_tools = self._discover_dynamic_tools()
         self.tools = static_tools + dynamic_tools
         self._build_tool_dict()
+
     def _create_static_tools(self):
         return [
             LsTool(self.run_command),
@@ -43,10 +47,13 @@ class ToolLibrary:
             CompleteTaskTool(self.run_command),
             BashTool(self.run_command)
         ]
+
     def _discover_dynamic_tools(self):
         return []
+
     def _build_tool_dict(self):
         self.tool_dict = {tool.name: tool for tool in self.tools}
+
     def get_tool_info(self, tool_name=None):
         if tool_name:
             tool = self.tool_dict.get(tool_name)
@@ -62,6 +69,7 @@ class ToolLibrary:
                 description = getattr(tool, 'description', 'No description available')
                 info_lines.append(f"  {tool.name}: {description}")
             return "\n".join(info_lines)
+
     def parse_tool(self, text):
         pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?'
         lines = text.splitlines(keepends=True)
@@ -81,11 +89,13 @@ class ToolLibrary:
                 arguments = ''.join(all_arg_lines)
                 return ParsedTool(command, arguments, tool)
         return None
+
     @staticmethod
     def execute_parsed_tool(parsed_tool):
         args = parsed_tool.arguments if parsed_tool.arguments else None
         result = parsed_tool.tool_instance.execute(args)
         return result
+
     @staticmethod
     def run_command(command, args=None, cwd=None):
         try:

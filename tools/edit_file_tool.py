@@ -4,6 +4,7 @@ from .argument_parser import create_lexer, split_arguments
 import os
 from dataclasses import dataclass
 
+
 @dataclass
 class EditFileArgs:
     filename: str
@@ -11,6 +12,7 @@ class EditFileArgs:
     start_line: int
     end_line: int
     new_content: str | None
+
 
 class EditFileTool(BaseTool):
     name = "edit-file"
@@ -39,12 +41,12 @@ class EditFileTool(BaseTool):
             "type": "string",
             "required": False,
             "description": "New content to replace or insert at the specified lines. "
-                            "Newline behavior depends on how content is provided: "
-                            "When using quotes, you can use \n for newlines. Without quotes, "
-                            "actual line breaks in the input create newlines. "
-                            "The content will be used exactly as provided, "
-                            "so if you don't end with a newline, "
-                            "it will concatenate with existing content."
+                           "Newline behavior depends on how content is provided: "
+                           "When using quotes, you can use \n for newlines. Without quotes, "
+                           "actual line breaks in the input create newlines. "
+                           "The content will be used exactly as provided, "
+                           "so if you don't end with a newline, "
+                           "it will concatenate with existing content."
         }
     ]
     examples = [
@@ -58,7 +60,8 @@ class EditFileTool(BaseTool):
         super().__init__()
         self.runcommand = runcommand
 
-    def _parse_arguments(self, args):
+    @staticmethod
+    def _parse_arguments(args):
         if not args:
             return None, 'No arguments specified'
 
@@ -111,7 +114,8 @@ class EditFileTool(BaseTool):
         )
         return edit_args, None
 
-    def _normalize_line_range(self, start_line, end_line, total_lines):
+    @staticmethod
+    def _normalize_line_range(start_line, end_line, total_lines):
         if total_lines == 0:
             return None
 
@@ -132,7 +136,6 @@ class EditFileTool(BaseTool):
             return error
 
         return self._perform_file_edit(edit_args)
-
 
     def _perform_file_edit(self, edit_args):
         try:
@@ -166,7 +169,7 @@ class EditFileTool(BaseTool):
 
                     lines.extend(new_content)
                 else:
-                    lines[edit_args.start_line-1:edit_args.start_line-1] = new_content
+                    lines[edit_args.start_line - 1:edit_args.start_line - 1] = new_content
                 new_lines = lines
             elif edit_args.edit_mode == "delete":
                 if normalized_range is None:
@@ -194,7 +197,8 @@ class EditFileTool(BaseTool):
                             if self._range_reaches_file_end(normalized_range, len(lines)):
                                 new_lines = self._trim_terminal_newline(lines, new_lines)
             else:
-                return ContinueResult(f"Invalid edit mode: {edit_args.edit_mode}. Supported modes: insert, delete, replace")
+                return ContinueResult(
+                    f"Invalid edit mode: {edit_args.edit_mode}. Supported modes: insert, delete, replace")
 
             # Write back to file
             with open(edit_args.filename, 'w', encoding='utf-8') as f:
@@ -207,11 +211,13 @@ class EditFileTool(BaseTool):
         except Exception as e:
             return ContinueResult(f'Unexpected error editing file "{edit_args.filename}": {str(e)}')
 
-    def _delete_lines(self, lines, start_line, end_line):
+    @staticmethod
+    def _delete_lines(lines, start_line, end_line):
         lines_to_delete = set(range(start_line, end_line + 1))
         return [line for i, line in enumerate(lines, start=1) if i not in lines_to_delete]
 
-    def _replace_lines(self, lines, start_line, end_line, new_content):
+    @staticmethod
+    def _replace_lines(lines, start_line, end_line, new_content):
         start_idx = start_line - 1
         end_idx = end_line - 1
 
@@ -228,13 +234,15 @@ class EditFileTool(BaseTool):
 
         return lines[:start_idx] + replacement_lines + lines[end_idx + 1:]
 
-    def _range_reaches_file_end(self, normalized_range, total_lines):
+    @staticmethod
+    def _range_reaches_file_end(normalized_range, total_lines):
         if normalized_range is None:
             return False
         _, normalized_end = normalized_range
         return normalized_end == total_lines
 
-    def _trim_terminal_newline(self, original_lines, new_lines):
+    @staticmethod
+    def _trim_terminal_newline(original_lines, new_lines):
         if not original_lines or not new_lines:
             return new_lines
         if original_lines[-1].endswith('\n'):
