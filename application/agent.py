@@ -24,8 +24,7 @@ class Agent:
             return ContinueResult()
 
     def run_tool_loop(self, context):
-        tool_result: ToolResult = ContinueResult()
-        while isinstance(tool_result, ContinueResult):
+        while True:
             llm_answer = self.llm_answers(context)
             tool = self.tools.parse_tool(llm_answer)
             if not tool or self.user_interrupts():
@@ -34,11 +33,8 @@ class Agent:
             tool_result = self.execute_tool(tool)
             if isinstance(tool_result, ContinueResult):
                 context.user_says(f"Result of {tool}\n{tool_result}")
-                continue
-
-            return tool_result
-
-        return tool_result
+            if isinstance(tool_result, CompleteResult):
+                return tool_result
 
     def execute_tool(self, tool):
         tool_result = self.tools.execute_parsed_tool(tool)
