@@ -8,13 +8,6 @@ Agent: 🛠️ ls /tmp/test_path
        file1.txt
        ... (truncated)
 
-Agent: 🛠️ ls /tmp/test_path
-
-       .
-       ..
-       file1.txt
-       ... (truncated)
-
 # Saved messages:
 user: Test message
 assistant: 🛠️ ls /tmp/test_path
@@ -24,4 +17,3 @@ user: Result of 🛠️ ls /tmp/test_path
 file1.txt
 file2.py
 subdir
-assistant: 🛠️ ls /tmp/test_path

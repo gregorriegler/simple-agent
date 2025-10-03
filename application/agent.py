@@ -1,6 +1,6 @@
 from .llm import LLM
 from .session_storage import SessionStorage
-from .tool_result import ToolResult, ContinueResult
+from .tool_result import ToolResult, ContinueResult, CompleteResult
 
 
 class Agent:
@@ -15,22 +15,42 @@ class Agent:
     def start(self, context, rounds=999999):
         try:
             tool_result: ToolResult = ContinueResult()
-            for _ in range(rounds):
+            remaining_rounds = rounds
+            while remaining_rounds > 0:
                 prompt = self.user_prompts(context)
                 if not prompt:
                     self.display.exit()
                     return tool_result
 
-                llm_answer = self.llm_answers(context)
-
-                if self.user_interrupts():
-                    continue
-
-                tool_result = self.call_tool(llm_answer)
+                tool_result, used_rounds = self.run_tool_loop(context, remaining_rounds)
+                remaining_rounds -= used_rounds
             return tool_result
         except (EOFError, KeyboardInterrupt):
             self.display.exit()
             return ContinueResult()
+
+    def run_tool_loop(self, context, remaining_rounds):
+        tool_result: ToolResult = ContinueResult()
+        rounds_used = 0
+        while isinstance(tool_result, ContinueResult) and rounds_used < remaining_rounds:
+            rounds_used += 1
+            llm_answer = self.llm_answers(context)
+            tool = self.tools.parse_tool(llm_answer)
+            if not tool or self.user_interrupts():
+                return ContinueResult(), rounds_used
+
+            tool_result = self.execute_tool(tool)
+            if isinstance(tool_result, CompleteResult):
+                return tool_result, rounds_used
+
+            context.user_says(f"Result of {tool}\n{tool_result}")
+
+        return tool_result, rounds_used
+
+    def execute_tool(self, tool):
+        tool_result = self.tools.execute_parsed_tool(tool)
+        self.display.tool_result(str(tool_result))
+        return tool_result
 
     def user_prompts(self, context):
         prompt = self.user_input.read()
@@ -46,13 +66,3 @@ class Agent:
 
     def user_interrupts(self):
         return self.user_input.escape_requested()
-
-    def call_tool(self, llm_answer):
-        tool = self.tools.parse_tool(llm_answer)
-        if tool:
-            tool_result = self.tools.execute_parsed_tool(tool)
-            self.display.tool_result(str(tool_result))
-            if isinstance(tool_result, ContinueResult):
-                self.user_input.stack(f"Result of {tool}\n{tool_result}")
-            return tool_result
-        return ContinueResult()

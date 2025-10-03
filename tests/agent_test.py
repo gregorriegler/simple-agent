@@ -32,17 +32,17 @@ def test_abort():
 
 def test_tool_cat(tmp_path):
     temp_file = create_temp_file(tmp_path, "testfile.txt", "Hello world")
-    verify_chat(["Test message", "\n"], f"🛠️ cat {temp_file}", 2)
+    verify_chat(["Test message", "\n"], f"🛠️ cat {temp_file}", 1)
 
 
 def test_tool_cat_integration(tmp_path):
     temp_file = create_temp_file(tmp_path, "integration_test.txt", "Integration test content\nLine 2")
-    verify_chat(["Test message", "\n"], f"🛠️ cat {temp_file}", 2)
+    verify_chat(["Test message", "\n"], f"🛠️ cat {temp_file}", 1)
 
 
 def test_tool_ls_integration(tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
-    verify_chat(["Test message", "\n"], f"🛠️ ls {directory_path}", 2)
+    verify_chat(["Test message", "\n"], f"🛠️ ls {directory_path}", 1)
 
 
 def test_chat_with_task_completion():
@@ -83,7 +83,7 @@ def test_escape_reads_follow_up_message():
 
 
 def test_escape_reads_():
-    verify_chat(["Hello", "Follow-up message", "\n"], "🛠️ cat hello.txt", 2, [True, False])
+    verify_chat(["Hello", "Follow-up message", "\n"], "🛠️ cat hello.txt", 1, [True, False])
 
 
 

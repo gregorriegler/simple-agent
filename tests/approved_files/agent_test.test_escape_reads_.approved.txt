@@ -3,15 +3,6 @@ Starting new session
 
 Agent: 🛠️ cat hello.txt
 
-Press Enter to continue or type a message to add: 
-
-Agent: 🛠️ cat hello.txt
-
-       STDERR: cat: hello.txt: No such file or directory
-
-
 # Saved messages:
 user: Hello
-assistant: 🛠️ cat hello.txt
-user: Follow-up message
 assistant: 🛠️ cat hello.txt
