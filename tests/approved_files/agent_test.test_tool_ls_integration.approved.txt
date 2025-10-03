@@ -8,6 +8,14 @@ Agent: 🛠️ ls /tmp/test_path
        file1.txt
        ... (truncated)
 
+Agent: 🛠️ complete-task summary
+
+       summary
+
+Press Enter to continue or type a message to add: 
+
+Exiting...
+
 # Saved messages:
 user: Test message
 assistant: 🛠️ ls /tmp/test_path
@@ -17,3 +25,4 @@ user: Result of 🛠️ ls /tmp/test_path
 file1.txt
 file2.py
 subdir
+assistant: 🛠️ complete-task summary

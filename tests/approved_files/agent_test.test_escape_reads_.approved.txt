@@ -1,8 +1,0 @@
-# Standard out:
-Starting new session
-
-Agent: 🛠️ cat hello.txt
-
-# Saved messages:
-user: Hello
-assistant: 🛠️ cat hello.txt

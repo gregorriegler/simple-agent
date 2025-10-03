@@ -1,11 +1,13 @@
 # Standard out:
 Starting new session
 
-Agent: Assistant response
+Agent: 🛠️ cat hello.txt
 
 Press Enter to continue or type a message to add: 
 
-Agent: Assistant response
+Agent: 🛠️ complete-task summary
+
+       summary
 
 Press Enter to continue or type a message to add: 
 
@@ -13,6 +15,6 @@ Exiting...
 
 # Saved messages:
 user: Hello
-assistant: Assistant response
+assistant: 🛠️ cat hello.txt
 user: Follow-up message
-assistant: Assistant response
+assistant: 🛠️ complete-task summary

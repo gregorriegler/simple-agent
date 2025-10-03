@@ -22,10 +22,17 @@ Agent: 🛠️ subagent create another subagent
 
        I successfully created another subagent
 
-Agent: 
+Agent: 🛠️ complete-task I successfully created a subagent
+
+       I successfully created a subagent
+
+Press Enter to continue or type a message to add: 
+
+Exiting...
 
 # Saved messages:
 user: Create a subagent that creates another subagent
 assistant: 🛠️ subagent create another subagent
 user: Result of 🛠️ subagent create another subagent
 I successfully created another subagent
+assistant: 🛠️ complete-task I successfully created a subagent

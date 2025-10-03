@@ -20,8 +20,7 @@ def run_session(
     display,
     session_storage: SessionStorage,
     chat,
-    system_prompt: SystemPrompt,
-    rounds=9999999
+    system_prompt: SystemPrompt
 ):
     messages = session_storage.load() if continue_session else Messages()
     persisted_messages = PersistedMessages(messages, session_storage)
@@ -33,4 +32,4 @@ def run_session(
     tool_library = ToolLibrary(chat)
     system_prompt = system_prompt()
     agent = Agent(chat, system_prompt, user_input, tool_library, display, session_storage)
-    agent.start(persisted_messages, rounds)
+    agent.start(persisted_messages)

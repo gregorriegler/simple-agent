@@ -12,10 +12,19 @@ Agent: 🛠️ subagent say hello
 
        I successfully said hello
 
-Agent: 
+Agent: hello
+       🛠️ complete-task I successfully said hello
+
+       I successfully said hello
+
+Press Enter to continue or type a message to add: 
+
+Exiting...
 
 # Saved messages:
 user: Create a subagent that says hello
 assistant: 🛠️ subagent say hello
 user: Result of 🛠️ subagent say hello
 I successfully said hello
+assistant: hello
+🛠️ complete-task I successfully said hello

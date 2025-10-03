@@ -5,8 +5,17 @@ Agent: 🛠️ cat /tmp/test_path/testfile.txt
 
             1	Hello world
 
+Agent: 🛠️ complete-task summary
+
+       summary
+
+Press Enter to continue or type a message to add: 
+
+Exiting...
+
 # Saved messages:
 user: Test message
 assistant: 🛠️ cat /tmp/test_path/testfile.txt
 user: Result of 🛠️ cat /tmp/test_path/testfile.txt
      1	Hello world
+assistant: 🛠️ complete-task summary
