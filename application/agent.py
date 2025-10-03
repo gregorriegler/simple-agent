@@ -32,10 +32,11 @@ class Agent:
                 return ContinueResult()
 
             tool_result = self.execute_tool(tool)
-            if isinstance(tool_result, CompleteResult):
-                return tool_result
+            if isinstance(tool_result, ContinueResult):
+                context.user_says(f"Result of {tool}\n{tool_result}")
+                continue
 
-            context.user_says(f"Result of {tool}\n{tool_result}")
+            return tool_result
 
         return tool_result
 
