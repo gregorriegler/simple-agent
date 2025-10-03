@@ -15,8 +15,10 @@ class Agent:
     def start(self, context):
         try:
             tool_result: ToolResult = ContinueResult()
+
             while self.user_prompts(context):
                 tool_result = self.run_tool_loop(context)
+
             self.display.exit()
             return tool_result
         except (EOFError, KeyboardInterrupt):
@@ -31,6 +33,7 @@ class Agent:
                 return ContinueResult()
 
             tool_result = self.execute_tool(tool)
+
             if isinstance(tool_result, ContinueResult):
                 context.user_says(f"Result of {tool}\n{tool_result}")
             if isinstance(tool_result, CompleteResult):
