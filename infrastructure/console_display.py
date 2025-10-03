@@ -4,6 +4,11 @@ from infrastructure.stdio import StdIO
 import sys
 
 
+def _indent_lines(text, prefix="    "):
+    lines = str(text).split('\n')
+    return '\n'.join(f"{prefix}{line}" if line.strip() else line for line in lines)
+
+
 class ConsoleDisplay(Display):
 
     def __init__(self, indent_level=0, agent_name="Agent", io: IO | None = None):
@@ -24,7 +29,7 @@ class ConsoleDisplay(Display):
         first_three_lines = '\n'.join(lines[:3])
         if len(lines) > 3:
             first_three_lines += '\n... (truncated)'
-        result = self._indent_lines(first_three_lines, self.base_indent)
+        result = _indent_lines(first_three_lines, self.base_indent)
         self.io.print(f"\n{result}")
 
     def continue_session(self):
@@ -44,7 +49,3 @@ class ConsoleDisplay(Display):
 
     def escape_requested(self) -> bool:
         return self.io.escape_requested()
-
-    def _indent_lines(self, text, prefix="    "):
-        lines = str(text).split('\n')
-        return '\n'.join(f"{prefix}{line}" if line.strip() else line for line in lines)
