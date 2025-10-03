@@ -32,17 +32,9 @@ class Agent:
             if not tool or self.user_interrupts():
                 return ContinueResult()
 
-            tool_result = self.execute_tool(tool)
-
-            if isinstance(tool_result, ContinueResult):
-                context.user_says(f"Result of {tool}\n{tool_result}")
+            tool_result = self.execute_tool(tool, context)
             if isinstance(tool_result, CompleteResult):
                 return tool_result
-
-    def execute_tool(self, tool):
-        tool_result = self.tools.execute_parsed_tool(tool)
-        self.display.tool_result(str(tool_result))
-        return tool_result
 
     def user_prompts(self, context):
         prompt = self.user_input.read()
@@ -55,6 +47,13 @@ class Agent:
         self.display.assistant_says(answer)
         context.assistant_says(answer)
         return answer
+
+    def execute_tool(self, tool, context):
+        tool_result = self.tools.execute_parsed_tool(tool)
+        self.display.tool_result(str(tool_result))
+        if isinstance(tool_result, ContinueResult):
+            context.user_says(f"Result of {tool}\n{tool_result}")
+        return tool_result
 
     def user_interrupts(self):
         return self.user_input.escape_requested()
