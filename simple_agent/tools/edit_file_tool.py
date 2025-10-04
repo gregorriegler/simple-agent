@@ -47,6 +47,8 @@ class EditFileTool(BaseTool):
                            "The content will be used exactly as provided, "
                            "so if you don't end with a newline, "
                            "it will concatenate with existing content."
+                           "Mind your whitespace."
+                           "Indentation will be taken the way you provide it."
         }
     ]
     examples = [
@@ -54,6 +56,7 @@ class EditFileTool(BaseTool):
         "to delete the first line\n🛠️ edit-file test.txt delete 1",
         "to insert a new line at the top\n🛠️ edit-file test.txt insert 1 New Headline\n",
         "to insert a multiline string at the top\n🛠️ edit-file test.txt insert 1 New Headline\nNew Subheadline\n"
+        "to insert a indented line\n🛠️ edit-file test.txt insert 3     Indented with 4 spaces\n",
     ]
 
     def __init__(self, runcommand):
