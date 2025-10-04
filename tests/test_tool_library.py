@@ -1,4 +1,4 @@
-from tools import ToolLibrary
+from simple_agent.tools import ToolLibrary
 
 
 class TestToolLibrary(ToolLibrary):

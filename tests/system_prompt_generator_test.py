@@ -1,6 +1,6 @@
 from approvaltests import verify
 
-from system_prompt_generator import SystemPromptGenerator
+from simple_agent.system_prompt_generator import SystemPromptGenerator
 
 
 def test_generate_tools_content_only():

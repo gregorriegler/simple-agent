@@ -1,6 +1,6 @@
-from application.display import Display
-from application.io import IO
-from infrastructure.stdio import StdIO
+from simple_agent.application.display import Display
+from simple_agent.application.io import IO
+from simple_agent.infrastructure.stdio import StdIO
 import sys
 
 

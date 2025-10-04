@@ -1,4 +1,4 @@
-from main import parse_args
+from simple_agent.main import parse_args
 
 
 def test_parse_args_returns_joined_message():

@@ -1,7 +1,7 @@
 import sys
 from typing import TextIO
 
-from application.io import IO
+from simple_agent.application.io import IO
 
 
 class StdIO(IO):

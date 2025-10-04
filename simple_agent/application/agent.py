@@ -1,6 +1,6 @@
 from .llm import LLM
 from .session_storage import SessionStorage
-from .tool_result import ToolResult, ContinueResult, CompleteResult
+from .tool_result import ToolResult, ContinueResult
 
 
 class Agent:

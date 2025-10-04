@@ -2,7 +2,7 @@ import json
 import logging
 import requests
 
-from application.llm import LLM, ChatMessages
+from simple_agent.application.llm import LLM, ChatMessages
 from .claude_config import claude_config
 
 logger = logging.getLogger(__name__)

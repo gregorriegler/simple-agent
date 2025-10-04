@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from tools import ToolLibrary
+from simple_agent.tools import ToolLibrary
 
 if __name__ == "__main__":   
     tool = ToolLibrary()

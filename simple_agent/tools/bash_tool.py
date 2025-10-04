@@ -1,5 +1,5 @@
 import subprocess
-from application.tool_result import ContinueResult
+from simple_agent.application.tool_result import ContinueResult
 from .base_tool import BaseTool
 
 class BashTool(BaseTool):

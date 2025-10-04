@@ -2,12 +2,12 @@
 
 import argparse
 
-from application.input import Input
-from application.session import run_session, SessionArgs
-from infrastructure.claude.claude_client import ClaudeLLM
-from infrastructure.console_display import ConsoleDisplay
-from infrastructure.json_file_session_storage import JsonFileSessionStorage
-from system_prompt_generator import SystemPromptGenerator
+from simple_agent.application.input import Input
+from simple_agent.application.session import run_session, SessionArgs
+from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
+from simple_agent.infrastructure.console_display import ConsoleDisplay
+from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
+from simple_agent.system_prompt_generator import SystemPromptGenerator
 
 
 def main():

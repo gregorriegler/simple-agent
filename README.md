@@ -13,14 +13,35 @@ Central registry and execution engine for all available tools, combining static 
 ### [`SystemPromptGenerator`](system_prompt_generator.py:3)
 Dynamically generates system prompts for Claude AI by discovering and documenting available tools.
 
-## Usage
+## Installation and Usage
 
+### Method 1: Using the shell script (recommended for development)
 ```bash
-# Start interactive modernization session
-./agent.sh say hello
+./agent.sh "your message here"
+./agent.sh --help
+./agent.sh --continue  # continue previous session
+```
+
+### Method 2: Using uv directly
+```bash
+uv run agent "your message here"
+uv run agent --help
+uv run agent --continue  # continue previous session
+```
+
+### Method 3: Install globally with uv
+```bash
+uv tool install .
+agent "your message here"
+```
+
+### Examples
+```bash
+# Start interactive session
+./agent.sh "say hello"
 
 # Continue existing session
-./agent.sh Optional Message
+./agent.sh --continue "Optional Message"
 ```
 
 ## Direct Tool Usage

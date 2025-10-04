@@ -1,4 +1,4 @@
-from application.llm import Messages
+from simple_agent.application.llm import Messages
 
 
 class TestSessionStorage:

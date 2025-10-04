@@ -1,9 +1,9 @@
 import re
 import subprocess
 
-from application.io import IO
-from application.llm import LLM
-from infrastructure.stdio import StdIO
+from simple_agent.application.io import IO
+from simple_agent.application.llm import LLM
+from simple_agent.infrastructure.stdio import StdIO
 from .bash_tool import BashTool
 from .cat_tool import CatTool
 from .complete_task_tool import CompleteTaskTool

@@ -1,4 +1,4 @@
-from application.input import Input
+from simple_agent.application.input import Input
 
 
 class DisplayStub:

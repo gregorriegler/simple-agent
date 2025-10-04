@@ -1,4 +1,4 @@
-from application.tool_result import ToolResult
+from simple_agent.application.tool_result import ToolResult
 class BaseTool:
     name = ''
     description = ''

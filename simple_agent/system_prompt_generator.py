@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from tools.tool_library import ToolLibrary
+from simple_agent.tools.tool_library import ToolLibrary
 
 class SystemPromptGenerator:
 
@@ -19,7 +19,7 @@ class SystemPromptGenerator:
 
     def _read_system_prompt_template(self):
         import os
-        script_dir = os.path.dirname(os.path.abspath(__file__))
+        script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         template_path = os.path.join(script_dir, "system-prompt.md")
 
         try:
@@ -30,7 +30,7 @@ class SystemPromptGenerator:
 
     def _read_agents_content(self):
         import os
-        script_dir = os.path.dirname(os.path.abspath(__file__))
+        script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         agents_path = os.path.join(script_dir, "AGENTS.md")
         
         try:

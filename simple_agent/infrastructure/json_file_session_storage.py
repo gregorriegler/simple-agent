@@ -2,8 +2,8 @@ import json
 import os
 import sys
 
-from application.llm import Messages
-from application.session_storage import SessionStorage
+from simple_agent.application.llm import Messages
+from simple_agent.application.session_storage import SessionStorage
 from .claude.claude_config import claude_config
 
 

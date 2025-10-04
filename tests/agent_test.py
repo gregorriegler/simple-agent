@@ -2,9 +2,9 @@ from unittest.mock import patch
 
 from approvaltests import verify, Options
 
-from application.input import Input
-from application.session import run_session
-from infrastructure.console_display import ConsoleDisplay
+from simple_agent.application.input import Input
+from simple_agent.application.session import run_session
+from simple_agent.infrastructure.console_display import ConsoleDisplay
 from .print_spy import IOSpy
 from .test_helpers import (
     create_temp_file,
@@ -98,7 +98,7 @@ def verify_chat(inputs, answers, escape_responses=None):
     user_input.stack(message)
     test_session_storage = TestSessionStorage()
 
-    with patch('application.session.ToolLibrary', TestToolLibrary):
+    with patch('simple_agent.application.session.ToolLibrary', TestToolLibrary):
         run_session(False, user_input, display, test_session_storage, llm_stub, system_prompt_stub)
 
     result = f"# Standard out:\n{io_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"

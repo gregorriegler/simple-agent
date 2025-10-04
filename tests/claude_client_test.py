@@ -1,9 +1,9 @@
 import pytest
 import requests
 
-from infrastructure.claude import claude_client
-from infrastructure.claude.claude_client import ClaudeLLM, ClaudeClientError
-from infrastructure.claude.claude_config import claude_config
+from simple_agent.infrastructure.claude import claude_client
+from simple_agent.infrastructure.claude.claude_client import ClaudeLLM, ClaudeClientError
+from simple_agent.infrastructure.claude.claude_config import claude_config
 
 
 def test_claude_chat_returns_content_text(monkeypatch):

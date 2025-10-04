@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "simple-agent"
 version = "0.1.0"
-description = "An agent as simple as possible"
+description = "A simple CLI based agent"
 readme = "README.md"
 authors = [
     {name = "Gregor Riegler", email = "rieglerg85@gmail.com"},
@@ -19,12 +19,18 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
+keywords = ["ai", "agent", "claude", "automation", "llm"]
+license = {text = "MIT"}
 requires-python = ">=3.9"
 dependencies = [
     "piper-tts>=1.3.0",
     "pygame>=2.6.1",
     "requests",
 ]
+[project.urls]
+Homepage = "https://github.com/gregorriegler/simple-agent"
+Repository = "https://github.com/gregorriegler/simple-agent"
+Issues = "https://github.com/gregorriegler/simple-agent/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -35,10 +41,9 @@ dev = [
 ]
 
 [project.scripts]
-agent = "main:main"
-
+agent = "simple_agent.main:main"
 [tool.hatch.build.targets.wheel]
-packages = ["."]
+packages = ["simple_agent"]
 
 [tool.uv]
 dev-dependencies = [

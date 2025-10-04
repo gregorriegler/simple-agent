@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
-from application.agent import Agent
-from application.llm import Messages
-from application.persisted_messages import PersistedMessages
-from application.session_storage import SessionStorage
-from application.system_prompt import SystemPrompt
-from tools import ToolLibrary
+from simple_agent.application.agent import Agent
+from simple_agent.application.llm import Messages
+from simple_agent.application.persisted_messages import PersistedMessages
+from simple_agent.application.session_storage import SessionStorage
+from simple_agent.application.system_prompt import SystemPrompt
+from simple_agent.tools import ToolLibrary
 
 
 @dataclass

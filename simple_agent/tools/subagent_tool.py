@@ -1,9 +1,9 @@
-from application.io import IO
-from application.llm import Messages
-from application.input import Input
-from application.tool_result import ContinueResult
-from infrastructure.console_display import ConsoleDisplay
-from infrastructure.stdio import StdIO
+from simple_agent.application.io import IO
+from simple_agent.application.llm import Messages
+from simple_agent.application.input import Input
+from simple_agent.application.tool_result import ContinueResult
+from simple_agent.infrastructure.console_display import ConsoleDisplay
+from simple_agent.infrastructure.stdio import StdIO
 from .base_tool import BaseTool
 
 
@@ -44,10 +44,10 @@ class SubagentTool(BaseTool):
         if not args or not args.strip():
             return ContinueResult('STDERR: subagent: missing task description')
         try:
-            from application.agent import Agent
-            from system_prompt_generator import SystemPromptGenerator
+            from simple_agent.application.agent import Agent
+            from simple_agent.system_prompt_generator import SystemPromptGenerator
             system_prompt = SystemPromptGenerator().generate_system_prompt()
-            from tools.tool_library import ToolLibrary
+            from simple_agent.tools.tool_library import ToolLibrary
             subagent_tools = ToolLibrary(self.llm, self.indent_level + 1, self.io)
             subagent_session_storage = NoOpSessionStorage()
             user_input = Input(self.subagent_display)

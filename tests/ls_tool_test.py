@@ -1,4 +1,4 @@
-from tools.tool_library import ToolLibrary
+from simple_agent.tools.tool_library import ToolLibrary
 from .test_helpers import (
     create_temp_directory_structure,
     verify_tool
