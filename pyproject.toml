@@ -43,9 +43,6 @@ dev = [
 agent = "simple_agent.main:main"
 [tool.hatch.build.targets.wheel]
 packages = ["simple_agent"]
-artifacts = [
-    "system-prompt.md"
-]
 
 [tool.uv]
 dev-dependencies = [

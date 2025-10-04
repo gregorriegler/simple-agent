@@ -10,29 +10,33 @@ class SystemPromptGenerator:
         template_content = self._read_system_prompt_template()
         agents_content = self._read_agents_content()
         tools_content = self._generate_tools_content()
-        
+
         # Replace the dynamic tools placeholder
         result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
-        
+
         # Add agents content at the beginning
         return agents_content + "\n\n" + result
 
     def _read_system_prompt_template(self):
-        import os
-        script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        template_path = os.path.join(script_dir, "system-prompt.md")
-
         try:
-            with open(template_path, 'r', encoding='utf-8') as f:
-                return f.read()
+            from importlib import resources
+            return resources.read_text('simple_agent', 'system-prompt.md')
         except FileNotFoundError:
-            raise FileNotFoundError(f"system-prompt.md template file not found at {template_path}")
+            import os
+            script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            template_path = os.path.join(script_dir, "system-prompt.md")
+
+            try:
+                with open(template_path, 'r', encoding='utf-8') as f:
+                    return f.read()
+            except FileNotFoundError:
+                raise FileNotFoundError(f"system-prompt.md template file not found at {template_path}")
 
     def _read_agents_content(self):
         import os
         script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         agents_path = os.path.join(script_dir, "AGENTS.md")
-        
+
         try:
             with open(agents_path, 'r', encoding='utf-8') as f:
                 return f.read()
