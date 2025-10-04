@@ -54,11 +54,13 @@ def test_claude_chat_raises_error_when_request_fails(monkeypatch):
 
 
 def stub_claude_config(monkeypatch):
-    values = {
-        claude_config._get_absolute_path("claude-api-key.txt"): "test-api-key",
-        claude_config._get_absolute_path("claude-model.txt"): "test-model"
+    test_config = {
+        'claude': {
+            'api_key': 'test-api-key',
+            'model': 'test-model'
+        }
     }
-    monkeypatch.setattr(claude_config, "_read_file", lambda filename: values[filename])
+    monkeypatch.setattr(claude_config, "_config", test_config)
 
 
 def create_successful_post(captured):

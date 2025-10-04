@@ -1,0 +1,6 @@
+[claude]
+api_key = "sk-ant-api03-placeholder-key-replace-with-your-actual-claude-api-key"
+model = "claude-sonnet-4-5-20250929"
+
+[paths]
+refactoring_tools_path = "C:\\Users\\riegl\\code\\csharp-refactoring-tools"

@@ -14,14 +14,13 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 keywords = ["ai", "agent", "claude", "automation", "llm"]
 license = {text = "MIT"}
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
     "piper-tts>=1.3.0",
     "pygame>=2.6.1",
@@ -44,6 +43,9 @@ dev = [
 agent = "simple_agent.main:main"
 [tool.hatch.build.targets.wheel]
 packages = ["simple_agent"]
+artifacts = [
+    "system-prompt.md"
+]
 
 [tool.uv]
 dev-dependencies = [

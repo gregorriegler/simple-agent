@@ -44,6 +44,21 @@ agent "your message here"
 ./agent.sh --continue "Optional Message"
 ```
 
+## Configuration
+
+Create an `simple-agent.toml` file in the directory where you run the agent:
+
+```toml
+[claude]
+api_key = "your-claude-api-key-here"
+model = "claude-sonnet-4-5-20250929"
+
+[paths]
+refactoring_tools_path = "/path/to/your/tools"
+```
+
+The agent will look for this file in the current working directory and exit with an error if not found.
+
 ## Direct Tool Usage
 
 ```bash
