@@ -1,4 +1,6 @@
 - when i install it and use it, it should use AGENTS.md from that dir
+- api key via env var
+- say should be a part of the agent
 - on windows sometimes freezes on exiting "read input"
 - A place to show the tool results in full
 - Login with Claude Max subscription (We need to ask for a OAuth ClientId)
