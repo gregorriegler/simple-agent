@@ -1,4 +1,5 @@
+- when i install it and use it, it should use AGENTS.md from that dir
 - A place to show the tool results in full
-- Simpler switching between models
 - Login with Claude Max subscription (We need to ask for a OAuth ClientId)
 - Refactoring opportunity in edit_file_tool.py
+- Simpler switching between models
