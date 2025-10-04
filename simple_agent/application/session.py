@@ -12,6 +12,7 @@ from simple_agent.tools import ToolLibrary
 class SessionArgs:
     continue_session: bool
     start_message: str | None
+    show_system_prompt: bool = False
 
 
 def run_session(

@@ -44,7 +44,7 @@ Arguments:
  - edit_mode: string (required) - Edit mode ('replace', 'insert', 'delete')
  - line_range: string (required) - Line range in format 'start-end' or 'line_number' (e.g., '1-3' or '10' for single line)
  - new_content: string (optional) - New content to replace or insert at the specified lines. Newline behavior depends on how content is provided: When using quotes, you can use 
- for newlines. Without quotes, actual line breaks in the input create newlines. The content will be used exactly as provided, so if you don't end with a newline, it will concatenate with existing content.
+ for newlines. Without quotes, actual line breaks in the input create newlines. The content will be used exactly as provided, so if you don't end with a newline, it will concatenate with existing content.Mind your whitespace.Indentation will be taken the way you provide it.
 
 Usage: 🛠️ edit-file <filename> <edit_mode> <line_range> [new_content]
 
@@ -58,6 +58,8 @@ to insert a new line at the top
 to insert a multiline string at the top
 🛠️ edit-file test.txt insert 1 New Headline
 New Subheadline
+to insert a indented line
+🛠️ edit-file test.txt insert 3     Indented with 4 spaces
 
 
 ## subagent

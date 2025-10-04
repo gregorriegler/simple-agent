@@ -12,6 +12,13 @@ from simple_agent.system_prompt_generator import SystemPromptGenerator
 
 def main():
     args = parse_args()
+
+    if args.show_system_prompt:
+        generator = SystemPromptGenerator()
+        system_prompt = generator.generate_system_prompt()
+        print(system_prompt)
+        return
+
     display = ConsoleDisplay()
     user_input = Input(display)
     if args.start_message:
@@ -25,9 +32,10 @@ def main():
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Simple Agent")
     parser.add_argument("-c", "--continue", action="store_true", help="Continue previous session")
+    parser.add_argument("-s", "--system-prompt", action="store_true", help="Print the current system prompt including AGENTS.md content")
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
     parsed = parser.parse_args(argv)
-    return SessionArgs(bool(getattr(parsed, "continue")), build_start_message(parsed.message))
+    return SessionArgs(bool(getattr(parsed, "continue")), build_start_message(parsed.message), bool(getattr(parsed, "system_prompt")))
 
 
 def build_start_message(message_parts):

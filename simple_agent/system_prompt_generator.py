@@ -34,12 +34,18 @@ class SystemPromptGenerator:
 
     def _read_agents_content(self):
         import os
-        script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        agents_path = os.path.join(script_dir, "AGENTS.md")
+        # Look for AGENTS.md in the current working directory
+        agents_path = os.path.join(os.getcwd(), "AGENTS.md")
 
         try:
-            with open(agents_path, 'r', encoding='utf-8') as f:
-                return f.read()
+            # Try UTF-8 first, then fall back to other encodings
+            try:
+                with open(agents_path, 'r', encoding='utf-8') as f:
+                    return f.read()
+            except UnicodeDecodeError:
+                # Try with UTF-8 and error handling
+                with open(agents_path, 'r', encoding='utf-8', errors='replace') as f:
+                    return f.read()
         except FileNotFoundError:
             # If AGENTS.md doesn't exist, return empty string to avoid breaking
             return ""
