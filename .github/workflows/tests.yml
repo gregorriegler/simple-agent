@@ -30,6 +30,6 @@ jobs:
     - name: Install Python dependencies
       run: uv sync --dev
 
-    - name: Run modernizer tests
+    - name: Run tests
       shell: bash
       run: uv run bash test.sh
