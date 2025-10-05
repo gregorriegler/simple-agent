@@ -40,8 +40,7 @@ class ConsoleDisplay(Display):
 
     def input(self) -> str:
         prompt = "       " * self.indent_level + "Press Enter to continue or type a message to add: "
-        self.io.print(f"\n{prompt}", file=sys.stderr)
-        return self.io.input("").strip()
+        return self.io.input(prompt).strip()
 
     def exit(self):
         exit_msg = "       " * self.indent_level + "Exiting..."

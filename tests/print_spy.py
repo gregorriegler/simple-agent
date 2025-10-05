@@ -12,7 +12,7 @@ class IOSpy:
         self._inputs = list(inputs)
 
     def input(self, prompt: str) -> str:
-        self.prompts.append(prompt)
+        self.outputs.append("\n" + prompt)
         if not self._inputs:
             return ""
         value = self._inputs.pop(0)
