@@ -15,21 +15,24 @@ Dynamically generates system prompts for Claude AI by discovering and documentin
 
 ## Installation and Usage
 
-### Method 1: Using the shell script (recommended for development)
+### Quick Install (recommended)
+```bash
+./install.sh
+```
+
+### Usage Method 1: Using the shell script (recommended for development)
 ```bash
 ./agent.sh "your message here"
 ./agent.sh --help
 ./agent.sh --continue  # continue previous session
 ```
-
-### Method 2: Using uv directly
+### Usage Method 2: Using uv directly
 ```bash
 uv run agent "your message here"
 uv run agent --help
 uv run agent --continue  # continue previous session
 ```
-
-### Method 3: Install globally with uv
+### Install globally with uv
 ```bash
 uv tool install .
 agent "your message here"
