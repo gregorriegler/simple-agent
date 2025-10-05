@@ -2,24 +2,23 @@ import os
 import sys
 import tomllib
 
+
+def load_claude_config():
+    script_dir = _script_dir()
+    config_path = os.path.join(os.getcwd(), "simple-agent.toml")
+    config = _read_config(config_path)
+    return ClaudeConfig(config, script_dir)
+
+
+def default_session_file_path():
+    script_dir = _script_dir()
+    return os.path.join(script_dir, "claude-session.json")
+
+
 class ClaudeConfig:
-    def __init__(self):
-        self._script_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        self._config = self._load_config()
-
-    def _load_config(self):
-        cwd_config_path = os.path.join(os.getcwd(), "simple-agent.toml")
-        if not os.path.exists(cwd_config_path):
-            print(f"Error: simple-agent.toml not found in current directory ({os.getcwd()})", file=sys.stderr)
-            print("Please create a simple-agent.toml file with your Claude configuration", file=sys.stderr)
-            sys.exit(1)
-
-        try:
-            with open(cwd_config_path, 'rb') as f:
-                return tomllib.load(f)
-        except Exception as e:
-            print(f"Error reading {cwd_config_path}: {e}", file=sys.stderr)
-            sys.exit(1)
+    def __init__(self, config, script_dir):
+        self._config = config
+        self._script_dir = script_dir
 
     @property
     def api_key(self):
@@ -39,4 +38,19 @@ class ClaudeConfig:
     def session_file_path(self):
         return os.path.join(self._script_dir, "claude-session.json")
 
-claude_config = ClaudeConfig()
+
+def _script_dir():
+    return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+def _read_config(path):
+    if not os.path.exists(path):
+        print(f"Error: simple-agent.toml not found in current directory ({os.getcwd()})", file=sys.stderr)
+        print("Please create a simple-agent.toml file with your Claude configuration", file=sys.stderr)
+        sys.exit(1)
+    try:
+        with open(path, 'rb') as handle:
+            return tomllib.load(handle)
+    except Exception as error:
+        print(f"Error reading {path}: {error}", file=sys.stderr)
+        sys.exit(1)

@@ -3,7 +3,7 @@ import logging
 import requests
 
 from simple_agent.application.llm import LLM, ChatMessages
-from .claude_config import claude_config
+from .claude_config import load_claude_config
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='request.log', encoding='utf-8', level=logging.DEBUG)
@@ -16,10 +16,13 @@ class ClaudeClientError(RuntimeError):
 
 class ClaudeLLM(LLM):
 
+    def __init__(self, config=None):
+        self._config = config or load_claude_config()
+
     def __call__(self, system_prompt: str, messages: ChatMessages) -> str:
         url = "https://api.anthropic.com/v1/messages"
-        api_key = claude_config.api_key
-        model = claude_config.model
+        api_key = self._config.api_key
+        model = self._config.model
         headers = {
             "Content-Type": "application/json",
             "x-api-key": api_key,
