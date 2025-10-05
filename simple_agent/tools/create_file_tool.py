@@ -73,7 +73,7 @@ class CreateFileTool(BaseTool):
             with open(filename, 'w', encoding='utf-8') as f:
                 if content is not None:
                     # Process escape sequences like \n
-                    processed_content = content.encode().decode('unicode_escape')
+                    processed_content = content.replace('\\n', '\n').replace('\\t', '\t').replace('\\r', '\r').replace('\\\\', '\\')
                     f.write(processed_content)
             if content is not None:
                 return ContinueResult(f"Created file: {filename} with content")
