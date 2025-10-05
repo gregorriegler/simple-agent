@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 from approvaltests import verify, Options
 
 from simple_agent.application.input import Input
@@ -90,15 +88,13 @@ def verify_chat(inputs, answers, interrupts=None):
     llm_stub = create_llm_stub(answers)
     message, *remaining_inputs = inputs
     io_spy = IOSpy(remaining_inputs)
-    TestToolLibrary.set_interrupts(interrupts)
-    TestToolLibrary.set_io(io_spy)
     display = ConsoleDisplay(io=io_spy)
     user_input = Input(display)
     user_input.stack(message)
     test_session_storage = TestSessionStorage()
+    test_tool_library = TestToolLibrary(llm_stub, io=io_spy, interrupts=interrupts)
 
-    with patch('simple_agent.application.session.ToolLibrary', TestToolLibrary):
-        run_session(False, user_input, display, test_session_storage, llm_stub, system_prompt_stub)
+    run_session(False, user_input, display, test_session_storage, llm_stub, system_prompt_stub, test_tool_library)
 
     result = f"# Standard out:\n{io_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
     verify(result, options=Options().with_scrubber(all_scrubbers()))

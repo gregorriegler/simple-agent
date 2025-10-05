@@ -90,8 +90,7 @@ class ToolLibrary:
                 return ParsedTool(command, arguments, tool)
         return None
 
-    @staticmethod
-    def execute_parsed_tool(parsed_tool):
+    def execute_parsed_tool(self, parsed_tool):
         args = parsed_tool.arguments if parsed_tool.arguments else None
         result = parsed_tool.tool_instance.execute(args)
         return result

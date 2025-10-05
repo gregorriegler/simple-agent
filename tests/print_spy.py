@@ -11,13 +11,14 @@ class IOSpy:
     def set_inputs(self, inputs):
         self._inputs = list(inputs)
 
-    def input(self, prompt):
+    def input(self, prompt: str) -> str:
         self.prompts.append(prompt)
         if not self._inputs:
             return ""
         value = self._inputs.pop(0)
         if callable(value):
-            return value(prompt)
+            result = value(prompt)
+            return str(result) if result is not None else ""
         if isinstance(value, str):
             return value
         return str(value)
