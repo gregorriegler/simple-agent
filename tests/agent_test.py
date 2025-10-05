@@ -86,12 +86,11 @@ def test_escape_aborts_tool_call():
 
 
 
-def verify_chat(inputs, answers, escape_responses=None):
+def verify_chat(inputs, answers, interrupts=None):
     llm_stub = create_llm_stub(answers)
     message, *remaining_inputs = inputs
     io_spy = IOSpy(remaining_inputs)
-    if escape_responses is not None:
-        io_spy.set_escape_responses(escape_responses)
+    TestToolLibrary.set_interrupts(interrupts)
     TestToolLibrary.set_io(io_spy)
     display = ConsoleDisplay(io=io_spy)
     user_input = Input(display)

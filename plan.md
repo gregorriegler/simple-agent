@@ -1,3 +1,5 @@
+- still indendation issues on edit tool
+- approve script not working anymore
 - say should be a part of the agent
 - api key via env var
 - on windows sometimes freezes on exiting "read input"

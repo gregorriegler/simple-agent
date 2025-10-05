@@ -7,8 +7,6 @@ Press Enter to continue or type a message to add:
 
 Agent: 🛠️ complete-task summary
 
-       summary
-
 Press Enter to continue or type a message to add: 
 
 Exiting...

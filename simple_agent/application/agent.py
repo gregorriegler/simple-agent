@@ -28,12 +28,15 @@ class Agent:
     def run_tool_loop(self, context):
         tool_result: ToolResult = ContinueResult()
 
-        while isinstance(tool_result, ContinueResult):
-            llm_answer = self.llm_answers(context)
-            tool = self.tools.parse_tool(llm_answer)
-            if not tool or self.user_interrupts():
-                break
-            tool_result = self.execute_tool(tool, context)
+        try:
+            while isinstance(tool_result, ContinueResult):
+                llm_answer = self.llm_answers(context)
+                tool = self.tools.parse_tool(llm_answer)
+                if not tool:
+                    break
+                tool_result = self.execute_tool(tool, context)
+        except KeyboardInterrupt:
+            pass
 
         return tool_result
 
@@ -55,6 +58,3 @@ class Agent:
         if isinstance(tool_result, ContinueResult):
             context.user_says(f"Result of {tool}\n{tool_result}")
         return tool_result
-
-    def user_interrupts(self):
-        return self.user_input.escape_requested()
