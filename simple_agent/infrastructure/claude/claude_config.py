@@ -11,8 +11,7 @@ def load_claude_config():
 
 
 def default_session_file_path():
-    script_dir = _script_dir()
-    return os.path.join(script_dir, "claude-session.json")
+    return os.path.join(os.getcwd(), "claude-session.json")
 
 
 class ClaudeConfig:
@@ -36,7 +35,7 @@ class ClaudeConfig:
 
     @property
     def session_file_path(self):
-        return os.path.join(self._script_dir, "claude-session.json")
+        return default_session_file_path()
 
 
 def _script_dir():
