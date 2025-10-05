@@ -1,4 +1,4 @@
-from simple_agent.application.tool_result import ContinueResult
+from simple_agent.application.tool_result import ContinueResult, ToolResult
 from .base_tool import BaseTool
 from .argument_parser import split_arguments
 import os
@@ -119,7 +119,26 @@ class PatchFileTool(BaseTool):
                 if old_line_idx < len(lines):
                     if lines[old_line_idx].rstrip('\n') != context_line.rstrip('\n'):
                         return None, f"Context mismatch at line {old_line_idx + 1}"
-                    new_lines.append(lines[old_line_idx])
+
+                    # Check if we need to add a newline to the context line
+                    # This happens when the context line doesn't end with newline but we're adding lines after it
+                    context_line_to_add = lines[old_line_idx]
+
+                    # Look ahead to see if there are any additions coming after this context line
+                    has_additions_after = False
+                    for j in range(hunk_idx + 1, len(hunk_lines)):
+                        if hunk_lines[j].startswith('+'):
+                            has_additions_after = True
+                            break
+                        elif hunk_lines[j].startswith('-') or hunk_lines[j].startswith(' '):
+                            break
+
+                    # If context line doesn't end with newline but we have additions after, add newline
+                    if (has_additions_after and
+                        not context_line_to_add.endswith('\n')):
+                        context_line_to_add += '\n'
+
+                    new_lines.append(context_line_to_add)
                     old_line_idx += 1
                 else:
                     return None, f"Context line beyond file end at line {old_line_idx + 1}"
@@ -135,15 +154,21 @@ class PatchFileTool(BaseTool):
             elif line.startswith('+'):
                 # Addition - add new line
                 added_line = line[1:]
-                # Preserve newline handling - add newline if original file has newlines
-                if old_line_idx < len(lines):
-                    # If we're in the middle of the file, preserve newline structure
-                    if not added_line.endswith('\n'):
-                        added_line += '\n'
-                elif len(lines) > 0 and lines[-1].endswith('\n'):
-                    # If we're at the end but file has newlines, add one
-                    if not added_line.endswith('\n'):
-                        added_line += '\n'
+                # Always ensure added lines have proper newlines
+                # Check if we need to add a newline
+                needs_newline = True
+
+                # If this is the very last line being added and the original file
+                # doesn't end with a newline, then don't add one
+                if (hunk_idx == len(hunk_lines) - 1 and  # This is the last line in the hunk
+                    old_line_idx >= len(lines) and       # We're at or past EOF
+                    len(lines) > 0 and                   # File is not empty
+                    not lines[-1].endswith('\n')):       # Original file doesn't end with newline
+                    needs_newline = False
+
+                if needs_newline and not added_line.endswith('\n'):
+                    added_line += '\n'
+
                 new_lines.append(added_line)
 
             hunk_idx += 1
@@ -153,7 +178,7 @@ class PatchFileTool(BaseTool):
 
         return new_lines, None
 
-    def execute(self, args):
+    def execute(self, args) -> ToolResult:
         patch_args, error = self._parse_arguments(args)
         if error:
             return ContinueResult(error)

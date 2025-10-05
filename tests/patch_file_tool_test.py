@@ -77,6 +77,14 @@ def test_patch_file_with_spaces_in_filename(tmp_path):
     verify_patch_tool(library, "notes folder/note file.txt", initial_content, command, tmp_path=tmp_path)
 
 
+def test_patch_file_add_lines_at_eof_without_newline(tmp_path):
+    # Test the newline handling bug fix - adding lines at EOF when file doesn't end with newline
+    initial_content = "Line 1\nLine 2\nFinal line"  # No trailing newline
+    patch_content = "@@ -3,1 +3,3 @@\n Final line\n+New line 6\n+New line 7"
+    command = f'🛠️ patch-file test.txt "{patch_content}"'
+    verify_patch_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
 def verify_patch_tool(library, setup_file, setup_content, command, tmp_path):
     with temp_directory(tmp_path):
         if setup_content is not None:
