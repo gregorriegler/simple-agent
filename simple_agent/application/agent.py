@@ -32,7 +32,7 @@ class Agent:
             while isinstance(tool_result, ContinueResult):
                 llm_answer = self.llm_answers(context)
                 tool = self.tools.parse_tool(llm_answer)
-                if not tool:
+                if not tool or self.user_input.escape_requested():
                     break
                 tool_result = self.execute_tool(tool, context)
         except KeyboardInterrupt:

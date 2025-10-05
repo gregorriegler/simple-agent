@@ -83,16 +83,24 @@ def test_escape_aborts_tool_call():
     verify_chat(["Hello", "Follow-up message", "\n"], ["🛠️ cat hello.txt", "🛠️ complete-task summary"], [True, False])
 
 
+def test_interrupt_reads_follow_up_message():
+    verify_chat(["Hello", "Follow-up message", "\n"], "Assistant response", [], [True, False])
 
-def verify_chat(inputs, answers, interrupts=None):
+
+def test_interrupt_aborts_tool_call():
+    verify_chat(["Hello", "Follow-up message", "\n"], ["🛠️ cat hello.txt", "🛠️ complete-task summary"], [], [True, False])
+
+
+
+def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     llm_stub = create_llm_stub(answers)
     message, *remaining_inputs = inputs
-    io_spy = IOSpy(remaining_inputs)
+    io_spy = IOSpy(remaining_inputs, escape_hits)
     display = ConsoleDisplay(io=io_spy)
     user_input = Input(display)
     user_input.stack(message)
     test_session_storage = TestSessionStorage()
-    test_tool_library = TestToolLibrary(llm_stub, io=io_spy, interrupts=interrupts)
+    test_tool_library = TestToolLibrary(llm_stub, io=io_spy, interrupts=[ctrl_c_hits])
 
     run_session(False, user_input, display, test_session_storage, llm_stub, system_prompt_stub, test_tool_library)
 

@@ -45,3 +45,6 @@ class ConsoleDisplay(Display):
     def exit(self):
         exit_msg = "       " * self.indent_level + "Exiting..."
         self.io.print(f"\n{exit_msg}")
+
+    def escape_requested(self) -> bool:
+        return self.io.escape_requested()

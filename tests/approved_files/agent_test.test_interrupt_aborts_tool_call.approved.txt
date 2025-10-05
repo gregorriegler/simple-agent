@@ -1,0 +1,20 @@
+# Standard out:
+Starting new session
+
+Agent: 🛠️ cat hello.txt
+
+Press Enter to continue or type a message to add: 
+
+Agent: 🛠️ complete-task summary
+
+       summary
+
+Press Enter to continue or type a message to add: 
+
+Exiting...
+
+# Saved messages:
+user: Hello
+assistant: 🛠️ cat hello.txt
+user: Follow-up message
+assistant: 🛠️ complete-task summary

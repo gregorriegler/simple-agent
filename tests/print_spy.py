@@ -1,5 +1,5 @@
 class IOSpy:
-    def __init__(self, inputs=None):
+    def __init__(self, inputs=None, interrupts=None):
         self._inputs = []
         self._escape_responses = []
         self._escape_last = False
@@ -7,6 +7,8 @@ class IOSpy:
         self.prompts = []
         if inputs is not None:
             self.set_inputs(inputs)
+        if interrupts is not None:
+            self.set_escape_responses(interrupts)
 
     def set_inputs(self, inputs):
         self._inputs = list(inputs)

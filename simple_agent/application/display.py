@@ -14,3 +14,6 @@ class Display(Protocol):
 
     def exit(self) -> None:
         ...
+
+    def escape_requested(self) -> bool:
+        ...
