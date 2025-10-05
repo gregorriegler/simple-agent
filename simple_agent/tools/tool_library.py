@@ -97,8 +97,6 @@ class ToolLibrary:
 
     @staticmethod
     def run_command(command, args=None, cwd=None):
-        import sys
-        import os
         try:
             command_line = [command]
             if args:
