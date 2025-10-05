@@ -1,0 +1,22 @@
+Command:
+🛠️ edit-file test.py insert 2 --raw new_line
+
+Result:
+Successfully edited test.py
+
+Initial file: test.py
+Initial content:
+--- INITIAL CONTENT START ---
+line1
+    line2
+line3
+--- INITIAL CONTENT END ---
+
+File after edit: test.py
+Final content:
+--- FINAL CONTENT START ---
+line1
+ new_line
+    line2
+line3
+--- FINAL CONTENT END ---

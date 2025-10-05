@@ -1,0 +1,27 @@
+Command:
+🛠️ edit-file test.py insert 10 new_content
+
+Result:
+Successfully edited test.py
+
+Initial file: test.py
+Initial content:
+--- INITIAL CONTENT START ---
+line1
+line2
+--- INITIAL CONTENT END ---
+
+File after edit: test.py
+Final content:
+--- FINAL CONTENT START ---
+line1
+line2
+
+
+
+
+
+
+
+new_content
+--- FINAL CONTENT END ---

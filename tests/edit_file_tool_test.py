@@ -132,6 +132,60 @@ def test_edit_file_insert_without_content_inserts_an_empty_line(tmp_path):
     command = "🛠️ edit-file test.txt insert 2"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
+def test_edit_file_replace_with_auto_indent_python(tmp_path):
+    initial_content = "line1\n    existing = 1\nline3"
+    command = "🛠️ edit-file test.py replace 2 new = 2"
+    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_replace_with_raw_flag(tmp_path):
+    initial_content = "line1\n    existing = 1\nline3"
+    command = "🛠️ edit-file test.py replace 2 --raw new = 2"
+    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_insert_with_auto_indent(tmp_path):
+    initial_content = "line1\n    line2\nline3"
+    command = "🛠️ edit-file test.py insert 2 new_line"
+    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_insert_with_raw_flag(tmp_path):
+    initial_content = "line1\n    line2\nline3"
+    command = "🛠️ edit-file test.py insert 2 --raw new_line"
+    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_replace_preserves_manual_indentation(tmp_path):
+    initial_content = "line1\n    existing\nline3"
+    command = "🛠️ edit-file test.py replace 2         manually_indented"
+    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_replace_multiline_only_indents_first_line(tmp_path):
+    initial_content = "line1\n    existing\nline3"
+    command = "🛠️ edit-file test.py replace 2 line1\nline2\n    line3"
+    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_insert_beyond_file_end_no_indentation(tmp_path):
+    initial_content = "line1\nline2"
+    command = "🛠️ edit-file test.py insert 10 new_content"
+    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_replace_with_tabs(tmp_path):
+    initial_content = "line1\n\texisting\nline3"
+    command = "🛠️ edit-file test.py replace 2 new_line"
+    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_insert_at_unindented_line(tmp_path):
+    initial_content = "line1\nline2\n    line3"
+    command = "🛠️ edit-file test.py insert 2 new_line"
+    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
+
+
 def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
     with temp_directory(tmp_path):
         os.makedirs(os.path.dirname(setup_file) or '.', exist_ok=True)
