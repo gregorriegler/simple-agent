@@ -34,16 +34,16 @@ def test_edit_file_replace_a_lines_with_lines_in_quotes(tmp_path):
     verify_edit_tool(library, "test.txt", "line1\nline2", command, tmp_path=tmp_path)
 
 
-def test_edit_file_replace_path_with_spaces(tmp_path):
-    command = '🛠️ edit-file "notes folder/note file.txt" replace 1 "updated line"'
-    verify_edit_tool(library, "notes folder/note file.txt", "original line", command, tmp_path=tmp_path)
-
-
 def test_edit_file_replace_empty_lines_with_function(tmp_path):
     initial_content = "line1\nline2\n\n\n\nline6"
     function_def = "def hello():\n    return 'world'"
     command = f"🛠️ edit-file template.py replace 3-5 {function_def}"
     verify_edit_tool(library, "template.py", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_replace_path_with_spaces(tmp_path):
+    command = '🛠️ edit-file "notes folder/note file.txt" replace 1 "updated line"'
+    verify_edit_tool(library, "notes folder/note file.txt", "original line", command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_two_lines_to_empty_file(tmp_path):
@@ -80,6 +80,24 @@ def test_edit_file_insert_content_with_leading_spaces(tmp_path):
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
+def test_edit_file_insert_content_with_multiple_leading_spaces_without_quotes(tmp_path):
+    initial_content = "line1\nline2"
+    command = "🛠️ edit-file test.txt insert 2     indented line"
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_insert_content_with_multiple_leading_spaces_with_quotes(tmp_path):
+    initial_content = "line1\nline2"
+    command = '🛠️ edit-file test.txt insert 2 "    indented line"'
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_preserves_indentation_in_multiline_content(tmp_path):
+    initial_content = "line1\nline2"
+    command = "🛠️ edit-file test.py insert 3 def hello():\n    return 'world'"
+    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
+
+
 def test_edit_file_insert_beyond_last_line_appends_to_end(tmp_path):
     initial_content = "line1\nline2"
     command = "🛠️ edit-file test.txt insert 3 line3"
@@ -92,22 +110,11 @@ def test_edit_file_insert_far_beyond_last_line_appends_to_end_and_pads_with_empt
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
-def test_edit_file_preserves_indentation_in_multiline_content(tmp_path):
+def test_edit_file_insert_without_content_inserts_an_empty_line(tmp_path):
     initial_content = "line1\nline2"
-    command = "🛠️ edit-file test.py insert 3 def hello():\n    return 'world'"
-    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
-
-
-def test_edit_file_insert_content_with_multiple_leading_spaces_without_quotes(tmp_path):
-    initial_content = "line1\nline2"
-    command = "🛠️ edit-file test.txt insert 2     indented line"
+    command = "🛠️ edit-file test.txt insert 2"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
-
-def test_edit_file_insert_content_with_multiple_leading_spaces_with_quotes(tmp_path):
-    initial_content = "line1\nline2"
-    command = '🛠️ edit-file test.txt insert 2 "    indented line"'
-    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 def test_edit_file_delete_a_line(tmp_path):
     initial_content = "line1\nline2"
@@ -126,11 +133,6 @@ def test_edit_file_replace_range_beyond_file_end_leaves_file_unchanged(tmp_path)
     command = "🛠️ edit-file test.txt replace 5-7 replacement"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
-
-def test_edit_file_insert_without_content_inserts_an_empty_line(tmp_path):
-    initial_content = "line1\nline2"
-    command = "🛠️ edit-file test.txt insert 2"
-    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 def test_edit_file_replace_with_auto_indent_python(tmp_path):
     initial_content = "line1\n    existing = 1\nline3"
