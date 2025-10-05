@@ -1,0 +1,11 @@
+Command:
+🛠️ patch-file nonexistent.txt "@@ -1,1 +1,1 @@
+-old
++new"
+
+Result:
+File "nonexistent.txt" not found
+
+Initial file: nonexistent.txt (does not exist)
+
+File after patch: nonexistent.txt (still does not exist)

@@ -1,0 +1,21 @@
+Command:
+🛠️ patch-file test.txt "invalid patch format
+-old
++new"
+
+Result:
+No valid patch hunk found (missing @@ header)
+
+Initial file: test.txt
+Initial content:
+--- INITIAL CONTENT START ---
+line1
+line2
+--- INITIAL CONTENT END ---
+
+File after patch: test.txt
+Final content:
+--- FINAL CONTENT START ---
+line1
+line2
+--- FINAL CONTENT END ---

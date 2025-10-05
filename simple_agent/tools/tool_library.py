@@ -10,6 +10,7 @@ from .complete_task_tool import CompleteTaskTool
 from .create_file_tool import CreateFileTool
 from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
+from .patch_file_tool import PatchFileTool
 from .subagent_tool import SubagentTool
 
 
@@ -43,6 +44,7 @@ class ToolLibrary:
             CatTool(self.run_command),
             CreateFileTool(self.run_command),
             EditFileTool(self.run_command),
+            PatchFileTool(self.run_command),
             SubagentTool(self.run_command, self.llm, self.indent_level, self.io),
             CompleteTaskTool(self.run_command),
             BashTool(self.run_command)

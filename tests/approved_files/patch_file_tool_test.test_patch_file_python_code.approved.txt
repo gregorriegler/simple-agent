@@ -1,0 +1,23 @@
+Command:
+🛠️ patch-file test.py "@@ -2,1 +2,1 @@
+-    old_var = 1
++    new_var = 2"
+
+Result:
+Successfully applied patch to test.py
+
+Initial file: test.py
+Initial content:
+--- INITIAL CONTENT START ---
+def hello():
+    old_var = 1
+    return old_var
+--- INITIAL CONTENT END ---
+
+File after patch: test.py
+Final content:
+--- FINAL CONTENT START ---
+def hello():
+    new_var = 2
+    return old_var
+--- FINAL CONTENT END ---

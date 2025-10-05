@@ -1,0 +1,30 @@
+Command:
+🛠️ patch-file test.txt "@@ -1,5 +1,4 @@
+ line1
+-old line
++new line
+ keep this
+-delete me
+ line5"
+
+Result:
+Successfully applied patch to test.txt
+
+Initial file: test.txt
+Initial content:
+--- INITIAL CONTENT START ---
+line1
+old line
+keep this
+delete me
+line5
+--- INITIAL CONTENT END ---
+
+File after patch: test.txt
+Final content:
+--- FINAL CONTENT START ---
+line1
+new line
+keep this
+line5
+--- FINAL CONTENT END ---

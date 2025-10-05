@@ -1,0 +1,19 @@
+Command:
+🛠️ patch-file "notes folder/note file.txt" "@@ -1,1 +1,1 @@
+-original content
++updated content"
+
+Result:
+No valid patch hunk found (missing @@ header)
+
+Initial file: notes folder/note file.txt
+Initial content:
+--- INITIAL CONTENT START ---
+original content
+--- INITIAL CONTENT END ---
+
+File after patch: notes folder/note file.txt
+Final content:
+--- FINAL CONTENT START ---
+original content
+--- FINAL CONTENT END ---
