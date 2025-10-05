@@ -15,7 +15,7 @@ class SystemPromptGenerator:
         result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
 
         # Add agents content at the beginning
-        return agents_content + "\n\n" + result
+        return result + "\n\n" + agents_content
 
     def _read_system_prompt_template(self):
         try:
