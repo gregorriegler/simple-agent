@@ -4,10 +4,9 @@ import tomllib
 
 
 def load_claude_config():
-    script_dir = _script_dir()
     config_path = os.path.join(os.getcwd(), ".simple-agent.toml")
     config = _read_config(config_path)
-    return ClaudeConfig(config, script_dir)
+    return ClaudeConfig(config)
 
 
 def default_session_file_path():
@@ -15,9 +14,8 @@ def default_session_file_path():
 
 
 class ClaudeConfig:
-    def __init__(self, config, script_dir):
+    def __init__(self, config):
         self._config = config
-        self._script_dir = script_dir
 
     @property
     def api_key(self):

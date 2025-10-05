@@ -1,4 +1,5 @@
 - still indendation issues on edit tool
+- https://github.com/ludo-technologies/pyscn
 - say should be a part of the agent
 - api key via env var
 - A place to show the tool results in full

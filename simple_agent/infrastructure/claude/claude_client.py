@@ -10,7 +10,6 @@ logging.basicConfig(filename='request.log', encoding='utf-8', level=logging.DEBU
 
 
 class ClaudeClientError(RuntimeError):
-
     pass
 
 
@@ -51,4 +50,3 @@ class ClaudeLLM(LLM):
             return first_content["text"]
         except requests.exceptions.RequestException as e:
             raise ClaudeClientError(f"API request failed: {e}") from e
-
