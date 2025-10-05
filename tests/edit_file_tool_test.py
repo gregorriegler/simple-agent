@@ -171,6 +171,57 @@ def test_edit_file_insert_at_unindented_line(tmp_path):
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 
+def test_edit_file_replace_complex_python_program_rename_functions_and_variables(tmp_path):
+    initial_content = """class DataProcessor:
+    def __init__(self, input_data):
+        self.raw_data = input_data
+        self.processed_items = []
+
+    def validate_input(self, data_item):
+        if not data_item:
+            return False
+        return len(data_item) > 0
+
+    def process_single_item(self, item):
+        if self.validate_input(item):
+            cleaned_item = item.strip().lower()
+            return cleaned_item
+        return None
+
+    def batch_process(self):
+        for current_item in self.raw_data:
+            result = self.process_single_item(current_item)
+            if result:
+                self.processed_items.append(result)
+        return self.processed_items"""
+
+    replacement_content = """class DataHandler:
+    def __init__(self, source_data):
+        self.original_data = source_data
+        self.cleaned_items = []
+
+    def check_validity(self, data_entry):
+        if not data_entry:
+            return False
+        return len(data_entry) > 0
+
+    def handle_single_entry(self, entry):
+        if self.check_validity(entry):
+            normalized_entry = entry.strip().lower()
+            return normalized_entry
+        return None
+
+    def process_all(self):
+        for current_entry in self.original_data:
+            outcome = self.handle_single_entry(current_entry)
+            if outcome:
+                self.cleaned_items.append(outcome)
+        return self.cleaned_items"""
+
+    command = f"🛠️ edit-file complex_program.py replace 1-20 {replacement_content}"
+    verify_edit_tool(library, "complex_program.py", initial_content, command, tmp_path=tmp_path)
+
+
 def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
     with temp_directory(tmp_path):
         os.makedirs(os.path.dirname(setup_file) or '.', exist_ok=True)
