@@ -18,7 +18,8 @@ echo "✓ Found uv"
 # Install the package using uv
 echo "Installing simple-agent package..."
 cd "$SCRIPT_DIR"
-uv pip install -e .
+uv sync
+uv tool install -e . --force
 
 echo ""
 echo "Installation complete!"
