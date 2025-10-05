@@ -39,7 +39,7 @@ class ConsoleDisplay(Display):
         self.io.print("Starting new session")
 
     def input(self) -> str:
-        prompt = "       " * self.indent_level + "Press Enter to continue or type a message to add: "
+        prompt = "\n" + "       " * self.indent_level + "Press Enter to continue or type a message to add: "
         return self.io.input(prompt).strip()
 
     def exit(self):

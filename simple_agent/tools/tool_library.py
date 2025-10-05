@@ -97,15 +97,20 @@ class ToolLibrary:
 
     @staticmethod
     def run_command(command, args=None, cwd=None):
+        import sys
+        import os
         try:
             command_line = [command]
             if args:
                 if isinstance(args, str):
                     args = [args]
                 command_line += args
+
             result = subprocess.run(
                 command_line,
-                capture_output=True,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True,
                 encoding='utf-8',
                 errors='replace',
