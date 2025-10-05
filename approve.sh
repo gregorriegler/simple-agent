@@ -31,26 +31,16 @@ fi
 # Get the test name pattern (optional)
 TEST_PATTERN="$1"
 
-# Find the modernizer directory
+# Find the project root directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MODERNIZER_DIR="$SCRIPT_DIR"
-
-# If we're not in modernizer, try to find it
-if [[ ! -d "$MODERNIZER_DIR/modernizer/tests" ]]; then
-    # Try if we're in the modernizer subdirectory
-    if [[ -d "$MODERNIZER_DIR/tests" && -d "$MODERNIZER_DIR/tools" ]]; then
-        MODERNIZER_DIR="$MODERNIZER_DIR"
-    # Try parent directories
-    elif [[ -d "$SCRIPT_DIR/modernizer" ]]; then
-        MODERNIZER_DIR="$SCRIPT_DIR/modernizer"
-    else
-        echo "Error: Could not find modernizer directory with tests"
-        echo "Please run this script from the project root or modernizer directory"
-        exit 1
-    fi
+PROJECT_DIR="$SCRIPT_DIR"
+# Verify we can find the tests directory
+if [[ ! -d "$PROJECT_DIR/tests" ]]; then
+    echo "Error: Could not find tests directory"
+    echo "Please run this script from the project root"
+    exit 1
 fi
 
-echo "Working in directory: $MODERNIZER_DIR"
 
 # Build the find pattern
 if [[ -n "$TEST_PATTERN" ]]; then
@@ -60,6 +50,7 @@ else
     FIND_PATTERN="*.received.txt"
     echo "Looking for all received files: $FIND_PATTERN"
 fi
+echo "Working in directory: $PROJECT_DIR"
 
 # Process each received file
 APPROVED_COUNT=0
@@ -94,8 +85,7 @@ while IFS= read -r received_file; do
         ((FAILED_COUNT++))
     fi
     echo ""
-done < <(find "$MODERNIZER_DIR" -type f -name "$FIND_PATTERN")
-
+done < <(find "$PROJECT_DIR" -type f -name "$FIND_PATTERN")
 if [[ $FOUND_ANY -eq 0 ]]; then
     echo "No .received.txt files found matching pattern: $FIND_PATTERN"
     echo ""
@@ -105,10 +95,9 @@ if [[ $FOUND_ANY -eq 0 ]]; then
     echo "  - Tests haven't been run yet"
     echo ""
     echo "To generate .received.txt files, run failing tests first:"
-    echo "  python -m pytest modernizer/tests/ -v"
+    echo "  python -m pytest tests/ -v"
     exit 0
 fi
-
 # Summary
 echo "=== Summary ==="
 echo "Approved: $APPROVED_COUNT files"
