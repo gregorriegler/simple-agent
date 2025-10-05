@@ -183,7 +183,7 @@ class EditFileTool(BaseTool):
     def execute(self, args):
         edit_args, error = self._parse_arguments(args)
         if error:
-            return error
+            return ContinueResult(error)
 
         return self._perform_file_edit(edit_args)
 
