@@ -41,24 +41,22 @@ class EditFileTool(BaseTool):
             "type": "string",
             "required": False,
             "description": "New content to replace or insert at the specified lines. "
-                           "Newline behavior depends on how content is provided: "
-                           "When using quotes, you can use \n for newlines. Without quotes, "
-                           "actual line breaks in the input create newlines. "
-                           "The content will be used exactly as provided, "
-                           "so if you don't end with a newline, "
-                           "it will concatenate with existing content."
-                           "Mind your whitespace."
-                           "Indentation will be taken the way you provide it."
+                           "IMPORTANT: The tool uses your content EXACTLY as provided - it does NOT auto-indent. "
+                           "When replacing indented lines, you must provide the full indentation yourself. "
+                           "When inserting into indented code, provide all leading spaces. "
+                           "Newline behavior: "
+                           "With quotes, use \\n for newlines. Without quotes, actual line breaks create newlines. "
+                           "If you don't end with a newline and are inserting between lines, one will be added automatically."
         }
     ]
     examples = [
         "🛠️ edit-file myfile.txt replace 1-3 \"Hello World\"",
         "to delete the first line\n🛠️ edit-file test.txt delete 1",
-        "to insert a new line at the top\n🛠️ edit-file test.txt insert 1 New Headline\n",
-        "to insert a multiline string at the top\n🛠️ edit-file test.txt insert 1 New Headline\nNew Subheadline\n"
-        "to insert a indented line\n🛠️ edit-file test.txt insert 3     Indented with 4 spaces\n",
+        "to insert a new line at the top\n🛠️ edit-file test.txt insert 1 New Headline",
+        "to insert a multiline string at the top\n🛠️ edit-file test.txt insert 1 New Headline\nNew Subheadline",
+        "to replace an indented line (provide full indentation)\n🛠️ edit-file test.py replace 5     print('hello')",
+        "to insert an indented line (provide all leading spaces)\n🛠️ edit-file test.py insert 3     if condition:",
     ]
-
     def __init__(self, runcommand):
         super().__init__()
         self.runcommand = runcommand
