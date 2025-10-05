@@ -1,0 +1,11 @@
+Command:
+🛠️ create-file test.txt 'He said "Hello"'
+
+Result:
+Created file: test.txt with content
+
+File created: test.txt
+File content:
+--- FILE CONTENT START ---
+He said "Hello"
+--- FILE CONTENT END ---

@@ -44,23 +44,39 @@ class CreateFileTool(BaseTool):
         if not tokens:
             return ContinueResult('No filename specified')
 
+        filename = tokens[0]
+
+        # Extract content: everything after the filename using lexer approach
         lexer = create_lexer(args)
 
         try:
-            lexer.get_token()
+            lexer.get_token()  # Get filename token
         except ValueError as e:
             return ContinueResult(f"Error parsing arguments: {str(e)}")
 
-        remainder = lexer.instream.read() if lexer.instream else ''
+        # Get the remainder of the input after the filename
+        remainder = ''
+        if lexer.instream:
+            # Read all remaining characters from the stream
+            while True:
+                try:
+                    char = lexer.instream.read(1)
+                    if not char:
+                        break
+                    remainder += char
+                except:
+                    break
+
         content = remainder.lstrip() if remainder else None
 
         if content == '':
             content = None
 
-        if content and content.startswith('"') and content.endswith('"'):
-            content = content[1:-1]
-
-        filename = tokens[0]
+        # Handle quoted content properly - remove outer quotes if they match
+        if content and len(content) >= 2:
+            if ((content.startswith('"') and content.endswith('"')) or
+                (content.startswith("'") and content.endswith("'"))):
+                content = content[1:-1]
 
         try:
             # Check if file already exists
@@ -72,8 +88,15 @@ class CreateFileTool(BaseTool):
 
             with open(filename, 'w', encoding='utf-8') as f:
                 if content is not None:
-                    # Process escape sequences like \n
-                    processed_content = content.replace('\\n', '\n').replace('\\t', '\t').replace('\\r', '\r').replace('\\\\', '\\')
+                    # Process escape sequences properly - use a more robust approach
+                    # First handle double backslashes, then specific escape sequences
+                    processed_content = content
+                    # Replace \\n, \\t, \\r with actual escape sequences, but preserve literal backslashes
+                    processed_content = processed_content.replace('\\\\', '\x00TEMP_BACKSLASH\x00')  # Temporary placeholder
+                    processed_content = processed_content.replace('\\n', '\n')
+                    processed_content = processed_content.replace('\\t', '\t')
+                    processed_content = processed_content.replace('\\r', '\r')
+                    processed_content = processed_content.replace('\x00TEMP_BACKSLASH\x00', '\\')  # Restore literal backslashes
                     f.write(processed_content)
             if content is not None:
                 return ContinueResult(f"Created file: {filename} with content")

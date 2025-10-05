@@ -1,0 +1,11 @@
+Command:
+🛠️ create-file unicode.txt "Unicode: 🚀 café naïve résumé"
+
+Result:
+Created file: unicode.txt with content
+
+File created: unicode.txt
+File content:
+--- FILE CONTENT START ---
+Unicode: 🚀 café naïve résumé
+--- FILE CONTENT END ---

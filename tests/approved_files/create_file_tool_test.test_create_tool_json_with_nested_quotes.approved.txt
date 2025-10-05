@@ -1,0 +1,11 @@
+Command:
+🛠️ create-file config.json '{"name": "John", "message": "Hello \"World\""}'
+
+Result:
+Created file: config.json with content
+
+File created: config.json
+File content:
+--- FILE CONTENT START ---
+{"name": "John", "message": "Hello \"World\""}
+--- FILE CONTENT END ---

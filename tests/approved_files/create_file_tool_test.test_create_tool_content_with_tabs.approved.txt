@@ -1,0 +1,11 @@
+Command:
+🛠️ create-file table.txt "Column1\tColumn2\tColumn3"
+
+Result:
+Created file: table.txt with content
+
+File created: table.txt
+File content:
+--- FILE CONTENT START ---
+Column1	Column2	Column3
+--- FILE CONTENT END ---

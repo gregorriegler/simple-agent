@@ -1,0 +1,11 @@
+Command:
+🛠️ create-file special.txt "Special: @#$%^&*()_+-={}[]|\\:;'<>?,./"
+
+Result:
+Created file: special.txt with content
+
+File created: special.txt
+File content:
+--- FILE CONTENT START ---
+Special: @#$%^&*()_+-={}[]|\:;'<>?,./
+--- FILE CONTENT END ---

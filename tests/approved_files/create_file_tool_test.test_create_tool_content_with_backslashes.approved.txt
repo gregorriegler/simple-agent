@@ -1,0 +1,11 @@
+Command:
+🛠️ create-file paths.txt "Path: /tmp/test_path"
+
+Result:
+Created file: paths.txt with content
+
+File created: paths.txt
+File content:
+--- FILE CONTENT START ---
+Path: /tmp/test_path
+--- FILE CONTENT END ---
