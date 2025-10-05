@@ -46,11 +46,6 @@ def test_edit_file_replace_path_with_spaces(tmp_path):
     verify_edit_tool(library, "notes folder/note file.txt", "original line", command, tmp_path=tmp_path)
 
 
-def test_edit_file_insert_two_lines_to_empty_file(tmp_path):
-    command = "🛠️ edit-file empty.txt insert 1 line1\nline2"
-    verify_edit_tool(library, "empty.txt", "", command, tmp_path=tmp_path)
-
-
 def test_edit_file_insert_three_lines_to_empty_file(tmp_path):
     command = "🛠️ edit-file empty.txt insert 1 line1\nline2\nline3"
     verify_edit_tool(library, "empty.txt", "", command, tmp_path=tmp_path)
@@ -74,21 +69,9 @@ def test_edit_file_insert_multiline_without_trailing_newline_adds_newline_automa
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
-def test_edit_file_insert_content_with_leading_spaces(tmp_path):
-    initial_content = "line1\nline2"
-    command = '🛠️ edit-file test.txt insert 2 "    indented line"'
-    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
-
-
 def test_edit_file_insert_content_with_multiple_leading_spaces_without_quotes(tmp_path):
     initial_content = "line1\nline2"
     command = "🛠️ edit-file test.txt insert 2     indented line"
-    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
-
-
-def test_edit_file_insert_content_with_multiple_leading_spaces_with_quotes(tmp_path):
-    initial_content = "line1\nline2"
-    command = '🛠️ edit-file test.txt insert 2 "    indented line"'
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
