@@ -49,7 +49,7 @@ agent "your message here"
 
 ## Configuration
 
-Create an `simple-agent.toml` file in the directory where you run the agent:
+Create a `.simple-agent.toml` file in the directory where you run the agent:
 
 ```toml
 [claude]

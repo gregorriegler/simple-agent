@@ -5,7 +5,7 @@ import tomllib
 
 def load_claude_config():
     script_dir = _script_dir()
-    config_path = os.path.join(os.getcwd(), "simple-agent.toml")
+    config_path = os.path.join(os.getcwd(), ".simple-agent.toml")
     config = _read_config(config_path)
     return ClaudeConfig(config, script_dir)
 
@@ -22,14 +22,14 @@ class ClaudeConfig:
     @property
     def api_key(self):
         if 'claude' not in self._config or 'api_key' not in self._config['claude']:
-            print("Error: claude.api_key not found in simple-agent.toml", file=sys.stderr)
+            print("Error: claude.api_key not found in .simple-agent.toml", file=sys.stderr)
             sys.exit(1)
         return self._config['claude']['api_key']
 
     @property
     def model(self):
         if 'claude' not in self._config or 'model' not in self._config['claude']:
-            print("Error: claude.model not found in simple-agent.toml", file=sys.stderr)
+            print("Error: claude.model not found in .simple-agent.toml", file=sys.stderr)
             sys.exit(1)
         return self._config['claude']['model']
 
@@ -44,8 +44,8 @@ def _script_dir():
 
 def _read_config(path):
     if not os.path.exists(path):
-        print(f"Error: simple-agent.toml not found in current directory ({os.getcwd()})", file=sys.stderr)
-        print("Please create a simple-agent.toml file with your Claude configuration", file=sys.stderr)
+        print(f"Error: .simple-agent.toml not found in current directory ({os.getcwd()})", file=sys.stderr)
+        print("Please create a .simple-agent.toml file with your Claude configuration", file=sys.stderr)
         sys.exit(1)
     try:
         with open(path, 'rb') as handle:
