@@ -57,8 +57,10 @@ def test_create_file_already_exists(tmp_path):
         result = library.execute_parsed_tool(tool)
         assert 'already exists' in result.feedback.lower() or 'exists' in result.feedback.lower()
 
+
 def test_create_tool_on_second_line(tmp_path):
     verify_create_tool(library, "let me create a file\n🛠️ create-file a", "a", tmp_path=tmp_path)
+
 
 def test_create_tool_on_second_line_with_multiline_content(tmp_path):
     verify_create_tool(library, "let me create a file\n🛠️ create-file test.txt Line1\nLine2", "test.txt", tmp_path=tmp_path)
@@ -94,6 +96,15 @@ def test_create_tool_content_with_unicode_characters(tmp_path):
 
 def test_create_tool_content_with_single_quotes_inside_double_quotes(tmp_path):
     verify_create_tool(library, '🛠️ create-file test.txt "It\'s a test"', "test.txt", tmp_path=tmp_path)
+
+
+def test_create_tool_multi_line_content(tmp_path):
+    verify_create_tool(library,
+"""
+🛠️ create-file a First Line
+Second Line
+Third Line
+""", "a", tmp_path=tmp_path)
 
 
 def verify_create_tool(library, command, expected_filename, tmp_path):
