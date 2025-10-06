@@ -87,7 +87,7 @@ Examples:
 🛠️ subagent Create a simple HTML page with a form
 
 ## WriteTodos
-Create or update TODOs
+Organize your work in TODOs. Use this tool to create or update those TODOs
 
 Arguments:
  - content: string (required) - Markdown text to represent the todos

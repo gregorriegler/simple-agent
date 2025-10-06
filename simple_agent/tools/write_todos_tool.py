@@ -7,7 +7,7 @@ from .base_tool import BaseTool
 
 class WriteTodosTool(BaseTool):
     name = "WriteTodos"
-    description = "Create or update TODOs"
+    description = "Organize your work in TODOs. Use this tool to create or update those TODOs"
     arguments = [
         {
             "name": "content",
