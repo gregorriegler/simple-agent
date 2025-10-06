@@ -86,6 +86,18 @@ Examples:
 🛠️ subagent Write a Python function to calculate fibonacci numbers
 🛠️ subagent Create a simple HTML page with a form
 
+## WriteTodos
+Create or update .todos.md with provided markdown content
+
+Arguments:
+ - content: string (required) - Markdown text to write into .todos.md
+
+Usage: 🛠️ WriteTodos <content>
+
+Examples:
+🛠️ WriteTodos ## Todo\n- Item 1
+🛠️ WriteTodos\n## Todo\n- Feature exploration\n\n## Doing\n- Implementing tool\n\n## Done\n- Initial setup
+
 ## complete-task
 Signal task completion with a summary of what was accomplished
 

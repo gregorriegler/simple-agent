@@ -1,0 +1,24 @@
+Command:
+🛠️ WriteTodos ## Todo
+- Item 1
+
+## Doing
+- Work in progress
+
+## Done
+- Completed
+
+Result:
+Updated .todos.md
+
+File content:
+--- FILE CONTENT START ---
+## Todo
+- Item 1
+
+## Doing
+- Work in progress
+
+## Done
+- Completed
+--- FILE CONTENT END ---
