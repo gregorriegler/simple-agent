@@ -86,7 +86,7 @@ class CreateFileTool(BaseTool):
             # Create parent directories if they don't exist
             os.makedirs(os.path.dirname(filename) or '.', exist_ok=True)
 
-            with open(filename, 'w', encoding='utf-8') as f:
+            with open(filename, 'w', encoding='utf-8', newline='\n') as f:
                 if content is not None:
                     # Process escape sequences properly - use a more robust approach
                     # First handle double backslashes, then specific escape sequences
