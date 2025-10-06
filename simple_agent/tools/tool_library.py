@@ -11,6 +11,8 @@ from .create_file_tool import CreateFileTool
 from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
 from .patch_file_tool import PatchFileTool
+from .recall_tool import RecallTool
+from .remember_tool import RememberTool
 from .subagent_tool import SubagentTool
 from .write_todos_tool import WriteTodosTool
 
@@ -34,11 +36,12 @@ class ToolLibrary:
         self.llm: LLM = llm
         self.indent_level = indent_level
         self.io = io or StdIO()
+        
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
         self.tools = static_tools + dynamic_tools
         self._build_tool_dict()
-
+        
     def _create_static_tools(self):
         return [
             LsTool(self.run_command),
@@ -48,6 +51,8 @@ class ToolLibrary:
             PatchFileTool(self.run_command),
             SubagentTool(self.run_command, self.llm, self.indent_level, self.io),
             WriteTodosTool(self.run_command),
+            RememberTool(self.run_command),
+            RecallTool(self.run_command),
             CompleteTaskTool(self.run_command),
             BashTool(self.run_command)
         ]
