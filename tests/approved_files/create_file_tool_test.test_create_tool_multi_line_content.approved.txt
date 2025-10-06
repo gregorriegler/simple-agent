@@ -14,5 +14,4 @@ File content:
 First Line
 Second Line
 Third Line
-
 --- FILE CONTENT END ---

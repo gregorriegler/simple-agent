@@ -2,7 +2,6 @@ import os
 
 from simple_agent.application.tool_result import ContinueResult
 
-from .argument_parser import create_lexer, split_arguments
 from .base_tool import BaseTool
 
 
@@ -20,12 +19,13 @@ class CreateFileTool(BaseTool):
             "name": "content",
             "type": "string",
             "required": False,
-            "description": "Initial content for the file (supports \\n for newlines)"
+            "description": "Initial content AS IS for the file. Don't use quotes, just print the file contents! EVERYTHING after the filename is the CONTENT!"
         }
     ]
     examples = [
         "🛠️ create-file newfile.txt",
-        "🛠️ create-file script.py print(\"Hello World\")"
+        "🛠️ create-file script.py print(\"Hello World\")",
+        "🛠️ create-file multi-line.py This is Line 1\nThis is Line 2",
     ]
 
     def __init__(self, runcommand):
@@ -36,47 +36,17 @@ class CreateFileTool(BaseTool):
         if not args:
             return ContinueResult('No filename specified')
 
-        try:
-            tokens = split_arguments(args)
-        except ValueError as e:
-            return ContinueResult(f"Error parsing arguments: {str(e)}")
+        # Simple string splitting - first word is filename, rest is content
+        parts = args.strip().split(None, 1)
 
-        if not tokens:
+        if not parts:
             return ContinueResult('No filename specified')
 
-        filename = tokens[0]
-
-        # Extract content: everything after the filename using lexer approach
-        lexer = create_lexer(args)
-
-        try:
-            lexer.get_token()  # Get filename token
-        except ValueError as e:
-            return ContinueResult(f"Error parsing arguments: {str(e)}")
-
-        # Get the remainder of the input after the filename
-        remainder = ''
-        if lexer.instream:
-            # Read all remaining characters from the stream
-            while True:
-                try:
-                    char = lexer.instream.read(1)
-                    if not char:
-                        break
-                    remainder += char
-                except:
-                    break
-
-        content = remainder.lstrip() if remainder else None
+        filename = parts[0]
+        content = parts[1] if len(parts) > 1 else None
 
         if content == '':
             content = None
-
-        # Handle quoted content properly - remove outer quotes if they match
-        if content and len(content) >= 2:
-            if ((content.startswith('"') and content.endswith('"')) or
-                (content.startswith("'") and content.endswith("'"))):
-                content = content[1:-1]
 
         try:
             # Check if file already exists
@@ -88,16 +58,8 @@ class CreateFileTool(BaseTool):
 
             with open(filename, 'w', encoding='utf-8', newline='\n') as f:
                 if content is not None:
-                    # Process escape sequences properly - use a more robust approach
-                    # First handle double backslashes, then specific escape sequences
-                    processed_content = content
-                    # Replace \\n, \\t, \\r with actual escape sequences, but preserve literal backslashes
-                    processed_content = processed_content.replace('\\\\', '\x00TEMP_BACKSLASH\x00')  # Temporary placeholder
-                    processed_content = processed_content.replace('\\n', '\n')
-                    processed_content = processed_content.replace('\\t', '\t')
-                    processed_content = processed_content.replace('\\r', '\r')
-                    processed_content = processed_content.replace('\x00TEMP_BACKSLASH\x00', '\\')  # Restore literal backslashes
-                    f.write(processed_content)
+                    # Write content as-is, no processing
+                    f.write(content)
             if content is not None:
                 return ContinueResult(f"Created file: {filename} with content")
             else:

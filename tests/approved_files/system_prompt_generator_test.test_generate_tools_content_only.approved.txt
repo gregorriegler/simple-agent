@@ -28,13 +28,15 @@ Create new files with optional content
 
 Arguments:
  - filename: string (required) - Path to the file to create (directories will be created automatically)
- - content: string (optional) - Initial content for the file (supports \n for newlines)
+ - content: string (optional) - Initial content AS IS for the file. Don't use quotes, just print the file contents! EVERYTHING after the filename is the CONTENT!
 
 Usage: 🛠️ create-file <filename> [content]
 
 Examples:
 🛠️ create-file newfile.txt
 🛠️ create-file script.py print("Hello World")
+🛠️ create-file multi-line.py This is Line 1
+This is Line 2
 
 ## edit-file
 Edit files by replacing content in specified line ranges with auto-indent preservation

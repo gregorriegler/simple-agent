@@ -22,29 +22,12 @@ def test_create_tool_simple_text_content(tmp_path):
     verify_create_tool(library, "🛠️ create-file readme.txt Hello World", "readme.txt", tmp_path=tmp_path)
 
 
-def test_create_tool_newline_content(tmp_path):
-    verify_create_tool(library, '🛠️ create-file multi.txt "Line 1\\nLine 2"', "multi.txt", tmp_path=tmp_path)
-
-
 def test_create_tool_json_content(tmp_path):
     verify_create_tool(library, '🛠️ create-file config.json {"name": "test"}', "config.json", tmp_path=tmp_path)
 
 
-def test_create_tool_filename_with_spaces(tmp_path):
-    verify_create_tool(library, '🛠️ create-file "notes folder/note file.txt" "First line\\nSecond line"',
-                      "notes folder/note file.txt", tmp_path=tmp_path)
-
-
-def test_create_tool_content_with_leading_and_trailing_spaces(tmp_path):
-    verify_create_tool(library, '🛠️ create-file padded.txt "  spaced content  "', "padded.txt", tmp_path=tmp_path)
-
-
-def test_create_tool_explicit_empty_content(tmp_path):
-    verify_create_tool(library, '🛠️ create-file empty.txt ""', "empty.txt", tmp_path=tmp_path)
-
-
 def test_create_file_in_nonexistent_directory(tmp_path):
-    verify_create_tool(library, f'🛠️ create-file src/utils/helper.py "# Helper module"', "src/utils/helper.py",
+    verify_create_tool(library, f'🛠️ create-file src/utils/helper.py # Helper module', "src/utils/helper.py",
                        tmp_path=tmp_path)
 
 
@@ -70,32 +53,6 @@ def test_create_tool_stops_at_next_command(tmp_path):
     verify_create_tool(library, "🛠️ create-file test.txt Line1\nLine2\n🛠️ ls", "test.txt", tmp_path=tmp_path)
 
 
-def test_create_tool_content_with_single_quotes(tmp_path):
-    verify_create_tool(library, '🛠️ create-file test.txt \'He said "Hello"\'', "test.txt", tmp_path=tmp_path)
-
-
-def test_create_tool_json_with_nested_quotes(tmp_path):
-    verify_create_tool(library, '🛠️ create-file config.json \'{"name": "John", "message": "Hello \\"World\\""}\'', "config.json", tmp_path=tmp_path)
-
-
-def test_create_tool_content_with_backslashes(tmp_path):
-    verify_create_tool(library, '🛠️ create-file paths.txt "Path: C:\\\\Users\\\\test"', "paths.txt", tmp_path=tmp_path)
-
-
-def test_create_tool_content_with_tabs(tmp_path):
-    verify_create_tool(library, '🛠️ create-file table.txt "Column1\\tColumn2\\tColumn3"', "table.txt", tmp_path=tmp_path)
-
-
-def test_create_tool_content_with_mixed_special_characters(tmp_path):
-    verify_create_tool(library, '🛠️ create-file special.txt "Special: @#$%^&*()_+-={}[]|\\\\:;\'<>?,./"', "special.txt", tmp_path=tmp_path)
-
-
-def test_create_tool_content_with_unicode_characters(tmp_path):
-    verify_create_tool(library, '🛠️ create-file unicode.txt "Unicode: 🚀 café naïve résumé"', "unicode.txt", tmp_path=tmp_path)
-
-
-def test_create_tool_content_with_single_quotes_inside_double_quotes(tmp_path):
-    verify_create_tool(library, '🛠️ create-file test.txt "It\'s a test"', "test.txt", tmp_path=tmp_path)
 
 
 def test_create_tool_multi_line_content(tmp_path):

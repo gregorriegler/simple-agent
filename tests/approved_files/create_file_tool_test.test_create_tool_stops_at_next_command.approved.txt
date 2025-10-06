@@ -11,5 +11,4 @@ File content:
 --- FILE CONTENT START ---
 Line1
 Line2
-
 --- FILE CONTENT END ---
