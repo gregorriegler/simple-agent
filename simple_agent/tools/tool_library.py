@@ -12,6 +12,7 @@ from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
 from .patch_file_tool import PatchFileTool
 from .subagent_tool import SubagentTool
+from .write_todos_tool import WriteTodosTool
 
 
 class ParsedTool:
@@ -46,6 +47,7 @@ class ToolLibrary:
             EditFileTool(self.run_command),
             PatchFileTool(self.run_command),
             SubagentTool(self.run_command, self.llm, self.indent_level, self.io),
+            WriteTodosTool(self.run_command),
             CompleteTaskTool(self.run_command),
             BashTool(self.run_command)
         ]
