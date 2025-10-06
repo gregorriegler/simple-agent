@@ -9,7 +9,7 @@ Command:
 - Completed
 
 Result:
-Updated .todos.md
+Updated TODOS
 
 File content:
 --- FILE CONTENT START ---

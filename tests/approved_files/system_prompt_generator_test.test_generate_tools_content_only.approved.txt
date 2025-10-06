@@ -87,10 +87,10 @@ Examples:
 🛠️ subagent Create a simple HTML page with a form
 
 ## WriteTodos
-Create or update .todos.md with provided markdown content
+Create or update TODOs
 
 Arguments:
- - content: string (required) - Markdown text to write into .todos.md
+ - content: string (required) - Markdown text to represent the todos
 
 Usage: 🛠️ WriteTodos <content>
 

@@ -7,13 +7,13 @@ from .base_tool import BaseTool
 
 class WriteTodosTool(BaseTool):
     name = "WriteTodos"
-    description = "Create or update .todos.md with provided markdown content"
+    description = "Create or update TODOs"
     arguments = [
         {
             "name": "content",
             "type": "string",
             "required": True,
-            "description": "Markdown text to write into .todos.md"
+            "description": "Markdown text to represent the todos"
         }
     ]
     examples = [
@@ -31,4 +31,4 @@ class WriteTodosTool(BaseTool):
         content = args
         path = Path(".todos.md")
         path.write_text(content, encoding="utf-8")
-        return ContinueResult("Updated .todos.md")
+        return ContinueResult("Updated TODOS")
