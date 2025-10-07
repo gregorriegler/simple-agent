@@ -7,7 +7,13 @@ from .base_tool import BaseTool
 
 class CreateFileTool(BaseTool):
     name = "create-file"
-    description = "Create new files with optional content"
+    description = """Create new files with optional content
+
+⚠️ CRITICAL FORMATTING RULES:
+- Content starts immediately after the filename on the following lines
+- Do NOT add commentary after the tool in the same message
+- Everything after the filename until message end is captured as content"""
+
     arguments = [
         {
             "name": "filename",
@@ -19,7 +25,7 @@ class CreateFileTool(BaseTool):
             "name": "content",
             "type": "string",
             "required": False,
-            "description": "Initial content AS IS for the file. Don't use quotes, just print the file contents! EVERYTHING after the filename is the CONTENT!"
+            "description": "Initial content for the file. Everything after the filename is content!"
         }
     ]
     examples = [

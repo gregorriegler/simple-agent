@@ -132,7 +132,16 @@ class ReplaceMode:
 
 class EditFileTool(BaseTool):
     name = "edit-file"
-    description = "Edit files by replacing content in specified line ranges. Replace mode first deletes the specified range, then inserts new content. Content must start on the following line."
+    name = "edit-file"
+    description = """Edit files by replacing content in specified line ranges.
+
+⚠️ CRITICAL FORMATTING RULES:
+- Content MUST start on the NEXT line after the command
+- STOP your message immediately after content ends
+- Everything from the next line until message end is captured as content
+
+Replace mode: First deletes the specified range, then inserts new content at that position."""
+
     arguments = [
         {
             "name": "filename",
@@ -155,10 +164,10 @@ class EditFileTool(BaseTool):
     ]
     examples = [
         "🛠️ edit-file myfile.txt replace 1-3\nHello World",
-        "to delete the first line\n🛠️ edit-file test.txt delete 1",
-        "to insert a new line at the top\n🛠️ edit-file test.txt insert 1\nNew Headline",
-        "to insert content\n🛠️ edit-file test.py insert 3\nprint('hello')",
-        "to replace content\n🛠️ edit-file test.py replace 5\nnew = 2",
+        "🛠️ edit-file test.txt delete 1",
+        "🛠️ edit-file test.txt insert 1\nNew Headline",
+        "🛠️ edit-file test.py insert 3\nprint('hello')",
+        "🛠️ edit-file test.py replace 5\nnew = 2",
     ]
 
     def __init__(self, runcommand):
