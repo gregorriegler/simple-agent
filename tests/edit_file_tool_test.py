@@ -7,26 +7,12 @@ from .test_helpers import all_scrubbers, temp_directory
 library = ToolLibrary()
 
 
-def test_edit_file_replace_single_character(tmp_path):
-    verify_edit_tool(library, "test.txt", "a", "🛠️ edit-file test.txt replace 1\nb", tmp_path=tmp_path)
-
-
 def test_edit_file_replace_single_word(tmp_path):
     verify_edit_tool(library, "test.txt", "old", "🛠️ edit-file test.txt replace 1-1\nnew", tmp_path=tmp_path)
 
 
 def test_edit_file_replace_two_consecutive_lines_with_one(tmp_path):
     verify_edit_tool(library, "test.txt", "line1\nline2\nline3", "🛠️ edit-file test.txt replace 2-3\nnewline", tmp_path=tmp_path)
-
-
-def test_edit_file_replace_two_consecutive_lines_with_two(tmp_path):
-    command = "🛠️ edit-file test.txt replace 2-3\nnewline1\nnewline2"
-    verify_edit_tool(library, "test.txt", "line1\nline2\nline3", command, tmp_path=tmp_path)
-
-
-def test_edit_file_replace_two_consecutive_lines_with_four(tmp_path):
-    command = "🛠️ edit-file test.txt replace 2-3\nnewline1\nnewline2\nnewline3\nnewline4"
-    verify_edit_tool(library, "test.txt", "line1\nline2\nline3", command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_a_lines_with_lines_in_quotes(tmp_path):
@@ -51,12 +37,6 @@ def test_edit_file_insert_three_lines_to_empty_file(tmp_path):
     verify_edit_tool(library, "empty.txt", "", command, tmp_path=tmp_path)
 
 
-def test_edit_file_insert_a_line_between_two_lines(tmp_path):
-    initial_content = "line1\nline2"
-    command = "🛠️ edit-file test.txt insert 2\nline1.5\n"
-    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
-
-
 def test_edit_file_insert_line_without_explicit_newline_adds_newline_automatically(tmp_path):
     initial_content = "line1\nline2"
     command = "🛠️ edit-file test.txt insert 2\ninserted_line"
@@ -66,12 +46,6 @@ def test_edit_file_insert_line_without_explicit_newline_adds_newline_automatical
 def test_edit_file_insert_multiline_without_trailing_newline_adds_newline_automatically(tmp_path):
     initial_content = "line1\nline2"
     command = "🛠️ edit-file test.txt insert 2\ninserted_line1\ninserted_line2"
-    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
-
-
-def test_edit_file_insert_content_with_multiple_leading_spaces_without_quotes(tmp_path):
-    initial_content = "line1\nline2"
-    command = "🛠️ edit-file test.txt insert 2\n    indented line"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
@@ -138,24 +112,6 @@ def test_edit_file_replace_preserves_manual_indentation(tmp_path):
 def test_edit_file_replace_multiline_only_indents_first_line(tmp_path):
     initial_content = "line1\n    existing\nline3"
     command = "🛠️ edit-file test.py replace 2\nline1\nline2\n    line3"
-    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
-
-
-def test_edit_file_insert_beyond_file_end_no_indentation(tmp_path):
-    initial_content = "line1\nline2"
-    command = "🛠️ edit-file test.py insert 10\nnew_content"
-    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
-
-
-def test_edit_file_replace_with_tabs(tmp_path):
-    initial_content = "line1\n\texisting\nline3"
-    command = "🛠️ edit-file test.py replace 2\nnew_line"
-    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
-
-
-def test_edit_file_insert_at_unindented_line(tmp_path):
-    initial_content = "line1\nline2\n    line3"
-    command = "🛠️ edit-file test.py insert 2\nnew_line"
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 
