@@ -74,81 +74,6 @@ class FileEditor:
 
         return normalized_start, normalized_end
 
-    def insert(self, args: EditFileArgs):
-        content = self.apply_indentation(args.new_content, args.start_line, args.raw) if args.new_content else None
-
-        if content is None:
-            new_content = ['\n']
-        else:
-            inserting_between_lines = args.start_line <= len(self.lines)
-            if not content.endswith('\n') and inserting_between_lines:
-                content += '\n'
-            new_content = content.splitlines(keepends=True)
-
-        if args.start_line > len(self.lines):
-            if self.lines and not self.lines[-1].endswith('\n'):
-                self.lines[-1] += '\n'
-
-            lines_to_add = args.start_line - len(self.lines) - 1
-            if lines_to_add > 0:
-                self.lines.extend(['\n'] * lines_to_add)
-
-            self.lines.extend(new_content)
-        else:
-            insert_pos = args.start_line - 1
-            self.lines[insert_pos:insert_pos] = new_content
-
-    def delete(self, args: EditFileArgs):
-        normalized_range = self.normalize_range(args.start_line, args.end_line)
-        if normalized_range is None:
-            return
-
-        start_line, end_line = normalized_range
-        lines_to_delete = set(range(start_line, end_line + 1))
-        new_lines = [line for i, line in enumerate(self.lines, start=1)
-                    if i not in lines_to_delete]
-
-        # Handle terminal newline trimming when range reaches file end
-        if end_line == len(self.lines):
-            new_lines = self._trim_terminal_newline(new_lines)
-
-        self.lines = new_lines
-
-    def replace(self, args: EditFileArgs):
-        if len(self.lines) == 0 and args.start_line == 0 and args.end_line == 0:
-            if args.new_content is None:
-                self.lines = []
-            elif '\n' in args.new_content:
-                self.lines = [line + '\n' for line in args.new_content.split('\n') if line]
-            else:
-                self.lines = [args.new_content + '\n']
-            return
-
-        normalized_range = self.normalize_range(args.start_line, args.end_line)
-        if normalized_range is None:
-            return
-
-        start_line, end_line = normalized_range
-        content = self.apply_indentation(args.new_content, start_line, args.raw) if args.new_content else None
-
-        start_idx = start_line - 1
-        end_idx = end_line - 1
-
-        if content is None:
-            replacement_lines = []
-        elif '\n' in content:
-            replacement_lines = [line + '\n' for line in content.split('\n') if line]
-        else:
-            last_replaced_line = self.lines[end_idx]
-            if last_replaced_line.endswith('\n'):
-                replacement_lines = [content + '\n']
-            else:
-                replacement_lines = [content]
-
-        self.lines = (self.lines[:start_idx] +
-                     replacement_lines +
-                     self.lines[end_idx + 1:])
-
     def _trim_terminal_newline(self, new_lines):
         if not self.lines or not new_lines:
             return new_lines
@@ -159,6 +84,86 @@ class FileEditor:
         adjusted_lines = new_lines[:]
         adjusted_lines[-1] = adjusted_lines[-1][:-1]
         return adjusted_lines
+
+
+class InsertEditMode:
+    def apply(self, editor: FileEditor, args: EditFileArgs):
+        content = editor.apply_indentation(args.new_content, args.start_line, args.raw) if args.new_content else None
+
+        if content is None:
+            new_content = ['\n']
+        else:
+            inserting_between_lines = args.start_line <= len(editor.lines)
+            if not content.endswith('\n') and inserting_between_lines:
+                content += '\n'
+            new_content = content.splitlines(keepends=True)
+
+        if args.start_line > len(editor.lines):
+            if editor.lines and not editor.lines[-1].endswith('\n'):
+                editor.lines[-1] += '\n'
+
+            lines_to_add = args.start_line - len(editor.lines) - 1
+            if lines_to_add > 0:
+                editor.lines.extend(['\n'] * lines_to_add)
+
+            editor.lines.extend(new_content)
+        else:
+            insert_pos = args.start_line - 1
+            editor.lines[insert_pos:insert_pos] = new_content
+
+
+class DeleteEditMode:
+    def apply(self, editor: FileEditor, args: EditFileArgs):
+        normalized_range = editor.normalize_range(args.start_line, args.end_line)
+        if normalized_range is None:
+            return
+
+        start_line, end_line = normalized_range
+        lines_to_delete = set(range(start_line, end_line + 1))
+        new_lines = [line for i, line in enumerate(editor.lines, start=1)
+                    if i not in lines_to_delete]
+
+        if end_line == len(editor.lines):
+            new_lines = editor._trim_terminal_newline(new_lines)
+
+        editor.lines = new_lines
+
+
+class ReplaceEditMode:
+    def apply(self, editor: FileEditor, args: EditFileArgs):
+        if len(editor.lines) == 0 and args.start_line == 0 and args.end_line == 0:
+            if args.new_content is None:
+                editor.lines = []
+            elif '\n' in args.new_content:
+                editor.lines = [line + '\n' for line in args.new_content.split('\n') if line]
+            else:
+                editor.lines = [args.new_content + '\n']
+            return
+
+        normalized_range = editor.normalize_range(args.start_line, args.end_line)
+        if normalized_range is None:
+            return
+
+        start_line, end_line = normalized_range
+        content = editor.apply_indentation(args.new_content, start_line, args.raw) if args.new_content else None
+
+        start_idx = start_line - 1
+        end_idx = end_line - 1
+
+        if content is None:
+            replacement_lines = []
+        elif '\n' in content:
+            replacement_lines = [line + '\n' for line in content.split('\n') if line]
+        else:
+            last_replaced_line = editor.lines[end_idx]
+            if last_replaced_line.endswith('\n'):
+                replacement_lines = [content + '\n']
+            else:
+                replacement_lines = [content]
+
+        editor.lines = (editor.lines[:start_idx] +
+                        replacement_lines +
+                        editor.lines[end_idx + 1:])
 
 
 class EditFileTool(BaseTool):
@@ -213,6 +218,11 @@ class EditFileTool(BaseTool):
     def __init__(self, runcommand):
         super().__init__()
         self.runcommand = runcommand
+        self.mode_creators = {
+            "insert": InsertEditMode,
+            "delete": DeleteEditMode,
+            "replace": ReplaceEditMode
+        }
 
     def parse_arguments(self, args):
         if not args:
@@ -280,15 +290,13 @@ class EditFileTool(BaseTool):
             editor = FileEditor(edit_args.filename)
             editor.load_file()
 
-            if edit_args.edit_mode == 'insert':
-                editor.insert(edit_args)
-            elif edit_args.edit_mode == 'delete':
-                editor.delete(edit_args)
-            elif edit_args.edit_mode == 'replace':
-                editor.replace(edit_args)
-            else:
+            mode_class = self.mode_creators.get(edit_args.edit_mode)
+            if mode_class is None:
                 return ContinueResult(
                     f"Invalid edit mode: {edit_args.edit_mode}. Supported modes: insert, delete, replace")
+
+            mode = mode_class()
+            mode.apply(editor, edit_args)
 
             editor.save_file()
             return ContinueResult(f"Successfully edited {edit_args.filename}")
