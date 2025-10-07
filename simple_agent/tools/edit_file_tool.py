@@ -43,23 +43,6 @@ class FileEditor:
                 break
         return indent
 
-    def apply_indentation(self, content, line_number):
-        if not content:
-            return content
-
-        if content.startswith(' ') or content.startswith('\t'):
-            return content
-
-        indent = self.get_indentation(line_number)
-        if not indent:
-            return content
-
-        lines = content.splitlines(keepends=True)
-        if lines:
-            lines[0] = indent + lines[0]
-
-        return ''.join(lines)
-
     def normalize_range(self, start_line, end_line):
         total_lines = len(self.lines)
         if total_lines == 0 or end_line < 1 or start_line > total_lines:
