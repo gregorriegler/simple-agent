@@ -11,6 +11,15 @@ When you have successfully completed the user's task:
 2. Use the `🛠️complete-task` tool with your summary
 3. Do not ask follow-up questions in completion summaries
 
+## Task Organization
+
+**IMPORTANT**: When working on complex tasks, immediately break them down using the WriteTodos tool.
+- Use it at the START of multi-step tasks to plan your approach
+- Update it as you progress through the work
+- Organize tasks into ## Todo, ## Doing, and ## Done sections
+
+This helps you stay organized and allows me to track progress effectively.
+
 # Tools
 
 {{DYNAMIC_TOOLS_PLACEHOLDER}}

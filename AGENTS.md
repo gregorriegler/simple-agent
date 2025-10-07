@@ -1,6 +1,7 @@
 # Answering Rules
 ALWAYS start your answers with a STARTER_SYMBOL
 The default STARTER_SYMBOL is 🐙
+You can omit the STARTER_SYMBOL on Tool Call Messages
 
 ALWAYS give SHORT and SUCCINCT answers
 

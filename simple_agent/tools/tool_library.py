@@ -44,13 +44,13 @@ class ToolLibrary:
         
     def _create_static_tools(self):
         return [
+            WriteTodosTool(self.run_command),
             LsTool(self.run_command),
             CatTool(self.run_command),
             CreateFileTool(self.run_command),
             EditFileTool(self.run_command),
             PatchFileTool(self.run_command),
             SubagentTool(self.run_command, self.llm, self.indent_level, self.io),
-            WriteTodosTool(self.run_command),
             RememberTool(self.run_command),
             RecallTool(self.run_command),
             CompleteTaskTool(self.run_command),
