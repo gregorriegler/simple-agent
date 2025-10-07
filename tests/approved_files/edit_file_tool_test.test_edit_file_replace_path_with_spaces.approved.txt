@@ -13,5 +13,5 @@ original line
 File after edit: notes folder/note file.txt
 Final content:
 --- FINAL CONTENT START ---
-updated line
+"updated line"
 --- FINAL CONTENT END ---

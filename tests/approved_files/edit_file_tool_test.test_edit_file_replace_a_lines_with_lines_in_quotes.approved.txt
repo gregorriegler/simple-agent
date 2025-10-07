@@ -16,6 +16,6 @@ File after edit: test.txt
 Final content:
 --- FINAL CONTENT START ---
 line1
-insert1
-insert2
+"insert1
+insert2"
 --- FINAL CONTENT END ---

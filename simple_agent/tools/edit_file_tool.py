@@ -179,7 +179,7 @@ class EditFileTool(BaseTool):
                            "By default, indentation is auto-preserved from the target line. "
                            "Use --raw flag to disable auto-indentation. "
                            "Newline behavior: "
-                           "With quotes, use \\n for newlines. Without quotes, actual line breaks create newlines. "
+                           "Actual line breaks create newlines. "
                            "If you don't end with a newline and are inserting between lines, one will be added automatically."
         },
         {
@@ -190,7 +190,7 @@ class EditFileTool(BaseTool):
         }
     ]
     examples = [
-        "🛠️ edit-file myfile.txt replace 1-3 \"Hello World\"",
+        "🛠️ edit-file myfile.txt replace 1-3 Hello World",
         "to delete the first line\n🛠️ edit-file test.txt delete 1",
         "to insert a new line at the top\n🛠️ edit-file test.txt insert 1 New Headline",
         "to insert with auto-indent\n🛠️ edit-file test.py insert 3 print('hello')",
@@ -243,8 +243,6 @@ class EditFileTool(BaseTool):
         if new_content == '':
             new_content = None
 
-        if new_content and new_content.startswith('"') and new_content.endswith('"'):
-            new_content = new_content[1:-1].replace('\\n', '\n')
 
         try:
             if '-' in line_range_token:
