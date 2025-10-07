@@ -132,7 +132,7 @@ class ReplaceEditMode:
 
 class EditFileTool(BaseTool):
     name = "edit-file"
-    description = "Edit files by replacing content in specified line ranges. Content must start on the following line."
+    description = "Edit files by replacing content in specified line ranges. Replace mode first deletes the specified range, then inserts new content. Content must start on the following line."
     arguments = [
         {
             "name": "filename",
@@ -144,7 +144,7 @@ class EditFileTool(BaseTool):
             "name": "edit_mode",
             "type": "string",
             "required": True,
-            "description": "Edit mode ('replace', 'insert', 'delete')"
+            "description": "Edit mode: 'replace' (delete range then insert), 'insert', 'delete'"
         },
         {
             "name": "line_range",
