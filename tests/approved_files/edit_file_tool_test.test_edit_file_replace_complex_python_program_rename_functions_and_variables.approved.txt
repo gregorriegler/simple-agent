@@ -1,5 +1,6 @@
 Command:
-🛠️ edit-file complex_program.py replace 1-20 class DataHandler:
+🛠️ edit-file complex_program.py replace 1-20
+class DataHandler:
     def __init__(self, source_data):
         self.original_data = source_data
         self.cleaned_items = []

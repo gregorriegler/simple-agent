@@ -1,5 +1,6 @@
 Command:
-🛠️ edit-file test.txt replace 2-3 newline
+🛠️ edit-file test.txt replace 2-3
+newline
 
 Result:
 Successfully edited test.txt

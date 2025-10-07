@@ -1,5 +1,6 @@
 Command:
-🛠️ edit-file test.txt insert 2     indented line
+🛠️ edit-file test.txt insert 2
+    indented line
 
 Result:
 Successfully edited test.txt

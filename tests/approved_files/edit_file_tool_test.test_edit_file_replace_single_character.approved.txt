@@ -1,5 +1,6 @@
 Command:
-🛠️ edit-file test.txt replace 1 b
+🛠️ edit-file test.txt replace 1
+b
 
 Result:
 Successfully edited test.txt

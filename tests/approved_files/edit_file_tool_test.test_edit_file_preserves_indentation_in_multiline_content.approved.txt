@@ -1,5 +1,6 @@
 Command:
-🛠️ edit-file test.py insert 3 def hello():
+🛠️ edit-file test.py insert 3
+def hello():
     return 'world'
 
 Result:

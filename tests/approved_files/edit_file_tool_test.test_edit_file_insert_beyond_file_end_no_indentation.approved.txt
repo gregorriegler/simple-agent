@@ -1,5 +1,6 @@
 Command:
-🛠️ edit-file test.py insert 10 new_content
+🛠️ edit-file test.py insert 10
+new_content
 
 Result:
 Successfully edited test.py

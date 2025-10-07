@@ -1,5 +1,6 @@
 Command:
-🛠️ edit-file test.txt replace 5-7 replacement
+🛠️ edit-file test.txt replace 5-7
+replacement
 
 Result:
 Successfully edited test.txt

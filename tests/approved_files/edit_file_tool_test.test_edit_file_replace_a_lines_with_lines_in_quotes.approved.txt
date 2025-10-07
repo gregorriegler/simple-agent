@@ -1,5 +1,6 @@
 Command:
-🛠️ edit-file test.txt replace 2 "insert1
+🛠️ edit-file test.txt replace 2
+"insert1
 insert2"
 
 Result:

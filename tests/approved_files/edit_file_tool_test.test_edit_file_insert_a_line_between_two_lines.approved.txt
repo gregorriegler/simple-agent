@@ -1,5 +1,6 @@
 Command:
-🛠️ edit-file test.txt insert 2 line1.5
+🛠️ edit-file test.txt insert 2
+line1.5
 
 
 Result:

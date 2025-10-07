@@ -1,5 +1,6 @@
 Command:
-🛠️ edit-file empty.txt insert 1 line1
+🛠️ edit-file empty.txt insert 1
+line1
 line2
 line3
 

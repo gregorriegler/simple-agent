@@ -132,7 +132,7 @@ class ReplaceEditMode:
 
 class EditFileTool(BaseTool):
     name = "edit-file"
-    description = "Edit files by replacing content in specified line ranges with auto-indent preservation"
+    description = "Edit files by replacing content in specified line ranges. Content must start on the following line."
     arguments = [
         {
             "name": "filename",
@@ -151,23 +151,14 @@ class EditFileTool(BaseTool):
             "type": "string",
             "required": True,
             "description": "Line range in format 'start-end' or 'line_number' (e.g., '1-3' or '10' for single line)"
-        },
-        {
-            "name": "new_content",
-            "type": "string",
-            "required": False,
-            "description": "New content to replace or insert at the specified lines. "
-                           "Newline behavior: "
-                           "Actual line breaks create newlines. "
-                           "If you don't end with a newline and are inserting between lines, one will be added automatically."
         }
     ]
     examples = [
-        "🛠️ edit-file myfile.txt replace 1-3 Hello World",
+        "🛠️ edit-file myfile.txt replace 1-3\nHello World",
         "to delete the first line\n🛠️ edit-file test.txt delete 1",
-        "to insert a new line at the top\n🛠️ edit-file test.txt insert 1 New Headline",
-        "to insert content\n🛠️ edit-file test.py insert 3 print('hello')",
-        "to replace content\n🛠️ edit-file test.py replace 5 new = 2",
+        "to insert a new line at the top\n🛠️ edit-file test.txt insert 1\nNew Headline",
+        "to insert content\n🛠️ edit-file test.py insert 3\nprint('hello')",
+        "to replace content\n🛠️ edit-file test.py replace 5\nnew = 2",
     ]
 
     def __init__(self, runcommand):
@@ -183,34 +174,41 @@ class EditFileTool(BaseTool):
         if not args:
             return None, 'No arguments specified'
 
+        # Split args into first line and remaining content
+        lines = args.splitlines(keepends=True)
+        first_line = lines[0].rstrip('\n\r')
+
+        # Parse the command line arguments
         try:
-            parts = split_arguments(args)
+            parts = split_arguments(first_line)
         except ValueError as e:
             return None, f"Error parsing arguments: {str(e)}"
 
         if len(parts) < 3:
-            return None, 'Usage: edit-file <filename> <edit_mode> <line_range> [new_content]'
+            return None, 'Usage: edit-file <filename> <edit_mode> <line_range>'
 
         filename, edit_mode, line_range_token = parts[:3]
 
-        if len(parts) > 3:
-            pos = 0
-            for token in [filename, edit_mode, line_range_token]:
-                token_pos = args.find(token, pos)
-                if token_pos == -1:
-                    break
-                pos = token_pos + len(token)
+        # For insert and replace modes, content must be on following lines
+        # For delete mode, no content is expected
+        if edit_mode in ['insert', 'replace']:
+            if len(parts) > 3:
+                return None, f'For {edit_mode} mode, content must start on the following line, not on the same line'
 
-            if pos < len(args) and args[pos] == ' ':
-                pos += 1
-
-            new_content = args[pos:] if pos < len(args) else None
+            # Extract content from following lines
+            if len(lines) > 1:
+                new_content = ''.join(lines[1:])
+                # Remove trailing newline if it's the only trailing newline
+                if new_content.endswith('\n') and not new_content.endswith('\n\n'):
+                    new_content = new_content[:-1]
+            else:
+                new_content = None
+        elif edit_mode == 'delete':
+            if len(parts) > 3:
+                return None, 'Delete mode does not accept content arguments'
+            new_content = None
         else:
-            new_content = None
-
-        if new_content == '':
-            new_content = None
-
+            return None, f'Invalid edit mode: {edit_mode}. Supported modes: insert, delete, replace'
 
         try:
             if '-' in line_range_token:
