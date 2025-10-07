@@ -68,7 +68,7 @@ class FileEditor:
         return adjusted_lines
 
 
-class InsertEditMode:
+class InsertMode:
     def apply(self, editor: FileEditor, args: EditFileArgs):
         content = args.new_content
 
@@ -94,7 +94,7 @@ class InsertEditMode:
             editor.lines[insert_pos:insert_pos] = new_content
 
 
-class DeleteEditMode:
+class DeleteMode:
     def apply(self, editor: FileEditor, args: EditFileArgs):
         normalized_range = editor.normalize_range(args.start_line, args.end_line)
         if normalized_range is None:
@@ -111,10 +111,10 @@ class DeleteEditMode:
         editor.lines = new_lines
 
 
-class ReplaceEditMode:
+class ReplaceMode:
     def apply(self, editor: FileEditor, args: EditFileArgs):
         # First delete the range
-        delete_mode = DeleteEditMode()
+        delete_mode = DeleteMode()
         delete_mode.apply(editor, args)
 
         # Then insert the new content at the start position
@@ -126,7 +126,7 @@ class ReplaceEditMode:
                 end_line=args.start_line,
                 new_content=args.new_content
             )
-            insert_mode = InsertEditMode()
+            insert_mode = InsertMode()
             insert_mode.apply(editor, insert_args)
 
 
@@ -165,9 +165,9 @@ class EditFileTool(BaseTool):
         super().__init__()
         self.runcommand = runcommand
         self.mode_creators = {
-            "insert": InsertEditMode,
-            "delete": DeleteEditMode,
-            "replace": ReplaceEditMode
+            "insert": InsertMode,
+            "delete": DeleteMode,
+            "replace": ReplaceMode
         }
 
     def parse_arguments(self, args):
