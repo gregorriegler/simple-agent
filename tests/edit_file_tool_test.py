@@ -123,21 +123,9 @@ def test_edit_file_replace_with_auto_indent_python(tmp_path):
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 
-def test_edit_file_replace_with_raw_flag(tmp_path):
-    initial_content = "line1\n    existing = 1\nline3"
-    command = "🛠️ edit-file test.py replace 2 --raw new = 2"
-    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
-
-
 def test_edit_file_insert_with_auto_indent(tmp_path):
     initial_content = "line1\n    line2\nline3"
     command = "🛠️ edit-file test.py insert 2 new_line"
-    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
-
-
-def test_edit_file_insert_with_raw_flag(tmp_path):
-    initial_content = "line1\n    line2\nline3"
-    command = "🛠️ edit-file test.py insert 2 --raw new_line"
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 

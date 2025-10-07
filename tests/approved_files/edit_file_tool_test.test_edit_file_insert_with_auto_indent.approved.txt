@@ -16,7 +16,7 @@ File after edit: test.py
 Final content:
 --- FINAL CONTENT START ---
 line1
-    new_line
+new_line
     line2
 line3
 --- FINAL CONTENT END ---

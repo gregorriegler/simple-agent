@@ -12,7 +12,6 @@ class EditFileArgs:
     start_line: int
     end_line: int
     new_content: str | None
-    raw: bool = False
 
 
 class FileEditor:
@@ -44,8 +43,8 @@ class FileEditor:
                 break
         return indent
 
-    def apply_indentation(self, content, line_number, raw_mode):
-        if raw_mode or not content:
+    def apply_indentation(self, content, line_number):
+        if not content:
             return content
 
         if content.startswith(' ') or content.startswith('\t'):
@@ -88,7 +87,7 @@ class FileEditor:
 
 class InsertEditMode:
     def apply(self, editor: FileEditor, args: EditFileArgs):
-        content = editor.apply_indentation(args.new_content, args.start_line, args.raw) if args.new_content else None
+        content = args.new_content
 
         if content is None:
             new_content = ['\n']
@@ -142,8 +141,7 @@ class ReplaceEditMode:
                 edit_mode="insert",
                 start_line=args.start_line,
                 end_line=args.start_line,
-                new_content=args.new_content,
-                raw=args.raw
+                new_content=args.new_content
             )
             insert_mode = InsertEditMode()
             insert_mode.apply(editor, insert_args)
@@ -176,26 +174,17 @@ class EditFileTool(BaseTool):
             "type": "string",
             "required": False,
             "description": "New content to replace or insert at the specified lines. "
-                           "By default, indentation is auto-preserved from the target line. "
-                           "Use --raw flag to disable auto-indentation. "
                            "Newline behavior: "
                            "Actual line breaks create newlines. "
                            "If you don't end with a newline and are inserting between lines, one will be added automatically."
-        },
-        {
-            "name": "--raw",
-            "type": "flag",
-            "required": False,
-            "description": "Disable auto-indentation preservation"
         }
     ]
     examples = [
         "🛠️ edit-file myfile.txt replace 1-3 Hello World",
         "to delete the first line\n🛠️ edit-file test.txt delete 1",
         "to insert a new line at the top\n🛠️ edit-file test.txt insert 1 New Headline",
-        "to insert with auto-indent\n🛠️ edit-file test.py insert 3 print('hello')",
-        "to insert without auto-indent\n🛠️ edit-file test.py insert 3 --raw print('hello')",
-        "to replace with auto-indent\n🛠️ edit-file test.py replace 5 new = 2",
+        "to insert content\n🛠️ edit-file test.py insert 3 print('hello')",
+        "to replace content\n🛠️ edit-file test.py replace 5 new = 2",
     ]
 
     def __init__(self, runcommand):
@@ -211,17 +200,13 @@ class EditFileTool(BaseTool):
         if not args:
             return None, 'No arguments specified'
 
-        raw_mode = '--raw' in args
-        if raw_mode:
-            args = args.replace('--raw', '').strip()
-
         try:
             parts = split_arguments(args)
         except ValueError as e:
             return None, f"Error parsing arguments: {str(e)}"
 
         if len(parts) < 3:
-            return None, 'Usage: edit-file <filename> <edit_mode> <line_range> [--raw] [new_content]'
+            return None, 'Usage: edit-file <filename> <edit_mode> <line_range> [new_content]'
 
         filename, edit_mode, line_range_token = parts[:3]
 
@@ -257,8 +242,7 @@ class EditFileTool(BaseTool):
             edit_mode=edit_mode,
             start_line=start_line,
             end_line=end_line,
-            new_content=new_content,
-            raw=raw_mode
+            new_content=new_content
         )
         return edit_args, None
 
