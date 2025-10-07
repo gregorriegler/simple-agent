@@ -131,39 +131,22 @@ class DeleteEditMode:
 
 class ReplaceEditMode:
     def apply(self, editor: FileEditor, args: EditFileArgs):
-        if len(editor.lines) == 0 and args.start_line == 0 and args.end_line == 0:
-            if args.new_content is None:
-                editor.lines = []
-            elif '\n' in args.new_content:
-                editor.lines = [line + '\n' for line in args.new_content.split('\n') if line]
-            else:
-                editor.lines = [args.new_content + '\n']
-            return
+        # First delete the range
+        delete_mode = DeleteEditMode()
+        delete_mode.apply(editor, args)
 
-        normalized_range = editor.normalize_range(args.start_line, args.end_line)
-        if normalized_range is None:
-            return
-
-        start_line, end_line = normalized_range
-        content = editor.apply_indentation(args.new_content, start_line, args.raw) if args.new_content else None
-
-        start_idx = start_line - 1
-        end_idx = end_line - 1
-
-        if content is None:
-            replacement_lines = []
-        elif '\n' in content:
-            replacement_lines = [line + '\n' for line in content.split('\n') if line]
-        else:
-            last_replaced_line = editor.lines[end_idx]
-            if last_replaced_line.endswith('\n'):
-                replacement_lines = [content + '\n']
-            else:
-                replacement_lines = [content]
-
-        editor.lines = (editor.lines[:start_idx] +
-                        replacement_lines +
-                        editor.lines[end_idx + 1:])
+        # Then insert the new content at the start position
+        if args.new_content is not None:
+            insert_args = EditFileArgs(
+                filename=args.filename,
+                edit_mode="insert",
+                start_line=args.start_line,
+                end_line=args.start_line,
+                new_content=args.new_content,
+                raw=args.raw
+            )
+            insert_mode = InsertEditMode()
+            insert_mode.apply(editor, insert_args)
 
 
 class EditFileTool(BaseTool):

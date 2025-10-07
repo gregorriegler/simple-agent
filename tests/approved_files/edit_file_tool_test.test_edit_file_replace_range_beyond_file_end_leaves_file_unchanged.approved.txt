@@ -16,4 +16,7 @@ Final content:
 --- FINAL CONTENT START ---
 line1
 line2
+
+
+replacement
 --- FINAL CONTENT END ---

@@ -19,5 +19,4 @@ Final content:
 line1
 newline1
 newline2
-
 --- FINAL CONTENT END ---

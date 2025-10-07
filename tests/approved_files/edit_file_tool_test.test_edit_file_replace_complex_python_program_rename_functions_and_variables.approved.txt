@@ -55,19 +55,22 @@ class DataProcessor:
 File after edit: complex_program.py
 Final content:
 --- FINAL CONTENT START ---
-class DataHandler:
+                class DataHandler:
     def __init__(self, source_data):
         self.original_data = source_data
         self.cleaned_items = []
+
     def check_validity(self, data_entry):
         if not data_entry:
             return False
         return len(data_entry) > 0
+
     def handle_single_entry(self, entry):
         if self.check_validity(entry):
             normalized_entry = entry.strip().lower()
             return normalized_entry
         return None
+
     def process_all(self):
         for current_entry in self.original_data:
             outcome = self.handle_single_entry(current_entry)

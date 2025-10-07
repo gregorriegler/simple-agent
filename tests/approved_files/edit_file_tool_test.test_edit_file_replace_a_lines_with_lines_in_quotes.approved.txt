@@ -18,5 +18,4 @@ Final content:
 line1
 insert1
 insert2
-
 --- FINAL CONTENT END ---
