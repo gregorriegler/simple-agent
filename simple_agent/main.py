@@ -8,15 +8,16 @@ from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.claude.claude_config import load_claude_config
 from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
-from simple_agent.system_prompt_generator import SystemPromptGenerator
+from simple_agent.system_prompt_generator import generate_system_prompt
 
 
 def main():
     args = parse_args()
 
     if args.show_system_prompt:
-        generator = SystemPromptGenerator()
-        system_prompt = generator.generate_system_prompt()
+        from simple_agent.tools.tool_library import AllTools
+        tool_library = AllTools()
+        system_prompt = generate_system_prompt(tool_library)
         print(system_prompt)
         return
 
@@ -27,8 +28,8 @@ def main():
     session_storage = JsonFileSessionStorage()
     claude_config = load_claude_config()
     claude_chat = ClaudeLLM(claude_config)
-    system_prompt = lambda : SystemPromptGenerator().generate_system_prompt()
-    run_session(args.continue_session, user_input, display, session_storage, claude_chat, system_prompt)
+    system_prompt_generator = lambda tool_library: generate_system_prompt(tool_library)
+    run_session(args.continue_session, user_input, display, session_storage, claude_chat, system_prompt_generator)
 
 
 def parse_args(argv=None):

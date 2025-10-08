@@ -4,7 +4,7 @@ from simple_agent.application.agent import Agent
 from simple_agent.application.llm import Messages
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.session_storage import SessionStorage
-from simple_agent.application.system_prompt import SystemPrompt
+from simple_agent.application.system_prompt_generator import SystemPromptGenerator
 from simple_agent.tools import AllTools
 
 
@@ -21,7 +21,7 @@ def run_session(
     display,
     session_storage: SessionStorage,
     chat,
-    system_prompt: SystemPrompt,
+    system_prompt_generator: SystemPromptGenerator,
     tool_library=None
 ):
     messages = session_storage.load() if continue_session else Messages()
@@ -34,6 +34,6 @@ def run_session(
     agent_id = "Agent"
     if tool_library is None:
         tool_library = AllTools(chat, agent_id=agent_id)
-    system_prompt_text = system_prompt()
+    system_prompt_text = system_prompt_generator(tool_library)
     agent = Agent(agent_id, chat, system_prompt_text, user_input, tool_library, display, session_storage)
     agent.start(persisted_messages)

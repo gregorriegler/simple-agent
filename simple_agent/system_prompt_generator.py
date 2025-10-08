@@ -1,23 +1,20 @@
 #!/usr/bin/env python
-from simple_agent.tools.tool_library import AllTools
+from simple_agent.application.tool_library_protocol import ToolLibrary
 
-class SystemPromptGenerator:
 
-    def __init__(self):
-        self.tool_library = AllTools()
+def generate_system_prompt(tool_library: ToolLibrary):
+    template_content = _read_system_prompt_template()
+    agents_content = _read_agents_content()
+    tools_content = _generate_tools_content(tool_library)
 
-    def generate_system_prompt(self):
-        template_content = self._read_system_prompt_template()
-        agents_content = self._read_agents_content()
-        tools_content = self._generate_tools_content()
+    # Replace the dynamic tools placeholder
+    result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
 
-        # Replace the dynamic tools placeholder
-        result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
+    # Add agents content at the beginning
+    return result + "\n\n" + agents_content
 
-        # Add agents content at the beginning
-        return result + "\n\n" + agents_content
 
-    def _read_system_prompt_template(self):
+def _read_system_prompt_template():
         try:
             from importlib import resources
             return resources.read_text('simple_agent', 'system-prompt.md')
@@ -32,7 +29,7 @@ class SystemPromptGenerator:
             except FileNotFoundError:
                 raise FileNotFoundError(f"system-prompt.md template file not found at {template_path}")
 
-    def _read_agents_content(self):
+def _read_agents_content():
         import os
         # Look for AGENTS.md in the current working directory
         agents_path = os.path.join(os.getcwd(), "AGENTS.md")
@@ -50,16 +47,17 @@ class SystemPromptGenerator:
             # If AGENTS.md doesn't exist, return empty string to avoid breaking
             return ""
 
-    def _generate_tools_content(self):
-        tools_lines = []
+def _generate_tools_content(tool_library: ToolLibrary):
+    tools_lines = []
 
-        for tool in self.tool_library.tools:
-            tool_doc = self._generate_tool_documentation(tool)
-            tools_lines.append(tool_doc)
+    for tool in tool_library.tools:
+        tool_doc = _generate_tool_documentation(tool)
+        tools_lines.append(tool_doc)
 
-        return "\n\n".join(tools_lines)
+    return "\n\n".join(tools_lines)
 
-    def _generate_tool_documentation(self, tool):
+
+def _generate_tool_documentation(tool):
         usage_info = tool.get_usage_info()
         lines = usage_info.split('\n')
         if not lines:
@@ -105,6 +103,7 @@ class SystemPromptGenerator:
 
 def main():
     import argparse
+    from simple_agent.tools.tool_library import AllTools
 
     parser = argparse.ArgumentParser(
         description='Generate system prompt with dynamic tool descriptions',
@@ -118,8 +117,8 @@ def main():
 
     args = parser.parse_args()
 
-    generator = SystemPromptGenerator()
-    system_prompt = generator.generate_system_prompt()
+    tool_library = AllTools()
+    system_prompt = generate_system_prompt(tool_library)
 
     if args.output:
         with open(args.output, 'w', encoding='utf-8') as f:
