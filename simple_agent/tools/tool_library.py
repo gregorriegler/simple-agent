@@ -10,9 +10,6 @@ from .complete_task_tool import CompleteTaskTool
 from .create_file_tool import CreateFileTool
 from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
-from .patch_file_tool import PatchFileTool
-from .recall_tool import RecallTool
-from .remember_tool import RememberTool
 from .subagent_tool import SubagentTool
 from .write_todos_tool import WriteTodosTool
 
@@ -29,7 +26,7 @@ class ParsedTool:
         return f"🛠️ {self.name}"
 
 
-class ToolLibrary:
+class AllTools:
     def __init__(self, llm: LLM | None = None, indent_level=0, io: IO | None = None, agent_id: str = "Agent"):
         if llm is None:
             llm = lambda system_prompt, messages: ''

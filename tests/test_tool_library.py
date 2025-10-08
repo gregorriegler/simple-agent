@@ -1,7 +1,7 @@
-from simple_agent.tools import ToolLibrary
+from simple_agent.tools import AllTools
 
 
-class TestToolLibrary(ToolLibrary):
+class TestToolLibrary(AllTools):
     def __init__(self, llm, io=None, interrupts=None):
         super().__init__(llm, io=io)
         self.interrupts = interrupts or []

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import sys
-from simple_agent.tools import ToolLibrary
+from simple_agent.tools import AllTools
 
 if __name__ == "__main__":
     command = ' '.join(sys.argv[1:])
-    tools = ToolLibrary()
+    tools = AllTools()
     try:
         tool = tools.parse_tool(f"🛠️ {command}")
         if not tool:

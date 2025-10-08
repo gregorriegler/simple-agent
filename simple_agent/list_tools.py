@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import sys
-from simple_agent.tools import ToolLibrary
+from simple_agent.tools import AllTools
 
-if __name__ == "__main__":   
-    tool = ToolLibrary()
+if __name__ == "__main__":
+    tool = AllTools()
     try:
         if len(sys.argv) > 1:
             tool_name = sys.argv[1]

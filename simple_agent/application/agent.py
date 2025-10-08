@@ -1,10 +1,11 @@
 from .llm import LLM
 from .session_storage import SessionStorage
+from .tool_library_protocol import ToolLibrary
 from .tool_result import ToolResult, ContinueResult
 
 
 class Agent:
-    def __init__(self, agent_id: str, llm: LLM, system_prompt, user_input, tools, display, session_storage: SessionStorage):
+    def __init__(self, agent_id: str, llm: LLM, system_prompt, user_input, tools: ToolLibrary, display, session_storage: SessionStorage):
         self.agent_id = agent_id
         self.llm: LLM = llm
         self.system_prompt = system_prompt

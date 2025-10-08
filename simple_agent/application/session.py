@@ -5,7 +5,7 @@ from simple_agent.application.llm import Messages
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.system_prompt import SystemPrompt
-from simple_agent.tools import ToolLibrary
+from simple_agent.tools import AllTools
 
 
 @dataclass
@@ -33,7 +33,7 @@ def run_session(
         display.start_new_session()
     agent_id = "Agent"
     if tool_library is None:
-        tool_library = ToolLibrary(chat, agent_id=agent_id)
+        tool_library = AllTools(chat, agent_id=agent_id)
     system_prompt_text = system_prompt()
     agent = Agent(agent_id, chat, system_prompt_text, user_input, tool_library, display, session_storage)
     agent.start(persisted_messages)

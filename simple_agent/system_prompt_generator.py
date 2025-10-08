@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-from simple_agent.tools.tool_library import ToolLibrary
+from simple_agent.tools.tool_library import AllTools
 
 class SystemPromptGenerator:
 
     def __init__(self):
-        self.tool_library = ToolLibrary()
+        self.tool_library = AllTools()
 
     def generate_system_prompt(self):
         template_content = self._read_system_prompt_template()

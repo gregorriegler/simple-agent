@@ -1,9 +1,9 @@
 from approvaltests import Options, verify
 
-from simple_agent.tools.tool_library import ToolLibrary
+from simple_agent.tools.tool_library import AllTools
 from .test_helpers import all_scrubbers, temp_directory
 
-library = ToolLibrary()
+library = AllTools()
 
 
 def test_create_tool_single_character_name(tmp_path):
