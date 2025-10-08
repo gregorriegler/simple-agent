@@ -16,10 +16,6 @@ class CompleteTaskTool(BaseTool):
         "🛠️ complete-task Fixed the bug in the payment processing module"
     ]
 
-    def __init__(self, runcommand):
-        super().__init__()
-        self.runcommand = runcommand
-
     def execute(self, args):
         if not args or not args.strip():
             return CompleteResult('STDERR: complete-task: missing summary')

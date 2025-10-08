@@ -25,10 +25,6 @@ class CatTool(BaseTool):
         "🛠️ cat script.py 1-20"
     ]
 
-    def __init__(self, runcommand):
-        super().__init__()
-        self.runcommand = runcommand
-
     def _parse_arguments(self, args):
         if not args:
             return None, None, 'STDERR: cat: missing file operand'
@@ -62,7 +58,7 @@ class CatTool(BaseTool):
         if error:
             return ContinueResult(error)
         if line_range is None:
-            result = self.runcommand('cat', ['-n', filename])
+            result = self.run_command('cat', ['-n', filename])
             return ContinueResult(result['output'])
         start_line, end_line, error = self._validate_range(line_range)
         if error:

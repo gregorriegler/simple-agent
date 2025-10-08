@@ -21,9 +21,8 @@ class WriteTodosTool(BaseTool):
         "🛠️ write-todos\\n## Todo\\n- Feature exploration\\n\\n## Doing\\n- Implementing tool\\n\\n## Done\\n- Initial setup"
     ]
 
-    def __init__(self, runcommand, agent_id="Agent"):
+    def __init__(self, agent_id="Agent"):
         super().__init__()
-        self.runcommand = runcommand
         self.agent_id = agent_id
 
     def execute(self, args):

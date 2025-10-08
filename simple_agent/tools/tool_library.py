@@ -1,5 +1,4 @@
 import re
-import subprocess
 
 from simple_agent.application.io import IO
 from simple_agent.application.llm import LLM
@@ -42,17 +41,17 @@ class AllTools:
 
     def _create_static_tools(self):
         return [
-            WriteTodosTool(self.run_command, self.agent_id),
-            LsTool(self.run_command),
-            CatTool(self.run_command),
-            CreateFileTool(self.run_command),
-            EditFileTool(self.run_command),
-#            PatchFileTool(self.run_command),
-            SubagentTool(self.run_command, self.llm, self.indent_level, self.io),
-#            RememberTool(self.run_command),
-#           RecallTool(self.run_command),
-            CompleteTaskTool(self.run_command),
-            BashTool(self.run_command)
+            WriteTodosTool(self.agent_id),
+            LsTool(),
+            CatTool(),
+            CreateFileTool(),
+            EditFileTool(),
+#            PatchFileTool(),
+            SubagentTool(self.llm, self.indent_level, self.io),
+#            RememberTool(),
+#           RecallTool(),
+            CompleteTaskTool(),
+            BashTool()
         ]
 
     def _discover_dynamic_tools(self):
@@ -102,35 +101,3 @@ class AllTools:
         result = parsed_tool.tool_instance.execute(args)
         return result
 
-    @staticmethod
-    def run_command(command, args=None, cwd=None):
-        try:
-            command_line = [command]
-            if args:
-                if isinstance(args, str):
-                    args = [args]
-                command_line += args
-
-            result = subprocess.run(
-                command_line,
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                encoding='utf-8',
-                errors='replace',
-                timeout=30,
-                cwd=cwd
-            )
-            output = result.stdout.rstrip('\n')
-            if result.stderr:
-                if output:
-                    output += f"\n";
-                output += f"STDERR: {result.stderr}"
-            return {
-                'output': output
-            }
-        except subprocess.TimeoutExpired:
-            return {'output': 'Command timed out (30s limit)'}
-        except Exception as e:
-            return {'output': f'Error: {str(e)}'}

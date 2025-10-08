@@ -34,10 +34,6 @@ class CreateFileTool(BaseTool):
         "🛠️ create-file multi-line.py This is Line 1\nThis is Line 2",
     ]
 
-    def __init__(self, runcommand):
-        super().__init__()
-        self.runcommand = runcommand
-
     def execute(self, args):
         if not args:
             return ContinueResult('No filename specified')

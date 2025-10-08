@@ -19,13 +19,9 @@ class BashTool(BaseTool):
         "🛠️ bash pwd"
     ]
 
-    def __init__(self, runcommand):
-        super().__init__()
-        self.runcommand = runcommand
-
     def execute(self, args):
         if not args:
             return ContinueResult('STDERR: bash: missing command')
         _ = subprocess
-        result = self.runcommand("bash", ["-c", args])
+        result = self.run_command("bash", ["-c", args])
         return ContinueResult(result['output'])

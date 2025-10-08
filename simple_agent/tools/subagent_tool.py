@@ -32,9 +32,8 @@ class SubagentTool(BaseTool):
         "🛠️ subagent Create a simple HTML page with a form"
     ]
 
-    def __init__(self, runcommand, llm, indent_level=0, io: IO | None = None):
+    def __init__(self, llm, indent_level=0, io: IO | None = None):
         super().__init__()
-        self.runcommand = runcommand
         self.llm = llm
         self.indent_level = indent_level
         self.io = io or StdIO()

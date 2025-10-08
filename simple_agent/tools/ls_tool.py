@@ -16,10 +16,6 @@ class LsTool(BaseTool):
         "🛠️ ls /home/user"
     ]
 
-    def __init__(self, runcommand):
-        super().__init__()
-        self.runcommand = runcommand
-
     def execute(self, path="."):
-        result = self.runcommand("ls", ["-a", path] if path else ["-a"])
+        result = self.run_command("ls", ["-a", path] if path else ["-a"])
         return ContinueResult(result['output'])

@@ -170,9 +170,7 @@ Replace mode: First deletes the specified range, then inserts new content at tha
         "🛠️ edit-file test.py replace 5\nnew = 2",
     ]
 
-    def __init__(self, runcommand):
-        super().__init__()
-        self.runcommand = runcommand
+    def __init__(self):
         self.mode_creators = {
             "insert": InsertMode,
             "delete": DeleteMode,
