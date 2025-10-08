@@ -6,7 +6,7 @@ from .base_tool import BaseTool
 
 
 class WriteTodosTool(BaseTool):
-    name = "WriteTodos"
+    name = "write-todos"
     description = "Organize your work in TODOs. Use this tool to create or update those TODOs"
     arguments = [
         {
@@ -17,8 +17,8 @@ class WriteTodosTool(BaseTool):
         }
     ]
     examples = [
-        "🛠️ WriteTodos ## Todo\\n- Item 1",
-        "🛠️ WriteTodos\\n## Todo\\n- Feature exploration\\n\\n## Doing\\n- Implementing tool\\n\\n## Done\\n- Initial setup"
+        "🛠️ write-todos ## Todo\\n- Item 1",
+        "🛠️ write-todos\\n## Todo\\n- Feature exploration\\n\\n## Doing\\n- Implementing tool\\n\\n## Done\\n- Initial setup"
     ]
 
     def __init__(self, runcommand):

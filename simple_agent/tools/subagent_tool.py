@@ -18,7 +18,7 @@ class NoOpSessionStorage:
 
 class SubagentTool(BaseTool):
     name = 'subagent'
-    description = "Create a subagent to handle a specific task using the same agent architecture"
+    description = "Creates a new subagent that will handle a specific task/todo and report back the result."
     arguments = [
         {
             "name": "task_description",

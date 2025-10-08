@@ -36,12 +36,12 @@ class ToolLibrary:
         self.llm: LLM = llm
         self.indent_level = indent_level
         self.io = io or StdIO()
-        
+
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
         self.tools = static_tools + dynamic_tools
         self._build_tool_dict()
-        
+
     def _create_static_tools(self):
         return [
             WriteTodosTool(self.run_command),
@@ -49,10 +49,10 @@ class ToolLibrary:
             CatTool(self.run_command),
             CreateFileTool(self.run_command),
             EditFileTool(self.run_command),
-            PatchFileTool(self.run_command),
+#            PatchFileTool(self.run_command),
             SubagentTool(self.run_command, self.llm, self.indent_level, self.io),
-            RememberTool(self.run_command),
-            RecallTool(self.run_command),
+#            RememberTool(self.run_command),
+#           RecallTool(self.run_command),
             CompleteTaskTool(self.run_command),
             BashTool(self.run_command)
         ]

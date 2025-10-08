@@ -1,5 +1,5 @@
 Command:
-🛠️ WriteTodos ## Todo
+🛠️ write-todos ## Todo
 - Item 1
 
 ## Doing

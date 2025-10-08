@@ -1,4 +1,3 @@
-- dont log the access token header
 - https://github.com/ludo-technologies/pyscn
 - say should be a part of the agent
 - api key via env var
