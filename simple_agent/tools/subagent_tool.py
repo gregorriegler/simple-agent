@@ -53,6 +53,7 @@ class SubagentTool(BaseTool):
             user_input = Input(self.subagent_display)
             user_input.stack(args)
             subagent = Agent(
+                "Subagent",
                 self.llm,
                 system_prompt,
                 user_input,

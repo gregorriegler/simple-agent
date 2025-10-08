@@ -34,5 +34,5 @@ def run_session(
     if tool_library is None:
         tool_library = ToolLibrary(chat)
     system_prompt_text = system_prompt()
-    agent = Agent(chat, system_prompt_text, user_input, tool_library, display, session_storage)
+    agent = Agent("Agent", chat, system_prompt_text, user_input, tool_library, display, session_storage)
     agent.start(persisted_messages)
