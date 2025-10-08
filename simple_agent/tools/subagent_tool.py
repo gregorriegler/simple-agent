@@ -49,7 +49,7 @@ class SubagentTool(BaseTool):
             from simple_agent.tools.tool_library import AllTools
             subagent_id = "Subagent"
             subagent_tools = AllTools(self.llm, self.indent_level + 1, self.io, subagent_id)
-            system_prompt = generate_system_prompt(subagent_tools)
+            system_prompt = lambda tool_library: generate_system_prompt(tool_library)
             subagent_session_storage = NoOpSessionStorage()
             user_input = Input(self.subagent_display)
             user_input.stack(args)

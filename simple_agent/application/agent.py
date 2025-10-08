@@ -49,7 +49,8 @@ class Agent:
         return prompt
 
     def llm_answers(self, context):
-        answer = self.llm(self.system_prompt, context.to_list())
+        system_prompt = self.system_prompt(self.tools)
+        answer = self.llm(system_prompt, context.to_list())
         self.display.assistant_says(answer)
         context.assistant_says(answer)
         return answer
