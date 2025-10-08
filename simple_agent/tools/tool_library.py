@@ -30,12 +30,13 @@ class ParsedTool:
 
 
 class ToolLibrary:
-    def __init__(self, llm: LLM | None = None, indent_level=0, io: IO | None = None):
+    def __init__(self, llm: LLM | None = None, indent_level=0, io: IO | None = None, agent_id: str = "Agent"):
         if llm is None:
             llm = lambda system_prompt, messages: ''
         self.llm: LLM = llm
         self.indent_level = indent_level
         self.io = io or StdIO()
+        self.agent_id = agent_id
 
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
@@ -44,7 +45,7 @@ class ToolLibrary:
 
     def _create_static_tools(self):
         return [
-            WriteTodosTool(self.run_command),
+            WriteTodosTool(self.run_command, self.agent_id),
             LsTool(self.run_command),
             CatTool(self.run_command),
             CreateFileTool(self.run_command),

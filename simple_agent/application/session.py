@@ -31,8 +31,9 @@ def run_session(
         display.continue_session()
     else:
         display.start_new_session()
+    agent_id = "Agent"
     if tool_library is None:
-        tool_library = ToolLibrary(chat)
+        tool_library = ToolLibrary(chat, agent_id=agent_id)
     system_prompt_text = system_prompt()
-    agent = Agent("Agent", chat, system_prompt_text, user_input, tool_library, display, session_storage)
+    agent = Agent(agent_id, chat, system_prompt_text, user_input, tool_library, display, session_storage)
     agent.start(persisted_messages)

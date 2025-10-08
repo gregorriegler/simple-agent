@@ -14,7 +14,7 @@ def test_write_todos_creates_markdown_file(tmp_path):
         tool = library.parse_tool(command)
         result = library.execute_parsed_tool(tool)
 
-        content = Path(".todos.md").read_text(encoding="utf-8")
+        content = Path(".Agent.todos.md").read_text(encoding="utf-8")
         verify(
             f"Command:\n{command}\n\nResult:\n{result}\n\nFile content:\n--- FILE CONTENT START ---\n{content}\n--- FILE CONTENT END ---",
             options=Options().with_scrubber(all_scrubbers())
