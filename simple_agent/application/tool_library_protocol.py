@@ -1,7 +1,11 @@
-from typing import Protocol, List
+from typing import Protocol, List, Optional
 
 from simple_agent.application.tool_result import ToolResult
-from simple_agent.tools.tool_library import ParsedTool
+
+
+class ParsedTool(Protocol):
+    arguments: str | None
+    tool_instance: object
 
 
 class ToolLibrary(Protocol):
@@ -10,7 +14,7 @@ class ToolLibrary(Protocol):
     def get_tool_info(self, tool_name: str | None = None) -> str:
         ...
 
-    def parse_tool(self, text: str) -> ParsedTool | None:
+    def parse_tool(self, text: str) -> Optional[ParsedTool]:
         ...
 
     def execute_parsed_tool(self, parsed_tool: ParsedTool) -> ToolResult:
