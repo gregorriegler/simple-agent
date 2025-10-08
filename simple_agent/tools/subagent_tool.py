@@ -1,19 +1,22 @@
+from typing import Protocol
+
 from simple_agent.application.io import IO
-from simple_agent.application.llm import Messages
 from simple_agent.application.input import Input
-from simple_agent.application.tool_result import ContinueResult
+from simple_agent.application.llm import Messages
+from simple_agent.application.tool_result import ContinueResult, ToolResult
 from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.infrastructure.stdio import StdIO
 from .base_tool import BaseTool
 
 
-class NoOpSessionStorage:
+class Agent(Protocol):
+    def start(self, context: Messages) -> ToolResult:
+        ...
 
-    def load(self) -> Messages:
-        return Messages()
 
-    def save(self, messages: Messages):
-        return None
+class AgentBuilder(Protocol):
+    def __call__(self, agent_id: str, user_input: Input, display: ConsoleDisplay) -> Agent:
+        ...
 
 
 class SubagentTool(BaseTool):
@@ -32,9 +35,9 @@ class SubagentTool(BaseTool):
         "🛠️ subagent Create a simple HTML page with a form"
     ]
 
-    def __init__(self, llm, indent_level=0, io: IO | None = None):
+    def __init__(self, agent_builder: AgentBuilder, indent_level=0, io: IO | None = None):
         super().__init__()
-        self.llm = llm
+        self.agent_builder = agent_builder
         self.indent_level = indent_level
         self.io = io or StdIO()
         self.subagent_display = SubagentDisplay(self.indent_level + 1, self.io)
@@ -45,21 +48,8 @@ class SubagentTool(BaseTool):
         try:
             user_input = Input(self.subagent_display)
             user_input.stack(args)
-            from simple_agent.application.agent import Agent
-            from simple_agent.system_prompt_generator import generate_system_prompt
-            from simple_agent.tools.tool_library import AllTools
             subagent_id = "Subagent"
-            subagent_tools = AllTools(self.llm, self.indent_level + 1, self.io, subagent_id)
-            system_prompt = lambda tool_library: generate_system_prompt(subagent_tools)
-            subagent = Agent(
-                subagent_id,
-                self.llm,
-                system_prompt,
-                user_input,
-                subagent_tools,
-                self.subagent_display,
-                NoOpSessionStorage()
-            )
+            subagent = self.agent_builder(subagent_id, user_input, self.subagent_display)
             subagent_messages = Messages()
             result = subagent.start(subagent_messages)
             return ContinueResult(str(result))

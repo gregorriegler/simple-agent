@@ -10,3 +10,12 @@ class SessionStorage(Protocol):
 
     def save(self, messages: Messages) -> None:
         ...
+
+
+class NoOpSessionStorage:
+
+    def load(self) -> Messages:
+        return Messages()
+
+    def save(self, messages: Messages) -> None:
+        return None

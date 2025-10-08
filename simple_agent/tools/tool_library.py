@@ -1,8 +1,11 @@
 import re
 
+from simple_agent.application.agent import Agent
 from simple_agent.application.io import IO
 from simple_agent.application.llm import LLM
 from simple_agent.infrastructure.stdio import StdIO
+from simple_agent.system_prompt_generator import generate_system_prompt
+from simple_agent.application.session_storage import NoOpSessionStorage
 from .bash_tool import BashTool
 from .cat_tool import CatTool
 from .complete_task_tool import CompleteTaskTool
@@ -47,7 +50,7 @@ class AllTools:
             CreateFileTool(),
             EditFileTool(),
 #            PatchFileTool(),
-            SubagentTool(self.llm, self.indent_level, self.io),
+            self._create_subagent_tool(),
 #            RememberTool(),
 #           RecallTool(),
             CompleteTaskTool(),
@@ -59,6 +62,26 @@ class AllTools:
 
     def _build_tool_dict(self):
         self.tool_dict = {tool.name: tool for tool in self.tools}
+
+    def _create_subagent_tool(self):
+        return SubagentTool(self._build_subagent_agent, self.indent_level, self.io)
+
+    def _build_subagent_agent(self, agent_id, user_input, display):
+        subagent_tools = AllTools(self.llm, self.indent_level + 1, self.io, agent_id)
+        system_prompt = self._build_system_prompt(subagent_tools)
+        session_storage = NoOpSessionStorage()
+        return Agent(
+            agent_id,
+            self.llm,
+            system_prompt,
+            user_input,
+            subagent_tools,
+            display,
+            session_storage
+        )
+
+    def _build_system_prompt(self, subagent_tools):
+        return lambda tool_library: generate_system_prompt(subagent_tools)
 
     def get_tool_info(self, tool_name=None):
         if tool_name:
