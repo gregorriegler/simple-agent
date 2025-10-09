@@ -23,15 +23,15 @@ def main():
         return
 
     display = ConsoleDisplay()
-    user_input_port = ConsoleUserInput(display.indent_level, display.io)
-    user_input = Input(user_input_port)
+    user_input = ConsoleUserInput(display.indent_level, display.io)
+    _input = Input(user_input)
     if args.start_message:
-        user_input.stack(args.start_message)
+        _input.stack(args.start_message)
     session_storage = JsonFileSessionStorage()
     claude_config = load_claude_config()
     claude_chat = ClaudeLLM(claude_config)
     system_prompt_generator = lambda tool_library: generate_system_prompt(tool_library)
-    run_session(args.continue_session, user_input, display, session_storage, claude_chat, system_prompt_generator)
+    run_session(args.continue_session, _input, display, session_storage, claude_chat, system_prompt_generator)
 
 
 def parse_args(argv=None):
