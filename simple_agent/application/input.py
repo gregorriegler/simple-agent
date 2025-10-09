@@ -1,10 +1,12 @@
 from typing import List
 
+from .user_input import UserInput
+
 
 class Input:
 
-    def __init__(self, display):
-        self.display = display
+    def __init__(self, user_input: UserInput):
+        self.user_input = user_input
         self._stack: List[str] = []
 
     def stack(self, message: str):
@@ -16,7 +18,7 @@ class Input:
     def read(self) -> str:
         if self._stack:
             return self._stack.pop()
-        return self.display.input()
+        return self.user_input.read()
 
     def escape_requested(self) -> bool:
-        return self.display.escape_requested()
+        return self.user_input.escape_requested()

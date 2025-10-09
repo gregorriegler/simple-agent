@@ -1,7 +1,6 @@
 from simple_agent.application.display import Display
 from simple_agent.application.io import IO
 from simple_agent.infrastructure.stdio import StdIO
-import sys
 
 
 def _indent_lines(text, prefix="    "):
@@ -14,7 +13,7 @@ class ConsoleDisplay(Display):
     def __init__(self, indent_level=0, agent_name="Agent", io: IO | None = None):
         self.indent_level = indent_level
         self.io = io or StdIO()
-        self.base_indent = "       " * (indent_level + 1)  # 7 spaces per level
+        self.base_indent = "       " * (indent_level + 1)
         self.agent_prefix = "       " * indent_level + f"{agent_name}: "
 
     def assistant_says(self, message):
@@ -38,13 +37,6 @@ class ConsoleDisplay(Display):
     def start_new_session(self):
         self.io.print("Starting new session")
 
-    def input(self) -> str:
-        prompt = "\n" + "       " * self.indent_level + "Press Enter to continue or type a message to add: "
-        return self.io.input(prompt).strip()
-
     def exit(self):
         exit_msg = "       " * self.indent_level + "Exiting..."
         self.io.print(f"\n{exit_msg}")
-
-    def escape_requested(self) -> bool:
-        return self.io.escape_requested()

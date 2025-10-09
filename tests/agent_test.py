@@ -3,6 +3,7 @@ from approvaltests import verify, Options
 from simple_agent.application.input import Input
 from simple_agent.application.session import run_session
 from simple_agent.infrastructure.console_display import ConsoleDisplay
+from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 from .print_spy import IOSpy
 from .test_helpers import (
     create_temp_file,
@@ -91,13 +92,13 @@ def test_interrupt_aborts_tool_call():
     verify_chat(["Hello", "Follow-up message", "\n"], ["🛠️ cat hello.txt", "🛠️ complete-task summary"], [], [True, False])
 
 
-
 def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     llm_stub = create_llm_stub(answers)
     message, *remaining_inputs = inputs
     io_spy = IOSpy(remaining_inputs, escape_hits)
     display = ConsoleDisplay(io=io_spy)
-    user_input = Input(display)
+    user_input_port = ConsoleUserInput(display.indent_level, io=io_spy)
+    user_input = Input(user_input_port)
     user_input.stack(message)
     test_session_storage = TestSessionStorage()
     test_tool_library = TestToolLibrary(llm_stub, io=io_spy, interrupts=[ctrl_c_hits])
