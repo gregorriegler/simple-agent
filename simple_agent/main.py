@@ -7,6 +7,7 @@ from simple_agent.application.session import run_session, SessionArgs
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.claude.claude_config import load_claude_config
 from simple_agent.infrastructure.console_display import ConsoleDisplay
+from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.system_prompt_generator import generate_system_prompt
 
@@ -22,7 +23,8 @@ def main():
         return
 
     display = ConsoleDisplay()
-    user_input = Input(display)
+    user_input_port = ConsoleUserInput(display.indent_level, display.io)
+    user_input = Input(user_input_port)
     if args.start_message:
         user_input.stack(args.start_message)
     session_storage = JsonFileSessionStorage()

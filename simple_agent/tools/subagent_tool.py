@@ -5,6 +5,7 @@ from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
 from simple_agent.application.tool_result import ContinueResult, ToolResult
 from simple_agent.infrastructure.console_display import ConsoleDisplay
+from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
 from .base_tool import BaseTool
 
@@ -46,7 +47,8 @@ class SubagentTool(BaseTool):
         if not args or not args.strip():
             return ContinueResult('STDERR: subagent: missing task description')
         try:
-            user_input = Input(self.subagent_display)
+            user_input_port = ConsoleUserInput(self.subagent_display.indent_level, self.io, allow_escape=False)
+            user_input = Input(user_input_port)
             user_input.stack(args)
             subagent_id = "Subagent"
             subagent = self.agent_builder(subagent_id, user_input, self.subagent_display)
@@ -60,7 +62,6 @@ class SubagentTool(BaseTool):
 class SubagentDisplay(ConsoleDisplay):
     def __init__(self, indent_level=1, io: IO | None = None):
         super().__init__(indent_level, "Subagent", io)
+
     def exit(self):
         pass
-    def escape_requested(self) -> bool:
-        return False
