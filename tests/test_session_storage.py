@@ -1,7 +1,7 @@
 from simple_agent.application.llm import Messages
 
 
-class TestSessionStorage:
+class SessionStorageStub:
     def __init__(self):
         self.saved = "None"
 

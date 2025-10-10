@@ -12,8 +12,8 @@ from .test_helpers import (
     create_temp_file,
     create_temp_directory_structure, all_scrubbers
 )
-from .test_session_storage import TestSessionStorage
-from .test_tool_library import TestToolLibrary
+from .test_session_storage import SessionStorageStub
+from .test_tool_library import ToolLibraryStub
 
 
 def test_chat_with_regular_response():
@@ -103,16 +103,16 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     user_input_port = ConsoleUserInput(display.indent_level, io=io_spy)
     user_input = Input(user_input_port)
     user_input.stack(message)
-    test_session_storage = TestSessionStorage()
+    test_session_storage = SessionStorageStub()
     event_bus = SimpleEventBus()
     display_handler = DisplayEventHandler(display)
     event_bus.subscribe(EventType.ASSISTANT_SAID, display_handler.handle_assistant_says)
     event_bus.subscribe(EventType.TOOL_RESULT, display_handler.handle_tool_result)
     event_bus.subscribe(EventType.SESSION_ENDED, display_handler.handle_session_ended)
 
-    test_tool_library = TestToolLibrary(llm_stub, io=io_spy, interrupts=[ctrl_c_hits], event_bus=event_bus, display_handler=display_handler)
+    test_tool_library = ToolLibraryStub(llm_stub, io=io_spy, interrupts=[ctrl_c_hits], event_bus=event_bus, display_handler=display_handler)
 
-    run_session(False, user_input, display, test_session_storage, llm_stub, system_prompt_stub, event_bus, test_tool_library)
+    run_session(False, user_input, test_session_storage, llm_stub, system_prompt_stub, event_bus, display_handler, test_tool_library)
 
     result = f"# Standard out:\n{io_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
     verify(result, options=Options().with_scrubber(all_scrubbers()))

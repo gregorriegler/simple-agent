@@ -1,5 +1,4 @@
 # Standard out:
-Starting new session
 
 Agent: 🛠️ cat hello.txt
 

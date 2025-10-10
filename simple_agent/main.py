@@ -47,7 +47,7 @@ def main():
     else:
         display.start_new_session()
 
-    run_session(args.continue_session, _input, display, session_storage, claude_chat, system_prompt_generator, event_bus)
+    run_session(args.continue_session, _input, session_storage, claude_chat, system_prompt_generator, event_bus, display_handler)
 
 
 def parse_args(argv=None):
