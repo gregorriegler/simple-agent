@@ -7,6 +7,7 @@ from simple_agent.application.tool_result import ContinueResult, ToolResult
 from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
+from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
 from .base_tool import BaseTool
 
 
@@ -16,7 +17,7 @@ class Agent(Protocol):
 
 
 class AgentBuilder(Protocol):
-    def __call__(self, agent_id: str, user_input: Input, display: ConsoleDisplay) -> Agent:
+    def __call__(self, agent_id: str, user_input: Input, display: ConsoleDisplay, display_handler: DisplayEventHandler) -> Agent:
         ...
 
 
@@ -36,12 +37,15 @@ class SubagentTool(BaseTool):
         "🛠️ subagent Create a simple HTML page with a form"
     ]
 
-    def __init__(self, agent_builder: AgentBuilder, indent_level=0, io: IO | None = None):
+    def __init__(self, agent_builder: AgentBuilder, indent_level=0, io: IO | None = None, display_handler: DisplayEventHandler | None = None, parent_agent_id: str = "Agent"):
         super().__init__()
         self.agent_builder = agent_builder
         self.indent_level = indent_level
         self.io = io or StdIO()
+        self.display_handler = display_handler
+        self.parent_agent_id = parent_agent_id
         self.subagent_display = SubagentDisplay(self.indent_level + 1, self.io)
+        self.subagent_counter = 0
 
     def execute(self, args):
         if not args or not args.strip():
@@ -50,10 +54,13 @@ class SubagentTool(BaseTool):
             user_input_port = ConsoleUserInput(self.subagent_display.indent_level, self.io, allow_escape=False)
             user_input = Input(user_input_port)
             user_input.stack(args)
-            subagent_id = "Subagent"
-            subagent = self.agent_builder(subagent_id, user_input, self.subagent_display)
+            self.subagent_counter += 1
+            subagent_id = f"{self.parent_agent_id}/Subagent{self.subagent_counter}"
+            subagent = self.agent_builder(subagent_id, user_input, self.subagent_display, self.display_handler)
             subagent_messages = Messages()
             result = subagent.start(subagent_messages)
+            if self.display_handler:
+                del self.display_handler.displays[subagent_id]
             return ContinueResult(str(result))
         except Exception as e:
             return ContinueResult(f'STDERR: subagent error: {str(e)}')

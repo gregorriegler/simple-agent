@@ -22,6 +22,7 @@ def run_session(
     session_storage: SessionStorage,
     chat,
     system_prompt: SystemPrompt,
+    event_bus,
     tool_library=None
 ):
     messages = session_storage.load() if continue_session else Messages()
@@ -33,6 +34,6 @@ def run_session(
         display.start_new_session()
     agent_id = "Agent"
     if tool_library is None:
-        tool_library = AllTools(chat, agent_id=agent_id)
-    agent = Agent(agent_id, chat, system_prompt, user_input, tool_library, display, session_storage)
+        tool_library = AllTools(chat, agent_id=agent_id, event_bus=event_bus)
+    agent = Agent(agent_id, chat, system_prompt, user_input, tool_library, event_bus, session_storage)
     agent.start(persisted_messages)

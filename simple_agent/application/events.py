@@ -1,0 +1,46 @@
+from dataclasses import dataclass
+from enum import Enum
+
+
+@dataclass
+class AgentEvent:
+    agent_id: str
+
+
+@dataclass
+class AssistantSaidEvent(AgentEvent):
+    message: str
+
+
+@dataclass
+class ToolResultEvent(AgentEvent):
+    result: str
+
+
+@dataclass
+class SessionStartedEvent(AgentEvent):
+    is_continuation: bool
+
+
+@dataclass
+class SessionEndedEvent(AgentEvent):
+    pass
+
+
+@dataclass
+class UserPromptRequestedEvent(AgentEvent):
+    pass
+
+
+@dataclass
+class UserPromptedEvent(AgentEvent):
+    input_text: str
+
+
+class EventType(str, Enum):
+    ASSISTANT_SAID = "assistant_said"
+    TOOL_RESULT = "tool_result"
+    SESSION_STARTED = "session_started"
+    SESSION_ENDED = "session_ended"
+    USER_PROMPT_REQUESTED = "user_prompt_requested"
+    USER_PROMPTED = "user_prompted"

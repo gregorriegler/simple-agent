@@ -4,11 +4,14 @@ import argparse
 
 from simple_agent.application.input import Input
 from simple_agent.application.session import run_session, SessionArgs
+from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.events import EventType
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.claude.claude_config import load_claude_config
 from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
+from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
 from simple_agent.system_prompt_generator import generate_system_prompt
 
 
@@ -31,7 +34,20 @@ def main():
     claude_config = load_claude_config()
     claude_chat = ClaudeLLM(claude_config)
     system_prompt_generator = lambda tool_library: generate_system_prompt(tool_library)
-    run_session(args.continue_session, _input, display, session_storage, claude_chat, system_prompt_generator)
+
+    event_bus = SimpleEventBus()
+    display_handler = DisplayEventHandler(display)
+
+    event_bus.subscribe(EventType.ASSISTANT_SAID, display_handler.handle_assistant_says)
+    event_bus.subscribe(EventType.TOOL_RESULT, display_handler.handle_tool_result)
+    event_bus.subscribe(EventType.SESSION_ENDED, display_handler.handle_session_ended)
+
+    if args.continue_session:
+        display.continue_session()
+    else:
+        display.start_new_session()
+
+    run_session(args.continue_session, _input, display, session_storage, claude_chat, system_prompt_generator, event_bus)
 
 
 def parse_args(argv=None):

@@ -2,8 +2,8 @@ from simple_agent.tools import AllTools
 
 
 class TestToolLibrary(AllTools):
-    def __init__(self, llm, io=None, interrupts=None):
-        super().__init__(llm, io=io)
+    def __init__(self, llm, io=None, interrupts=None, event_bus=None, display_handler=None):
+        super().__init__(llm, io=io, event_bus=event_bus, display_handler=display_handler)
         self.interrupts = interrupts or []
         self.counter = 0
 

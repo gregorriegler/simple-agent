@@ -29,13 +29,15 @@ class ParsedTool:
 
 
 class AllTools:
-    def __init__(self, llm: LLM | None = None, indent_level=0, io: IO | None = None, agent_id: str = "Agent"):
+    def __init__(self, llm: LLM | None = None, indent_level=0, io: IO | None = None, agent_id: str = "Agent", event_bus=None, display_handler=None):
         if llm is None:
             llm = lambda system_prompt, messages: ''
         self.llm: LLM = llm
         self.indent_level = indent_level
         self.io = io or StdIO()
         self.agent_id = agent_id
+        self.event_bus = event_bus
+        self.display_handler = display_handler
 
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
@@ -64,10 +66,12 @@ class AllTools:
         self.tool_dict = {tool.name: tool for tool in self.tools}
 
     def _create_subagent_tool(self):
-        return SubagentTool(self._build_subagent_agent, self.indent_level, self.io)
+        return SubagentTool(self._build_subagent_agent, self.indent_level, self.io, self.display_handler, self.agent_id)
 
-    def _build_subagent_agent(self, agent_id, user_input, display):
-        subagent_tools = AllTools(self.llm, self.indent_level + 1, self.io, agent_id)
+    def _build_subagent_agent(self, agent_id, user_input, display, display_handler):
+        if display_handler:
+            display_handler.register_display(agent_id, display)
+        subagent_tools = AllTools(self.llm, self.indent_level + 1, self.io, agent_id, self.event_bus, display_handler)
         system_prompt = self._build_system_prompt(subagent_tools)
         session_storage = NoOpSessionStorage()
         return Agent(
@@ -76,7 +80,7 @@ class AllTools:
             system_prompt,
             user_input,
             subagent_tools,
-            display,
+            self.event_bus,
             session_storage
         )
 
