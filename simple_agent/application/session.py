@@ -13,6 +13,7 @@ class SessionArgs:
     continue_session: bool
     start_message: str | None
     show_system_prompt: bool = False
+    use_textual: bool = False
 
 
 def run_session(
