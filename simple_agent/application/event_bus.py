@@ -1,18 +1,18 @@
-from typing import Callable, Any, Dict, List
-from .event_bus_protocol import EventBus
+from typing import Any, Dict, List
+from .event_bus_protocol import EventBus, EventHandler
 
 
 class SimpleEventBus(EventBus):
 
     def __init__(self):
-        self._handlers: Dict[str, List[Callable[[Any], None]]] = {}
+        self._handlers: Dict[str, List[EventHandler]] = {}
 
-    def subscribe(self, event_type: str, handler: Callable[[Any], None]) -> None:
+    def subscribe(self, event_type: str, handler: EventHandler) -> None:
         if event_type not in self._handlers:
             self._handlers[event_type] = []
         self._handlers[event_type].append(handler)
 
-    def unsubscribe(self, event_type: str, handler: Callable[[Any], None]) -> None:
+    def unsubscribe(self, event_type: str, handler: EventHandler) -> None:
         if event_type in self._handlers:
             try:
                 self._handlers[event_type].remove(handler)
