@@ -106,7 +106,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     test_session_storage = SessionStorageStub()
     event_bus = SimpleEventBus()
     display_handler = DisplayEventHandler(display)
-    event_bus.subscribe(EventType.ASSISTANT_SAID, display_handler.handle_assistant_says)
+    event_bus.subscribe(EventType.ASSISTANT_SAID, display_handler.handle_assistant_said)
     event_bus.subscribe(EventType.TOOL_RESULT, display_handler.handle_tool_result)
     event_bus.subscribe(EventType.SESSION_STARTED, display_handler.handle_session_started)
     event_bus.subscribe(EventType.SESSION_ENDED, display_handler.handle_session_ended)
