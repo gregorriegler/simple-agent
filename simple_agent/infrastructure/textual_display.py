@@ -10,11 +10,9 @@ import threading
 class TextualDisplay(Display):
 
     def __init__(self, indent_level=0, agent_name="Agent", io: IO | None = None):
-        self.indent_level = indent_level
         self.agent_name = agent_name
         self.io = io or StdIO()
-        self.base_indent = "       " * (indent_level + 1)
-        self.agent_prefix = "       " * indent_level + f"{agent_name}: "
+        self.agent_prefix = f"{agent_name}: "
         self.app: TextualApp | None = None
         self.app_thread: threading.Thread | None = None
 
@@ -36,7 +34,7 @@ class TextualDisplay(Display):
         if lines and self.app:
             self.app.call_from_thread(self.app.write_message, f"\n{self.agent_prefix}{lines[0]}")
             for line in lines[1:]:
-                self.app.call_from_thread(self.app.write_message, f"{self.base_indent}{line}")
+                self.app.call_from_thread(self.app.write_message, line)
 
     def tool_result(self, result):
         self._ensure_app_running()
@@ -46,7 +44,7 @@ class TextualDisplay(Display):
             first_three_lines += '\n... (truncated)'
         if self.app:
             for line in first_three_lines.split('\n'):
-                self.app.call_from_thread(self.app.write_message, f"{self.base_indent}{line}")
+                self.app.call_from_thread(self.app.write_tool_result, line)
 
     def continue_session(self):
         self._ensure_app_running()
@@ -60,9 +58,8 @@ class TextualDisplay(Display):
 
     def exit(self):
         self._ensure_app_running()
-        exit_msg = "       " * self.indent_level + "Exiting..."
         if self.app:
-            self.app.call_from_thread(self.app.write_message, f"\n{exit_msg}")
+            self.app.call_from_thread(self.app.write_message, "\nExiting...")
             self.app.call_from_thread(self.app.exit)
 
 
@@ -94,12 +91,11 @@ class TextualApp(App):
         height: 100%;
     }
 
-    #hello-world {
+    #tool-results {
         background: $surface;
         color: $text;
         border: solid $primary;
         height: 100%;
-        content-align: center middle;
     }
     """
 
@@ -110,7 +106,7 @@ class TextualApp(App):
                 id="left-panel"
             ),
             Container(
-                Static("Hello World", id="hello-world"),
+                RichLog(highlight=True, markup=True, id="tool-results"),
                 id="right-panel"
             )
         )
@@ -119,3 +115,7 @@ class TextualApp(App):
     def write_message(self, message: str) -> None:
         log = self.query_one("#log", RichLog)
         log.write(message)
+
+    def write_tool_result(self, message: str) -> None:
+        tool_log = self.query_one("#tool-results", RichLog)
+        tool_log.write(message)
