@@ -38,12 +38,12 @@ def main():
     system_prompt_generator = lambda tool_library: generate_system_prompt(tool_library)
 
     event_bus = SimpleEventBus()
-    display_handler = DisplayEventHandler(display)
+    display_event_handler = DisplayEventHandler(display)
 
-    event_bus.subscribe(EventType.SESSION_STARTED, display_handler.handle_session_started)
-    event_bus.subscribe(EventType.ASSISTANT_SAID, display_handler.handle_assistant_says)
-    event_bus.subscribe(EventType.TOOL_RESULT, display_handler.handle_tool_result)
-    event_bus.subscribe(EventType.SESSION_ENDED, display_handler.handle_session_ended)
+    event_bus.subscribe(EventType.SESSION_STARTED, display_event_handler.handle_session_started)
+    event_bus.subscribe(EventType.ASSISTANT_SAID, display_event_handler.handle_assistant_says)
+    event_bus.subscribe(EventType.TOOL_RESULT, display_event_handler.handle_tool_result)
+    event_bus.subscribe(EventType.SESSION_ENDED, display_event_handler.handle_session_ended)
 
     run_session(
         args.continue_session,
@@ -52,7 +52,7 @@ def main():
         llm,
         system_prompt_generator,
         event_bus,
-        display_handler
+        display_event_handler
     )
 
 
