@@ -52,10 +52,10 @@ def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Simple Agent")
     parser.add_argument("-c", "--continue", action="store_true", help="Continue previous session")
     parser.add_argument("-s", "--system-prompt", action="store_true", help="Print the current system prompt including AGENTS.md content")
-    parser.add_argument("--console", action="store_true", help="Use console display instead of Textual TUI (default: Textual)")
+    parser.add_argument("-ui", "--user-interface", choices=["textual", "console"], default="textual", help="Choose the user interface (default: textual)")
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
     parsed = parser.parse_args(argv)
-    display_type = DisplayType.CONSOLE if getattr(parsed, "console") else DisplayType.TEXTUAL
+    display_type = DisplayType(getattr(parsed, "user_interface"))
     return SessionArgs(bool(getattr(parsed, "continue")), build_start_message(parsed.message), bool(getattr(parsed, "system_prompt")), display_type)
 
 
