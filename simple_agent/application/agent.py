@@ -1,4 +1,4 @@
-from .llm import LLM
+from .llm import LLM, Messages
 from .session_storage import SessionStorage
 from .tool_library_protocol import ToolLibrary
 from .tool_result import ToolResult, ContinueResult
@@ -18,7 +18,7 @@ class Agent:
         self.event_bus = event_bus
         self.session_storage = session_storage
 
-    def start(self, context):
+    def start(self, context = Messages()):
         try:
             tool_result: ToolResult = ContinueResult()
 

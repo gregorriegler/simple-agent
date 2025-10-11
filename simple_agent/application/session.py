@@ -28,9 +28,6 @@ def run_session(
     display_event_handler=None,
     tool_library=None
 ):
-    messages = session_storage.load() if continue_session else Messages()
-    persisted_messages = PersistedMessages(messages, session_storage)
-
     agent_id = "Agent"
     event_bus.publish(EventType.SESSION_STARTED, SessionStartedEvent(agent_id, continue_session))
 
@@ -46,4 +43,7 @@ def run_session(
         event_bus,
         session_storage
     )
+
+    messages = session_storage.load() if continue_session else Messages()
+    persisted_messages = PersistedMessages(messages, session_storage)
     agent.start(persisted_messages)

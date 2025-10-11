@@ -12,7 +12,7 @@ from .base_tool import BaseTool
 
 
 class Agent(Protocol):
-    def start(self, context: Messages) -> ToolResult:
+    def start(self, context: Messages = Messages()) -> ToolResult:
         ...
 
 
@@ -76,8 +76,7 @@ class SubagentTool(BaseTool):
                 self.subagent_display,
                 self.display_event_handler
             )
-            subagent_messages = Messages()
-            result = subagent.start(subagent_messages)
+            result = subagent.start()
             del self.display_event_handler.displays[subagent_id]
             return ContinueResult(str(result))
         except Exception as e:
