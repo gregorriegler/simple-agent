@@ -95,8 +95,12 @@ class AllTools:
     def _create_subagent_tool(self):
         subagent_display = self._create_subagent_display()
         return SubagentTool(
-            self._build_subagent_agent, subagent_display, self.indent_level, self.io,
-            self.display_event_handler, self.agent_id
+            self._build_subagent_agent,
+            subagent_display,
+            self.indent_level,
+            self.io,
+            self.display_event_handler,
+            self.agent_id
         )
 
     def _create_subagent_display(self) -> Display:
