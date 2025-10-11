@@ -1,4 +1,5 @@
 # Standard out:
+Starting new session
 
 Agent: Hello!
        🛠️ complete-task I successfully said hello

@@ -1,4 +1,5 @@
 # Standard out:
+Starting new session
 
 Agent: 🛠️ cat /tmp/test_path/integration_test.txt
 

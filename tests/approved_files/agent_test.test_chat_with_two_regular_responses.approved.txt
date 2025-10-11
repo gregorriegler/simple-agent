@@ -1,4 +1,5 @@
 # Standard out:
+Starting new session
 
 Agent: Answer 1
 

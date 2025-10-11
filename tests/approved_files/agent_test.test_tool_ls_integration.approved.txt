@@ -1,4 +1,5 @@
 # Standard out:
+Starting new session
 
 Agent: 🛠️ ls /tmp/test_path
 

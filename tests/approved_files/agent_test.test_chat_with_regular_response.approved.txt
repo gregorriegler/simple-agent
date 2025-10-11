@@ -1,4 +1,5 @@
 # Standard out:
+Starting new session
 
 Agent: Hello! How can I help you?
 

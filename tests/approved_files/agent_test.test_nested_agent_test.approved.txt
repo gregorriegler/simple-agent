@@ -1,4 +1,5 @@
 # Standard out:
+Starting new session
 
 Agent: 🛠️ subagent create another subagent
 
