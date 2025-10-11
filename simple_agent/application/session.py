@@ -20,19 +20,15 @@ class SessionArgs:
 
 def run_session(
     continue_session: bool,
-    user_input,
-    session_storage: SessionStorage,
-    llm,
+    agent_id,
     system_prompt: SystemPrompt,
-    event_bus,
-    display_event_handler=None,
-    tool_library=None
+    user_input,
+    llm,
+    tool_library,
+    session_storage: SessionStorage,
+    event_bus
 ):
-    agent_id = "Agent"
     event_bus.publish(EventType.SESSION_STARTED, SessionStartedEvent(agent_id, continue_session))
-
-    if tool_library is None:
-        tool_library = AllTools(llm, agent_id, event_bus, display_event_handler)
 
     agent = Agent(
         agent_id,

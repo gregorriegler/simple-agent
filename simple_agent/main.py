@@ -46,14 +46,9 @@ def main():
     event_bus.subscribe(EventType.SESSION_ENDED, display_event_handler.handle_session_ended)
 
     run_session(
-        args.continue_session,
-        _input,
-        session_storage,
-        llm,
-        system_prompt_generator,
-        event_bus,
-        display_event_handler
-    )
+        args.continue_session, "Agent", system_prompt_generator, _input, llm,
+        AllTools(llm, agent_id, event_bus, display_event_handler), session_storage, event_bus
+        )
 
 
 def parse_args(argv=None):

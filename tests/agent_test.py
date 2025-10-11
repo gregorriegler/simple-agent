@@ -113,7 +113,9 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
 
     test_tool_library = ToolLibraryStub(llm_stub, io=io_spy, interrupts=[ctrl_c_hits], event_bus=event_bus, display_event_handler=display_handler)
 
-    run_session(False, user_input, test_session_storage, llm_stub, system_prompt_stub, event_bus, display_handler, test_tool_library)
+    run_session(
+        False, "Agent", system_prompt_stub, user_input, llm_stub, test_tool_library, test_session_storage, event_bus
+        )
 
     result = f"# Standard out:\n{io_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
     verify(result, options=Options().with_scrubber(all_scrubbers()))
