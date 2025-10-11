@@ -18,6 +18,8 @@ from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
 from .subagent_tool import SubagentTool
 from .write_todos_tool import WriteTodosTool
+from ..application.input import Input
+from ..infrastructure.console_user_input import ConsoleUserInput
 
 
 class SubagentConsoleDisplay(ConsoleDisplay):
@@ -93,10 +95,10 @@ class AllTools(ToolLibrary):
         return SubagentTool(
             self._create_agent,
             self._create_subagent_display,
-            self.io,
             self.indent_level,
             self.agent_id,
-            self.display_event_handler
+            self.display_event_handler,
+            Input(ConsoleUserInput(self.indent_level + 1, self.io))
         )
 
     def _create_subagent_display(self) -> Display:

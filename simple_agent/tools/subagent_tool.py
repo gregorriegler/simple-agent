@@ -1,13 +1,10 @@
 from typing import Protocol
 
-from simple_agent.application.input import Input
-from simple_agent.application.io import IO
-from simple_agent.application.tool_library import ContinueResult
-from simple_agent.infrastructure.console_user_input import ConsoleUserInput
-from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
-from simple_agent.infrastructure.stdio import StdIO
-from .base_tool import BaseTool
 from simple_agent.application.agent import Agent
+from simple_agent.application.input import Input
+from simple_agent.application.tool_library import ContinueResult
+from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
+from .base_tool import BaseTool
 
 
 class CreateAgent(Protocol):
@@ -40,32 +37,28 @@ class SubagentTool(BaseTool):
         self,
         create_agent: CreateAgent,
         create_display,
-        io: IO,
         indent_level: int,
         parent_agent_id: str,
-        display_event_handler
+        display_event_handler,
+        user_input: Input
     ):
         super().__init__()
         self.create_agent = create_agent
         self.create_display = create_display
-        self.io = io or StdIO()
         self.indent_level = indent_level
         self.parent_agent_id = parent_agent_id
         self.display_event_handler = display_event_handler
-        self.subagent_counter = 0
+        self.user_input = user_input
 
     def execute(self, args):
         if not args or not args.strip():
             return ContinueResult('STDERR: subagent: missing task description')
         try:
-            self.subagent_counter += 1
-            user_input_port = ConsoleUserInput(self.indent_level + 1, self.io)
-            user_input = Input(user_input_port)
-            user_input.stack(args)
-            agent_id = f"{self.parent_agent_id}/Subagent{self.subagent_counter}"
+            self.user_input.stack(args)
+            agent_id = f"{self.parent_agent_id}/Subagent{self.indent_level + 1}"
             subagent = self.create_agent(
                 agent_id,
-                user_input,
+                self.user_input,
                 self.display_event_handler
             )
             if self.display_event_handler:
