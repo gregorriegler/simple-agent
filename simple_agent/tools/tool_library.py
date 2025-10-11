@@ -69,8 +69,7 @@ class AllTools:
 
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
-        subagent_tool = self._create_subagent_tool()
-        self.tools = static_tools + dynamic_tools + [subagent_tool]
+        self.tools = static_tools + dynamic_tools + [self._create_subagent_tool()]
         self.tool_dict = {tool.name: tool for tool in self.tools}
 
     def _create_static_tools(self):
@@ -93,12 +92,12 @@ class AllTools:
     def _create_subagent_tool(self):
         subagent_display = self._create_subagent_display()
         return SubagentTool(
-            self._build_subagent_agent,
+            self._create_subagent,
             subagent_display,
-            self.indent_level,
             self.io,
             self.display_event_handler,
-            self.agent_id
+            self.agent_id,
+            self.indent_level
         )
 
     def _create_subagent_display(self) -> Display:
@@ -108,7 +107,15 @@ class AllTools:
                 return SubagentTextualDisplay(self.indent_level + 1, self.io)
         return SubagentConsoleDisplay(self.indent_level + 1, self.io)
 
-    def _build_subagent_agent(self, agent_id, user_input, display, display_handler):
+    def _create_subagent(
+        self,
+        parent_agent_id,
+        subagent_counter,
+        user_input,
+        display,
+        display_handler
+    ):
+        agent_id = f"{parent_agent_id}/Subagent{subagent_counter}"
         if display_handler:
             display_handler.register_display(agent_id, display)
         subagent_tools = AllTools(

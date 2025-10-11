@@ -1,22 +1,17 @@
 from typing import Protocol
 
 from simple_agent.application.display import Display
-from simple_agent.application.io import IO
 from simple_agent.application.input import Input
-from simple_agent.application.llm import Messages
-from simple_agent.application.tool_result import ContinueResult, ToolResult
+from simple_agent.application.io import IO
+from simple_agent.application.tool_result import ContinueResult
 from simple_agent.infrastructure.console_user_input import ConsoleUserInput
-from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
+from simple_agent.infrastructure.stdio import StdIO
 from .base_tool import BaseTool
+from ..application.agent import Agent
 
 
-class Agent(Protocol):
-    def start(self, context: Messages = Messages()) -> ToolResult:
-        ...
-
-
-class AgentBuilder(Protocol):
+class CreateAgent(Protocol):
     def __call__(
         self,
         agent_id: str,
@@ -44,16 +39,15 @@ class SubagentTool(BaseTool):
     ]
 
     def __init__(
-        self,
-        agent_builder: AgentBuilder,
+        self, create_agent: CreateAgent,
         display: Display,
-        indent_level=0
-        , io: IO | None = None,
+        io: IO | None = None,
         display_handler: DisplayEventHandler | None = None,
-        parent_agent_id: str = "Agent"
+        parent_agent_id: str = "Agent",
+        indent_level=0
     ):
         super().__init__()
-        self.agent_builder = agent_builder
+        self.create_agent = create_agent
         self.indent_level = indent_level
         self.io = io or StdIO()
         self.display_event_handler = display_handler
@@ -70,8 +64,9 @@ class SubagentTool(BaseTool):
             user_input.stack(args)
             self.subagent_counter += 1
             subagent_id = f"{self.parent_agent_id}/Subagent{self.subagent_counter}"
-            subagent = self.agent_builder(
-                subagent_id,
+            subagent = self.create_agent(
+                self.parent_agent_id,
+                self.subagent_counter,
                 user_input,
                 self.subagent_display,
                 self.display_event_handler
