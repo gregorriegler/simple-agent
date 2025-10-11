@@ -1,5 +1,6 @@
 from simple_agent.application.display import Display
-from simple_agent.application.events import AssistantSaidEvent, ToolResultEvent, SessionEndedEvent, SessionStartedEvent
+from simple_agent.application.events import AssistantSaidEvent, ToolResultEvent, SessionEndedEvent, SessionStartedEvent, \
+    ToolCalledEvent
 
 
 class DisplayEventHandler:
@@ -19,6 +20,10 @@ class DisplayEventHandler:
     def handle_assistant_said(self, event: AssistantSaidEvent) -> None:
         display = self.displays.get(event.agent_id)
         display.assistant_says(event.message)
+
+    def handle_tool_called(self, event: ToolCalledEvent) -> None:
+        display = self.displays.get(event.agent_id)
+        display.tool_call(event.tool)
 
     def handle_tool_result(self, event: ToolResultEvent) -> None:
         display = self.displays.get(event.agent_id)

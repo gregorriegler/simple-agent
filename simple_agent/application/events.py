@@ -11,6 +11,9 @@ class AgentEvent:
 class AssistantSaidEvent(AgentEvent):
     message: str
 
+@dataclass
+class ToolCalledEvent(AgentEvent):
+    tool: any
 
 @dataclass
 class ToolResultEvent(AgentEvent):
@@ -38,6 +41,7 @@ class UserPromptedEvent(AgentEvent):
 
 
 class EventType(str, Enum):
+    TOOL_CALLED = "tool_called"
     ASSISTANT_SAID = "assistant_said"
     TOOL_RESULT = "tool_result"
     SESSION_STARTED = "session_started"

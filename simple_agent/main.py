@@ -46,6 +46,7 @@ def main():
 
     event_bus.subscribe(EventType.SESSION_STARTED, display_event_handler.handle_session_started)
     event_bus.subscribe(EventType.ASSISTANT_SAID, display_event_handler.handle_assistant_said)
+    event_bus.subscribe(EventType.TOOL_CALLED, display_event_handler.handle_tool_called)
     event_bus.subscribe(EventType.TOOL_RESULT, display_event_handler.handle_tool_result)
     event_bus.subscribe(EventType.SESSION_ENDED, display_event_handler.handle_session_ended)
 

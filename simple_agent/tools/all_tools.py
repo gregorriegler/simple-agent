@@ -32,7 +32,7 @@ class SubagentConsoleDisplay(ConsoleDisplay):
 
 class SubagentTextualDisplay(TextualDisplay):
     def __init__(self, indent_level=1, io: IO | None = None):
-        super().__init__(indent_level, "Subagent", io)
+        super().__init__("Subagent", io)
 
     def exit(self):
         pass

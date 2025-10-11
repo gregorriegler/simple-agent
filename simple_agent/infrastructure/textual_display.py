@@ -9,7 +9,7 @@ import threading
 
 class TextualDisplay(Display):
 
-    def __init__(self, indent_level=0, agent_name="Agent", io: IO | None = None):
+    def __init__(self, agent_name="Agent", io: IO | None = None):
         self.agent_name = agent_name
         self.io = io or StdIO()
         self.agent_prefix = f"{agent_name}: "
@@ -35,6 +35,12 @@ class TextualDisplay(Display):
             self.app.call_from_thread(self.app.write_message, f"\n{self.agent_prefix}{lines[0]}")
             for line in lines[1:]:
                 self.app.call_from_thread(self.app.write_message, line)
+
+    def tool_call(self, tool):
+        self._ensure_app_running()
+        lines = str(tool).split('\n')
+        if self.app:
+            self.app.call_from_thread(self.app.write_tool_result, lines)
 
     def tool_result(self, result):
         self._ensure_app_running()

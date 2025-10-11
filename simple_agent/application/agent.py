@@ -2,7 +2,7 @@ from .llm import LLM, Messages
 from .session_storage import SessionStorage
 from .tool_library import ToolResult, ContinueResult, ToolLibrary
 from .event_bus_protocol import EventBus
-from .events import AssistantSaidEvent, ToolResultEvent, SessionEndedEvent, UserPromptRequestedEvent, UserPromptedEvent, \
+from .events import AssistantSaidEvent, ToolCalledEvent, ToolResultEvent, SessionEndedEvent, UserPromptRequestedEvent, UserPromptedEvent, \
     EventType
 
 
@@ -61,6 +61,7 @@ class Agent:
         return answer
 
     def execute_tool(self, tool, context):
+        self.event_bus.publish(EventType.TOOL_CALLED, ToolCalledEvent(self.agent_id, tool))
         tool_result = self.tools.execute_parsed_tool(tool)
         self.event_bus.publish(EventType.TOOL_RESULT, ToolResultEvent(self.agent_id, str(tool_result)))
         if isinstance(tool_result, ContinueResult):
