@@ -1,6 +1,5 @@
 from typing import Protocol
 
-from simple_agent.application.display import Display
 from simple_agent.application.input import Input
 from simple_agent.application.io import IO
 from simple_agent.application.tool_library import ContinueResult
@@ -38,39 +37,43 @@ class SubagentTool(BaseTool):
     ]
 
     def __init__(
-        self, create_agent: CreateAgent,
-        display: Display,
-        io: IO | None = None,
-        display_handler: DisplayEventHandler | None = None,
-        parent_agent_id: str = "Agent",
-        indent_level=0
+        self,
+        create_agent: CreateAgent,
+        create_display,
+        io: IO,
+        indent_level: int,
+        parent_agent_id: str,
+        display_event_handler
     ):
         super().__init__()
         self.create_agent = create_agent
-        self.indent_level = indent_level
+        self.create_display = create_display
         self.io = io or StdIO()
-        self.display_event_handler = display_handler
+        self.indent_level = indent_level
         self.parent_agent_id = parent_agent_id
-        self.subagent_display = display
+        self.display_event_handler = display_event_handler
         self.subagent_counter = 0
 
     def execute(self, args):
         if not args or not args.strip():
             return ContinueResult('STDERR: subagent: missing task description')
         try:
+            self.subagent_counter += 1
             user_input_port = ConsoleUserInput(self.indent_level + 1, self.io)
             user_input = Input(user_input_port)
             user_input.stack(args)
-            agent_id = f"{self.parent_agent_id}/Subagent{++self.subagent_counter}"
+            agent_id = f"{self.parent_agent_id}/Subagent{self.subagent_counter}"
             subagent = self.create_agent(
                 agent_id,
                 user_input,
                 self.display_event_handler
             )
             if self.display_event_handler:
-                self.display_event_handler.register_display(subagent.agent_id, self.subagent_display)
+                subagent_display = self.create_display()
+                self.display_event_handler.register_display(subagent.agent_id, subagent_display)
             result = subagent.start()
-            del self.display_event_handler.displays[subagent.agent_id]
+            if self.display_event_handler:
+                del self.display_event_handler.displays[subagent.agent_id]
             return ContinueResult(str(result))
         except Exception as e:
             return ContinueResult(f'STDERR: subagent error: {str(e)}')

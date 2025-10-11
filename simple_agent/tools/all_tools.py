@@ -5,6 +5,7 @@ from simple_agent.application.display import Display
 from simple_agent.application.io import IO
 from simple_agent.application.llm import LLM
 from simple_agent.application.session_storage import NoOpSessionStorage
+from simple_agent.application.tool_library import ToolLibrary
 from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual_display import TextualDisplay
@@ -17,7 +18,6 @@ from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
 from .subagent_tool import SubagentTool
 from .write_todos_tool import WriteTodosTool
-from simple_agent.application.tool_library import ToolLibrary
 
 
 class SubagentConsoleDisplay(ConsoleDisplay):
@@ -90,14 +90,13 @@ class AllTools(ToolLibrary):
         return []
 
     def _create_subagent_tool(self):
-        subagent_display = self._create_subagent_display()
         return SubagentTool(
             self._create_agent,
-            subagent_display,
+            self._create_subagent_display,
             self.io,
-            self.display_event_handler,
+            self.indent_level,
             self.agent_id,
-            self.indent_level
+            self.display_event_handler
         )
 
     def _create_subagent_display(self) -> Display:
