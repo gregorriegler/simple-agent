@@ -112,19 +112,16 @@ class AllTools:
         parent_agent_id,
         subagent_counter,
         user_input,
-        display,
-        display_handler
+        display_event_handler
     ):
         agent_id = f"{parent_agent_id}/Subagent{subagent_counter}"
-        if display_handler:
-            display_handler.register_display(agent_id, display)
         subagent_tools = AllTools(
             self.llm,
             self.indent_level + 1,
             self.io,
             agent_id,
             self.event_bus,
-            display_handler
+            display_event_handler
         )
         system_prompt = self._build_system_prompt(subagent_tools)
         session_storage = NoOpSessionStorage()

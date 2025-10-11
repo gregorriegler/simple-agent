@@ -15,8 +15,8 @@ class CreateAgent(Protocol):
     def __call__(
         self,
         agent_id: str,
+        subagent_counter: int,
         user_input: Input,
-        display: Display,
         display_event_handler: DisplayEventHandler
     ) -> Agent:
         ...
@@ -66,9 +66,10 @@ class SubagentTool(BaseTool):
                 self.parent_agent_id,
                 ++self.subagent_counter,
                 user_input,
-                self.subagent_display,
                 self.display_event_handler
             )
+            if self.display_event_handler:
+                self.display_event_handler.register_display(subagent.agent_id, self.subagent_display)
             result = subagent.start()
             del self.display_event_handler.displays[subagent.agent_id]
             return ContinueResult(str(result))
