@@ -5,6 +5,7 @@ from simple_agent.application.llm import Messages
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.system_prompt_generator import SystemPrompt
+from simple_agent.application.events import SessionStartedEvent, EventType
 from simple_agent.tools import AllTools
 
 
@@ -29,6 +30,8 @@ def run_session(
     persisted_messages = PersistedMessages(messages, session_storage)
 
     agent_id = "Agent"
+    event_bus.publish(EventType.SESSION_STARTED, SessionStartedEvent(agent_id, continue_session))
+
     if tool_library is None:
         tool_library = AllTools(chat, agent_id=agent_id, event_bus=event_bus, display_handler=display_handler)
     agent = Agent(agent_id, chat, system_prompt, user_input, tool_library, event_bus, session_storage)

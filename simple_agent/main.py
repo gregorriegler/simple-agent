@@ -38,14 +38,10 @@ def main():
     event_bus = SimpleEventBus()
     display_handler = DisplayEventHandler(display)
 
+    event_bus.subscribe(EventType.SESSION_STARTED, display_handler.handle_session_started)
     event_bus.subscribe(EventType.ASSISTANT_SAID, display_handler.handle_assistant_says)
     event_bus.subscribe(EventType.TOOL_RESULT, display_handler.handle_tool_result)
     event_bus.subscribe(EventType.SESSION_ENDED, display_handler.handle_session_ended)
-
-    if args.continue_session:
-        display.continue_session()
-    else:
-        display.start_new_session()
 
     run_session(args.continue_session, _input, session_storage, claude_chat, system_prompt_generator, event_bus, display_handler)
 

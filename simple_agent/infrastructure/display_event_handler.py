@@ -1,5 +1,5 @@
 from simple_agent.application.display import Display
-from simple_agent.application.events import AssistantSaidEvent, ToolResultEvent, SessionEndedEvent
+from simple_agent.application.events import AssistantSaidEvent, ToolResultEvent, SessionEndedEvent, SessionStartedEvent
 
 
 class DisplayEventHandler:
@@ -16,6 +16,13 @@ class DisplayEventHandler:
     def handle_tool_result(self, event: ToolResultEvent) -> None:
         display = self.displays.get(event.agent_id, self.displays["Agent"])
         display.tool_result(event.result)
+
+    def handle_session_started(self, event: SessionStartedEvent) -> None:
+        display = self.displays.get(event.agent_id, self.displays["Agent"])
+        if event.is_continuation:
+            display.continue_session()
+        else:
+            display.start_new_session()
 
     def handle_session_ended(self, event: SessionEndedEvent) -> None:
         display = self.displays.get(event.agent_id, self.displays["Agent"])
