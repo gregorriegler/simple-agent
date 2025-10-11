@@ -5,7 +5,7 @@ from simple_agent.infrastructure.stdio import StdIO
 
 class ConsoleUserInput(UserInput):
 
-    def __init__(self, indent_level=0, io: IO | None = None):
+    def __init__(self, indent_level, io: IO):
         self.indent_level = indent_level
         self.io = io or StdIO()
 
