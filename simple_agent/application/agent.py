@@ -33,10 +33,10 @@ class Agent:
             while self.user_prompts(context):
                 tool_result = self.run_tool_loop(context)
 
-            self.event_bus.publish(EventType.SESSION_ENDED, SessionEndedEvent(self.agent_id))
+            self.notify_session_ended()
             return tool_result
         except (EOFError, KeyboardInterrupt):
-            self.event_bus.publish(EventType.SESSION_ENDED, SessionEndedEvent(self.agent_id))
+            self.notify_session_ended()
             return ContinueResult()
 
     def run_tool_loop(self, context):
@@ -75,3 +75,6 @@ class Agent:
         if isinstance(tool_result, ContinueResult):
             context.user_says(f"Result of {tool}\n{tool_result}")
         return tool_result
+
+    def notify_session_ended(self):
+        self.event_bus.publish(EventType.SESSION_ENDED, SessionEndedEvent(self.agent_id))
