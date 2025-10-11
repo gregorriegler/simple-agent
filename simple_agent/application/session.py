@@ -6,6 +6,7 @@ from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.system_prompt_generator import SystemPrompt
 from simple_agent.application.events import SessionStartedEvent, EventType
+from simple_agent.application.display_type import DisplayType
 from simple_agent.tools import AllTools
 
 
@@ -14,6 +15,7 @@ class SessionArgs:
     continue_session: bool
     start_message: str | None
     show_system_prompt: bool = False
+    display_type: DisplayType = DisplayType.TEXTUAL
 
 
 def run_session(
