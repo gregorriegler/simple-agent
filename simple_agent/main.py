@@ -45,18 +45,29 @@ def main():
     event_bus.subscribe(EventType.TOOL_RESULT, display_handler.handle_tool_result)
     event_bus.subscribe(EventType.SESSION_ENDED, display_handler.handle_session_ended)
 
-    run_session(args.continue_session, _input, session_storage, claude_chat, system_prompt_generator, event_bus, display_handler)
+    run_session(
+        args.continue_session,
+        _input,
+        session_storage,
+        claude_chat,
+        system_prompt_generator,
+        event_bus,
+        display_handler
+    )
 
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Simple Agent")
     parser.add_argument("-c", "--continue", action="store_true", help="Continue previous session")
-    parser.add_argument("-s", "--system-prompt", action="store_true", help="Print the current system prompt including AGENTS.md content")
-    parser.add_argument("-ui", "--user-interface", choices=["textual", "console"], default="textual", help="Choose the user interface (default: textual)")
+    parser.add_argument("-s", "--system-prompt", action="store_true",
+                        help="Print the current system prompt including AGENTS.md content")
+    parser.add_argument("-ui", "--user-interface", choices=["textual", "console"], default="textual",
+                        help="Choose the user interface (default: textual)")
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
     parsed = parser.parse_args(argv)
     display_type = DisplayType(getattr(parsed, "user_interface"))
-    return SessionArgs(bool(getattr(parsed, "continue")), build_start_message(parsed.message), bool(getattr(parsed, "system_prompt")), display_type)
+    return SessionArgs(bool(getattr(parsed, "continue")), build_start_message(parsed.message),
+                       bool(getattr(parsed, "system_prompt")), display_type)
 
 
 def build_start_message(message_parts):
