@@ -63,7 +63,6 @@ class SubagentTool(BaseTool):
             user_input = Input(user_input_port)
             user_input.stack(args)
             self.subagent_counter += 1
-            subagent_id = f"{self.parent_agent_id}/Subagent{self.subagent_counter}"
             subagent = self.create_agent(
                 self.parent_agent_id,
                 self.subagent_counter,
@@ -72,7 +71,7 @@ class SubagentTool(BaseTool):
                 self.display_event_handler
             )
             result = subagent.start()
-            del self.display_event_handler.displays[subagent_id]
+            del self.display_event_handler.displays[subagent.agent_id]
             return ContinueResult(str(result))
         except Exception as e:
             return ContinueResult(f'STDERR: subagent error: {str(e)}')
