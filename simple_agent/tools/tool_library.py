@@ -69,7 +69,7 @@ class AllTools:
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
         self.tools = static_tools + dynamic_tools
-        self._build_tool_dict()
+        self.tool_dict = {tool.name: tool for tool in self.tools}
 
     def _create_static_tools(self):
         return [
@@ -88,9 +88,6 @@ class AllTools:
 
     def _discover_dynamic_tools(self):
         return []
-
-    def _build_tool_dict(self):
-        self.tool_dict = {tool.name: tool for tool in self.tools}
 
     def _create_subagent_tool(self):
         subagent_display = self._create_subagent_display()
