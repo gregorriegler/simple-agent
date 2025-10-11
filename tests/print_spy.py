@@ -1,4 +1,7 @@
-class IOSpy:
+from simple_agent.application.io import IO
+
+
+class IOSpy(IO):
     def __init__(self, inputs=None, interrupts=None):
         self._inputs = []
         self._escape_responses = []

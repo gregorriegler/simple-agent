@@ -48,35 +48,43 @@ def test_tool_ls_integration(tmp_path):
 
 
 def test_chat_with_task_completion():
-    verify_chat(["Say Hello", "\n"], [
-        "Hello!\n🛠️ complete-task I successfully said hello",
-        "ignored"
-    ])
+    verify_chat(
+        ["Say Hello", "\n"], [
+            "Hello!\n🛠️ complete-task I successfully said hello",
+            "ignored"
+        ]
+    )
 
 
 def test_subagent():
-    verify_chat(["Create a subagent that says hello", "\n"], [
-        "🛠️ subagent say hello",
-        "hello\n🛠️ complete-task I successfully said hello"
-    ])
+    verify_chat(
+        ["Create a subagent that says hello", "\n"], [
+            "🛠️ subagent say hello",
+            "hello\n🛠️ complete-task I successfully said hello"
+        ]
+    )
 
 
 def test_nested_agent_test():
-    verify_chat(["Create a subagent that creates another subagent", "\n"], [
-        "🛠️ subagent create another subagent",
-        "🛠️ subagent say nested hello",
-        "nested hello\n🛠️ complete-task I successfully said nested hello",
-        "🛠️ complete-task I successfully created another subagent",
-        "🛠️ complete-task I successfully created a subagent"
-    ])
+    verify_chat(
+        ["Create a subagent that creates another subagent", "\n"], [
+            "🛠️ subagent create another subagent",
+            "🛠️ subagent say nested hello",
+            "nested hello\n🛠️ complete-task I successfully said nested hello",
+            "🛠️ complete-task I successfully created another subagent",
+            "🛠️ complete-task I successfully created a subagent"
+        ]
+    )
 
 
 def test_agent_says_after_subagent():
-    verify_chat(["Create a subagent that says hello, then say goodbye", "\n"], [
-        "🛠️ subagent say hello",
-        "hello\n🛠️ complete-task I successfully said hello",
-        "goodbye"
-    ])
+    verify_chat(
+        ["Create a subagent that says hello, then say goodbye", "\n"], [
+            "🛠️ subagent say hello",
+            "hello\n🛠️ complete-task I successfully said hello",
+            "goodbye"
+        ]
+    )
 
 
 def test_escape_reads_follow_up_message():
@@ -92,7 +100,9 @@ def test_interrupt_reads_follow_up_message():
 
 
 def test_interrupt_aborts_tool_call():
-    verify_chat(["Hello", "Follow-up message", "\n"], ["🛠️ cat hello.txt", "🛠️ complete-task summary"], [], [True, False])
+    verify_chat(
+        ["Hello", "Follow-up message", "\n"], ["🛠️ cat hello.txt", "🛠️ complete-task summary"], [], [True, False]
+    )
 
 
 def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
@@ -111,11 +121,24 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     event_bus.subscribe(EventType.SESSION_STARTED, display_handler.handle_session_started)
     event_bus.subscribe(EventType.SESSION_ENDED, display_handler.handle_session_ended)
 
-    test_tool_library = ToolLibraryStub(llm_stub, io=io_spy, interrupts=[ctrl_c_hits], event_bus=event_bus, display_event_handler=display_handler)
+    test_tool_library = ToolLibraryStub(
+        llm_stub,
+        io=io_spy,
+        interrupts=[ctrl_c_hits],
+        event_bus=event_bus,
+        display_event_handler=display_handler
+    )
 
     run_session(
-        False, "Agent", system_prompt_stub, user_input, llm_stub, test_tool_library, test_session_storage, event_bus
-        )
+        False,
+        "Agent",
+        system_prompt_stub,
+        user_input,
+        llm_stub,
+        test_tool_library,
+        test_session_storage,
+        event_bus
+    )
 
     result = f"# Standard out:\n{io_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
     verify(result, options=Options().with_scrubber(all_scrubbers()))
