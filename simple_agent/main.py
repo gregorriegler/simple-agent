@@ -21,7 +21,7 @@ def main():
     args = parse_args()
 
     if args.show_system_prompt:
-        from simple_agent.tools.tool_library import AllTools
+        from simple_agent.tools.all_tools import AllTools
         tool_library = AllTools()
         system_prompt = generate_system_prompt(tool_library)
         print(system_prompt)
