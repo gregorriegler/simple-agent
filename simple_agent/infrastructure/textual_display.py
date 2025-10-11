@@ -1,6 +1,6 @@
 from textual.app import App, ComposeResult
-from textual.widgets import RichLog, Footer
-from textual.containers import Container
+from textual.widgets import RichLog, Footer, Static
+from textual.containers import Container, Horizontal
 from simple_agent.application.display import Display
 from simple_agent.application.io import IO
 from simple_agent.infrastructure.stdio import StdIO
@@ -73,18 +73,48 @@ class TextualApp(App):
         background: $surface;
     }
 
+    Horizontal {
+        height: 100%;
+    }
+
+    #left-panel {
+        width: 50%;
+        height: 100%;
+    }
+
+    #right-panel {
+        width: 50%;
+        height: 100%;
+    }
+
     RichLog {
         background: $surface;
         color: $text;
         border: solid $primary;
+        height: 100%;
+    }
+
+    #hello-world {
+        background: $surface;
+        color: $text;
+        border: solid $primary;
+        height: 100%;
+        content-align: center middle;
     }
     """
 
     def compose(self) -> ComposeResult:
-        yield Container(
-            RichLog(highlight=True, markup=True, id="log"),
-            Footer()
+        yield Horizontal(
+            Container(
+                RichLog(highlight=True, markup=True, id="log"),
+                id="left-panel"
+            ),
+            Container(
+                Static("Hello World", id="hello-world"),
+                id="right-panel"
+            )
         )
+        yield Footer()
 
     def write_message(self, message: str) -> None:
         log = self.query_one("#log", RichLog)
