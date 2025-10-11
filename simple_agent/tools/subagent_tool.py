@@ -15,7 +15,6 @@ class CreateAgent(Protocol):
     def __call__(
         self,
         agent_id: str,
-        subagent_counter: int,
         user_input: Input,
         display_event_handler: DisplayEventHandler
     ) -> Agent:
@@ -62,9 +61,9 @@ class SubagentTool(BaseTool):
             user_input_port = ConsoleUserInput(self.indent_level + 1, self.io, allow_escape=False)
             user_input = Input(user_input_port)
             user_input.stack(args)
+            agent_id = f"{self.parent_agent_id}/Subagent{++self.subagent_counter}"
             subagent = self.create_agent(
-                self.parent_agent_id,
-                ++self.subagent_counter,
+                agent_id,
                 user_input,
                 self.display_event_handler
             )

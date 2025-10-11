@@ -92,7 +92,7 @@ class AllTools:
     def _create_subagent_tool(self):
         subagent_display = self._create_subagent_display()
         return SubagentTool(
-            self._create_subagent,
+            self._create_agent,
             subagent_display,
             self.io,
             self.display_event_handler,
@@ -107,14 +107,12 @@ class AllTools:
                 return SubagentTextualDisplay(self.indent_level + 1, self.io)
         return SubagentConsoleDisplay(self.indent_level + 1, self.io)
 
-    def _create_subagent(
+    def _create_agent(
         self,
-        parent_agent_id,
-        subagent_counter,
+        agent_id,
         user_input,
         display_event_handler
     ):
-        agent_id = f"{parent_agent_id}/Subagent{subagent_counter}"
         subagent_tools = AllTools(
             self.llm,
             self.indent_level + 1,
