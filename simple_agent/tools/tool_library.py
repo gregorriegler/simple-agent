@@ -9,6 +9,7 @@ from simple_agent.infrastructure.textual_display import TextualDisplay
 from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.system_prompt_generator import generate_system_prompt
 from simple_agent.application.session_storage import NoOpSessionStorage
+from . import subagent_tool
 from .bash_tool import BashTool
 from .cat_tool import CatTool
 from .complete_task_tool import CompleteTaskTool
@@ -68,7 +69,8 @@ class AllTools:
 
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
-        self.tools = static_tools + dynamic_tools
+        subagent_tool = self._create_subagent_tool()
+        self.tools = static_tools + dynamic_tools + [subagent_tool]
         self.tool_dict = {tool.name: tool for tool in self.tools}
 
     def _create_static_tools(self):
@@ -79,7 +81,6 @@ class AllTools:
             CreateFileTool(),
             EditFileTool(),
             #            PatchFileTool(),
-            self._create_subagent_tool(),
             #            RememberTool(),
             #           RecallTool(),
             CompleteTaskTool(),

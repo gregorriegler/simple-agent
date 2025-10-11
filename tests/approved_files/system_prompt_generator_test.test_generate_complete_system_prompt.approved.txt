@@ -108,18 +108,6 @@ print('hello')
 🛠️ edit-file test.py replace 5
 new = 2
 
-## subagent
-Creates a new subagent that will handle a specific task/todo and report back the result.
-
-Arguments:
- - task_description: string (required) - Detailed description of the task for the subagent to perform
-
-Usage: 🛠️ subagent <task_description>
-
-Examples:
-🛠️ subagent Write a Python function to calculate fibonacci numbers
-🛠️ subagent Create a simple HTML page with a form
-
 ## complete-task
 Signal task completion with a summary of what was accomplished
 
@@ -144,6 +132,18 @@ Examples:
 🛠️ bash echo hello
 🛠️ bash ls -la
 🛠️ bash pwd
+
+## subagent
+Creates a new subagent that will handle a specific task/todo and report back the result.
+
+Arguments:
+ - task_description: string (required) - Detailed description of the task for the subagent to perform
+
+Usage: 🛠️ subagent <task_description>
+
+Examples:
+🛠️ subagent Write a Python function to calculate fibonacci numbers
+🛠️ subagent Create a simple HTML page with a form
 
 # Your Workflow
 1. Break down the given task into clear, actionable steps and create a todo list using the `write-todos` tool. 
