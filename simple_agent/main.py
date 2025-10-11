@@ -32,10 +32,10 @@ def main():
     indent_level = 0
     io = StdIO()
     display = TextualDisplay() if args.display_type == DisplayType.TEXTUAL else ConsoleDisplay(indent_level, agent_id, io)
-    user_input = ConsoleUserInput(indent_level, display.io)
-    _input = Input(user_input)
+    console_user_input = ConsoleUserInput(indent_level, display.io)
+    user_input = Input(console_user_input)
     if args.start_message:
-        _input.stack(args.start_message)
+        user_input.stack(args.start_message)
     session_storage = JsonFileSessionStorage()
     claude_config = load_claude_config()
     llm = ClaudeLLM(claude_config)
@@ -63,7 +63,7 @@ def main():
         args.continue_session,
         agent_id,
         system_prompt_generator,
-        _input,
+        user_input,
         llm,
         tools,
         session_storage,
