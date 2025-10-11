@@ -58,7 +58,7 @@ class SubagentTool(BaseTool):
         if not args or not args.strip():
             return ContinueResult('STDERR: subagent: missing task description')
         try:
-            user_input_port = ConsoleUserInput(self.indent_level + 1, self.io, allow_escape=False)
+            user_input_port = ConsoleUserInput(self.indent_level + 1, self.io)
             user_input = Input(user_input_port)
             user_input.stack(args)
             agent_id = f"{self.parent_agent_id}/Subagent{++self.subagent_counter}"
