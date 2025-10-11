@@ -36,11 +36,12 @@ def run_session(
 
     if tool_library is None:
         tool_library = AllTools(llm, agent_id, event_bus, display_event_handler)
+
     agent = Agent(
         agent_id,
-        llm,
         system_prompt,
         tool_library,
+        llm,
         user_input,
         event_bus,
         session_storage

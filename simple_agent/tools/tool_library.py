@@ -110,7 +110,7 @@ class AllTools:
         subagent_tools = AllTools(self.llm, self.indent_level + 1, self.io, agent_id, self.event_bus, display_handler)
         system_prompt = self._build_system_prompt(subagent_tools)
         session_storage = NoOpSessionStorage()
-        return Agent(agent_id, self.llm, system_prompt, subagent_tools, user_input, self.event_bus, session_storage)
+        return Agent(agent_id, system_prompt, subagent_tools, self.llm, user_input, self.event_bus, session_storage)
 
     def _build_system_prompt(self, subagent_tools):
         return lambda tool_library: generate_system_prompt(subagent_tools)

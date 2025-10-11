@@ -8,16 +8,8 @@ from .events import AssistantSaidEvent, ToolResultEvent, SessionEndedEvent, User
 
 
 class Agent:
-    def __init__(
-        self,
-        agent_id: str,
-        llm: LLM,
-        system_prompt,
-        tools: ToolLibrary,
-        user_input,
-        event_bus: EventBus,
-        session_storage: SessionStorage
-    ):
+    def __init__(self, agent_id: str, system_prompt, tools: ToolLibrary, llm: LLM, user_input, event_bus: EventBus,
+                 session_storage: SessionStorage):
         self.agent_id = agent_id
         self.llm: LLM = llm
         self.system_prompt = system_prompt
