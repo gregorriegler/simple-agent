@@ -113,7 +113,7 @@ class AllTools(ToolLibrary):
         user_input,
         display_event_handler
     ):
-        subagent_tools = AllTools( #TODO Need a Protocol for ToolLibrary and inject this
+        subagent_tools = AllTools(
             self.llm,
             self.indent_level + 1,
             self.io,
