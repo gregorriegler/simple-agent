@@ -22,7 +22,7 @@ def run_session(
     continue_session: bool,
     user_input,
     session_storage: SessionStorage,
-    chat,
+    llm,
     system_prompt: SystemPrompt,
     event_bus,
     display_event_handler=None,
@@ -35,6 +35,14 @@ def run_session(
     event_bus.publish(EventType.SESSION_STARTED, SessionStartedEvent(agent_id, continue_session))
 
     if tool_library is None:
-        tool_library = AllTools(chat, agent_id, event_bus, display_event_handler)
-    agent = Agent(agent_id, chat, system_prompt, tool_library, user_input, event_bus, session_storage)
+        tool_library = AllTools(llm, agent_id, event_bus, display_event_handler)
+    agent = Agent(
+        agent_id,
+        llm,
+        system_prompt,
+        tool_library,
+        user_input,
+        event_bus,
+        session_storage
+    )
     agent.start(persisted_messages)

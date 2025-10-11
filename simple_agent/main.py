@@ -34,7 +34,7 @@ def main():
         _input.stack(args.start_message)
     session_storage = JsonFileSessionStorage()
     claude_config = load_claude_config()
-    claude_chat = ClaudeLLM(claude_config)
+    llm = ClaudeLLM(claude_config)
     system_prompt_generator = lambda tool_library: generate_system_prompt(tool_library)
 
     event_bus = SimpleEventBus()
@@ -49,7 +49,7 @@ def main():
         args.continue_session,
         _input,
         session_storage,
-        claude_chat,
+        llm,
         system_prompt_generator,
         event_bus,
         display_handler
