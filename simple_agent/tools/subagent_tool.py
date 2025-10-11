@@ -62,10 +62,9 @@ class SubagentTool(BaseTool):
             user_input_port = ConsoleUserInput(self.indent_level + 1, self.io, allow_escape=False)
             user_input = Input(user_input_port)
             user_input.stack(args)
-            self.subagent_counter += 1
             subagent = self.create_agent(
                 self.parent_agent_id,
-                self.subagent_counter,
+                ++self.subagent_counter,
                 user_input,
                 self.subagent_display,
                 self.display_event_handler
