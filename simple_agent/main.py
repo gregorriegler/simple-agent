@@ -10,6 +10,7 @@ from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.claude.claude_config import load_claude_config
 from simple_agent.application.display_type import DisplayType
 from simple_agent.infrastructure.console_display import ConsoleDisplay
+from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual_display import TextualDisplay
 from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
@@ -45,24 +46,47 @@ def main():
     event_bus.subscribe(EventType.TOOL_RESULT, display_event_handler.handle_tool_result)
     event_bus.subscribe(EventType.SESSION_ENDED, display_event_handler.handle_session_ended)
 
+    agent_id = "Agent"
+    from simple_agent.tools.all_tools import AllTools
+    tools = AllTools(
+        llm,
+        0,
+        StdIO(),
+        agent_id,
+        event_bus,
+        display_event_handler
+    )
+
     run_session(
-        args.continue_session, "Agent", system_prompt_generator, _input, llm,
-        AllTools(llm, agent_id, event_bus, display_event_handler), session_storage, event_bus
-        )
+        args.continue_session,
+        agent_id,
+        system_prompt_generator,
+        _input,
+        llm,
+        tools,
+        session_storage,
+        event_bus
+    )
 
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Simple Agent")
     parser.add_argument("-c", "--continue", action="store_true", help="Continue previous session")
-    parser.add_argument("-s", "--system-prompt", action="store_true",
-                        help="Print the current system prompt including AGENTS.md content")
-    parser.add_argument("-ui", "--user-interface", choices=["textual", "console"], default="textual",
-                        help="Choose the user interface (default: textual)")
+    parser.add_argument(
+        "-s", "--system-prompt", action="store_true",
+        help="Print the current system prompt including AGENTS.md content"
+    )
+    parser.add_argument(
+        "-ui", "--user-interface", choices=["textual", "console"], default="textual",
+        help="Choose the user interface (default: textual)"
+    )
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
     parsed = parser.parse_args(argv)
     display_type = DisplayType(getattr(parsed, "user_interface"))
-    return SessionArgs(bool(getattr(parsed, "continue")), build_start_message(parsed.message),
-                       bool(getattr(parsed, "system_prompt")), display_type)
+    return SessionArgs(
+        bool(getattr(parsed, "continue")), build_start_message(parsed.message),
+        bool(getattr(parsed, "system_prompt")), display_type
+    )
 
 
 def build_start_message(message_parts):

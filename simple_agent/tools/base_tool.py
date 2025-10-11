@@ -1,8 +1,8 @@
 import subprocess
-from simple_agent.application.tool_library import ToolResult
+from simple_agent.application.tool_library import ToolResult, Tool
 
 
-class BaseTool:
+class BaseTool(Tool):
     name = ''
     description = ''
     arguments = []
