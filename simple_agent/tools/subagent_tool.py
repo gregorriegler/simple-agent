@@ -70,15 +70,12 @@ class SubagentTool(BaseTool):
             user_input.stack(args)
             self.subagent_counter += 1
             subagent_id = f"{self.parent_agent_id}/Subagent{self.subagent_counter}"
-            if self.display_event_handler:
-                subagent = self.agent_builder(
-                    subagent_id,
-                    user_input,
-                    self.subagent_display,
-                    self.display_event_handler
-                )
-            else:
-                return ContinueResult('STDERR: subagent: display_handler is required')
+            subagent = self.agent_builder(
+                subagent_id,
+                user_input,
+                self.subagent_display,
+                self.display_event_handler
+            )
             subagent_messages = Messages()
             result = subagent.start(subagent_messages)
             del self.display_event_handler.displays[subagent_id]
