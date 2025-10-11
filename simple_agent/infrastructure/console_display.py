@@ -10,9 +10,9 @@ def _indent_lines(text, prefix="    "):
 
 class ConsoleDisplay(Display):
 
-    def __init__(self, indent_level=0, agent_name="Agent", io: IO | None = None):
+    def __init__(self, indent_level, agent_name, io):
         self.indent_level = indent_level
-        self.io = io or StdIO()
+        self.io = io
         self.base_indent = "       " * (indent_level + 1)
         self.agent_prefix = "       " * indent_level + f"{agent_name}: "
 

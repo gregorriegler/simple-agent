@@ -109,7 +109,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     llm_stub = create_llm_stub(answers)
     message, *remaining_inputs = inputs
     io_spy = IOSpy(remaining_inputs, escape_hits)
-    display = ConsoleDisplay(io=io_spy)
+    display = ConsoleDisplay(0, "Agent", io_spy)
     user_input_port = ConsoleUserInput(display.indent_level, io=io_spy)
     user_input = Input(user_input_port)
     user_input.stack(message)

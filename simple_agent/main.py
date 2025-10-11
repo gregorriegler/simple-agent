@@ -28,8 +28,11 @@ def main():
         print(system_prompt)
         return
 
-    display = TextualDisplay() if args.display_type == DisplayType.TEXTUAL else ConsoleDisplay()
-    user_input = ConsoleUserInput(display.indent_level, display.io)
+    agent_id = "Agent"
+    indent_level = 0
+    io = StdIO()
+    display = TextualDisplay() if args.display_type == DisplayType.TEXTUAL else ConsoleDisplay(indent_level, agent_id, io)
+    user_input = ConsoleUserInput(indent_level, display.io)
     _input = Input(user_input)
     if args.start_message:
         _input.stack(args.start_message)
@@ -46,12 +49,11 @@ def main():
     event_bus.subscribe(EventType.TOOL_RESULT, display_event_handler.handle_tool_result)
     event_bus.subscribe(EventType.SESSION_ENDED, display_event_handler.handle_session_ended)
 
-    agent_id = "Agent"
     from simple_agent.tools.all_tools import AllTools
     tools = AllTools(
         llm,
-        0,
-        StdIO(),
+        indent_level,
+        io,
         agent_id,
         event_bus,
         display_event_handler
