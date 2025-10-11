@@ -1,6 +1,6 @@
 from approvaltests import Options, verify
 
-from simple_agent.tools.tool_library import AllTools
+from simple_agent.tools.all_tools import AllTools
 from .test_helpers import all_scrubbers, temp_directory
 
 library = AllTools()

@@ -1,4 +1,5 @@
-from simple_agent.application.tool_result import ContinueResult, ToolResult
+from ..application.tool_libary import ContinueResult
+from ..application.tool_library import ToolResult
 from .base_tool import BaseTool
 from .argument_parser import split_arguments
 import os

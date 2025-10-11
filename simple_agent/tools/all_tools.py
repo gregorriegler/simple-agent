@@ -4,12 +4,11 @@ from simple_agent.application.agent import Agent
 from simple_agent.application.display import Display
 from simple_agent.application.io import IO
 from simple_agent.application.llm import LLM
+from simple_agent.application.session_storage import NoOpSessionStorage
+from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual_display import TextualDisplay
-from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.system_prompt_generator import generate_system_prompt
-from simple_agent.application.session_storage import NoOpSessionStorage
-from . import subagent_tool
 from .bash_tool import BashTool
 from .cat_tool import CatTool
 from .complete_task_tool import CompleteTaskTool
@@ -18,6 +17,7 @@ from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
 from .subagent_tool import SubagentTool
 from .write_todos_tool import WriteTodosTool
+from simple_agent.application.tool_library import ToolLibrary
 
 
 class SubagentConsoleDisplay(ConsoleDisplay):
@@ -48,7 +48,7 @@ class ParsedTool:
         return f"🛠️ {self.name}"
 
 
-class AllTools:
+class AllTools(ToolLibrary):
     def __init__(
         self,
         llm: LLM | None = None,
@@ -113,7 +113,7 @@ class AllTools:
         user_input,
         display_event_handler
     ):
-        subagent_tools = AllTools(
+        subagent_tools = AllTools( #TODO Need a Protocol for ToolLibrary and inject this
             self.llm,
             self.indent_level + 1,
             self.io,
@@ -135,22 +135,6 @@ class AllTools:
 
     def _build_system_prompt(self, subagent_tools):
         return lambda tool_library: generate_system_prompt(subagent_tools)
-
-    def get_tool_info(self, tool_name=None):
-        if tool_name:
-            tool = self.tool_dict.get(tool_name)
-            if not tool:
-                return f"Tool '{tool_name}' not found. Available tools: {', '.join(self.tool_dict.keys())}"
-            if hasattr(tool, 'get_usage_info'):
-                return tool.get_usage_info()
-            else:
-                return f"Tool: {tool.name}\nDescription: {getattr(tool, 'description', 'No description available')}"
-        else:
-            info_lines = ["Available Tools:"]
-            for tool in self.tools:
-                description = getattr(tool, 'description', 'No description available')
-                info_lines.append(f"  {tool.name}: {description}")
-            return "\n".join(info_lines)
 
     def parse_tool(self, text):
         pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?'

@@ -1,5 +1,6 @@
-from simple_agent.application.tool_result import ContinueResult
+from ..application.tool_library import ContinueResult
 from .base_tool import BaseTool
+
 class LsTool(BaseTool):
     name = "ls"
     description = "List directory contents with detailed information"

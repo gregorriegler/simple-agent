@@ -1,5 +1,5 @@
 from .base_tool import BaseTool
-from .tool_library import AllTools, ParsedTool
+from .all_tools import AllTools, ParsedTool
 
 __all__ = [
     'BaseTool',

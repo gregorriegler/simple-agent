@@ -1,4 +1,4 @@
-from simple_agent.tools.tool_library import AllTools
+from simple_agent.tools.all_tools import AllTools
 from .test_helpers import (
     create_temp_file,
     verify_tool

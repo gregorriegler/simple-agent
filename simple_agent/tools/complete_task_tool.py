@@ -1,4 +1,4 @@
-from simple_agent.application.tool_result import CompleteResult
+from ..application.tool_library import CompleteResult
 from .base_tool import BaseTool
 class CompleteTaskTool(BaseTool):
     name = "complete-task"

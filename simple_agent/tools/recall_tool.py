@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from simple_agent.application.tool_result import ContinueResult
+from ..application.tool_libary import ContinueResult
 
 from .base_tool import BaseTool
 
@@ -19,9 +19,9 @@ class RecallTool(BaseTool):
 
     def execute(self, args):
         path = Path(".memory.md")
-        
+
         if not path.exists():
             return ContinueResult("No memories stored yet")
-        
+
         content = path.read_text(encoding="utf-8")
         return ContinueResult(f"Memories:\n{content}")

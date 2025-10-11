@@ -1,7 +1,6 @@
 from .llm import LLM, Messages
 from .session_storage import SessionStorage
-from .tool_library_protocol import ToolLibrary
-from .tool_result import ToolResult, ContinueResult
+from .tool_library import ToolResult, ContinueResult, ToolLibrary
 from .event_bus_protocol import EventBus
 from .events import AssistantSaidEvent, ToolResultEvent, SessionEndedEvent, UserPromptRequestedEvent, UserPromptedEvent, \
     EventType

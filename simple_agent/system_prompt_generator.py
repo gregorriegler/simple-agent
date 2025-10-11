@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from simple_agent.application.tool_library_protocol import ToolLibrary
+from simple_agent.application.tool_library import ToolLibrary
 
 
 def generate_system_prompt(tool_library: ToolLibrary):
@@ -103,7 +103,7 @@ def _generate_tool_documentation(tool):
 
 def main():
     import argparse
-    from simple_agent.tools.tool_library import AllTools
+    from simple_agent.tools.all_tools import AllTools
 
     parser = argparse.ArgumentParser(
         description='Generate system prompt with dynamic tool descriptions',
