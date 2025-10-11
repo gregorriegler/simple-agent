@@ -94,8 +94,10 @@ class AllTools:
 
     def _create_subagent_tool(self):
         subagent_display = self._create_subagent_display()
-        return SubagentTool(self._build_subagent_agent, subagent_display, self.indent_level, self.io,
-                            self.display_event_handler, self.agent_id)
+        return SubagentTool(
+            self._build_subagent_agent, subagent_display, self.indent_level, self.io,
+            self.display_event_handler, self.agent_id
+        )
 
     def _create_subagent_display(self) -> Display:
         if self.display_event_handler:
@@ -107,10 +109,25 @@ class AllTools:
     def _build_subagent_agent(self, agent_id, user_input, display, display_handler):
         if display_handler:
             display_handler.register_display(agent_id, display)
-        subagent_tools = AllTools(self.llm, self.indent_level + 1, self.io, agent_id, self.event_bus, display_handler)
+        subagent_tools = AllTools(
+            self.llm,
+            self.indent_level + 1,
+            self.io,
+            agent_id,
+            self.event_bus,
+            display_handler
+        )
         system_prompt = self._build_system_prompt(subagent_tools)
         session_storage = NoOpSessionStorage()
-        return Agent(agent_id, system_prompt, subagent_tools, self.llm, user_input, self.event_bus, session_storage)
+        return Agent(
+            agent_id,
+            system_prompt,
+            subagent_tools,
+            self.llm,
+            user_input,
+            self.event_bus,
+            session_storage
+        )
 
     def _build_system_prompt(self, subagent_tools):
         return lambda tool_library: generate_system_prompt(subagent_tools)
@@ -142,7 +159,8 @@ class AllTools:
                 if not tool:
                     return None
                 all_arg_lines = []
-                if same_line_args: all_arg_lines.append(same_line_args)
+                if same_line_args:
+                    all_arg_lines.append(same_line_args)
                 for j in range(i + 1, len(lines)):
                     if re.match(r'^🛠️ ', lines[j]):
                         break
