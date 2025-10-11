@@ -13,17 +13,17 @@ class Agent:
         agent_id: str,
         llm: LLM,
         system_prompt,
-        user_input,
         tools: ToolLibrary,
+        user_input,
         event_bus: EventBus,
         session_storage: SessionStorage
     ):
         self.agent_id = agent_id
         self.llm: LLM = llm
         self.system_prompt = system_prompt
+        self.tools = tools
         self.user_input = user_input
         self.event_bus = event_bus
-        self.tools = tools
         self.session_storage = session_storage
 
     def start(self, context):
