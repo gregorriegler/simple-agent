@@ -111,7 +111,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     event_bus.subscribe(EventType.SESSION_STARTED, display_handler.handle_session_started)
     event_bus.subscribe(EventType.SESSION_ENDED, display_handler.handle_session_ended)
 
-    test_tool_library = ToolLibraryStub(llm_stub, io=io_spy, interrupts=[ctrl_c_hits], event_bus=event_bus, display_handler=display_handler)
+    test_tool_library = ToolLibraryStub(llm_stub, io=io_spy, interrupts=[ctrl_c_hits], event_bus=event_bus, display_event_handler=display_handler)
 
     run_session(False, user_input, test_session_storage, llm_stub, system_prompt_stub, event_bus, display_handler, test_tool_library)
 

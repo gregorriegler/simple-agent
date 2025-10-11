@@ -35,6 +35,6 @@ def run_session(
     event_bus.publish(EventType.SESSION_STARTED, SessionStartedEvent(agent_id, continue_session))
 
     if tool_library is None:
-        tool_library = AllTools(chat, agent_id=agent_id, event_bus=event_bus, display_handler=display_handler)
+        tool_library = AllTools(chat, agent_id=agent_id, event_bus=event_bus, display_event_handler=display_handler)
     agent = Agent(agent_id, chat, system_prompt, user_input, tool_library, event_bus, session_storage)
     agent.start(persisted_messages)

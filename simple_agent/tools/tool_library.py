@@ -1,9 +1,12 @@
 import re
 
 from simple_agent.application.agent import Agent
+from simple_agent.application.display import Display
 from simple_agent.application.io import IO
 from simple_agent.application.llm import LLM
 from simple_agent.infrastructure.stdio import StdIO
+from simple_agent.infrastructure.textual_display import TextualDisplay
+from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.system_prompt_generator import generate_system_prompt
 from simple_agent.application.session_storage import NoOpSessionStorage
 from .bash_tool import BashTool
@@ -14,6 +17,22 @@ from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
 from .subagent_tool import SubagentTool
 from .write_todos_tool import WriteTodosTool
+
+
+class SubagentConsoleDisplay(ConsoleDisplay):
+    def __init__(self, indent_level=1, io: IO | None = None):
+        super().__init__(indent_level, "Subagent", io)
+
+    def exit(self):
+        pass
+
+
+class SubagentTextualDisplay(TextualDisplay):
+    def __init__(self, indent_level=1, io: IO | None = None):
+        super().__init__(indent_level, "Subagent", io)
+
+    def exit(self):
+        pass
 
 
 class ParsedTool:
@@ -29,7 +48,15 @@ class ParsedTool:
 
 
 class AllTools:
-    def __init__(self, llm: LLM | None = None, indent_level=0, io: IO | None = None, agent_id: str = "Agent", event_bus=None, display_handler=None):
+    def __init__(
+        self,
+        llm: LLM | None = None,
+        indent_level=0,
+        io: IO | None = None,
+        agent_id: str = "Agent",
+        event_bus=None,
+        display_event_handler=None
+    ):
         if llm is None:
             llm = lambda system_prompt, messages: ''
         self.llm: LLM = llm
@@ -37,7 +64,7 @@ class AllTools:
         self.io = io or StdIO()
         self.agent_id = agent_id
         self.event_bus = event_bus
-        self.display_handler = display_handler
+        self.display_event_handler = display_event_handler
 
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
@@ -51,10 +78,10 @@ class AllTools:
             CatTool(),
             CreateFileTool(),
             EditFileTool(),
-#            PatchFileTool(),
+            #            PatchFileTool(),
             self._create_subagent_tool(),
-#            RememberTool(),
-#           RecallTool(),
+            #            RememberTool(),
+            #           RecallTool(),
             CompleteTaskTool(),
             BashTool()
         ]
@@ -66,7 +93,16 @@ class AllTools:
         self.tool_dict = {tool.name: tool for tool in self.tools}
 
     def _create_subagent_tool(self):
-        return SubagentTool(self._build_subagent_agent, self.indent_level, self.io, self.display_handler, self.agent_id)
+        subagent_display = self._create_subagent_display()
+        return SubagentTool(self._build_subagent_agent, subagent_display, self.indent_level, self.io,
+                            self.display_event_handler, self.agent_id)
+
+    def _create_subagent_display(self) -> Display:
+        if self.display_event_handler:
+            parent_display = self.display_event_handler.displays.get("Agent")
+            if isinstance(parent_display, TextualDisplay):
+                return SubagentTextualDisplay(self.indent_level + 1, self.io)
+        return SubagentConsoleDisplay(self.indent_level + 1, self.io)
 
     def _build_subagent_agent(self, agent_id, user_input, display, display_handler):
         if display_handler:
@@ -127,4 +163,3 @@ class AllTools:
         args = parsed_tool.arguments if parsed_tool.arguments else None
         result = parsed_tool.tool_instance.execute(args)
         return result
-
