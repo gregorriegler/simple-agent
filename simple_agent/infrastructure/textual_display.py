@@ -39,14 +39,16 @@ class TextualDisplay(Display):
     def tool_call(self, tool):
         self._ensure_app_running()
         if self.app:
-            self.app.call_from_thread(self.app.write_tool_result, str(tool) + "\n---\n")
+            self.app.call_from_thread(self.app.write_tool_result, str(tool) + "\n---")
 
     def tool_result(self, result):
         self._ensure_app_running()
+        if(not result):
+            return
         lines = str(result).split('\n')
         if self.app:
             for line in lines:
-                self.app.call_from_thread(self.app.write_tool_result, line)
+                self.app.call_from_thread(self.app.write_tool_result, line + "\n---")
 
     def continue_session(self):
         self._ensure_app_running()
