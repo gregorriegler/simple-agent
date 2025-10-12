@@ -72,7 +72,8 @@ def main():
         io,
         agent_id,
         event_bus,
-        display_event_handler
+        display_event_handler,
+        user_input
     )
 
     run_session(

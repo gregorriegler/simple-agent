@@ -47,7 +47,8 @@ class AllTools(ToolLibrary):
         io: IO | None = None,
         agent_id: str = "Agent",
         event_bus=None,
-        display_event_handler=None
+        display_event_handler=None,
+        user_input=None
     ):
         if llm is None:
             llm = lambda system_prompt, messages: ''
@@ -57,6 +58,7 @@ class AllTools(ToolLibrary):
         self.agent_id = agent_id
         self.event_bus = event_bus
         self.display_event_handler = display_event_handler
+        self.user_input = user_input
 
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
@@ -81,14 +83,22 @@ class AllTools(ToolLibrary):
         return []
 
     def _create_subagent_tool(self):
+        subagent_input = self._create_subagent_input()
         return SubagentTool(
             self._create_agent,
             self._create_subagent_display,
             self.indent_level,
             self.agent_id,
             self.display_event_handler,
-            Input(ConsoleUserInput(self.indent_level + 1, self.io))
+            subagent_input
         )
+
+    def _create_subagent_input(self):
+        if self.user_input and hasattr(self.user_input, 'user_input'):
+            from simple_agent.infrastructure.textual_user_input import TextualUserInput
+            if isinstance(self.user_input.user_input, TextualUserInput):
+                return self.user_input
+        return Input(ConsoleUserInput(self.indent_level + 1, self.io))
 
     def _create_subagent_display(self) -> Display:
         if self.display_event_handler:
@@ -109,7 +119,8 @@ class AllTools(ToolLibrary):
             self.io,
             agent_id,
             self.event_bus,
-            display_event_handler
+            display_event_handler,
+            self.user_input
         )
         system_prompt = self._build_system_prompt(subagent_tools)
         session_storage = NoOpSessionStorage()
