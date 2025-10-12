@@ -33,5 +33,25 @@ def test_parse_tool_with_message_and_cat_command():
     assert type(message_and_tools.tools[0].tool_instance).__name__ == "CatTool"
 
 
+def test_parse_tool_with_multiline_message_and_ls_command():
+    text = dedent("""
+    Let me read
+    the current folder
+
+    🛠️ ls
+    """)
+
+    message_and_tools = library.parse_tool(text)
+
+    assert message_and_tools.message == dedent("""
+    Let me read
+    the current folder
+    """)
+    assert message_and_tools.tools[0] is not None
+    assert message_and_tools.tools[0].name == "ls"
+    assert message_and_tools.tools[0].arguments == ""
+    assert type(message_and_tools.tools[0].tool_instance).__name__ == "LsTool"
+
+
 def dedent(text):
     return textwrap.dedent(text).strip()
