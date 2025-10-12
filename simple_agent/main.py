@@ -20,7 +20,7 @@ from simple_agent.system_prompt_generator import generate_system_prompt
 
 
 def main():
-    args = parse_args()
+    args, use_stub = parse_args()
 
     if args.show_system_prompt:
         from simple_agent.tools.all_tools import AllTools
@@ -44,8 +44,13 @@ def main():
     if args.start_message:
         user_input.stack(args.start_message)
     session_storage = JsonFileSessionStorage()
-    claude_config = load_claude_config()
-    llm = ClaudeLLM(claude_config)
+
+    if use_stub:
+        llm = create_llm_stub()
+    else:
+        claude_config = load_claude_config()
+        llm = ClaudeLLM(claude_config)
+
     system_prompt_generator = lambda tool_library: generate_system_prompt(tool_library)
 
     event_bus = SimpleEventBus()
@@ -95,19 +100,34 @@ def parse_args(argv=None):
         "-ui", "--user-interface", choices=["textual", "console"], default="textual",
         help="Choose the user interface (default: textual)"
     )
+    parser.add_argument("--stub", action="store_true", help="Use LLM stub for testing")
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
     parsed = parser.parse_args(argv)
     display_type = DisplayType(getattr(parsed, "user_interface"))
     return SessionArgs(
         bool(getattr(parsed, "continue")), build_start_message(parsed.message),
         bool(getattr(parsed, "system_prompt")), display_type
-    )
+    ), bool(getattr(parsed, "stub"))
 
 
 def build_start_message(message_parts):
     if not message_parts:
         return None
     return " ".join(message_parts)
+
+
+def create_llm_stub():
+    call_count = 0
+
+    def llm_stub(system_prompt, messages):
+        nonlocal call_count
+        call_count += 1
+
+        if call_count == 1:
+            return "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n🛠️ cat README.md"
+        return "🛠️ complete-task Task completed successfully"
+
+    return llm_stub
 
 
 if __name__ == "__main__":
