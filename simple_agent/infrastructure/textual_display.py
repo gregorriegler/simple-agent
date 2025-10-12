@@ -26,12 +26,10 @@ class TextualDisplay(Display):
             self.app.run()
 
     def user_says(self, message):
-        self._start_app()
         if self.app and self.app.is_running:
             self.app.call_from_thread(self.app.write_message, f"\nUser: {message}")
 
     def assistant_says(self, message):
-        self._start_app()
         lines = str(message).split('\n')
         if lines and self.app and self.app.is_running:
             self.app.call_from_thread(self.app.write_message, f"\n{self.agent_prefix}{lines[0]}")
@@ -39,12 +37,10 @@ class TextualDisplay(Display):
                 self.app.call_from_thread(self.app.write_message, line)
 
     def tool_call(self, tool):
-        self._start_app()
         if self.app and self.app.is_running:
             self.app.call_from_thread(self.app.write_tool_result, str(tool) + "\n")
 
     def tool_result(self, result):
-        self._start_app()
         if not result:
             return
         lines = str(result).split('\n')
@@ -64,12 +60,10 @@ class TextualDisplay(Display):
             self.app.call_from_thread(self.app.write_message, "Starting new session")
 
     def waiting_for_input(self):
-        self._start_app()
         if self.app and self.app.is_running:
             self.app.call_from_thread(self.app.write_message, "\nWaiting for user input...")
 
     def interrupted(self):
-        self._start_app()
         if self.app and self.app.is_running:
             self.app.call_from_thread(self.app.write_message, "\n[Session interrupted by user]")
 
