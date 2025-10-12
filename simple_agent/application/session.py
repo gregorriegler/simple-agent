@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from simple_agent.application.agent import Agent
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.events import SessionStartedEvent, EventType
+from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.session_storage import SessionStorage
@@ -21,7 +22,7 @@ def run_session(
     continue_session: bool,
     agent_id,
     system_prompt: SystemPrompt,
-    user_input,
+    user_input: Input,
     llm,
     tool_library,
     session_storage: SessionStorage,

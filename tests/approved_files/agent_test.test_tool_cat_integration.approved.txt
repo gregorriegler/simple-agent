@@ -1,6 +1,5 @@
 # Events
 Agent:       session_started: False
-Agent: user_prompt_requested: 
 Agent:         user_prompted: Test message
 Agent:           tool_called: 🛠️ cat /tmp/test_path/integration_test.txt
 Agent:           tool_result:      1	Integration test content

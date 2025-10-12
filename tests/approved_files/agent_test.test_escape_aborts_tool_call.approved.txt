@@ -1,6 +1,5 @@
 # Events
 Agent:       session_started: False
-Agent: user_prompt_requested: 
 Agent:         user_prompted: Hello
 Agent: user_prompt_requested: 
 Agent:         user_prompted: Follow-up message

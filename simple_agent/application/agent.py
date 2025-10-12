@@ -1,14 +1,24 @@
+from .input import Input
 from .llm import LLM, Messages
 from .session_storage import SessionStorage
 from .tool_library import ToolResult, ContinueResult, ToolLibrary
 from .event_bus_protocol import EventBus
-from .events import AssistantSaidEvent, ToolCalledEvent, ToolResultEvent, SessionEndedEvent, UserPromptRequestedEvent, UserPromptedEvent, \
+from .events import AssistantSaidEvent, ToolCalledEvent, ToolResultEvent, SessionEndedEvent, UserPromptRequestedEvent, \
+    UserPromptedEvent, \
     EventType
 
 
 class Agent:
-    def __init__(self, agent_id: str, system_prompt, tools: ToolLibrary, llm: LLM, user_input, event_bus: EventBus,
-                 session_storage: SessionStorage):
+    def __init__(
+        self,
+        agent_id: str,
+        system_prompt,
+        tools: ToolLibrary,
+        llm: LLM,
+        user_input: Input,
+        event_bus: EventBus,
+        session_storage: SessionStorage
+    ):
         self.agent_id = agent_id
         self.llm: LLM = llm
         self.system_prompt = system_prompt
@@ -17,7 +27,7 @@ class Agent:
         self.event_bus = event_bus
         self.session_storage = session_storage
 
-    def start(self, context = Messages()):
+    def start(self, context=Messages()):
         try:
             tool_result: ToolResult = ContinueResult()
 
@@ -38,7 +48,9 @@ class Agent:
                 llm_answer = self.llm_answers(context)
                 message_and_tools = self.tools.parse_tool(llm_answer)
                 if message_and_tools.message:
-                    self.event_bus.publish(EventType.ASSISTANT_SAID, AssistantSaidEvent(self.agent_id, message_and_tools.message))
+                    self.event_bus.publish(
+                        EventType.ASSISTANT_SAID, AssistantSaidEvent(self.agent_id, message_and_tools.message)
+                        )
 
                 if not message_and_tools.tools or self.user_input.escape_requested():
                     break
@@ -49,7 +61,8 @@ class Agent:
         return tool_result
 
     def user_prompts(self, context):
-        self.event_bus.publish(EventType.USER_PROMPT_REQUESTED, UserPromptRequestedEvent(self.agent_id))
+        if not self.user_input.has_stacked_messages():
+            self.event_bus.publish(EventType.USER_PROMPT_REQUESTED, UserPromptRequestedEvent(self.agent_id))
         prompt = self.user_input.read()
         if prompt:
             context.user_says(prompt)

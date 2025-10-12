@@ -62,6 +62,11 @@ class TextualDisplay(Display):
         if self.app:
             self.app.call_from_thread(self.app.write_message, "Starting new session")
 
+    def waiting_for_input(self):
+        self._ensure_app_running()
+        if self.app:
+            self.app.call_from_thread(self.app.write_message, "\nWaiting for user input...")
+
     def exit(self):
         if self.app and self.app.is_running:
             self.app.call_from_thread(self.app.write_message, "\nExiting...")

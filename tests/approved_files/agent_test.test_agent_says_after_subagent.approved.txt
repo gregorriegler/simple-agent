@@ -1,9 +1,7 @@
 # Events
 Agent:       session_started: False
-Agent: user_prompt_requested: 
 Agent:         user_prompted: Create a subagent that says hello, then say goodbye
 Agent:           tool_called: 🛠️ subagent say hello
-Agent/Subagent1: user_prompt_requested: 
 Agent/Subagent1:         user_prompted: say hello
 Agent/Subagent1:        assistant_said: hello
 Agent/Subagent1:           tool_called: 🛠️ complete-task I successfully said hello

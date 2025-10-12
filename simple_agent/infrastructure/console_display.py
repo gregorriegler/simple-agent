@@ -43,6 +43,9 @@ class ConsoleDisplay(Display):
     def start_new_session(self):
         self.io.print("Starting new session")
 
+    def waiting_for_input(self):
+        pass
+
     def exit(self):
         exit_msg = "       " * self.indent_level + "Exiting..."
         self.io.print(f"\n{exit_msg}")
