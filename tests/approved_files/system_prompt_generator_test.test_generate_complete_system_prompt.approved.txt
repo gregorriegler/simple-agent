@@ -63,10 +63,11 @@ Examples:
 ## create-file
 Create new files with optional content
 
-⚠️ CRITICAL FORMATTING RULES:
-- Content starts immediately after the filename on the following lines
+CRITICAL FORMATTING RULES:
+- Content starts on the following lines
+- End content with 🛠️🔚 marker
 - Do NOT add commentary after the tool in the same message
-- Everything after the filename until message end is captured as content
+- Everything after the filename until 🛠️🔚 or message end is captured as content
 
 Arguments:
  - filename: string (required) - Path to the file to create (directories will be created automatically)
@@ -77,16 +78,18 @@ Usage: 🛠️ create-file <filename> [content]
 Examples:
 🛠️ create-file newfile.txt
 🛠️ create-file script.py print("Hello World")
-🛠️ create-file multi-line.py This is Line 1
-This is Line 2
+🛠️ create-file multi-line.py
+Line 1
+Line 2
+🛠️🔚
 
 ## edit-file
 Edit files by replacing content in specified line ranges.
 
-⚠️ CRITICAL FORMATTING RULES:
+CRITICAL FORMATTING RULES:
 - Content MUST start on the NEXT line after the command
-- STOP your message immediately after content ends
-- Everything from the next line until message end is captured as content
+- End multiline content with 🛠️🔚 marker
+- Everything from the next line until 🛠️🔚 is captured as content
 
 Replace mode: First deletes the specified range, then inserts new content at that position.
 
@@ -100,13 +103,17 @@ Usage: 🛠️ edit-file <filename> <edit_mode> <line_range>
 Examples:
 🛠️ edit-file myfile.txt replace 1-3
 Hello World
+🛠️🔚
 🛠️ edit-file test.txt delete 1
 🛠️ edit-file test.txt insert 1
 New Headline
+🛠️🔚
 🛠️ edit-file test.py insert 3
 print('hello')
+🛠️🔚
 🛠️ edit-file test.py replace 5
 new = 2
+🛠️🔚
 
 ## complete-task
 Signal task completion with a summary of what was accomplished

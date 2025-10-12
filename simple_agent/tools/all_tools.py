@@ -127,6 +127,7 @@ class AllTools(ToolLibrary):
 
     def parse_tool(self, text):
         pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?'
+        end_marker = r'^🛠️🔚'
         lines = text.splitlines(keepends=True)
         parsed_tools = []
         message = ""
@@ -150,8 +151,11 @@ class AllTools(ToolLibrary):
                     all_arg_lines.append(same_line_args)
 
                 i += 1
-                while i < len(lines) and not re.match(r'^🛠️ ', lines[i]):
+                while i < len(lines) and not re.match(r'^🛠️ ', lines[i]) and not re.match(end_marker, lines[i]):
                     all_arg_lines.append(lines[i])
+                    i += 1
+
+                if i < len(lines) and re.match(end_marker, lines[i]):
                     i += 1
 
                 arguments = ''.join(all_arg_lines).rstrip()

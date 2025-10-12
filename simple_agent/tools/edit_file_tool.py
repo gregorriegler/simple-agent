@@ -136,10 +136,10 @@ class EditFileTool(BaseTool):
     name = "edit-file"
     description = """Edit files by replacing content in specified line ranges.
 
-⚠️ CRITICAL FORMATTING RULES:
+CRITICAL FORMATTING RULES:
 - Content MUST start on the NEXT line after the command
-- STOP your message immediately after content ends
-- Everything from the next line until message end is captured as content
+- End multiline content with 🛠️🔚 marker
+- Everything from the next line until 🛠️🔚 is captured as content
 
 Replace mode: First deletes the specified range, then inserts new content at that position."""
 
@@ -164,11 +164,11 @@ Replace mode: First deletes the specified range, then inserts new content at tha
         }
     ]
     examples = [
-        "🛠️ edit-file myfile.txt replace 1-3\nHello World",
+        "🛠️ edit-file myfile.txt replace 1-3\nHello World\n🛠️🔚",
         "🛠️ edit-file test.txt delete 1",
-        "🛠️ edit-file test.txt insert 1\nNew Headline",
-        "🛠️ edit-file test.py insert 3\nprint('hello')",
-        "🛠️ edit-file test.py replace 5\nnew = 2",
+        "🛠️ edit-file test.txt insert 1\nNew Headline\n🛠️🔚",
+        "🛠️ edit-file test.py insert 3\nprint('hello')\n🛠️🔚",
+        "🛠️ edit-file test.py replace 5\nnew = 2\n🛠️🔚",
     ]
 
     def __init__(self):

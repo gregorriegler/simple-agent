@@ -73,8 +73,27 @@ def test_parse_tool_with_message_and_two_tool_calls():
     assert type(message_and_tools.tools[1].tool_instance).__name__ == "CatTool"
 
 
-
 def test_parse_tool_with_create_file_multiline():
+    text = dedent("""
+    I will create a file with 3 lines
+
+    🛠️ create-file test.txt
+    Line 1
+    Line 2
+    Line 3
+    🛠️🔚
+    """)
+
+    message_and_tools = library.parse_tool(text)
+
+    assert message_and_tools.message == "I will create a file with 3 lines"
+    assert message_and_tools.tools[0] is not None
+    assert message_and_tools.tools[0].name == "create-file"
+    assert message_and_tools.tools[0].arguments == "test.txt\nLine 1\nLine 2\nLine 3"
+    assert type(message_and_tools.tools[0].tool_instance).__name__ == "CreateFileTool"
+
+
+def test_parse_tool_with_create_file_goes_til_end():
     text = dedent("""
     I will create a file with 3 lines
 
@@ -91,6 +110,49 @@ def test_parse_tool_with_create_file_multiline():
     assert message_and_tools.tools[0].name == "create-file"
     assert message_and_tools.tools[0].arguments == "test.txt\nLine 1\nLine 2\nLine 3"
     assert type(message_and_tools.tools[0].tool_instance).__name__ == "CreateFileTool"
+
+
+def test_parse_tool_with_multiline_and_message_after():
+    text = dedent("""
+    I will create a file
+
+    🛠️ create-file test.txt
+    Line 1
+    Line 2
+    🛠️🔚
+
+    This is text after the tool
+    """)
+
+    message_and_tools = library.parse_tool(text)
+
+    assert message_and_tools.message == "I will create a file"
+    assert message_and_tools.tools[0] is not None
+    assert message_and_tools.tools[0].name == "create-file"
+    assert message_and_tools.tools[0].arguments == "test.txt\nLine 1\nLine 2"
+    assert type(message_and_tools.tools[0].tool_instance).__name__ == "CreateFileTool"
+
+
+def test_parse_tool_with_two_multiline_tools():
+    text = dedent("""
+    I will create two files
+
+    🛠️ create-file first.txt
+    First line
+    🛠️🔚
+    🛠️ create-file second.txt
+    Second line
+    🛠️🔚
+    """)
+
+    message_and_tools = library.parse_tool(text)
+
+    assert message_and_tools.message == "I will create two files"
+    assert len(message_and_tools.tools) == 2
+    assert message_and_tools.tools[0].name == "create-file"
+    assert message_and_tools.tools[0].arguments == "first.txt\nFirst line"
+    assert message_and_tools.tools[1].name == "create-file"
+    assert message_and_tools.tools[1].arguments == "second.txt\nSecond line"
 
 
 def dedent(text):

@@ -9,10 +9,11 @@ class CreateFileTool(BaseTool):
     name = "create-file"
     description = """Create new files with optional content
 
-⚠️ CRITICAL FORMATTING RULES:
-- Content starts immediately after the filename on the following lines
+CRITICAL FORMATTING RULES:
+- Content starts on the following lines
+- End content with 🛠️🔚 marker
 - Do NOT add commentary after the tool in the same message
-- Everything after the filename until message end is captured as content"""
+- Everything after the filename until 🛠️🔚 or message end is captured as content"""
 
     arguments = [
         {
@@ -31,7 +32,7 @@ class CreateFileTool(BaseTool):
     examples = [
         "🛠️ create-file newfile.txt",
         "🛠️ create-file script.py print(\"Hello World\")",
-        "🛠️ create-file multi-line.py This is Line 1\nThis is Line 2",
+        "🛠️ create-file multi-line.py\nLine 1\nLine 2\n🛠️🔚",
     ]
 
     def execute(self, args):
