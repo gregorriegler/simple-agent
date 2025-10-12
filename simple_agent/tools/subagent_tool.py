@@ -62,7 +62,7 @@ class SubagentTool(BaseTool):
                 self.display_event_handler
             )
             if self.display_event_handler:
-                subagent_display = self.create_display()
+                subagent_display = self.create_display(subagent.agent_id)
                 self.display_event_handler.register_display(subagent.agent_id, subagent_display)
             result = subagent.start()
             if self.display_event_handler:

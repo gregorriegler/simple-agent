@@ -2,6 +2,7 @@ from textual.app import App, ComposeResult
 from textual.containers import Vertical, Horizontal, Container
 from textual.widgets import RichLog, Input, TabbedContent, TabPane
 from textual import events
+from textual.reactive import reactive
 
 
 class TextualApp(App):
@@ -52,7 +53,7 @@ class TextualApp(App):
 
     def compose(self) -> ComposeResult:
         with Vertical():
-            with TabbedContent():
+            with TabbedContent(id="tabs"):
                 with TabPane("Agent", id="agent-tab"):
                     yield Horizontal(
                         Container(
@@ -97,3 +98,41 @@ class TextualApp(App):
     def write_tool_result(self, message: str) -> None:
         tool_log = self.query_one("#tool-results", RichLog)
         tool_log.write(message)
+
+    def add_subagent_tab(self, agent_id: str, tab_title: str) -> tuple[str, str]:
+        tabs = self.query_one("#tabs", TabbedContent)
+        tab_id = f"tab-{agent_id.replace('/', '-')}"
+        log_id = f"log-{agent_id.replace('/', '-')}"
+        tool_results_id = f"tool-results-{agent_id.replace('/', '-')}"
+
+        new_tab = TabPane(tab_title, id=tab_id)
+        new_tab.compose_add_child(
+            Horizontal(
+                Container(
+                    RichLog(highlight=True, markup=True, id=log_id),
+                    id="left-panel"
+                ),
+                Container(
+                    RichLog(highlight=True, markup=True, id=tool_results_id),
+                    id="right-panel"
+                ),
+                id="tab-content"
+            )
+        )
+        tabs.add_pane(new_tab)
+        tabs.active = tab_id
+        return log_id, tool_results_id
+
+    def write_to_tab(self, log_id: str, message: str) -> None:
+        try:
+            log = self.query_one(f"#{log_id}", RichLog)
+            log.write(message)
+        except Exception:
+            pass
+
+    def write_tool_result_to_tab(self, tool_results_id: str, message: str) -> None:
+        try:
+            tool_log = self.query_one(f"#{tool_results_id}", RichLog)
+            tool_log.write(message)
+        except Exception:
+            pass
