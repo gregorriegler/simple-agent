@@ -3,6 +3,7 @@ Agent:       session_started: False
 Agent:         user_prompted: Hello
 Agent:        assistant_said: Assistant response
 Agent:   session_interrupted: 
+Agent: user_prompt_requested: 
 Agent:         user_prompted: Follow-up message
 Agent: user_prompt_requested: 
 Agent:         session_ended: 

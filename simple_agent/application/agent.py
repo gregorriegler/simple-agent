@@ -53,6 +53,9 @@ class Agent:
 
                 if self.user_input.escape_requested():
                     self.event_bus.publish(EventType.SESSION_INTERRUPTED, SessionInterruptedEvent(self.agent_id))
+                    self.event_bus.publish(
+                        EventType.USER_PROMPT_REQUESTED, UserPromptRequestedEvent(self.agent_id)
+                    )
                     prompt = self.user_input.read()
                     if prompt:
                         context.user_says(prompt)
