@@ -43,7 +43,7 @@ class TextualDisplay(Display):
 
     def tool_result(self, result):
         self._ensure_app_running()
-        if(not result):
+        if not result:
             return
         lines = str(result).split('\n')
         if self.app:
