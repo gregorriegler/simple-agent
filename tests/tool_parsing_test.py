@@ -74,5 +74,24 @@ def test_parse_tool_with_message_and_two_tool_calls():
 
 
 
+def test_parse_tool_with_create_file_multiline():
+    text = dedent("""
+    I will create a file with 3 lines
+
+    🛠️ create-file test.txt
+    Line 1
+    Line 2
+    Line 3
+    """)
+
+    message_and_tools = library.parse_tool(text)
+
+    assert message_and_tools.message == "I will create a file with 3 lines"
+    assert message_and_tools.tools[0] is not None
+    assert message_and_tools.tools[0].name == "create-file"
+    assert message_and_tools.tools[0].arguments == "test.txt\nLine 1\nLine 2\nLine 3"
+    assert type(message_and_tools.tools[0].tool_instance).__name__ == "CreateFileTool"
+
+
 def dedent(text):
     return textwrap.dedent(text).strip()
