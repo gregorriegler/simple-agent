@@ -16,6 +16,7 @@ class SessionArgs:
     start_message: str | None
     show_system_prompt: bool = False
     display_type: DisplayType = DisplayType.TEXTUAL
+    stub_llm: bool = False
 
 
 def run_session(

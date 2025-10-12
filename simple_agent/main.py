@@ -20,7 +20,7 @@ from simple_agent.system_prompt_generator import generate_system_prompt
 
 
 def main():
-    args, use_stub = parse_args()
+    args = parse_args()
 
     if args.show_system_prompt:
         from simple_agent.tools.all_tools import AllTools
@@ -45,7 +45,7 @@ def main():
         user_input.stack(args.start_message)
     session_storage = JsonFileSessionStorage()
 
-    if use_stub:
+    if args.stub_llm:
         llm = create_llm_stub()
     else:
         claude_config = load_claude_config()
@@ -90,7 +90,7 @@ def main():
     display.exit()
 
 
-def parse_args(argv=None):
+def parse_args(argv=None) -> SessionArgs:
     parser = argparse.ArgumentParser(description="Simple Agent")
     parser.add_argument("-c", "--continue", action="store_true", help="Continue previous session")
     parser.add_argument(
@@ -106,9 +106,12 @@ def parse_args(argv=None):
     parsed = parser.parse_args(argv)
     display_type = DisplayType(getattr(parsed, "user_interface"))
     return SessionArgs(
-        bool(getattr(parsed, "continue")), build_start_message(parsed.message),
-        bool(getattr(parsed, "system_prompt")), display_type
-    ), bool(getattr(parsed, "stub"))
+        bool(getattr(parsed, "continue")),
+        build_start_message(parsed.message),
+        bool(getattr(parsed, "system_prompt")),
+        display_type,
+        bool(getattr(parsed, "stub")
+    ))
 
 
 def build_start_message(message_parts):
