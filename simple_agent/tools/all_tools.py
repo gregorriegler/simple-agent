@@ -5,7 +5,7 @@ from simple_agent.application.display import Display
 from simple_agent.application.io import IO
 from simple_agent.application.llm import LLM
 from simple_agent.application.session_storage import NoOpSessionStorage
-from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools
+from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool
 from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual_display import TextualDisplay
@@ -36,18 +36,6 @@ class SubagentTextualDisplay(TextualDisplay):
 
     def exit(self):
         pass
-
-
-class ParsedTool:
-    def __init__(self, name, arguments, tool_instance):
-        self.name = name
-        self.arguments = arguments
-        self.tool_instance = tool_instance
-
-    def __str__(self):
-        if self.arguments:
-            return f"🛠️ {self.name} {self.arguments}"
-        return f"🛠️ {self.name}"
 
 
 class AllTools(ToolLibrary):
@@ -147,6 +135,7 @@ class AllTools(ToolLibrary):
                 tool = self.tool_dict.get(command)
                 if not tool:
                     return None
+                message = ''.join(lines[:i]).rstrip()
                 all_arg_lines = []
                 if same_line_args:
                     all_arg_lines.append(same_line_args)
@@ -155,7 +144,7 @@ class AllTools(ToolLibrary):
                         break
                     all_arg_lines.append(lines[j])
                 arguments = ''.join(all_arg_lines)
-                return MessageAndParsedTools(message="", tools=[ParsedTool(command, arguments, tool)])
+                return MessageAndParsedTools(message=message, tools=[ParsedTool(command, arguments, tool)])
         return MessageAndParsedTools(message=text, tools=[])
 
     def execute_parsed_tool(self, parsed_tool):
