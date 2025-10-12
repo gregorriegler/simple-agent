@@ -1,12 +1,15 @@
 import re
+from typing import Callable, Any
 
 from simple_agent.application.agent import Agent
-from simple_agent.application.display import Display
+from simple_agent.application.event_bus_protocol import EventBus
+from simple_agent.application.input import Input
 from simple_agent.application.io import IO
 from simple_agent.application.llm import LLM
 from simple_agent.application.session_storage import NoOpSessionStorage
-from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool
+from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
 from simple_agent.infrastructure.console_display import ConsoleDisplay
+from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual_display import TextualDisplay
 from simple_agent.system_prompt_generator import generate_system_prompt
@@ -18,8 +21,6 @@ from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
 from .subagent_tool import SubagentTool
 from .write_todos_tool import WriteTodosTool
-from simple_agent.application.input import Input
-from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 
 
 class SubagentConsoleDisplay(ConsoleDisplay):
@@ -46,24 +47,24 @@ class AllTools(ToolLibrary):
         indent_level=0,
         io: IO | None = None,
         agent_id: str = "Agent",
-        event_bus=None,
+        event_bus: EventBus | None = None,
         display_event_handler=None,
         user_input=None
     ):
-        if llm is None:
-            llm = lambda system_prompt, messages: ''
-        self.llm: LLM = llm
+        from simple_agent.application.event_bus import SimpleEventBus
+
+        self.llm: LLM = llm if llm is not None else (lambda system_prompt, messages: '')
         self.indent_level = indent_level
         self.io = io or StdIO()
         self.agent_id = agent_id
-        self.event_bus = event_bus
+        self.event_bus: EventBus = event_bus if event_bus is not None else SimpleEventBus()
         self.display_event_handler = display_event_handler
         self.user_input = user_input
 
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
-        self.tools = static_tools + dynamic_tools + [self._create_subagent_tool()]
-        self.tool_dict = {tool.name: tool for tool in self.tools}
+        self.tools: list[Tool] = static_tools + dynamic_tools + [self._create_subagent_tool()]
+        self.tool_dict = {getattr(tool, 'name', ''): tool for tool in self.tools}
 
     def _create_static_tools(self):
         return [
@@ -100,7 +101,7 @@ class AllTools(ToolLibrary):
                 return self.user_input
         return Input(ConsoleUserInput(self.indent_level + 1, self.io))
 
-    def _create_subagent_display(self) -> Display:
+    def _create_subagent_display(self):
         if self.display_event_handler:
             parent_display = self.display_event_handler.displays.get("Agent")
             if isinstance(parent_display, TextualDisplay):
@@ -134,10 +135,10 @@ class AllTools(ToolLibrary):
             session_storage
         )
 
-    def _build_system_prompt(self, subagent_tools):
+    def _build_system_prompt(self, subagent_tools) -> Callable[[Any], str]:
         return lambda tool_library: generate_system_prompt(subagent_tools)
 
-    def parse_tool(self, text):
+    def parse_tool(self, text) -> MessageAndParsedTools:
         pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?'
         end_marker = r'^🛠️🔚'
         lines = text.splitlines(keepends=True)
@@ -156,7 +157,7 @@ class AllTools(ToolLibrary):
                 command, same_line_args = match.groups()
                 tool = self.tool_dict.get(command)
                 if not tool:
-                    return None
+                    return MessageAndParsedTools(message=text, tools=[])
 
                 all_arg_lines = []
                 if same_line_args:
