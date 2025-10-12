@@ -12,6 +12,7 @@ from simple_agent.application.display_type import DisplayType
 from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual_display import TextualDisplay
+from simple_agent.infrastructure.textual_user_input import TextualUserInput
 from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
@@ -31,9 +32,15 @@ def main():
     agent_id = "Agent"
     indent_level = 0
     io = StdIO()
-    display = TextualDisplay() if args.display_type == DisplayType.TEXTUAL else ConsoleDisplay(indent_level, agent_id, io)
-    console_user_input = ConsoleUserInput(indent_level, display.io)
-    user_input = Input(console_user_input)
+
+    if args.display_type == DisplayType.TEXTUAL:
+        textual_user_input = TextualUserInput()
+        display = TextualDisplay(agent_id, textual_user_input)
+        user_input = Input(textual_user_input)
+    else:
+        display = ConsoleDisplay(indent_level, agent_id, io)
+        console_user_input = ConsoleUserInput(indent_level, display.io)
+        user_input = Input(console_user_input)
     if args.start_message:
         user_input.stack(args.start_message)
     session_storage = JsonFileSessionStorage()

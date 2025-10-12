@@ -1,26 +1,21 @@
 import threading
 
-from textual.app import App, ComposeResult
-from textual.containers import Container, Horizontal, Vertical
-from textual.widgets import RichLog, Footer, Input
-
 from simple_agent.application.display import Display
-from simple_agent.application.io import IO
-from simple_agent.infrastructure.stdio import StdIO
+from simple_agent.infrastructure.textual_app import TextualApp
 
 
 class TextualDisplay(Display):
 
-    def __init__(self, agent_name="Agent", io: IO | None = None):
+    def __init__(self, agent_name="Agent", user_input=None):
         self.agent_name = agent_name
-        self.io = io or StdIO()
         self.agent_prefix = f"{agent_name}: "
+        self.user_input = user_input
         self.app: TextualApp | None = None
         self.app_thread: threading.Thread | None = None
 
     def _ensure_app_running(self):
         if self.app is None:
-            self.app = TextualApp()
+            self.app = TextualApp(self.user_input)
             self.app_thread = threading.Thread(target=self._run_app, daemon=True)
             self.app_thread.start()
             import time
@@ -73,76 +68,3 @@ class TextualDisplay(Display):
             self.app.call_from_thread(self.app.exit)
 
 
-class TextualApp(App):
-
-    CSS = """
-    Screen {
-        background: $surface;
-    }
-
-    #main-content {
-        height: 1fr;
-    }
-
-    Horizontal {
-        height: 100%;
-    }
-
-    #left-panel {
-        width: 50%;
-        height: 100%;
-    }
-
-    #right-panel {
-        width: 50%;
-        height: 100%;
-    }
-
-    RichLog {
-        background: $surface;
-        color: $text;
-        border: solid $primary;
-        height: 100%;
-    }
-
-    #tool-results {
-        background: $surface;
-        color: $text;
-        border: solid $primary;
-        height: 100%;
-    }
-
-    #user-input {
-        height: 3;
-        width: 100%;
-        border: solid $primary;
-    }
-    """
-
-    def compose(self) -> ComposeResult:
-        yield Vertical(
-            Horizontal(
-                Container(
-                    RichLog(highlight=True, markup=True, id="log"),
-                    id="left-panel"
-                ),
-                Container(
-                    RichLog(highlight=True, markup=True, id="tool-results"),
-                    id="right-panel"
-                ),
-                id="main-content"
-            ),
-            Input(placeholder="Enter your message...", id="user-input")
-        )
-        yield Footer()
-
-    def on_mount(self) -> None:
-        self.query_one("#user-input", Input).focus()
-
-    def write_message(self, message: str) -> None:
-        log = self.query_one("#log", RichLog)
-        log.write(message)
-
-    def write_tool_result(self, message: str) -> None:
-        tool_log = self.query_one("#tool-results", RichLog)
-        tool_log.write(message)

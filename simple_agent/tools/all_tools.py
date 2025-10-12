@@ -31,8 +31,8 @@ class SubagentConsoleDisplay(ConsoleDisplay):
 
 
 class SubagentTextualDisplay(TextualDisplay):
-    def __init__(self, io: IO | None = None):
-        super().__init__("Subagent", io)
+    def __init__(self):
+        super().__init__("Subagent")
 
     def exit(self):
         pass
@@ -93,7 +93,7 @@ class AllTools(ToolLibrary):
         if self.display_event_handler:
             parent_display = self.display_event_handler.displays.get("Agent")
             if isinstance(parent_display, TextualDisplay):
-                return SubagentTextualDisplay(self.io)
+                return SubagentTextualDisplay()
         return SubagentConsoleDisplay(self.indent_level + 1, self.io)
 
     def _create_agent(
