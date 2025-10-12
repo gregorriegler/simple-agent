@@ -175,7 +175,7 @@ def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
         initial_file_info = f"Initial file: {setup_file}\nInitial content:\n--- INITIAL CONTENT START ---\n{setup_content}\n--- INITIAL CONTENT END ---"
 
         tool = library.parse_tool(command)
-        result = library.execute_parsed_tool(tool)
+        result = library.execute_parsed_tool(tool.tools[0])
         with open(setup_file, "r", encoding='utf-8') as f:
             actual_content = f.read()
         final_file_info = f"File after edit: {setup_file}\nFinal content:\n--- FINAL CONTENT START ---\n{actual_content}\n--- FINAL CONTENT END ---"

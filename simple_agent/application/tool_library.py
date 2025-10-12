@@ -20,10 +20,14 @@ class ContinueResult(ToolResult):
 class CompleteResult(ToolResult):
     pass
 
-
 class ParsedTool(Protocol):
     arguments: str | None
     tool_instance: object
+
+@dataclass
+class MessageAndParsedTools:
+    message: str
+    tools: List[ParsedTool]
 
 
 class Tool(Protocol):
@@ -38,7 +42,7 @@ class Tool(Protocol):
 class ToolLibrary(Protocol):
     tools: List[Tool]
 
-    def parse_tool(self, text: str) -> Optional[ParsedTool]:
+    def parse_tool(self, text: str) -> MessageAndParsedTools:
         ...
 
     def execute_parsed_tool(self, parsed_tool: ParsedTool) -> ToolResult:

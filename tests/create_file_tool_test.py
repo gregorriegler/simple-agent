@@ -34,10 +34,10 @@ def test_create_file_in_nonexistent_directory(tmp_path):
 def test_create_file_already_exists(tmp_path):
     with temp_directory(tmp_path):
         tool = library.parse_tool("🛠️ create-file existing.txt")
-        library.execute_parsed_tool(tool)
+        library.execute_parsed_tool(tool.tools[0])
 
         tool = library.parse_tool("🛠️ create-file existing.txt")
-        result = library.execute_parsed_tool(tool)
+        result = library.execute_parsed_tool(tool.tools[0])
         assert 'already exists' in result.feedback.lower() or 'exists' in result.feedback.lower()
 
 
@@ -67,7 +67,7 @@ Third Line
 def verify_create_tool(library, command, expected_filename, tmp_path):
     with temp_directory(tmp_path):
         tool = library.parse_tool(command)
-        result = library.execute_parsed_tool(tool)
+        result = library.execute_parsed_tool(tool.tools[0])
 
         with open(expected_filename, "r", encoding='utf-8') as f:
             actual_content = f.read()

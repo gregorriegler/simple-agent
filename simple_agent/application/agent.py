@@ -36,10 +36,10 @@ class Agent:
         try:
             while isinstance(tool_result, ContinueResult):
                 llm_answer = self.llm_answers(context)
-                tool = self.tools.parse_tool(llm_answer)
-                if not tool or self.user_input.escape_requested():
+                message_and_tools = self.tools.parse_tool(llm_answer)
+                if not message_and_tools.tools or self.user_input.escape_requested():
                     break
-                tool_result = self.execute_tool(tool, context)
+                tool_result = self.execute_tool(message_and_tools.tools[0], context)
         except KeyboardInterrupt:
             pass
 

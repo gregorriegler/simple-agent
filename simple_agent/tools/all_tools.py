@@ -5,7 +5,7 @@ from simple_agent.application.display import Display
 from simple_agent.application.io import IO
 from simple_agent.application.llm import LLM
 from simple_agent.application.session_storage import NoOpSessionStorage
-from simple_agent.application.tool_library import ToolLibrary
+from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools
 from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual_display import TextualDisplay
@@ -155,8 +155,8 @@ class AllTools(ToolLibrary):
                         break
                     all_arg_lines.append(lines[j])
                 arguments = ''.join(all_arg_lines)
-                return ParsedTool(command, arguments, tool)
-        return None
+                return MessageAndParsedTools(message="", tools=[ParsedTool(command, arguments, tool)])
+        return MessageAndParsedTools(message=text, tools=[])
 
     def execute_parsed_tool(self, parsed_tool):
         args = parsed_tool.arguments if parsed_tool.arguments else None
