@@ -37,6 +37,9 @@ class Agent:
             while isinstance(tool_result, ContinueResult):
                 llm_answer = self.llm_answers(context)
                 message_and_tools = self.tools.parse_tool(llm_answer)
+                if message_and_tools.message:
+                    self.event_bus.publish(EventType.ASSISTANT_SAID, AssistantSaidEvent(self.agent_id, message_and_tools.message))
+
                 if not message_and_tools.tools or self.user_input.escape_requested():
                     break
                 tool_result = self.execute_tool(message_and_tools.tools[0], context)
@@ -56,7 +59,6 @@ class Agent:
     def llm_answers(self, context):
         system_prompt = self.system_prompt(self.tools)
         answer = self.llm(system_prompt, context.to_list())
-        self.event_bus.publish(EventType.ASSISTANT_SAID, AssistantSaidEvent(self.agent_id, answer))
         context.assistant_says(answer)
         return answer
 

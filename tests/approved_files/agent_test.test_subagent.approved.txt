@@ -2,19 +2,16 @@
 Agent:       session_started: False
 Agent: user_prompt_requested: 
 Agent:         user_prompted: Create a subagent that says hello
-Agent:        assistant_said: 🛠️ subagent say hello
 Agent:           tool_called: 🛠️ subagent say hello
 Agent/Subagent1: user_prompt_requested: 
 Agent/Subagent1:         user_prompted: say hello
 Agent/Subagent1:        assistant_said: hello
-🛠️ complete-task I successfully said hello
 Agent/Subagent1:           tool_called: 🛠️ complete-task I successfully said hello
 Agent/Subagent1:           tool_result: I successfully said hello
 Agent/Subagent1: user_prompt_requested: 
 Agent/Subagent1:         session_ended: 
 Agent:           tool_result: I successfully said hello
 Agent:        assistant_said: hello
-🛠️ complete-task I successfully said hello
 Agent:           tool_called: 🛠️ complete-task I successfully said hello
 Agent:           tool_result: I successfully said hello
 Agent: user_prompt_requested: 

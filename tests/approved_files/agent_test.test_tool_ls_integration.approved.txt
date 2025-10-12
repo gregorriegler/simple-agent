@@ -2,14 +2,12 @@
 Agent:       session_started: False
 Agent: user_prompt_requested: 
 Agent:         user_prompted: Test message
-Agent:        assistant_said: 🛠️ ls /tmp/test_path
 Agent:           tool_called: 🛠️ ls /tmp/test_path
 Agent:           tool_result: .
 ..
 file1.txt
 file2.py
 subdir
-Agent:        assistant_said: 🛠️ complete-task summary
 Agent:           tool_called: 🛠️ complete-task summary
 Agent:           tool_result: summary
 Agent: user_prompt_requested: 
