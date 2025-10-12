@@ -1,3 +1,5 @@
+- one tab per agent
+- when i press space, everything pauses
 - https://github.com/ludo-technologies/pyscn
 - say should be a part of the agent
 - api key via env var

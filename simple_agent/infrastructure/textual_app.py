@@ -1,6 +1,6 @@
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, Horizontal, Container
-from textual.widgets import RichLog, Input
+from textual.widgets import RichLog, Input, TabbedContent, TabPane
 from textual import events
 
 
@@ -11,12 +11,12 @@ class TextualApp(App):
         background: $surface;
     }
 
-    #main-content {
+    TabbedContent {
         height: 1fr;
     }
 
-    Horizontal {
-        height: 100%;
+    #tab-content {
+        height: 1fr;
     }
 
     #left-panel {
@@ -34,10 +34,6 @@ class TextualApp(App):
         color: $text;
         border: solid $primary;
         height: 100%;
-        width: 100%;
-        max-width: 100%;
-        overflow-y: auto;
-        scrollbar-gutter: stable;
     }
 
     #tool-results {
@@ -55,20 +51,21 @@ class TextualApp(App):
     """
 
     def compose(self) -> ComposeResult:
-        yield Vertical(
-            Horizontal(
-                Container(
-                    RichLog(highlight=True, markup=True, wrap=True, id="log"),
-                    id="left-panel"
-                ),
-                Container(
-                    RichLog(highlight=True, markup=True, id="tool-results"),
-                    id="right-panel"
-                ),
-                id="main-content"
-            ),
-            Input(placeholder="Enter your message...", id="user-input")
-        )
+        with Vertical():
+            with TabbedContent():
+                with TabPane("Agent", id="agent-tab"):
+                    yield Horizontal(
+                        Container(
+                            RichLog(highlight=True, markup=True, id="log"),
+                            id="left-panel"
+                        ),
+                        Container(
+                            RichLog(highlight=True, markup=True, id="tool-results"),
+                            id="right-panel"
+                        ),
+                        id="tab-content"
+                    )
+            yield Input(placeholder="Enter your message...", id="user-input")
 
     def __init__(self, user_input=None):
         super().__init__()
