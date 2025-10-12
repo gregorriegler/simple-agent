@@ -128,23 +128,39 @@ class AllTools(ToolLibrary):
     def parse_tool(self, text):
         pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?'
         lines = text.splitlines(keepends=True)
-        for i, line in enumerate(lines):
-            match = re.match(pattern, line, re.DOTALL)
+        parsed_tools = []
+        message = ""
+        first_tool_index = None
+
+        i = 0
+        while i < len(lines):
+            match = re.match(pattern, lines[i], re.DOTALL)
             if match:
+                if first_tool_index is None:
+                    first_tool_index = i
+                    message = ''.join(lines[:i]).rstrip()
+
                 command, same_line_args = match.groups()
                 tool = self.tool_dict.get(command)
                 if not tool:
                     return None
-                message = ''.join(lines[:i]).rstrip()
+
                 all_arg_lines = []
                 if same_line_args:
                     all_arg_lines.append(same_line_args)
-                for j in range(i + 1, len(lines)):
-                    if re.match(r'^🛠️ ', lines[j]):
-                        break
-                    all_arg_lines.append(lines[j])
-                arguments = ''.join(all_arg_lines)
-                return MessageAndParsedTools(message=message, tools=[ParsedTool(command, arguments, tool)])
+
+                i += 1
+                while i < len(lines) and not re.match(r'^🛠️ ', lines[i]):
+                    all_arg_lines.append(lines[i])
+                    i += 1
+
+                arguments = ''.join(all_arg_lines).rstrip()
+                parsed_tools.append(ParsedTool(command, arguments, tool))
+            else:
+                i += 1
+
+        if parsed_tools:
+            return MessageAndParsedTools(message=message, tools=parsed_tools)
         return MessageAndParsedTools(message=text, tools=[])
 
     def execute_parsed_tool(self, parsed_tool):
