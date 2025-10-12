@@ -8,7 +8,7 @@ library = AllTools()
 
 
 def test_write_todos_creates_markdown_file(tmp_path):
-    command = "🛠️ write-todos ## Todo\n- Item 1\n\n## Doing\n- Work in progress\n\n## Done\n- Completed"
+    command = "🛠️ write-todos\n- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Completed"
 
     with temp_directory(tmp_path):
         tool = library.parse_tool(command)

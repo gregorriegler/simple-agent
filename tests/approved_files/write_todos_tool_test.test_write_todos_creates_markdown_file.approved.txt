@@ -1,24 +1,15 @@
 Command:
-🛠️ write-todos ## Todo
-- Item 1
-
-## Doing
-- Work in progress
-
-## Done
-- Completed
+🛠️ write-todos
+- [ ] Item 1
+- [ ] **Work in progress**
+- [x] Completed
 
 Result:
 Updated TODOS
 
 File content:
 --- FILE CONTENT START ---
-## Todo
-- Item 1
-
-## Doing
-- Work in progress
-
-## Done
-- Completed
+- [ ] Item 1
+- [ ] **Work in progress**
+- [x] Completed
 --- FILE CONTENT END ---

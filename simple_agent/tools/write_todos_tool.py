@@ -13,12 +13,12 @@ class WriteTodosTool(BaseTool):
             "name": "content",
             "type": "string",
             "required": True,
-            "description": "Markdown text to represent the todos"
+            "description": "Markdown checklist to represent the todos. Use - [ ] for todo, - [ ] **doing** for in-progress, - [x] for done"
         }
     ]
     examples = [
-        "🛠️ write-todos ## Todo\\n- Item 1",
-        "🛠️ write-todos\\n## Todo\\n- Feature exploration\\n\\n## Doing\\n- Implementing tool\\n\\n## Done\\n- Initial setup"
+        "🛠️ write-todos\n- [ ] Item 1",
+        "🛠️ write-todos\n- [ ] Feature exploration\n- [ ] **Implementing tool**\n- [x] Initial setup"
     ]
 
     def __init__(self, agent_id="Agent"):

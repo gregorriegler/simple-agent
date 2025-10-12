@@ -2,13 +2,17 @@
 Organize your work in TODOs. Use this tool to create or update those TODOs
 
 Arguments:
- - content: string (required) - Markdown text to represent the todos
+ - content: string (required) - Markdown checklist to represent the todos. Use - [ ] for todo, - [ ] **doing** for in-progress, - [x] for done
 
 Usage: 🛠️ write-todos <content>
 
 Examples:
-🛠️ write-todos ## Todo\n- Item 1
-🛠️ write-todos\n## Todo\n- Feature exploration\n\n## Doing\n- Implementing tool\n\n## Done\n- Initial setup
+🛠️ write-todos
+- [ ] Item 1
+🛠️ write-todos
+- [ ] Feature exploration
+- [ ] **Implementing tool**
+- [x] Initial setup
 
 ## ls
 List directory contents with detailed information
