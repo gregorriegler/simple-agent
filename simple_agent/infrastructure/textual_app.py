@@ -75,7 +75,7 @@ class TextualApp(App):
 
     def on_unmount(self) -> None:
         if self.user_input:
-            self.user_input.request_escape()
+            self.user_input.close()
 
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
