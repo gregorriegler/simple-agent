@@ -1,10 +1,12 @@
+import threading
+
 from textual.app import App, ComposeResult
-from textual.widgets import RichLog, Footer, Static
-from textual.containers import Container, Horizontal
+from textual.containers import Container, Horizontal, Vertical
+from textual.widgets import RichLog, Footer, Input
+
 from simple_agent.application.display import Display
 from simple_agent.application.io import IO
 from simple_agent.infrastructure.stdio import StdIO
-import threading
 
 
 class TextualDisplay(Display):
@@ -27,6 +29,11 @@ class TextualDisplay(Display):
     def _run_app(self):
         if self.app:
             self.app.run()
+
+    def user_says(self, message):
+        self._ensure_app_running()
+        if self.app:
+            self.app.call_from_thread(self.app.write_message, f"\nUser: {message}")
 
     def assistant_says(self, message):
         self._ensure_app_running()
@@ -73,6 +80,10 @@ class TextualApp(App):
         background: $surface;
     }
 
+    #main-content {
+        height: 1fr;
+    }
+
     Horizontal {
         height: 100%;
     }
@@ -100,20 +111,33 @@ class TextualApp(App):
         border: solid $primary;
         height: 100%;
     }
+
+    #user-input {
+        height: 3;
+        width: 100%;
+        border: solid $primary;
+    }
     """
 
     def compose(self) -> ComposeResult:
-        yield Horizontal(
-            Container(
-                RichLog(highlight=True, markup=True, id="log"),
-                id="left-panel"
+        yield Vertical(
+            Horizontal(
+                Container(
+                    RichLog(highlight=True, markup=True, id="log"),
+                    id="left-panel"
+                ),
+                Container(
+                    RichLog(highlight=True, markup=True, id="tool-results"),
+                    id="right-panel"
+                ),
+                id="main-content"
             ),
-            Container(
-                RichLog(highlight=True, markup=True, id="tool-results"),
-                id="right-panel"
-            )
+            Input(placeholder="Enter your message...", id="user-input")
         )
         yield Footer()
+
+    def on_mount(self) -> None:
+        self.query_one("#user-input", Input).focus()
 
     def write_message(self, message: str) -> None:
         log = self.query_one("#log", RichLog)

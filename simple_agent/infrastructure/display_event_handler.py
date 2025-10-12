@@ -1,6 +1,6 @@
 from simple_agent.application.display import Display
 from simple_agent.application.events import AssistantSaidEvent, ToolResultEvent, SessionEndedEvent, SessionStartedEvent, \
-    ToolCalledEvent
+    ToolCalledEvent, UserPromptedEvent
 
 
 class DisplayEventHandler:
@@ -16,6 +16,10 @@ class DisplayEventHandler:
             display.continue_session()
         else:
             display.start_new_session()
+
+    def handle_user_prompted(self, event: UserPromptedEvent) -> None:
+        display = self.displays.get(event.agent_id)
+        display.user_says(event.input_text)
 
     def handle_assistant_said(self, event: AssistantSaidEvent) -> None:
         display = self.displays.get(event.agent_id)

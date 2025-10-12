@@ -23,6 +23,9 @@ class ConsoleDisplay(Display):
             for line in lines[1:]:
                 self.io.print(f"{self.base_indent}{line}")
 
+    def user_says(self, message):
+        pass
+
     def tool_call(self, tool):
         pass
 

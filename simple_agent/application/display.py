@@ -6,6 +6,9 @@ class Display(Protocol):
     def assistant_says(self, message) -> None:
         ...
 
+    def user_says(self, message) -> None:
+        ...
+
     def tool_call(self, tool) -> None:
         ...
 
