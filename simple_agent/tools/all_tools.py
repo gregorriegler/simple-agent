@@ -18,8 +18,8 @@ from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
 from .subagent_tool import SubagentTool
 from .write_todos_tool import WriteTodosTool
-from ..application.input import Input
-from ..infrastructure.console_user_input import ConsoleUserInput
+from simple_agent.application.input import Input
+from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 
 
 class SubagentConsoleDisplay(ConsoleDisplay):
