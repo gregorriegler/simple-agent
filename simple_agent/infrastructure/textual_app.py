@@ -1,6 +1,6 @@
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, Horizontal, Container
-from textual.widgets import RichLog, Input, Footer
+from textual.widgets import RichLog, Input
 
 
 class TextualApp(App):
@@ -64,7 +64,6 @@ class TextualApp(App):
             ),
             Input(placeholder="Enter your message...", id="user-input")
         )
-        yield Footer()
 
     def __init__(self, user_input=None):
         super().__init__()
