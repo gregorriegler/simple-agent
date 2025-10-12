@@ -66,7 +66,7 @@ class TextualApp(App):
                         ),
                         id="tab-content"
                     )
-            yield Input(placeholder="Enter your message...", id="user-input")
+            yield Input(placeholder="Enter your message...", id="user-input", valid_empty=True)
 
     def __init__(self, user_input=None):
         super().__init__()
@@ -86,10 +86,8 @@ class TextualApp(App):
             event.prevent_default()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
-        if event.value.strip():
-            if self.user_input:
-                self.user_input.submit_input(event.value.strip())
-            event.input.value = ""
+        self.user_input.submit_input(event.value.strip())
+        event.input.value = ""
 
     def write_message(self, message: str) -> None:
         log = self.query_one("#log", RichLog)
@@ -134,5 +132,13 @@ class TextualApp(App):
         try:
             tool_log = self.query_one(f"#{tool_results_id}", RichLog)
             tool_log.write(message)
+        except Exception:
+            pass
+
+    def remove_subagent_tab(self, agent_id: str) -> None:
+        tabs = self.query_one("#tabs", TabbedContent)
+        tab_id = f"tab-{agent_id.replace('/', '-')}"
+        try:
+            tabs.remove_pane(tab_id)
         except Exception:
             pass

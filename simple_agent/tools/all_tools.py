@@ -90,7 +90,8 @@ class SubagentTextualDisplay(TextualDisplay):
             self.app.call_from_thread(self.app.write_to_tab, self.log_id, "\n[Session interrupted by user]")
 
     def exit(self):
-        pass
+        if self.app and self.app.is_running:
+            self.app.call_from_thread(self.app.remove_subagent_tab, self.agent_id)
 
 
 class AllTools(ToolLibrary):
