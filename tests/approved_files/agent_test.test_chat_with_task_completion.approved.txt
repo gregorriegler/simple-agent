@@ -9,18 +9,6 @@ Agent:           tool_result: I successfully said hello
 Agent: user_prompt_requested: 
 Agent:         session_ended: 
 
-# Standard out:
-Starting new session
-
-Agent: Hello!
-       🛠️ complete-task I successfully said hello
-
-       I successfully said hello
-
-Press Enter to continue or type a message to add: 
-
-Exiting...
-
 # Saved messages:
 user: Say Hello
 assistant: Hello!

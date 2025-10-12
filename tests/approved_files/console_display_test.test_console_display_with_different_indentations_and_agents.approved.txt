@@ -1,0 +1,35 @@
+Starting new session
+
+Agent: Hello from Agent
+
+Agent: Multi-line message
+       Second line
+       Third line
+
+       Tool result
+
+       Multi-line tool result
+       Line 2
+       Line 3
+       ... (truncated)
+
+Exiting...
+Continuing session
+
+       Subagent: Hello from Subagent at indent 1
+
+       Subagent: Another multi-line
+              With second line
+
+              Tool result at indent 1
+
+              Subagent2: Hello from Nested Subagent at indent 2
+
+              Subagent2: Deep indentation
+                     With multiple
+                     Lines here
+
+                     Deep tool result
+                     With lines
+
+              Exiting...

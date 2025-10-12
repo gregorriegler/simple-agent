@@ -15,24 +15,6 @@ Agent:           tool_result: summary
 Agent: user_prompt_requested: 
 Agent:         session_ended: 
 
-# Standard out:
-Starting new session
-
-Agent: 🛠️ ls /tmp/test_path
-
-       .
-       ..
-       file1.txt
-       ... (truncated)
-
-Agent: 🛠️ complete-task summary
-
-       summary
-
-Press Enter to continue or type a message to add: 
-
-Exiting...
-
 # Saved messages:
 user: Test message
 assistant: 🛠️ ls /tmp/test_path

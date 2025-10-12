@@ -6,15 +6,6 @@ Agent:        assistant_said: Test answer
 Agent: user_prompt_requested: 
 Agent:         session_ended: 
 
-# Standard out:
-Starting new session
-
-Agent: Test answer
-
-Press Enter to continue or type a message to add: 
-
-Exiting...
-
 # Saved messages:
 user: Test message
 assistant: Test answer

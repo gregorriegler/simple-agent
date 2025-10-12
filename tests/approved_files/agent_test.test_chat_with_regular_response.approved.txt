@@ -6,15 +6,6 @@ Agent:        assistant_said: Hello! How can I help you?
 Agent: user_prompt_requested: 
 Agent:         session_ended: 
 
-# Standard out:
-Starting new session
-
-Agent: Hello! How can I help you?
-
-Press Enter to continue or type a message to add: 
-
-Exiting...
-
 # Saved messages:
 user: Hello
 assistant: Hello! How can I help you?

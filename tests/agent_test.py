@@ -147,7 +147,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
         event_bus
     )
 
-    result = f"# Events\n{event_spy.get_events_as_string()}\n\n# Standard out:\n{io_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
+    result = f"# Events\n{event_spy.get_events_as_string()}\n\n# Saved messages:\n{test_session_storage.saved}"
     verify(result, options=Options().with_scrubber(all_scrubbers()))
 
 

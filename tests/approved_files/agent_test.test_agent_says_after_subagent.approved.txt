@@ -17,26 +17,6 @@ Agent:        assistant_said: goodbye
 Agent: user_prompt_requested: 
 Agent:         session_ended: 
 
-# Standard out:
-Starting new session
-
-Agent: 🛠️ subagent say hello
-
-       Subagent: hello
-              🛠️ complete-task I successfully said hello
-
-              I successfully said hello
-
-       Press Enter to continue or type a message to add: 
-
-       I successfully said hello
-
-Agent: goodbye
-
-Press Enter to continue or type a message to add: 
-
-Exiting...
-
 # Saved messages:
 user: Create a subagent that says hello, then say goodbye
 assistant: 🛠️ subagent say hello
