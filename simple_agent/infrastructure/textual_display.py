@@ -38,9 +38,8 @@ class TextualDisplay(Display):
 
     def tool_call(self, tool):
         self._ensure_app_running()
-        lines = str(tool).split('\n')
         if self.app:
-            self.app.call_from_thread(self.app.write_tool_result, lines)
+            self.app.call_from_thread(self.app.write_tool_result, str(tool))
 
     def tool_result(self, result):
         self._ensure_app_running()
