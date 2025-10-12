@@ -7,6 +7,7 @@ from simple_agent.application.events import EventType
 from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
+from .event_spy import EventSpy
 from .print_spy import IOSpy
 from .test_helpers import (
     create_temp_file,
@@ -116,7 +117,13 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     test_session_storage = SessionStorageStub()
     event_bus = SimpleEventBus()
     display_handler = DisplayEventHandler(display)
+
+    event_spy = EventSpy()
+    for event_type in EventType:
+        event_bus.subscribe(event_type, lambda event_data, et=event_type: event_spy.record_event(et, event_data))
+
     event_bus.subscribe(EventType.ASSISTANT_SAID, display_handler.handle_assistant_said)
+    event_bus.subscribe(EventType.TOOL_CALLED, display_handler.handle_tool_called)
     event_bus.subscribe(EventType.TOOL_RESULT, display_handler.handle_tool_result)
     event_bus.subscribe(EventType.SESSION_STARTED, display_handler.handle_session_started)
     event_bus.subscribe(EventType.SESSION_ENDED, display_handler.handle_session_ended)
@@ -140,7 +147,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
         event_bus
     )
 
-    result = f"# Standard out:\n{io_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
+    result = f"# Events\n{event_spy.get_events_as_string()}\n\n# Standard out:\n{io_spy.get_output()}\n\n# Saved messages:\n{test_session_storage.saved}"
     verify(result, options=Options().with_scrubber(all_scrubbers()))
 
 

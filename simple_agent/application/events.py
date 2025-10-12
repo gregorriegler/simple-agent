@@ -11,9 +11,11 @@ class AgentEvent:
 class AssistantSaidEvent(AgentEvent):
     message: str
 
+
 @dataclass
 class ToolCalledEvent(AgentEvent):
     tool: any
+
 
 @dataclass
 class ToolResultEvent(AgentEvent):

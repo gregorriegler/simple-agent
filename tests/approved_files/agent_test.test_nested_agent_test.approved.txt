@@ -1,3 +1,34 @@
+# Events
+Agent:       session_started: False
+Agent: user_prompt_requested: 
+Agent:         user_prompted: Create a subagent that creates another subagent
+Agent:        assistant_said: 🛠️ subagent create another subagent
+Agent:           tool_called: 🛠️ subagent create another subagent
+Agent/Subagent1: user_prompt_requested: 
+Agent/Subagent1:         user_prompted: create another subagent
+Agent/Subagent1:        assistant_said: 🛠️ subagent say nested hello
+Agent/Subagent1:           tool_called: 🛠️ subagent say nested hello
+Agent/tmp/test_path: user_prompt_requested: 
+Agent/tmp/test_path:         user_prompted: say nested hello
+Agent/tmp/test_path:        assistant_said: nested hello
+🛠️ complete-task I successfully said nested hello
+Agent/tmp/test_path:           tool_called: 🛠️ complete-task I successfully said nested hello
+Agent/tmp/test_path:           tool_result: I successfully said nested hello
+Agent/tmp/test_path: user_prompt_requested: 
+Agent/tmp/test_path:         session_ended: 
+Agent/Subagent1:           tool_result: I successfully said nested hello
+Agent/Subagent1:        assistant_said: 🛠️ complete-task I successfully created another subagent
+Agent/Subagent1:           tool_called: 🛠️ complete-task I successfully created another subagent
+Agent/Subagent1:           tool_result: I successfully created another subagent
+Agent/Subagent1: user_prompt_requested: 
+Agent/Subagent1:         session_ended: 
+Agent:           tool_result: I successfully created another subagent
+Agent:        assistant_said: 🛠️ complete-task I successfully created a subagent
+Agent:           tool_called: 🛠️ complete-task I successfully created a subagent
+Agent:           tool_result: I successfully created a subagent
+Agent: user_prompt_requested: 
+Agent:         session_ended: 
+
 # Standard out:
 Starting new session
 

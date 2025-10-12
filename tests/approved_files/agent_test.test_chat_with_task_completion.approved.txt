@@ -1,3 +1,14 @@
+# Events
+Agent:       session_started: False
+Agent: user_prompt_requested: 
+Agent:         user_prompted: Say Hello
+Agent:        assistant_said: Hello!
+🛠️ complete-task I successfully said hello
+Agent:           tool_called: 🛠️ complete-task I successfully said hello
+Agent:           tool_result: I successfully said hello
+Agent: user_prompt_requested: 
+Agent:         session_ended: 
+
 # Standard out:
 Starting new session
 

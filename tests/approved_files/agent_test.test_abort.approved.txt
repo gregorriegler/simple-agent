@@ -1,3 +1,11 @@
+# Events
+Agent:       session_started: False
+Agent: user_prompt_requested: 
+Agent:         user_prompted: Test message
+Agent:        assistant_said: Test answer
+Agent: user_prompt_requested: 
+Agent:         session_ended: 
+
 # Standard out:
 Starting new session
 

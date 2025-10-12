@@ -1,3 +1,16 @@
+# Events
+Agent:       session_started: False
+Agent: user_prompt_requested: 
+Agent:         user_prompted: Hello
+Agent:        assistant_said: 🛠️ cat hello.txt
+Agent: user_prompt_requested: 
+Agent:         user_prompted: Follow-up message
+Agent:        assistant_said: 🛠️ complete-task summary
+Agent:           tool_called: 🛠️ complete-task summary
+Agent:           tool_result: summary
+Agent: user_prompt_requested: 
+Agent:         session_ended: 
+
 # Standard out:
 Starting new session
 
