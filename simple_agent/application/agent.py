@@ -49,7 +49,7 @@ class Agent:
                 if message_and_tools.message:
                     self.event_bus.publish(
                         EventType.ASSISTANT_SAID, AssistantSaidEvent(self.agent_id, message_and_tools.message)
-                        )
+                    )
 
                 if not message_and_tools.tools or self.user_input.escape_requested():
                     if self.user_input.escape_requested():
