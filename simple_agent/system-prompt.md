@@ -14,14 +14,13 @@ Good examples for todos:
 - File operations (a subagent can read, edit, create files)
 - Running commands (a subagent can execute bash commands)
 
-# 🚨 CRITICAL RULES - READ THREE TIMES 🚨
-## 🚨 RULE 1: Unless the Task is small and clear: DELEGATE, do not execute
+# CRITICAL RULES
+## Unless the Task is small and clear: DELEGATE, do not execute
 
 # Tools
 These are your tools.
 To use a tool, answer in the described syntax.
 One tool execution per answer.
-The tool should always be the last thing in your answer.
 
 {{DYNAMIC_TOOLS_PLACEHOLDER}}
 
