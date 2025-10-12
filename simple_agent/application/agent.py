@@ -51,9 +51,14 @@ class Agent:
                         EventType.ASSISTANT_SAID, AssistantSaidEvent(self.agent_id, message_and_tools.message)
                     )
 
-                if not message_and_tools.tools or self.user_input.escape_requested():
-                    if self.user_input.escape_requested():
-                        self.event_bus.publish(EventType.SESSION_INTERRUPTED, SessionInterruptedEvent(self.agent_id))
+                if self.user_input.escape_requested():
+                    self.event_bus.publish(EventType.SESSION_INTERRUPTED, SessionInterruptedEvent(self.agent_id))
+                    prompt = self.user_input.read()
+                    if prompt:
+                        context.user_says(prompt)
+                        self.event_bus.publish(EventType.USER_PROMPTED, UserPromptedEvent(self.agent_id, prompt))
+                        break
+                if not message_and_tools.tools:
                     break
                 tool_result = self.execute_tool(message_and_tools.tools[0], context)
         except KeyboardInterrupt:
