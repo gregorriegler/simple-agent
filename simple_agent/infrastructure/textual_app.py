@@ -1,6 +1,7 @@
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, Horizontal, Container
 from textual.widgets import RichLog, Input
+from textual import events
 
 
 class TextualApp(App):
@@ -75,6 +76,12 @@ class TextualApp(App):
     def on_unmount(self) -> None:
         if self.user_input:
             self.user_input.request_escape()
+
+    def on_key(self, event: events.Key) -> None:
+        if event.key == "escape":
+            if self.user_input:
+                self.user_input.request_escape()
+            event.prevent_default()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         if event.value.strip():

@@ -10,11 +10,10 @@ class TextualUserInput(UserInput):
         self.escape_flag = False
 
     def read(self) -> str:
-        if self.escape_flag:
-            return ""
         return self.input_queue.get()
 
     def submit_input(self, message: str):
+        self.escape_flag = False
         self.input_queue.put(message)
 
     def escape_requested(self) -> bool:
@@ -22,4 +21,3 @@ class TextualUserInput(UserInput):
 
     def request_escape(self):
         self.escape_flag = True
-        self.input_queue.put("")

@@ -3,9 +3,8 @@ from .llm import LLM, Messages
 from .session_storage import SessionStorage
 from .tool_library import ToolResult, ContinueResult, ToolLibrary
 from .event_bus_protocol import EventBus
-from .events import AssistantSaidEvent, ToolCalledEvent, ToolResultEvent, SessionEndedEvent, UserPromptRequestedEvent, \
-    UserPromptedEvent, \
-    EventType
+from .events import AssistantSaidEvent, ToolCalledEvent, ToolResultEvent, SessionEndedEvent, SessionInterruptedEvent, \
+    UserPromptRequestedEvent, UserPromptedEvent, EventType
 
 
 class Agent:
@@ -53,10 +52,12 @@ class Agent:
                         )
 
                 if not message_and_tools.tools or self.user_input.escape_requested():
+                    if self.user_input.escape_requested():
+                        self.event_bus.publish(EventType.SESSION_INTERRUPTED, SessionInterruptedEvent(self.agent_id))
                     break
                 tool_result = self.execute_tool(message_and_tools.tools[0], context)
         except KeyboardInterrupt:
-            pass
+            self.event_bus.publish(EventType.SESSION_INTERRUPTED, SessionInterruptedEvent(self.agent_id))
 
         return tool_result
 

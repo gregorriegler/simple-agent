@@ -28,6 +28,11 @@ class SessionStartedEvent(AgentEvent):
 
 
 @dataclass
+class SessionInterruptedEvent(AgentEvent):
+    pass
+
+
+@dataclass
 class SessionEndedEvent(AgentEvent):
     pass
 
@@ -47,6 +52,7 @@ class EventType(str, Enum):
     ASSISTANT_SAID = "assistant_said"
     TOOL_RESULT = "tool_result"
     SESSION_STARTED = "session_started"
+    SESSION_INTERRUPTED = "session_interrupted"
     SESSION_ENDED = "session_ended"
     USER_PROMPT_REQUESTED = "user_prompt_requested"
     USER_PROMPTED = "user_prompted"

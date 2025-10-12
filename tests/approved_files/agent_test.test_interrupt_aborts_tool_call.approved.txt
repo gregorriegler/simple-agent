@@ -2,6 +2,7 @@
 Agent:       session_started: False
 Agent:         user_prompted: Hello
 Agent:           tool_called: 🛠️ cat hello.txt
+Agent:   session_interrupted: 
 Agent: user_prompt_requested: 
 Agent:         user_prompted: Follow-up message
 Agent:           tool_called: 🛠️ complete-task summary

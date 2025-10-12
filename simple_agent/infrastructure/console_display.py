@@ -46,6 +46,10 @@ class ConsoleDisplay(Display):
     def waiting_for_input(self):
         pass
 
+    def interrupted(self):
+        interrupted_msg = "       " * self.indent_level + "[Session interrupted by user]"
+        self.io.print(f"\n{interrupted_msg}")
+
     def exit(self):
         exit_msg = "       " * self.indent_level + "Exiting..."
         self.io.print(f"\n{exit_msg}")
