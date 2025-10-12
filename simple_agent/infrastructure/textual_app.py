@@ -34,6 +34,10 @@ class TextualApp(App):
         color: $text;
         border: solid $primary;
         height: 100%;
+        width: 100%;
+        max-width: 100%;
+        overflow-y: auto;
+        scrollbar-gutter: stable;
     }
 
     #tool-results {
@@ -54,7 +58,7 @@ class TextualApp(App):
         yield Vertical(
             Horizontal(
                 Container(
-                    RichLog(highlight=True, markup=True, id="log"),
+                    RichLog(highlight=True, markup=True, wrap=True, id="log"),
                     id="left-panel"
                 ),
                 Container(
