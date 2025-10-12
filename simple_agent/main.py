@@ -79,6 +79,8 @@ def main():
         event_bus
     )
 
+    display.exit()
+
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Simple Agent")

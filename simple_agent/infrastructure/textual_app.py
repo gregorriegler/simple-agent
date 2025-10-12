@@ -73,6 +73,10 @@ class TextualApp(App):
     def on_mount(self) -> None:
         self.query_one("#user-input", Input).focus()
 
+    def on_unmount(self) -> None:
+        if self.user_input:
+            self.user_input.request_escape()
+
     def on_input_submitted(self, event: Input.Submitted) -> None:
         if event.value.strip():
             if self.user_input:

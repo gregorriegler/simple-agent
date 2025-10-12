@@ -16,7 +16,7 @@ class TextualDisplay(Display):
     def _ensure_app_running(self):
         if self.app is None:
             self.app = TextualApp(self.user_input)
-            self.app_thread = threading.Thread(target=self._run_app, daemon=True)
+            self.app_thread = threading.Thread(target=self._run_app)
             self.app_thread.start()
             import time
             time.sleep(0.5)
@@ -66,5 +66,7 @@ class TextualDisplay(Display):
         if self.app and self.app.is_running:
             self.app.call_from_thread(self.app.write_message, "\nExiting...")
             self.app.call_from_thread(self.app.exit)
+            if self.app_thread and self.app_thread.is_alive():
+                self.app_thread.join(timeout=2.0)
 
 
