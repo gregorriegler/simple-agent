@@ -117,15 +117,19 @@ def build_start_message(message_parts):
 
 
 def create_llm_stub():
+    responses = [
+        "Starting task\n🛠️ subagent Run bash echo hello world and then complete",
+        "🛠️ bash echo hello world",
+        "🛠️ complete-task Task completed successfully",
+        "🛠️ complete-task Main task completed successfully"
+    ]
     call_count = 0
 
     def llm_stub(system_prompt, messages):
         nonlocal call_count
+        response = responses[call_count] if call_count < len(responses) else responses[-1]
         call_count += 1
-
-        if call_count == 1:
-            return "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n🛠️ cat README.md"
-        return "🛠️ complete-task Task completed successfully"
+        return response
 
     return llm_stub
 
