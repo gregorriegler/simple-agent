@@ -61,8 +61,7 @@ class TextualDisplay(Display):
             self.app.call_from_thread(self.app.write_message, "Starting new session")
 
     def exit(self):
-        self._ensure_app_running()
-        if self.app:
+        if self.app and self.app.is_running:
             self.app.call_from_thread(self.app.write_message, "\nExiting...")
             self.app.call_from_thread(self.app.exit)
 
