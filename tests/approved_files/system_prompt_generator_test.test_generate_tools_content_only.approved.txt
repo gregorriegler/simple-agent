@@ -9,10 +9,12 @@ Usage: 🛠️ write-todos <content>
 Examples:
 🛠️ write-todos
 - [ ] Item 1
+🛠️🔚
 🛠️ write-todos
 - [ ] Feature exploration
 - [ ] **Implementing tool**
 - [x] Initial setup
+🛠️🔚
 
 ## ls
 List directory contents with detailed information

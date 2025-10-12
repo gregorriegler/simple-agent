@@ -1,3 +1,4 @@
+import textwrap
 from pathlib import Path
 
 from approvaltests import Options, verify
@@ -8,7 +9,13 @@ library = AllTools()
 
 
 def test_write_todos_creates_markdown_file(tmp_path):
-    command = "🛠️ write-todos\n- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Completed"
+    command = textwrap.dedent("""
+    🛠️ write-todos
+    - [ ] Item 1
+    - [ ] **Work in progress**
+    - [x] Completed
+    🛠️🔚
+    """).strip()
 
     with temp_directory(tmp_path):
         tool = library.parse_tool(command)

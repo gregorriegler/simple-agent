@@ -3,6 +3,7 @@ Command:
 - [ ] Item 1
 - [ ] **Work in progress**
 - [x] Completed
+🛠️🔚
 
 Result:
 Updated TODOS

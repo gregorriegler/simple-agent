@@ -17,8 +17,8 @@ class WriteTodosTool(BaseTool):
         }
     ]
     examples = [
-        "🛠️ write-todos\n- [ ] Item 1",
-        "🛠️ write-todos\n- [ ] Feature exploration\n- [ ] **Implementing tool**\n- [x] Initial setup"
+        "🛠️ write-todos\n- [ ] Item 1\n🛠️🔚",
+        "🛠️ write-todos\n- [ ] Feature exploration\n- [ ] **Implementing tool**\n- [x] Initial setup\n🛠️🔚"
     ]
 
     def __init__(self, agent_id="Agent"):
