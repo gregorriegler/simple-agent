@@ -40,7 +40,7 @@ class SubagentTool(BaseTool):
         indent_level: int,
         parent_agent_id: str,
         display_event_handler,
-        user_input: Input
+        create_input
     ):
         super().__init__()
         self.create_agent = create_agent
@@ -48,21 +48,23 @@ class SubagentTool(BaseTool):
         self.indent_level = indent_level
         self.parent_agent_id = parent_agent_id
         self.display_event_handler = display_event_handler
-        self.user_input = user_input
+        self.create_input = create_input
 
     def execute(self, args):
         if not args or not args.strip():
             return ContinueResult('STDERR: subagent: missing task description')
         try:
-            self.user_input.stack(args)
-            agent_id = f"{self.parent_agent_id}/Subagent{self.indent_level + 1}"
+            next_indent_level = self.indent_level + 1
+            user_input = self.create_input(next_indent_level)
+            user_input.stack(args)
+            agent_id = f"{self.parent_agent_id}/Subagent{next_indent_level}"
             subagent = self.create_agent(
                 agent_id,
-                self.user_input,
+                user_input,
                 self.display_event_handler
             )
             if self.display_event_handler:
-                subagent_display = self.create_display(subagent.agent_id)
+                subagent_display = self.create_display(subagent.agent_id, next_indent_level)
                 self.display_event_handler.register_display(subagent.agent_id, subagent_display)
             result = subagent.start()
             if self.display_event_handler:

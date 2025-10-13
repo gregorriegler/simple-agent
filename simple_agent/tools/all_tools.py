@@ -144,21 +144,14 @@ class AllTools(ToolLibrary):
         return []
 
     def _create_subagent_tool(self):
-        subagent_input = self._create_subagent_input()
         return SubagentTool(
             self._create_main_agent,
-            self._create_subagent_display,
+            self.create_subagent_display,
             self.indent_level,
             self.agent_id,
             self.display_event_handler,
-            subagent_input
+            self.create_subagent_input
         )
-
-    def _create_subagent_input(self):
-        return self.create_subagent_input(self.indent_level + 1)
-
-    def _create_subagent_display(self, agent_id: str):
-        return self.create_subagent_display(agent_id, self.indent_level + 1)
 
     def _create_main_agent(
         self,
