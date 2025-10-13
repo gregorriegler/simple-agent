@@ -13,6 +13,7 @@ from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
+from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
 from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
@@ -38,7 +39,6 @@ def main():
         display = TextualDisplay(agent_id, textual_user_input)
         user_input = Input(textual_user_input)
 
-        from simple_agent.tools.textual_subagent_display import TextualSubagentDisplay
         create_subagent_display = lambda _agent_id, indent: TextualSubagentDisplay(display.app, _agent_id)
         create_subagent_input = lambda indent: user_input
     else:
