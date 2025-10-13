@@ -84,19 +84,15 @@ class AllTools(ToolLibrary):
             self.create_subagent_display,
             self.create_subagent_input
         )
-        system_prompt = self._build_system_prompt(subagent_tools)
         return Agent(
             agent_id,
-            system_prompt,
+            lambda tool_library: generate_system_prompt(subagent_tools),
             subagent_tools,
             self.llm,
             user_input,
             self.event_bus,
             session_storage
         )
-
-    def _build_system_prompt(self, subagent_tools) -> Callable[[Any], str]:
-        return lambda tool_library: generate_system_prompt(subagent_tools)
 
     def parse_message_and_tools(self, text) -> MessageAndParsedTools:
         pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?'
