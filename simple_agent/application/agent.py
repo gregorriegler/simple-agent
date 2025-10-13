@@ -46,26 +46,30 @@ class Agent:
         try:
             while tool_result.do_continue():
                 message_and_tools = self.llm_responds(context)
-                if message_and_tools.message:
-                    self.event_bus.publish(
-                        EventType.ASSISTANT_SAID, AssistantSaidEvent(self.agent_id, message_and_tools.message)
-                    )
+                message = message_and_tools.message
+                tools = message_and_tools.tools
+                self.notify_about_message(message)
 
                 if self.user_input.escape_requested():
-                    self.event_bus.publish(EventType.SESSION_INTERRUPTED, SessionInterruptedEvent(self.agent_id))
-                    self.event_bus.publish(
-                        EventType.USER_PROMPT_REQUESTED, UserPromptRequestedEvent(self.agent_id)
-                    )
+                    self.notify_about_interrupt()
                     prompt = self.read_user_input_and_prompt_it(context)
                     if prompt:
                         break
-                if not message_and_tools.tools:
+                if not tools:
                     break
-                tool_result = self.execute_tool(message_and_tools.tools[0], context)
+                tool_result = self.execute_tool(tools[0], context)
         except KeyboardInterrupt:
             self.event_bus.publish(EventType.SESSION_INTERRUPTED, SessionInterruptedEvent(self.agent_id))
 
         return tool_result
+
+    def notify_about_interrupt(self):
+        self.event_bus.publish(EventType.SESSION_INTERRUPTED, SessionInterruptedEvent(self.agent_id))
+        self.event_bus.publish(EventType.USER_PROMPT_REQUESTED, UserPromptRequestedEvent(self.agent_id))
+
+    def notify_about_message(self, message):
+        if message:
+            self.event_bus.publish(EventType.ASSISTANT_SAID, AssistantSaidEvent(self.agent_id, message))
 
     def llm_responds(self, context):
         system_prompt = self.system_prompt(self.tools)
