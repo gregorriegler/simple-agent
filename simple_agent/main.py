@@ -11,6 +11,7 @@ from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.claude.claude_config import load_claude_config
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
+from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.infrastructure.stdio import StdIO
@@ -46,7 +47,6 @@ def main():
         console_user_input = ConsoleUserInput(indent_level, display.io)
         user_input = Input(console_user_input)
 
-        from simple_agent.tools.console_subagent_display import ConsoleSubagentDisplay
         create_subagent_display = lambda _agent_id, indent: ConsoleSubagentDisplay(indent, io)
         create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, io))
     if args.start_message:

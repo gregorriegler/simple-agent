@@ -69,7 +69,7 @@ class AllTools(ToolLibrary):
 
     def _create_subagent_tool(self):
         return SubagentTool(
-            self._create_main_agent,
+            self._create_default_agent,
             self.create_subagent_display,
             self.indent_level,
             self.agent_id,
@@ -77,7 +77,7 @@ class AllTools(ToolLibrary):
             self.create_subagent_input
         )
 
-    def _create_main_agent(
+    def _create_default_agent(
         self,
         agent_id,
         user_input,
