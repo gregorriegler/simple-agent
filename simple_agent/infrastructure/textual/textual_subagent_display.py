@@ -2,10 +2,11 @@ from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 
 
 class TextualSubagentDisplay(TextualDisplay):
-    def __init__(self, parent_app, agent_id: str):
+    def __init__(self, parent_app, agent_id: str, display_event_handler):
         super().__init__("Subagent")
         self.app = parent_app
         self.agent_id = agent_id
+        self.display_event_handler = display_event_handler
         self.log_id = None
         self.tool_results_id = None
         self._create_tab()
@@ -62,3 +63,4 @@ class TextualSubagentDisplay(TextualDisplay):
     def exit(self):
         if self.app and self.app.is_running:
             self.app.call_from_thread(self.app.remove_subagent_tab, self.agent_id)
+        del self.display_event_handler.displays[self.agent_id]

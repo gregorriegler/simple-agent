@@ -8,12 +8,17 @@ from simple_agent.infrastructure.stdio import StdIO
 class ToolLibraryStub(AllTools):
     def __init__(self, llm, io=None, interrupts=None, event_bus=None, display_event_handler=None):
         actual_io = io if io else StdIO()
-        create_subagent_display = lambda agent_id, indent: ConsoleSubagentDisplay(indent, actual_io)
+
+        def create_subagent_display(agent_id, indent):
+            subagent_display = ConsoleSubagentDisplay(indent, agent_id, actual_io, display_event_handler)
+            if display_event_handler:
+                display_event_handler.register_display(agent_id, subagent_display)
+            return subagent_display
+
         create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, actual_io))
         super().__init__(
             llm,
             event_bus=event_bus,
-            display_event_handler=display_event_handler,
             create_subagent_display=create_subagent_display,
             create_subagent_input=create_subagent_input
         )

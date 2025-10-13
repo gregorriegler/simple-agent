@@ -13,7 +13,6 @@ class CreateAgent(Protocol):
         self,
         agent_id: str,
         user_input: Input,
-        display_event_handler: DisplayEventHandler
     ) -> Agent:
         ...
 
@@ -46,7 +45,6 @@ class SubagentTool(BaseTool):
         create_display,
         indent_level: int,
         parent_agent_id: str,
-        display_event_handler,
         create_input
     ):
         super().__init__()
@@ -54,7 +52,6 @@ class SubagentTool(BaseTool):
         self.create_display = create_display
         self.indent_level = indent_level
         self.parent_agent_id = parent_agent_id
-        self.display_event_handler = display_event_handler
         self.create_input = create_input
 
     def execute(self, args):
@@ -80,17 +77,16 @@ class SubagentTool(BaseTool):
             user_input = self.create_input(next_indent_level)
             user_input.stack(task_description)
             agent_id = f"{self.parent_agent_id}/Subagent{next_indent_level}"
+
+            self.create_display(agent_id, next_indent_level)
+
             subagent = self.create_agent(
                 agent_id,
                 user_input,
-                self.display_event_handler
+                None
             )
-            if self.display_event_handler:
-                subagent_display = self.create_display(subagent.agent_id, next_indent_level)
-                self.display_event_handler.register_display(subagent.agent_id, subagent_display)
             result = subagent.start()
-            if self.display_event_handler:
-                del self.display_event_handler.displays[subagent.agent_id]
+
             return ContinueResult(str(result))
         except Exception as e:
             return ContinueResult(f'STDERR: subagent error: {str(e)}')

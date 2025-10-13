@@ -25,7 +25,6 @@ class AllTools(ToolLibrary):
         indent_level=0,
         agent_id: str = "Agent",
         event_bus: EventBus | None = None,
-        display_event_handler=None,
         user_input=None,
         create_subagent_display: Callable[[str, int], Any] | None = None,
         create_subagent_input: Callable[[int], Input] | None = None
@@ -36,7 +35,6 @@ class AllTools(ToolLibrary):
         self.indent_level = indent_level
         self.agent_id = agent_id
         self.event_bus: EventBus = event_bus if event_bus is not None else SimpleEventBus()
-        self.display_event_handler = display_event_handler
         self.user_input = user_input
 
         assert create_subagent_display is not None, "create_subagent_display must be provided"
@@ -73,7 +71,6 @@ class AllTools(ToolLibrary):
             self.create_subagent_display,
             self.indent_level,
             self.agent_id,
-            self.display_event_handler,
             self.create_subagent_input
         )
 
@@ -89,7 +86,6 @@ class AllTools(ToolLibrary):
             self.indent_level + 1,
             agent_id,
             self.event_bus,
-            display_event_handler,
             self.user_input,
             self.create_subagent_display,
             self.create_subagent_input

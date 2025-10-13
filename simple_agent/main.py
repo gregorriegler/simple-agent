@@ -35,20 +35,31 @@ def main():
     indent_level = 0
     io = StdIO()
 
+    event_bus = SimpleEventBus()
+
     if args.display_type == DisplayType.TEXTUAL:
         textual_user_input = TextualUserInput()
         display = TextualDisplay(agent_id, textual_user_input)
         user_input = Input(textual_user_input)
-
-        create_subagent_display = lambda _agent_id, indent: TextualSubagentDisplay(display.app, _agent_id)
         create_subagent_input = lambda indent: user_input
+        display_event_handler = DisplayEventHandler(display)
+
+        def create_subagent_display(_agent_id, _):
+            subagent_display = TextualSubagentDisplay(display.app, _agent_id, display_event_handler)
+            display_event_handler.register_display(_agent_id, subagent_display)
+            return subagent_display
     else:
         display = ConsoleDisplay(indent_level, agent_id, io)
         console_user_input = ConsoleUserInput(indent_level, display.io)
         user_input = Input(console_user_input)
-
-        create_subagent_display = lambda _agent_id, indent: ConsoleSubagentDisplay(indent, io)
         create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, io))
+        display_event_handler = DisplayEventHandler(display)
+
+        def create_subagent_display(_agent_id, indent):
+            subagent_display = ConsoleSubagentDisplay(indent, _agent_id, io, display_event_handler)
+            display_event_handler.register_display(_agent_id, subagent_display)
+            return subagent_display
+
     if args.start_message:
         user_input.stack(args.start_message)
     session_storage = JsonFileSessionStorage()
@@ -60,9 +71,6 @@ def main():
         llm = ClaudeLLM(claude_config)
 
     system_prompt_generator = lambda tool_library: generate_system_prompt(tool_library)
-
-    event_bus = SimpleEventBus()
-    display_event_handler = DisplayEventHandler(display)
 
     event_bus.subscribe(EventType.SESSION_STARTED, display_event_handler.handle_session_started)
     event_bus.subscribe(EventType.USER_PROMPT_REQUESTED, display_event_handler.handle_user_prompt_requested)
@@ -80,7 +88,6 @@ def main():
         indent_level,
         agent_id,
         event_bus,
-        display_event_handler,
         user_input,
         create_subagent_display,
         create_subagent_input
