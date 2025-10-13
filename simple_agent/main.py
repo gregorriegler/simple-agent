@@ -11,8 +11,8 @@ from simple_agent.infrastructure.claude.claude_config import load_claude_config
 from simple_agent.application.display_type import DisplayType
 from simple_agent.infrastructure.console_display import ConsoleDisplay
 from simple_agent.infrastructure.stdio import StdIO
-from simple_agent.infrastructure.textual_display import TextualDisplay
-from simple_agent.infrastructure.textual_user_input import TextualUserInput
+from simple_agent.infrastructure.textual.textual_display import TextualDisplay
+from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
 from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler

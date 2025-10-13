@@ -1,4 +1,4 @@
-from simple_agent.infrastructure.textual_display import TextualDisplay
+from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 
 
 class TextualSubagentDisplay(TextualDisplay):

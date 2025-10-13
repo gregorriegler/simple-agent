@@ -1,7 +1,7 @@
 import threading
 
 from simple_agent.application.display import Display
-from simple_agent.infrastructure.textual_app import TextualApp
+from simple_agent.infrastructure.textual.textual_app import TextualApp
 
 
 class TextualDisplay(Display):
