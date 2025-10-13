@@ -62,11 +62,9 @@ class SubagentTool(BaseTool):
         try:
             user_input = self.create_user_input(self.indent_level)
             user_input.stack(task_description)
-            agent_id = f"{self.parent_agent_id}/Subagent{self.indent_level}"
+            subagent = self.create_agent(self.parent_agent_id, self.indent_level, user_input)
+            self.create_display(subagent.agent_id, self.indent_level)
 
-            self.create_display(agent_id, self.indent_level)
-
-            subagent = self.create_agent(agent_id, user_input)
             result = subagent.start()
 
             return ContinueResult(str(result))

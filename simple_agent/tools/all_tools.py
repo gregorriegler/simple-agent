@@ -71,10 +71,12 @@ class AllTools(ToolLibrary):
 
     def _create_agent(
         self,
-        agent_id,
+        parent_agent_id: str,
+        indent_level: int,
         user_input,
         session_storage=NoOpSessionStorage()
     ) -> Agent:
+        agent_id = f"{parent_agent_id}/Subagent{indent_level}"
         subagent_tools = AllTools(
             self.llm,
             self.indent_level + 1,
