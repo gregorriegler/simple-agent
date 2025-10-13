@@ -1,19 +1,7 @@
-from typing import Protocol
-
-from simple_agent.application.agent import Agent
-from simple_agent.application.input import Input
 from simple_agent.application.tool_library import ContinueResult
+from simple_agent.application.create_agent import CreateAgent
 from .argument_parser import split_arguments
 from .base_tool import BaseTool
-
-
-class CreateAgent(Protocol):
-    def __call__(
-        self,
-        agent_id: str,
-        user_input: Input,
-    ) -> Agent:
-        ...
 
 
 class SubagentTool(BaseTool):
