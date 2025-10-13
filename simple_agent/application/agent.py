@@ -3,7 +3,8 @@ from .llm import LLM, Messages
 from .session_storage import SessionStorage
 from .tool_library import ToolResult, ContinueResult, ToolLibrary
 from .event_bus_protocol import EventBus
-from .events import AssistantSaidEvent, AssistantRespondedEvent, ToolCalledEvent, ToolResultEvent, SessionEndedEvent, SessionInterruptedEvent, \
+from .events import AssistantSaidEvent, AssistantRespondedEvent, ToolCalledEvent, ToolResultEvent, SessionEndedEvent, \
+    SessionInterruptedEvent, \
     UserPromptRequestedEvent, UserPromptedEvent, EventType
 
 
@@ -43,8 +44,8 @@ class Agent:
         tool_result: ToolResult = ContinueResult()
 
         try:
-            while isinstance(tool_result, ContinueResult):
-                message_and_tools = self.llm_answers(context)
+            while tool_result.do_continue():
+                message_and_tools = self.llm_responds(context)
                 if message_and_tools.message:
                     self.event_bus.publish(
                         EventType.ASSISTANT_SAID, AssistantSaidEvent(self.agent_id, message_and_tools.message)
@@ -66,7 +67,7 @@ class Agent:
 
         return tool_result
 
-    def llm_answers(self, context):
+    def llm_responds(self, context):
         system_prompt = self.system_prompt(self.tools)
         answer = self.llm(system_prompt, context.to_list())
         context.assistant_says(answer)

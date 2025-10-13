@@ -10,15 +10,24 @@ class ToolResult:
 
     def __str__(self) : return self.feedback
 
+    def do_continue(self) -> bool:
+        ...
+
 @dataclass
 class ContinueResult(ToolResult):
     def __init__(self, feedback=""):
         super().__init__(feedback)
 
+    def do_continue(self) -> bool:
+        return True
+
 
 @dataclass
 class CompleteResult(ToolResult):
     pass
+
+    def do_continue(self) -> bool:
+        return False
 
 class ParsedTool:
     def __init__(self, name, arguments, tool_instance):
