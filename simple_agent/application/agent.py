@@ -3,7 +3,7 @@ from .llm import LLM, Messages
 from .session_storage import SessionStorage
 from .tool_library import ToolResult, ContinueResult, ToolLibrary
 from .event_bus_protocol import EventBus
-from .events import AssistantSaidEvent, ToolCalledEvent, ToolResultEvent, SessionEndedEvent, SessionInterruptedEvent, \
+from .events import AssistantSaidEvent, AssistantRespondedEvent, ToolCalledEvent, ToolResultEvent, SessionEndedEvent, SessionInterruptedEvent, \
     UserPromptRequestedEvent, UserPromptedEvent, EventType
 
 
@@ -45,6 +45,9 @@ class Agent:
         try:
             while isinstance(tool_result, ContinueResult):
                 llm_answer = self.llm_answers(context)
+                self.event_bus.publish(
+                    EventType.ASSISTANT_RESPONDED, AssistantRespondedEvent(self.agent_id, llm_answer)
+                )
                 message_and_tools = self.tools.parse_tool(llm_answer)
                 if message_and_tools.message:
                     self.event_bus.publish(

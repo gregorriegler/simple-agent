@@ -1,6 +1,7 @@
 # Events
 Agent:       session_started: False
 Agent:         user_prompted: Hello
+Agent:   assistant_responded: Hello! How can I help you?
 Agent:        assistant_said: Hello! How can I help you?
 Agent: user_prompt_requested: 
 Agent:         session_ended: 

@@ -1,6 +1,7 @@
 # Events
 Agent:       session_started: False
 Agent:         user_prompted: Test message
+Agent:   assistant_responded: Test answer
 Agent:        assistant_said: Test answer
 Agent: user_prompt_requested: 
 Agent:         session_ended: 

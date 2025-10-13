@@ -47,9 +47,15 @@ class UserPromptedEvent(AgentEvent):
     input_text: str
 
 
+@dataclass
+class AssistantRespondedEvent(AgentEvent):
+    response: str
+
+
 class EventType(str, Enum):
     TOOL_CALLED = "tool_called"
     ASSISTANT_SAID = "assistant_said"
+    ASSISTANT_RESPONDED = "assistant_responded"
     TOOL_RESULT = "tool_result"
     SESSION_STARTED = "session_started"
     SESSION_INTERRUPTED = "session_interrupted"

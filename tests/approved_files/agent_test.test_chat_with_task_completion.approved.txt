@@ -1,6 +1,8 @@
 # Events
 Agent:       session_started: False
 Agent:         user_prompted: Say Hello
+Agent:   assistant_responded: Hello!
+🛠️ complete-task I successfully said hello
 Agent:        assistant_said: Hello!
 Agent:           tool_called: 🛠️ complete-task I successfully said hello
 Agent:           tool_result: I successfully said hello
