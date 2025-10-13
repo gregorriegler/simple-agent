@@ -78,7 +78,6 @@ class AllTools(ToolLibrary):
         self,
         agent_id,
         user_input,
-        display_event_handler,
         session_storage=NoOpSessionStorage()
     ) -> Agent:
         subagent_tools = AllTools(

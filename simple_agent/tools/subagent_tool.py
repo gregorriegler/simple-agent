@@ -3,9 +3,8 @@ from typing import Protocol
 from simple_agent.application.agent import Agent
 from simple_agent.application.input import Input
 from simple_agent.application.tool_library import ContinueResult
-from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
-from .base_tool import BaseTool
 from .argument_parser import split_arguments
+from .base_tool import BaseTool
 
 
 class CreateAgent(Protocol):
@@ -80,11 +79,7 @@ class SubagentTool(BaseTool):
 
             self.create_display(agent_id, next_indent_level)
 
-            subagent = self.create_agent(
-                agent_id,
-                user_input,
-                None
-            )
+            subagent = self.create_agent(agent_id, user_input)
             result = subagent.start()
 
             return ContinueResult(str(result))
