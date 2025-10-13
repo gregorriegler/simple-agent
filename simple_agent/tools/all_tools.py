@@ -192,7 +192,7 @@ class AllTools(ToolLibrary):
     def _build_system_prompt(self, subagent_tools) -> Callable[[Any], str]:
         return lambda tool_library: generate_system_prompt(subagent_tools)
 
-    def parse_tool(self, text) -> MessageAndParsedTools:
+    def parse_message_and_tools(self, text) -> MessageAndParsedTools:
         pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?'
         end_marker = r'^🛠️🔚'
         lines = text.splitlines(keepends=True)

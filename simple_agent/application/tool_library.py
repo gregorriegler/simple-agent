@@ -52,7 +52,7 @@ class Tool(Protocol):
 class ToolLibrary(Protocol):
     tools: List[Tool]
 
-    def parse_tool(self, text: str) -> MessageAndParsedTools:
+    def parse_message_and_tools(self, text: str) -> MessageAndParsedTools:
         ...
 
     def execute_parsed_tool(self, parsed_tool: ParsedTool) -> ToolResult:

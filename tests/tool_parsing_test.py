@@ -8,7 +8,7 @@ library = AllTools()
 def test_parse_tool_with_cat_command():
     text = "🛠️ cat test.txt"
 
-    message_and_tools = library.parse_tool(text)
+    message_and_tools = library.parse_message_and_tools(text)
 
     assert message_and_tools.message == ""
     assert message_and_tools.tools[0] is not None
@@ -24,7 +24,7 @@ def test_parse_tool_with_message_and_cat_command():
     🛠️ cat test.txt
     """)
 
-    message_and_tools = library.parse_tool(text)
+    message_and_tools = library.parse_message_and_tools(text)
 
     assert message_and_tools.message == "I will read test.txt"
     assert message_and_tools.tools[0] is not None
@@ -41,7 +41,7 @@ def test_parse_tool_with_multiline_message_and_ls_command():
     🛠️ ls
     """)
 
-    message_and_tools = library.parse_tool(text)
+    message_and_tools = library.parse_message_and_tools(text)
 
     assert message_and_tools.message == dedent("""
     Let me read
@@ -60,7 +60,7 @@ def test_parse_tool_with_message_and_two_tool_calls():
     🛠️ cat test.txt
     """)
 
-    message_and_tools = library.parse_tool(text)
+    message_and_tools = library.parse_message_and_tools(text)
 
     assert message_and_tools.message == "I will run ls and read test.txt"
     assert message_and_tools.tools[0] is not None
@@ -84,7 +84,7 @@ def test_parse_tool_with_create_file_multiline():
     🛠️🔚
     """)
 
-    message_and_tools = library.parse_tool(text)
+    message_and_tools = library.parse_message_and_tools(text)
 
     assert message_and_tools.message == "I will create a file with 3 lines"
     assert message_and_tools.tools[0] is not None
@@ -103,7 +103,7 @@ def test_parse_tool_with_create_file_goes_til_end():
     Line 3
     """)
 
-    message_and_tools = library.parse_tool(text)
+    message_and_tools = library.parse_message_and_tools(text)
 
     assert message_and_tools.message == "I will create a file with 3 lines"
     assert message_and_tools.tools[0] is not None
@@ -124,7 +124,7 @@ def test_parse_tool_with_multiline_and_message_after():
     This is text after the tool
     """)
 
-    message_and_tools = library.parse_tool(text)
+    message_and_tools = library.parse_message_and_tools(text)
 
     assert message_and_tools.message == "I will create a file"
     assert message_and_tools.tools[0] is not None
@@ -145,7 +145,7 @@ def test_parse_tool_with_two_multiline_tools():
     🛠️🔚
     """)
 
-    message_and_tools = library.parse_tool(text)
+    message_and_tools = library.parse_message_and_tools(text)
 
     assert message_and_tools.message == "I will create two files"
     assert len(message_and_tools.tools) == 2

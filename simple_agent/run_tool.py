@@ -6,7 +6,7 @@ if __name__ == "__main__":
     command = ' '.join(sys.argv[1:])
     tools = AllTools()
     try:
-        tool = tools.parse_tool(f"🛠️ {command}")
+        tool = tools.parse_message_and_tools(f"🛠️ {command}")
         if not tool:
             print(f"Unknown tool: {command}")
             sys.exit(1)

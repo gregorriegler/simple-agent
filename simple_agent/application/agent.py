@@ -44,11 +44,7 @@ class Agent:
 
         try:
             while isinstance(tool_result, ContinueResult):
-                llm_answer = self.llm_answers(context)
-                self.event_bus.publish(
-                    EventType.ASSISTANT_RESPONDED, AssistantRespondedEvent(self.agent_id, llm_answer)
-                )
-                message_and_tools = self.tools.parse_tool(llm_answer)
+                message_and_tools = self.llm_answers(context)
                 if message_and_tools.message:
                     self.event_bus.publish(
                         EventType.ASSISTANT_SAID, AssistantSaidEvent(self.agent_id, message_and_tools.message)
@@ -59,9 +55,7 @@ class Agent:
                     self.event_bus.publish(
                         EventType.USER_PROMPT_REQUESTED, UserPromptRequestedEvent(self.agent_id)
                     )
-                    prompt = self.user_input.read()
-                    if prompt:
-                        self.user_prompts_new(context, prompt)
+                    prompt = self.read_user_input_and_prompt_it(context)
                     if prompt:
                         break
                 if not message_and_tools.tools:
@@ -72,23 +66,25 @@ class Agent:
 
         return tool_result
 
-    def user_prompts(self, context):
-        if not self.user_input.has_stacked_messages():
-            self.event_bus.publish(EventType.USER_PROMPT_REQUESTED, UserPromptRequestedEvent(self.agent_id))
-        prompt = self.user_input.read()
-        if prompt:
-            self.user_prompts_new(context, prompt)
-        return prompt
-
-    def user_prompts_new(self, context, prompt):
-        context.user_says(prompt)
-        self.event_bus.publish(EventType.USER_PROMPTED, UserPromptedEvent(self.agent_id, prompt))
-
     def llm_answers(self, context):
         system_prompt = self.system_prompt(self.tools)
         answer = self.llm(system_prompt, context.to_list())
         context.assistant_says(answer)
-        return answer
+        self.event_bus.publish(EventType.ASSISTANT_RESPONDED, AssistantRespondedEvent(self.agent_id, answer))
+        return self.tools.parse_message_and_tools(answer)
+
+    def user_prompts(self, context):
+        if not self.user_input.has_stacked_messages():
+            self.event_bus.publish(EventType.USER_PROMPT_REQUESTED, UserPromptRequestedEvent(self.agent_id))
+        prompt = self.read_user_input_and_prompt_it(context)
+        return prompt
+
+    def read_user_input_and_prompt_it(self, context):
+        prompt = self.user_input.read()
+        if prompt:
+            context.user_says(prompt)
+            self.event_bus.publish(EventType.USER_PROMPTED, UserPromptedEvent(self.agent_id, prompt))
+        return prompt
 
     def execute_tool(self, tool, context):
         self.event_bus.publish(EventType.TOOL_CALLED, ToolCalledEvent(self.agent_id, tool))
