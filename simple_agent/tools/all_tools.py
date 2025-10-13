@@ -61,7 +61,7 @@ class AllTools(ToolLibrary):
             CompleteTaskTool(),
             BashTool(),
             SubagentTool(
-                self._create_default_agent,
+                self._create_agent,
                 self.create_subagent_display,
                 self.indent_level + 1,
                 self.agent_id,
@@ -69,7 +69,7 @@ class AllTools(ToolLibrary):
             )
         ]
 
-    def _create_default_agent(
+    def _create_agent(
         self,
         agent_id,
         user_input,
