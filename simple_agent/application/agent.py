@@ -61,8 +61,7 @@ class Agent:
                     )
                     prompt = self.user_input.read()
                     if prompt:
-                        context.user_says(prompt)
-                        self.event_bus.publish(EventType.USER_PROMPTED, UserPromptedEvent(self.agent_id, prompt))
+                        self.user_prompts_new(context, prompt)
                         break
                 if not message_and_tools.tools:
                     break
@@ -77,9 +76,12 @@ class Agent:
             self.event_bus.publish(EventType.USER_PROMPT_REQUESTED, UserPromptRequestedEvent(self.agent_id))
         prompt = self.user_input.read()
         if prompt:
-            context.user_says(prompt)
-            self.event_bus.publish(EventType.USER_PROMPTED, UserPromptedEvent(self.agent_id, prompt))
+            self.user_prompts_new(context, prompt)
         return prompt
+
+    def user_prompts_new(self, context, prompt):
+        context.user_says(prompt)
+        self.event_bus.publish(EventType.USER_PROMPTED, UserPromptedEvent(self.agent_id, prompt))
 
     def llm_answers(self, context):
         system_prompt = self.system_prompt(self.tools)
