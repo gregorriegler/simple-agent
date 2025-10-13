@@ -140,7 +140,7 @@ class AllTools(ToolLibrary):
     def _create_subagent_tool(self):
         subagent_input = self._create_subagent_input()
         return SubagentTool(
-            self._create_agent,
+            self._create_main_agent,
             self._create_subagent_display,
             self.indent_level,
             self.agent_id,
@@ -162,12 +162,13 @@ class AllTools(ToolLibrary):
                 return SubagentTextualDisplay(parent_display.app, agent_id)
         return SubagentConsoleDisplay(self.indent_level + 1, self.io)
 
-    def _create_agent(
+    def _create_main_agent(
         self,
         agent_id,
         user_input,
-        display_event_handler
-    ):
+        display_event_handler,
+        session_storage=NoOpSessionStorage()
+    ) -> Agent:
         subagent_tools = AllTools(
             self.llm,
             self.indent_level + 1,
@@ -178,7 +179,6 @@ class AllTools(ToolLibrary):
             self.user_input
         )
         system_prompt = self._build_system_prompt(subagent_tools)
-        session_storage = NoOpSessionStorage()
         return Agent(
             agent_id,
             system_prompt,
