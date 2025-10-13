@@ -99,21 +99,23 @@ class AllTools(ToolLibrary):
         self,
         llm: LLM | None = None,
         indent_level=0,
-        io: IO | None = None,
         agent_id: str = "Agent",
         event_bus: EventBus | None = None,
         display_event_handler=None,
-        user_input=None
+        user_input=None,
+        create_subagent_display=None,
+        create_subagent_input=None
     ):
         from simple_agent.application.event_bus import SimpleEventBus
 
         self.llm: LLM = llm if llm is not None else (lambda system_prompt, messages: '')
         self.indent_level = indent_level
-        self.io = io or StdIO()
         self.agent_id = agent_id
         self.event_bus: EventBus = event_bus if event_bus is not None else SimpleEventBus()
         self.display_event_handler = display_event_handler
         self.user_input = user_input
+        self.create_subagent_display = create_subagent_display
+        self.create_subagent_input = create_subagent_input
 
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
@@ -149,18 +151,14 @@ class AllTools(ToolLibrary):
         )
 
     def _create_subagent_input(self):
-        if self.user_input and hasattr(self.user_input, 'user_input'):
-            from simple_agent.infrastructure.textual_user_input import TextualUserInput
-            if isinstance(self.user_input.user_input, TextualUserInput):
-                return self.user_input
-        return Input(ConsoleUserInput(self.indent_level + 1, self.io))
+        if self.create_subagent_input:
+            return self.create_subagent_input(self.indent_level + 1)
+        return Input(ConsoleUserInput(self.indent_level + 1, StdIO()))
 
     def _create_subagent_display(self, agent_id: str):
-        if self.display_event_handler:
-            parent_display = self.display_event_handler.displays.get("Agent")
-            if isinstance(parent_display, TextualDisplay):
-                return SubagentTextualDisplay(parent_display.app, agent_id)
-        return SubagentConsoleDisplay(self.indent_level + 1, self.io)
+        if self.create_subagent_display:
+            return self.create_subagent_display(agent_id, self.indent_level + 1)
+        return SubagentConsoleDisplay(self.indent_level + 1)
 
     def _create_main_agent(
         self,
@@ -172,11 +170,12 @@ class AllTools(ToolLibrary):
         subagent_tools = AllTools(
             self.llm,
             self.indent_level + 1,
-            self.io,
             agent_id,
             self.event_bus,
             display_event_handler,
-            self.user_input
+            self.user_input,
+            self.create_subagent_display,
+            self.create_subagent_input
         )
         system_prompt = self._build_system_prompt(subagent_tools)
         return Agent(

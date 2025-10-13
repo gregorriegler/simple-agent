@@ -37,10 +37,18 @@ def main():
         textual_user_input = TextualUserInput()
         display = TextualDisplay(agent_id, textual_user_input)
         user_input = Input(textual_user_input)
+
+        from simple_agent.tools.all_tools import SubagentTextualDisplay
+        create_subagent_display = lambda _agent_id, indent: SubagentTextualDisplay(display.app, _agent_id)
+        create_subagent_input = lambda indent: user_input
     else:
         display = ConsoleDisplay(indent_level, agent_id, io)
         console_user_input = ConsoleUserInput(indent_level, display.io)
         user_input = Input(console_user_input)
+
+        from simple_agent.tools.all_tools import SubagentConsoleDisplay
+        create_subagent_display = lambda _agent_id, indent: SubagentConsoleDisplay(indent, io)
+        create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, io))
     if args.start_message:
         user_input.stack(args.start_message)
     session_storage = JsonFileSessionStorage()
@@ -51,7 +59,7 @@ def main():
         claude_config = load_claude_config()
         llm = ClaudeLLM(claude_config)
 
-    system_prompt_generator = lambda tool_library: generate_system_prompt(tool_library)
+    system_prompt_generator = lambda _tool_library: generate_system_prompt(_tool_library)
 
     event_bus = SimpleEventBus()
     display_event_handler = DisplayEventHandler(display)
@@ -66,14 +74,16 @@ def main():
     event_bus.subscribe(EventType.SESSION_ENDED, display_event_handler.handle_session_ended)
 
     from simple_agent.tools.all_tools import AllTools
+
     tools = AllTools(
         llm,
         indent_level,
-        io,
         agent_id,
         event_bus,
         display_event_handler,
-        user_input
+        user_input,
+        create_subagent_display,
+        create_subagent_input
     )
 
     run_session(
