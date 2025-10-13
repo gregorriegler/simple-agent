@@ -45,7 +45,7 @@ class AllTools(ToolLibrary):
 
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
-        self.tools: list[Tool] = static_tools + dynamic_tools + [self._create_subagent_tool()]
+        self.tools: list[Tool] = static_tools + dynamic_tools
         self.tool_dict = {getattr(tool, 'name', ''): tool for tool in self.tools}
 
     def _create_static_tools(self):
@@ -59,20 +59,18 @@ class AllTools(ToolLibrary):
             #            RememberTool(),
             #           RecallTool(),
             CompleteTaskTool(),
-            BashTool()
+            BashTool(),
+            SubagentTool(
+                self._create_default_agent,
+                self.create_subagent_display,
+                self.indent_level + 1,
+                self.agent_id,
+                self.create_subagent_input
+            )
         ]
 
     def _discover_dynamic_tools(self):
         return []
-
-    def _create_subagent_tool(self):
-        return SubagentTool(
-            self._create_default_agent,
-            self.create_subagent_display,
-            self.indent_level+1,
-            self.agent_id,
-            self.create_subagent_input
-        )
 
     def _create_default_agent(
         self,
