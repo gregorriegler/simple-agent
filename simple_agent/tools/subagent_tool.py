@@ -32,14 +32,14 @@ class SubagentTool(BaseTool):
         create_display,
         indent_level: int,
         parent_agent_id: str,
-        create_input
+        create_user_input
     ):
         super().__init__()
         self.create_agent = create_agent
         self.create_display = create_display
         self.indent_level = indent_level
         self.parent_agent_id = parent_agent_id
-        self.create_input = create_input
+        self.create_user_input = create_user_input
 
     def execute(self, args):
         if not args or not args.strip():
@@ -60,7 +60,7 @@ class SubagentTool(BaseTool):
             return ContinueResult(f"STDERR: subagent: unsupported agenttype '{agenttype}'. Only 'default' is currently supported")
 
         try:
-            user_input = self.create_input(self.indent_level)
+            user_input = self.create_user_input(self.indent_level)
             user_input.stack(task_description)
             agent_id = f"{self.parent_agent_id}/Subagent{self.indent_level}"
 
