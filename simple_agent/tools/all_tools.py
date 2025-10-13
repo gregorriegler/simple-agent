@@ -69,7 +69,7 @@ class AllTools(ToolLibrary):
         return SubagentTool(
             self._create_default_agent,
             self.create_subagent_display,
-            self.indent_level,
+            self.indent_level+1,
             self.agent_id,
             self.create_subagent_input
         )
