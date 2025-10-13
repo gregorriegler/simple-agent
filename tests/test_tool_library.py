@@ -1,7 +1,7 @@
 from simple_agent.application.input import Input
 from simple_agent.tools import AllTools
-from simple_agent.tools.console_subagent_display import ConsoleSubagentDisplay
-from simple_agent.infrastructure.console_user_input import ConsoleUserInput
+from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
+from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
 
 

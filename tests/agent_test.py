@@ -4,8 +4,8 @@ from simple_agent.application.input import Input
 from simple_agent.application.session import run_session
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import EventType
-from simple_agent.infrastructure.console_display import ConsoleDisplay
-from simple_agent.infrastructure.console_user_input import ConsoleUserInput
+from simple_agent.infrastructure.console.console_display import ConsoleDisplay
+from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
 from .event_spy import EventSpy
 from .print_spy import IOSpy

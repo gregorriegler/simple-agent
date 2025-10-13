@@ -1,5 +1,5 @@
 from simple_agent.application.io import IO
-from simple_agent.infrastructure.console_display import ConsoleDisplay
+from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 
 
 class ConsoleSubagentDisplay(ConsoleDisplay):

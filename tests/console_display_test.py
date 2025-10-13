@@ -1,6 +1,6 @@
 from approvaltests import verify
 
-from simple_agent.infrastructure.console_display import ConsoleDisplay
+from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from .print_spy import IOSpy
 
 
