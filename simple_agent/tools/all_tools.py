@@ -1,13 +1,11 @@
 import re
 from typing import Callable, Any
 
-from simple_agent.application.agent import Agent
+from simple_agent.application.agent_factory_registry import AgentFactoryRegistry
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLM
-from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
-from simple_agent.system_prompt_generator import generate_system_prompt
 from .bash_tool import BashTool
 from .cat_tool import CatTool
 from .complete_task_tool import CompleteTaskTool
@@ -27,7 +25,8 @@ class AllTools(ToolLibrary):
         event_bus: EventBus | None = None,
         user_input=None,
         create_subagent_display: Callable[[str, int], Any] | None = None,
-        create_subagent_input: Callable[[int], Input] | None = None
+        create_subagent_input: Callable[[int], Input] | None = None,
+        agent_factory_registry: AgentFactoryRegistry | None = None
     ):
         from simple_agent.application.event_bus import SimpleEventBus
 
@@ -43,6 +42,8 @@ class AllTools(ToolLibrary):
         self.create_subagent_display = create_subagent_display
         self.create_subagent_input = create_subagent_input
 
+        self.agent_factory_registry = agent_factory_registry if agent_factory_registry is not None else AgentFactoryRegistry()
+
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
         self.tools: list[Tool] = static_tools + dynamic_tools
@@ -55,46 +56,16 @@ class AllTools(ToolLibrary):
             CatTool(),
             CreateFileTool(),
             EditFileTool(),
-            #           PatchFileTool(),
-            #           RememberTool(),
-            #           RecallTool(),
             CompleteTaskTool(),
             BashTool(),
             SubagentTool(
-                self._create_agent,
+                self.agent_factory_registry,
                 self.create_subagent_display,
                 self.indent_level + 1,
                 self.agent_id,
                 self.create_subagent_input
             )
         ]
-
-    def _create_agent(
-        self,
-        parent_agent_id: str,
-        indent_level: int,
-        user_input,
-        session_storage=NoOpSessionStorage()
-    ) -> Agent:
-        agent_id = f"{parent_agent_id}/Subagent{indent_level}"
-        subagent_tools = AllTools(
-            self.llm,
-            self.indent_level + 1,
-            agent_id,
-            self.event_bus,
-            self.user_input,
-            self.create_subagent_display,
-            self.create_subagent_input
-        )
-        return Agent(
-            agent_id,
-            lambda tool_library: generate_system_prompt(subagent_tools),
-            subagent_tools,
-            self.llm,
-            user_input,
-            self.event_bus,
-            session_storage
-        )
 
     def parse_message_and_tools(self, text) -> MessageAndParsedTools:
         pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?'

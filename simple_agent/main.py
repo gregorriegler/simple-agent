@@ -2,6 +2,8 @@
 
 import argparse
 
+from simple_agent.agent_factories import create_default_agent_factory
+from simple_agent.application.agent_factory_registry import AgentFactoryRegistry
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import EventType
@@ -83,6 +85,18 @@ def main():
 
     from simple_agent.tools.all_tools import AllTools
 
+    agent_factory_registry = AgentFactoryRegistry()
+    agent_factory_registry.register(
+        'default',
+        create_default_agent_factory(
+            llm,
+            event_bus,
+            create_subagent_display,
+            create_subagent_input,
+            agent_factory_registry
+        )
+    )
+
     tools = AllTools(
         llm,
         indent_level,
@@ -90,7 +104,8 @@ def main():
         event_bus,
         user_input,
         create_subagent_display,
-        create_subagent_input
+        create_subagent_input,
+        agent_factory_registry
     )
 
     run_session(
