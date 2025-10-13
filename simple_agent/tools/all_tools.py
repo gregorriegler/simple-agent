@@ -55,8 +55,8 @@ class AllTools(ToolLibrary):
             CatTool(),
             CreateFileTool(),
             EditFileTool(),
-            #            PatchFileTool(),
-            #            RememberTool(),
+            #           PatchFileTool(),
+            #           RememberTool(),
             #           RecallTool(),
             CompleteTaskTool(),
             BashTool(),
@@ -68,9 +68,6 @@ class AllTools(ToolLibrary):
                 self.create_subagent_input
             )
         ]
-
-    def _discover_dynamic_tools(self):
-        return []
 
     def _create_default_agent(
         self,
@@ -147,3 +144,6 @@ class AllTools(ToolLibrary):
         args = parsed_tool.arguments if parsed_tool.arguments else None
         result = parsed_tool.tool_instance.execute(args)
         return result
+
+    def _discover_dynamic_tools(self):
+        return []
