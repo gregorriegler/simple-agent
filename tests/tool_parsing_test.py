@@ -1,8 +1,8 @@
 import textwrap
 
-from simple_agent.tools.all_tools import AllTools
+from .test_helpers import create_all_tools_for_test
 
-library = AllTools()
+library = create_all_tools_for_test()
 
 
 def test_parse_tool_with_cat_command():

@@ -1,10 +1,10 @@
-from simple_agent.tools.all_tools import AllTools
 from .test_helpers import (
     create_temp_file,
-    verify_tool
+    verify_tool,
+    create_all_tools_for_test
 )
 
-library = AllTools()
+library = create_all_tools_for_test()
 
 def test_cat_tool_single_file(tmp_path):
     temp_file = create_temp_file(tmp_path, "test.txt", "Hello world\nSecond line\nThird line")

@@ -1,11 +1,11 @@
-from simple_agent.tools.all_tools import AllTools
 from .test_helpers import (
     create_temp_directory_structure,
-    verify_tool
+    verify_tool,
+    create_all_tools_for_test
 )
 
 claude_stub = lambda system_prompt, messages: ""
-library = AllTools()
+library = create_all_tools_for_test()
 
 
 def test_ls_tool_basic_directory(tmp_path):

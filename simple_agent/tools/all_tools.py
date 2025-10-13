@@ -103,8 +103,8 @@ class AllTools(ToolLibrary):
         event_bus: EventBus | None = None,
         display_event_handler=None,
         user_input=None,
-        create_subagent_display=None,
-        create_subagent_input=None
+        create_subagent_display: Callable[[str, int], Any] | None = None,
+        create_subagent_input: Callable[[int], Input] | None = None
     ):
         from simple_agent.application.event_bus import SimpleEventBus
 
@@ -114,6 +114,10 @@ class AllTools(ToolLibrary):
         self.event_bus: EventBus = event_bus if event_bus is not None else SimpleEventBus()
         self.display_event_handler = display_event_handler
         self.user_input = user_input
+
+        assert create_subagent_display is not None, "create_subagent_display must be provided"
+        assert create_subagent_input is not None, "create_subagent_input must be provided"
+
         self.create_subagent_display = create_subagent_display
         self.create_subagent_input = create_subagent_input
 
@@ -151,14 +155,10 @@ class AllTools(ToolLibrary):
         )
 
     def _create_subagent_input(self):
-        if self.create_subagent_input:
-            return self.create_subagent_input(self.indent_level + 1)
-        return Input(ConsoleUserInput(self.indent_level + 1, StdIO()))
+        return self.create_subagent_input(self.indent_level + 1)
 
     def _create_subagent_display(self, agent_id: str):
-        if self.create_subagent_display:
-            return self.create_subagent_display(agent_id, self.indent_level + 1)
-        return SubagentConsoleDisplay(self.indent_level + 1)
+        return self.create_subagent_display(agent_id, self.indent_level + 1)
 
     def _create_main_agent(
         self,

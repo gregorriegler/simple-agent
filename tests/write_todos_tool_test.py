@@ -2,10 +2,9 @@ import textwrap
 from pathlib import Path
 
 from approvaltests import Options, verify
-from simple_agent.tools.all_tools import AllTools
-from .test_helpers import all_scrubbers, temp_directory
+from .test_helpers import all_scrubbers, temp_directory, create_all_tools_for_test
 
-library = AllTools()
+library = create_all_tools_for_test()
 
 
 def test_write_todos_creates_markdown_file(tmp_path):
