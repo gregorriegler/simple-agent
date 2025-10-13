@@ -9,8 +9,6 @@ from simple_agent.application.llm import LLM
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
 from simple_agent.infrastructure.console_display import ConsoleDisplay
-from simple_agent.infrastructure.console_user_input import ConsoleUserInput
-from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual_display import TextualDisplay
 from simple_agent.system_prompt_generator import generate_system_prompt
 from .bash_tool import BashTool
