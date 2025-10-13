@@ -12,6 +12,8 @@ class DisplayEventHandler:
 
     def handle_session_started(self, event: SessionStartedEvent) -> None:
         display = self.displays.get(event.agent_id)
+        if not display:
+            return
         if event.is_continuation:
             display.continue_session()
         else:
@@ -19,28 +21,42 @@ class DisplayEventHandler:
 
     def handle_user_prompt_requested(self, event: UserPromptRequestedEvent) -> None:
         display = self.displays.get(event.agent_id)
+        if not display:
+            return
         display.waiting_for_input()
 
     def handle_user_prompted(self, event: UserPromptedEvent) -> None:
         display = self.displays.get(event.agent_id)
+        if not display:
+            return
         display.user_says(event.input_text)
 
     def handle_assistant_said(self, event: AssistantSaidEvent) -> None:
         display = self.displays.get(event.agent_id)
+        if not display:
+            return
         display.assistant_says(event.message)
 
     def handle_tool_called(self, event: ToolCalledEvent) -> None:
         display = self.displays.get(event.agent_id)
+        if not display:
+            return
         display.tool_call(event.tool)
 
     def handle_tool_result(self, event: ToolResultEvent) -> None:
         display = self.displays.get(event.agent_id)
+        if not display:
+            return
         display.tool_result(event.result)
 
     def handle_session_interrupted(self, event: SessionInterruptedEvent) -> None:
         display = self.displays.get(event.agent_id)
+        if not display:
+            return
         display.interrupted()
 
     def handle_session_ended(self, event: SessionEndedEvent) -> None:
         display = self.displays.get(event.agent_id)
+        if not display:
+            return
         display.exit()

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 
 @dataclass
@@ -14,7 +15,7 @@ class AssistantSaidEvent(AgentEvent):
 
 @dataclass
 class ToolCalledEvent(AgentEvent):
-    tool: any
+    tool: Any
 
 
 @dataclass

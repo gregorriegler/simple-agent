@@ -27,7 +27,7 @@ class Agent:
         self.event_bus = event_bus
         self.session_storage = session_storage
 
-    def start(self, context=Messages()):
+    def start(self, context: Messages = Messages()):
         try:
             tool_result: ToolResult = ContinueResult()
 

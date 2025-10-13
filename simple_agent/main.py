@@ -59,7 +59,7 @@ def main():
         claude_config = load_claude_config()
         llm = ClaudeLLM(claude_config)
 
-    system_prompt_generator = lambda _tool_library: generate_system_prompt(_tool_library)
+    system_prompt_generator = lambda tool_library: generate_system_prompt(tool_library)
 
     event_bus = SimpleEventBus()
     display_event_handler = DisplayEventHandler(display)

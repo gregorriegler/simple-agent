@@ -86,7 +86,8 @@ class TextualApp(App):
             event.prevent_default()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
-        self.user_input.submit_input(event.value.strip())
+        if self.user_input:
+            self.user_input.submit_input(event.value.strip())
         event.input.value = ""
 
     def write_message(self, message: str) -> None:

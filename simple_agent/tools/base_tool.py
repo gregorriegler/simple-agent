@@ -6,6 +6,8 @@ class BaseTool(Tool):
     name = ''
     description = ''
     arguments = []
+    examples = []
+    _custom_usage_info = None
 
     def execute(self, *args, **kwargs) -> ToolResult:
         raise NotImplementedError("Subclasses must implement execute()")
@@ -44,7 +46,7 @@ class BaseTool(Tool):
             return {'output': f'Error: {str(e)}'}
 
     def get_usage_info(self):
-        if hasattr(self, '_custom_usage_info'):
+        if hasattr(self, '_custom_usage_info') and self._custom_usage_info is not None:
             return self._custom_usage_info()
 
         return self._generate_usage_info_from_metadata()

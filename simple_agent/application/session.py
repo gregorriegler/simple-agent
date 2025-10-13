@@ -41,6 +41,6 @@ def run_session(
         session_storage
     )
 
-    messages = session_storage.load() if continue_session else Messages()
-    persisted_messages = PersistedMessages(messages, session_storage)
+    messages = session_storage.load().to_list() if continue_session else None
+    persisted_messages = PersistedMessages(session_storage, messages)
     agent.start(persisted_messages)

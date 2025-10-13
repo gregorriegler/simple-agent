@@ -1,34 +1,22 @@
-from .llm import Messages
+from .llm import Messages, ChatMessages
 from .session_storage import SessionStorage
 
 
-class PersistedMessages:
+class PersistedMessages(Messages):
 
-    def __init__(self, messages: Messages, session_storage: SessionStorage):
-        self._messages = messages
+    def __init__(self, session_storage: SessionStorage, messages: ChatMessages | None = None):
+        super().__init__(messages if messages is not None else [])
         self._session_storage = session_storage
 
     def user_says(self, content: str):
-        self._messages.user_says(content)
-        self._session_storage.save(self._messages)
+        super().user_says(content)
+        self._session_storage.save(self)
 
     def assistant_says(self, content: str):
-        self._messages.assistant_says(content)
-        self._session_storage.save(self._messages)
+        super().assistant_says(content)
+        self._session_storage.save(self)
 
     def add(self, role: str, content: str):
-        self._messages.add(role, content)
-        self._session_storage.save(self._messages)
-
-    def to_list(self):
-        return self._messages.to_list()
-
-    def __len__(self):
-        return len(self._messages)
-
-    def __iter__(self):
-        return iter(self._messages)
-
-    def __str__(self):
-        return str(self._messages)
+        super().add(role, content)
+        self._session_storage.save(self)
 

@@ -6,11 +6,11 @@ from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.tools import AllTools
 from simple_agent.tools.all_tools import SubagentConsoleDisplay
 
-def get_tool_info(self, tools, tool_name=None):
+def get_tool_info(tools, tool_name=None):
     if tool_name:
         tool = tools.tool_dict.get(tool_name)
         if not tool:
-            return f"Tool '{tool_name}' not found. Available tools: {', '.join(self.tool_dict.keys())}"
+            return f"Tool '{tool_name}' not found. Available tools: {', '.join(tools.tool_dict.keys())}"
         if hasattr(tool, 'get_usage_info'):
             return tool.get_usage_info()
         else:

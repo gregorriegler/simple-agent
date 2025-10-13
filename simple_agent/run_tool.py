@@ -16,11 +16,11 @@ if __name__ == "__main__":
         create_subagent_input=create_subagent_input
     )
     try:
-        tool = tools.parse_message_and_tools(f"🛠️ {command}")
-        if not tool:
+        result = tools.parse_message_and_tools(f"🛠️ {command}")
+        if not result.tools:
             print(f"Unknown tool: {command}")
             sys.exit(1)
-        output = tools.execute_parsed_tool(tool)
+        output = tools.execute_parsed_tool(result.tools[0])
         print(output)
     except Exception as e:
         print(f"Error: {str(e)}")
