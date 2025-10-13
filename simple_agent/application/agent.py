@@ -62,6 +62,7 @@ class Agent:
                     prompt = self.user_input.read()
                     if prompt:
                         self.user_prompts_new(context, prompt)
+                    if prompt:
                         break
                 if not message_and_tools.tools:
                     break
