@@ -7,12 +7,13 @@ from approvaltests.scrubbers.scrubbers import create_regex_scrubber, combine_scr
 from simple_agent.application.input import Input
 from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
-from simple_agent.tools.all_tools import AllTools, SubagentConsoleDisplay
+from simple_agent.tools.all_tools import AllTools
+from simple_agent.tools.console_subagent_display import ConsoleSubagentDisplay
 
 
 def create_all_tools_for_test():
     io = StdIO()
-    create_subagent_display = lambda agent_id, indent: SubagentConsoleDisplay(indent, io)
+    create_subagent_display = lambda agent_id, indent: ConsoleSubagentDisplay(indent, io)
     create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, io))
     return AllTools(
         create_subagent_display=create_subagent_display,

@@ -4,12 +4,9 @@ from typing import Callable, Any
 from simple_agent.application.agent import Agent
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
-from simple_agent.application.io import IO
 from simple_agent.application.llm import LLM
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
-from simple_agent.infrastructure.console_display import ConsoleDisplay
-from simple_agent.infrastructure.textual_display import TextualDisplay
 from simple_agent.system_prompt_generator import generate_system_prompt
 from .bash_tool import BashTool
 from .cat_tool import CatTool
@@ -19,77 +16,6 @@ from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
 from .subagent_tool import SubagentTool
 from .write_todos_tool import WriteTodosTool
-
-
-class SubagentConsoleDisplay(ConsoleDisplay):
-    def __init__(self, indent_level=1, io: IO | None = None):
-        super().__init__(indent_level, "Subagent", io)
-
-    def exit(self):
-        pass
-
-
-class SubagentTextualDisplay(TextualDisplay):
-    def __init__(self, parent_app, agent_id: str):
-        super().__init__("Subagent")
-        self.app = parent_app
-        self.agent_id = agent_id
-        self.log_id = None
-        self.tool_results_id = None
-        self._create_tab()
-
-    def _create_tab(self):
-        if self.app and self.app.is_running:
-            tab_title = self.agent_id.split('/')[-1]
-            self.log_id, self.tool_results_id = self.app.call_from_thread(
-                self.app.add_subagent_tab,
-                self.agent_id,
-                tab_title
-            )
-
-    def user_says(self, message):
-        if self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_to_tab, self.log_id, f"\nUser: {message}")
-
-    def assistant_says(self, message):
-        lines = str(message).split('\n')
-        if lines and self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_to_tab, self.log_id, f"\n{self.agent_prefix}{lines[0]}")
-            for line in lines[1:]:
-                self.app.call_from_thread(self.app.write_to_tab, self.log_id, line)
-
-    def tool_call(self, tool):
-        if self.app and self.app.is_running and self.tool_results_id:
-            self.app.call_from_thread(self.app.write_tool_result_to_tab, self.tool_results_id, str(tool) + "\n")
-
-    def tool_result(self, result):
-        if not result:
-            return
-        lines = str(result).split('\n')
-        if self.app and self.app.is_running and self.tool_results_id:
-            for line in lines:
-                self.app.call_from_thread(self.app.write_tool_result_to_tab, self.tool_results_id, line)
-            self.app.call_from_thread(self.app.write_tool_result_to_tab, self.tool_results_id, "---")
-
-    def continue_session(self):
-        if self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_to_tab, self.log_id, "Continuing session")
-
-    def start_new_session(self):
-        if self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_to_tab, self.log_id, "Starting new session")
-
-    def waiting_for_input(self):
-        if self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_to_tab, self.log_id, "\nWaiting for user input...")
-
-    def interrupted(self):
-        if self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_to_tab, self.log_id, "\n[Session interrupted by user]")
-
-    def exit(self):
-        if self.app and self.app.is_running:
-            self.app.call_from_thread(self.app.remove_subagent_tab, self.agent_id)
 
 
 class AllTools(ToolLibrary):

@@ -1,6 +1,6 @@
 from simple_agent.application.input import Input
 from simple_agent.tools import AllTools
-from simple_agent.tools.all_tools import SubagentConsoleDisplay
+from simple_agent.tools.console_subagent_display import ConsoleSubagentDisplay
 from simple_agent.infrastructure.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
 
@@ -8,7 +8,7 @@ from simple_agent.infrastructure.stdio import StdIO
 class ToolLibraryStub(AllTools):
     def __init__(self, llm, io=None, interrupts=None, event_bus=None, display_event_handler=None):
         actual_io = io if io else StdIO()
-        create_subagent_display = lambda agent_id, indent: SubagentConsoleDisplay(indent, actual_io)
+        create_subagent_display = lambda agent_id, indent: ConsoleSubagentDisplay(indent, actual_io)
         create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, actual_io))
         super().__init__(
             llm,
