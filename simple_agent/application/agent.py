@@ -45,9 +45,7 @@ class Agent:
 
         try:
             while tool_result.do_continue():
-                message_and_tools = self.llm_responds(context)
-                message = message_and_tools.message
-                tools = message_and_tools.tools
+                message, tools  = self.llm_responds(context)
                 self.notify_about_message(message)
 
                 if self.user_input.escape_requested():

@@ -48,6 +48,10 @@ class MessageAndParsedTools:
     message: str
     tools: List[ParsedTool]
 
+    def __iter__(self):
+        yield self.message
+        yield self.tools
+
 
 class Tool(Protocol):
 
