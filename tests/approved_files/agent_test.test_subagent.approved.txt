@@ -1,8 +1,8 @@
 # Events
 Agent:       session_started: False
 Agent:         user_prompted: Create a subagent that says hello
-Agent:   assistant_responded: 🛠️ subagent say hello
-Agent:           tool_called: 🛠️ subagent say hello
+Agent:   assistant_responded: 🛠️ subagent default say hello
+Agent:           tool_called: 🛠️ subagent default say hello
 Agent/Subagent1:         user_prompted: say hello
 Agent/Subagent1:   assistant_responded: hello
 🛠️ complete-task I successfully said hello
@@ -22,8 +22,8 @@ Agent:         session_ended:
 
 # Saved messages:
 user: Create a subagent that says hello
-assistant: 🛠️ subagent say hello
-user: Result of 🛠️ subagent say hello
+assistant: 🛠️ subagent default say hello
+user: Result of 🛠️ subagent default say hello
 I successfully said hello
 assistant: hello
 🛠️ complete-task I successfully said hello

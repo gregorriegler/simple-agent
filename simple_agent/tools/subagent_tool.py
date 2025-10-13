@@ -5,6 +5,7 @@ from simple_agent.application.input import Input
 from simple_agent.application.tool_library import ContinueResult
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
 from .base_tool import BaseTool
+from .argument_parser import split_arguments
 
 
 class CreateAgent(Protocol):
@@ -22,6 +23,12 @@ class SubagentTool(BaseTool):
     description = "Creates a new subagent that will handle a specific task/todo and report back the result."
     arguments = [
         {
+            "name": "agenttype",
+            "type": "string",
+            "required": True,
+            "description": "Type of agent to create (currently only 'default' is supported)"
+        },
+        {
             "name": "task_description",
             "type": "string",
             "required": True,
@@ -29,8 +36,8 @@ class SubagentTool(BaseTool):
         }
     ]
     examples = [
-        "🛠️ subagent Write a Python function to calculate fibonacci numbers",
-        "🛠️ subagent Create a simple HTML page with a form"
+        "🛠️ subagent default Write a Python function to calculate fibonacci numbers",
+        "🛠️ subagent default Create a simple HTML page with a form"
     ]
 
     def __init__(
@@ -52,11 +59,26 @@ class SubagentTool(BaseTool):
 
     def execute(self, args):
         if not args or not args.strip():
-            return ContinueResult('STDERR: subagent: missing task description')
+            return ContinueResult('STDERR: subagent: missing arguments')
+
+        try:
+            parts = split_arguments(args)
+        except ValueError as exc:
+            return ContinueResult(f"STDERR: subagent: {exc}")
+
+        if len(parts) < 2:
+            return ContinueResult('STDERR: subagent: missing agenttype or task description')
+
+        agenttype = parts[0]
+        task_description = ' '.join(parts[1:])
+
+        if agenttype != 'default':
+            return ContinueResult(f"STDERR: subagent: unsupported agenttype '{agenttype}'. Only 'default' is currently supported")
+
         try:
             next_indent_level = self.indent_level + 1
             user_input = self.create_input(next_indent_level)
-            user_input.stack(args)
+            user_input.stack(task_description)
             agent_id = f"{self.parent_agent_id}/Subagent{next_indent_level}"
             subagent = self.create_agent(
                 agent_id,

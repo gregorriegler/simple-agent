@@ -60,7 +60,7 @@ def test_chat_with_task_completion():
 def test_subagent():
     verify_chat(
         ["Create a subagent that says hello", "\n"], [
-            "🛠️ subagent say hello",
+            "🛠️ subagent default say hello",
             "hello\n🛠️ complete-task I successfully said hello"
         ]
     )
@@ -69,8 +69,8 @@ def test_subagent():
 def test_nested_agent_test():
     verify_chat(
         ["Create a subagent that creates another subagent", "\n"], [
-            "🛠️ subagent create another subagent",
-            "🛠️ subagent say nested hello",
+            "🛠️ subagent default create another subagent",
+            "🛠️ subagent default say nested hello",
             "nested hello\n🛠️ complete-task I successfully said nested hello",
             "🛠️ complete-task I successfully created another subagent",
             "🛠️ complete-task I successfully created a subagent"
@@ -81,7 +81,7 @@ def test_nested_agent_test():
 def test_agent_says_after_subagent():
     verify_chat(
         ["Create a subagent that says hello, then say goodbye", "\n"], [
-            "🛠️ subagent say hello",
+            "🛠️ subagent default say hello",
             "hello\n🛠️ complete-task I successfully said hello",
             "goodbye"
         ]

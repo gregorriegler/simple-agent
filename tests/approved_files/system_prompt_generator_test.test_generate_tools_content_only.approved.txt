@@ -125,10 +125,11 @@ Examples:
 Creates a new subagent that will handle a specific task/todo and report back the result.
 
 Arguments:
+ - agenttype: string (required) - Type of agent to create (currently only 'default' is supported)
  - task_description: string (required) - Detailed description of the task for the subagent to perform
 
-Usage: 🛠️ subagent <task_description>
+Usage: 🛠️ subagent <agenttype> <task_description>
 
 Examples:
-🛠️ subagent Write a Python function to calculate fibonacci numbers
-🛠️ subagent Create a simple HTML page with a form
+🛠️ subagent default Write a Python function to calculate fibonacci numbers
+🛠️ subagent default Create a simple HTML page with a form

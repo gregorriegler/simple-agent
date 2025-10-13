@@ -1,11 +1,11 @@
 # Events
 Agent:       session_started: False
 Agent:         user_prompted: Create a subagent that creates another subagent
-Agent:   assistant_responded: 🛠️ subagent create another subagent
-Agent:           tool_called: 🛠️ subagent create another subagent
+Agent:   assistant_responded: 🛠️ subagent default create another subagent
+Agent:           tool_called: 🛠️ subagent default create another subagent
 Agent/Subagent1:         user_prompted: create another subagent
-Agent/Subagent1:   assistant_responded: 🛠️ subagent say nested hello
-Agent/Subagent1:           tool_called: 🛠️ subagent say nested hello
+Agent/Subagent1:   assistant_responded: 🛠️ subagent default say nested hello
+Agent/Subagent1:           tool_called: 🛠️ subagent default say nested hello
 Agent/tmp/test_path:         user_prompted: say nested hello
 Agent/tmp/test_path:   assistant_responded: nested hello
 🛠️ complete-task I successfully said nested hello
@@ -29,7 +29,7 @@ Agent:         session_ended:
 
 # Saved messages:
 user: Create a subagent that creates another subagent
-assistant: 🛠️ subagent create another subagent
-user: Result of 🛠️ subagent create another subagent
+assistant: 🛠️ subagent default create another subagent
+user: Result of 🛠️ subagent default create another subagent
 I successfully created another subagent
 assistant: 🛠️ complete-task I successfully created a subagent
