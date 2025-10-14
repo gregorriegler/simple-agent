@@ -72,7 +72,8 @@ class SubagentTool(BaseTool):
                 self.parent_agent_id,
                 self.indent_level,
                 user_input,
-                NoOpSessionStorage()
+                NoOpSessionStorage(),
+                'system-prompt.md'
             )
             self.create_display(subagent.agent_id, self.indent_level)
 

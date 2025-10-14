@@ -19,6 +19,7 @@ def create_default_agent_factory(
         indent_level: int,
         user_input: Input,
         session_storage: SessionStorage,
+        system_prompt_md: str,
         tool_keys=[
             'write_todos',
             'ls',
@@ -46,7 +47,7 @@ def create_default_agent_factory(
         )
         return Agent(
             agent_id,
-            lambda system_prompt_md, tool_library: generate_system_prompt(system_prompt_md, subagent_tools),
+            lambda tool_library: generate_system_prompt(system_prompt_md, subagent_tools),
             subagent_tools,
             llm,
             user_input,

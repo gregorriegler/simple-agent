@@ -11,7 +11,8 @@ class AgentFactory(Protocol):
         parent_agent_id: str,
         indent_level: int,
         user_input: Input,
-        session_storage: SessionStorage
+        session_storage: SessionStorage,
+        system_prompt_md: str
     ) -> Agent:
         ...
 
