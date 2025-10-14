@@ -12,7 +12,7 @@ from simple_agent.tools.all_tools import AllTools
 
 
 def create_all_tools_for_test():
-    from simple_agent.agent_factories import AgentFactory
+    from simple_agent.application.agent_factory import AgentFactory
     from simple_agent.application.event_bus import SimpleEventBus
 
     io = StdIO()

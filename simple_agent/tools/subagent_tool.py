@@ -1,5 +1,5 @@
 from simple_agent.application.tool_library import ContinueResult
-from simple_agent.application.create_agent import CreateAgent
+from simple_agent.application.agent_factory import CreateAgent
 from .argument_parser import split_arguments
 from .base_tool import BaseTool
 

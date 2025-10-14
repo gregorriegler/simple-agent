@@ -1,4 +1,4 @@
-from typing import Callable, Any
+from typing import Callable, Any, Protocol
 
 from simple_agent.application.agent import Agent
 from simple_agent.application.event_bus_protocol import EventBus
@@ -7,7 +7,18 @@ from simple_agent.application.llm import LLM
 from simple_agent.system_prompt_generator import generate_system_prompt, extract_tool_keys_from_prompt
 
 
-class AgentFactory:
+class CreateAgent(Protocol):
+    def __call__(
+        self,
+        agenttype: str,
+        parent_agent_id: str,
+        indent_level: int,
+        user_input: Input,
+    ) -> Agent:
+        ...
+
+
+class AgentFactory(CreateAgent):
     def __init__(
         self,
         llm: LLM,

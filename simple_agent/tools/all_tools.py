@@ -1,7 +1,7 @@
 import re
 from typing import Callable, Any
 
-from simple_agent.application.create_agent import CreateAgent
+from simple_agent.application.agent_factory import CreateAgent
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLM
