@@ -1,20 +1,6 @@
 #!/usr/bin/env python
 from simple_agent.application.tool_library import ToolLibrary
 
-def _strip_tool_keys_section(content: str) -> str:
-    separator = "---"
-    if separator not in content:
-        return content
-
-    parts = content.split(separator, 1)
-    if len(parts) < 2:
-        return content
-
-    top_section = parts[0].strip()
-    if not top_section:
-        return content
-
-
 def extract_tool_keys_from_prompt(system_prompt_md: str) -> list[str]:
     separator = "---"
     if separator not in system_prompt_md:
@@ -36,7 +22,6 @@ def extract_tool_keys_from_prompt(system_prompt_md: str) -> list[str]:
     return parts[1].lstrip()
 
 
-
 def generate_system_prompt(system_prompt_md: str, tool_library: ToolLibrary):
     template_content = _read_system_prompt_template(system_prompt_md)
     agents_content = _read_agents_content()
@@ -47,6 +32,7 @@ def generate_system_prompt(system_prompt_md: str, tool_library: ToolLibrary):
 
     # Add agents content at the end
     return result + "\n\n" + agents_content
+
 
 
 def _read_system_prompt_template(system_prompt_md):
@@ -65,6 +51,20 @@ def _read_system_prompt_template(system_prompt_md):
                 raise FileNotFoundError(f"%s template file not found at {template_path}" % system_prompt_md)
 
         return _strip_tool_keys_section(content)
+
+
+def _strip_tool_keys_section(content: str) -> str:
+    separator = "---"
+    if separator not in content:
+        return content
+
+    parts = content.split(separator, 1)
+    if len(parts) < 2:
+        return content
+
+    top_section = parts[0].strip()
+    if not top_section:
+        return content
 
 def _read_agents_content():
         import os
