@@ -5,7 +5,7 @@ from .tool_library import ToolResult, ContinueResult, ToolLibrary
 from .event_bus_protocol import EventBus
 from .events import AssistantSaidEvent, AssistantRespondedEvent, ToolCalledEvent, ToolResultEvent, SessionEndedEvent, \
     SessionInterruptedEvent, \
-    UserPromptRequestedEvent, UserPromptedEvent, EventType
+    UserPromptRequestedEvent, UserPromptedEvent
 
 
 class Agent:
@@ -57,28 +57,28 @@ class Agent:
                     break
                 tool_result = self.execute_tool(tools[0], context)
         except KeyboardInterrupt:
-            self.event_bus.publish(EventType.SESSION_INTERRUPTED, SessionInterruptedEvent(self.agent_id))
+            self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
 
         return tool_result
 
     def notify_about_interrupt(self):
-        self.event_bus.publish(EventType.SESSION_INTERRUPTED, SessionInterruptedEvent(self.agent_id))
-        self.event_bus.publish(EventType.USER_PROMPT_REQUESTED, UserPromptRequestedEvent(self.agent_id))
+        self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
+        self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
 
     def notify_about_message(self, message):
         if message:
-            self.event_bus.publish(EventType.ASSISTANT_SAID, AssistantSaidEvent(self.agent_id, message))
+            self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
 
     def llm_responds(self, context):
         system_prompt = self.system_prompt(self.tools)
         answer = self.llm(system_prompt, context.to_list())
         context.assistant_says(answer)
-        self.event_bus.publish(EventType.ASSISTANT_RESPONDED, AssistantRespondedEvent(self.agent_id, answer))
+        self.event_bus.publish(AssistantRespondedEvent(self.agent_id, answer))
         return self.tools.parse_message_and_tools(answer)
 
     def user_prompts(self, context):
         if not self.user_input.has_stacked_messages():
-            self.event_bus.publish(EventType.USER_PROMPT_REQUESTED, UserPromptRequestedEvent(self.agent_id))
+            self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
         prompt = self.read_user_input_and_prompt_it(context)
         return prompt
 
@@ -86,16 +86,16 @@ class Agent:
         prompt = self.user_input.read()
         if prompt:
             context.user_says(prompt)
-            self.event_bus.publish(EventType.USER_PROMPTED, UserPromptedEvent(self.agent_id, prompt))
+            self.event_bus.publish(UserPromptedEvent(self.agent_id, prompt))
         return prompt
 
     def execute_tool(self, tool, context):
-        self.event_bus.publish(EventType.TOOL_CALLED, ToolCalledEvent(self.agent_id, tool))
+        self.event_bus.publish(ToolCalledEvent(self.agent_id, tool))
         tool_result = self.tools.execute_parsed_tool(tool)
-        self.event_bus.publish(EventType.TOOL_RESULT, ToolResultEvent(self.agent_id, str(tool_result)))
+        self.event_bus.publish(ToolResultEvent(self.agent_id, str(tool_result)))
         if isinstance(tool_result, ContinueResult):
             context.user_says(f"Result of {tool}\n{tool_result}")
         return tool_result
 
     def notify_session_ended(self):
-        self.event_bus.publish(EventType.SESSION_ENDED, SessionEndedEvent(self.agent_id))
+        self.event_bus.publish(SessionEndedEvent(self.agent_id))

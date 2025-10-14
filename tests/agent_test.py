@@ -3,7 +3,17 @@ from approvaltests import verify, Options
 from simple_agent.application.input import Input
 from simple_agent.application.session import run_session
 from simple_agent.application.event_bus import SimpleEventBus
-from simple_agent.application.events import EventType
+from simple_agent.application.events import (
+    AssistantRespondedEvent,
+    AssistantSaidEvent,
+    SessionEndedEvent,
+    SessionInterruptedEvent,
+    SessionStartedEvent,
+    ToolCalledEvent,
+    ToolResultEvent,
+    UserPromptRequestedEvent,
+    UserPromptedEvent,
+)
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
@@ -119,15 +129,27 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     display_handler = DisplayEventHandler(display)
 
     event_spy = EventSpy()
-    for event_type in EventType:
-        event_bus.subscribe(event_type, lambda event_data, et=event_type: event_spy.record_event(et, event_data))
+    tracked_events = [
+        SessionStartedEvent,
+        UserPromptRequestedEvent,
+        UserPromptedEvent,
+        AssistantSaidEvent,
+        AssistantRespondedEvent,
+        ToolCalledEvent,
+        ToolResultEvent,
+        SessionInterruptedEvent,
+        SessionEndedEvent,
+    ]
 
-    event_bus.subscribe(EventType.ASSISTANT_SAID, display_handler.handle_assistant_said)
-    event_bus.subscribe(EventType.TOOL_CALLED, display_handler.handle_tool_called)
-    event_bus.subscribe(EventType.TOOL_RESULT, display_handler.handle_tool_result)
-    event_bus.subscribe(EventType.SESSION_STARTED, display_handler.handle_session_started)
-    event_bus.subscribe(EventType.SESSION_INTERRUPTED, display_handler.handle_session_interrupted)
-    event_bus.subscribe(EventType.SESSION_ENDED, display_handler.handle_session_ended)
+    for event_type in tracked_events:
+        event_bus.subscribe(event_type, event_spy.record_event)
+
+    event_bus.subscribe(AssistantSaidEvent, display_handler.handle_assistant_said)
+    event_bus.subscribe(ToolCalledEvent, display_handler.handle_tool_called)
+    event_bus.subscribe(ToolResultEvent, display_handler.handle_tool_result)
+    event_bus.subscribe(SessionStartedEvent, display_handler.handle_session_started)
+    event_bus.subscribe(SessionInterruptedEvent, display_handler.handle_session_interrupted)
+    event_bus.subscribe(SessionEndedEvent, display_handler.handle_session_ended)
 
     test_tool_library = ToolLibraryStub(
         llm_stub,

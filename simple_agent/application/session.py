@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from simple_agent.application.agent import Agent
 from simple_agent.application.display_type import DisplayType
-from simple_agent.application.events import SessionStartedEvent, EventType
+from simple_agent.application.events import SessionStartedEvent
 from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
 from simple_agent.application.persisted_messages import PersistedMessages
@@ -29,7 +29,7 @@ def run_session(
     session_storage: SessionStorage,
     event_bus
 ):
-    event_bus.publish(EventType.SESSION_STARTED, SessionStartedEvent(agent_id, continue_session))
+    event_bus.publish(SessionStartedEvent(agent_id, continue_session))
 
     agent = Agent(
         agent_id,
