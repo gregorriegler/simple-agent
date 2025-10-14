@@ -1,6 +1,7 @@
 from approvaltests import verify
 from unittest.mock import patch
 
+from simple_agent.system_prompt_generator import extract_tool_keys_from_prompt
 from simple_agent.system_prompt_generator import generate_system_prompt, generate_tools_content
 from tests.test_helpers import create_all_tools_for_test
 
@@ -26,3 +27,31 @@ def verify_system_prompt(system_prompt_md, tool_library):
         mock_agents.return_value = "# Test AGENTS.md content\nThis is a stub for testing."
         system_prompt = generate_system_prompt(system_prompt_md, tool_library)
         verify(system_prompt)
+
+
+def test_extract_tool_keys_from_prompt():
+    prompt_with_keys = """write_todos,ls,cat
+
+---
+
+# Role
+Content here"""
+
+    result = extract_tool_keys_from_prompt(prompt_with_keys)
+    assert result == ['write_todos', 'ls', 'cat']
+
+    prompt_without_keys = """
+
+---
+
+# Role
+Content here"""
+
+    result = extract_tool_keys_from_prompt(prompt_without_keys)
+    assert result == []
+
+    prompt_no_separator = """# Role
+Content here"""
+
+    result = extract_tool_keys_from_prompt(prompt_no_separator)
+    assert result == []

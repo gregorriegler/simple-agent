@@ -4,7 +4,7 @@ from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLM
 from simple_agent.application.session_storage import SessionStorage
-from simple_agent.system_prompt_generator import generate_system_prompt
+from simple_agent.system_prompt_generator import generate_system_prompt, extract_tool_keys_from_prompt
 
 
 def create_default_agent_factory(
@@ -32,6 +32,10 @@ def create_default_agent_factory(
         ]
     ) -> Agent:
         from simple_agent.tools.all_tools import AllTools
+
+        tool_keys_from_prompt = extract_tool_keys_from_prompt(system_prompt_md)
+        if tool_keys_from_prompt:
+            tool_keys = tool_keys_from_prompt
 
         agent_id = f"{parent_agent_id}/Subagent{indent_level}"
         subagent_tools = AllTools(
