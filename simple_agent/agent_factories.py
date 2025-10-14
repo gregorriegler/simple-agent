@@ -19,23 +19,11 @@ def create_default_agent_factory(
         indent_level: int,
         user_input: Input,
         session_storage: SessionStorage,
-        system_prompt_md: str,
-        tool_keys=[
-            'write_todos',
-            'ls',
-            'cat',
-            'create_file',
-            'edit_file',
-            'complete_task',
-            'bash',
-            'subagent'
-        ]
+        system_prompt_md: str
     ) -> Agent:
         from simple_agent.tools.all_tools import AllTools
 
-        tool_keys_from_prompt = extract_tool_keys_from_prompt(system_prompt_md)
-        if tool_keys_from_prompt:
-            tool_keys = tool_keys_from_prompt
+        tool_keys = extract_tool_keys_from_prompt(system_prompt_md)
 
         agent_id = f"{parent_agent_id}/Subagent{indent_level}"
         subagent_tools = AllTools(

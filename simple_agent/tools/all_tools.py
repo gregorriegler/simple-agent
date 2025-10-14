@@ -69,7 +69,7 @@ class AllTools(ToolLibrary):
             )
         }
 
-        if self.tool_keys is None:
+        if not self.tool_keys:
             return [factory() for factory in tool_map.values()]
 
         tools = []
