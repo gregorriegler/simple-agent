@@ -57,7 +57,7 @@ class AgentFactory(CreateAgent):
         from simple_agent.application.session_storage import NoOpSessionStorage
         return Agent(
             agent_id,
-            lambda tool_library: generate_system_prompt(system_prompt_file, subagent_tools),
+            lambda tool_library: generate_system_prompt(system_prompt_file, tool_library),
             subagent_tools,
             self.llm,
             user_input,
