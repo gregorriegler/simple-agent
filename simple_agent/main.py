@@ -38,7 +38,7 @@ def main():
     if args.show_system_prompt:
         from simple_agent.tools.all_tools import AllTools
         tool_library = AllTools()
-        system_prompt = generate_system_prompt(tool_library)
+        system_prompt = generate_system_prompt('system-prompt.md', tool_library)
         print(system_prompt)
         return
 
@@ -81,7 +81,7 @@ def main():
         claude_config = load_claude_config()
         llm = ClaudeLLM(claude_config)
 
-    system_prompt_generator = lambda tool_library: generate_system_prompt(tool_library)
+    system_prompt_generator = lambda system_prompt_md, tool_library: generate_system_prompt(system_prompt_md, tool_library)
 
     event_bus.subscribe(SessionStartedEvent, display_event_handler.handle_session_started)
     event_bus.subscribe(UserPromptRequestedEvent, display_event_handler.handle_user_prompt_requested)

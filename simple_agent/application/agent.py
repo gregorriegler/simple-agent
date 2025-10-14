@@ -70,7 +70,7 @@ class Agent:
             self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
 
     def llm_responds(self, context):
-        system_prompt = self.system_prompt(self.tools)
+        system_prompt = self.system_prompt('system-prompt.md', self.tools)
         answer = self.llm(system_prompt, context.to_list())
         context.assistant_says(answer)
         self.event_bus.publish(AssistantRespondedEvent(self.agent_id, answer))

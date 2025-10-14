@@ -2,10 +2,10 @@
 from simple_agent.application.tool_library import ToolLibrary
 
 
-def generate_system_prompt(tool_library: ToolLibrary):
-    template_content = _read_system_prompt_template()
+def generate_system_prompt(system_prompt_md: str, tool_library: ToolLibrary):
+    template_content = _read_system_prompt_template(system_prompt_md)
     agents_content = _read_agents_content()
-    tools_content = _generate_tools_content(tool_library)
+    tools_content = generate_tools_content(tool_library)
 
     # Replace the dynamic tools placeholder
     result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
@@ -14,20 +14,20 @@ def generate_system_prompt(tool_library: ToolLibrary):
     return result + "\n\n" + agents_content
 
 
-def _read_system_prompt_template():
+def _read_system_prompt_template(system_prompt_md):
         try:
             from importlib import resources
-            return resources.read_text('simple_agent', 'system-prompt.md')
+            return resources.read_text('simple_agent', '%s' % system_prompt_md)
         except FileNotFoundError:
             import os
             script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            template_path = os.path.join(script_dir, "system-prompt.md")
+            template_path = os.path.join(script_dir, "%s" % system_prompt_md)
 
             try:
                 with open(template_path, 'r', encoding='utf-8') as f:
                     return f.read()
             except FileNotFoundError:
-                raise FileNotFoundError(f"system-prompt.md template file not found at {template_path}")
+                raise FileNotFoundError(f"%s template file not found at {template_path}" % system_prompt_md)
 
 def _read_agents_content():
         import os
@@ -47,7 +47,7 @@ def _read_agents_content():
             # If AGENTS.md doesn't exist, return empty string to avoid breaking
             return ""
 
-def _generate_tools_content(tool_library: ToolLibrary):
+def generate_tools_content(tool_library: ToolLibrary):
     tools_lines = []
 
     for tool in tool_library.tools:
@@ -118,7 +118,7 @@ def main():
     args = parser.parse_args()
 
     tool_library = AllTools()
-    system_prompt = generate_system_prompt(tool_library)
+    system_prompt = generate_system_prompt('system-prompt.md', tool_library)
 
     if args.output:
         with open(args.output, 'w', encoding='utf-8') as f:

@@ -46,7 +46,7 @@ def create_default_agent_factory(
         )
         return Agent(
             agent_id,
-            lambda tool_library: generate_system_prompt(subagent_tools),
+            lambda system_prompt_md, tool_library: generate_system_prompt(system_prompt_md, subagent_tools),
             subagent_tools,
             llm,
             user_input,
