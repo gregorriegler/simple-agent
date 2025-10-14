@@ -37,7 +37,26 @@ def main():
 
     if args.show_system_prompt:
         from simple_agent.tools.all_tools import AllTools
-        tool_library = AllTools()
+        from simple_agent.application.user_input import UserInput
+
+        class DummyUserInput(UserInput):
+            def read(self) -> str:
+                return ""
+            def escape_requested(self) -> bool:
+                return False
+
+        agent_factory_registry = AgentFactoryRegistry()
+        agent_factory_registry.register(
+            'default',
+            create_default_agent_factory(
+                lambda system_prompt, messages: '',
+                SimpleEventBus(),
+                lambda agent_id, indent: None,
+                lambda indent: Input(DummyUserInput()),
+                agent_factory_registry
+            )
+        )
+        tool_library = AllTools(agent_factory_registry=agent_factory_registry)
         system_prompt = generate_system_prompt('default.agent.md', tool_library)
         print(system_prompt)
         return

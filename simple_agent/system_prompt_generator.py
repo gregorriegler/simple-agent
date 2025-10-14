@@ -150,7 +150,7 @@ def _generate_tool_documentation(tool):
                 agent_types_list = ', '.join(f"'{t}'" for t in agent_types)
                 injected_lines = []
                 for line in remaining_lines:
-                    if 'agenttype:' in line.lower() and '{{AGENT_TYPES}}' in line.lower():
+                    if 'agenttype:' in line.lower() and '{{agent_types}}' in line.lower():
                         injected_lines.append(f" - agenttype: string (required) - Type of agent to create. Available types: {agent_types_list}")
                     else:
                         injected_lines.append(line)
