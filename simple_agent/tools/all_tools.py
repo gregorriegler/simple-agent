@@ -26,7 +26,8 @@ class AllTools(ToolLibrary):
         user_input=None,
         create_subagent_display: Callable[[str, int], Any] | None = None,
         create_subagent_input: Callable[[int], Input] | None = None,
-        agent_factory_registry: AgentFactoryRegistry | None = None
+        agent_factory_registry: AgentFactoryRegistry | None = None,
+        tool_keys: list[str] | None = None
     ):
         from simple_agent.application.event_bus import SimpleEventBus
 
@@ -43,6 +44,7 @@ class AllTools(ToolLibrary):
         self.create_subagent_input = create_subagent_input
 
         self.agent_factory_registry = agent_factory_registry if agent_factory_registry is not None else AgentFactoryRegistry()
+        self.tool_keys = tool_keys
 
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
@@ -50,22 +52,31 @@ class AllTools(ToolLibrary):
         self.tool_dict = {getattr(tool, 'name', ''): tool for tool in self.tools}
 
     def _create_static_tools(self):
-        return [
-            WriteTodosTool(self.agent_id),
-            LsTool(),
-            CatTool(),
-            CreateFileTool(),
-            EditFileTool(),
-            CompleteTaskTool(),
-            BashTool(),
-            SubagentTool(
+        tool_map = {
+            'write_todos': lambda: WriteTodosTool(self.agent_id),
+            'ls': lambda: LsTool(),
+            'cat': lambda: CatTool(),
+            'create_file': lambda: CreateFileTool(),
+            'edit_file': lambda: EditFileTool(),
+            'complete_task': lambda: CompleteTaskTool(),
+            'bash': lambda: BashTool(),
+            'subagent': lambda: SubagentTool(
                 self.agent_factory_registry,
                 self.create_subagent_display,
                 self.indent_level + 1,
                 self.agent_id,
                 self.create_subagent_input
             )
-        ]
+        }
+
+        if self.tool_keys is None:
+            return [factory() for factory in tool_map.values()]
+
+        tools = []
+        for key in self.tool_keys:
+            if key in tool_map:
+                tools.append(tool_map[key]())
+        return tools
 
     def parse_message_and_tools(self, text) -> MessageAndParsedTools:
         pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?'
