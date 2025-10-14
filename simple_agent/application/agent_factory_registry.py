@@ -8,11 +8,11 @@ from simple_agent.application.session_storage import SessionStorage
 class AgentFactory(Protocol):
     def __call__(
         self,
+        system_prompt_md: str,
         parent_agent_id: str,
         indent_level: int,
         user_input: Input,
-        session_storage: SessionStorage,
-        system_prompt_md: str
+        session_storage: SessionStorage
     ) -> Agent:
         ...
 

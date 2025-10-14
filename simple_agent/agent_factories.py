@@ -15,11 +15,11 @@ def create_default_agent_factory(
     agent_factory_registry
 ):
     def factory(
+        system_prompt_md: str,
         parent_agent_id: str,
         indent_level: int,
         user_input: Input,
-        session_storage: SessionStorage,
-        system_prompt_md: str
+        session_storage: SessionStorage
     ) -> Agent:
         from simple_agent.tools.all_tools import AllTools
 

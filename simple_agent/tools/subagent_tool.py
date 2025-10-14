@@ -69,11 +69,11 @@ class SubagentTool(BaseTool):
             user_input.stack(task_description)
             create_agent = self.agent_factory_registry.get_by_type(agenttype)
             subagent = create_agent(
+                'system-prompt.md',
                 self.parent_agent_id,
                 self.indent_level,
                 user_input,
-                NoOpSessionStorage(),
-                'system-prompt.md'
+                NoOpSessionStorage()
             )
             self.create_display(subagent.agent_id, self.indent_level)
 
