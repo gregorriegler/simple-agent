@@ -10,7 +10,7 @@ def generate_system_prompt(tool_library: ToolLibrary):
     # Replace the dynamic tools placeholder
     result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
 
-    # Add agents content at the beginning
+    # Add agents content at the end
     return result + "\n\n" + agents_content
 
 

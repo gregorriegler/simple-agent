@@ -18,7 +18,17 @@ def create_default_agent_factory(
         parent_agent_id: str,
         indent_level: int,
         user_input: Input,
-        session_storage: SessionStorage
+        session_storage: SessionStorage,
+        tool_keys=[
+            'write_todos',
+            'ls',
+            'cat',
+            'create_file',
+            'edit_file',
+            'complete_task',
+            'bash',
+            'subagent'
+        ]
     ) -> Agent:
         from simple_agent.tools.all_tools import AllTools
 
@@ -31,7 +41,8 @@ def create_default_agent_factory(
             user_input,
             create_subagent_display,
             create_subagent_input,
-            agent_factory_registry
+            agent_factory_registry,
+            tool_keys
         )
         return Agent(
             agent_id,
