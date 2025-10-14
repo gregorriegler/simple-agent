@@ -6,7 +6,16 @@ from simple_agent.agent_factories import create_default_agent_factory
 from simple_agent.application.agent_factory_registry import AgentFactoryRegistry
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
-from simple_agent.application.events import EventType
+from simple_agent.application.events import (
+    AssistantSaidEvent,
+    SessionEndedEvent,
+    SessionInterruptedEvent,
+    SessionStartedEvent,
+    ToolCalledEvent,
+    ToolResultEvent,
+    UserPromptRequestedEvent,
+    UserPromptedEvent,
+)
 from simple_agent.application.input import Input
 from simple_agent.application.session import run_session, SessionArgs
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
@@ -74,14 +83,14 @@ def main():
 
     system_prompt_generator = lambda tool_library: generate_system_prompt(tool_library)
 
-    event_bus.subscribe(EventType.SESSION_STARTED, display_event_handler.handle_session_started)
-    event_bus.subscribe(EventType.USER_PROMPT_REQUESTED, display_event_handler.handle_user_prompt_requested)
-    event_bus.subscribe(EventType.USER_PROMPTED, display_event_handler.handle_user_prompted)
-    event_bus.subscribe(EventType.ASSISTANT_SAID, display_event_handler.handle_assistant_said)
-    event_bus.subscribe(EventType.TOOL_CALLED, display_event_handler.handle_tool_called)
-    event_bus.subscribe(EventType.TOOL_RESULT, display_event_handler.handle_tool_result)
-    event_bus.subscribe(EventType.SESSION_INTERRUPTED, display_event_handler.handle_session_interrupted)
-    event_bus.subscribe(EventType.SESSION_ENDED, display_event_handler.handle_session_ended)
+    event_bus.subscribe(SessionStartedEvent, display_event_handler.handle_session_started)
+    event_bus.subscribe(UserPromptRequestedEvent, display_event_handler.handle_user_prompt_requested)
+    event_bus.subscribe(UserPromptedEvent, display_event_handler.handle_user_prompted)
+    event_bus.subscribe(AssistantSaidEvent, display_event_handler.handle_assistant_said)
+    event_bus.subscribe(ToolCalledEvent, display_event_handler.handle_tool_called)
+    event_bus.subscribe(ToolResultEvent, display_event_handler.handle_tool_result)
+    event_bus.subscribe(SessionInterruptedEvent, display_event_handler.handle_session_interrupted)
+    event_bus.subscribe(SessionEndedEvent, display_event_handler.handle_session_ended)
 
     from simple_agent.tools.all_tools import AllTools
 

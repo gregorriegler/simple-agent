@@ -1,8 +1,9 @@
-from typing import Protocol, Callable, Any
+from typing import Protocol, Callable, Any, Type
 from abc import abstractmethod
-from .events import EventType
+from .events import AgentEvent
 
 EventHandler = Callable[[Any], None]
+EventType = Type[AgentEvent]
 
 
 class EventBus(Protocol):
@@ -16,5 +17,5 @@ class EventBus(Protocol):
         pass
 
     @abstractmethod
-    def publish(self, event_type: EventType, event_data: Any = None) -> None:
+    def publish(self, event: AgentEvent) -> None:
         pass
