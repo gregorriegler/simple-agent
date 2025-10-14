@@ -1,6 +1,5 @@
 from simple_agent.application.tool_library import ContinueResult
-from simple_agent.application.agent_factory_registry import AgentFactoryRegistry
-from simple_agent.application.session_storage import NoOpSessionStorage
+from simple_agent.application.create_agent import CreateAgent
 from .argument_parser import split_arguments
 from .base_tool import BaseTool
 
@@ -29,14 +28,14 @@ class SubagentTool(BaseTool):
 
     def __init__(
         self,
-        agent_factory_registry: AgentFactoryRegistry,
+        create_agent: CreateAgent,
         create_display,
         indent_level: int,
         parent_agent_id: str,
         create_user_input
     ):
         super().__init__()
-        self.agent_factory_registry = agent_factory_registry
+        self.create_agent = create_agent
         self.create_display = create_display
         self.indent_level = indent_level
         self.parent_agent_id = parent_agent_id
@@ -57,23 +56,14 @@ class SubagentTool(BaseTool):
         agenttype = parts[0]
         task_description = ' '.join(parts[1:])
 
-        available_types = self.agent_factory_registry.get_available_types()
-        if agenttype not in available_types:
-            return ContinueResult(
-                f"STDERR: subagent: unsupported agenttype '{agenttype}'. "
-                f"Available types: {', '.join(available_types)}"
-            )
-
         try:
             user_input = self.create_user_input(self.indent_level)
             user_input.stack(task_description)
-            create_agent = self.agent_factory_registry.get_by_type(agenttype)
-            subagent = create_agent(
+            subagent = self.create_agent(
                 agenttype,
                 self.parent_agent_id,
                 self.indent_level,
-                user_input,
-                NoOpSessionStorage()
+                user_input
             )
             self.create_display(subagent.agent_id, self.indent_level)
 

@@ -3,7 +3,6 @@
 import argparse
 
 from simple_agent.agent_factories import create_default_agent_factory
-from simple_agent.application.agent_factory_registry import AgentFactoryRegistry
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
@@ -45,18 +44,13 @@ def main():
             def escape_requested(self) -> bool:
                 return False
 
-        agent_factory_registry = AgentFactoryRegistry()
-        agent_factory_registry.register(
-            'default',
-            create_default_agent_factory(
-                lambda system_prompt, messages: '',
-                SimpleEventBus(),
-                lambda agent_id, indent: None,
-                lambda indent: Input(DummyUserInput()),
-                agent_factory_registry
-            )
+        create_agent = create_default_agent_factory(
+            lambda system_prompt, messages: '',
+            SimpleEventBus(),
+            lambda agent_id, indent: None,
+            lambda indent: Input(DummyUserInput())
         )
-        tool_library = AllTools(agent_factory_registry=agent_factory_registry)
+        tool_library = AllTools(create_agent=create_agent)
         system_prompt = generate_system_prompt('default.agent.md', tool_library)
         print(system_prompt)
         return
@@ -113,16 +107,11 @@ def main():
 
     from simple_agent.tools.all_tools import AllTools
 
-    agent_factory_registry = AgentFactoryRegistry()
-    agent_factory_registry.register(
-        'default',
-        create_default_agent_factory(
-            llm,
-            event_bus,
-            create_subagent_display,
-            create_subagent_input,
-            agent_factory_registry
-        )
+    create_agent = create_default_agent_factory(
+        llm,
+        event_bus,
+        create_subagent_display,
+        create_subagent_input
     )
 
     tools = AllTools(
@@ -133,7 +122,7 @@ def main():
         user_input,
         create_subagent_display,
         create_subagent_input,
-        agent_factory_registry
+        create_agent
     )
 
     run_session(

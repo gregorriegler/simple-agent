@@ -12,12 +12,26 @@ from simple_agent.tools.all_tools import AllTools
 
 
 def create_all_tools_for_test():
+    from simple_agent.agent_factories import create_default_agent_factory
+    from simple_agent.application.event_bus import SimpleEventBus
+
     io = StdIO()
-    create_subagent_display = lambda agent_id, indent: ConsoleSubagentDisplay(indent, io)
+    create_subagent_display = lambda agent_id, indent: ConsoleSubagentDisplay(indent, agent_id, io, None)
     create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, io))
+
+    event_bus = SimpleEventBus()
+    llm = lambda system_prompt, messages: ''
+    create_agent = create_default_agent_factory(
+        llm,
+        event_bus,
+        create_subagent_display,
+        create_subagent_input
+    )
+
     return AllTools(
         create_subagent_display=create_subagent_display,
-        create_subagent_input=create_subagent_input
+        create_subagent_input=create_subagent_input,
+        create_agent=create_agent
     )
 
 

@@ -1,7 +1,7 @@
 import re
 from typing import Callable, Any
 
-from simple_agent.application.agent_factory_registry import AgentFactoryRegistry
+from simple_agent.application.create_agent import CreateAgent
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLM
@@ -26,7 +26,7 @@ class AllTools(ToolLibrary):
         user_input=None,
         create_subagent_display: Callable[[str, int], Any] | None = None,
         create_subagent_input: Callable[[int], Input] | None = None,
-        agent_factory_registry: AgentFactoryRegistry | None = None,
+        create_agent: CreateAgent | None = None,
         tool_keys: list[str] | None = None
     ):
         from simple_agent.application.event_bus import SimpleEventBus
@@ -39,7 +39,7 @@ class AllTools(ToolLibrary):
         self.create_subagent_display = create_subagent_display
         self.create_subagent_input = create_subagent_input
 
-        self.agent_factory_registry = agent_factory_registry if agent_factory_registry is not None else AgentFactoryRegistry()
+        self.create_agent = create_agent
         self.tool_keys = tool_keys
 
         static_tools = self._create_static_tools()
@@ -57,21 +57,24 @@ class AllTools(ToolLibrary):
             'complete_task': lambda: CompleteTaskTool(),
             'bash': lambda: BashTool(),
             'subagent': lambda: SubagentTool(
-                self.agent_factory_registry,
+                self.create_agent,
                 self.create_subagent_display,
                 self.indent_level + 1,
                 self.agent_id,
                 self.create_subagent_input
-            )
+            ) if self.create_agent else None
         }
 
         if not self.tool_keys:
-            return [factory() for factory in tool_map.values()]
+            tools = [factory() for factory in tool_map.values()]
+            return [tool for tool in tools if tool is not None]
 
         tools = []
         for key in self.tool_keys:
             if key in tool_map:
-                tools.append(tool_map[key]())
+                tool = tool_map[key]()
+                if tool is not None:
+                    tools.append(tool)
         return tools
 
     def parse_message_and_tools(self, text) -> MessageAndParsedTools:

@@ -1,5 +1,4 @@
 from simple_agent.agent_factories import create_default_agent_factory
-from simple_agent.application.agent_factory_registry import AgentFactoryRegistry
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
 from simple_agent.tools import AllTools
@@ -21,16 +20,11 @@ class ToolLibraryStub(AllTools):
         create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, actual_io))
 
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
-        agent_factory_registry = AgentFactoryRegistry()
-        agent_factory_registry.register(
-            'default',
-            create_default_agent_factory(
-                llm,
-                actual_event_bus,
-                create_subagent_display,
-                create_subagent_input,
-                agent_factory_registry
-            )
+        create_agent = create_default_agent_factory(
+            llm,
+            actual_event_bus,
+            create_subagent_display,
+            create_subagent_input
         )
 
         super().__init__(
@@ -38,7 +32,7 @@ class ToolLibraryStub(AllTools):
             event_bus=actual_event_bus,
             create_subagent_display=create_subagent_display,
             create_subagent_input=create_subagent_input,
-            agent_factory_registry=agent_factory_registry
+            create_agent=create_agent
         )
         self.interrupts = interrupts or []
         self.counter = 0

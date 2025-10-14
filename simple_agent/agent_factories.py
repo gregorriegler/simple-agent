@@ -11,15 +11,13 @@ def create_default_agent_factory(
     llm: LLM,
     event_bus: EventBus,
     create_subagent_display: Callable[[str, int], Any],
-    create_subagent_input: Callable[[int], Input],
-    agent_factory_registry
+    create_subagent_input: Callable[[int], Input]
 ):
     def factory(
         agenttype: str,
         parent_agent_id: str,
         indent_level: int,
-        user_input: Input,
-        session_storage: SessionStorage
+        user_input: Input
     ) -> Agent:
         from simple_agent.tools.all_tools import AllTools
         system_prompt_file = f'{agenttype}.agent.md'
@@ -34,9 +32,10 @@ def create_default_agent_factory(
             user_input,
             create_subagent_display,
             create_subagent_input,
-            agent_factory_registry,
+            factory,
             tool_keys
         )
+        from simple_agent.application.session_storage import NoOpSessionStorage
         return Agent(
             agent_id,
             lambda tool_library: generate_system_prompt(system_prompt_file, subagent_tools),
@@ -44,7 +43,7 @@ def create_default_agent_factory(
             llm,
             user_input,
             event_bus,
-            session_storage
+            NoOpSessionStorage()
         )
 
     return factory
