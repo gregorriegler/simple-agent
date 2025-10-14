@@ -19,9 +19,6 @@ def extract_tool_keys_from_prompt(system_prompt_md: str) -> list[str]:
 
     return []
 
-    return parts[1].lstrip()
-
-
 def generate_system_prompt(system_prompt_md: str, tool_library: ToolLibrary):
     template_content = _read_system_prompt_template(system_prompt_md)
     agents_content = _read_agents_content()
@@ -65,6 +62,8 @@ def _strip_tool_keys_section(content: str) -> str:
     top_section = parts[0].strip()
     if not top_section:
         return content
+    return ""
+
 
 def _read_agents_content():
         import os
