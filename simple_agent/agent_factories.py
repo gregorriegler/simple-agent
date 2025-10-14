@@ -15,15 +15,15 @@ def create_default_agent_factory(
     agent_factory_registry
 ):
     def factory(
-        system_prompt_md: str,
+        agenttype: str,
         parent_agent_id: str,
         indent_level: int,
         user_input: Input,
         session_storage: SessionStorage
     ) -> Agent:
         from simple_agent.tools.all_tools import AllTools
-
-        tool_keys = extract_tool_keys_from_prompt(system_prompt_md)
+        system_prompt_file = f'{agenttype}.agent.md'
+        tool_keys = extract_tool_keys_from_prompt(system_prompt_file)
 
         agent_id = f"{parent_agent_id}/Subagent{indent_level}"
         subagent_tools = AllTools(
@@ -39,7 +39,7 @@ def create_default_agent_factory(
         )
         return Agent(
             agent_id,
-            lambda tool_library: generate_system_prompt(system_prompt_md, subagent_tools),
+            lambda tool_library: generate_system_prompt(system_prompt_file, subagent_tools),
             subagent_tools,
             llm,
             user_input,

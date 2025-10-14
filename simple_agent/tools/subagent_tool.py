@@ -68,9 +68,8 @@ class SubagentTool(BaseTool):
             user_input = self.create_user_input(self.indent_level)
             user_input.stack(task_description)
             create_agent = self.agent_factory_registry.get_by_type(agenttype)
-            system_prompt_file = f'{agenttype}.agent.md'
             subagent = create_agent(
-                system_prompt_file,
+                agenttype,
                 self.parent_agent_id,
                 self.indent_level,
                 user_input,
