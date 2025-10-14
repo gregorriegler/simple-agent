@@ -2,7 +2,7 @@
 
 import argparse
 
-from simple_agent.agent_factories import create_default_agent_factory
+from simple_agent.agent_factories import AgentFactory
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
@@ -44,7 +44,7 @@ def main():
             def escape_requested(self) -> bool:
                 return False
 
-        create_agent = create_default_agent_factory(
+        create_agent = AgentFactory(
             lambda system_prompt, messages: '',
             SimpleEventBus(),
             lambda agent_id, indent: None,
@@ -107,7 +107,7 @@ def main():
 
     from simple_agent.tools.all_tools import AllTools
 
-    create_agent = create_default_agent_factory(
+    create_agent = AgentFactory(
         llm,
         event_bus,
         create_subagent_display,

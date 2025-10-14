@@ -7,32 +7,40 @@ from simple_agent.application.llm import LLM
 from simple_agent.system_prompt_generator import generate_system_prompt, extract_tool_keys_from_prompt
 
 
-def create_default_agent_factory(
-    llm: LLM,
-    event_bus: EventBus,
-    create_subagent_display: Callable[[str, int], Any],
-    create_subagent_input: Callable[[int], Input]
-):
-    def factory(
-        agent_type: str,
+class AgentFactory:
+    def __init__(
+        self,
+        llm: LLM,
+        event_bus: EventBus,
+        create_subagent_display: Callable[[str, int], Any],
+        create_subagent_input: Callable[[int], Input]
+    ):
+        self.llm = llm
+        self.event_bus = event_bus
+        self.create_subagent_display = create_subagent_display
+        self.create_subagent_input = create_subagent_input
+
+    def __call__(
+        self,
+        agenttype: str,
         parent_agent_id: str,
         indent_level: int,
         user_input: Input
     ) -> Agent:
         from simple_agent.tools.all_tools import AllTools
-        system_prompt_file = f'{agent_type}.agent.md'
+        system_prompt_file = f'{agenttype}.agent.md'
         tool_keys = extract_tool_keys_from_prompt(system_prompt_file)
         agent_id = f"{parent_agent_id}/Subagent{indent_level}"
 
         subagent_tools = AllTools(
-            llm,
+            self.llm,
             indent_level,
             agent_id,
-            event_bus,
+            self.event_bus,
             user_input,
-            create_subagent_display,
-            create_subagent_input,
-            factory,
+            self.create_subagent_display,
+            self.create_subagent_input,
+            self,
             tool_keys
         )
         from simple_agent.application.session_storage import NoOpSessionStorage
@@ -40,10 +48,8 @@ def create_default_agent_factory(
             agent_id,
             lambda tool_library: generate_system_prompt(system_prompt_file, subagent_tools),
             subagent_tools,
-            llm,
+            self.llm,
             user_input,
-            event_bus,
+            self.event_bus,
             NoOpSessionStorage()
         )
-
-    return factory

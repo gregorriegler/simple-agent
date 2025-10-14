@@ -12,7 +12,7 @@ from simple_agent.tools.all_tools import AllTools
 
 
 def create_all_tools_for_test():
-    from simple_agent.agent_factories import create_default_agent_factory
+    from simple_agent.agent_factories import AgentFactory
     from simple_agent.application.event_bus import SimpleEventBus
 
     io = StdIO()
@@ -21,7 +21,7 @@ def create_all_tools_for_test():
 
     event_bus = SimpleEventBus()
     llm = lambda system_prompt, messages: ''
-    create_agent = create_default_agent_factory(
+    create_agent = AgentFactory(
         llm,
         event_bus,
         create_subagent_display,
