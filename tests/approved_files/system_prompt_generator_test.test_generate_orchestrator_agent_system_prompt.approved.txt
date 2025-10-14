@@ -176,3 +176,5 @@ When you have successfully completed the user's task:
 3. Do not ask follow-up questions in completion summaries
 
 
+# Test AGENTS.md content
+This is a stub for testing.
