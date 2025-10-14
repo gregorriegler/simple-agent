@@ -36,10 +36,6 @@ class AllTools(ToolLibrary):
         self.agent_id = agent_id
         self.event_bus: EventBus = event_bus if event_bus is not None else SimpleEventBus()
         self.user_input = user_input
-
-        assert create_subagent_display is not None, "create_subagent_display must be provided"
-        assert create_subagent_input is not None, "create_subagent_input must be provided"
-
         self.create_subagent_display = create_subagent_display
         self.create_subagent_input = create_subagent_input
 
