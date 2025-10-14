@@ -1,5 +1,18 @@
 #!/usr/bin/env python
+import os
+import glob
 from simple_agent.application.tool_library import ToolLibrary
+
+def discover_agent_types() -> list[str]:
+    simple_agent_dir = os.path.dirname(os.path.abspath(__file__))
+    pattern = os.path.join(simple_agent_dir, '*.agent.md')
+    agent_files = glob.glob(pattern)
+    agent_types = []
+    for filepath in agent_files:
+        basename = os.path.basename(filepath)
+        agent_type = basename.replace('.agent.md', '')
+        agent_types.append(agent_type)
+    return sorted(agent_types)
 
 def extract_tool_keys_from_prompt(system_prompt_md: str) -> list[str]:
     separator = "---"
@@ -129,8 +142,20 @@ def _generate_tool_documentation(tool):
         if description:
             doc_lines.append(f"{description}")
 
-        # Simply return the full usage_info after the tool name and description
-        remaining_lines = usage_info.split('\n')[2:]  # Skip "Tool: name" and "Description: ..." lines
+        remaining_lines = usage_info.split('\n')[2:]
+
+        if tool_name == 'subagent':
+            agent_types = discover_agent_types()
+            if agent_types:
+                agent_types_list = ', '.join(f"'{t}'" for t in agent_types)
+                injected_lines = []
+                for line in remaining_lines:
+                    if 'agenttype:' in line.lower() and '{{AGENT_TYPES}}' in line.lower():
+                        injected_lines.append(f" - agenttype: string (required) - Type of agent to create. Available types: {agent_types_list}")
+                    else:
+                        injected_lines.append(line)
+                remaining_lines = injected_lines
+
         if remaining_lines:
             doc_lines.extend(remaining_lines)
 
@@ -153,7 +178,25 @@ def main():
 
     args = parser.parse_args()
 
-    tool_library = AllTools()
+    from simple_agent.application.input import Input
+    from simple_agent.application.user_input import UserInput
+
+    class DummyUserInput(UserInput):
+        def read(self):
+            return ""
+        def escape_requested(self):
+            return False
+
+    def dummy_display(agent_id, indent_level):
+        pass
+
+    def dummy_input(indent_level):
+        return Input(DummyUserInput())
+
+    tool_library = AllTools(
+        create_subagent_display=dummy_display,
+        create_subagent_input=dummy_input
+    )
     system_prompt = generate_system_prompt('default.agent.md', tool_library)
 
     if args.output:

@@ -13,7 +13,7 @@ class SubagentTool(BaseTool):
             "name": "agenttype",
             "type": "string",
             "required": True,
-            "description": "Type of agent to create (currently only 'default' is supported)"
+            "description": "Type of agent to create {{AGENT_TYPES}}"
         },
         {
             "name": "task_description",
