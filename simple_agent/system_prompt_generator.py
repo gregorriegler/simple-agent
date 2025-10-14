@@ -154,7 +154,7 @@ def main():
     args = parser.parse_args()
 
     tool_library = AllTools()
-    system_prompt = generate_system_prompt('system-prompt.md', tool_library)
+    system_prompt = generate_system_prompt('default.agent.md', tool_library)
 
     if args.output:
         with open(args.output, 'w', encoding='utf-8') as f:

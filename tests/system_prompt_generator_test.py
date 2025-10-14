@@ -14,12 +14,12 @@ def test_generate_tools_content_only():
 
 def test_generate_orchestrator_agent_system_prompt():
     tool_library = create_all_tools_for_test()
-    verify_system_prompt("orchestrator.md", tool_library)
+    verify_system_prompt("orchestrator.agent.md", tool_library)
 
 
 def test_generate_complete_system_prompt():
     tool_library = create_all_tools_for_test()
-    verify_system_prompt("system-prompt.md", tool_library)
+    verify_system_prompt("default.agent.md", tool_library)
 
 
 def verify_system_prompt(system_prompt_md, tool_library):
