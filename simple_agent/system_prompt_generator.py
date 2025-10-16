@@ -14,6 +14,19 @@ def discover_agent_types() -> list[str]:
         agent_types.append(agent_type)
     return sorted(agent_types)
 
+def extract_tool_keys_from_file(filename: str) -> list[str]:
+    try:
+        from importlib import resources
+        content = resources.read_text('simple_agent', filename)
+    except FileNotFoundError:
+        import os
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        filepath = os.path.join(script_dir, filename)
+        with open(filepath, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+    return extract_tool_keys_from_prompt(content)
+
 def extract_tool_keys_from_prompt(system_prompt_md: str) -> list[str]:
     separator = "---"
     if separator not in system_prompt_md:

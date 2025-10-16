@@ -79,7 +79,7 @@ def test_subagent():
 def test_nested_agent_test():
     verify_chat(
         ["Create a subagent that creates another subagent", "\n"], [
-            "🛠️ subagent analysis create another subagent",
+            "🛠️ subagent orchestrator create another subagent",
             "🛠️ subagent coding say nested hello",
             "nested hello\n🛠️ complete-task I successfully said nested hello",
             "🛠️ complete-task I successfully created another subagent",

@@ -29,7 +29,7 @@ from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
-from simple_agent.system_prompt_generator import generate_system_prompt
+from simple_agent.system_prompt_generator import generate_system_prompt, extract_tool_keys_from_file
 
 
 def main():
@@ -52,7 +52,8 @@ def main():
             lambda indent: Input(DummyUserInput()),
             NoOpSessionStorage()
         )
-        tool_library = AllTools(create_agent=create_agent)
+        tool_keys = extract_tool_keys_from_file('orchestrator.agent.md')
+        tool_library = AllTools(create_agent=create_agent, tool_keys=tool_keys)
         system_prompt = generate_system_prompt('orchestrator.agent.md', tool_library)
         print(system_prompt)
         return
@@ -117,6 +118,8 @@ def main():
         session_storage
     )
 
+    tool_keys = extract_tool_keys_from_file('orchestrator.agent.md')
+    
     tools = AllTools(
         llm,
         indent_level,
@@ -125,7 +128,8 @@ def main():
         user_input,
         create_subagent_display,
         create_subagent_input,
-        create_agent
+        create_agent,
+        tool_keys
     )
 
     run_session(
