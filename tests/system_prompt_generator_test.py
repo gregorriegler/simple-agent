@@ -17,9 +17,9 @@ def test_generate_orchestrator_agent_system_prompt():
     verify_system_prompt("orchestrator.agent.md", tool_library)
 
 
-def test_generate_complete_system_prompt():
+def test_generate_coding_system_prompt():
     tool_library = create_all_tools_for_test()
-    verify_system_prompt("default.agent.md", tool_library)
+    verify_system_prompt("coding.agent.md", tool_library)
 
 
 def verify_system_prompt(system_prompt_md, tool_library):

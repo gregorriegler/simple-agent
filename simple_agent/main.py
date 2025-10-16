@@ -17,6 +17,7 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.input import Input
 from simple_agent.application.session import run_session, SessionArgs
+from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.claude.claude_config import load_claude_config
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
@@ -48,10 +49,11 @@ def main():
             lambda system_prompt, messages: '',
             SimpleEventBus(),
             lambda agent_id, indent: None,
-            lambda indent: Input(DummyUserInput())
+            lambda indent: Input(DummyUserInput()),
+            NoOpSessionStorage()
         )
         tool_library = AllTools(create_agent=create_agent)
-        system_prompt = generate_system_prompt('default.agent.md', tool_library)
+        system_prompt = generate_system_prompt('orchestrator.agent.md', tool_library)
         print(system_prompt)
         return
 
@@ -94,7 +96,7 @@ def main():
         claude_config = load_claude_config()
         llm = ClaudeLLM(claude_config)
 
-    system_prompt_generator = lambda tool_library: generate_system_prompt('default.agent.md', tool_library)
+    system_prompt_generator = lambda tool_library: generate_system_prompt('orchestrator.agent.md', tool_library)
 
     event_bus.subscribe(SessionStartedEvent, display_event_handler.handle_session_started)
     event_bus.subscribe(UserPromptRequestedEvent, display_event_handler.handle_user_prompt_requested)
@@ -111,7 +113,8 @@ def main():
         llm,
         event_bus,
         create_subagent_display,
-        create_subagent_input
+        create_subagent_input,
+        session_storage
     )
 
     tools = AllTools(
@@ -171,8 +174,8 @@ def build_start_message(message_parts):
 
 def create_llm_stub():
     responses = [
-        "Starting task\n🛠️ subagent default Run bash echo hello world and then complete",
-        "🛠️ subagent default Run bash echo hello world and then complete",
+        "Starting task\n🛠️ subagent coding Run bash echo hello world and then complete",
+        "🛠️ subagent coding Run bash echo hello world and then complete",
         "🛠️ bash echo hello world",
         "🛠️ complete-task Task completed successfully",
         "🛠️ complete-task Task completed successfully",

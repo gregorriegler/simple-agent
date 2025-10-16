@@ -63,7 +63,8 @@ class SubagentTool(BaseTool):
                 agenttype,
                 self.parent_agent_id,
                 self.indent_level,
-                user_input
+                user_input,
+                None
             )
             self.create_display(subagent.agent_id, self.indent_level)
 

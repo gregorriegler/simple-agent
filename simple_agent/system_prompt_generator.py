@@ -72,10 +72,8 @@ def _strip_tool_keys_section(content: str) -> str:
     if len(parts) < 2:
         return content
 
-    top_section = parts[0].strip()
-    if not top_section:
-        return content
-    return ""
+    content = "---".join(parts[1:])
+    return content
 
 
 def _read_agents_content():

@@ -14,6 +14,7 @@ class CreateAgent(Protocol):
         parent_agent_id: str,
         indent_level: int,
         user_input: Input,
+        session_storage,
     ) -> Agent:
         ...
 
@@ -24,19 +25,22 @@ class AgentFactory(CreateAgent):
         llm: LLM,
         event_bus: EventBus,
         create_subagent_display: Callable[[str, int], Any],
-        create_subagent_input: Callable[[int], Input]
+        create_subagent_input: Callable[[int], Input],
+        session_storage
     ):
         self.llm = llm
         self.event_bus = event_bus
         self.create_subagent_display = create_subagent_display
         self.create_subagent_input = create_subagent_input
+        self.session_storage = session_storage
 
     def __call__(
         self,
         agenttype: str,
         parent_agent_id: str,
         indent_level: int,
-        user_input: Input
+        user_input: Input,
+        session_storage=None
     ) -> Agent:
         from simple_agent.tools.all_tools import AllTools
         system_prompt_file = f'{agenttype}.agent.md'
@@ -54,7 +58,7 @@ class AgentFactory(CreateAgent):
             self,
             tool_keys
         )
-        from simple_agent.application.session_storage import NoOpSessionStorage
+        storage = session_storage if session_storage is not None else self.session_storage
         return Agent(
             agent_id,
             lambda tool_library: generate_system_prompt(system_prompt_file, tool_library),
@@ -62,5 +66,5 @@ class AgentFactory(CreateAgent):
             self.llm,
             user_input,
             self.event_bus,
-            NoOpSessionStorage()
+            storage
         )

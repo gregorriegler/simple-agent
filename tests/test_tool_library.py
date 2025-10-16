@@ -19,12 +19,14 @@ class ToolLibraryStub(AllTools):
 
         create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, actual_io))
 
+        from simple_agent.application.session_storage import NoOpSessionStorage
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
         create_agent = AgentFactory(
             llm,
             actual_event_bus,
             create_subagent_display,
-            create_subagent_input
+            create_subagent_input,
+            NoOpSessionStorage()
         )
 
         super().__init__(
