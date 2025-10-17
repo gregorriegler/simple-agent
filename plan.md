@@ -1,6 +1,5 @@
-- one tab per agent
-- when i press space, everything pauses
-- https://github.com/ludo-technologies/pyscn
+- left side should wrap
+- analyser reports back path to markdown
 - say should be a part of the agent
 - api key via env var
 - A place to show the tool results in full
