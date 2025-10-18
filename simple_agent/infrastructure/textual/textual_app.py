@@ -26,6 +26,15 @@ class TextualApp(App):
         padding: 1;
     }
 
+    .tool-call {
+        color: $accent;
+        text-style: bold;
+    }
+
+    .tool-result {
+        color: $text-muted;
+    }
+
     #user-input {
         height: 3;
         border: solid $primary;
@@ -74,6 +83,14 @@ class TextualApp(App):
         new_content = f"{current}\n{message}" if current else message
         container.update(new_content)
         self.query_one("#left-panel", VerticalScroll).scroll_end(animate=False)
+
+    def write_tool_call(self, tool_results_id: str, message: str) -> None:
+        container = self.query_one(f"#{tool_results_id}", Static)
+        current = str(container.render())
+        styled_message = f"[bold cyan]{message}[/bold cyan]"
+        new_content = f"{current}\n{styled_message}" if current else styled_message
+        container.update(new_content)
+        self.query_one("#right-panel", VerticalScroll).scroll_end(animate=False)
 
     def write_tool_result(self, tool_results_id: str, message: str) -> None:
         container = self.query_one(f"#{tool_results_id}", Static)
