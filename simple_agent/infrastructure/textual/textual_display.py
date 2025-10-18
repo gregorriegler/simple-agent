@@ -43,11 +43,8 @@ class TextualDisplay(Display):
     def tool_result(self, result):
         if not result:
             return
-        lines = str(result).split('\n')
         if self.app and self.app.is_running:
-            for line in lines:
-                self.app.call_from_thread(self.app.write_tool_result, "tool-results", line)
-            self.app.call_from_thread(self.app.write_tool_result, "tool-results", "---")
+            self.app.call_from_thread(self.app.write_tool_result, "tool-results", str(result))
 
     def continue_session(self):
         self._start_app()

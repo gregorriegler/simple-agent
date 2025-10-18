@@ -1,7 +1,7 @@
 from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, Horizontal, VerticalScroll
-from textual.widgets import Static, Input, TabbedContent, TabPane
+from textual.widgets import Static, Input, TabbedContent, TabPane, Pretty
 
 
 class TextualApp(App):
@@ -33,6 +33,13 @@ class TextualApp(App):
 
     .tool-result {
         color: $text-muted;
+    }
+
+    .tool-result-box {
+        background: $surface-darken-1;
+        border: solid $primary;
+        padding: 1;
+        margin: 1 0;
     }
 
     #user-input {
@@ -93,11 +100,13 @@ class TextualApp(App):
         self.query_one("#right-panel", VerticalScroll).scroll_end(animate=False)
 
     def write_tool_result(self, tool_results_id: str, message: str) -> None:
-        container = self.query_one(f"#{tool_results_id}", Static)
-        current = str(container.render())
-        new_content = f"{current}\n{message}" if current else message
-        container.update(new_content)
-        self.query_one("#right-panel", VerticalScroll).scroll_end(animate=False)
+        if "tool-results" in tool_results_id:
+            scroll_id = "#right-panel"
+        else:
+            scroll_id = f"#right-panel-{tool_results_id.split('-', 2)[-1]}"
+        scroll_container = self.query_one(scroll_id, VerticalScroll)
+        scroll_container.mount(Pretty(message))
+        scroll_container.scroll_end(animate=False)
 
     def add_subagent_tab(self, agent_id: str, tab_title: str) -> tuple[str, str]:
         sanitized = agent_id.replace('/', '-')

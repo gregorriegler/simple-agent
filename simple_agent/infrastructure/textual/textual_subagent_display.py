@@ -39,11 +39,8 @@ class TextualSubagentDisplay(TextualDisplay):
     def tool_result(self, result):
         if not result:
             return
-        lines = str(result).split('\n')
         if self.app and self.app.is_running and self.tool_results_id:
-            for line in lines:
-                self.app.call_from_thread(self.app.write_tool_result, self.tool_results_id, line)
-            self.app.call_from_thread(self.app.write_tool_result, self.tool_results_id, "---")
+            self.app.call_from_thread(self.app.write_tool_result, self.tool_results_id, str(result))
 
     def continue_session(self):
         if self.app and self.app.is_running and self.log_id:
