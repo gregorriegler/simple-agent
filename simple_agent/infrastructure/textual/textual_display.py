@@ -27,18 +27,18 @@ class TextualDisplay(Display):
 
     def user_says(self, message):
         if self.app and self.app.is_running:
-            self.app.call_from_thread(self.app.write_message, f"\nUser: {message}")
+            self.app.call_from_thread(self.app.write_message, "log", f"\nUser: {message}")
 
     def assistant_says(self, message):
         lines = str(message).split('\n')
         if lines and self.app and self.app.is_running:
-            self.app.call_from_thread(self.app.write_message, f"\n{self.agent_prefix}{lines[0]}")
+            self.app.call_from_thread(self.app.write_message, "log", f"\n{self.agent_prefix}{lines[0]}")
             for line in lines[1:]:
-                self.app.call_from_thread(self.app.write_message, line)
+                self.app.call_from_thread(self.app.write_message, "log", line)
 
     def tool_call(self, tool):
         if self.app and self.app.is_running:
-            self.app.call_from_thread(self.app.write_tool_result, str(tool) + "\n")
+            self.app.call_from_thread(self.app.write_tool_result, "tool-results", str(tool) + "\n")
 
     def tool_result(self, result):
         if not result:
@@ -46,30 +46,30 @@ class TextualDisplay(Display):
         lines = str(result).split('\n')
         if self.app and self.app.is_running:
             for line in lines:
-                self.app.call_from_thread(self.app.write_tool_result, line)
-            self.app.call_from_thread(self.app.write_tool_result, "---")
+                self.app.call_from_thread(self.app.write_tool_result, "tool-results", line)
+            self.app.call_from_thread(self.app.write_tool_result, "tool-results", "---")
 
     def continue_session(self):
         self._start_app()
         if self.app and self.app.is_running:
-            self.app.call_from_thread(self.app.write_message, "Continuing session")
+            self.app.call_from_thread(self.app.write_message, "log", "Continuing session")
 
     def start_new_session(self):
         self._start_app()
         if self.app and self.app.is_running:
-            self.app.call_from_thread(self.app.write_message, "Starting new session")
+            self.app.call_from_thread(self.app.write_message, "log", "Starting new session")
 
     def waiting_for_input(self):
         if self.app and self.app.is_running:
-            self.app.call_from_thread(self.app.write_message, "\nWaiting for user input...")
+            self.app.call_from_thread(self.app.write_message, "log", "\nWaiting for user input...")
 
     def interrupted(self):
         if self.app and self.app.is_running:
-            self.app.call_from_thread(self.app.write_message, "\n[Session interrupted by user]")
+            self.app.call_from_thread(self.app.write_message, "log", "\n[Session interrupted by user]")
 
     def exit(self):
         if self.app and self.app.is_running:
-            self.app.call_from_thread(self.app.write_message, "\nExiting...")
+            self.app.call_from_thread(self.app.write_message, "log", "\nExiting...")
             self.app.call_from_thread(self.app.exit)
             if self.app_thread and self.app_thread.is_alive():
                 self.app_thread.join(timeout=2.0)

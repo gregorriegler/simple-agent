@@ -93,13 +93,15 @@ class TextualApp(App):
             self.user_input.submit_input(event.value.strip())
         event.input.value = ""
 
-    def write_message(self, message: str) -> None:
-        log = self.query_one("#log", RichLog)
-        log.write(message, width=log.size.width)
+    def write_message(self, log_id: str, message: str) -> None:
+        self._write_to_log(log_id, message)
 
-    def write_tool_result(self, message: str) -> None:
-        tool_log = self.query_one("#tool-results", RichLog)
-        tool_log.write(message, width=tool_log.size.width)
+    def write_tool_result(self, tool_results_id: str, message: str) -> None:
+        self._write_to_log(tool_results_id, message)
+
+    def _write_to_log(self, log_id: str, message: str) -> None:
+        log = self.query_one(f"#{log_id}", RichLog)
+        log.write(message, width=log.size.width)
 
     def add_subagent_tab(self, agent_id: str, tab_title: str) -> tuple[str, str]:
         tabs = self.query_one("#tabs", TabbedContent)
@@ -114,14 +116,6 @@ class TextualApp(App):
         tabs.add_pane(new_tab)
         tabs.active = tab_id
         return log_id, tool_results_id
-
-    def write_to_tab(self, log_id: str, message: str) -> None:
-        log = self.query_one(f"#{log_id}", RichLog)
-        log.write(message, width=log.size.width)
-
-    def write_tool_result_to_tab(self, tool_results_id: str, message: str) -> None:
-        tool_log = self.query_one(f"#{tool_results_id}", RichLog)
-        tool_log.write(message, width=tool_log.size.width)
 
     def remove_subagent_tab(self, agent_id: str) -> None:
         tabs = self.query_one("#tabs", TabbedContent)
