@@ -22,7 +22,7 @@ class TextualApp(App):
     #left-panel {
         width: 50%;
         height: 100%;
-        border-right: solid $primary;
+        border-right: solid $surface-lighten-1;
         padding: 1;
     }
 
