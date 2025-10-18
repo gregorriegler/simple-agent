@@ -123,23 +123,15 @@ class TextualApp(App):
         return log_id, tool_results_id
 
     def write_to_tab(self, log_id: str, message: str) -> None:
-        try:
-            log = self.query_one(f"#{log_id}", RichLog)
-            log.write(message)
-        except Exception:
-            pass
+        log = self.query_one(f"#{log_id}", RichLog)
+        log.write(message, width=log.size.width)
 
     def write_tool_result_to_tab(self, tool_results_id: str, message: str) -> None:
-        try:
-            tool_log = self.query_one(f"#{tool_results_id}", RichLog)
-            tool_log.write(message)
-        except Exception:
-            pass
+        tool_log = self.query_one(f"#{tool_results_id}", RichLog)
+        tool_log.write(message)
 
     def remove_subagent_tab(self, agent_id: str) -> None:
         tabs = self.query_one("#tabs", TabbedContent)
         tab_id = f"tab-{agent_id.replace('/', '-')}"
-        try:
-            tabs.remove_pane(tab_id)
-        except Exception:
-            pass
+        tabs.remove_pane(tab_id)
+
