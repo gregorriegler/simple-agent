@@ -22,14 +22,15 @@ class TextualSubagentDisplay(TextualDisplay):
 
     def user_says(self, message):
         if self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_message, self.log_id, f"\nUser: {message}")
+            self.app.call_from_thread(self.app.write_message, self.log_id, f"User: {message}\n")
 
     def assistant_says(self, message):
         lines = str(message).split('\n')
         if lines and self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_message, self.log_id, f"\n{self.agent_prefix}{lines[0]}")
+            self.app.call_from_thread(self.app.write_message, self.log_id, f"{self.agent_prefix}{lines[0]}")
             for line in lines[1:]:
                 self.app.call_from_thread(self.app.write_message, self.log_id, line)
+            self.app.call_from_thread(self.app.write_message, self.log_id, "")
 
     def tool_call(self, tool):
         if self.app and self.app.is_running and self.tool_results_id:
@@ -54,11 +55,11 @@ class TextualSubagentDisplay(TextualDisplay):
 
     def waiting_for_input(self):
         if self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_message, self.log_id, "\nWaiting for user input...")
+            self.app.call_from_thread(self.app.write_message, self.log_id, "Waiting for user input...\n")
 
     def interrupted(self):
         if self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_message, self.log_id, "\n[Session interrupted by user]")
+            self.app.call_from_thread(self.app.write_message, self.log_id, "[Session interrupted by user]\n")
 
     def exit(self):
         if self.app and self.app.is_running:
