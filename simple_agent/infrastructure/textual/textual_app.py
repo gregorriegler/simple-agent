@@ -116,7 +116,6 @@ class TextualApp(App):
         return log_id, tool_results_id
 
     def write_to_tab(self, log_id: str, message: str) -> None:
-        print(f"DEBUG write_to_tab: log_id={log_id}, message={message[:50]}...")
         log = self.query_one(f"#{log_id}", RichLog)
         log.write(message, width=log.size.width)
 
