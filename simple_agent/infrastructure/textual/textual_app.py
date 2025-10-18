@@ -1,7 +1,7 @@
 from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, Horizontal, VerticalScroll
-from textual.widgets import RichLog, Input, TabbedContent, TabPane
+from textual.widgets import Static, Input, TabbedContent, TabPane
 
 
 class TextualApp(App):
@@ -22,14 +22,17 @@ class TextualApp(App):
     #left-panel {
         width: 50%;
         height: 100%;
+        border-right: solid $primary;
+        padding: 1;
     }
 
     #right-panel {
         width: 50%;
         height: 100%;
+        padding: 1;
     }
 
-    RichLog {
+    #messages-container {
         background: $surface;
         color: $text;
         border: solid $primary;
@@ -37,11 +40,29 @@ class TextualApp(App):
         width: 100%;
     }
 
-    #tool-results {
+    .message {
+        margin-bottom: 1;
+        padding: 1;
+        background: $panel;
+        border: solid $primary-lighten-1;
+    }
+
+    .message-role {
+        color: $accent;
+        text-style: bold;
+    }
+
+    .message-content {
+        color: $text;
+        margin-top: 1;
+    }
+
+    #tool-results-container {
         background: $surface;
         color: $text;
         border: solid $primary;
         height: 100%;
+        padding: 1;
     }
 
     #user-input {
@@ -54,6 +75,7 @@ class TextualApp(App):
     def __init__(self, user_input=None):
         super().__init__()
         self.user_input = user_input
+        self._content_cache = {}
 
     def compose(self) -> ComposeResult:
         with Vertical():
@@ -65,11 +87,11 @@ class TextualApp(App):
     def create_agent_container(self, log_id, tool_results_id):
         return Horizontal(
             VerticalScroll(
-                RichLog(highlight=True, markup=True, wrap=True, id=log_id),
+                Static("", id=log_id, classes="messages-container"),
                 id="left-panel"
             ),
             VerticalScroll(
-                RichLog(highlight=True, markup=True, id=tool_results_id),
+                Static("", id=tool_results_id, classes="tool-results-container"),
                 id="right-panel"
             ),
             id="tab-content"
@@ -94,14 +116,28 @@ class TextualApp(App):
         event.input.value = ""
 
     def write_message(self, log_id: str, message: str) -> None:
-        self._write_to_log(log_id, message)
+        container = self.query_one(f"#{log_id}", Static)
+        current = self._content_cache.get(log_id, "")
+        if current:
+            new_content = f"{current}\n{message}"
+        else:
+            new_content = message
+        self._content_cache[log_id] = new_content
+        container.update(new_content)
+        scroll_container = self.query_one("#left-panel", VerticalScroll)
+        scroll_container.scroll_end(animate=False)
 
     def write_tool_result(self, tool_results_id: str, message: str) -> None:
-        self._write_to_log(tool_results_id, message)
-
-    def _write_to_log(self, log_id: str, message: str) -> None:
-        log = self.query_one(f"#{log_id}", RichLog)
-        log.write(message, width=log.size.width)
+        container = self.query_one(f"#{tool_results_id}", Static)
+        current = self._content_cache.get(tool_results_id, "")
+        if current:
+            new_content = f"{current}\n{message}"
+        else:
+            new_content = message
+        self._content_cache[tool_results_id] = new_content
+        container.update(new_content)
+        scroll_container = self.query_one("#right-panel", VerticalScroll)
+        scroll_container.scroll_end(animate=False)
 
     def add_subagent_tab(self, agent_id: str, tab_title: str) -> tuple[str, str]:
         tabs = self.query_one("#tabs", TabbedContent)
