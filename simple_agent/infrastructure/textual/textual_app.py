@@ -85,32 +85,21 @@ class TextualApp(App):
             event.prevent_default()
 
     def action_previous_tab(self) -> None:
-        self._switch_to_previous_tab()
+        self._switch_tab(-1)
 
     def action_next_tab(self) -> None:
-        self._switch_to_next_tab()
+        self._switch_tab(1)
 
-    def _switch_to_previous_tab(self) -> None:
+    def _switch_tab(self, direction: int) -> None:
         tabs = self.query_one("#tabs", TabbedContent)
         tab_panes = list(tabs.query(TabPane))
         if len(tab_panes) <= 1:
             return
         current_index = next((i for i, pane in enumerate(tab_panes) if pane.id == tabs.active), 0)
-        previous_index = (current_index - 1) % len(tab_panes)
-        previous_tab_id = tab_panes[previous_index].id
-        if previous_tab_id:
-            tabs.active = previous_tab_id
-
-    def _switch_to_next_tab(self) -> None:
-        tabs = self.query_one("#tabs", TabbedContent)
-        tab_panes = list(tabs.query(TabPane))
-        if len(tab_panes) <= 1:
-            return
-        current_index = next((i for i, pane in enumerate(tab_panes) if pane.id == tabs.active), 0)
-        next_index = (current_index + 1) % len(tab_panes)
-        next_tab_id = tab_panes[next_index].id
-        if next_tab_id:
-            tabs.active = next_tab_id
+        new_index = (current_index + direction) % len(tab_panes)
+        new_tab_id = tab_panes[new_index].id
+        if new_tab_id:
+            tabs.active = new_tab_id
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         if self.user_input:
