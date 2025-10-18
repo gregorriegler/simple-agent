@@ -1,6 +1,6 @@
 from textual import events
 from textual.app import App, ComposeResult
-from textual.containers import Vertical, Horizontal, Container
+from textual.containers import Vertical, Horizontal, VerticalScroll
 from textual.widgets import RichLog, Input, TabbedContent, TabPane
 
 
@@ -34,6 +34,7 @@ class TextualApp(App):
         color: $text;
         border: solid $primary;
         height: 100%;
+        width: 100%;
     }
 
     #tool-results {
@@ -50,26 +51,29 @@ class TextualApp(App):
     }
     """
 
+    def __init__(self, user_input=None):
+        super().__init__()
+        self.user_input = user_input
+
     def compose(self) -> ComposeResult:
         with Vertical():
             with TabbedContent(id="tabs"):
                 with TabPane("Agent", id="agent-tab"):
-                    yield Horizontal(
-                        Container(
-                            RichLog(highlight=True, markup=True, id="log"),
-                            id="left-panel"
-                        ),
-                        Container(
-                            RichLog(highlight=True, markup=True, id="tool-results"),
-                            id="right-panel"
-                        ),
-                        id="tab-content"
-                    )
+                    yield self.create_agent_container("log", "tool-results")
             yield Input(placeholder="Enter your message...", id="user-input", valid_empty=True)
 
-    def __init__(self, user_input=None):
-        super().__init__()
-        self.user_input = user_input
+    def create_agent_container(self, log_id, tool_results_id):
+        return Horizontal(
+            VerticalScroll(
+                RichLog(highlight=True, markup=True, wrap=True, id=log_id),
+                id="left-panel"
+            ),
+            VerticalScroll(
+                RichLog(highlight=True, markup=True, id=tool_results_id),
+                id="right-panel"
+            ),
+            id="tab-content"
+        )
 
     def on_mount(self) -> None:
         self.query_one("#user-input", Input).focus()
@@ -91,11 +95,11 @@ class TextualApp(App):
 
     def write_message(self, message: str) -> None:
         log = self.query_one("#log", RichLog)
-        log.write(message)
+        log.write(message, width=log.size.width)
 
     def write_tool_result(self, message: str) -> None:
         tool_log = self.query_one("#tool-results", RichLog)
-        tool_log.write(message)
+        tool_log.write(message, width=tool_log.size.width)
 
     def add_subagent_tab(self, agent_id: str, tab_title: str) -> tuple[str, str]:
         tabs = self.query_one("#tabs", TabbedContent)
@@ -105,29 +109,20 @@ class TextualApp(App):
 
         new_tab = TabPane(tab_title, id=tab_id)
         new_tab.compose_add_child(
-            Horizontal(
-                Container(
-                    RichLog(highlight=True, markup=True, id=log_id),
-                    id="left-panel"
-                ),
-                Container(
-                    RichLog(highlight=True, markup=True, id=tool_results_id),
-                    id="right-panel"
-                ),
-                id="tab-content"
-            )
+            self.create_agent_container(log_id, tool_results_id)
         )
         tabs.add_pane(new_tab)
         tabs.active = tab_id
         return log_id, tool_results_id
 
     def write_to_tab(self, log_id: str, message: str) -> None:
+        print(f"DEBUG write_to_tab: log_id={log_id}, message={message[:50]}...")
         log = self.query_one(f"#{log_id}", RichLog)
         log.write(message, width=log.size.width)
 
     def write_tool_result_to_tab(self, tool_results_id: str, message: str) -> None:
         tool_log = self.query_one(f"#{tool_results_id}", RichLog)
-        tool_log.write(message)
+        tool_log.write(message, width=tool_log.size.width)
 
     def remove_subagent_tab(self, agent_id: str) -> None:
         tabs = self.query_one("#tabs", TabbedContent)
