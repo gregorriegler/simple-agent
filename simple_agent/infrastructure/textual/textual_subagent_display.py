@@ -34,7 +34,7 @@ class TextualSubagentDisplay(TextualDisplay):
 
     def tool_call(self, tool):
         if self.app and self.app.is_running and self.tool_results_id:
-            self.app.call_from_thread(self.app.write_tool_call, self.tool_results_id, str(tool) + "\n")
+            self.app.call_from_thread(self.app.write_tool_call, self.tool_results_id, str(tool))
 
     def tool_result(self, result):
         if not result:

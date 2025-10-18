@@ -35,11 +35,9 @@ class TextualApp(App):
         color: $text-muted;
     }
 
-    .tool-result-box {
-        background: $surface-darken-1;
-        border: solid $primary;
-        padding: 1;
-        margin: 1 0;
+    Pretty {
+        border: round $primary;
+        margin-bottom: 1;
     }
 
     #user-input {
@@ -62,7 +60,7 @@ class TextualApp(App):
     def create_agent_container(self, log_id, tool_results_id):
         return Horizontal(
             VerticalScroll(Static("", id=log_id), id="left-panel"),
-            VerticalScroll(Static("", id=tool_results_id), id="right-panel"),
+            VerticalScroll(id=tool_results_id),
             id="tab-content"
         )
 
@@ -92,21 +90,14 @@ class TextualApp(App):
         self.query_one("#left-panel", VerticalScroll).scroll_end(animate=False)
 
     def write_tool_call(self, tool_results_id: str, message: str) -> None:
-        container = self.query_one(f"#{tool_results_id}", Static)
-        current = str(container.render())
-        styled_message = f"[bold cyan]{message}[/bold cyan]"
-        new_content = f"{current}\n{styled_message}" if current else styled_message
-        container.update(new_content)
-        self.query_one("#right-panel", VerticalScroll).scroll_end(animate=False)
+        container = self.query_one(f"#{tool_results_id}", VerticalScroll)
+        container.mount(Static(f"[bold cyan]{message}[/bold cyan]"))
+        container.scroll_end(animate=False)
 
     def write_tool_result(self, tool_results_id: str, message: str) -> None:
-        if "tool-results" in tool_results_id:
-            scroll_id = "#right-panel"
-        else:
-            scroll_id = f"#right-panel-{tool_results_id.split('-', 2)[-1]}"
-        scroll_container = self.query_one(scroll_id, VerticalScroll)
-        scroll_container.mount(Pretty(message))
-        scroll_container.scroll_end(animate=False)
+        container = self.query_one(f"#{tool_results_id}", VerticalScroll)
+        container.mount(Pretty(message))
+        container.scroll_end(animate=False)
 
     def add_subagent_tab(self, agent_id: str, tab_title: str) -> tuple[str, str]:
         sanitized = agent_id.replace('/', '-')

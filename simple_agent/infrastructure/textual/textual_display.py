@@ -38,7 +38,7 @@ class TextualDisplay(Display):
 
     def tool_call(self, tool):
         if self.app and self.app.is_running:
-            self.app.call_from_thread(self.app.write_tool_call, "tool-results", str(tool) + "\n")
+            self.app.call_from_thread(self.app.write_tool_call, "tool-results", str(tool))
 
     def tool_result(self, result):
         if not result:
