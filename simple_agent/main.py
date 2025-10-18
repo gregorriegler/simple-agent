@@ -189,7 +189,7 @@ def build_start_message(message_parts):
 
 def create_llm_stub():
     responses = [
-        "Starting task\n🛠️ subagent coding Run bash echo hello world and then complete",
+        "Starting task\n🛠️ subagent orchestrator Run bash echo hello world and then complete",
         "🛠️ subagent coding Run bash echo hello world and then complete",
         "🛠️ bash echo hello world",
         "🛠️ complete-task Task completed successfully",
