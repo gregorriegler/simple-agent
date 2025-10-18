@@ -7,6 +7,11 @@ from simple_agent.infrastructure.textual.resizable_container import ResizableHor
 
 class TextualApp(App):
 
+    BINDINGS = [
+        ("alt+left", "previous_tab", "Previous Tab"),
+        ("alt+right", "next_tab", "Next Tab"),
+    ]
+
     CSS = """
     TabbedContent {
         height: 1fr;
@@ -78,6 +83,34 @@ class TextualApp(App):
             if self.user_input:
                 self.user_input.request_escape()
             event.prevent_default()
+
+    def action_previous_tab(self) -> None:
+        self._switch_to_previous_tab()
+
+    def action_next_tab(self) -> None:
+        self._switch_to_next_tab()
+
+    def _switch_to_previous_tab(self) -> None:
+        tabs = self.query_one("#tabs", TabbedContent)
+        tab_panes = list(tabs.query(TabPane))
+        if len(tab_panes) <= 1:
+            return
+        current_index = next((i for i, pane in enumerate(tab_panes) if pane.id == tabs.active), 0)
+        previous_index = (current_index - 1) % len(tab_panes)
+        previous_tab_id = tab_panes[previous_index].id
+        if previous_tab_id:
+            tabs.active = previous_tab_id
+
+    def _switch_to_next_tab(self) -> None:
+        tabs = self.query_one("#tabs", TabbedContent)
+        tab_panes = list(tabs.query(TabPane))
+        if len(tab_panes) <= 1:
+            return
+        current_index = next((i for i, pane in enumerate(tab_panes) if pane.id == tabs.active), 0)
+        next_index = (current_index + 1) % len(tab_panes)
+        next_tab_id = tab_panes[next_index].id
+        if next_tab_id:
+            tabs.active = next_tab_id
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         if self.user_input:
