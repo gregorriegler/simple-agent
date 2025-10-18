@@ -31,14 +31,14 @@ class SubagentTool(BaseTool):
         create_agent: CreateAgent,
         create_display,
         indent_level: int,
-        parent_agent_id: str,
+        agent_id: str,
         create_user_input
     ):
         super().__init__()
         self.create_agent = create_agent
         self.create_display = create_display
         self.indent_level = indent_level
-        self.parent_agent_id = parent_agent_id
+        self.agent_id = agent_id
         self.create_user_input = create_user_input
 
     def execute(self, args):
@@ -61,7 +61,7 @@ class SubagentTool(BaseTool):
             user_input.stack(task_description)
             subagent = self.create_agent(
                 agenttype,
-                self.parent_agent_id,
+                self.agent_id,
                 self.indent_level,
                 user_input,
                 None

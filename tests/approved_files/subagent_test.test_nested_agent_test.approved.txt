@@ -6,14 +6,14 @@ Agent:           tool_called: 🛠️ subagent orchestrator create another subag
 Agent/Subagent1:         user_prompted: create another subagent
 Agent/Subagent1:   assistant_responded: 🛠️ subagent coding say nested hello
 Agent/Subagent1:           tool_called: 🛠️ subagent coding say nested hello
-Agent/tmp/test_path:         user_prompted: say nested hello
-Agent/tmp/test_path:   assistant_responded: nested hello
+Agent/Subagent1/Subagent2:         user_prompted: say nested hello
+Agent/Subagent1/Subagent2:   assistant_responded: nested hello
 🛠️ complete-task I successfully said nested hello
-Agent/tmp/test_path:        assistant_said: nested hello
-Agent/tmp/test_path:           tool_called: 🛠️ complete-task I successfully said nested hello
-Agent/tmp/test_path:           tool_result: I successfully said nested hello
-Agent/tmp/test_path: user_prompt_requested: 
-Agent/tmp/test_path:         session_ended: 
+Agent/Subagent1/Subagent2:        assistant_said: nested hello
+Agent/Subagent1/Subagent2:           tool_called: 🛠️ complete-task I successfully said nested hello
+Agent/Subagent1/Subagent2:           tool_result: I successfully said nested hello
+Agent/Subagent1/Subagent2: user_prompt_requested: 
+Agent/Subagent1/Subagent2:         session_ended: 
 Agent/Subagent1:           tool_result: I successfully said nested hello
 Agent/Subagent1:   assistant_responded: 🛠️ complete-task I successfully created another subagent
 Agent/Subagent1:           tool_called: 🛠️ complete-task I successfully created another subagent
