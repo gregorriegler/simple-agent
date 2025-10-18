@@ -1,7 +1,8 @@
 from textual import events
 from textual.app import App, ComposeResult
-from textual.containers import Vertical, Horizontal, VerticalScroll
+from textual.containers import Vertical, VerticalScroll
 from textual.widgets import Static, Input, TabbedContent, TabPane, Pretty
+from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal
 
 
 class TextualApp(App):
@@ -15,9 +16,12 @@ class TextualApp(App):
         height: 1fr;
     }
 
+    ResizableHorizontal {
+        height: 1fr;
+    }
+
     #left-panel {
         width: 50%;
-        border-right: solid $surface-lighten-1;
         padding: 1;
     }
 
@@ -58,11 +62,9 @@ class TextualApp(App):
             yield Input(placeholder="Enter your message...", id="user-input", valid_empty=True)
 
     def create_agent_container(self, log_id, tool_results_id):
-        return Horizontal(
-            VerticalScroll(Static("", id=log_id), id="left-panel"),
-            VerticalScroll(id=tool_results_id),
-            id="tab-content"
-        )
+        left_panel = VerticalScroll(Static("", id=log_id), id="left-panel")
+        right_panel = VerticalScroll(id=tool_results_id)
+        return ResizableHorizontal(left_panel, right_panel, id="tab-content")
 
     def on_mount(self) -> None:
         self.query_one("#user-input", Input).focus()
