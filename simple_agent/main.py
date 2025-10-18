@@ -24,6 +24,7 @@ from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
+from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
@@ -63,6 +64,16 @@ def main():
     io = StdIO()
 
     event_bus = SimpleEventBus()
+
+    event_logger = EventLogger('.simple-agent.events.log')
+    event_bus.subscribe(SessionStartedEvent, event_logger.log_event)
+    event_bus.subscribe(UserPromptRequestedEvent, event_logger.log_event)
+    event_bus.subscribe(UserPromptedEvent, event_logger.log_event)
+    event_bus.subscribe(AssistantSaidEvent, event_logger.log_event)
+    event_bus.subscribe(ToolCalledEvent, event_logger.log_event)
+    event_bus.subscribe(ToolResultEvent, event_logger.log_event)
+    event_bus.subscribe(SessionInterruptedEvent, event_logger.log_event)
+    event_bus.subscribe(SessionEndedEvent, event_logger.log_event)
 
     if args.display_type == DisplayType.TEXTUAL:
         textual_user_input = TextualUserInput()
@@ -119,7 +130,7 @@ def main():
     )
 
     tool_keys = extract_tool_keys_from_file('orchestrator.agent.md')
-    
+
     tools = AllTools(
         llm,
         indent_level,
