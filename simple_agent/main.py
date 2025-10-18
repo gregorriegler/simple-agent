@@ -30,6 +30,7 @@ from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
+from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
 from simple_agent.system_prompt_generator import generate_system_prompt, extract_tool_keys_from_file
 
 
@@ -76,7 +77,10 @@ def main():
     event_bus.subscribe(SessionEndedEvent, event_logger.log_event)
 
     if args.display_type == DisplayType.TEXTUAL:
-        textual_user_input = TextualUserInput()
+        if args.non_interactive:
+            textual_user_input = NonInteractiveUserInput()
+        else:
+            textual_user_input = TextualUserInput()
         display = TextualDisplay(agent_id, textual_user_input)
         user_input = Input(textual_user_input)
         create_subagent_input = lambda indent: user_input
@@ -88,9 +92,12 @@ def main():
             return subagent_display
     else:
         display = ConsoleDisplay(indent_level, agent_id, io)
-        console_user_input = ConsoleUserInput(indent_level, display.io)
+        if args.non_interactive:
+            console_user_input = NonInteractiveUserInput()
+        else:
+            console_user_input = ConsoleUserInput(indent_level, display.io)
         user_input = Input(console_user_input)
-        create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, io))
+        create_subagent_input = lambda indent: Input(NonInteractiveUserInput() if args.non_interactive else ConsoleUserInput(indent, io))
         display_event_handler = DisplayEventHandler(display)
 
         def create_subagent_display(_agent_id, indent):
@@ -168,6 +175,10 @@ def parse_args(argv=None) -> SessionArgs:
         "-ui", "--user-interface", choices=["textual", "console"], default="textual",
         help="Choose the user interface (default: textual)"
     )
+    parser.add_argument(
+        "-ni", "--non-interactive", action="store_true",
+        help="Run in non-interactive mode (no user input prompts)"
+    )
     parser.add_argument("--stub", action="store_true", help="Use LLM stub for testing")
     parser.add_argument("message", nargs="*", help="Message to send to Claude")
     parsed = parser.parse_args(argv)
@@ -177,8 +188,9 @@ def parse_args(argv=None) -> SessionArgs:
         build_start_message(parsed.message),
         bool(getattr(parsed, "system_prompt")),
         display_type,
-        bool(getattr(parsed, "stub")
-    ))
+        bool(getattr(parsed, "stub")),
+        bool(getattr(parsed, "non_interactive"))
+    )
 
 
 def build_start_message(message_parts):

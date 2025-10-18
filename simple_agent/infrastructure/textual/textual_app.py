@@ -1,8 +1,7 @@
+from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, Horizontal, Container
 from textual.widgets import RichLog, Input, TabbedContent, TabPane
-from textual import events
-from textual.reactive import reactive
 
 
 class TextualApp(App):

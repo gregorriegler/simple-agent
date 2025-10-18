@@ -8,3 +8,6 @@ class UserInput(Protocol):
 
     def escape_requested(self) -> bool:
         ...
+
+    def close(self) -> None:
+        ...

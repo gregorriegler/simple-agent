@@ -4,7 +4,6 @@ from simple_agent.application.agent import Agent
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.events import SessionStartedEvent
 from simple_agent.application.input import Input
-from simple_agent.application.llm import Messages
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.system_prompt_generator import SystemPrompt
@@ -17,6 +16,7 @@ class SessionArgs:
     show_system_prompt: bool = False
     display_type: DisplayType = DisplayType.TEXTUAL
     stub_llm: bool = False
+    non_interactive: bool = False
 
 
 def run_session(

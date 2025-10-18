@@ -15,3 +15,6 @@ class ConsoleUserInput(UserInput):
 
     def escape_requested(self) -> bool:
         return self.io.escape_requested()
+
+    def close(self) -> None:
+        pass
