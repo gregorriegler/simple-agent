@@ -24,5 +24,6 @@ class EventLogger:
 
     def log_event(self, event: AgentEvent):
         event_type = type(event).__name__
-        event_data = {k: v for k, v in event.__dict__.items() if not k.startswith('_')}
+        event_data = {k: str(v) if not isinstance(v, (str, int, float, bool, type(None))) else v
+                      for k, v in event.__dict__.items() if not k.startswith('_')}
         self.logger.info(f"{event_type}: {event_data}")
