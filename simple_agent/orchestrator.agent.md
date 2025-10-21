@@ -1,5 +1,5 @@
-write_todos, subagent, complete_task
-
+---
+tools: write_todos, subagent, complete_task
 ---
 
 # Role
