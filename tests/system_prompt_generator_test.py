@@ -30,8 +30,8 @@ def verify_system_prompt(system_prompt_md, tool_library):
 
 
 def test_extract_tool_keys_from_prompt():
-    prompt_with_keys = """write_todos,ls,cat
-
+    prompt_with_keys = """---
+tools: write_todos,ls,cat
 ---
 
 # Role
@@ -40,8 +40,20 @@ Content here"""
     result = extract_tool_keys_from_prompt(prompt_with_keys)
     assert result == ['write_todos', 'ls', 'cat']
 
-    prompt_without_keys = """
+    prompt_with_list = """---
+tools:
+- bash
+- cat
+---
 
+# Role
+Content here"""
+
+    result = extract_tool_keys_from_prompt(prompt_with_list)
+    assert result == ['bash', 'cat']
+
+    prompt_without_keys = """---
+description: Sample agent
 ---
 
 # Role

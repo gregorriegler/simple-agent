@@ -1,5 +1,5 @@
-write_todos, bash, ls, cat, read-file, complete_task
-
+---
+tools: write_todos, bash, ls, cat, read-file, complete_task
 ---
 
 # Role

@@ -1,6 +1,10 @@
 #!/usr/bin/env python
-import os
 import glob
+import os
+from typing import Any
+
+import yaml
+
 from simple_agent.application.tool_library import ToolLibrary
 
 def discover_agent_types() -> list[str]:
@@ -28,22 +32,8 @@ def extract_tool_keys_from_file(filename: str) -> list[str]:
     return extract_tool_keys_from_prompt(content)
 
 def extract_tool_keys_from_prompt(system_prompt_md: str) -> list[str]:
-    separator = "---"
-    if separator not in system_prompt_md:
-        return []
-
-    top_section = system_prompt_md.split(separator, 1)[0].strip()
-    if not top_section:
-        return []
-
-    lines = top_section.split('\n')
-    first_line = lines[0].strip()
-
-    if ',' in first_line:
-        tool_keys = [key.strip() for key in first_line.split(',') if key.strip()]
-        return tool_keys if tool_keys else []
-
-    return []
+    metadata, _ = _parse_front_matter(system_prompt_md)
+    return _normalize_tools(metadata.get('tools'))
 
 def generate_system_prompt(system_prompt_md: str, tool_library: ToolLibrary):
     template_content = _read_system_prompt_template(system_prompt_md)
@@ -77,16 +67,76 @@ def _read_system_prompt_template(system_prompt_md):
 
 
 def _strip_tool_keys_section(content: str) -> str:
-    separator = "---"
-    if separator not in content:
-        return content
+    _, remainder = _parse_front_matter(content)
+    return remainder
 
-    parts = content.split(separator, 1)
-    if len(parts) < 2:
-        return content
 
-    content = "---".join(parts[1:])
-    return content
+def _parse_front_matter(content: str) -> tuple[dict[str, Any], str]:
+    if not content:
+        return {}, content
+
+    leading_trimmed = content.lstrip()
+    leading_prefix = content[: len(content) - len(leading_trimmed)]
+    working = leading_trimmed
+
+    if not working.startswith('---'):
+        return {}, content
+
+    working = working[3:]
+    newline = ''
+    if working.startswith('\r\n'):
+        newline = '\r\n'
+        working = working[2:]
+    elif working.startswith('\n'):
+        newline = '\n'
+        working = working[1:]
+    else:
+        return {}, content
+
+    closing = f"{newline}---"
+    end_index = working.find(closing)
+    if end_index == -1:
+        return {}, content
+
+    front_matter_text = working[:end_index]
+    remainder = working[end_index + len(closing):]
+    if newline and remainder.startswith(newline):
+        remainder = remainder[len(newline):]
+
+    metadata = _load_front_matter(front_matter_text)
+    return metadata, leading_prefix + remainder
+
+
+def _load_front_matter(front_matter_text: str) -> dict[str, Any]:
+    try:
+        loaded = yaml.safe_load(front_matter_text) or {}
+    except yaml.YAMLError:
+        return {}
+
+    if isinstance(loaded, dict):
+        return loaded
+
+    return {}
+
+
+def _normalize_tools(raw_tools: Any) -> list[str]:
+    if raw_tools is None:
+        return []
+
+    if isinstance(raw_tools, str):
+        parts = [item.strip() for item in raw_tools.split(',')]
+        return [item for item in parts if item]
+
+    if isinstance(raw_tools, list):
+        normalized = []
+        for item in raw_tools:
+            if isinstance(item, str):
+                stripped = item.strip()
+                if stripped:
+                    normalized.append(stripped)
+        return normalized
+
+    return []
 
 
 def _read_agents_content():
