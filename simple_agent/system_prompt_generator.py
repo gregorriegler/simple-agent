@@ -7,8 +7,8 @@ import yaml
 from simple_agent.application.tool_library import ToolLibrary
 
 
-def generate_system_prompt(system_prompt_md: str, tool_library: ToolLibrary):
-    template_content = _read_system_prompt_template(system_prompt_md)
+def generate_system_prompt(filename: str, tool_library: ToolLibrary):
+    template_content = _read_system_prompt_template(filename)
     agents_content = _read_agents_content()
     tools_content = _generate_tools_content(tool_library)
 
