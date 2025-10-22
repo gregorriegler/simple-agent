@@ -1,4 +1,5 @@
 ---
+name: Orchestrator
 tools: write_todos, subagent, complete_task
 ---
 

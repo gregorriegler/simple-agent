@@ -1,4 +1,5 @@
 ---
+name: Analysis
 tools: write_todos, bash, ls, cat, read-file, complete_task
 ---
 
