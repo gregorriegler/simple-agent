@@ -16,49 +16,25 @@ def generate_system_prompt(system_prompt_md: str, tool_library: ToolLibrary):
 
     return result + "\n\n" + agents_content
 
+
 def extract_tool_keys_from_file(filename: str) -> list[str]:
-    content = load_agent_definitions_file(filename)
-
+    content = _load_agent_definitions_file(filename)
     return extract_tool_keys_from_prompt(content)
-
-def load_agent_definitions_file(filename):
-    content = ""
-    try:
-        from importlib import resources
-        content = resources.read_text('simple_agent', filename)
-    except FileNotFoundError:
-        import os
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        filepath = os.path.join(script_dir, filename)
-        with open(filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
-    return content
 
 
 def extract_tool_keys_from_prompt(content: str) -> list[str]:
     metadata = extract_metadata(content)
     return read_tool_keys(metadata.get('tools'))
 
+
 def extract_metadata(content: str) -> dict[str, Any]:
     metadata, _ = _parse_front_matter(content)
     return metadata
 
+
 def _read_system_prompt_template(filename):
-        try:
-            from importlib import resources
-            content = resources.read_text('simple_agent', '%s' % filename)
-        except FileNotFoundError:
-            import os
-            script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            template_path = os.path.join(script_dir, "%s" % filename)
-
-            try:
-                with open(template_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-            except FileNotFoundError:
-                raise FileNotFoundError(f"%s template file not found at {template_path}" % filename)
-
-        return _strip_tool_keys_section(content)
+    content = _load_agent_definitions_file(filename)
+    return _strip_tool_keys_section(content)
 
 
 def _strip_tool_keys_section(content: str) -> str:
@@ -135,18 +111,19 @@ def read_tool_keys(raw_tools: Any) -> list[str]:
 
 
 def _read_agents_content():
-        import os
-        agents_path = os.path.join(os.getcwd(), "AGENTS.md")
+    import os
+    agents_path = os.path.join(os.getcwd(), "AGENTS.md")
 
+    try:
         try:
-            try:
-                with open(agents_path, 'r', encoding='utf-8') as f:
-                    return f.read()
-            except UnicodeDecodeError:
-                with open(agents_path, 'r', encoding='utf-8', errors='replace') as f:
-                    return f.read()
-        except FileNotFoundError:
-            return ""
+            with open(agents_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except UnicodeDecodeError:
+            with open(agents_path, 'r', encoding='utf-8', errors='replace') as f:
+                return f.read()
+    except FileNotFoundError:
+        return ""
+
 
 def generate_tools_content(tool_library: ToolLibrary):
     tools_lines = []
@@ -159,61 +136,64 @@ def generate_tools_content(tool_library: ToolLibrary):
 
 
 def _generate_tool_documentation(tool):
-        usage_info = tool.get_usage_info()
-        lines = usage_info.split('\n')
-        if not lines:
-            return ""
+    usage_info = tool.get_usage_info()
+    lines = usage_info.split('\n')
+    if not lines:
+        return ""
 
-        tool_line = lines[0]
-        if not tool_line.startswith('Tool: '):
-            return ""
+    tool_line = lines[0]
+    if not tool_line.startswith('Tool: '):
+        return ""
 
-        tool_name = tool_line.replace('Tool: ', '')
+    tool_name = tool_line.replace('Tool: ', '')
 
-        description = ""
-        for line in lines[1:]:
-            if line.startswith('Description: '):
-                description = line.replace('Description: ', '')
-                break
+    description = ""
+    for line in lines[1:]:
+        if line.startswith('Description: '):
+            description = line.replace('Description: ', '')
+            break
 
-        arguments = []
-        in_arguments_section = False
-        for line in lines:
-            if line.strip() == "Arguments:":
-                in_arguments_section = True
-                continue
-            elif in_arguments_section and line.strip().startswith("- "):
-                arg = line.strip()[2:]
-                arguments.append(arg)
-            elif in_arguments_section and line.strip() == "":
-                continue
-            elif in_arguments_section and not line.strip().startswith("- ") and line.strip():
-                break
+    arguments = []
+    in_arguments_section = False
+    for line in lines:
+        if line.strip() == "Arguments:":
+            in_arguments_section = True
+            continue
+        elif in_arguments_section and line.strip().startswith("- "):
+            arg = line.strip()[2:]
+            arguments.append(arg)
+        elif in_arguments_section and line.strip() == "":
+            continue
+        elif in_arguments_section and not line.strip().startswith("- ") and line.strip():
+            break
 
-        doc_lines = [f"## {tool_name}"]
-        if description:
-            doc_lines.append(f"{description}")
+    doc_lines = [f"## {tool_name}"]
+    if description:
+        doc_lines.append(f"{description}")
 
-        remaining_lines = usage_info.split('\n')[2:]
+    remaining_lines = usage_info.split('\n')[2:]
 
-        if tool_name == 'subagent':
-            agent_types = discover_agent_types()
-            if agent_types:
-                agent_types_list = ', '.join(f"'{t}'" for t in agent_types)
-                injected_lines = []
-                for line in remaining_lines:
-                    if 'agenttype:' in line.lower() and '{{AGENT_TYPES}}' in line:
-                        injected_lines.append(f" - agenttype: string (required) - Type of agent to create. Available types: {agent_types_list}")
-                    else:
-                        injected_lines.append(line)
-                remaining_lines = injected_lines
+    if tool_name == 'subagent':
+        agent_types = _discover_agent_types()
+        if agent_types:
+            agent_types_list = ', '.join(f"'{t}'" for t in agent_types)
+            injected_lines = []
+            for line in remaining_lines:
+                if 'agenttype:' in line.lower() and '{{AGENT_TYPES}}' in line:
+                    injected_lines.append(
+                        f" - agenttype: string (required) - Type of agent to create. Available types: {agent_types_list}"
+                    )
+                else:
+                    injected_lines.append(line)
+            remaining_lines = injected_lines
 
-        if remaining_lines:
-            doc_lines.extend(remaining_lines)
+    if remaining_lines:
+        doc_lines.extend(remaining_lines)
 
-        return "\n".join(doc_lines)
+    return "\n".join(doc_lines)
 
-def discover_agent_types() -> list[str]:
+
+def _discover_agent_types() -> list[str]:
     simple_agent_dir = os.path.dirname(os.path.abspath(__file__))
     pattern = os.path.join(simple_agent_dir, '*.agent.md')
     agent_files = glob.glob(pattern)
@@ -223,3 +203,17 @@ def discover_agent_types() -> list[str]:
         agent_type = basename.replace('.agent.md', '')
         agent_types.append(agent_type)
     return sorted(agent_types)
+
+
+def _load_agent_definitions_file(filename):
+    content = ""
+    try:
+        from importlib import resources
+        content = resources.read_text('simple_agent', filename)
+    except FileNotFoundError:
+        import os
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        filepath = os.path.join(script_dir, filename)
+        with open(filepath, 'r', encoding='utf-8') as f:
+            content = f.read()
+    return content
