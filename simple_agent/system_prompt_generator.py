@@ -9,11 +9,10 @@ from simple_agent.application.tool_library import ToolLibrary
 
 def generate_system_prompt(filename: str, tool_library: ToolLibrary):
     template_content = _read_system_prompt_template(filename)
-    agents_content = _read_agents_content()
     tools_content = _generate_tools_content(tool_library)
-
     result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
 
+    agents_content = _read_agents_content()
     return result + "\n\n" + agents_content
 
 
