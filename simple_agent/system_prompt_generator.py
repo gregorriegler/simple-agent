@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import glob
 import os
 from typing import Any
@@ -14,6 +13,7 @@ def extract_tool_keys_from_file(filename: str) -> list[str]:
     return extract_tool_keys_from_prompt(content)
 
 def load_agent_definitions_file(filename):
+    content = ""
     try:
         from importlib import resources
         content = resources.read_text('simple_agent', filename)
