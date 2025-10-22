@@ -24,7 +24,7 @@ def extract_tool_keys_from_file(filename: str) -> list[str]:
 
 def extract_tool_keys_from_prompt(content: str) -> list[str]:
     metadata = extract_metadata(content)
-    return read_tool_keys(metadata.get('tools'))
+    return _read_tool_keys(metadata.get('tools'))
 
 
 def extract_metadata(content: str) -> dict[str, Any]:
@@ -90,7 +90,7 @@ def _load_front_matter(front_matter_text: str) -> dict[str, Any]:
     return {}
 
 
-def read_tool_keys(raw_tools: Any) -> list[str]:
+def _read_tool_keys(raw_tools: Any) -> list[str]:
     if raw_tools is None:
         return []
 
@@ -111,16 +111,10 @@ def read_tool_keys(raw_tools: Any) -> list[str]:
 
 
 def _read_agents_content():
-    import os
-    agents_path = os.path.join(os.getcwd(), "AGENTS.md")
-
     try:
-        try:
-            with open(agents_path, 'r', encoding='utf-8') as f:
-                return f.read()
-        except UnicodeDecodeError:
-            with open(agents_path, 'r', encoding='utf-8', errors='replace') as f:
-                return f.read()
+        agents_path = os.path.join(os.getcwd(), "AGENTS.md")
+        with open(agents_path, 'r', encoding='utf-8') as f:
+            return f.read()
     except FileNotFoundError:
         return ""
 
