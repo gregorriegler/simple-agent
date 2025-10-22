@@ -173,5 +173,5 @@ def keyboard_interrupt(_):
     raise KeyboardInterrupt()
 
 
-def system_prompt_stub(_):
+def system_prompt_stub():
     return "Test system prompt"
