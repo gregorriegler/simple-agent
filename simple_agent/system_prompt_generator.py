@@ -4,8 +4,6 @@ from typing import Any
 
 import yaml
 
-from simple_agent.application.tool_library import ToolLibrary
-
 
 def extract_tool_keys(agent_type):
     system_prompt_file = f'{agent_type}.agent.md'
@@ -14,16 +12,10 @@ def extract_tool_keys(agent_type):
     return tool_keys
 
 
-def generate_system_prompt(agent_type: str, tool_library: ToolLibrary):
+def generate_system_prompt(agent_type: str, tools_documentation: str):
     filename = f'{agent_type}.agent.md'
-    # TODO this should be injected and not depend on tool library
-    tools_lines = []
-    for tool in tool_library.tools:
-        tool_doc = _generate_tool_documentation(tool)
-        tools_lines.append(tool_doc)
-    tools_content = "\n\n".join(tools_lines)
     template_content = _read_system_prompt_template(filename)
-    result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
+    result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_documentation)
     agents_content = _read_agents_content()
     return result + "\n\n" + agents_content
 
@@ -123,76 +115,6 @@ def _read_agents_content():
             return f.read()
     except FileNotFoundError:
         return ""
-
-
-def _generate_tool_documentation(tool):
-    usage_info = tool.get_usage_info()
-    lines = usage_info.split('\n')
-    if not lines:
-        return ""
-
-    tool_line = lines[0]
-    if not tool_line.startswith('Tool: '):
-        return ""
-
-    tool_name = tool_line.replace('Tool: ', '')
-
-    description = ""
-    for line in lines[1:]:
-        if line.startswith('Description: '):
-            description = line.replace('Description: ', '')
-            break
-
-    arguments = []
-    in_arguments_section = False
-    for line in lines:
-        if line.strip() == "Arguments:":
-            in_arguments_section = True
-            continue
-        elif in_arguments_section and line.strip().startswith("- "):
-            arg = line.strip()[2:]
-            arguments.append(arg)
-        elif in_arguments_section and line.strip() == "":
-            continue
-        elif in_arguments_section and not line.strip().startswith("- ") and line.strip():
-            break
-
-    doc_lines = [f"## {tool_name}"]
-    if description:
-        doc_lines.append(f"{description}")
-
-    remaining_lines = usage_info.split('\n')[2:]
-
-    if tool_name == 'subagent':
-        agent_types = _discover_agent_types()
-        if agent_types:
-            agent_types_list = ', '.join(f"'{t}'" for t in agent_types)
-            injected_lines = []
-            for line in remaining_lines:
-                if 'agenttype:' in line.lower() and '{{AGENT_TYPES}}' in line:
-                    injected_lines.append(
-                        f" - agenttype: string (required) - Type of agent to create. Available types: {agent_types_list}"
-                    )
-                else:
-                    injected_lines.append(line)
-            remaining_lines = injected_lines
-
-    if remaining_lines:
-        doc_lines.extend(remaining_lines)
-
-    return "\n".join(doc_lines)
-
-
-def _discover_agent_types() -> list[str]:
-    simple_agent_dir = os.path.dirname(os.path.abspath(__file__))
-    pattern = os.path.join(simple_agent_dir, '*.agent.md')
-    agent_files = glob.glob(pattern)
-    agent_types = []
-    for filepath in agent_files:
-        basename = os.path.basename(filepath)
-        agent_type = basename.replace('.agent.md', '')
-        agent_types.append(agent_type)
-    return sorted(agent_types)
 
 
 def _load_agent_definitions_file(filename):

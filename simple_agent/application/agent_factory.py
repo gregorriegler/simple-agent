@@ -55,9 +55,11 @@ class AgentFactory(CreateAgent):
             self,
             tool_keys
         )
+        from simple_agent.tools.tool_documentation import generate_tools_documentation
+
         return Agent(
             agent_id,
-            lambda tool_library: generate_system_prompt(agent_type, tool_library),
+            lambda tool_library: generate_system_prompt(agent_type, generate_tools_documentation(tool_library.tools)),
             subagent_tools,
             self.llm,
             user_input,

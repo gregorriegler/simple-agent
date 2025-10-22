@@ -32,6 +32,7 @@ from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
 from simple_agent.system_prompt_generator import generate_system_prompt, extract_tool_keys
+from simple_agent.tools.tool_documentation import generate_tools_documentation
 
 
 def main():
@@ -57,7 +58,8 @@ def main():
         )
         tool_keys = extract_tool_keys('orchestrator')
         tool_library = AllTools(create_agent=create_agent, tool_keys=tool_keys)
-        system_prompt = generate_system_prompt('orchestrator', tool_library)
+        tools_documentation = generate_tools_documentation(tool_library.tools)
+        system_prompt = generate_system_prompt('orchestrator', tools_documentation)
         print(system_prompt)
         return
 
@@ -150,7 +152,7 @@ def main():
         tool_keys
     )
 
-    system_prompt_generator = lambda tool_library: generate_system_prompt('orchestrator', tool_library)
+    system_prompt_generator = lambda tool_library: generate_system_prompt('orchestrator', generate_tools_documentation(tool_library.tools))
 
     run_session(
         args.continue_session,

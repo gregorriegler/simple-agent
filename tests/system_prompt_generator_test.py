@@ -7,6 +7,7 @@ from simple_agent.system_prompt_generator import (
     extract_tool_keys_from_prompt,
     generate_system_prompt,
 )
+from simple_agent.tools.tool_documentation import generate_tools_documentation
 from tests.test_helpers import create_all_tools_for_test
 
 
@@ -23,7 +24,8 @@ def test_generate_coding_system_prompt():
 def verify_system_prompt(system_prompt_md, tool_library):
     with patch('simple_agent.system_prompt_generator._read_agents_content') as mock_agents:
         mock_agents.return_value = "# Test AGENTS.md content\nThis is a stub for testing."
-        system_prompt = generate_system_prompt(system_prompt_md, tool_library)
+        tools_documentation = generate_tools_documentation(tool_library.tools)
+        system_prompt = generate_system_prompt(system_prompt_md, tools_documentation)
         verify(system_prompt)
 
 
