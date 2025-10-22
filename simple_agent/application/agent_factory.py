@@ -13,8 +13,7 @@ class CreateAgent(Protocol):
         agenttype: str,
         parent_agent_id: str,
         indent_level: int,
-        user_input: Input,
-        session_storage,
+        user_input: Input
     ) -> Agent:
         ...
 
@@ -39,8 +38,7 @@ class AgentFactory(CreateAgent):
         agenttype: str,
         parent_agent_id: str,
         indent_level: int,
-        user_input: Input,
-        session_storage=None
+        user_input: Input
     ) -> Agent:
         from simple_agent.tools.all_tools import AllTools
         system_prompt_file = f'{agenttype}.agent.md'
@@ -58,8 +56,6 @@ class AgentFactory(CreateAgent):
             self,
             tool_keys
         )
-        storage = session_storage if session_storage is not None else self.session_storage
-
         return Agent(
             agent_id,
             lambda tool_library: generate_system_prompt(system_prompt_file, tool_library),
@@ -67,5 +63,5 @@ class AgentFactory(CreateAgent):
             self.llm,
             user_input,
             self.event_bus,
-            storage
+            self.session_storage
         )
