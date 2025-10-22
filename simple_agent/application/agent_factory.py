@@ -59,6 +59,7 @@ class AgentFactory(CreateAgent):
             tool_keys
         )
         storage = session_storage if session_storage is not None else self.session_storage
+
         return Agent(
             agent_id,
             lambda tool_library: generate_system_prompt(system_prompt_file, tool_library),
