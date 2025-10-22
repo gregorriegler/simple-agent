@@ -16,7 +16,12 @@ def extract_tool_keys(agent_type):
 
 def generate_system_prompt(agent_type: str, tool_library: ToolLibrary):
     filename = f'{agent_type}.agent.md'
-    tools_content = _generate_tools_content(tool_library)
+    # TODO this should be injected and not depend on tool library
+    tools_lines = []
+    for tool in tool_library.tools:
+        tool_doc = _generate_tool_documentation(tool)
+        tools_lines.append(tool_doc)
+    tools_content = "\n\n".join(tools_lines)
     template_content = _read_system_prompt_template(filename)
     result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
     agents_content = _read_agents_content()
@@ -118,16 +123,6 @@ def _read_agents_content():
             return f.read()
     except FileNotFoundError:
         return ""
-
-
-def _generate_tools_content(tool_library: ToolLibrary):
-    tools_lines = []
-
-    for tool in tool_library.tools:
-        tool_doc = _generate_tool_documentation(tool)
-        tools_lines.append(tool_doc)
-
-    return "\n\n".join(tools_lines)
 
 
 def _generate_tool_documentation(tool):
