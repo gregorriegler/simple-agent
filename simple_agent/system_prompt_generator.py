@@ -7,6 +7,15 @@ import yaml
 from simple_agent.application.tool_library import ToolLibrary
 
 
+def generate_system_prompt(system_prompt_md: str, tool_library: ToolLibrary):
+    template_content = _read_system_prompt_template(system_prompt_md)
+    agents_content = _read_agents_content()
+    tools_content = generate_tools_content(tool_library)
+
+    result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
+
+    return result + "\n\n" + agents_content
+
 def extract_tool_keys_from_file(filename: str) -> list[str]:
     content = load_agent_definitions_file(filename)
 
@@ -25,40 +34,29 @@ def load_agent_definitions_file(filename):
             content = f.read()
     return content
 
-def extract_tool_keys_from_prompt(system_prompt_md: str) -> list[str]:
-    metadata = extract_agent_metadata_from_prompt(system_prompt_md)
-    return _normalize_tools(metadata.get('tools'))
 
+def extract_tool_keys_from_prompt(content: str) -> list[str]:
+    metadata = extract_metadata(content)
+    return read_tool_keys(metadata.get('tools'))
 
-def extract_agent_metadata_from_prompt(system_prompt_md: str) -> dict[str, Any]:
-    metadata, _ = _parse_front_matter(system_prompt_md)
+def extract_metadata(content: str) -> dict[str, Any]:
+    metadata, _ = _parse_front_matter(content)
     return metadata
 
-def generate_system_prompt(system_prompt_md: str, tool_library: ToolLibrary):
-    template_content = _read_system_prompt_template(system_prompt_md)
-    agents_content = _read_agents_content()
-    tools_content = generate_tools_content(tool_library)
-
-    result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
-
-    return result + "\n\n" + agents_content
-
-
-
-def _read_system_prompt_template(system_prompt_md):
+def _read_system_prompt_template(filename):
         try:
             from importlib import resources
-            content = resources.read_text('simple_agent', '%s' % system_prompt_md)
+            content = resources.read_text('simple_agent', '%s' % filename)
         except FileNotFoundError:
             import os
             script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            template_path = os.path.join(script_dir, "%s" % system_prompt_md)
+            template_path = os.path.join(script_dir, "%s" % filename)
 
             try:
                 with open(template_path, 'r', encoding='utf-8') as f:
                     content = f.read()
             except FileNotFoundError:
-                raise FileNotFoundError(f"%s template file not found at {template_path}" % system_prompt_md)
+                raise FileNotFoundError(f"%s template file not found at {template_path}" % filename)
 
         return _strip_tool_keys_section(content)
 
@@ -80,7 +78,7 @@ def _parse_front_matter(content: str) -> tuple[dict[str, Any], str]:
         return {}, content
 
     working = working[3:]
-    newline = ''
+
     if working.startswith('\r\n'):
         newline = '\r\n'
         working = working[2:]
@@ -116,7 +114,7 @@ def _load_front_matter(front_matter_text: str) -> dict[str, Any]:
     return {}
 
 
-def _normalize_tools(raw_tools: Any) -> list[str]:
+def read_tool_keys(raw_tools: Any) -> list[str]:
     if raw_tools is None:
         return []
 

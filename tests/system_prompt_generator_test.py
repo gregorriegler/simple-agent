@@ -2,7 +2,7 @@ from approvaltests import verify
 from unittest.mock import patch
 
 from simple_agent.system_prompt_generator import (
-    extract_agent_metadata_from_prompt,
+    extract_metadata,
     extract_tool_keys_from_prompt,
     generate_system_prompt,
     generate_tools_content,
@@ -42,7 +42,7 @@ tools: write_todos,ls,cat
 # Role
 Content here"""
 
-    metadata = extract_agent_metadata_from_prompt(prompt_with_keys)
+    metadata = extract_metadata(prompt_with_keys)
     assert metadata['name'] == 'Sample Agent'
 
     result = extract_tool_keys_from_prompt(prompt_with_keys)
@@ -58,7 +58,7 @@ tools:
 # Role
 Content here"""
 
-    metadata = extract_agent_metadata_from_prompt(prompt_with_list)
+    metadata = extract_metadata(prompt_with_list)
     assert metadata['name'] == 'Sample List Agent'
 
     result = extract_tool_keys_from_prompt(prompt_with_list)
