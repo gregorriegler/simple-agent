@@ -48,7 +48,8 @@ def main():
                 return False
 
         create_agent = AgentFactory(
-            lambda system_prompt, messages: '',
+            lambda system_prompt,
+            messages: '',
             SimpleEventBus(),
             lambda agent_id, indent: None,
             lambda indent: Input(DummyUserInput()),

@@ -7,18 +7,13 @@ import yaml
 
 from simple_agent.application.tool_library import ToolLibrary
 
-def discover_agent_types() -> list[str]:
-    simple_agent_dir = os.path.dirname(os.path.abspath(__file__))
-    pattern = os.path.join(simple_agent_dir, '*.agent.md')
-    agent_files = glob.glob(pattern)
-    agent_types = []
-    for filepath in agent_files:
-        basename = os.path.basename(filepath)
-        agent_type = basename.replace('.agent.md', '')
-        agent_types.append(agent_type)
-    return sorted(agent_types)
 
 def extract_tool_keys_from_file(filename: str) -> list[str]:
+    content = load_agent_definitions_file(filename)
+
+    return extract_tool_keys_from_prompt(content)
+
+def load_agent_definitions_file(filename):
     try:
         from importlib import resources
         content = resources.read_text('simple_agent', filename)
@@ -28,8 +23,7 @@ def extract_tool_keys_from_file(filename: str) -> list[str]:
         filepath = os.path.join(script_dir, filename)
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
-
-    return extract_tool_keys_from_prompt(content)
+    return content
 
 def extract_tool_keys_from_prompt(system_prompt_md: str) -> list[str]:
     metadata = extract_agent_metadata_from_prompt(system_prompt_md)
@@ -45,10 +39,8 @@ def generate_system_prompt(system_prompt_md: str, tool_library: ToolLibrary):
     agents_content = _read_agents_content()
     tools_content = generate_tools_content(tool_library)
 
-    # Replace the dynamic tools placeholder
     result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
 
-    # Add agents content at the end
     return result + "\n\n" + agents_content
 
 
@@ -146,20 +138,16 @@ def _normalize_tools(raw_tools: Any) -> list[str]:
 
 def _read_agents_content():
         import os
-        # Look for AGENTS.md in the current working directory
         agents_path = os.path.join(os.getcwd(), "AGENTS.md")
 
         try:
-            # Try UTF-8 first, then fall back to other encodings
             try:
                 with open(agents_path, 'r', encoding='utf-8') as f:
                     return f.read()
             except UnicodeDecodeError:
-                # Try with UTF-8 and error handling
                 with open(agents_path, 'r', encoding='utf-8', errors='replace') as f:
                     return f.read()
         except FileNotFoundError:
-            # If AGENTS.md doesn't exist, return empty string to avoid breaking
             return ""
 
 def generate_tools_content(tool_library: ToolLibrary):
@@ -227,52 +215,13 @@ def _generate_tool_documentation(tool):
 
         return "\n".join(doc_lines)
 
-
-def main():
-    import argparse
-    from simple_agent.tools.all_tools import AllTools
-
-    parser = argparse.ArgumentParser(
-        description='Generate system prompt with dynamic tool descriptions',
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument(
-        '--output', '-o',
-        help='Output file path (default: stdout)',
-        default=None
-    )
-
-    args = parser.parse_args()
-
-    from simple_agent.application.input import Input
-    from simple_agent.application.user_input import UserInput
-
-    class DummyUserInput(UserInput):
-        def read(self):
-            return ""
-        def escape_requested(self):
-            return False
-
-    def dummy_display(agent_id, indent_level):
-        pass
-
-    def dummy_input(indent_level):
-        return Input(DummyUserInput())
-
-    tool_library = AllTools(
-        create_subagent_display=dummy_display,
-        create_subagent_input=dummy_input
-    )
-    system_prompt = generate_system_prompt('default.agent.md', tool_library)
-
-    if args.output:
-        with open(args.output, 'w', encoding='utf-8') as f:
-            f.write(system_prompt)
-        print(f"System prompt written to {args.output}")
-    else:
-        print(system_prompt)
-
-
-if __name__ == "__main__":
-    main()
-
+def discover_agent_types() -> list[str]:
+    simple_agent_dir = os.path.dirname(os.path.abspath(__file__))
+    pattern = os.path.join(simple_agent_dir, '*.agent.md')
+    agent_files = glob.glob(pattern)
+    agent_types = []
+    for filepath in agent_files:
+        basename = os.path.basename(filepath)
+        agent_type = basename.replace('.agent.md', '')
+        agent_types.append(agent_type)
+    return sorted(agent_types)
