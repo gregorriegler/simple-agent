@@ -35,13 +35,13 @@ class AgentFactory(CreateAgent):
 
     def __call__(
         self,
-        agenttype: str,
+        agent_type: str,
         parent_agent_id: str,
         indent_level: int,
         user_input: Input
     ) -> Agent:
         from simple_agent.tools.all_tools import AllTools
-        system_prompt_file = f'{agenttype}.agent.md'
+        system_prompt_file = f'{agent_type}.agent.md'
         tool_keys = extract_tool_keys_from_file(system_prompt_file)
         agent_id = f"{parent_agent_id}/Subagent{indent_level}"
 
