@@ -1,19 +1,13 @@
-from approvaltests import verify
 from unittest.mock import patch
+
+from approvaltests import verify
 
 from simple_agent.system_prompt_generator import (
     extract_metadata,
     extract_tool_keys_from_prompt,
     generate_system_prompt,
-    generate_tools_content,
 )
 from tests.test_helpers import create_all_tools_for_test
-
-
-def test_generate_tools_content_only():
-    tool_library = create_all_tools_for_test()
-    tools_content = generate_tools_content(tool_library)
-    verify(tools_content)
 
 
 def test_generate_orchestrator_agent_system_prompt():
