@@ -134,5 +134,5 @@ def create_llm_stub(answer):
     return llm_answer
 
 
-def system_prompt_stub(_):
+def system_prompt_stub():
     return "Test system prompt"

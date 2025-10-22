@@ -152,7 +152,7 @@ def main():
         tool_keys
     )
 
-    system_prompt_generator = lambda tool_library: generate_system_prompt('orchestrator', generate_tools_documentation(tool_library.tools))
+    system_prompt_generator = lambda: generate_system_prompt('orchestrator', generate_tools_documentation(tools.tools))
 
     run_session(
         args.continue_session,

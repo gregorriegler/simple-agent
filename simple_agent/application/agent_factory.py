@@ -59,7 +59,7 @@ class AgentFactory(CreateAgent):
 
         return Agent(
             agent_id,
-            lambda tool_library: generate_system_prompt(agent_type, generate_tools_documentation(tool_library.tools)),
+            lambda: generate_system_prompt(agent_type, generate_tools_documentation(subagent_tools.tools)),
             subagent_tools,
             self.llm,
             user_input,
