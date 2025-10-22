@@ -10,7 +10,7 @@ from simple_agent.system_prompt_generator import generate_system_prompt, extract
 class CreateAgent(Protocol):
     def __call__(
         self,
-        agenttype: str,
+        agent_type: str,
         parent_agent_id: str,
         indent_level: int,
         user_input: Input
