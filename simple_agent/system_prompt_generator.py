@@ -16,10 +16,9 @@ def extract_tool_keys(agent_type):
 
 def generate_system_prompt(agent_type: str, tool_library: ToolLibrary):
     filename = f'{agent_type}.agent.md'
-    template_content = _read_system_prompt_template(filename)
     tools_content = _generate_tools_content(tool_library)
+    template_content = _read_system_prompt_template(filename)
     result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
-
     agents_content = _read_agents_content()
     return result + "\n\n" + agents_content
 
