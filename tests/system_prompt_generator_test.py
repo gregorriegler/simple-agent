@@ -1,8 +1,12 @@
 from approvaltests import verify
 from unittest.mock import patch
 
-from simple_agent.system_prompt_generator import extract_tool_keys_from_prompt
-from simple_agent.system_prompt_generator import generate_system_prompt, generate_tools_content
+from simple_agent.system_prompt_generator import (
+    extract_agent_metadata_from_prompt,
+    extract_tool_keys_from_prompt,
+    generate_system_prompt,
+    generate_tools_content,
+)
 from tests.test_helpers import create_all_tools_for_test
 
 
@@ -31,16 +35,21 @@ def verify_system_prompt(system_prompt_md, tool_library):
 
 def test_extract_tool_keys_from_prompt():
     prompt_with_keys = """---
+name: Sample Agent
 tools: write_todos,ls,cat
 ---
 
 # Role
 Content here"""
 
+    metadata = extract_agent_metadata_from_prompt(prompt_with_keys)
+    assert metadata['name'] == 'Sample Agent'
+
     result = extract_tool_keys_from_prompt(prompt_with_keys)
     assert result == ['write_todos', 'ls', 'cat']
 
     prompt_with_list = """---
+name: Sample List Agent
 tools:
 - bash
 - cat
@@ -48,6 +57,9 @@ tools:
 
 # Role
 Content here"""
+
+    metadata = extract_agent_metadata_from_prompt(prompt_with_list)
+    assert metadata['name'] == 'Sample List Agent'
 
     result = extract_tool_keys_from_prompt(prompt_with_list)
     assert result == ['bash', 'cat']
