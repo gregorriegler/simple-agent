@@ -12,12 +12,12 @@ from tests.test_helpers import create_all_tools_for_test
 
 def test_generate_orchestrator_agent_system_prompt():
     tool_library = create_all_tools_for_test()
-    verify_system_prompt("orchestrator.agent.md", tool_library)
+    verify_system_prompt("orchestrator", tool_library)
 
 
 def test_generate_coding_system_prompt():
     tool_library = create_all_tools_for_test()
-    verify_system_prompt("coding.agent.md", tool_library)
+    verify_system_prompt("coding", tool_library)
 
 
 def verify_system_prompt(system_prompt_md, tool_library):

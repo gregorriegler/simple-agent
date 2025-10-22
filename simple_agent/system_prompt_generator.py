@@ -7,18 +7,21 @@ import yaml
 from simple_agent.application.tool_library import ToolLibrary
 
 
-def generate_system_prompt(filename: str, tool_library: ToolLibrary):
+def extract_tool_keys(agent_type):
+    system_prompt_file = f'{agent_type}.agent.md'
+    content = _load_agent_definitions_file(system_prompt_file)
+    tool_keys = extract_tool_keys_from_prompt(content)
+    return tool_keys
+
+
+def generate_system_prompt(agent_type: str, tool_library: ToolLibrary):
+    filename = f'{agent_type}.agent.md'
     template_content = _read_system_prompt_template(filename)
     tools_content = _generate_tools_content(tool_library)
     result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_content)
 
     agents_content = _read_agents_content()
     return result + "\n\n" + agents_content
-
-
-def extract_tool_keys_from_file(filename: str) -> list[str]:
-    content = _load_agent_definitions_file(filename)
-    return extract_tool_keys_from_prompt(content)
 
 
 def extract_tool_keys_from_prompt(content: str) -> list[str]:

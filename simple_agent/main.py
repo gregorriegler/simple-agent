@@ -21,17 +21,17 @@ from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.claude.claude_config import load_claude_config
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
-from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
+from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
+from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
-from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
-from simple_agent.system_prompt_generator import generate_system_prompt, extract_tool_keys_from_file
+from simple_agent.system_prompt_generator import generate_system_prompt, extract_tool_keys
 
 
 def main():
@@ -55,9 +55,9 @@ def main():
             lambda indent: Input(DummyUserInput()),
             NoOpSessionStorage()
         )
-        tool_keys = extract_tool_keys_from_file('orchestrator.agent.md')
+        tool_keys = extract_tool_keys('orchestrator')
         tool_library = AllTools(create_agent=create_agent, tool_keys=tool_keys)
-        system_prompt = generate_system_prompt('orchestrator.agent.md', tool_library)
+        system_prompt = generate_system_prompt('orchestrator', tool_library)
         print(system_prompt)
         return
 
@@ -116,7 +116,7 @@ def main():
         claude_config = load_claude_config()
         llm = ClaudeLLM(claude_config)
 
-    system_prompt_generator = lambda tool_library: generate_system_prompt('orchestrator.agent.md', tool_library)
+    system_prompt_generator = lambda tool_library: generate_system_prompt('orchestrator', tool_library)
 
     event_bus.subscribe(SessionStartedEvent, display_event_handler.handle_session_started)
     event_bus.subscribe(UserPromptRequestedEvent, display_event_handler.handle_user_prompt_requested)
@@ -137,7 +137,7 @@ def main():
         session_storage
     )
 
-    tool_keys = extract_tool_keys_from_file('orchestrator.agent.md')
+    tool_keys = extract_tool_keys('orchestrator')
 
     tools = AllTools(
         llm,
