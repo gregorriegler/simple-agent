@@ -18,8 +18,8 @@ class AllTools(ToolLibrary):
         tool_keys: list[str] | None = None,
         subagent_context: SubagentContext | None = None
     ):
-        self.subagent_context = subagent_context
         self.tool_keys = tool_keys
+        self.subagent_context = subagent_context
 
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
