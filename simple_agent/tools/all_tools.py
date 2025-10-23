@@ -23,7 +23,6 @@ class AllTools(ToolLibrary):
         indent_level=0,
         agent_id: str = "Agent",
         event_bus: EventBus | None = None,
-        user_input=None,
         create_subagent_display: Callable[[str, int], Any] | None = None,
         create_subagent_input: Callable[[int], Input] | None = None,
         create_agent: CreateAgent | None = None,
@@ -35,7 +34,6 @@ class AllTools(ToolLibrary):
         self.indent_level = indent_level
         self.agent_id = agent_id
         self.event_bus: EventBus = event_bus if event_bus is not None else SimpleEventBus()
-        self.user_input = user_input
         self.create_subagent_display = create_subagent_display
         self.create_subagent_input = create_subagent_input
 

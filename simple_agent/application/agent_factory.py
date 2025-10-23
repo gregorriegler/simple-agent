@@ -51,7 +51,6 @@ class AgentFactory(CreateAgent):
             indent_level,
             agent_id,
             self.event_bus,
-            user_input,
             self.create_subagent_display,
             self.create_subagent_input,
             self,
