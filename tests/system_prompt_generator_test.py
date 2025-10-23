@@ -2,10 +2,9 @@ from unittest.mock import patch
 
 from approvaltests import verify
 
-from simple_agent.system_prompt_generator import (
-    extract_metadata,
-    extract_tool_keys_from_prompt,
-    generate_system_prompt,
+from simple_agent.infrastructure.system_prompt.agent_definition import (
+    extract_tool_keys,
+    load_agent_prompt
 )
 from simple_agent.tools.tool_documentation import generate_tools_documentation
 from tests.test_helpers import create_all_tools_for_test
@@ -22,10 +21,11 @@ def test_generate_coding_system_prompt():
 
 
 def verify_system_prompt(system_prompt_md, tool_library):
-    with patch('simple_agent.system_prompt_generator._read_agents_content') as mock_agents:
+    with patch('simple_agent.infrastructure.system_prompt.agent_definition._read_agents_content') as mock_agents:
         mock_agents.return_value = "# Test AGENTS.md content\nThis is a stub for testing."
         tools_documentation = generate_tools_documentation(tool_library.tools)
-        system_prompt = generate_system_prompt(system_prompt_md, tools_documentation)
+        prompt = load_agent_prompt(system_prompt_md)
+        system_prompt = prompt.render(tools_documentation)
         verify(system_prompt)
 
 
@@ -38,10 +38,9 @@ tools: write_todos,ls,cat
 # Role
 Content here"""
 
-    metadata = extract_metadata(prompt_with_keys)
-    assert metadata['name'] == 'Sample Agent'
-
-    result = extract_tool_keys_from_prompt(prompt_with_keys)
+    with patch('simple_agent.infrastructure.system_prompt.agent_definition._load_agent_definitions_file') as loader:
+        loader.return_value = prompt_with_keys
+        result = extract_tool_keys('sample')
     assert result == ['write_todos', 'ls', 'cat']
 
     prompt_with_list = """---
@@ -54,10 +53,9 @@ tools:
 # Role
 Content here"""
 
-    metadata = extract_metadata(prompt_with_list)
-    assert metadata['name'] == 'Sample List Agent'
-
-    result = extract_tool_keys_from_prompt(prompt_with_list)
+    with patch('simple_agent.infrastructure.system_prompt.agent_definition._load_agent_definitions_file') as loader:
+        loader.return_value = prompt_with_list
+        result = extract_tool_keys('list-sample')
     assert result == ['bash', 'cat']
 
     prompt_without_keys = """---
@@ -67,11 +65,15 @@ description: Sample agent
 # Role
 Content here"""
 
-    result = extract_tool_keys_from_prompt(prompt_without_keys)
+    with patch('simple_agent.infrastructure.system_prompt.agent_definition._load_agent_definitions_file') as loader:
+        loader.return_value = prompt_without_keys
+        result = extract_tool_keys('no-keys')
     assert result == []
 
     prompt_no_separator = """# Role
 Content here"""
 
-    result = extract_tool_keys_from_prompt(prompt_no_separator)
+    with patch('simple_agent.infrastructure.system_prompt.agent_definition._load_agent_definitions_file') as loader:
+        loader.return_value = prompt_no_separator
+        result = extract_tool_keys('no-separator')
     assert result == []

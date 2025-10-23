@@ -1,23 +1,23 @@
-import glob
 import os
 from typing import Any
 
 import yaml
 
-
-def extract_tool_keys(agent_type):
-    system_prompt_file = f'{agent_type}.agent.md'
-    content = _load_agent_definitions_file(system_prompt_file)
-    tool_keys = extract_tool_keys_from_prompt(content)
-    return tool_keys
+from simple_agent.application.system_prompt import AgentPrompt
 
 
-def generate_system_prompt(agent_type: str, tools_documentation: str):
-    filename = f'{agent_type}.agent.md'
-    template_content = _read_system_prompt_template(filename)
-    result = template_content.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_documentation)
+def extract_tool_keys(agent_type: str) -> list[str]:
+    prompt = load_agent_prompt(agent_type)
+    return prompt.tool_keys
+
+
+def load_agent_prompt(agent_type: str) -> AgentPrompt:
+    filename = _system_prompt_filename(agent_type)
+    content = _load_agent_definitions_file(filename)
+    metadata, template = _parse_front_matter(content)
+    tool_keys = _read_tool_keys(metadata.get('tools'))
     agents_content = _read_agents_content()
-    return result + "\n\n" + agents_content
+    return AgentPrompt(template, tool_keys, agents_content)
 
 
 def extract_tool_keys_from_prompt(content: str) -> list[str]:
@@ -30,14 +30,8 @@ def extract_metadata(content: str) -> dict[str, Any]:
     return metadata
 
 
-def _read_system_prompt_template(filename):
-    content = _load_agent_definitions_file(filename)
-    return _strip_tool_keys_section(content)
-
-
-def _strip_tool_keys_section(content: str) -> str:
-    _, remainder = _parse_front_matter(content)
-    return remainder
+def _system_prompt_filename(agent_type: str) -> str:
+    return f"{agent_type}.agent.md"
 
 
 def _parse_front_matter(content: str) -> tuple[dict[str, Any], str]:
@@ -108,7 +102,7 @@ def _read_tool_keys(raw_tools: Any) -> list[str]:
     return []
 
 
-def _read_agents_content():
+def _read_agents_content() -> str:
     try:
         agents_path = os.path.join(os.getcwd(), "AGENTS.md")
         with open(agents_path, 'r', encoding='utf-8') as f:
@@ -117,15 +111,12 @@ def _read_agents_content():
         return ""
 
 
-def _load_agent_definitions_file(filename):
-    content = ""
+def _load_agent_definitions_file(filename: str) -> str:
     try:
         from importlib import resources
-        content = resources.read_text('simple_agent', filename)
+        return resources.read_text('simple_agent', filename)
     except FileNotFoundError:
-        import os
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        filepath = os.path.join(script_dir, filename)
+        package_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        filepath = os.path.join(package_root, filename)
         with open(filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
-    return content
+            return f.read()

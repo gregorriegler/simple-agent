@@ -31,7 +31,9 @@ from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
-from simple_agent.system_prompt_generator import generate_system_prompt, extract_tool_keys
+from simple_agent.infrastructure.system_prompt.agent_definition import (
+    load_agent_prompt
+)
 from simple_agent.tools.tool_documentation import generate_tools_documentation
 
 
@@ -49,17 +51,17 @@ def main():
                 return False
 
         create_agent = AgentFactory(
-            lambda system_prompt,
-            messages: '',
+            lambda system_prompt, messages: '',
             SimpleEventBus(),
             lambda agent_id, indent: None,
             lambda indent: Input(DummyUserInput()),
+            load_agent_prompt,
             NoOpSessionStorage()
         )
-        tool_keys = extract_tool_keys('orchestrator')
-        tool_library = AllTools(create_agent=create_agent, tool_keys=tool_keys)
+        prompt = load_agent_prompt('orchestrator')
+        tool_library = AllTools(create_agent=create_agent, tool_keys=prompt.tool_keys)
         tools_documentation = generate_tools_documentation(tool_library.tools)
-        system_prompt = generate_system_prompt('orchestrator', tools_documentation)
+        system_prompt = prompt.render(tools_documentation)
         print(system_prompt)
         return
 
@@ -135,10 +137,11 @@ def main():
         event_bus,
         create_subagent_display,
         create_subagent_input,
+        load_agent_prompt,
         session_storage
     )
 
-    tool_keys = extract_tool_keys('orchestrator')
+    prompt = load_agent_prompt('orchestrator')
 
     tools = AllTools(
         llm,
@@ -149,15 +152,16 @@ def main():
         create_subagent_display,
         create_subagent_input,
         create_agent,
-        tool_keys
+        prompt.tool_keys
     )
 
-    system_prompt_generator = lambda: generate_system_prompt('orchestrator', generate_tools_documentation(tools.tools))
+    tools_documentation = generate_tools_documentation(tools.tools)
+    system_prompt = prompt.render(tools_documentation)
 
     run_session(
         args.continue_session,
         agent_id,
-        system_prompt_generator,
+        system_prompt,
         user_input,
         llm,
         tools,

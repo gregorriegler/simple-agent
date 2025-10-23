@@ -6,7 +6,7 @@ from simple_agent.application.events import SessionStartedEvent
 from simple_agent.application.input import Input
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.session_storage import SessionStorage
-from simple_agent.application.system_prompt_generator import SystemPrompt
+from simple_agent.application.system_prompt import SystemPrompt
 
 
 @dataclass
