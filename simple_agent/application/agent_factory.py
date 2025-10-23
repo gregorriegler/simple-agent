@@ -17,6 +17,12 @@ class CreateAgent(Protocol):
     ) -> Agent:
         ...
 
+    def create_subagent_display(self, agent_id: str, indent_level: int) -> Any:
+        ...
+
+    def create_subagent_input(self, indent_level: int) -> Input:
+        ...
+
 
 class AgentFactory(CreateAgent):
     def __init__(
@@ -45,12 +51,10 @@ class AgentFactory(CreateAgent):
         from simple_agent.tools.all_tools import AllTools
         from simple_agent.tools.subagent_context import SubagentContext
         prompt = self.load_agent_prompt(agent_type)
-        agent_id = f"{parent_agent_id}/Subagent{indent_level}"
+        agent_id = f"{parent_agent_id}/Subagent{indent_level + 1}"
 
         subagent_context = SubagentContext(
             self,
-            self.create_subagent_display,
-            self.create_subagent_input,
             indent_level + 1,
             agent_id
         )

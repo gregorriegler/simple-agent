@@ -3,23 +3,23 @@ Agent:       session_started: False
 Agent:         user_prompted: Create a subagent that creates another subagent
 Agent:   assistant_responded: 🛠️ subagent orchestrator create another subagent
 Agent:           tool_called: 🛠️ subagent orchestrator create another subagent
-Agent/Subagent1:         user_prompted: create another subagent
-Agent/Subagent1:   assistant_responded: 🛠️ subagent coding say nested hello
-Agent/Subagent1:           tool_called: 🛠️ subagent coding say nested hello
-Agent/Subagent1/Subagent2:         user_prompted: say nested hello
-Agent/Subagent1/Subagent2:   assistant_responded: nested hello
+Agent/Subagent2:         user_prompted: create another subagent
+Agent/Subagent2:   assistant_responded: 🛠️ subagent coding say nested hello
+Agent/Subagent2:           tool_called: 🛠️ subagent coding say nested hello
+Agent/Subagent2/Subagent3:         user_prompted: say nested hello
+Agent/Subagent2/Subagent3:   assistant_responded: nested hello
 🛠️ complete-task I successfully said nested hello
-Agent/Subagent1/Subagent2:        assistant_said: nested hello
-Agent/Subagent1/Subagent2:           tool_called: 🛠️ complete-task I successfully said nested hello
-Agent/Subagent1/Subagent2:           tool_result: I successfully said nested hello
-Agent/Subagent1/Subagent2: user_prompt_requested: 
-Agent/Subagent1/Subagent2:         session_ended: 
-Agent/Subagent1:           tool_result: I successfully said nested hello
-Agent/Subagent1:   assistant_responded: 🛠️ complete-task I successfully created another subagent
-Agent/Subagent1:           tool_called: 🛠️ complete-task I successfully created another subagent
-Agent/Subagent1:           tool_result: I successfully created another subagent
-Agent/Subagent1: user_prompt_requested: 
-Agent/Subagent1:         session_ended: 
+Agent/Subagent2/Subagent3:        assistant_said: nested hello
+Agent/Subagent2/Subagent3:           tool_called: 🛠️ complete-task I successfully said nested hello
+Agent/Subagent2/Subagent3:           tool_result: I successfully said nested hello
+Agent/Subagent2/Subagent3: user_prompt_requested: 
+Agent/Subagent2/Subagent3:         session_ended: 
+Agent/Subagent2:           tool_result: I successfully said nested hello
+Agent/Subagent2:   assistant_responded: 🛠️ complete-task I successfully created another subagent
+Agent/Subagent2:           tool_called: 🛠️ complete-task I successfully created another subagent
+Agent/Subagent2:           tool_result: I successfully created another subagent
+Agent/Subagent2: user_prompt_requested: 
+Agent/Subagent2:         session_ended: 
 Agent:           tool_result: I successfully created another subagent
 Agent:   assistant_responded: 🛠️ complete-task I successfully created a subagent
 Agent:           tool_called: 🛠️ complete-task I successfully created a subagent

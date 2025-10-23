@@ -37,8 +37,6 @@ def create_all_tools_for_test():
 
     subagent_context = SubagentContext(
         create_agent,
-        create_subagent_display,
-        create_subagent_input,
         0,
         "Agent"
     )

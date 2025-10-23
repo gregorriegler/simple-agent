@@ -62,8 +62,6 @@ def main():
         prompt = load_agent_prompt('orchestrator')
         subagent_context = SubagentContext(
             create_agent,
-            lambda agent_id, indent: None,
-            lambda indent: Input(DummyUserInput()),
             0,
             "Agent"
         )
@@ -155,8 +153,6 @@ def main():
 
     subagent_context = SubagentContext(
         create_agent,
-        create_subagent_display,
-        create_subagent_input,
         indent_level,
         agent_id
     )

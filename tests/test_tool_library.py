@@ -36,8 +36,6 @@ class ToolLibraryStub(AllTools):
 
         subagent_context = SubagentContext(
             create_agent,
-            create_subagent_display,
-            create_subagent_input,
             1,
             "Agent"
         )

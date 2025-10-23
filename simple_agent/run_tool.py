@@ -15,8 +15,6 @@ if __name__ == "__main__":
 
     subagent_context = SubagentContext(
         None,
-        create_subagent_display,
-        create_subagent_input,
         0,
         "Tool"
     )
