@@ -17,7 +17,7 @@ def create_all_tools_for_test():
     from simple_agent.infrastructure.system_prompt.agent_definition import (
         load_agent_prompt
     )
-    from simple_agent.application.subagent_context import SubagentContext
+    from simple_agent.application.create_agent_protocol import SubagentContext
     from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
     from simple_agent.infrastructure.file_system_agent_type_discovery import FileSystemAgentTypeDiscovery
 

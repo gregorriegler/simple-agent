@@ -1,6 +1,6 @@
 import re
 
-from simple_agent.application.subagent_context import SubagentContext
+from simple_agent.application.create_agent_protocol import SubagentContext
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
 from .bash_tool import BashTool
 from .cat_tool import CatTool

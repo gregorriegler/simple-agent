@@ -21,7 +21,7 @@ from simple_agent.application.input import Input
 from simple_agent.application.session import run_session, SessionArgs
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.user_input import DummyUserInput
-from simple_agent.application.subagent_context import SubagentContext
+from simple_agent.application.create_agent_protocol import SubagentContext
 
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.claude.claude_config import load_claude_config

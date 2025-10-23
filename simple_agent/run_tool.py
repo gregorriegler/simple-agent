@@ -1,16 +1,12 @@
 #!/usr/bin/env python
 import sys
 from simple_agent.tools import AllTools
-from simple_agent.application.subagent_context import SubagentContext
+from simple_agent.application.create_agent_protocol import SubagentContext
 
 if __name__ == "__main__":
     command = ' '.join(sys.argv[1:])
 
-    subagent_context = SubagentContext(
-        None,
-        0,
-        "Tool"
-    )
+    subagent_context = SubagentContext(None, 0, "Tool")
 
     tools = AllTools(subagent_context=subagent_context)
     try:
