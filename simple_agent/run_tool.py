@@ -12,7 +12,7 @@ if __name__ == "__main__":
         "Tool"
     )
 
-    tools = AllTools(subagent_context)
+    tools = AllTools(subagent_context=subagent_context)
     try:
         result = tools.parse_message_and_tools(f"🛠️ {command}")
         if not result.tools:

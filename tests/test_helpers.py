@@ -41,7 +41,7 @@ def create_all_tools_for_test():
         "Agent"
     )
 
-    return AllTools(subagent_context)
+    return AllTools(subagent_context=subagent_context)
 
 
 def create_temp_file(tmp_path, filename, contents):

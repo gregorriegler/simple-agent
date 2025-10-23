@@ -30,9 +30,7 @@ from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
 from simple_agent.infrastructure.stdio import StdIO
-from simple_agent.infrastructure.system_prompt.agent_definition import (
-    load_agent_prompt
-)
+from simple_agent.infrastructure.system_prompt.agent_definition import load_agent_prompt
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
@@ -133,7 +131,7 @@ def main():
         agent_id
     )
 
-    tools = AllTools(subagent_context, prompt.tool_keys)
+    tools = AllTools(prompt.tool_keys, subagent_context)
 
     tools_documentation = generate_tools_documentation(tools.tools)
     system_prompt = prompt.render(tools_documentation)
@@ -150,13 +148,14 @@ def main():
     )
 
     display.exit()
+    return None
 
 
 def print_system_prompt_command():
     from simple_agent.tools.all_tools import AllTools
     from simple_agent.tools.subagent_context import SubagentContext
     create_agent = AgentFactory(
-        lambda system_prompt, messages: '',
+        lambda sp, messages: '',
         SimpleEventBus(),
         lambda agent_id, indent: DummyDisplay(),
         lambda indent: Input(DummyUserInput()),
@@ -169,7 +168,7 @@ def print_system_prompt_command():
         0,
         "Agent"
     )
-    tool_library = AllTools(subagent_context, prompt.tool_keys)
+    tool_library = AllTools(prompt.tool_keys, subagent_context)
     tools_documentation = generate_tools_documentation(tool_library.tools)
     system_prompt = prompt.render(tools_documentation)
     print(system_prompt)

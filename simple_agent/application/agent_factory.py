@@ -57,10 +57,7 @@ class AgentFactory(CreateAgent):
             agent_id
         )
 
-        subagent_tools = AllTools(
-            subagent_context,
-            prompt.tool_keys
-        )
+        subagent_tools = AllTools(prompt.tool_keys, subagent_context)
         from simple_agent.tools.tool_documentation import generate_tools_documentation
 
         tools_documentation = generate_tools_documentation(subagent_tools.tools)

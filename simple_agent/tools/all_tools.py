@@ -15,8 +15,8 @@ from .write_todos_tool import WriteTodosTool
 class AllTools(ToolLibrary):
     def __init__(
         self,
-        subagent_context: SubagentContext | None = None,
-        tool_keys: list[str] | None = None
+        tool_keys: list[str] | None = None,
+        subagent_context: SubagentContext | None = None
     ):
         self.subagent_context = subagent_context
         self.tool_keys = tool_keys
@@ -28,7 +28,9 @@ class AllTools(ToolLibrary):
 
     def _create_static_tools(self):
         tool_map = {
-            'write_todos': lambda: WriteTodosTool(self.subagent_context.agent_id) if self.subagent_context else WriteTodosTool("Agent"),
+            'write_todos': lambda: WriteTodosTool(
+                self.subagent_context.agent_id
+                ) if self.subagent_context else WriteTodosTool("Agent"),
             'ls': lambda: LsTool(),
             'cat': lambda: CatTool(),
             'create_file': lambda: CreateFileTool(),

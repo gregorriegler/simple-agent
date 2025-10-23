@@ -40,7 +40,7 @@ class ToolLibraryStub(AllTools):
             "Agent"
         )
 
-        super().__init__(subagent_context)
+        super().__init__(subagent_context=subagent_context)
         self.interrupts = interrupts or []
         self.counter = 0
 
