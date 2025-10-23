@@ -144,7 +144,6 @@ def main():
     prompt = load_agent_prompt('orchestrator')
 
     tools = AllTools(
-        llm,
         indent_level,
         agent_id,
         event_bus,

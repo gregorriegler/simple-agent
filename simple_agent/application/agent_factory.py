@@ -47,7 +47,6 @@ class AgentFactory(CreateAgent):
         agent_id = f"{parent_agent_id}/Subagent{indent_level}"
 
         subagent_tools = AllTools(
-            self.llm,
             indent_level,
             agent_id,
             self.event_bus,

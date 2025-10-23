@@ -19,7 +19,6 @@ from .write_todos_tool import WriteTodosTool
 class AllTools(ToolLibrary):
     def __init__(
         self,
-        llm: LLM | None = None,
         indent_level=0,
         agent_id: str = "Agent",
         event_bus: EventBus | None = None,
@@ -30,7 +29,6 @@ class AllTools(ToolLibrary):
     ):
         from simple_agent.application.event_bus import SimpleEventBus
 
-        self.llm: LLM = llm if llm is not None else (lambda system_prompt, messages: '')
         self.indent_level = indent_level
         self.agent_id = agent_id
         self.event_bus: EventBus = event_bus if event_bus is not None else SimpleEventBus()
