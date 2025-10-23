@@ -100,7 +100,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     run_session(
         False,
         "Agent",
-        system_prompt_stub,
+        "Test system prompt",
         user_input,
         llm_stub,
         test_tool_library,
@@ -132,7 +132,3 @@ def create_llm_stub(answer):
         return answer
 
     return llm_answer
-
-
-def system_prompt_stub():
-    return "Test system prompt"

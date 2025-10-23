@@ -5,6 +5,9 @@ from simple_agent.tools import AllTools
 from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
+from simple_agent.infrastructure.system_prompt.agent_definition import (
+    load_agent_prompt
+)
 
 
 class ToolLibraryStub(AllTools):
@@ -26,6 +29,7 @@ class ToolLibraryStub(AllTools):
             actual_event_bus,
             create_subagent_display,
             create_subagent_input,
+            load_agent_prompt,
             NoOpSessionStorage()
         )
 

@@ -12,7 +12,7 @@ class Agent:
     def __init__(
         self,
         agent_id: str,
-        system_prompt,
+        system_prompt: str,
         tools: ToolLibrary,
         llm: LLM,
         user_input: Input,
@@ -70,8 +70,7 @@ class Agent:
             self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
 
     def llm_responds(self, context):
-        system_prompt = self.system_prompt()
-        answer = self.llm(system_prompt, context.to_list())
+        answer = self.llm(self.system_prompt, context.to_list())
         context.assistant_says(answer)
         self.event_bus.publish(AssistantRespondedEvent(self.agent_id, answer))
         return self.tools.parse_message_and_tools(answer)

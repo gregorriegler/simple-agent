@@ -10,8 +10,8 @@ Agent that manages chat sessions with Claude AI, integrates tool execution, and 
 ### [`ToolLibrary`](tools/tool_library.py:13)
 Central registry and execution engine for all available tools, combining static tools with dynamically discovered tools
 
-### [`SystemPromptGenerator`](system_prompt_generator.py:3)
-Dynamically generates system prompts for Claude AI by discovering and documenting available tools.
+### [`agent_definition.py`](simple_agent/infrastructure/system_prompt/agent_definition.py:1)
+Generates system prompts from agent definition files and exposes tool metadata for the application pipeline.
 
 ## Installation and Usage
 
