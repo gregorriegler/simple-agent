@@ -37,7 +37,8 @@ from simple_agent.infrastructure.system_prompt.agent_definition import load_agen
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
-from simple_agent.tools.tool_documentation import generate_tools_documentation
+from simple_agent.application.tool_documentation import generate_tools_documentation
+from simple_agent.infrastructure.file_system_agent_type_discovery import FileSystemAgentTypeDiscovery
 
 
 def main():
@@ -117,6 +118,7 @@ def main():
     event_bus.subscribe(SessionEndedEvent, display_event_handler.handle_session_ended)
 
     tool_library_factory = AllToolsFactory()
+    agent_type_discovery = FileSystemAgentTypeDiscovery()
 
     create_agent = AgentFactory(
         llm,
@@ -125,7 +127,8 @@ def main():
         create_subagent_input,
         load_agent_prompt,
         session_storage,
-        tool_library_factory
+        tool_library_factory,
+        agent_type_discovery
     )
 
     prompt = load_agent_prompt('orchestrator')
@@ -138,7 +141,7 @@ def main():
 
     tools = tool_library_factory.create(prompt.tool_keys, subagent_context)
 
-    tools_documentation = generate_tools_documentation(tools.tools)
+    tools_documentation = generate_tools_documentation(tools.tools, agent_type_discovery)
     system_prompt = prompt.render(tools_documentation)
 
     run_session(
@@ -158,6 +161,7 @@ def main():
 
 def print_system_prompt_command():
     tool_library_factory = AllToolsFactory()
+    agent_type_discovery = FileSystemAgentTypeDiscovery()
     create_agent = AgentFactory(
         lambda system_prompt, messages: '',
         SimpleEventBus(),
@@ -165,7 +169,8 @@ def print_system_prompt_command():
         lambda indent: Input(DummyUserInput()),
         load_agent_prompt,
         NoOpSessionStorage(),
-        tool_library_factory
+        tool_library_factory,
+        agent_type_discovery
     )
     prompt = load_agent_prompt('orchestrator')
     subagent_context = SubagentContext(
@@ -174,7 +179,7 @@ def print_system_prompt_command():
         "Agent"
     )
     tool_library = tool_library_factory.create(prompt.tool_keys, subagent_context)
-    tools_documentation = generate_tools_documentation(tool_library.tools)
+    tools_documentation = generate_tools_documentation(tool_library.tools, agent_type_discovery)
     system_prompt = prompt.render(tools_documentation)
     print(system_prompt)
     return

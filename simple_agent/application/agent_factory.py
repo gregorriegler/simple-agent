@@ -6,6 +6,7 @@ from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLM
 from simple_agent.application.system_prompt import AgentPrompt
+from simple_agent.application.tool_documentation import AgentTypeDiscovery, generate_tools_documentation
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 
 
@@ -32,7 +33,8 @@ class AgentFactory(CreateAgent):
         create_subagent_input: Callable[[int], Input],
         load_agent_prompt: Callable[[str], AgentPrompt],
         session_storage,
-        tool_library_factory: ToolLibraryFactory
+        tool_library_factory: ToolLibraryFactory,
+        agent_type_discovery: AgentTypeDiscovery
     ):
         self.llm = llm
         self.event_bus = event_bus
@@ -41,6 +43,7 @@ class AgentFactory(CreateAgent):
         self.load_agent_prompt = load_agent_prompt
         self.session_storage = session_storage
         self.tool_library_factory = tool_library_factory
+        self.agent_type_discovery = agent_type_discovery
 
     def __call__(
         self,
@@ -50,7 +53,6 @@ class AgentFactory(CreateAgent):
         user_input: Input
     ) -> Agent:
         from simple_agent.application.subagent_context import SubagentContext
-        from simple_agent.tools.tool_documentation import generate_tools_documentation
 
         agent_prompt = self.load_agent_prompt(agent_type)
         agent_id = f"{parent_agent_id}/Subagent{indent_level + 1}"
@@ -62,7 +64,7 @@ class AgentFactory(CreateAgent):
         )
 
         subagent_tools = self.tool_library_factory.create(agent_prompt.tool_keys, subagent_context)
-        tools_documentation = generate_tools_documentation(subagent_tools.tools)
+        tools_documentation = generate_tools_documentation(subagent_tools.tools, self.agent_type_discovery)
         system_prompt = agent_prompt.render(tools_documentation)
 
         return Agent(

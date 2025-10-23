@@ -1,16 +1,20 @@
-import glob
-import os
+from typing import Protocol
 
 
-def generate_tools_documentation(tools):
+class AgentTypeDiscovery(Protocol):
+    def discover_agent_types(self) -> list[str]:
+        ...
+
+
+def generate_tools_documentation(tools, agent_type_discovery: AgentTypeDiscovery):
     tools_lines = []
     for tool in tools:
-        tool_doc = _generate_tool_documentation(tool)
+        tool_doc = _generate_tool_documentation(tool, agent_type_discovery)
         tools_lines.append(tool_doc)
     return "\n\n".join(tools_lines)
 
 
-def _generate_tool_documentation(tool):
+def _generate_tool_documentation(tool, agent_type_discovery: AgentTypeDiscovery):
     usage_info = tool.get_usage_info()
     lines = usage_info.split('\n')
     if not lines:
@@ -49,7 +53,7 @@ def _generate_tool_documentation(tool):
     remaining_lines = usage_info.split('\n')[2:]
 
     if tool_name == 'subagent':
-        agent_types = _discover_agent_types()
+        agent_types = agent_type_discovery.discover_agent_types()
         if agent_types:
             agent_types_list = ', '.join(f"'{t}'" for t in agent_types)
             injected_lines = []
@@ -66,15 +70,3 @@ def _generate_tool_documentation(tool):
         doc_lines.extend(remaining_lines)
 
     return "\n".join(doc_lines)
-
-
-def _discover_agent_types() -> list[str]:
-    simple_agent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    pattern = os.path.join(simple_agent_dir, '*.agent.md')
-    agent_files = glob.glob(pattern)
-    agent_types = []
-    for filepath in agent_files:
-        basename = os.path.basename(filepath)
-        agent_type = basename.replace('.agent.md', '')
-        agent_types.append(agent_type)
-    return sorted(agent_types)

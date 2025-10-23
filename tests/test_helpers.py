@@ -19,6 +19,7 @@ def create_all_tools_for_test():
     )
     from simple_agent.application.subagent_context import SubagentContext
     from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
+    from simple_agent.infrastructure.file_system_agent_type_discovery import FileSystemAgentTypeDiscovery
 
     io = StdIO()
     create_subagent_display = lambda agent_id, indent: ConsoleSubagentDisplay(indent, agent_id, io, None)
@@ -28,6 +29,7 @@ def create_all_tools_for_test():
     event_bus = SimpleEventBus()
     llm = lambda system_prompt, messages: ''
     tool_library_factory = AllToolsFactory()
+    agent_type_discovery = FileSystemAgentTypeDiscovery()
     create_agent = AgentFactory(
         llm,
         event_bus,
@@ -35,7 +37,8 @@ def create_all_tools_for_test():
         create_subagent_input,
         load_agent_prompt,
         NoOpSessionStorage(),
-        tool_library_factory
+        tool_library_factory,
+        agent_type_discovery
     )
 
     subagent_context = SubagentContext(
