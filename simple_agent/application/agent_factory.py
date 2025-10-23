@@ -1,6 +1,7 @@
-from typing import Callable, Any, Protocol
+from typing import Callable, Protocol
 
 from simple_agent.application.agent import Agent
+from simple_agent.application.display import Display
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLM
@@ -17,7 +18,7 @@ class CreateAgent(Protocol):
     ) -> Agent:
         ...
 
-    def create_subagent_display(self, agent_id: str, indent_level: int) -> Any:
+    def create_subagent_display(self, agent_id: str, indent_level: int) -> Display:
         ...
 
     def create_subagent_input(self, indent_level: int) -> Input:
@@ -29,7 +30,7 @@ class AgentFactory(CreateAgent):
         self,
         llm: LLM,
         event_bus: EventBus,
-        create_subagent_display: Callable[[str, int], Any],
+        create_subagent_display: Callable[[str, int], Display],
         create_subagent_input: Callable[[int], Input],
         load_agent_prompt: Callable[[str], AgentPrompt],
         session_storage
