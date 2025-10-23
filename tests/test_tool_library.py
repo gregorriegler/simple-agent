@@ -2,7 +2,7 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
 from simple_agent.tools import AllTools
-from simple_agent.application.create_agent_protocol import SubagentContext
+from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
@@ -42,6 +42,8 @@ class ToolLibraryStub(AllTools):
 
         subagent_context = SubagentContext(
             create_agent,
+            create_subagent_display,
+            create_subagent_input,
             1,
             "Agent"
         )

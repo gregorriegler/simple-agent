@@ -21,7 +21,7 @@ from simple_agent.application.input import Input
 from simple_agent.application.session import run_session, SessionArgs
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.user_input import DummyUserInput
-from simple_agent.application.create_agent_protocol import SubagentContext
+from simple_agent.application.subagent_context import SubagentContext
 
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.claude.claude_config import load_claude_config
@@ -135,6 +135,8 @@ def main():
 
     subagent_context = SubagentContext(
         create_agent,
+        create_subagent_display,
+        create_subagent_input,
         indent_level,
         agent_id
     )
@@ -175,6 +177,8 @@ def print_system_prompt_command():
     prompt = load_agent_prompt('orchestrator')
     subagent_context = SubagentContext(
         create_agent,
+        lambda agent_id, indent: DummyDisplay(),
+        lambda indent: Input(DummyUserInput()),
         0,
         "Agent"
     )

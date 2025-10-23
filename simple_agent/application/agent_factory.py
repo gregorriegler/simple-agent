@@ -1,7 +1,7 @@
 from typing import Callable
 
 from simple_agent.application.agent import Agent
-from simple_agent.application.create_agent_protocol import AgentFactory as AgentFactoryProtocol, SubagentContext
+from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.display import Display
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
@@ -11,7 +11,7 @@ from simple_agent.application.tool_documentation import AgentTypeDiscovery, gene
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 
 
-class AgentFactory(AgentFactoryProtocol):
+class AgentFactory:
     def __init__(
         self,
         llm: LLM,
@@ -44,6 +44,8 @@ class AgentFactory(AgentFactoryProtocol):
 
         subagent_context = SubagentContext(
             self,
+            self.create_subagent_display,
+            self.create_subagent_input,
             indent_level + 1,
             agent_id
         )
