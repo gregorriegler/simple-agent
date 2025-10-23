@@ -146,7 +146,6 @@ def main():
     tools = AllTools(
         indent_level,
         agent_id,
-        event_bus,
         create_subagent_display,
         create_subagent_input,
         create_agent,

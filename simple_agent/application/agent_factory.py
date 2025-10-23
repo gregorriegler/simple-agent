@@ -49,7 +49,6 @@ class AgentFactory(CreateAgent):
         subagent_tools = AllTools(
             indent_level,
             agent_id,
-            self.event_bus,
             self.create_subagent_display,
             self.create_subagent_input,
             self,

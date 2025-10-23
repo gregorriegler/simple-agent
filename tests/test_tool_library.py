@@ -34,7 +34,6 @@ class ToolLibraryStub(AllTools):
         )
 
         super().__init__(
-            event_bus=actual_event_bus,
             create_subagent_display=create_subagent_display,
             create_subagent_input=create_subagent_input,
             create_agent=create_agent

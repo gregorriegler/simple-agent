@@ -2,9 +2,7 @@ import re
 from typing import Callable, Any
 
 from simple_agent.application.agent_factory import CreateAgent
-from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
-from simple_agent.application.llm import LLM
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
 from .bash_tool import BashTool
 from .cat_tool import CatTool
@@ -21,17 +19,13 @@ class AllTools(ToolLibrary):
         self,
         indent_level=0,
         agent_id: str = "Agent",
-        event_bus: EventBus | None = None,
         create_subagent_display: Callable[[str, int], Any] | None = None,
         create_subagent_input: Callable[[int], Input] | None = None,
         create_agent: CreateAgent | None = None,
         tool_keys: list[str] | None = None
     ):
-        from simple_agent.application.event_bus import SimpleEventBus
-
         self.indent_level = indent_level
         self.agent_id = agent_id
-        self.event_bus: EventBus = event_bus if event_bus is not None else SimpleEventBus()
         self.create_subagent_display = create_subagent_display
         self.create_subagent_input = create_subagent_input
 
