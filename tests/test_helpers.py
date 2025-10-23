@@ -17,6 +17,7 @@ def create_all_tools_for_test():
     from simple_agent.infrastructure.system_prompt.agent_definition import (
         load_agent_prompt
     )
+    from simple_agent.tools.subagent_context import SubagentContext
 
     io = StdIO()
     create_subagent_display = lambda agent_id, indent: ConsoleSubagentDisplay(indent, agent_id, io, None)
@@ -34,11 +35,15 @@ def create_all_tools_for_test():
         NoOpSessionStorage()
     )
 
-    return AllTools(
-        create_subagent_display=create_subagent_display,
-        create_subagent_input=create_subagent_input,
-        create_agent=create_agent
+    subagent_context = SubagentContext(
+        create_agent,
+        create_subagent_display,
+        create_subagent_input,
+        0,
+        "Agent"
     )
+
+    return AllTools(subagent_context)
 
 
 def create_temp_file(tmp_path, filename, contents):

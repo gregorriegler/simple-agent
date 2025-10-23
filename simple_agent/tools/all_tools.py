@@ -1,8 +1,5 @@
 import re
-from typing import Callable, Any
 
-from simple_agent.application.agent_factory import CreateAgent
-from simple_agent.application.input import Input
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
 from .bash_tool import BashTool
 from .cat_tool import CatTool
@@ -10,6 +7,7 @@ from .complete_task_tool import CompleteTaskTool
 from .create_file_tool import CreateFileTool
 from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
+from .subagent_context import SubagentContext
 from .subagent_tool import SubagentTool
 from .write_todos_tool import WriteTodosTool
 
@@ -17,18 +15,10 @@ from .write_todos_tool import WriteTodosTool
 class AllTools(ToolLibrary):
     def __init__(
         self,
-        indent_level=0,
-        agent_id: str = "Agent",
-        create_subagent_display: Callable[[str, int], Any] | None = None,
-        create_subagent_input: Callable[[int], Input] | None = None,
-        create_agent: CreateAgent | None = None,
+        subagent_context: SubagentContext | None = None,
         tool_keys: list[str] | None = None
     ):
-        self.indent_level = indent_level
-        self.agent_id = agent_id
-        self.create_subagent_display = create_subagent_display
-        self.create_subagent_input = create_subagent_input
-        self.create_agent = create_agent
+        self.subagent_context = subagent_context
         self.tool_keys = tool_keys
 
         static_tools = self._create_static_tools()
@@ -38,20 +28,14 @@ class AllTools(ToolLibrary):
 
     def _create_static_tools(self):
         tool_map = {
-            'write_todos': lambda: WriteTodosTool(self.agent_id),
+            'write_todos': lambda: WriteTodosTool(self.subagent_context.agent_id) if self.subagent_context else WriteTodosTool("Agent"),
             'ls': lambda: LsTool(),
             'cat': lambda: CatTool(),
             'create_file': lambda: CreateFileTool(),
             'edit_file': lambda: EditFileTool(),
             'complete_task': lambda: CompleteTaskTool(),
             'bash': lambda: BashTool(),
-            'subagent': lambda: SubagentTool(
-                self.create_agent,
-                self.create_subagent_display,
-                self.indent_level + 1,
-                self.agent_id,
-                self.create_subagent_input
-            ) if self.create_agent else None
+            'subagent': lambda: SubagentTool(self.subagent_context) if self.subagent_context else None
         }
 
         if not self.tool_keys:

@@ -2,6 +2,7 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
 from simple_agent.tools import AllTools
+from simple_agent.tools.subagent_context import SubagentContext
 from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
@@ -33,11 +34,15 @@ class ToolLibraryStub(AllTools):
             NoOpSessionStorage()
         )
 
-        super().__init__(
-            create_subagent_display=create_subagent_display,
-            create_subagent_input=create_subagent_input,
-            create_agent=create_agent
+        subagent_context = SubagentContext(
+            create_agent,
+            create_subagent_display,
+            create_subagent_input,
+            1,
+            "Agent"
         )
+
+        super().__init__(subagent_context)
         self.interrupts = interrupts or []
         self.counter = 0
 

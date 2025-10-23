@@ -42,6 +42,7 @@ def main():
 
     if args.show_system_prompt:
         from simple_agent.tools.all_tools import AllTools
+        from simple_agent.tools.subagent_context import SubagentContext
         from simple_agent.application.user_input import UserInput
 
         class DummyUserInput(UserInput):
@@ -59,7 +60,14 @@ def main():
             NoOpSessionStorage()
         )
         prompt = load_agent_prompt('orchestrator')
-        tool_library = AllTools(create_agent=create_agent, tool_keys=prompt.tool_keys)
+        subagent_context = SubagentContext(
+            create_agent,
+            lambda agent_id, indent: None,
+            lambda indent: Input(DummyUserInput()),
+            0,
+            "Agent"
+        )
+        tool_library = AllTools(subagent_context, prompt.tool_keys)
         tools_documentation = generate_tools_documentation(tool_library.tools)
         system_prompt = prompt.render(tools_documentation)
         print(system_prompt)
@@ -143,14 +151,17 @@ def main():
 
     prompt = load_agent_prompt('orchestrator')
 
-    tools = AllTools(
-        indent_level,
-        agent_id,
+    from simple_agent.tools.subagent_context import SubagentContext
+
+    subagent_context = SubagentContext(
+        create_agent,
         create_subagent_display,
         create_subagent_input,
-        create_agent,
-        prompt.tool_keys
+        indent_level,
+        agent_id
     )
+
+    tools = AllTools(subagent_context, prompt.tool_keys)
 
     tools_documentation = generate_tools_documentation(tools.tools)
     system_prompt = prompt.render(tools_documentation)

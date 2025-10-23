@@ -1,7 +1,7 @@
 from simple_agent.application.tool_library import ContinueResult
-from simple_agent.application.agent_factory import CreateAgent
 from .argument_parser import split_arguments
 from .base_tool import BaseTool
+from .subagent_context import SubagentContext
 
 
 class SubagentTool(BaseTool):
@@ -26,20 +26,9 @@ class SubagentTool(BaseTool):
         "🛠️ subagent default Create a simple HTML page with a form"
     ]
 
-    def __init__(
-        self,
-        create_agent: CreateAgent,
-        create_display,
-        indent_level: int,
-        agent_id: str,
-        create_user_input
-    ):
+    def __init__(self, context: SubagentContext):
         super().__init__()
-        self.create_agent = create_agent
-        self.create_display = create_display
-        self.indent_level = indent_level
-        self.agent_id = agent_id
-        self.create_user_input = create_user_input
+        self.context = context
 
     def execute(self, args):
         if not args or not args.strip():
@@ -57,15 +46,15 @@ class SubagentTool(BaseTool):
         task_description = ' '.join(parts[1:])
 
         try:
-            user_input = self.create_user_input(self.indent_level)
+            user_input = self.context.create_input(self.context.indent_level)
             user_input.stack(task_description)
-            subagent = self.create_agent(
+            subagent = self.context.create_agent(
                 agenttype,
-                self.agent_id,
-                self.indent_level,
+                self.context.agent_id,
+                self.context.indent_level,
                 user_input
             )
-            self.create_display(subagent.agent_id, self.indent_level)
+            self.context.create_display(subagent.agent_id, self.context.indent_level)
 
             result = subagent.start()
 

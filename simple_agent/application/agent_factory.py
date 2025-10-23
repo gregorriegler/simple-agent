@@ -43,15 +43,20 @@ class AgentFactory(CreateAgent):
         user_input: Input
     ) -> Agent:
         from simple_agent.tools.all_tools import AllTools
+        from simple_agent.tools.subagent_context import SubagentContext
         prompt = self.load_agent_prompt(agent_type)
         agent_id = f"{parent_agent_id}/Subagent{indent_level}"
 
-        subagent_tools = AllTools(
-            indent_level,
-            agent_id,
+        subagent_context = SubagentContext(
+            self,
             self.create_subagent_display,
             self.create_subagent_input,
-            self,
+            indent_level + 1,
+            agent_id
+        )
+
+        subagent_tools = AllTools(
+            subagent_context,
             prompt.tool_keys
         )
         from simple_agent.tools.tool_documentation import generate_tools_documentation
