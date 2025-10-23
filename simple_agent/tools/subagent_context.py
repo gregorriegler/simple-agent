@@ -4,7 +4,7 @@ from simple_agent.application.agent_factory import CreateAgent
 class SubagentContext:
     def __init__(
         self,
-        create_agent: CreateAgent | None,
+        create_agent: CreateAgent,
         indent_level: int,
         agent_id: str
     ):
@@ -14,8 +14,8 @@ class SubagentContext:
 
     @property
     def create_display(self):
-        return self.create_agent.create_subagent_display if self.create_agent else None
+        return self.create_agent.create_subagent_display
 
     @property
     def create_input(self):
-        return self.create_agent.create_subagent_input if self.create_agent else None
+        return self.create_agent.create_subagent_input
