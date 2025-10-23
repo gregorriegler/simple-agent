@@ -29,3 +29,24 @@ class Display(Protocol):
 
     def exit(self) -> None:
         ...
+
+
+class DummyDisplay:
+    def assistant_says(self, message) -> None:
+        pass
+    def user_says(self, message) -> None:
+        pass
+    def tool_call(self, tool) -> None:
+        pass
+    def tool_result(self, result) -> None:
+        pass
+    def continue_session(self) -> None:
+        pass
+    def start_new_session(self) -> None:
+        pass
+    def waiting_for_input(self) -> None:
+        pass
+    def interrupted(self) -> None:
+        pass
+    def exit(self) -> None:
+        pass

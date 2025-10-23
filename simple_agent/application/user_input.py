@@ -11,3 +11,12 @@ class UserInput(Protocol):
 
     def close(self) -> None:
         ...
+
+
+class DummyUserInput(UserInput):
+    def read(self) -> str:
+        return ""
+    def escape_requested(self) -> bool:
+        return False
+    def close(self) -> None:
+        pass

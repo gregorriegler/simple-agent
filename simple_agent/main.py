@@ -3,6 +3,7 @@
 import argparse
 
 from simple_agent.application.agent_factory import AgentFactory
+from simple_agent.application.display import DummyDisplay
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
@@ -18,6 +19,7 @@ from simple_agent.application.events import (
 from simple_agent.application.input import Input
 from simple_agent.application.session import run_session, SessionArgs
 from simple_agent.application.session_storage import NoOpSessionStorage
+from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.claude.claude_config import load_claude_config
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
@@ -28,12 +30,12 @@ from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
 from simple_agent.infrastructure.stdio import StdIO
-from simple_agent.infrastructure.textual.textual_display import TextualDisplay
-from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
-from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
 from simple_agent.infrastructure.system_prompt.agent_definition import (
     load_agent_prompt
 )
+from simple_agent.infrastructure.textual.textual_display import TextualDisplay
+from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
+from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
 from simple_agent.tools.tool_documentation import generate_tools_documentation
 
 
@@ -41,57 +43,7 @@ def main():
     args = parse_args()
 
     if args.show_system_prompt:
-        from simple_agent.tools.all_tools import AllTools
-        from simple_agent.tools.subagent_context import SubagentContext
-        from simple_agent.application.user_input import UserInput
-
-        class DummyUserInput(UserInput):
-            def read(self) -> str:
-                return ""
-            def escape_requested(self) -> bool:
-                return False
-            def close(self) -> None:
-                pass
-
-        class DummyDisplay:
-            def assistant_says(self, message) -> None:
-                pass
-            def user_says(self, message) -> None:
-                pass
-            def tool_call(self, tool) -> None:
-                pass
-            def tool_result(self, result) -> None:
-                pass
-            def continue_session(self) -> None:
-                pass
-            def start_new_session(self) -> None:
-                pass
-            def waiting_for_input(self) -> None:
-                pass
-            def interrupted(self) -> None:
-                pass
-            def exit(self) -> None:
-                pass
-
-        create_agent = AgentFactory(
-            lambda system_prompt, messages: '',
-            SimpleEventBus(),
-            lambda agent_id, indent: DummyDisplay(),
-            lambda indent: Input(DummyUserInput()),
-            load_agent_prompt,
-            NoOpSessionStorage()
-        )
-        prompt = load_agent_prompt('orchestrator')
-        subagent_context = SubagentContext(
-            create_agent,
-            0,
-            "Agent"
-        )
-        tool_library = AllTools(subagent_context, prompt.tool_keys)
-        tools_documentation = generate_tools_documentation(tool_library.tools)
-        system_prompt = prompt.render(tools_documentation)
-        print(system_prompt)
-        return
+        return print_system_prompt_command()
 
     agent_id = "Agent"
     indent_level = 0
@@ -198,6 +150,30 @@ def main():
     )
 
     display.exit()
+
+
+def print_system_prompt_command():
+    from simple_agent.tools.all_tools import AllTools
+    from simple_agent.tools.subagent_context import SubagentContext
+    create_agent = AgentFactory(
+        lambda system_prompt, messages: '',
+        SimpleEventBus(),
+        lambda agent_id, indent: DummyDisplay(),
+        lambda indent: Input(DummyUserInput()),
+        load_agent_prompt,
+        NoOpSessionStorage()
+    )
+    prompt = load_agent_prompt('orchestrator')
+    subagent_context = SubagentContext(
+        create_agent,
+        0,
+        "Agent"
+    )
+    tool_library = AllTools(subagent_context, prompt.tool_keys)
+    tools_documentation = generate_tools_documentation(tool_library.tools)
+    system_prompt = prompt.render(tools_documentation)
+    print(system_prompt)
+    return
 
 
 def parse_args(argv=None) -> SessionArgs:
