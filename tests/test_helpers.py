@@ -41,11 +41,7 @@ def create_all_tools_for_test():
         agent_type_discovery
     )
 
-    subagent_context = SubagentContext(
-        create_agent,
-        0,
-        "Agent"
-    )
+    subagent_context = SubagentContext(create_agent, 0, "Agent")
 
     return AllTools(subagent_context=subagent_context)
 
