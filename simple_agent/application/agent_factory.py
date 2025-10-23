@@ -9,6 +9,9 @@ from simple_agent.application.system_prompt import AgentPrompt
 
 
 class CreateAgent(Protocol):
+    create_subagent_display: Callable[[str, int], Display]
+    create_subagent_input: Callable[[int], Input]
+
     def __call__(
         self,
         agent_type: str,
@@ -16,12 +19,6 @@ class CreateAgent(Protocol):
         indent_level: int,
         user_input: Input
     ) -> Agent:
-        ...
-
-    def create_subagent_display(self, agent_id: str, indent_level: int) -> Display:
-        ...
-
-    def create_subagent_input(self, indent_level: int) -> Input:
         ...
 
 
