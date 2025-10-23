@@ -49,7 +49,7 @@ class AgentFactory(CreateAgent):
         indent_level: int,
         user_input: Input
     ) -> Agent:
-        from simple_agent.tools.subagent_context import SubagentContext
+        from simple_agent.application.subagent_context import SubagentContext
         from simple_agent.tools.tool_documentation import generate_tools_documentation
 
         agent_prompt = self.load_agent_prompt(agent_type)

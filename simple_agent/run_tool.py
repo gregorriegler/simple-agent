@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 from simple_agent.tools import AllTools
-from simple_agent.tools.subagent_context import SubagentContext
+from simple_agent.application.subagent_context import SubagentContext
 
 if __name__ == "__main__":
     command = ' '.join(sys.argv[1:])

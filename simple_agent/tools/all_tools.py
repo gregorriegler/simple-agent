@@ -1,5 +1,6 @@
 import re
 
+from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
 from .bash_tool import BashTool
 from .cat_tool import CatTool
@@ -7,7 +8,6 @@ from .complete_task_tool import CompleteTaskTool
 from .create_file_tool import CreateFileTool
 from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
-from .subagent_context import SubagentContext
 from .subagent_tool import SubagentTool
 from .write_todos_tool import WriteTodosTool
 
@@ -32,7 +32,7 @@ class AllTools(ToolLibrary):
         tool_map = {
             'write_todos': lambda: WriteTodosTool(
                 self.subagent_context.agent_id
-                ) if self.subagent_context else WriteTodosTool("Agent"),
+            ) if self.subagent_context else WriteTodosTool("Agent"),
             'ls': lambda: LsTool(),
             'cat': lambda: CatTool(),
             'create_file': lambda: CreateFileTool(),

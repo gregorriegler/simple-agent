@@ -21,6 +21,8 @@ from simple_agent.application.input import Input
 from simple_agent.application.session import run_session, SessionArgs
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.user_input import DummyUserInput
+from simple_agent.application.subagent_context import SubagentContext
+
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.claude.claude_config import load_claude_config
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
@@ -74,6 +76,7 @@ def main():
             subagent_display = TextualSubagentDisplay(display.app, _agent_id, display_event_handler)
             display_event_handler.register_display(_agent_id, subagent_display)
             return subagent_display
+
         create_subagent_display = _create_textual_subagent_display
     else:
         display = ConsoleDisplay(indent_level, agent_id, io)
@@ -82,13 +85,16 @@ def main():
         else:
             console_user_input = ConsoleUserInput(indent_level, display.io)
         user_input = Input(console_user_input)
-        create_subagent_input = lambda indent: Input(NonInteractiveUserInput() if args.non_interactive else ConsoleUserInput(indent, io))
+        create_subagent_input = lambda indent: Input(
+            NonInteractiveUserInput() if args.non_interactive else ConsoleUserInput(indent, io)
+            )
         display_event_handler = DisplayEventHandler(display)
 
         def _create_console_subagent_display(_agent_id, _indent):
             subagent_display = ConsoleSubagentDisplay(_indent, _agent_id, io, display_event_handler)
             display_event_handler.register_display(_agent_id, subagent_display)
             return subagent_display
+
         create_subagent_display = _create_console_subagent_display
 
     if args.start_message:
@@ -100,7 +106,6 @@ def main():
     else:
         claude_config = load_claude_config()
         llm = ClaudeLLM(claude_config)
-
 
     event_bus.subscribe(SessionStartedEvent, display_event_handler.handle_session_started)
     event_bus.subscribe(UserPromptRequestedEvent, display_event_handler.handle_user_prompt_requested)
@@ -124,8 +129,6 @@ def main():
     )
 
     prompt = load_agent_prompt('orchestrator')
-
-    from simple_agent.tools.subagent_context import SubagentContext
 
     subagent_context = SubagentContext(
         create_agent,
@@ -154,8 +157,6 @@ def main():
 
 
 def print_system_prompt_command():
-    from simple_agent.tools.subagent_context import SubagentContext
-
     tool_library_factory = AllToolsFactory()
     create_agent = AgentFactory(
         lambda system_prompt, messages: '',

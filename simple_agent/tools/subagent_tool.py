@@ -1,7 +1,7 @@
 from simple_agent.application.tool_library import ContinueResult
 from .argument_parser import split_arguments
 from .base_tool import BaseTool
-from .subagent_context import SubagentContext
+from simple_agent.application.subagent_context import SubagentContext
 
 
 class SubagentTool(BaseTool):
