@@ -18,6 +18,7 @@ def create_all_tools_for_test():
         load_agent_prompt
     )
     from simple_agent.tools.subagent_context import SubagentContext
+    from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
 
     io = StdIO()
     create_subagent_display = lambda agent_id, indent: ConsoleSubagentDisplay(indent, agent_id, io, None)
@@ -26,13 +27,15 @@ def create_all_tools_for_test():
     from simple_agent.application.session_storage import NoOpSessionStorage
     event_bus = SimpleEventBus()
     llm = lambda system_prompt, messages: ''
+    tool_library_factory = AllToolsFactory()
     create_agent = AgentFactory(
         llm,
         event_bus,
         create_subagent_display,
         create_subagent_input,
         load_agent_prompt,
-        NoOpSessionStorage()
+        NoOpSessionStorage(),
+        tool_library_factory
     )
 
     subagent_context = SubagentContext(

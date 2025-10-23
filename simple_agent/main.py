@@ -6,6 +6,7 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.display import DummyDisplay
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
 from simple_agent.application.events import (
     AssistantSaidEvent,
     SessionEndedEvent,
@@ -110,7 +111,7 @@ def main():
     event_bus.subscribe(SessionInterruptedEvent, display_event_handler.handle_session_interrupted)
     event_bus.subscribe(SessionEndedEvent, display_event_handler.handle_session_ended)
 
-    from simple_agent.tools.all_tools import AllTools
+    tool_library_factory = AllToolsFactory()
 
     create_agent = AgentFactory(
         llm,
@@ -118,7 +119,8 @@ def main():
         create_subagent_display,
         create_subagent_input,
         load_agent_prompt,
-        session_storage
+        session_storage,
+        tool_library_factory
     )
 
     prompt = load_agent_prompt('orchestrator')
@@ -131,7 +133,7 @@ def main():
         agent_id
     )
 
-    tools = AllTools(prompt.tool_keys, subagent_context)
+    tools = tool_library_factory.create(prompt.tool_keys, subagent_context)
 
     tools_documentation = generate_tools_documentation(tools.tools)
     system_prompt = prompt.render(tools_documentation)
@@ -152,15 +154,17 @@ def main():
 
 
 def print_system_prompt_command():
-    from simple_agent.tools.all_tools import AllTools
     from simple_agent.tools.subagent_context import SubagentContext
+
+    tool_library_factory = AllToolsFactory()
     create_agent = AgentFactory(
-        lambda sp, messages: '',
+        lambda system_prompt, messages: '',
         SimpleEventBus(),
         lambda agent_id, indent: DummyDisplay(),
         lambda indent: Input(DummyUserInput()),
         load_agent_prompt,
-        NoOpSessionStorage()
+        NoOpSessionStorage(),
+        tool_library_factory
     )
     prompt = load_agent_prompt('orchestrator')
     subagent_context = SubagentContext(
@@ -168,7 +172,7 @@ def print_system_prompt_command():
         0,
         "Agent"
     )
-    tool_library = AllTools(prompt.tool_keys, subagent_context)
+    tool_library = tool_library_factory.create(prompt.tool_keys, subagent_context)
     tools_documentation = generate_tools_documentation(tool_library.tools)
     system_prompt = prompt.render(tools_documentation)
     print(system_prompt)

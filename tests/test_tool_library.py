@@ -9,6 +9,7 @@ from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.system_prompt.agent_definition import (
     load_agent_prompt
 )
+from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
 
 
 class ToolLibraryStub(AllTools):
@@ -25,13 +26,15 @@ class ToolLibraryStub(AllTools):
 
         from simple_agent.application.session_storage import NoOpSessionStorage
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
+        tool_library_factory = AllToolsFactory()
         create_agent = AgentFactory(
             llm,
             actual_event_bus,
             create_subagent_display,
             create_subagent_input,
             load_agent_prompt,
-            NoOpSessionStorage()
+            NoOpSessionStorage(),
+            tool_library_factory
         )
 
         subagent_context = SubagentContext(
