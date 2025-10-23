@@ -50,11 +50,33 @@ def main():
                 return ""
             def escape_requested(self) -> bool:
                 return False
+            def close(self) -> None:
+                pass
+
+        class DummyDisplay:
+            def assistant_says(self, message) -> None:
+                pass
+            def user_says(self, message) -> None:
+                pass
+            def tool_call(self, tool) -> None:
+                pass
+            def tool_result(self, result) -> None:
+                pass
+            def continue_session(self) -> None:
+                pass
+            def start_new_session(self) -> None:
+                pass
+            def waiting_for_input(self) -> None:
+                pass
+            def interrupted(self) -> None:
+                pass
+            def exit(self) -> None:
+                pass
 
         create_agent = AgentFactory(
             lambda system_prompt, messages: '',
             SimpleEventBus(),
-            lambda agent_id, indent: None,
+            lambda agent_id, indent: DummyDisplay(),
             lambda indent: Input(DummyUserInput()),
             load_agent_prompt,
             NoOpSessionStorage()
@@ -97,10 +119,11 @@ def main():
         create_subagent_input = lambda indent: user_input
         display_event_handler = DisplayEventHandler(display)
 
-        def create_subagent_display(_agent_id, _):
+        def _create_textual_subagent_display(_agent_id, _indent):
             subagent_display = TextualSubagentDisplay(display.app, _agent_id, display_event_handler)
             display_event_handler.register_display(_agent_id, subagent_display)
             return subagent_display
+        create_subagent_display = _create_textual_subagent_display
     else:
         display = ConsoleDisplay(indent_level, agent_id, io)
         if args.non_interactive:
@@ -111,10 +134,11 @@ def main():
         create_subagent_input = lambda indent: Input(NonInteractiveUserInput() if args.non_interactive else ConsoleUserInput(indent, io))
         display_event_handler = DisplayEventHandler(display)
 
-        def create_subagent_display(_agent_id, indent):
-            subagent_display = ConsoleSubagentDisplay(indent, _agent_id, io, display_event_handler)
+        def _create_console_subagent_display(_agent_id, _indent):
+            subagent_display = ConsoleSubagentDisplay(_indent, _agent_id, io, display_event_handler)
             display_event_handler.register_display(_agent_id, subagent_display)
             return subagent_display
+        create_subagent_display = _create_console_subagent_display
 
     if args.start_message:
         user_input.stack(args.start_message)
