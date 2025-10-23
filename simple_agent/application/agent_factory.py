@@ -52,7 +52,7 @@ class AgentFactory(CreateAgent):
         from simple_agent.tools.subagent_context import SubagentContext
         from simple_agent.tools.tool_documentation import generate_tools_documentation
 
-        prompt = self.load_agent_prompt(agent_type)
+        agent_prompt = self.load_agent_prompt(agent_type)
         agent_id = f"{parent_agent_id}/Subagent{indent_level + 1}"
 
         subagent_context = SubagentContext(
@@ -61,9 +61,9 @@ class AgentFactory(CreateAgent):
             agent_id
         )
 
-        subagent_tools = self.tool_library_factory.create(prompt.tool_keys, subagent_context)
+        subagent_tools = self.tool_library_factory.create(agent_prompt.tool_keys, subagent_context)
         tools_documentation = generate_tools_documentation(subagent_tools.tools)
-        system_prompt = prompt.render(tools_documentation)
+        system_prompt = agent_prompt.render(tools_documentation)
 
         return Agent(
             agent_id,
