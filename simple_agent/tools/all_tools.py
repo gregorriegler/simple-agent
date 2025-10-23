@@ -15,9 +15,11 @@ from .write_todos_tool import WriteTodosTool
 class AllTools(ToolLibrary):
     def __init__(
         self,
-        tool_keys: list[str] | None = None,
+        tool_keys: list[str] = None,
         subagent_context: SubagentContext | None = None
     ):
+        if tool_keys is None:
+            self.tool_keys = []
         self.tool_keys = tool_keys
         self.subagent_context = subagent_context
 
