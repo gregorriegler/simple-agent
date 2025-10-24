@@ -1,7 +1,7 @@
 from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, VerticalScroll
-from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible
+from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible, Markdown
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal
 
 
@@ -80,7 +80,8 @@ class TextualApp(App):
 
     def create_agent_container(self, log_id, tool_results_id):
         chat_scroll = VerticalScroll(Static("", id=log_id), id=f"{log_id}-scroll", classes="left-panel-top")
-        secondary_scroll = VerticalScroll(id=f"{log_id}-secondary", classes="left-panel-bottom")
+        todo = Markdown("""## Todo\n- [ ] Review conversation\n- [ ] Plan next steps\n- [ ] Execute tasks""")
+        secondary_scroll = VerticalScroll(todo, id=f"{log_id}-secondary", classes="left-panel-bottom")
         left_panel = Vertical(chat_scroll, secondary_scroll, id="left-panel")
         right_panel = VerticalScroll(id=tool_results_id)
         self._tool_result_collapsibles[tool_results_id] = []
