@@ -27,12 +27,14 @@ def run_session(
     llm,
     tool_library,
     session_storage: SessionStorage,
-    event_bus
+    event_bus,
+    agent_name: str = "Agent"
 ):
     event_bus.publish(SessionStartedEvent(agent_id, continue_session))
 
     agent = Agent(
         agent_id,
+        agent_name,
         system_prompt,
         tool_library,
         llm,

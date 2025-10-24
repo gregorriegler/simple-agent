@@ -12,6 +12,7 @@ class Agent:
     def __init__(
         self,
         agent_id: str,
+        agent_name: str,
         system_prompt: str,
         tools: ToolLibrary,
         llm: LLM,
@@ -20,6 +21,7 @@ class Agent:
         session_storage: SessionStorage
     ):
         self.agent_id = agent_id
+        self.agent_name = agent_name
         self.llm: LLM = llm
         self.system_prompt = system_prompt
         self.tools = tools

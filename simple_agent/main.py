@@ -73,8 +73,8 @@ def main():
         create_subagent_input = lambda indent: user_input
         display_event_handler = DisplayEventHandler(display)
 
-        def _create_textual_subagent_display(_agent_id, _indent):
-            subagent_display = TextualSubagentDisplay(display.app, _agent_id, display_event_handler)
+        def _create_textual_subagent_display(_agent_id, _agent_name, _indent):
+            subagent_display = TextualSubagentDisplay(display.app, _agent_id, _agent_name, display_event_handler)
             display_event_handler.register_display(_agent_id, subagent_display)
             return subagent_display
 
@@ -91,8 +91,8 @@ def main():
             )
         display_event_handler = DisplayEventHandler(display)
 
-        def _create_console_subagent_display(_agent_id, _indent):
-            subagent_display = ConsoleSubagentDisplay(_indent, _agent_id, io, display_event_handler)
+        def _create_console_subagent_display(_agent_id, _agent_name, _indent):
+            subagent_display = ConsoleSubagentDisplay(_indent, _agent_id, _agent_name, io, display_event_handler)
             display_event_handler.register_display(_agent_id, subagent_display)
             return subagent_display
 
@@ -154,7 +154,8 @@ def main():
         llm,
         tools,
         session_storage,
-        event_bus
+        event_bus,
+        prompt.name
     )
 
     display.exit()

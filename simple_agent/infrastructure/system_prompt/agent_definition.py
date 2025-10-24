@@ -15,9 +15,10 @@ def load_agent_prompt(agent_type: str) -> AgentPrompt:
     filename = _system_prompt_filename(agent_type)
     content = _load_agent_definitions_file(filename)
     metadata, template = _parse_front_matter(content)
+    name = metadata.get('name', agent_type.capitalize())
     tool_keys = _read_tool_keys(metadata.get('tools'))
     agents_content = _read_agents_content()
-    return AgentPrompt(template, tool_keys, agents_content)
+    return AgentPrompt(name, template, tool_keys, agents_content)
 
 
 def extract_tool_keys_from_prompt(content: str) -> list[str]:

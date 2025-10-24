@@ -41,6 +41,7 @@ class AgentFactory:
     ) -> Agent:
         agent_prompt = self.load_agent_prompt(agent_type)
         agent_id = f"{parent_agent_id}/Subagent{indent_level + 1}"
+        agent_name = agent_prompt.name
 
         subagent_context = SubagentContext(
             self,
@@ -56,6 +57,7 @@ class AgentFactory:
 
         return Agent(
             agent_id,
+            agent_name,
             system_prompt,
             subagent_tools,
             self.llm,

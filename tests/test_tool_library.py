@@ -17,8 +17,8 @@ class ToolLibraryStub(AllTools):
     def __init__(self, llm, io=None, interrupts=None, event_bus=None, display_event_handler=None):
         actual_io = io if io else StdIO()
 
-        def create_subagent_display(agent_id, indent):
-            subagent_display = ConsoleSubagentDisplay(indent, agent_id, actual_io, display_event_handler)
+        def create_subagent_display(agent_id, agent_name, indent):
+            subagent_display = ConsoleSubagentDisplay(indent, agent_id, agent_name, actual_io, display_event_handler)
             if display_event_handler:
                 display_event_handler.register_display(agent_id, subagent_display)
             return subagent_display

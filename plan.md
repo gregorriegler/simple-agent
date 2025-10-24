@@ -1,5 +1,4 @@
-- left side should wrap
-- analyser reports back path to markdown
+- the tool result shows no linebreaks
 - say should be a part of the agent
 - api key via env var
 - A place to show the tool results in full

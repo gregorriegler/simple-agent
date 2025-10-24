@@ -5,6 +5,7 @@ SystemPrompt = str
 
 @dataclass
 class AgentPrompt:
+    name: str
     template: str
     tool_keys: list[str]
     agents_content: str

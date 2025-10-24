@@ -54,7 +54,7 @@ class SubagentTool(BaseTool):
                 self.context.indent_level,
                 user_input
             )
-            self.context.create_display(subagent.agent_id, self.context.indent_level)
+            self.context.create_display(subagent.agent_id, subagent.agent_name, self.context.indent_level)
 
             result = subagent.start()
 
