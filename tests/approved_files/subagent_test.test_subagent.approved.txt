@@ -3,14 +3,14 @@ Agent:       session_started: False
 Agent:         user_prompted: Create a subagent that says hello
 Agent:   assistant_responded: 🛠️ subagent coding say hello
 Agent:           tool_called: 🛠️ subagent coding say hello
-Agent/Subagent2:         user_prompted: say hello
-Agent/Subagent2:   assistant_responded: hello
+Agent/Coding:         user_prompted: say hello
+Agent/Coding:   assistant_responded: hello
 🛠️ complete-task I successfully said hello
-Agent/Subagent2:        assistant_said: hello
-Agent/Subagent2:           tool_called: 🛠️ complete-task I successfully said hello
-Agent/Subagent2:           tool_result: I successfully said hello
-Agent/Subagent2: user_prompt_requested: 
-Agent/Subagent2:         session_ended: 
+Agent/Coding:        assistant_said: hello
+Agent/Coding:           tool_called: 🛠️ complete-task I successfully said hello
+Agent/Coding:           tool_result: I successfully said hello
+Agent/Coding: user_prompt_requested: 
+Agent/Coding:         session_ended: 
 Agent:           tool_result: I successfully said hello
 Agent:   assistant_responded: hello
 🛠️ complete-task I successfully said hello
