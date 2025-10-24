@@ -36,7 +36,7 @@ class TextualApp(App):
     }
 
     .tool-call {
-        color: $accent;
+        color: $primary;
         text-style: bold;
     }
 
@@ -112,7 +112,7 @@ class TextualApp(App):
 
     def write_tool_call(self, tool_results_id: str, message: str) -> None:
         container = self.query_one(f"#{tool_results_id}", VerticalScroll)
-        container.mount(Static(f"[bold cyan]{message}[/bold cyan]"))
+        container.mount(Static(f"[bold]{message}[/bold]"))
         container.scroll_end(animate=False)
 
     def write_tool_result(self, tool_results_id: str, message: str) -> None:
