@@ -40,8 +40,8 @@ class AgentFactory:
         user_input: Input
     ) -> Agent:
         agent_prompt = self.load_agent_prompt(agent_type)
-        agent_id = f"{parent_agent_id}/Subagent{indent_level + 1}"
         agent_name = agent_prompt.name
+        agent_id = f"{parent_agent_id}/{agent_name}"
 
         subagent_context = SubagentContext(
             self,
