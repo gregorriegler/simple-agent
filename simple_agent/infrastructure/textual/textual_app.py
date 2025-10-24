@@ -75,6 +75,7 @@ class TextualApp(App):
         self._agent_panel_ids: dict[str, tuple[str, str]] = {}
         self._todo_widgets: dict[str, Markdown] = {}
         self._tool_results_to_agent: dict[str, str] = {}
+        self._suppressed_tool_results: set[str] = set()
 
     def compose(self) -> ComposeResult:
         with Vertical():
@@ -139,9 +140,18 @@ class TextualApp(App):
         self.query_one(f"#{log_id}-scroll", VerticalScroll).scroll_end(animate=False)
 
     def write_tool_call(self, tool_results_id: str, message: str) -> None:
+        if "write-todos" in message:
+            self._suppressed_tool_results.add(tool_results_id)
+            self._pending_tool_calls.pop(tool_results_id, None)
+            return
         self._pending_tool_calls[tool_results_id] = message
 
     def write_tool_result(self, tool_results_id: str, message: str) -> None:
+        if tool_results_id in self._suppressed_tool_results:
+            self._suppressed_tool_results.discard(tool_results_id)
+            self._pending_tool_calls.pop(tool_results_id, None)
+            self._refresh_todos(tool_results_id)
+            return
         container = self.query_one(f"#{tool_results_id}", VerticalScroll)
         collapsibles = self._tool_result_collapsibles.setdefault(tool_results_id, [])
         for collapsible in collapsibles:
@@ -183,6 +193,7 @@ class TextualApp(App):
             self._tool_result_collapsibles.pop(tool_results_id, None)
             self._pending_tool_calls.pop(tool_results_id, None)
             self._tool_results_to_agent.pop(tool_results_id, None)
+            self._suppressed_tool_results.discard(tool_results_id)
         self._todo_widgets.pop(agent_id, None)
 
     def _load_todos(self, agent_id: str) -> str:
