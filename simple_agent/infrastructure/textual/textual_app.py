@@ -1,7 +1,7 @@
 from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, VerticalScroll
-from textual.widgets import Static, Input, TabbedContent, TabPane
+from textual.widgets import Static, Input, TabbedContent, TabPane, Pretty
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal
 
 
@@ -42,6 +42,9 @@ class TextualApp(App):
 
     .tool-result {
         color: $text-muted;
+    }
+
+    Pretty {
         border: round $primary;
         margin-bottom: 1;
     }
@@ -117,7 +120,7 @@ class TextualApp(App):
 
     def write_tool_result(self, tool_results_id: str, message: str) -> None:
         container = self.query_one(f"#{tool_results_id}", VerticalScroll)
-        container.mount(Static(message, classes="tool-result"))
+        container.mount(Pretty(message))
         container.scroll_end(animate=False)
 
     def add_subagent_tab(self, agent_id: str, tab_title: str) -> tuple[str, str]:

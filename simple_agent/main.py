@@ -230,6 +230,7 @@ def create_llm_stub():
         "Starting task\n🛠️ subagent orchestrator Run bash echo hello world and then complete",
         "Subagent1 handling the orchestrator task\n🛠️ subagent coding Run bash echo hello world and then complete",
         "Subagent2 running the bash command\n🛠️ bash echo hello world",
+        "Subagent2 reading AGENTS.md\n🛠️ cat AGENTS.md",
         "Subagent2 completed successfully\n🛠️ complete-task Task completed successfully",
         "Subagent1 coding task completed\n🛠️ complete-task Task completed successfully",
         "All tasks finished\n🛠️ complete-task Main task completed successfully"
