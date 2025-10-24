@@ -29,6 +29,7 @@ class WriteTodosTool(BaseTool):
         if not args or not args.strip():
             return ContinueResult("No todo content provided")
         content = args
-        path = Path(f".{self.agent_id}.todos.md")
+        sanitized_id = self.agent_id.replace("/", ".").replace("\\", ".")
+        path = Path(f".{sanitized_id}.todos.md")
         path.write_text(content, encoding="utf-8")
         return ContinueResult("Updated TODOS")
