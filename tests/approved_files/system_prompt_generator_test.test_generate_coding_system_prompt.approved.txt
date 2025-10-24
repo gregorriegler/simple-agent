@@ -55,8 +55,6 @@ Examples:
 ## create-file
 Create new files with optional content
 
-CRITICAL FORMATTING RULES:
-- Content starts on the following lines
 - End content with 🛠️🔚 marker
 - Do NOT add commentary after the tool in the same message
 - Everything after the filename until 🛠️🔚 or message end is captured as content
@@ -69,7 +67,8 @@ Usage: 🛠️ create-file <filename> [content]
 
 Examples:
 🛠️ create-file newfile.txt
-🛠️ create-file script.py print("Hello World")
+🛠️ create-file script.py
+print("Hello World")🛠️🔚
 🛠️ create-file multi-line.py
 Line 1
 Line 2
@@ -78,8 +77,6 @@ Line 2
 ## edit-file
 Edit files by replacing content in specified line ranges.
 
-CRITICAL FORMATTING RULES:
-- Content MUST start on the NEXT line after the command
 - End multiline content with 🛠️🔚 marker
 - Everything from the next line until 🛠️🔚 is captured as content
 
@@ -136,7 +133,7 @@ Examples:
 Creates a new subagent that will handle a specific task/todo and report back the result.
 
 Arguments:
- - agenttype: string (required) - Type of agent to create. Available types: 'analysis', 'coding', 'orchestrator'
+ - agenttype: string (required) - Type of agent to create. Available types: 'coding', 'orchestrator', 'question'
  - task_description: string (required) - Detailed description of the task for the subagent to perform
 
 Usage: 🛠️ subagent <agenttype> <task_description>

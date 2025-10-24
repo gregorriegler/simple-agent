@@ -8,4 +8,4 @@ if ! output=$(uv run coverage run -m pytest tests/ 2>&1); then
     exit 1
 fi
 
-uv run coverage html
+uv run coverage report

@@ -136,8 +136,6 @@ class EditFileTool(BaseTool):
     name = "edit-file"
     description = """Edit files by replacing content in specified line ranges.
 
-CRITICAL FORMATTING RULES:
-- Content MUST start on the NEXT line after the command
 - End multiline content with 🛠️🔚 marker
 - Everything from the next line until 🛠️🔚 is captured as content
 

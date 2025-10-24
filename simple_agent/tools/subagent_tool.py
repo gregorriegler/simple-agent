@@ -1,5 +1,4 @@
 from simple_agent.application.tool_library import ContinueResult
-from .argument_parser import split_arguments
 from .base_tool import BaseTool
 from simple_agent.application.subagent_context import SubagentContext
 
@@ -12,7 +11,7 @@ class SubagentTool(BaseTool):
             "name": "agenttype",
             "type": "string",
             "required": True,
-            "description": "Type of agent to create {{AGENT_TYPES}}"
+            "description": "Type of agent to create {{AGENT_TYPES}}. The agenttype is expected to be on the same line as the toolcall"
         },
         {
             "name": "task_description",
@@ -34,16 +33,13 @@ class SubagentTool(BaseTool):
         if not args or not args.strip():
             return ContinueResult('STDERR: subagent: missing arguments')
 
-        try:
-            parts = split_arguments(args)
-        except ValueError as exc:
-            return ContinueResult(f"STDERR: subagent: {exc}")
+        parts = args.strip().split(None, 1)
 
         if len(parts) < 2:
             return ContinueResult('STDERR: subagent: missing agenttype or task description')
 
         agenttype = parts[0]
-        task_description = ' '.join(parts[1:])
+        task_description = parts[1]
 
         try:
             user_input = self.context.create_input(self.context.indent_level)
