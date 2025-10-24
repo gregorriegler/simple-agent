@@ -1,7 +1,7 @@
 from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, VerticalScroll
-from textual.widgets import Static, Input, TabbedContent, TabPane, Pretty
+from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal
 
 
@@ -58,6 +58,8 @@ class TextualApp(App):
     def __init__(self, user_input=None):
         super().__init__()
         self.user_input = user_input
+        self._pending_tool_calls: dict[str, str] = {}
+        self._tool_result_collapsibles: dict[str, list[Collapsible]] = {}
 
     def compose(self) -> ComposeResult:
         with Vertical():
@@ -69,6 +71,8 @@ class TextualApp(App):
     def create_agent_container(self, log_id, tool_results_id):
         left_panel = VerticalScroll(Static("", id=log_id), id="left-panel")
         right_panel = VerticalScroll(id=tool_results_id)
+        self._tool_result_collapsibles[tool_results_id] = []
+        self._pending_tool_calls.pop(tool_results_id, None)
         return ResizableHorizontal(left_panel, right_panel, id="tab-content")
 
     def on_mount(self) -> None:
@@ -114,13 +118,24 @@ class TextualApp(App):
         self.query_one("#left-panel", VerticalScroll).scroll_end(animate=False)
 
     def write_tool_call(self, tool_results_id: str, message: str) -> None:
-        container = self.query_one(f"#{tool_results_id}", VerticalScroll)
-        container.mount(Static(f"[bold]{message}[/bold]"))
-        container.scroll_end(animate=False)
+        self._pending_tool_calls[tool_results_id] = message
 
     def write_tool_result(self, tool_results_id: str, message: str) -> None:
         container = self.query_one(f"#{tool_results_id}", VerticalScroll)
-        container.mount(Pretty(message))
+        collapsibles = self._tool_result_collapsibles.setdefault(tool_results_id, [])
+        for collapsible in collapsibles:
+            collapsible.collapsed = True
+        line_count = len(message.splitlines()) or 1
+        height = min(line_count * 2 + 1, 30)
+        text_area = TextArea(message, read_only=True, language="python", show_cursor=False, classes="tool-result")
+        text_area.styles.height = height
+        text_area.styles.min_height = height
+        title_source = self._pending_tool_calls.pop(tool_results_id, None)
+        if not title_source:
+            title_source = message.splitlines()[0] if message else "Tool Result"
+        collapsible = Collapsible(text_area, title=title_source, collapsed=False)
+        collapsibles.append(collapsible)
+        container.mount(collapsible)
         container.scroll_end(animate=False)
 
     def add_subagent_tab(self, agent_id: str, tab_title: str) -> tuple[str, str]:
