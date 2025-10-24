@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, VerticalScroll
@@ -31,7 +33,7 @@ class TextualApp(App):
     }
 
     .left-panel-top {
-        height: 1fr;
+        height: 3fr;
     }
 
     .left-panel-bottom {
@@ -70,21 +72,27 @@ class TextualApp(App):
         self.user_input = user_input
         self._pending_tool_calls: dict[str, str] = {}
         self._tool_result_collapsibles: dict[str, list[Collapsible]] = {}
+        self._agent_panel_ids: dict[str, tuple[str, str]] = {}
+        self._todo_widgets: dict[str, Markdown] = {}
+        self._tool_results_to_agent: dict[str, str] = {}
 
     def compose(self) -> ComposeResult:
         with Vertical():
             with TabbedContent(id="tabs"):
                 with TabPane("Agent", id="agent-tab"):
-                    yield self.create_agent_container("log", "tool-results")
+                    yield self.create_agent_container("log", "tool-results", "Agent")
             yield Input(placeholder="Enter your message...", id="user-input", valid_empty=True)
 
-    def create_agent_container(self, log_id, tool_results_id):
+    def create_agent_container(self, log_id, tool_results_id, agent_id):
         chat_scroll = VerticalScroll(Static("", id=log_id), id=f"{log_id}-scroll", classes="left-panel-top")
-        todo = Markdown("""## Todo\n- [ ] Review conversation\n- [ ] Plan next steps\n- [ ] Execute tasks""")
+        todo = Markdown(self._load_todos(agent_id), id=f"{log_id}-todos")
         secondary_scroll = VerticalScroll(todo, id=f"{log_id}-secondary", classes="left-panel-bottom")
         left_panel = Vertical(chat_scroll, secondary_scroll, id="left-panel")
         right_panel = VerticalScroll(id=tool_results_id)
         self._tool_result_collapsibles[tool_results_id] = []
+        self._agent_panel_ids[agent_id] = (log_id, tool_results_id)
+        self._tool_results_to_agent[tool_results_id] = agent_id
+        self._todo_widgets[agent_id] = todo
         self._pending_tool_calls.pop(tool_results_id, None)
         return ResizableHorizontal(left_panel, right_panel, id="tab-content")
 
@@ -150,6 +158,7 @@ class TextualApp(App):
         collapsibles.append(collapsible)
         container.mount(collapsible)
         container.scroll_end(animate=False)
+        self._refresh_todos(tool_results_id)
 
     def add_subagent_tab(self, agent_id: str, tab_title: str) -> tuple[str, str]:
         sanitized = agent_id.replace('/', '-')
@@ -158,7 +167,7 @@ class TextualApp(App):
         tool_results_id = f"tool-results-{sanitized}"
 
         new_tab = TabPane(tab_title, id=tab_id)
-        new_tab.compose_add_child(self.create_agent_container(log_id, tool_results_id))
+        new_tab.compose_add_child(self.create_agent_container(log_id, tool_results_id, agent_id))
 
         tabs = self.query_one("#tabs", TabbedContent)
         tabs.add_pane(new_tab)
@@ -168,3 +177,27 @@ class TextualApp(App):
     def remove_subagent_tab(self, agent_id: str) -> None:
         tab_id = f"tab-{agent_id.replace('/', '-')}"
         self.query_one("#tabs", TabbedContent).remove_pane(tab_id)
+        panel_ids = self._agent_panel_ids.pop(agent_id, None)
+        if panel_ids:
+            _, tool_results_id = panel_ids
+            self._tool_result_collapsibles.pop(tool_results_id, None)
+            self._pending_tool_calls.pop(tool_results_id, None)
+            self._tool_results_to_agent.pop(tool_results_id, None)
+        self._todo_widgets.pop(agent_id, None)
+
+    def _load_todos(self, agent_id: str) -> str:
+        sanitized = agent_id.replace("/", ".").replace("\\", ".")
+        path = Path(f".{sanitized}.todos.md")
+        if not path.exists():
+            return ""
+        content = path.read_text(encoding="utf-8").strip()
+        return content if content else ""
+
+    def _refresh_todos(self, tool_results_id: str) -> None:
+        agent_id = self._tool_results_to_agent.get(tool_results_id)
+        if not agent_id:
+            return
+        todo_widget = self._todo_widgets.get(agent_id)
+        if not todo_widget:
+            return
+        todo_widget.update(self._load_todos(agent_id))
