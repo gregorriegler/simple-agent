@@ -30,6 +30,16 @@ class TextualApp(App):
         padding: 1;
     }
 
+    .left-panel-top {
+        height: 1fr;
+    }
+
+    .left-panel-bottom {
+        height: 1fr;
+        background: $surface-darken-1;
+        border-top: solid $surface-lighten-1;
+    }
+
     #right-panel {
         width: 75%;
         padding: 1;
@@ -69,7 +79,9 @@ class TextualApp(App):
             yield Input(placeholder="Enter your message...", id="user-input", valid_empty=True)
 
     def create_agent_container(self, log_id, tool_results_id):
-        left_panel = VerticalScroll(Static("", id=log_id), id="left-panel")
+        chat_scroll = VerticalScroll(Static("", id=log_id), id=f"{log_id}-scroll", classes="left-panel-top")
+        secondary_scroll = VerticalScroll(id=f"{log_id}-secondary", classes="left-panel-bottom")
+        left_panel = Vertical(chat_scroll, secondary_scroll, id="left-panel")
         right_panel = VerticalScroll(id=tool_results_id)
         self._tool_result_collapsibles[tool_results_id] = []
         self._pending_tool_calls.pop(tool_results_id, None)
@@ -115,7 +127,7 @@ class TextualApp(App):
         current = str(container.render())
         new_content = f"{current}\n{message}" if current else message
         container.update(new_content)
-        self.query_one("#left-panel", VerticalScroll).scroll_end(animate=False)
+        self.query_one(f"#{log_id}-scroll", VerticalScroll).scroll_end(animate=False)
 
     def write_tool_call(self, tool_results_id: str, message: str) -> None:
         self._pending_tool_calls[tool_results_id] = message
@@ -155,4 +167,3 @@ class TextualApp(App):
     def remove_subagent_tab(self, agent_id: str) -> None:
         tab_id = f"tab-{agent_id.replace('/', '-')}"
         self.query_one("#tabs", TabbedContent).remove_pane(tab_id)
-
