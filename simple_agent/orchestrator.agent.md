@@ -21,6 +21,7 @@ One tool execution per answer.
    Begin by picking the first item from the Todos and using the subagent tool, 
    prompting it the Todo and relevant information the subagent might need to solve the task.
    Example: `🛠️subagent The User is describing ... Analyze the Project and find out ... Report back a summary for ...`
+      Tip: Whenever you delegate to the coding subagent, make sure you provide it with all the necessary details including links to analysis documents.
 
 # Task Completion
 When you have successfully completed the user's task:
