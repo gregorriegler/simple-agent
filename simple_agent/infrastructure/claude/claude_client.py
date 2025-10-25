@@ -34,9 +34,9 @@ class ClaudeLLM(LLM):
             "messages": messages
         }
         try:
-            logger.debug("Request:" + json.dumps(data, indent=4))
+            logger.debug("Request:" + json.dumps(data, indent=4, ensure_ascii=False))
             response = requests.post(url, headers=headers, json=data)
-            logger.debug("Response:" + json.dumps(response.json(), indent=4))
+            logger.debug("Response:" + json.dumps(response.json(), indent=4, ensure_ascii=False))
             response.raise_for_status()
             response_data = response.json()
             if "content" not in response_data:
