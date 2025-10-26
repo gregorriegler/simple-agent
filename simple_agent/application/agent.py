@@ -91,8 +91,7 @@ class Agent:
         return prompt
 
     def execute_tool(self, tool: ParsedTool, context):
-        firstline = tool.__str__().splitlines()[0]
-        self.event_bus.publish(ToolCalledEvent(self.agent_id, firstline))
+        self.event_bus.publish(ToolCalledEvent(self.agent_id, tool))
         tool_result = self.tools.execute_parsed_tool(tool)
         self.event_bus.publish(ToolResultEvent(self.agent_id, str(tool_result)))
         if isinstance(tool_result, ContinueResult):

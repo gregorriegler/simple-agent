@@ -153,6 +153,13 @@ class TextualApp(App):
             self._pending_tool_calls.pop(tool_results_id, None)
             self._refresh_todos(tool_results_id)
             return
+        title_source = self._pending_tool_calls.pop(tool_results_id, None)
+        lines = title_source.__str__().splitlines()
+        title_source = lines[0]
+        other_lines = lines[1:]
+        if other_lines:
+            message = "\n".join(other_lines)
+
         container = self.query_one(f"#{tool_results_id}", VerticalScroll)
         collapsibles = self._tool_result_collapsibles.setdefault(tool_results_id, [])
         for collapsible in collapsibles:
@@ -162,9 +169,6 @@ class TextualApp(App):
         text_area = TextArea(message, read_only=True, language="python", show_cursor=False, classes="tool-result")
         text_area.styles.height = height
         text_area.styles.min_height = height
-        title_source = self._pending_tool_calls.pop(tool_results_id, None)
-        if not title_source:
-            title_source = message.splitlines()[0] if message else "Tool Result"
         collapsible = Collapsible(text_area, title=title_source, collapsed=False)
         collapsibles.append(collapsible)
         container.mount(collapsible)
