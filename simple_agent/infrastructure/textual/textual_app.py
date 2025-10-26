@@ -12,6 +12,7 @@ class TextualApp(App):
     BINDINGS = [
         ("alt+left", "previous_tab", "Previous Tab"),
         ("alt+right", "next_tab", "Next Tab"),
+        ("ctrl+c", "quit", "Quit"),
     ]
 
     CSS = """
@@ -114,6 +115,9 @@ class TextualApp(App):
             if self.user_input:
                 self.user_input.request_escape()
             event.prevent_default()
+            return
+
+        super().on_key(event)
 
     def action_previous_tab(self) -> None:
         self._switch_tab(-1)
