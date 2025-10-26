@@ -21,7 +21,7 @@ class BashTool(BaseTool):
 
     def execute(self, args):
         if not args:
-            return ContinueResult('STDERR: bash: missing command')
+            return ContinueResult('STDERR: bash: missing command', success=False)
         _ = subprocess
         result = self.run_command("bash", ["-c", args])
-        return ContinueResult(result['output'])
+        return ContinueResult(result['output'], success=result['success'])

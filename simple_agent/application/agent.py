@@ -93,7 +93,7 @@ class Agent:
     def execute_tool(self, tool: ParsedTool, context):
         self.event_bus.publish(ToolCalledEvent(self.agent_id, tool))
         tool_result = self.tools.execute_parsed_tool(tool)
-        self.event_bus.publish(ToolResultEvent(self.agent_id, str(tool_result)))
+        self.event_bus.publish(ToolResultEvent(self.agent_id, tool_result))
         if isinstance(tool_result, ContinueResult):
             context.user_says(f"Result of {tool}\n{tool_result}")
         return tool_result

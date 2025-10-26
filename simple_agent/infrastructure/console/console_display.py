@@ -1,11 +1,12 @@
 from simple_agent.application.display import Display
 from simple_agent.application.io import IO
+from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.stdio import StdIO
 
 
 def _indent_lines(text, prefix="    "):
-    lines = str(text).split('\n')
-    return '\n'.join(f"{prefix}{line}" if line.strip() else line for line in lines)
+    lines = str(text).split("\n")
+    return "\n".join(f"{prefix}{line}" if line.strip() else line for line in lines)
 
 
 class ConsoleDisplay(Display):
@@ -17,7 +18,7 @@ class ConsoleDisplay(Display):
         self.agent_prefix = "       " * indent_level + f"{agent_name}: "
 
     def assistant_says(self, message):
-        lines = str(message).split('\n')
+        lines = str(message).split("\n")
         if lines:
             self.io.print(f"\n{self.agent_prefix}{lines[0]}")
             for line in lines[1:]:
@@ -29,13 +30,18 @@ class ConsoleDisplay(Display):
     def tool_call(self, tool):
         pass
 
-    def tool_result(self, result):
-        lines = str(result).split('\n')
-        first_three_lines = '\n'.join(lines[:3])
-        if len(lines) > 3:
-            first_three_lines += '\n... (truncated)'
-        result = _indent_lines(first_three_lines, self.base_indent)
-        self.io.print(f"\n{result}")
+    def tool_result(self, result: ToolResult):
+        message = result.message if result else ""
+        lines = message.split("\n") if message else [""]
+        if result.success:
+            display_lines = lines[:3]
+            if len(lines) > 3:
+                display_lines = display_lines + ['... (truncated)']
+        else:
+            display_lines = lines
+        display_text = "\n".join(display_lines)
+        formatted = _indent_lines(display_text, self.base_indent)
+        self.io.print(f"\n{formatted}")
 
     def continue_session(self):
         self.io.print("Continuing session")

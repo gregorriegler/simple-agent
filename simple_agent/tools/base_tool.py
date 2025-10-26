@@ -38,12 +38,13 @@ class BaseTool(Tool):
                     output += f"\n";
                 output += f"STDERR: {result.stderr}"
             return {
-                'output': output
+                'output': output,
+                'success': result.returncode == 0
             }
         except subprocess.TimeoutExpired:
-            return {'output': 'Command timed out (30s limit)'}
+            return {'output': 'Command timed out (30s limit)', 'success': False}
         except Exception as e:
-            return {'output': f'Error: {str(e)}'}
+            return {'output': f'Error: {str(e)}', 'success': False}
 
     def get_usage_info(self):
         if hasattr(self, '_custom_usage_info') and self._custom_usage_info is not None:

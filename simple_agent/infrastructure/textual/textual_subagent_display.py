@@ -1,3 +1,4 @@
+from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 
 
@@ -37,11 +38,11 @@ class TextualSubagentDisplay(TextualDisplay):
         if self.app and self.app.is_running and self.tool_results_id:
             self.app.call_from_thread(self.app.write_tool_call, self.tool_results_id, str(tool))
 
-    def tool_result(self, result):
+    def tool_result(self, result: ToolResult):
         if not result:
             return
         if self.app and self.app.is_running and self.tool_results_id:
-            self.app.call_from_thread(self.app.write_tool_result, self.tool_results_id, str(result))
+            self.app.call_from_thread(self.app.write_tool_result, self.tool_results_id, result.message, result.success)
 
     def continue_session(self):
         if self.app and self.app.is_running and self.log_id:

@@ -19,4 +19,4 @@ class LsTool(BaseTool):
 
     def execute(self, path="."):
         result = self.run_command("ls", ["-a", path] if path else ["-a"])
-        return ContinueResult(result['output'])
+        return ContinueResult(result['output'], success=result['success'])

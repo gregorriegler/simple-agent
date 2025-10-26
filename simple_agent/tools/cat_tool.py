@@ -56,15 +56,15 @@ class CatTool(BaseTool):
     def execute(self, args):
         filename, line_range, error = self._parse_arguments(args)
         if error:
-            return ContinueResult(error)
+            return ContinueResult(error, success=False)
         if line_range is None:
             result = self.run_command('cat', ['-n', filename])
-            return ContinueResult(result['output'])
+            return ContinueResult(result['output'], success=result['success'])
         start_line, end_line, error = self._validate_range(line_range)
         if error:
-            return ContinueResult(error)
-        output = self._read_file_range(filename, start_line, end_line)
-        return ContinueResult(output)
+            return ContinueResult(error, success=False)
+        output, success = self._read_file_range(filename, start_line, end_line)
+        return ContinueResult(output, success=success)
 
     def _read_file_range(self, filename, start_line, end_line):
         try:
@@ -72,20 +72,20 @@ class CatTool(BaseTool):
                 lines = f.readlines()
 
             if not lines:
-                return ""
+                return "", True
 
             start_idx = start_line - 1
             end_idx = min(end_line, len(lines))
 
             if start_idx >= len(lines):
-                return ""
+                return "", True
 
-            return self._format_output(lines, start_idx, end_idx)
+            return self._format_output(lines, start_idx, end_idx), True
 
         except FileNotFoundError:
-            return f"STDERR: cat: '{filename}': No such file or directory"
+            return f"STDERR: cat: '{filename}': No such file or directory", False
         except Exception as e:
-            return f"STDERR: cat: '{filename}': {str(e)}"
+            return f"STDERR: cat: '{filename}': {str(e)}", False
 
     def _format_output(self, lines, start_idx, end_idx):
         result_lines = []

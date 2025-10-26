@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Any, ClassVar
 
+from simple_agent.application.tool_library import ToolResult
+
 
 @dataclass
 class AgentEvent:
@@ -23,7 +25,7 @@ class ToolCalledEvent(AgentEvent):
 @dataclass
 class ToolResultEvent(AgentEvent):
     event_name: ClassVar[str] = "tool_result"
-    result: str
+    result: ToolResult
 
 
 @dataclass

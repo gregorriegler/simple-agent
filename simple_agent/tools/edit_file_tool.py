@@ -236,7 +236,7 @@ Replace mode: First deletes the specified range, then inserts new content at tha
     def execute(self, args):
         edit_args, error = self.parse_arguments(args)
         if error or edit_args is None:
-            return ContinueResult(error or "Failed to parse arguments")
+            return ContinueResult(error or "Failed to parse arguments", success=False)
 
         try:
             editor = FileEditor(edit_args.filename)
@@ -245,7 +245,7 @@ Replace mode: First deletes the specified range, then inserts new content at tha
             mode_class = self.mode_creators.get(edit_args.edit_mode)
             if mode_class is None:
                 return ContinueResult(
-                    f"Invalid edit mode: {edit_args.edit_mode}. Supported modes: insert, delete, replace")
+                    f"Invalid edit mode: {edit_args.edit_mode}. Supported modes: insert, delete, replace", success=False)
 
             mode = mode_class()
             mode.apply(editor, edit_args)
@@ -254,8 +254,8 @@ Replace mode: First deletes the specified range, then inserts new content at tha
             return ContinueResult(f"Successfully edited {edit_args.filename}")
 
         except FileNotFoundError as e:
-            return ContinueResult(str(e))
+            return ContinueResult(str(e), success=False)
         except OSError as e:
-            return ContinueResult(f'Error editing file "{edit_args.filename}": {str(e)}')
+            return ContinueResult(f'Error editing file "{edit_args.filename}": {str(e)}', success=False)
         except Exception as e:
-            return ContinueResult(f'Unexpected error editing file "{edit_args.filename}": {str(e)}')
+            return ContinueResult(f'Unexpected error editing file "{edit_args.filename}": {str(e)}', success=False)

@@ -57,6 +57,10 @@ class TextualApp(App):
         color: $text-muted;
     }
 
+    .tool-result-error {
+        color: $error;
+    }
+
     Pretty {
         border: round $primary;
         margin-bottom: 1;
@@ -147,18 +151,22 @@ class TextualApp(App):
             return
         self._pending_tool_calls[tool_results_id] = message
 
-    def write_tool_result(self, tool_results_id: str, message: str) -> None:
+    def write_tool_result(self, tool_results_id: str, message: str, success: bool) -> None:
         if tool_results_id in self._suppressed_tool_results:
             self._suppressed_tool_results.discard(tool_results_id)
             self._pending_tool_calls.pop(tool_results_id, None)
             self._refresh_todos(tool_results_id)
-            return
+            if success:
+                return
         title_source = self._pending_tool_calls.pop(tool_results_id, None)
-        lines = title_source.__str__().splitlines()
-        title_source = lines[0]
-        other_lines = lines[1:]
-        if other_lines:
-            message = "\n".join(other_lines)
+        if title_source is not None:
+            lines = title_source.__str__().splitlines()
+            title_text = lines[0] if lines else "Tool Result"
+            other_lines = lines[1:]
+            if success and other_lines:
+                message = "\n".join(other_lines)
+        else:
+            title_text = "Tool Result"
 
         container = self.query_one(f"#{tool_results_id}", VerticalScroll)
         collapsibles = self._tool_result_collapsibles.setdefault(tool_results_id, [])
@@ -166,10 +174,11 @@ class TextualApp(App):
             collapsible.collapsed = True
         line_count = len(message.splitlines()) or 1
         height = min(line_count * 2 + 1, 30)
-        text_area = TextArea(message, read_only=True, language="python", show_cursor=False, classes="tool-result")
+        classes = "tool-result" if success else "tool-result tool-result-error"
+        text_area = TextArea(message, read_only=True, language="python", show_cursor=False, classes=classes)
         text_area.styles.height = height
         text_area.styles.min_height = height
-        collapsible = Collapsible(text_area, title=title_source, collapsed=False)
+        collapsible = Collapsible(text_area, title=title_text, collapsed=False)
         collapsibles.append(collapsible)
         container.mount(collapsible)
         container.scroll_end(animate=False)

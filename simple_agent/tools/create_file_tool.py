@@ -35,13 +35,13 @@ class CreateFileTool(BaseTool):
 
     def execute(self, args):
         if not args:
-            return ContinueResult('No filename specified')
+            return ContinueResult('No filename specified', success=False)
 
         # Simple string splitting - first word is filename, rest is content
         parts = args.strip().split(None, 1)
 
         if not parts:
-            return ContinueResult('No filename specified')
+            return ContinueResult('No filename specified', success=False)
 
         filename = parts[0]
         content = parts[1] if len(parts) > 1 else None
@@ -52,7 +52,7 @@ class CreateFileTool(BaseTool):
         try:
             # Check if file already exists
             if os.path.exists(filename):
-                return ContinueResult(f"Error creating file '{filename}': File already exists")
+                return ContinueResult(f"Error creating file '{filename}': File already exists", success=False)
 
             # Create parent directories if they don't exist
             os.makedirs(os.path.dirname(filename) or '.', exist_ok=True)
@@ -66,6 +66,6 @@ class CreateFileTool(BaseTool):
             else:
                 return ContinueResult(f"Created empty file: {filename}")
         except OSError as e:
-            return ContinueResult(f"Error creating file '{filename}': {str(e)}")
+            return ContinueResult(f"Error creating file '{filename}': {str(e)}", success=False)
         except Exception as e:
-            return ContinueResult(f"Unexpected error creating file '{filename}': {str(e)}")
+            return ContinueResult(f"Unexpected error creating file '{filename}': {str(e)}", success=False)

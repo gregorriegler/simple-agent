@@ -1,33 +1,30 @@
 from dataclasses import dataclass
-from typing import Protocol, List, Optional
+from typing import Protocol, List
+
 
 @dataclass
 class ToolResult:
-    feedback: str
+    message: str = ""
+    success: bool = True
 
-    def __init__(self, feedback=""):
-        self.feedback = feedback
-
-    def __str__(self) : return self.feedback
+    def __str__(self) -> str:
+        return self.message
 
     def do_continue(self) -> bool:
-        ...
+        raise NotImplementedError
+
 
 @dataclass
 class ContinueResult(ToolResult):
-    def __init__(self, feedback=""):
-        super().__init__(feedback)
-
     def do_continue(self) -> bool:
         return True
 
 
 @dataclass
 class CompleteResult(ToolResult):
-    pass
-
     def do_continue(self) -> bool:
         return False
+
 
 class ParsedTool:
     def __init__(self, name, arguments, tool_instance):
@@ -39,6 +36,7 @@ class ParsedTool:
         if self.arguments:
             return f"🛠️ {self.name} {self.arguments}"
         return f"🛠️ {self.name}"
+
 
 @dataclass
 class MessageAndParsedTools:

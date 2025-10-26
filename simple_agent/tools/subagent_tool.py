@@ -31,12 +31,12 @@ class SubagentTool(BaseTool):
 
     def execute(self, args):
         if not args or not args.strip():
-            return ContinueResult('STDERR: subagent: missing arguments')
+            return ContinueResult('STDERR: subagent: missing arguments', success=False)
 
         parts = args.strip().split(None, 1)
 
         if len(parts) < 2:
-            return ContinueResult('STDERR: subagent: missing agenttype or task description')
+            return ContinueResult('STDERR: subagent: missing agenttype or task description', success=False)
 
         agenttype = parts[0]
         task_description = parts[1]
@@ -55,8 +55,9 @@ class SubagentTool(BaseTool):
 
             result = subagent.start()
 
-            return ContinueResult(str(result))
+            return ContinueResult(str(result), success=result.success)
         except Exception as e:
-            return ContinueResult(f'STDERR: subagent error: {str(e)}')
+            return ContinueResult(f'STDERR: subagent error: {str(e)}', success=False)
         finally:
-            self.context.notify_subagent_finished(subagent.agent_id)
+            if subagent is not None:
+                self.context.notify_subagent_finished(subagent.agent_id)

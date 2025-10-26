@@ -1,5 +1,7 @@
 from typing import Protocol
 
+from simple_agent.application.tool_library import ToolResult
+
 
 class Display(Protocol):
 
@@ -12,7 +14,7 @@ class Display(Protocol):
     def tool_call(self, tool) -> None:
         ...
 
-    def tool_result(self, result) -> None:
+    def tool_result(self, result: ToolResult) -> None:
         ...
 
     def continue_session(self) -> None:
@@ -38,7 +40,7 @@ class DummyDisplay:
         pass
     def tool_call(self, tool) -> None:
         pass
-    def tool_result(self, result) -> None:
+    def tool_result(self, result: ToolResult) -> None:
         pass
     def continue_session(self) -> None:
         pass

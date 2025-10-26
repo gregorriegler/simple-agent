@@ -181,14 +181,14 @@ class PatchFileTool(BaseTool):
     def execute(self, args) -> ToolResult:
         patch_args, error = self._parse_arguments(args)
         if error:
-            return ContinueResult(error)
+            return ContinueResult(error, success=False)
 
         return self._apply_patch(patch_args)
 
     def _apply_patch(self, patch_args):
         try:
             if not os.path.exists(patch_args.filename):
-                return ContinueResult(f'File "{patch_args.filename}" not found')
+                return ContinueResult(f'File "{patch_args.filename}" not found', success=False)
 
             with open(patch_args.filename, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
@@ -197,7 +197,7 @@ class PatchFileTool(BaseTool):
             patch_lines = patch_args.patch_content.splitlines()
 
             if not patch_lines:
-                return ContinueResult("Empty patch content")
+                return ContinueResult("Empty patch content", success=False)
 
             # Find the hunk header
             hunk_header = None
@@ -210,12 +210,12 @@ class PatchFileTool(BaseTool):
                     break
 
             if not hunk_header:
-                return ContinueResult("No valid patch hunk found (missing @@ header)")
+                return ContinueResult("No valid patch hunk found (missing @@ header)", success=False)
 
             # Parse the hunk header
             hunk_info = self._parse_patch_header(hunk_header)
             if not hunk_info:
-                return ContinueResult("Invalid patch hunk header format")
+                return ContinueResult("Invalid patch hunk header format", success=False)
 
             # Extract hunk lines
             hunk_lines = patch_lines[hunk_start_idx:]
@@ -223,10 +223,10 @@ class PatchFileTool(BaseTool):
             # Apply the patch
             new_lines, error = self._apply_patch_hunk(lines, hunk_info, hunk_lines)
             if error:
-                return ContinueResult(f"Patch application failed: {error}")
+                return ContinueResult(f"Patch application failed: {error}", success=False)
 
             if new_lines is None:
-                return ContinueResult("Patch application failed: no result lines")
+                return ContinueResult("Patch application failed: no result lines", success=False)
 
             # Write back to file
             with open(patch_args.filename, 'w', encoding='utf-8') as f:
@@ -235,6 +235,6 @@ class PatchFileTool(BaseTool):
             return ContinueResult(f"Successfully applied patch to {patch_args.filename}")
 
         except OSError as e:
-            return ContinueResult(f'Error patching file "{patch_args.filename}": {str(e)}')
+            return ContinueResult(f'Error patching file "{patch_args.filename}": {str(e)}', success=False)
         except Exception as e:
-            return ContinueResult(f'Unexpected error patching file "{patch_args.filename}": {str(e)}')
+            return ContinueResult(f'Unexpected error patching file "{patch_args.filename}": {str(e)}', success=False)

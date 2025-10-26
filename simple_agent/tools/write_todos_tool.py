@@ -27,7 +27,7 @@ class WriteTodosTool(BaseTool):
 
     def execute(self, args):
         if not args or not args.strip():
-            return ContinueResult("No todo content provided")
+            return ContinueResult("No todo content provided", success=False)
         content = args
         sanitized_id = self.agent_id.replace("/", ".").replace("\\", ".")
         path = Path(f".{sanitized_id}.todos.md")

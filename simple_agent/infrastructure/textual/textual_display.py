@@ -1,6 +1,7 @@
 import threading
 
 from simple_agent.application.display import Display
+from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 
 
@@ -40,11 +41,11 @@ class TextualDisplay(Display):
         if self.app and self.app.is_running:
             self.app.call_from_thread(self.app.write_tool_call, "tool-results", str(tool))
 
-    def tool_result(self, result):
+    def tool_result(self, result: ToolResult):
         if not result:
             return
         if self.app and self.app.is_running:
-            self.app.call_from_thread(self.app.write_tool_result, "tool-results", str(result))
+            self.app.call_from_thread(self.app.write_tool_result, "tool-results", result.message, result.success)
 
     def continue_session(self):
         self._start_app()

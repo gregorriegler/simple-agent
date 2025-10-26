@@ -27,7 +27,7 @@ class RememberTool(BaseTool):
 
     def execute(self, args):
         if not args or not args.strip():
-            return ContinueResult("No memory content provided")
+            return ContinueResult("No memory content provided", success=False)
 
         content = args.strip()
         path = Path(".memory.md")
