@@ -46,7 +46,8 @@ def create_all_tools_for_test():
         create_subagent_display,
         create_subagent_input,
         0,
-        "Agent"
+        "Agent",
+        event_bus
     )
 
     return AllTools(subagent_context=subagent_context)

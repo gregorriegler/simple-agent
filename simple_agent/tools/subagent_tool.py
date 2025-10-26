@@ -41,6 +41,7 @@ class SubagentTool(BaseTool):
         agenttype = parts[0]
         task_description = parts[1]
 
+        subagent = None
         try:
             user_input = self.context.create_input(self.context.indent_level)
             user_input.stack(task_description)
@@ -57,3 +58,5 @@ class SubagentTool(BaseTool):
             return ContinueResult(str(result))
         except Exception as e:
             return ContinueResult(f'STDERR: subagent error: {str(e)}')
+        finally:
+            self.context.notify_subagent_finished(subagent.agent_id)

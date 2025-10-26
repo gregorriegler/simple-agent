@@ -12,6 +12,7 @@ from simple_agent.application.events import (
     SessionEndedEvent,
     SessionInterruptedEvent,
     SessionStartedEvent,
+    SubagentFinishedEvent,
     ToolCalledEvent,
     ToolResultEvent,
     UserPromptRequestedEvent,
@@ -62,6 +63,11 @@ def main():
     event_bus.subscribe(ToolResultEvent, event_logger.log_event)
     event_bus.subscribe(SessionInterruptedEvent, event_logger.log_event)
     event_bus.subscribe(SessionEndedEvent, event_logger.log_event)
+
+    def handle_subagent_finished(event: SubagentFinishedEvent) -> None:
+        todo_cleanup.cleanup_todos_for_agent(event.subagent_id)
+
+    event_bus.subscribe(SubagentFinishedEvent, handle_subagent_finished)
 
     if args.display_type == DisplayType.TEXTUAL:
         if args.non_interactive:
@@ -139,7 +145,8 @@ def main():
         create_subagent_display,
         create_subagent_input,
         indent_level,
-        agent_id
+        agent_id,
+        event_bus
     )
 
     tools = tool_library_factory.create(prompt.tool_keys, subagent_context)
@@ -167,9 +174,10 @@ def main():
 def print_system_prompt_command():
     tool_library_factory = AllToolsFactory()
     agent_type_discovery = FileSystemAgentTypeDiscovery()
+    dummy_event_bus = SimpleEventBus()
     create_agent = AgentFactory(
         lambda system_prompt, messages: '',
-        SimpleEventBus(),
+        dummy_event_bus,
         lambda agent_id, indent: DummyDisplay(),
         lambda indent: Input(DummyUserInput()),
         load_agent_prompt,
@@ -183,7 +191,8 @@ def print_system_prompt_command():
         lambda agent_id, indent: DummyDisplay(),
         lambda indent: Input(DummyUserInput()),
         0,
-        "Agent"
+        "Agent",
+        dummy_event_bus
     )
     tool_library = tool_library_factory.create(prompt.tool_keys, subagent_context)
     tools_documentation = generate_tools_documentation(tool_library.tools, agent_type_discovery)

@@ -57,3 +57,9 @@ class UserPromptedEvent(AgentEvent):
 class AssistantRespondedEvent(AgentEvent):
     event_name: ClassVar[str] = "assistant_responded"
     response: str
+
+
+@dataclass
+class SubagentFinishedEvent(AgentEvent):
+    event_name: ClassVar[str] = "subagent_finished"
+    subagent_id: str

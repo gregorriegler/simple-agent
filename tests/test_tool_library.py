@@ -14,7 +14,14 @@ from simple_agent.infrastructure.file_system_agent_type_discovery import FileSys
 
 
 class ToolLibraryStub(AllTools):
-    def __init__(self, llm, io=None, interrupts=None, event_bus=None, display_event_handler=None):
+    def __init__(
+        self,
+        llm,
+        io=None,
+        interrupts=None,
+        event_bus=None,
+        display_event_handler=None
+    ):
         actual_io = io if io else StdIO()
 
         def create_subagent_display(agent_id, agent_name, indent):
@@ -45,7 +52,8 @@ class ToolLibraryStub(AllTools):
             create_subagent_display,
             create_subagent_input,
             1,
-            "Agent"
+            "Agent",
+            actual_event_bus
         )
 
         super().__init__(subagent_context=subagent_context)

@@ -3,6 +3,7 @@ from pathlib import Path
 from approvaltests import verify, Options
 
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.events import SubagentFinishedEvent
 from simple_agent.application.input import Input
 from simple_agent.application.session import run_session
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
@@ -61,9 +62,56 @@ def test_continued_session_keeps_todo_files(tmp_path, monkeypatch):
     verify(result, options=Options().with_scrubber(all_scrubbers()))
 
 
-def run_test_session(continue_session):
+def test_subagent_cleanup_deletes_subagent_todo(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    created_files = set()
+    original_write_text = Path.write_text
+
+    def capture_write_text(path_obj, data, encoding=None, errors=None, newline=None):
+        created_files.add(path_obj.name)
+        return original_write_text(path_obj, data, encoding=encoding, errors=errors, newline=newline)
+
+    monkeypatch.setattr(Path, "write_text", capture_write_text)
+
+    class SpyFileSystemTodoCleanup(FileSystemTodoCleanup):
+        def __init__(self):
+            super().__init__()
+            self.cleaned_agents: list[str] = []
+
+        def cleanup_todos_for_agent(self, agent_id: str) -> None:
+            self.cleaned_agents.append(agent_id)
+            super().cleanup_todos_for_agent(agent_id)
+
+    responses = [
+        "🛠️ subagent coding handle-task",
+        "🛠️ write-todos\n- [ ] Coding task\n🛠️🔚",
+        "🛠️ complete-task Subagent finished",
+        "🛠️ complete-task Root finished"
+    ]
+
+    response_iter = iter(responses)
+
     def llm_stub(system_prompt, messages):
+        try:
+            return next(response_iter)
+        except StopIteration:
+            return responses[-1]
+
+    todo_cleanup = SpyFileSystemTodoCleanup()
+
+    run_test_session(continue_session=False, llm_stub=llm_stub, todo_cleanup=todo_cleanup)
+
+    assert ".Agent.Coding.todos.md" in created_files
+    assert "Agent/Coding" in todo_cleanup.cleaned_agents
+    assert not Path('.Agent.Coding.todos.md').exists()
+
+
+def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
+    def default_llm(system_prompt, messages):
         return ""
+
+    llm = llm_stub if llm_stub is not None else default_llm
 
     io_spy = IOSpy(["\n"])
     display = ConsoleDisplay(0, "Agent", io_spy)
@@ -74,8 +122,12 @@ def run_test_session(continue_session):
     event_bus = SimpleEventBus()
     display_handler = DisplayEventHandler(display)
 
+    cleanup_adapter = todo_cleanup if todo_cleanup is not None else FileSystemTodoCleanup()
+
+    event_bus.subscribe(SubagentFinishedEvent, lambda event: cleanup_adapter.cleanup_todos_for_agent(event.subagent_id))
+
     test_tool_library = ToolLibraryStub(
-        llm_stub,
+        llm,
         io=io_spy,
         interrupts=[None],
         event_bus=event_bus,
@@ -83,16 +135,15 @@ def run_test_session(continue_session):
     )
 
     test_session_storage = SessionStorageStub()
-    todo_cleanup = FileSystemTodoCleanup()
 
     run_session(
         continue_session,
         "Agent",
         "Test system prompt",
         user_input,
-        llm_stub,
+        llm,
         test_tool_library,
         test_session_storage,
         event_bus,
-        todo_cleanup
+        cleanup_adapter
     )

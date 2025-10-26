@@ -48,7 +48,8 @@ class AgentFactory:
             self.create_subagent_display,
             self.create_subagent_input,
             indent_level + 1,
-            agent_id
+            agent_id,
+            self.event_bus
         )
 
         subagent_tools = self.tool_library_factory.create(agent_prompt.tool_keys, subagent_context)
