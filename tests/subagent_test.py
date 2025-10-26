@@ -1,7 +1,5 @@
 from approvaltests import verify
 
-from simple_agent.application.input import Input
-from simple_agent.application.session import run_session
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
     AssistantRespondedEvent,
@@ -14,6 +12,9 @@ from simple_agent.application.events import (
     UserPromptRequestedEvent,
     UserPromptedEvent,
 )
+from simple_agent.application.input import Input
+from simple_agent.application.llm_stub import create_llm_stub
+from simple_agent.application.session import run_session
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
@@ -114,23 +115,4 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     verify(result)
 
 
-def create_llm_stub(answer):
-    if isinstance(answer, list):
-        answer_index = 0
 
-        def llm_stub(system_prompt, messages):
-            nonlocal answer_index
-            if answer_index < len(answer):
-                result = answer[answer_index]
-                answer_index += 1
-                return result
-            if answer:
-                return answer[-1]
-            return ""
-
-        return llm_stub
-
-    def llm_answer(system_prompt, messages):
-        return answer
-
-    return llm_answer

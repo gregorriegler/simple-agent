@@ -6,6 +6,7 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import SubagentFinishedEvent
 from simple_agent.application.input import Input
 from simple_agent.application.session import run_session
+from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
@@ -19,21 +20,16 @@ from .test_tool_library import ToolLibraryStub
 def test_new_session_deletes_all_todo_files(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
-    todo_files = [
+    files = [
         ".Agent.todos.md",
         ".Agent.Coding.todos.md",
         ".Agent.Orchestrator.todos.md",
-        ".some.other.todos.md"
-    ]
-    for filename in todo_files:
-        Path(filename).write_text(f"content of {filename}")
-
-    other_files = [
+        ".some.other.todos.md",
         "normal.md",
         ".gitignore",
         "test.txt"
     ]
-    for filename in other_files:
+    for filename in files:
         Path(filename).write_text(f"content of {filename}")
 
     run_test_session(continue_session=False)
@@ -74,29 +70,14 @@ def test_subagent_cleanup_deletes_subagent_todo(tmp_path, monkeypatch):
 
     monkeypatch.setattr(Path, "write_text", capture_write_text)
 
-    class SpyFileSystemTodoCleanup(FileSystemTodoCleanup):
-        def __init__(self):
-            super().__init__()
-            self.cleaned_agents: list[str] = []
-
-        def cleanup_todos_for_agent(self, agent_id: str) -> None:
-            self.cleaned_agents.append(agent_id)
-            super().cleanup_todos_for_agent(agent_id)
-
-    responses = [
-        "🛠️ subagent coding handle-task",
-        "🛠️ write-todos\n- [ ] Coding task\n🛠️🔚",
-        "🛠️ complete-task Subagent finished",
-        "🛠️ complete-task Root finished"
-    ]
-
-    response_iter = iter(responses)
-
-    def llm_stub(system_prompt, messages):
-        try:
-            return next(response_iter)
-        except StopIteration:
-            return responses[-1]
+    llm_stub = create_llm_stub(
+        [
+            "🛠️ subagent coding handle-task",
+            "🛠️ write-todos\n- [ ] Coding task\n🛠️🔚",
+            "🛠️ complete-task Subagent finished",
+            "🛠️ complete-task Root finished"
+        ]
+    )
 
     todo_cleanup = SpyFileSystemTodoCleanup()
 
@@ -147,3 +128,12 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
         event_bus,
         cleanup_adapter
     )
+
+class SpyFileSystemTodoCleanup(FileSystemTodoCleanup):
+    def __init__(self):
+        super().__init__()
+        self.cleaned_agents: list[str] = []
+
+    def cleanup_todos_for_agent(self, agent_id: str) -> None:
+        self.cleaned_agents.append(agent_id)
+        super().cleanup_todos_for_agent(agent_id)

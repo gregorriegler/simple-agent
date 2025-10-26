@@ -18,6 +18,7 @@ from simple_agent.application.events import (
     UserPromptRequestedEvent,
     UserPromptedEvent,
 )
+from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.input import Input
 from simple_agent.application.session import run_session, SessionArgs
 from simple_agent.application.session_storage import NoOpSessionStorage
@@ -110,7 +111,18 @@ def main():
     todo_cleanup = FileSystemTodoCleanup()
 
     if args.stub_llm:
-        llm = create_llm_stub()
+        llm = create_llm_stub(
+            [
+                "Starting task\n🛠️ subagent orchestrator Run bash echo hello world and then complete",
+                "Subagent1 handling the orchestrator task\n🛠️ subagent coding Run bash echo hello world and then complete",
+                "Subagent2 updating todos\n🛠️ write-todos\n- [x] Feature exploration\n- [ ] **Implementing tool**\n- [ ] Initial setup\n🛠️🔚",
+                "Subagent2 running the bash command\n🛠️ bash echo hello world",
+                "Subagent2 reading AGENTS.md\n🛠️ cat AGENTS.md",
+                "Subagent2 completed successfully\n🛠️ complete-task Task completed successfully",
+                "Subagent1 coding task completed\n🛠️ complete-task Task completed successfully",
+                "All tasks finished\n🛠️ complete-task Main task completed successfully"
+            ]
+        )
     else:
         claude_config = load_claude_config()
         llm = ClaudeLLM(claude_config)
@@ -234,28 +246,6 @@ def build_start_message(message_parts):
     if not message_parts:
         return None
     return " ".join(message_parts)
-
-
-def create_llm_stub():
-    responses = [
-        "Starting task\n🛠️ subagent orchestrator Run bash echo hello world and then complete",
-        "Subagent1 handling the orchestrator task\n🛠️ subagent coding Run bash echo hello world and then complete",
-        "Subagent2 updating todos\n🛠️ write-todos\n- [x] Feature exploration\n- [ ] **Implementing tool**\n- [ ] Initial setup\n🛠️🔚",
-        "Subagent2 running the bash command\n🛠️ bash echo hello world",
-        "Subagent2 reading AGENTS.md\n🛠️ cat AGENTS.md",
-        "Subagent2 completed successfully\n🛠️ complete-task Task completed successfully",
-        "Subagent1 coding task completed\n🛠️ complete-task Task completed successfully",
-        "All tasks finished\n🛠️ complete-task Main task completed successfully"
-    ]
-    call_count = 0
-
-    def llm_stub(system_prompt, messages):
-        nonlocal call_count
-        response = responses[call_count] if call_count < len(responses) else responses[-1]
-        call_count += 1
-        return response
-
-    return llm_stub
 
 
 if __name__ == "__main__":

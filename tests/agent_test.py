@@ -1,7 +1,5 @@
 from approvaltests import verify, Options
 
-from simple_agent.application.input import Input
-from simple_agent.application.session import run_session
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
     AssistantRespondedEvent,
@@ -14,6 +12,9 @@ from simple_agent.application.events import (
     UserPromptRequestedEvent,
     UserPromptedEvent,
 )
+from simple_agent.application.input import Input
+from simple_agent.application.llm_stub import create_llm_stub
+from simple_agent.application.session import run_session
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
@@ -29,7 +30,7 @@ from .test_tool_library import ToolLibraryStub
 
 
 def test_chat_with_regular_response():
-    verify_chat(["Hello", "\n"], "Hello! How can I help you?")
+    verify_chat(["Hello", "\n"], ["Hello! How can I help you?"])
 
 
 def test_chat_with_two_regular_responses():
@@ -37,11 +38,11 @@ def test_chat_with_two_regular_responses():
 
 
 def test_chat_with_empty_answer():
-    verify_chat(["Hello", ""], "Test answer")
+    verify_chat(["Hello", ""], ["Test answer"])
 
 
 def test_abort():
-    verify_chat(["Test message", keyboard_interrupt], "Test answer")
+    verify_chat(["Test message", keyboard_interrupt], ["Test answer"])
 
 
 def test_tool_cat(tmp_path):
@@ -69,7 +70,7 @@ def test_chat_with_task_completion():
 
 
 def test_escape_reads_follow_up_message():
-    verify_chat(["Hello", "Follow-up message", "\n"], "Assistant response", [True, False])
+    verify_chat(["Hello", "Follow-up message", "\n"], ["Assistant response"], [True, False])
 
 
 def test_escape_aborts_tool_call():
@@ -77,7 +78,7 @@ def test_escape_aborts_tool_call():
 
 
 def test_interrupt_reads_follow_up_message():
-    verify_chat(["Hello", "Follow-up message", "\n"], "Assistant response", [], [True, False])
+    verify_chat(["Hello", "Follow-up message", "\n"], ["Assistant response"], [], [True, False])
 
 
 def test_interrupt_aborts_tool_call():
@@ -142,28 +143,6 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
 
     result = f"# Events\n{event_spy.get_events_as_string()}\n\n# Saved messages:\n{test_session_storage.saved}"
     verify(result, options=Options().with_scrubber(all_scrubbers()))
-
-
-def create_llm_stub(answer):
-    if isinstance(answer, list):
-        answer_index = 0
-
-        def llm_stub(system_prompt, messages):
-            nonlocal answer_index
-            if answer_index < len(answer):
-                result = answer[answer_index]
-                answer_index += 1
-                return result
-            if answer:
-                return answer[-1]
-            return ""
-
-        return llm_stub
-
-    def llm_answer(system_prompt, messages):
-        return answer
-
-    return llm_answer
 
 
 def enter(_):
