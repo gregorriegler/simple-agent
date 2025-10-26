@@ -33,11 +33,12 @@ class TextualApp(App):
     }
 
     .left-panel-top {
-        height: 3fr;
+        height: 1fr;
     }
 
     .left-panel-bottom {
-        height: 1fr;
+        height: auto;
+        max-height: 30;
         background: $surface-darken-1;
         border-top: solid $surface-lighten-1;
     }

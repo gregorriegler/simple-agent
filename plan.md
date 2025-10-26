@@ -1,3 +1,4 @@
+- writing tool calls dont go to the result boxs
 - say should be a part of the agent
 - api key via env var
 - A place to show the tool results in full
