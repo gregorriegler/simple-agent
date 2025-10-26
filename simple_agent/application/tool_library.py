@@ -37,10 +37,7 @@ class ParsedTool:
 
     def __str__(self):
         if self.arguments:
-            if '\n' in self.arguments:
-                return f"🛠️ {self.name}\n{self.arguments}"
-            else:
-                return f"🛠️ {self.name} {self.arguments}"
+            return f"🛠️ {self.name} {self.arguments}"
         return f"🛠️ {self.name}"
 
 @dataclass

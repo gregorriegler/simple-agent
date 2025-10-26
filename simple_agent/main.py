@@ -118,6 +118,9 @@ def main():
                 "Subagent2 updating todos\n🛠️ write-todos\n- [x] Feature exploration\n- [ ] **Implementing tool**\n- [ ] Initial setup\n🛠️🔚",
                 "Subagent2 running the bash command\n🛠️ bash echo hello world",
                 "Subagent2 reading AGENTS.md\n🛠️ cat AGENTS.md",
+                "🛠️ create-file newfile.txt\ncontent of newfile.txt",
+                "🛠️ edit-file newfile.txt replace 1\nnew content of newfile.txt",
+                "🛠️ bash rm newfile.txt",
                 "Subagent2 completed successfully\n🛠️ complete-task Task completed successfully",
                 "Subagent1 coding task completed\n🛠️ complete-task Task completed successfully",
                 "All tasks finished\n🛠️ complete-task Main task completed successfully"

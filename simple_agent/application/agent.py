@@ -1,7 +1,7 @@
 from .input import Input
 from .llm import LLM, Messages
 from .session_storage import SessionStorage
-from .tool_library import ToolResult, ContinueResult, ToolLibrary
+from .tool_library import ToolResult, ContinueResult, ToolLibrary, MessageAndParsedTools, ParsedTool
 from .event_bus_protocol import EventBus
 from .events import AssistantSaidEvent, AssistantRespondedEvent, ToolCalledEvent, ToolResultEvent, SessionEndedEvent, \
     SessionInterruptedEvent, \
@@ -71,7 +71,7 @@ class Agent:
         if message:
             self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
 
-    def llm_responds(self, context):
+    def llm_responds(self, context) -> MessageAndParsedTools:
         answer = self.llm(self.system_prompt, context.to_list())
         context.assistant_says(answer)
         self.event_bus.publish(AssistantRespondedEvent(self.agent_id, answer))
@@ -90,8 +90,9 @@ class Agent:
             self.event_bus.publish(UserPromptedEvent(self.agent_id, prompt))
         return prompt
 
-    def execute_tool(self, tool, context):
-        self.event_bus.publish(ToolCalledEvent(self.agent_id, tool))
+    def execute_tool(self, tool: ParsedTool, context):
+        firstline = tool.__str__().splitlines()[0]
+        self.event_bus.publish(ToolCalledEvent(self.agent_id, firstline))
         tool_result = self.tools.execute_parsed_tool(tool)
         self.event_bus.publish(ToolResultEvent(self.agent_id, str(tool_result)))
         if isinstance(tool_result, ContinueResult):
