@@ -14,4 +14,4 @@ class AgentPrompt:
         result = self.template.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_documentation)
         if not self.agents_content:
             return result
-        return result + "\n\n" + self.agents_content
+        return self.agents_content + "\n\n" +result
