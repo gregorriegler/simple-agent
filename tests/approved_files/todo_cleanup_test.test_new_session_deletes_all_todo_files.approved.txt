@@ -1,0 +1,4 @@
+Remaining files after new session:
+.gitignore
+normal.md
+test.txt

@@ -1,4 +1,9 @@
+- clean todos on startup (except --continue)
+- quit on ctrl+c
+- does esc work?
 - writing tool calls dont go to the result boxs
+- a create-file tool call was not added to the collapsible (happened before write-todos)
+- edit file tool not readable, needs colors, maybe replace or patch?
 - say should be a part of the agent
 - api key via env var
 - A place to show the tool results in full

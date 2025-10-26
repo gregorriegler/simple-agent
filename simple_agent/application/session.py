@@ -7,6 +7,7 @@ from simple_agent.application.input import Input
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.system_prompt import SystemPrompt
+from simple_agent.application.todo_cleanup import TodoCleanup
 
 
 @dataclass
@@ -18,7 +19,6 @@ class SessionArgs:
     stub_llm: bool = False
     non_interactive: bool = False
 
-
 def run_session(
     continue_session: bool,
     agent_id,
@@ -28,9 +28,13 @@ def run_session(
     tool_library,
     session_storage: SessionStorage,
     event_bus,
+    todo_cleanup: TodoCleanup,
     agent_name: str = "Agent"
 ):
     event_bus.publish(SessionStartedEvent(agent_id, continue_session))
+
+    if not continue_session:
+        todo_cleanup.cleanup_all_todos()
 
     agent = Agent(
         agent_id,

@@ -30,6 +30,7 @@ from simple_agent.infrastructure.console.console_subagent_display import Console
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
 from simple_agent.infrastructure.event_logger import EventLogger
+from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
 from simple_agent.infrastructure.stdio import StdIO
@@ -39,7 +40,6 @@ from simple_agent.infrastructure.textual.textual_subagent_display import Textual
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.infrastructure.file_system_agent_type_discovery import FileSystemAgentTypeDiscovery
-
 
 def main():
     args = parse_args()
@@ -101,6 +101,7 @@ def main():
     if args.start_message:
         user_input.stack(args.start_message)
     session_storage = JsonFileSessionStorage()
+    todo_cleanup = FileSystemTodoCleanup()
 
     if args.stub_llm:
         llm = create_llm_stub()
@@ -155,6 +156,7 @@ def main():
         tools,
         session_storage,
         event_bus,
+        todo_cleanup,
         prompt.name
     )
 

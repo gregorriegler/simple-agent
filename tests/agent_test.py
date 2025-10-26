@@ -14,6 +14,7 @@ from simple_agent.application.events import (
     UserPromptRequestedEvent,
     UserPromptedEvent,
 )
+from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
@@ -127,7 +128,6 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
         event_bus=event_bus,
         display_event_handler=display_handler
     )
-
     run_session(
         False,
         "Agent",
@@ -136,7 +136,8 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
         llm_stub,
         test_tool_library,
         test_session_storage,
-        event_bus
+        event_bus,
+        NoOpTodoCleanup()
     )
 
     result = f"# Events\n{event_spy.get_events_as_string()}\n\n# Saved messages:\n{test_session_storage.saved}"
