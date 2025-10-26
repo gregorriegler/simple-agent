@@ -1,4 +1,3 @@
-- clean todos on startup (except --continue)
 - quit on ctrl+c
 - does esc work?
 - deadlocks
