@@ -1,6 +1,6 @@
+
 # Test AGENTS.md content
 This is a stub for testing.
-
 
 # Role
 You are an orchestrator who delegates work items to subagents.
