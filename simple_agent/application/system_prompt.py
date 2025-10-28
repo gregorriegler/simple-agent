@@ -13,5 +13,9 @@ class AgentPrompt:
     def render(self, tools_documentation: str) -> SystemPrompt:
         result = self.template.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_documentation)
         if not self.agents_content:
-            return result
-        return self.agents_content + "\n\n" +result
+            return result.replace("{{AGENTS.MD}}", "")
+
+        if "{{AGENTS.MD}}" in result:
+            return result.replace("{{AGENTS.MD}}", self.agents_content)
+
+        return self.agents_content + "\n\n" + result

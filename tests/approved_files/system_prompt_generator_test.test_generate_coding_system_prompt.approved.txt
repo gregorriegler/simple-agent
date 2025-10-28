@@ -1,6 +1,6 @@
+
 # Test AGENTS.md content
 This is a stub for testing.
-
 
 # Role
 You are an expert in Modern Software Engineering and Clean Architecture.

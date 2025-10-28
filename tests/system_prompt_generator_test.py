@@ -6,6 +6,7 @@ from simple_agent.infrastructure.system_prompt.agent_definition import (
     extract_tool_keys,
     load_agent_prompt
 )
+from simple_agent.application.system_prompt import AgentPrompt
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.infrastructure.file_system_agent_type_discovery import FileSystemAgentTypeDiscovery
 from tests.test_helpers import create_all_tools_for_test
@@ -79,3 +80,29 @@ Content here"""
         loader.return_value = prompt_no_separator
         result = extract_tool_keys('no-separator')
     assert result == []
+
+
+def test_render_inserts_agents_content_with_placeholder():
+    prompt = AgentPrompt(
+        name="Test",
+        template="Header\n{{AGENTS.MD}}\n{{DYNAMIC_TOOLS_PLACEHOLDER}}\nFooter",
+        tool_keys=[],
+        agents_content="AGENTS CONTENT"
+    )
+
+    result = prompt.render("TOOLS DOCS")
+
+    assert result == "Header\nAGENTS CONTENT\nTOOLS DOCS\nFooter"
+
+
+def test_render_removes_placeholder_when_no_agents_content():
+    prompt = AgentPrompt(
+        name="Test",
+        template="Header\n{{AGENTS.MD}}\nFooter",
+        tool_keys=[],
+        agents_content=""
+    )
+
+    result = prompt.render("TOOLS DOCS")
+
+    assert result == "Header\n\nFooter"

@@ -3,6 +3,8 @@ name: Question
 tools: write_todos, bash, ls, cat, create_file, complete_task
 ---
 
+{{AGENTS.MD}}
+
 # Role
 Answer the given question
 
