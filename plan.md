@@ -1,7 +1,6 @@
 - quit on ctrl+c
 - does esc work?
 - deadlocks
-- writing tool calls dont go to the result boxs
 - a create-file tool call was not added to the collapsible (happened before write-todos)
 - edit file tool not readable, needs colors, maybe replace or patch?
 - agent definitions folder configurable
