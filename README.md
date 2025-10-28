@@ -2,36 +2,39 @@
 
 [![Tests](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml)
 
+Simple Agent is a CLI-first assistant that coordinates Claude-powered sessions, tool usage, and subagents through a minimal ports-and-adapters architecture.
+
 ## Components
 
-### [`agent.py`](agent.py:1)
-Agent that manages chat sessions with Claude AI, integrates tool execution, and coordinates the modernization workflow.
-
-### [`ToolLibrary`](tools/tool_library.py:13)
-Central registry and execution engine for all available tools, combining static tools with dynamically discovered tools
-
-### [`agent_definition.py`](simple_agent/infrastructure/system_prompt/agent_definition.py:1)
-Generates system prompts from agent definition files and exposes tool metadata for the application pipeline.
+- [`simple_agent/main.py`](simple_agent/main.py): CLI entry point that wires the event bus, user interface, Claude client, and tool library before running a session.
+- [`simple_agent/application/session.py`](simple_agent/application/session.py): Orchestrates the lifecycle of a chat session, including streaming assistant output, tool execution, and persistence.
+- [`simple_agent/application/agent.py`](simple_agent/application/agent.py): Core chat loop that gathers user input, streams Claude responses, and coordinates tool execution.
+- [`simple_agent/tools/all_tools.py`](simple_agent/tools/all_tools.py): Registers built-in tools (bash, cat, edit_file, etc.), parses tool calls, and executes them.
+- [`simple_agent/infrastructure/system_prompt/agent_definition.py`](simple_agent/infrastructure/system_prompt/agent_definition.py): Loads agent definitions and renders prompts that describe available tools to Claude.
 
 ## Installation and Usage
 
-### Quick Install (recommended)
+### Quick install (recommended)
 ```bash
 ./install.sh
 ```
 
-### Usage Method 1: Using the shell script (recommended for development)
+### Usage method 1: shell wrapper (recommended for development)
 ```bash
 ./agent.sh "your message here"
-./agent.sh --help
-./agent.sh --continue  # continue previous session
+./agent.sh --continue            # continue previous session
+./agent.sh --user-interface console
+./agent.sh --system-prompt       # print rendered system prompt
+./agent.sh --stub                # run against the built-in LLM stub
+./agent.sh --non-interactive     # suppress interactive prompts
 ```
-### Usage Method 2: Using uv directly
+
+### Usage method 2: invoke the script with uv
 ```bash
-uv run agent "your message here"
-uv run agent --help
-uv run agent --continue  # continue previous session
+uv run --project . --script simple_agent/main.py "your message here"
+uv run --project . --script simple_agent/main.py --help
 ```
+
 ### Install globally with uv
 ```bash
 uv tool install .
@@ -40,34 +43,32 @@ agent "your message here"
 
 ### Examples
 ```bash
-# Start interactive session
+# Start an interactive session using the default textual UI
 ./agent.sh "say hello"
 
-# Continue existing session
-./agent.sh --continue "Optional Message"
+# Run in the console UI and continue the previous session
+./agent.sh --user-interface console --continue
 ```
 
 ## Configuration
 
-Create a `.simple-agent.toml` file in the directory where you run the agent:
+Create a `.simple-agent.toml` file either in your home directory or in the directory where you run the agent. Values from the current directory override those from `~`.
 
 ```toml
 [claude]
 api_key = "your-claude-api-key-here"
 model = "claude-sonnet-4-5-20250929"
-
-[paths]
-refactoring_tools_path = "/path/to/your/tools"
 ```
 
-The agent will look for this file in the current working directory and exit with an error if not found.
+Both `claude.api_key` and `claude.model` are required; the agent exits with an error if either value is missing.
 
-## Direct Tool Usage
+## Direct tool usage
+
+You can execute a single tool call without starting a full session:
 
 ```bash
-./list_tools.sh
-
-./run_tool.sh ls .
+uv run --project . --script simple_agent/run_tool.py bash "echo hello"
+uv run --project . --script simple_agent/run_tool.py cat README.md
 ```
 
 ## Development
@@ -79,11 +80,11 @@ The agent will look for this file in the current working directory and exit with
 # Approve received files
 ./approve.sh
 
-# Test the System Prompt
-./system_prompt.sh
+# Generate coverage locally
+./coverage.sh
 ```
 
-## Text-to-Speech Setup
+## Text-to-Speech setup
 
 The `say.py` script requires a Piper TTS voice model to function. Download the required model:
 
