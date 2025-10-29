@@ -2,7 +2,7 @@
 
 [![Tests](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml)
 
-Simple Agent is a CLI-first assistant that coordinates Claude-powered sessions, tool usage, and subagents through a minimal ports-and-adapters architecture.
+Simple Agent is a CLI agent designed to orchestrate focused agents with built-in human oversight.
 
 ## Components
 
