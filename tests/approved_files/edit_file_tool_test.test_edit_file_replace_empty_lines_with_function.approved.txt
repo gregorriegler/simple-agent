@@ -6,6 +6,18 @@ def hello():
 Result:
 Successfully edited template.py
 
+--- template.py (original)
++++ template.py (updated)
+@@ -1,6 +1,5 @@
+ line1
+ line2
+-
+-
+-
++def hello():
++    return 'world'
+ line6
+
 Initial file: template.py
 Initial content:
 --- INITIAL CONTENT START ---
@@ -15,6 +27,7 @@ line2
 
 
 line6
+
 --- INITIAL CONTENT END ---
 
 File after edit: template.py
@@ -25,4 +38,5 @@ line2
 def hello():
     return 'world'
 line6
+
 --- FINAL CONTENT END ---

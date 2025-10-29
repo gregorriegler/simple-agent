@@ -179,7 +179,10 @@ class TextualApp(App):
         line_count = len(message.splitlines()) or 1
         height = min(line_count * 2 + 1, 30)
         classes = "tool-result" if success else "tool-result tool-result-error"
-        text_area = TextArea(message, read_only=True, language="python", show_cursor=False, classes=classes)
+        language = "python"
+        if title_source and str(title_source).startswith("🛠️ edit-file"):
+            language = "diff"
+        text_area = TextArea(message, read_only=True, language=language, show_cursor=False, classes=classes)
         text_area.styles.height = height
         text_area.styles.min_height = height
         collapsible = Collapsible(text_area, title=title_text, collapsed=False)

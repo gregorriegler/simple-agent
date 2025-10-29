@@ -1,3 +1,4 @@
+import difflib
 import os
 from dataclasses import dataclass
 
@@ -19,6 +20,7 @@ class FileEditor:
     def __init__(self, filename):
         self.filename = filename
         self.lines = []
+        self.original_lines = []
 
     def load_file(self):
         if not os.path.exists(self.filename):
@@ -26,6 +28,7 @@ class FileEditor:
 
         with open(self.filename, 'r', encoding='utf-8') as f:
             self.lines = f.readlines()
+        self.original_lines = self.lines[:]
 
     def save_file(self):
         with open(self.filename, 'w', encoding='utf-8', newline="\n") as f:
@@ -57,16 +60,16 @@ class FileEditor:
 
         return normalized_start, normalized_end
 
-    def _trim_terminal_newline(self, new_lines):
-        if not self.lines or not new_lines:
-            return new_lines
-        if self.lines[-1].endswith('\n'):
-            return new_lines
-        if not new_lines[-1].endswith('\n'):
-            return new_lines
-        adjusted_lines = new_lines[:]
-        adjusted_lines[-1] = adjusted_lines[-1][:-1]
-        return adjusted_lines
+    def build_diff(self):
+        diff_lines = list(
+            difflib.unified_diff(
+                self.original_lines,
+                self.lines,
+                fromfile=f"{self.filename} (original)",
+                tofile=f"{self.filename} (updated)",
+            )
+        )
+        return diff_lines
 
 
 class InsertMode:
@@ -103,11 +106,14 @@ class DeleteMode:
 
         start_line, end_line = normalized_range
         lines_to_delete = set(range(start_line, end_line + 1))
-        new_lines = [line for i, line in enumerate(editor.lines, start=1)
-                    if i not in lines_to_delete]
+        new_lines = []
+        last_retained_index = None
 
-        if end_line == len(editor.lines):
-            new_lines = editor._trim_terminal_newline(new_lines)
+        for i, line in enumerate(editor.lines, start=1):
+            if i in lines_to_delete:
+                continue
+            new_lines.append(line)
+            last_retained_index = i
 
         editor.lines = new_lines
 
@@ -250,8 +256,20 @@ Replace mode: First deletes the specified range, then inserts new content at tha
             mode = mode_class()
             mode.apply(editor, edit_args)
 
+            diff_lines = editor.build_diff()
+
             editor.save_file()
-            return ContinueResult(f"Successfully edited {edit_args.filename}")
+
+            if diff_lines:
+                diff_message = "".join(diff_lines)
+                message = (
+                    f"Successfully edited {edit_args.filename}\n\n"
+                    f"{diff_message}"
+                ).rstrip("\n")
+            else:
+                message = f"No changes made to {edit_args.filename}"
+
+            return ContinueResult(message)
 
         except FileNotFoundError as e:
             return ContinueResult(str(e), success=False)
@@ -259,3 +277,4 @@ Replace mode: First deletes the specified range, then inserts new content at tha
             return ContinueResult(f'Error editing file "{edit_args.filename}": {str(e)}', success=False)
         except Exception as e:
             return ContinueResult(f'Unexpected error editing file "{edit_args.filename}": {str(e)}', success=False)
+

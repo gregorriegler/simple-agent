@@ -26,6 +26,49 @@ class DataHandler:
 Result:
 Successfully edited complex_program.py
 
+--- complex_program.py (original)
++++ complex_program.py (updated)
+@@ -1,22 +1,24 @@
+-class DataProcessor:
+-    def __init__(self, input_data):
+-        self.raw_data = input_data
+-        self.processed_items = []
++class DataHandler:
++    def __init__(self, source_data):
++        self.original_data = source_data
++        self.cleaned_items = []
+ 
+-    def validate_input(self, data_item):
+-        if not data_item:
++    def check_validity(self, data_entry):
++        if not data_entry:
+             return False
+-        return len(data_item) > 0
++        return len(data_entry) > 0
+ 
+-    def process_single_item(self, item):
+-        if self.validate_input(item):
+-            cleaned_item = item.strip().lower()
+-            return cleaned_item
++    def handle_single_entry(self, entry):
++        if self.check_validity(entry):
++            normalized_entry = entry.strip().lower()
++            return normalized_entry
+         return None
+ 
+-    def batch_process(self):
+-        for current_item in self.raw_data:
+-            result = self.process_single_item(current_item)
+-            if result:
++    def process_all(self):
++        for current_entry in self.original_data:
++            outcome = self.handle_single_entry(current_entry)
++            if outcome:
++                self.cleaned_items.append(outcome)
++        return self.cleaned_items
+                 self.processed_items.append(result)
+         return self.processed_items
+
 Initial file: complex_program.py
 Initial content:
 --- INITIAL CONTENT START ---
@@ -51,6 +94,7 @@ class DataProcessor:
             if result:
                 self.processed_items.append(result)
         return self.processed_items
+
 --- INITIAL CONTENT END ---
 
 File after edit: complex_program.py
@@ -80,4 +124,5 @@ class DataHandler:
         return self.cleaned_items
                 self.processed_items.append(result)
         return self.processed_items
+
 --- FINAL CONTENT END ---

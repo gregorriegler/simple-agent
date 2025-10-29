@@ -168,6 +168,9 @@ def test_edit_file_replace_complex_python_program_rename_functions_and_variables
 def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
     with temp_directory(tmp_path):
         os.makedirs(os.path.dirname(setup_file) or '.', exist_ok=True)
+        if setup_content and not setup_content.endswith("\n"):
+            setup_content = f"{setup_content}\n"
+
         with open(setup_file, "w", encoding='utf-8') as f:
             f.write(setup_content)
 

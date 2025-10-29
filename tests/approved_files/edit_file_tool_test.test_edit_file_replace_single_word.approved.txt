@@ -5,10 +5,17 @@ new
 Result:
 Successfully edited test.txt
 
+--- test.txt (original)
++++ test.txt (updated)
+@@ -1 +1 @@
+-old
++new
+
 Initial file: test.txt
 Initial content:
 --- INITIAL CONTENT START ---
 old
+
 --- INITIAL CONTENT END ---
 
 File after edit: test.txt
