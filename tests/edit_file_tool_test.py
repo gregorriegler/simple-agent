@@ -7,20 +7,20 @@ library = create_all_tools_for_test()
 
 
 def test_edit_file_replace_single_word(tmp_path):
-    verify_edit_tool(library, "test.txt", "old", "🛠️ edit-file test.txt replace 1-1\nnew", tmp_path=tmp_path)
+    verify_edit_tool(library, "test.txt", "old\n", "🛠️ edit-file test.txt replace 1-1\nnew", tmp_path=tmp_path)
 
 
 def test_edit_file_replace_two_consecutive_lines_with_one(tmp_path):
-    verify_edit_tool(library, "test.txt", "line1\nline2\nline3", "🛠️ edit-file test.txt replace 2-3\nnewline", tmp_path=tmp_path)
+    verify_edit_tool(library, "test.txt", "line1\nline2\nline3\n", "🛠️ edit-file test.txt replace 2-3\nnewline", tmp_path=tmp_path)
 
 
 def test_edit_file_replace_a_lines_with_lines_in_quotes(tmp_path):
     command = "🛠️ edit-file test.txt replace 2\n\"insert1\ninsert2\""
-    verify_edit_tool(library, "test.txt", "line1\nline2", command, tmp_path=tmp_path)
+    verify_edit_tool(library, "test.txt", "line1\nline2\n", command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_empty_lines_with_function(tmp_path):
-    initial_content = "line1\nline2\n\n\n\nline6"
+    initial_content = "line1\nline2\n\n\n\nline6\n"
     function_def = "def hello():\n    return 'world'"
     command = f"🛠️ edit-file template.py replace 3-5\n{function_def}"
     verify_edit_tool(library, "template.py", initial_content, command, tmp_path=tmp_path)
@@ -28,7 +28,7 @@ def test_edit_file_replace_empty_lines_with_function(tmp_path):
 
 def test_edit_file_replace_path_with_spaces(tmp_path):
     command = '🛠️ edit-file "notes folder/note file.txt" replace 1\n"updated line"'
-    verify_edit_tool(library, "notes folder/note file.txt", "original line", command, tmp_path=tmp_path)
+    verify_edit_tool(library, "notes folder/note file.txt", "original line\n", command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_three_lines_to_empty_file(tmp_path):
@@ -37,79 +37,79 @@ def test_edit_file_insert_three_lines_to_empty_file(tmp_path):
 
 
 def test_edit_file_insert_line_without_explicit_newline_adds_newline_automatically(tmp_path):
-    initial_content = "line1\nline2"
+    initial_content = "line1\nline2\n"
     command = "🛠️ edit-file test.txt insert 2\ninserted_line"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_multiline_without_trailing_newline_adds_newline_automatically(tmp_path):
-    initial_content = "line1\nline2"
+    initial_content = "line1\nline2\n"
     command = "🛠️ edit-file test.txt insert 2\ninserted_line1\ninserted_line2"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_preserves_indentation_in_multiline_content(tmp_path):
-    initial_content = "line1\nline2"
+    initial_content = "line1\nline2\n"
     command = "🛠️ edit-file test.py insert 3\ndef hello():\n    return 'world'"
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_beyond_last_line_appends_to_end(tmp_path):
-    initial_content = "line1\nline2"
+    initial_content = "line1\nline2\n"
     command = "🛠️ edit-file test.txt insert 3\nline3"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_far_beyond_last_line_appends_to_end_and_pads_with_empty_lines(tmp_path):
-    initial_content = "line1\nline2"
+    initial_content = "line1\nline2\n"
     command = "🛠️ edit-file test.txt insert 10\nline10"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_without_content_inserts_an_empty_line(tmp_path):
-    initial_content = "line1\nline2"
+    initial_content = "line1\nline2\n"
     command = "🛠️ edit-file test.txt insert 2"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_delete_a_line(tmp_path):
-    initial_content = "line1\nline2"
+    initial_content = "line1\nline2\n"
     command = "🛠️ edit-file test.txt delete 1"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_delete_range_extending_past_file_end(tmp_path):
-    initial_content = "line1\nline2\nline3"
+    initial_content = "line1\nline2\nline3\n"
     command = "🛠️ edit-file test.txt delete 2-10"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_range_beyond_file_end_leaves_file_unchanged(tmp_path):
-    initial_content = "line1\nline2"
+    initial_content = "line1\nline2\n"
     command = "🛠️ edit-file test.txt replace 5-7\nreplacement"
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_with_auto_indent_python(tmp_path):
-    initial_content = "line1\n    existing = 1\nline3"
+    initial_content = "line1\n    existing = 1\nline3\n"
     command = "🛠️ edit-file test.py replace 2\nnew = 2"
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_with_auto_indent(tmp_path):
-    initial_content = "line1\n    line2\nline3"
+    initial_content = "line1\n    line2\nline3\n"
     command = "🛠️ edit-file test.py insert 2\nnew_line"
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_preserves_manual_indentation(tmp_path):
-    initial_content = "line1\n    existing\nline3"
+    initial_content = "line1\n    existing\nline3\n"
     command = "🛠️ edit-file test.py replace 2\n        manually_indented"
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_multiline_only_indents_first_line(tmp_path):
-    initial_content = "line1\n    existing\nline3"
+    initial_content = "line1\n    existing\nline3\n"
     command = "🛠️ edit-file test.py replace 2\nline1\nline2\n    line3"
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
@@ -136,7 +136,8 @@ def test_edit_file_replace_complex_python_program_rename_functions_and_variables
             result = self.process_single_item(current_item)
             if result:
                 self.processed_items.append(result)
-        return self.processed_items"""
+        return self.processed_items
+"""
 
     replacement_content = """class DataHandler:
     def __init__(self, source_data):
@@ -159,7 +160,8 @@ def test_edit_file_replace_complex_python_program_rename_functions_and_variables
             outcome = self.handle_single_entry(current_entry)
             if outcome:
                 self.cleaned_items.append(outcome)
-        return self.cleaned_items"""
+        return self.cleaned_items
+"""
 
     command = f"🛠️ edit-file complex_program.py replace 1-20\n{replacement_content}"
     verify_edit_tool(library, "complex_program.py", initial_content, command, tmp_path=tmp_path)
@@ -168,9 +170,6 @@ def test_edit_file_replace_complex_python_program_rename_functions_and_variables
 def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
     with temp_directory(tmp_path):
         os.makedirs(os.path.dirname(setup_file) or '.', exist_ok=True)
-        if setup_content and not setup_content.endswith("\n"):
-            setup_content = f"{setup_content}\n"
-
         with open(setup_file, "w", encoding='utf-8') as f:
             f.write(setup_content)
 
