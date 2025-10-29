@@ -6,11 +6,20 @@ def hello():
 Result:
 Successfully edited test.py
 
+--- test.py (original)
++++ test.py (updated)
+@@ -1,2 +1,4 @@
+ line1
+ line2
++def hello():
++    return 'world'
+
 Initial file: test.py
 Initial content:
 --- INITIAL CONTENT START ---
 line1
 line2
+
 --- INITIAL CONTENT END ---
 
 File after edit: test.py

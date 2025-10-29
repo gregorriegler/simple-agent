@@ -5,11 +5,26 @@ line10
 Result:
 Successfully edited test.txt
 
+--- test.txt (original)
++++ test.txt (updated)
+@@ -1,2 +1,10 @@
+ line1
+ line2
++
++
++
++
++
++
++
++line10
+
 Initial file: test.txt
 Initial content:
 --- INITIAL CONTENT START ---
 line1
 line2
+
 --- INITIAL CONTENT END ---
 
 File after edit: test.txt

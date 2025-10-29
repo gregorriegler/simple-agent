@@ -5,11 +5,19 @@ inserted_line
 Result:
 Successfully edited test.txt
 
+--- test.txt (original)
++++ test.txt (updated)
+@@ -1,2 +1,3 @@
+ line1
++inserted_line
+ line2
+
 Initial file: test.txt
 Initial content:
 --- INITIAL CONTENT START ---
 line1
 line2
+
 --- INITIAL CONTENT END ---
 
 File after edit: test.txt
@@ -18,4 +26,5 @@ Final content:
 line1
 inserted_line
 line2
+
 --- FINAL CONTENT END ---
