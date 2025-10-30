@@ -10,6 +10,10 @@ class FileSystemTodoCleanup(TodoCleanup):
         for file_path in cwd.glob(".*.todos.md"):
             if file_path.is_file():
                 file_path.unlink()
+        
+        todos_file = cwd / ".todos.md"
+        if todos_file.exists() and todos_file.is_file():
+            todos_file.unlink()
 
     def cleanup_todos_for_agent(self, agent_id: str) -> None:
         todo_path = self._todo_path_for_agent(agent_id)

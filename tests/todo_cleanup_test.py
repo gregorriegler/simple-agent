@@ -21,6 +21,7 @@ def test_new_session_deletes_all_todo_files(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
     files = [
+        ".todos.md",
         ".Agent.todos.md",
         ".Agent.Coding.todos.md",
         ".Agent.Orchestrator.todos.md",

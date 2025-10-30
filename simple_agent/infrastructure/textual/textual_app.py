@@ -118,8 +118,7 @@ class TextualApp(App):
                 self.user_input.request_escape()
             event.prevent_default()
             return
-
-        super().on_key(event)
+        return
 
     def action_previous_tab(self) -> None:
         self._switch_tab(-1)
