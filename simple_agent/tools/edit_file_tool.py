@@ -261,15 +261,22 @@ Replace mode: First deletes the specified range, then inserts new content at tha
             editor.save_file()
 
             if diff_lines:
-                diff_message = "".join(diff_lines)
-                message = (
-                    f"Successfully edited {edit_args.filename}\n\n"
-                    f"{diff_message}"
-                ).rstrip("\n")
-            else:
-                message = f"No changes made to {edit_args.filename}"
+                diff_message = "".join(diff_lines).rstrip("\n")
+                summary = f"Successfully edited {edit_args.filename}"
+                message = f"{summary}\n\n{diff_message}"
+                return ContinueResult(
+                    message,
+                    display_title=summary,
+                    display_body=diff_message,
+                    display_language="diff",
+                )
 
-            return ContinueResult(message)
+            summary = f"No changes made to {edit_args.filename}"
+            return ContinueResult(
+                summary,
+                display_title=summary,
+                display_body=summary,
+            )
 
         except FileNotFoundError as e:
             return ContinueResult(str(e), success=False)

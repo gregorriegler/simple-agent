@@ -42,7 +42,7 @@ class TextualSubagentDisplay(TextualDisplay):
         if not result:
             return
         if self.app and self.app.is_running and self.tool_results_id:
-            self.app.call_from_thread(self.app.write_tool_result, self.tool_results_id, result.message, result.success)
+            self.app.call_from_thread(self.app.write_tool_result, self.tool_results_id, result)
 
     def continue_session(self):
         if self.app and self.app.is_running and self.log_id:

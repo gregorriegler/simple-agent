@@ -4,6 +4,8 @@ from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, VerticalScroll
 from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible, Markdown
+
+from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal
 
 
@@ -155,7 +157,8 @@ class TextualApp(App):
             return
         self._pending_tool_calls[tool_results_id] = message
 
-    def write_tool_result(self, tool_results_id: str, message: str, success: bool) -> None:
+    def write_tool_result(self, tool_results_id: str, result: ToolResult) -> None:
+        success = result.success
         if tool_results_id in self._suppressed_tool_results:
             self._suppressed_tool_results.discard(tool_results_id)
             self._pending_tool_calls.pop(tool_results_id, None)
@@ -163,28 +166,41 @@ class TextualApp(App):
             if success:
                 return
         title_source = self._pending_tool_calls.pop(tool_results_id, None)
+        message = result.display_body if result.display_body else result.message
+        message = message or ""
+        title_text = result.display_title if result.display_title else None
         if title_source is not None:
             lines = title_source.__str__().splitlines()
-            title_text = lines[0] if lines else "Tool Result"
+            default_title = lines[0] if lines else "Tool Result"
             other_lines = lines[1:]
-            if success and other_lines:
+            if title_text is None:
+                title_text = default_title
+            if success and other_lines and not result.display_body:
                 message = "\n".join(other_lines)
         else:
-            title_text = "Tool Result"
+            if title_text is None:
+                title_text = "Tool Result"
 
         container = self.query_one(f"#{tool_results_id}", VerticalScroll)
         collapsibles = self._tool_result_collapsibles.setdefault(tool_results_id, [])
         for collapsible in collapsibles:
             collapsible.collapsed = True
+
+        classes = "tool-result" if success else "tool-result tool-result-error"
+        language = result.display_language or "python"
+
         line_count = len(message.splitlines()) or 1
         height = min(line_count * 2 + 1, 30)
-        classes = "tool-result" if success else "tool-result tool-result-error"
-        language = "python"
-        if title_source and str(title_source).startswith("🛠️ edit-file"):
-            language = "diff"
-        text_area = TextArea(message, read_only=True, language=language, show_cursor=False, classes=classes)
+        text_area = TextArea(
+            message,
+            read_only=True,
+            language=language,
+            show_cursor=False,
+            classes=classes,
+        )
         text_area.styles.height = height
         text_area.styles.min_height = height
+
         collapsible = Collapsible(text_area, title=title_text, collapsed=False)
         collapsibles.append(collapsible)
         container.mount(collapsible)

@@ -6,6 +6,9 @@ from typing import Protocol, List
 class ToolResult:
     message: str = ""
     success: bool = True
+    display_title: str = ""
+    display_body: str = ""
+    display_language: str = ""
 
     def __str__(self) -> str:
         return self.message
