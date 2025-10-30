@@ -266,7 +266,6 @@ Replace mode: First deletes the specified range, then inserts new content at tha
                 message = f"{summary}\n\n{diff_message}"
                 return ContinueResult(
                     message,
-                    display_title=summary,
                     display_body=diff_message,
                     display_language="diff",
                 )
@@ -274,7 +273,6 @@ Replace mode: First deletes the specified range, then inserts new content at tha
             summary = f"No changes made to {edit_args.filename}"
             return ContinueResult(
                 summary,
-                display_title=summary,
                 display_body=summary,
             )
 
