@@ -45,7 +45,7 @@ class TextualDisplay(Display):
         if not result:
             return
         if self.app and self.app.is_running:
-            self.app.call_from_thread(self.app.write_tool_result, "tool-results", result.message, result.success)
+            self.app.call_from_thread(self.app.write_tool_result, "tool-results", result)
 
     def continue_session(self):
         self._start_app()
