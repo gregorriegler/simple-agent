@@ -13,10 +13,12 @@ class TextualDisplay(Display):
         self.user_input = user_input
         self.app: TextualApp | None = None
         self.app_thread: threading.Thread | None = None
+        self._app_shutdown = threading.Event()
 
     def _start_app(self):
         if self.app is None:
             self.app = TextualApp(self.user_input)
+            self._app_shutdown.clear()
             self.app_thread = threading.Thread(target=self._run_app)
             self.app_thread.start()
             import time
@@ -24,7 +26,10 @@ class TextualDisplay(Display):
 
     def _run_app(self):
         if self.app:
-            self.app.run()
+            try:
+                self.app.run()
+            finally:
+                self._app_shutdown.set()
 
     def user_says(self, message):
         if self.app and self.app.is_running:
@@ -70,6 +75,7 @@ class TextualDisplay(Display):
             self.app.call_from_thread(self.app.write_message, "log", "\nExiting...")
             self.app.call_from_thread(self.app.exit)
             if self.app_thread and self.app_thread.is_alive():
-                self.app_thread.join(timeout=2.0)
+                self._app_shutdown.wait()
+                self.app_thread.join()
 
 
