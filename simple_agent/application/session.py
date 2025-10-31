@@ -31,10 +31,10 @@ def run_session(
     todo_cleanup: TodoCleanup,
     agent_name: str = "Agent"
 ):
-    event_bus.publish(SessionStartedEvent(agent_id, continue_session))
-
     if not continue_session:
         todo_cleanup.cleanup_all_todos()
+
+    event_bus.publish(SessionStartedEvent(agent_id, continue_session))
 
     agent = Agent(
         agent_id,
