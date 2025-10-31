@@ -1,5 +1,4 @@
 - can we use the codex api key?
-- subagent coding duplicate tab id
 - the collapsible only appears once the tool has finished. this is too late
 - diff is not colored
 - add reviewer agent
