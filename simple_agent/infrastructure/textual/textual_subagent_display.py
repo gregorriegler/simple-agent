@@ -1,11 +1,11 @@
 from simple_agent.application.tool_library import ToolResult
+from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 
 
 class TextualSubagentDisplay(TextualDisplay):
-    def __init__(self, parent_app, agent_id: str, agent_name: str, display_event_handler):
-        super().__init__("Subagent")
-        self.app = parent_app
+    def __init__(self, app: TextualApp, agent_id: str, agent_name: str, display_event_handler):
+        super().__init__(agent_name, app)
         self.agent_id = agent_id
         self.agent_name = agent_name
         self.display_event_handler = display_event_handler

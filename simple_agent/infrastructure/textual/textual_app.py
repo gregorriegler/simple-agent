@@ -1,3 +1,5 @@
+import threading
+import time
 from pathlib import Path
 
 from textual import events
@@ -10,7 +12,22 @@ from simple_agent.infrastructure.textual.resizable_container import ResizableHor
 
 
 class TextualApp(App):
+    @staticmethod
+    def create_and_start(user_input=None):
+        app = TextualApp(user_input)
+        app._app_thread = threading.Thread(target=app.run, daemon=False)
+        app._app_thread.start()
+        time.sleep(0.5)
+        return app
 
+    def shutdown(self):
+        if self.is_running:
+            self.call_from_thread(self.exit)
+        if self._app_thread and self._app_thread.is_alive():
+            self._app_thread.join(timeout=2.0)
+            if self._app_thread.is_alive():
+                import sys
+                print("Warning: TextualApp thread did not exit cleanly", file=sys.stderr)
     BINDINGS = [
         ("alt+left", "previous_tab", "Previous Tab"),
         ("alt+right", "next_tab", "Next Tab"),
@@ -78,6 +95,7 @@ class TextualApp(App):
     def __init__(self, user_input=None):
         super().__init__()
         self.user_input = user_input
+        self._app_thread = None
         self._pending_tool_calls: dict[str, str] = {}
         self._tool_result_collapsibles: dict[str, list[Collapsible]] = {}
         self._agent_panel_ids: dict[str, tuple[str, str]] = {}

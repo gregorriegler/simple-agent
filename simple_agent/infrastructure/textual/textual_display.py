@@ -1,5 +1,3 @@
-import threading
-
 from simple_agent.application.display import Display
 from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
@@ -7,29 +5,10 @@ from simple_agent.infrastructure.textual.textual_app import TextualApp
 
 class TextualDisplay(Display):
 
-    def __init__(self, agent_name="Agent", user_input=None):
+    def __init__(self, agent_name: str, app: TextualApp):
         self.agent_name = agent_name
         self.agent_prefix = f"{agent_name}: "
-        self.user_input = user_input
-        self.app: TextualApp | None = None
-        self.app_thread: threading.Thread | None = None
-        self._app_shutdown = threading.Event()
-
-    def _start_app(self):
-        if self.app is None:
-            self.app = TextualApp(self.user_input)
-            self._app_shutdown.clear()
-            self.app_thread = threading.Thread(target=self._run_app)
-            self.app_thread.start()
-            import time
-            time.sleep(0.5)
-
-    def _run_app(self):
-        if self.app:
-            try:
-                self.app.run()
-            finally:
-                self._app_shutdown.set()
+        self.app = app
 
     def user_says(self, message):
         if self.app and self.app.is_running:
@@ -53,12 +32,10 @@ class TextualDisplay(Display):
             self.app.call_from_thread(self.app.write_tool_result, "tool-results", result)
 
     def continue_session(self):
-        self._start_app()
         if self.app and self.app.is_running:
             self.app.call_from_thread(self.app.write_message, "log", "Continuing session")
 
     def start_new_session(self):
-        self._start_app()
         if self.app and self.app.is_running:
             self.app.call_from_thread(self.app.write_message, "log", "Starting new session")
 
@@ -73,9 +50,4 @@ class TextualDisplay(Display):
     def exit(self):
         if self.app and self.app.is_running:
             self.app.call_from_thread(self.app.write_message, "log", "\nExiting...")
-            self.app.call_from_thread(self.app.exit)
-            if self.app_thread and self.app_thread.is_alive():
-                self._app_shutdown.wait()
-                self.app_thread.join()
-
-
+        self.app.shutdown()

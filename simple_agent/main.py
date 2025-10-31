@@ -1,6 +1,7 @@
 #!/usr/bin/env -S uv run --script
 
 import argparse
+import threading
 
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.display import DummyDisplay
@@ -37,6 +38,7 @@ from simple_agent.infrastructure.json_file_session_storage import JsonFileSessio
 from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.system_prompt.agent_definition import load_agent_prompt
+from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
@@ -75,17 +77,26 @@ def main():
             textual_user_input = NonInteractiveUserInput()
         else:
             textual_user_input = TextualUserInput()
-        display = TextualDisplay(agent_id, textual_user_input)
+
+        textual_app = TextualApp.create_and_start(textual_user_input)
+
+        display = TextualDisplay(agent_id, textual_app)
         user_input = Input(textual_user_input)
         create_subagent_input = lambda indent: user_input
         display_event_handler = DisplayEventHandler(display)
 
         def _create_textual_subagent_display(_agent_id, _agent_name, _indent):
-            subagent_display = TextualSubagentDisplay(display.app, _agent_id, _agent_name, display_event_handler)
+            subagent_display = TextualSubagentDisplay(
+                textual_app,
+                _agent_id,
+                _agent_name,
+                display_event_handler
+            )
             display_event_handler.register_display(_agent_id, subagent_display)
             return subagent_display
 
         create_subagent_display = _create_textual_subagent_display
+
     else:
         display = ConsoleDisplay(indent_level, agent_id, io)
         if args.non_interactive:
@@ -183,6 +194,7 @@ def main():
     )
 
     display.exit()
+
     return None
 
 
