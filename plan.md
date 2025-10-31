@@ -1,8 +1,8 @@
 - can we use the codex api key?
 - subagent coding duplicate tab id
+- the collapsible only appears once the tool has finished. this is too late
 - diff is not colored
 - add reviewer agent
-- the collapsible only appears once the tool has finished. this is too late
 - do we need all those ifs in TextualDisplay?
 - does esc work?
 - deadlocks
