@@ -8,7 +8,15 @@ from textual.containers import Vertical, VerticalScroll
 from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible, Markdown
 
 from simple_agent.application.tool_library import ToolResult
-from simple_agent.infrastructure.textual.textual_messages import UserSaysMessage, AssistantSaysMessage, ToolCallMessage, ToolResultMessage, SessionStatusMessage, RemoveSubagentTabMessage
+from simple_agent.infrastructure.textual.textual_messages import (
+    AddSubagentTabMessage,
+    AssistantSaysMessage,
+    RemoveSubagentTabMessage,
+    SessionStatusMessage,
+    ToolCallMessage,
+    ToolResultMessage,
+    UserSaysMessage,
+)
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal
 
 
@@ -103,6 +111,14 @@ class TextualApp(App):
         self._todo_widgets: dict[str, Markdown] = {}
         self._tool_results_to_agent: dict[str, str] = {}
         self._suppressed_tool_results: set[str] = set()
+
+    @staticmethod
+    def panel_ids_for(agent_id: str) -> tuple[str, str, str]:
+        sanitized = agent_id.replace("/", "-")
+        tab_id = f"tab-{sanitized}"
+        log_id = f"log-{sanitized}"
+        tool_results_id = f"tool-results-{sanitized}"
+        return tab_id, log_id, tool_results_id
 
     def compose(self) -> ComposeResult:
         with Vertical():
@@ -226,10 +242,7 @@ class TextualApp(App):
         self._refresh_todos(tool_results_id)
 
     def add_subagent_tab(self, agent_id: str, tab_title: str) -> tuple[str, str]:
-        sanitized = agent_id.replace('/', '-')
-        tab_id = f"tab-{sanitized}"
-        log_id = f"log-{sanitized}"
-        tool_results_id = f"tool-results-{sanitized}"
+        tab_id, log_id, tool_results_id = self.panel_ids_for(agent_id)
 
         new_tab = TabPane(tab_title, id=tab_id)
         new_tab.compose_add_child(self.create_agent_container(log_id, tool_results_id, agent_id))
@@ -240,11 +253,10 @@ class TextualApp(App):
         return log_id, tool_results_id
 
     def remove_subagent_tab(self, agent_id: str) -> None:
-        tab_id = f"tab-{agent_id.replace('/', '-')}"
+        tab_id, _, tool_results_id = self.panel_ids_for(agent_id)
         self.query_one("#tabs", TabbedContent).remove_pane(tab_id)
         panel_ids = self._agent_panel_ids.pop(agent_id, None)
         if panel_ids:
-            _, tool_results_id = panel_ids
             self._tool_result_collapsibles.pop(tool_results_id, None)
             self._pending_tool_calls.pop(tool_results_id, None)
             self._tool_results_to_agent.pop(tool_results_id, None)
@@ -282,6 +294,9 @@ class TextualApp(App):
 
     def on_session_status_message(self, message: SessionStatusMessage) -> None:
         self.write_message(message.log_id, message.status)
+
+    def on_add_subagent_tab_message(self, message: AddSubagentTabMessage) -> None:
+        self.add_subagent_tab(message.agent_id, message.tab_title)
 
     def on_remove_subagent_tab_message(self, message: RemoveSubagentTabMessage) -> None:
         self.remove_subagent_tab(message.agent_id)

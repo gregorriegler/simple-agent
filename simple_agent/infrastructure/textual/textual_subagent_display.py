@@ -2,6 +2,7 @@ from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_messages import (
+    AddSubagentTabMessage,
     AssistantSaysMessage,
     RemoveSubagentTabMessage,
     SessionStatusMessage,
@@ -24,11 +25,8 @@ class TextualSubagentDisplay(TextualDisplay):
     def _create_tab(self):
         if self.app and self.app.is_running:
             tab_title = self.agent_name or self.agent_id.split('/')[-1]
-            self.log_id, self.tool_results_id = self.app.call_from_thread(
-                self.app.add_subagent_tab,
-                self.agent_id,
-                tab_title
-            )
+            _, self.log_id, self.tool_results_id = TextualApp.panel_ids_for(self.agent_id)
+            self.app.post_message(AddSubagentTabMessage(self.agent_id, tab_title))
 
     def user_says(self, message):
         if self.app and self.app.is_running and self.log_id:

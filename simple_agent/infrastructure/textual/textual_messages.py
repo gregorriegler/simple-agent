@@ -37,6 +37,13 @@ class SessionStatusMessage(Message):
         self.status = status
 
 
+class AddSubagentTabMessage(Message):
+    def __init__(self, agent_id: str, tab_title: str) -> None:
+        super().__init__()
+        self.agent_id = agent_id
+        self.tab_title = tab_title
+
+
 class RemoveSubagentTabMessage(Message):
     def __init__(self, agent_id: str) -> None:
         super().__init__()

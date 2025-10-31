@@ -31,6 +31,7 @@ class AgentFactory:
         self.session_storage = session_storage
         self.tool_library_factory = tool_library_factory
         self.agent_type_discovery = agent_type_discovery
+        self._agent_instance_counts: dict[tuple[str, str], int] = {}
 
     def __call__(
         self,
@@ -41,7 +42,11 @@ class AgentFactory:
     ) -> Agent:
         agent_prompt = self.load_agent_prompt(agent_type)
         agent_name = agent_prompt.name
-        agent_id = f"{parent_agent_id}/{agent_name}"
+        base_agent_id = f"{parent_agent_id}/{agent_name}"
+        count = self._agent_instance_counts.get(base_agent_id, 0) + 1
+        self._agent_instance_counts[base_agent_id] = count
+        suffix = "" if count == 1 else f"#{count}"
+        agent_id = f"{base_agent_id}{suffix}"
 
         subagent_context = SubagentContext(
             self,
