@@ -1,4 +1,5 @@
-- quit on ctrl+c
+- add reviewer agent
+- do we need all those ifs in TextualDisplay?
 - does esc work?
 - deadlocks
 - a create-file tool call was not added to the collapsible (happened before write-todos)
