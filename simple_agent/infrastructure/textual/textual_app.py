@@ -105,7 +105,7 @@ class TextualApp(App):
         super().__init__()
         self.user_input = user_input
         self._app_thread = None
-        self._pending_tool_calls: dict[str, dict[str, str]] = {}
+        self._pending_tool_calls: dict[str, dict[str, tuple[str, TextArea, Collapsible]]] = {}
         self._tool_result_collapsibles: dict[str, list[Collapsible]] = {}
         self._agent_panel_ids: dict[str, tuple[str, str]] = {}
         self._todo_widgets: dict[str, Markdown] = {}
@@ -190,7 +190,29 @@ class TextualApp(App):
             pending_for_panel.pop(call_id, None)
             self._suppressed_tool_calls.add(call_id)
             return
-        pending_for_panel[call_id] = message
+        container = self.query_one(f"#{tool_results_id}", VerticalScroll)
+        collapsibles = self._tool_result_collapsibles.setdefault(tool_results_id, [])
+        for collapsible in collapsibles:
+            collapsible.collapsed = True
+
+        text_area = TextArea(
+            "In Progress ...",
+            read_only=True,
+            language="markdown",
+            show_cursor=False,
+            classes="tool-call",
+        )
+        text_area.styles.height = 3
+        text_area.styles.min_height = 3
+
+        lines = message.splitlines()
+        default_title = lines[0] if lines else "Tool Call"
+        collapsible = Collapsible(text_area, title=default_title, collapsed=False)
+        collapsibles.append(collapsible)
+        container.mount(collapsible)
+        container.scroll_end(animate=False)
+
+        pending_for_panel[call_id] = (message, text_area, collapsible)
 
     def write_tool_result(self, tool_results_id: str, call_id: str, result: ToolResult) -> None:
         pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
@@ -200,45 +222,40 @@ class TextualApp(App):
             pending_for_panel.pop(call_id, None)
             self._refresh_todos(tool_results_id)
             return
-        title_source = pending_for_panel.pop(call_id, None)
+        title_source, text_area, call_collapsible = pending_for_panel.pop(call_id)
         message = result.display_body if result.display_body else result.message
         message = message or ""
         title_text = result.display_title if result.display_title else None
-        if title_source is not None:
-            lines = title_source.__str__().splitlines()
-            default_title = lines[0] if lines else "Tool Result"
-            other_lines = lines[1:]
-            if title_text is None:
-                title_text = default_title
-            if success and other_lines and not result.display_body:
-                message = "\n".join(other_lines)
-        else:
-            if title_text is None:
-                title_text = "Tool Result"
+        lines = title_source.splitlines()
+        default_title = lines[0] if lines else "Tool Result"
+        other_lines = lines[1:]
+        if title_text is None:
+            title_text = default_title
+        if success and other_lines and not result.display_body:
+            message = "\n".join(other_lines)
 
-        container = self.query_one(f"#{tool_results_id}", VerticalScroll)
         collapsibles = self._tool_result_collapsibles.setdefault(tool_results_id, [])
-        for collapsible in collapsibles:
-            collapsible.collapsed = True
+        for existing in collapsibles:
+            existing.collapsed = True
+        call_collapsible.collapsed = False
 
         classes = "tool-result" if success else "tool-result tool-result-error"
         language = result.display_language or "python"
 
         line_count = len(message.splitlines()) or 1
         height = min(line_count * 2 + 1, 30)
-        text_area = TextArea(
-            message,
-            read_only=True,
-            language=language,
-            show_cursor=False,
-            classes=classes,
-        )
+        text_area.load_text(message)
+        text_area.language = language
+        text_area.remove_class("tool-call")
+        for cls in ("tool-result", "tool-result-error"):
+            text_area.remove_class(cls)
+        for cls in classes.split():
+            text_area.add_class(cls)
         text_area.styles.height = height
         text_area.styles.min_height = height
 
-        collapsible = Collapsible(text_area, title=title_text, collapsed=False)
-        collapsibles.append(collapsible)
-        container.mount(collapsible)
+        call_collapsible.title = title_text
+        container = self.query_one(f"#{tool_results_id}", VerticalScroll)
         container.scroll_end(animate=False)
         self._refresh_todos(tool_results_id)
 
