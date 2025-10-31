@@ -94,7 +94,7 @@ class TestSimpleEventBus:
     def test_publish_nonexistent_event_type_does_nothing(self):
         event_bus = SimpleEventBus()
 
-        event_bus.publish(ToolResultEvent("agent", ContinueResult("data")))
+        event_bus.publish(ToolResultEvent("agent", "call-1", ContinueResult("data")))
 
         assert len(event_bus._handlers) == 0
 

@@ -27,10 +27,10 @@ class ConsoleDisplay(Display):
     def user_says(self, message):
         pass
 
-    def tool_call(self, tool):
+    def tool_call(self, call_id, tool):
         pass
 
-    def tool_result(self, result: ToolResult):
+    def tool_result(self, call_id, result: ToolResult):
         message = result.message if result else ""
         lines = message.split("\n") if message else [""]
         if result.success:

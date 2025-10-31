@@ -17,16 +17,18 @@ class AssistantSaysMessage(Message):
 
 
 class ToolCallMessage(Message):
-    def __init__(self, tool_results_id: str, tool_str: str) -> None:
+    def __init__(self, tool_results_id: str, call_id: str, tool_str: str) -> None:
         super().__init__()
         self.tool_results_id = tool_results_id
+        self.call_id = call_id
         self.tool_str = tool_str
 
 
 class ToolResultMessage(Message):
-    def __init__(self, tool_results_id: str, result: 'ToolResult') -> None:
+    def __init__(self, tool_results_id: str, call_id: str, result: 'ToolResult') -> None:
         super().__init__()
         self.tool_results_id = tool_results_id
+        self.call_id = call_id
         self.result = result
 
 

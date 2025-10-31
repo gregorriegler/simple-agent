@@ -11,10 +11,10 @@ class Display(Protocol):
     def user_says(self, message) -> None:
         ...
 
-    def tool_call(self, tool) -> None:
+    def tool_call(self, call_id: str, tool) -> None:
         ...
 
-    def tool_result(self, result: ToolResult) -> None:
+    def tool_result(self, call_id: str, result: ToolResult) -> None:
         ...
 
     def continue_session(self) -> None:
@@ -38,9 +38,9 @@ class DummyDisplay:
         pass
     def user_says(self, message) -> None:
         pass
-    def tool_call(self, tool) -> None:
+    def tool_call(self, call_id: str, tool) -> None:
         pass
-    def tool_result(self, result: ToolResult) -> None:
+    def tool_result(self, call_id: str, result: ToolResult) -> None:
         pass
     def continue_session(self) -> None:
         pass

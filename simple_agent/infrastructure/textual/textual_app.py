@@ -105,12 +105,12 @@ class TextualApp(App):
         super().__init__()
         self.user_input = user_input
         self._app_thread = None
-        self._pending_tool_calls: dict[str, str] = {}
+        self._pending_tool_calls: dict[str, dict[str, str]] = {}
         self._tool_result_collapsibles: dict[str, list[Collapsible]] = {}
         self._agent_panel_ids: dict[str, tuple[str, str]] = {}
         self._todo_widgets: dict[str, Markdown] = {}
         self._tool_results_to_agent: dict[str, str] = {}
-        self._suppressed_tool_results: set[str] = set()
+        self._suppressed_tool_calls: set[tuple[str, str]] = set()
 
     @staticmethod
     def panel_ids_for(agent_id: str) -> tuple[str, str, str]:
@@ -137,7 +137,7 @@ class TextualApp(App):
         self._agent_panel_ids[agent_id] = (log_id, tool_results_id)
         self._tool_results_to_agent[tool_results_id] = agent_id
         self._todo_widgets[agent_id] = todo
-        self._pending_tool_calls.pop(tool_results_id, None)
+        self._pending_tool_calls[tool_results_id] = {}
         return ResizableHorizontal(left_panel, right_panel, id="tab-content")
 
     def on_mount(self) -> None:
@@ -184,22 +184,23 @@ class TextualApp(App):
         container.update(new_content)
         self.query_one(f"#{log_id}-scroll", VerticalScroll).scroll_end(animate=False)
 
-    def write_tool_call(self, tool_results_id: str, message: str) -> None:
+    def write_tool_call(self, tool_results_id: str, call_id: str, message: str) -> None:
+        pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
         if "write-todos" in message:
-            self._suppressed_tool_results.add(tool_results_id)
-            self._pending_tool_calls.pop(tool_results_id, None)
+            pending_for_panel.pop(call_id, None)
+            self._suppressed_tool_calls.add((tool_results_id, call_id))
             return
-        self._pending_tool_calls[tool_results_id] = message
+        pending_for_panel[call_id] = message
 
-    def write_tool_result(self, tool_results_id: str, result: ToolResult) -> None:
+    def write_tool_result(self, tool_results_id: str, call_id: str, result: ToolResult) -> None:
+        pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
         success = result.success
-        if tool_results_id in self._suppressed_tool_results:
-            self._suppressed_tool_results.discard(tool_results_id)
-            self._pending_tool_calls.pop(tool_results_id, None)
+        if (tool_results_id, call_id) in self._suppressed_tool_calls:
+            self._suppressed_tool_calls.discard((tool_results_id, call_id))
+            pending_for_panel.pop(call_id, None)
             self._refresh_todos(tool_results_id)
-            if success:
-                return
-        title_source = self._pending_tool_calls.pop(tool_results_id, None)
+            return
+        title_source = pending_for_panel.pop(call_id, None)
         message = result.display_body if result.display_body else result.message
         message = message or ""
         title_text = result.display_title if result.display_title else None
@@ -260,7 +261,9 @@ class TextualApp(App):
             self._tool_result_collapsibles.pop(tool_results_id, None)
             self._pending_tool_calls.pop(tool_results_id, None)
             self._tool_results_to_agent.pop(tool_results_id, None)
-            self._suppressed_tool_results.discard(tool_results_id)
+            self._suppressed_tool_calls = {
+                pair for pair in self._suppressed_tool_calls if pair[0] != tool_results_id
+            }
         self._todo_widgets.pop(agent_id, None)
 
     def _load_todos(self, agent_id: str) -> str:
@@ -287,10 +290,10 @@ class TextualApp(App):
         self.write_message(message.log_id, message.content)
 
     def on_tool_call_message(self, message: ToolCallMessage) -> None:
-        self.write_tool_call(message.tool_results_id, message.tool_str)
+        self.write_tool_call(message.tool_results_id, message.call_id, message.tool_str)
 
     def on_tool_result_message(self, message: ToolResultMessage) -> None:
-        self.write_tool_result(message.tool_results_id, message.result)
+        self.write_tool_result(message.tool_results_id, message.call_id, message.result)
 
     def on_session_status_message(self, message: SessionStatusMessage) -> None:
         self.write_message(message.log_id, message.status)

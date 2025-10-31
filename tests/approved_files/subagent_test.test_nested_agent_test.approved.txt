@@ -2,28 +2,28 @@
 Agent:       session_started: False
 Agent:         user_prompted: Create a subagent that creates another subagent
 Agent:   assistant_responded: 🛠️ subagent orchestrator create another subagent
-Agent:           tool_called: 🛠️ subagent orchestrator create another subagent
+Agent:           tool_called: Agent::tool_call::1 🛠️ subagent orchestrator create another subagent
 Agent/Orchestrator:         user_prompted: create another subagent
 Agent/Orchestrator:   assistant_responded: 🛠️ subagent coding say nested hello
-Agent/Orchestrator:           tool_called: 🛠️ subagent coding say nested hello
+Agent/Orchestrator:           tool_called: Agent/Orchestrator::tool_call::1 🛠️ subagent coding say nested hello
 Agent/Orchestrator/Coding:         user_prompted: say nested hello
 Agent/Orchestrator/Coding:   assistant_responded: nested hello
 🛠️ complete-task I successfully said nested hello
 Agent/Orchestrator/Coding:        assistant_said: nested hello
-Agent/Orchestrator/Coding:           tool_called: 🛠️ complete-task I successfully said nested hello
-Agent/Orchestrator/Coding:           tool_result: I successfully said nested hello
+Agent/Orchestrator/Coding:           tool_called: Agent/Orchestrator/Coding::tool_call::1 🛠️ complete-task I successfully said nested hello
+Agent/Orchestrator/Coding:           tool_result: Agent/Orchestrator/Coding::tool_call::1 I successfully said nested hello
 Agent/Orchestrator/Coding: user_prompt_requested: 
 Agent/Orchestrator/Coding:         session_ended: 
-Agent/Orchestrator:           tool_result: I successfully said nested hello
+Agent/Orchestrator:           tool_result: Agent/Orchestrator::tool_call::1 I successfully said nested hello
 Agent/Orchestrator:   assistant_responded: 🛠️ complete-task I successfully created another subagent
-Agent/Orchestrator:           tool_called: 🛠️ complete-task I successfully created another subagent
-Agent/Orchestrator:           tool_result: I successfully created another subagent
+Agent/Orchestrator:           tool_called: Agent/Orchestrator::tool_call::2 🛠️ complete-task I successfully created another subagent
+Agent/Orchestrator:           tool_result: Agent/Orchestrator::tool_call::2 I successfully created another subagent
 Agent/Orchestrator: user_prompt_requested: 
 Agent/Orchestrator:         session_ended: 
-Agent:           tool_result: I successfully created another subagent
+Agent:           tool_result: Agent::tool_call::1 I successfully created another subagent
 Agent:   assistant_responded: 🛠️ complete-task I successfully created a subagent
-Agent:           tool_called: 🛠️ complete-task I successfully created a subagent
-Agent:           tool_result: I successfully created a subagent
+Agent:           tool_called: Agent::tool_call::2 🛠️ complete-task I successfully created a subagent
+Agent:           tool_result: Agent::tool_call::2 I successfully created a subagent
 Agent: user_prompt_requested: 
 Agent:         session_ended: 
 

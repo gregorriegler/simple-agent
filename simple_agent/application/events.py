@@ -19,12 +19,14 @@ class AssistantSaidEvent(AgentEvent):
 @dataclass
 class ToolCalledEvent(AgentEvent):
     event_name: ClassVar[str] = "tool_called"
+    call_id: str
     tool: Any
 
 
 @dataclass
 class ToolResultEvent(AgentEvent):
     event_name: ClassVar[str] = "tool_result"
+    call_id: str
     result: ToolResult
 
 

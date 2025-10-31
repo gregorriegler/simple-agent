@@ -25,15 +25,15 @@ class TextualDisplay(Display):
             for line in lines[1:]:
                 self.app.post_message(AssistantSaysMessage("log", line, is_first_line=False))
 
-    def tool_call(self, tool):
+    def tool_call(self, call_id, tool):
         if self.app and self.app.is_running:
-            self.app.post_message(ToolCallMessage("tool-results", str(tool)))
+            self.app.post_message(ToolCallMessage("tool-results", call_id, str(tool)))
 
-    def tool_result(self, result: ToolResult):
+    def tool_result(self, call_id, result: ToolResult):
         if not result:
             return
         if self.app and self.app.is_running:
-            self.app.post_message(ToolResultMessage("tool-results", result))
+            self.app.post_message(ToolResultMessage("tool-results", call_id, result))
 
     def continue_session(self):
         if self.app and self.app.is_running:

@@ -28,6 +28,7 @@ class Agent:
         self.user_input = user_input
         self.event_bus = event_bus
         self.session_storage = session_storage
+        self._tool_call_counter = 0
 
     def start(self, context: Messages = Messages()):
         try:
@@ -91,9 +92,11 @@ class Agent:
         return prompt
 
     def execute_tool(self, tool: ParsedTool, context):
-        self.event_bus.publish(ToolCalledEvent(self.agent_id, tool))
+        self._tool_call_counter += 1
+        call_id = f"{self.agent_id}::tool_call::{self._tool_call_counter}"
+        self.event_bus.publish(ToolCalledEvent(self.agent_id, call_id, tool))
         tool_result = self.tools.execute_parsed_tool(tool)
-        self.event_bus.publish(ToolResultEvent(self.agent_id, tool_result))
+        self.event_bus.publish(ToolResultEvent(self.agent_id, call_id, tool_result))
         if isinstance(tool_result, ContinueResult):
             context.user_says(f"Result of {tool}\n{tool_result}")
         return tool_result

@@ -4,8 +4,8 @@ Agent:         user_prompted: Say Hello
 Agent:   assistant_responded: Hello!
 🛠️ complete-task I successfully said hello
 Agent:        assistant_said: Hello!
-Agent:           tool_called: 🛠️ complete-task I successfully said hello
-Agent:           tool_result: I successfully said hello
+Agent:           tool_called: Agent::tool_call::1 🛠️ complete-task I successfully said hello
+Agent:           tool_result: Agent::tool_call::1 I successfully said hello
 Agent: user_prompt_requested: 
 Agent:         session_ended: 
 

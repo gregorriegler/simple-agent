@@ -40,15 +40,15 @@ class TextualSubagentDisplay(TextualDisplay):
                 self.app.post_message(AssistantSaysMessage(self.log_id, line))
             self.app.post_message(AssistantSaysMessage(self.log_id, ""))
 
-    def tool_call(self, tool):
+    def tool_call(self, call_id, tool):
         if self.app and self.app.is_running and self.tool_results_id:
-            self.app.post_message(ToolCallMessage(self.tool_results_id, str(tool)))
+            self.app.post_message(ToolCallMessage(self.tool_results_id, call_id, str(tool)))
 
-    def tool_result(self, result: ToolResult):
+    def tool_result(self, call_id, result: ToolResult):
         if not result:
             return
         if self.app and self.app.is_running and self.tool_results_id:
-            self.app.post_message(ToolResultMessage(self.tool_results_id, result))
+            self.app.post_message(ToolResultMessage(self.tool_results_id, call_id, result))
 
     def continue_session(self):
         if self.app and self.app.is_running and self.log_id:
