@@ -1,3 +1,4 @@
+- can we use the codex api key?
 - add reviewer agent
 - do we need all those ifs in TextualDisplay?
 - does esc work?
