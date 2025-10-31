@@ -1,6 +1,14 @@
 from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
+from simple_agent.infrastructure.textual.textual_messages import (
+    AssistantSaysMessage,
+    RemoveSubagentTabMessage,
+    SessionStatusMessage,
+    ToolCallMessage,
+    ToolResultMessage,
+    UserSaysMessage,
+)
 
 
 class TextualSubagentDisplay(TextualDisplay):
@@ -24,43 +32,43 @@ class TextualSubagentDisplay(TextualDisplay):
 
     def user_says(self, message):
         if self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_message, self.log_id, f"User: {message}\n")
+            self.app.post_message(UserSaysMessage(self.log_id, f"User: {message}\n"))
 
     def assistant_says(self, message):
         lines = str(message).split('\n')
         if lines and self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_message, self.log_id, f"{self.agent_prefix}{lines[0]}")
+            self.app.post_message(AssistantSaysMessage(self.log_id, f"{self.agent_prefix}{lines[0]}"))
             for line in lines[1:]:
-                self.app.call_from_thread(self.app.write_message, self.log_id, line)
-            self.app.call_from_thread(self.app.write_message, self.log_id, "")
+                self.app.post_message(AssistantSaysMessage(self.log_id, line))
+            self.app.post_message(AssistantSaysMessage(self.log_id, ""))
 
     def tool_call(self, tool):
         if self.app and self.app.is_running and self.tool_results_id:
-            self.app.call_from_thread(self.app.write_tool_call, self.tool_results_id, str(tool))
+            self.app.post_message(ToolCallMessage(self.tool_results_id, str(tool)))
 
     def tool_result(self, result: ToolResult):
         if not result:
             return
         if self.app and self.app.is_running and self.tool_results_id:
-            self.app.call_from_thread(self.app.write_tool_result, self.tool_results_id, result)
+            self.app.post_message(ToolResultMessage(self.tool_results_id, result))
 
     def continue_session(self):
         if self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_message, self.log_id, "Continuing session")
+            self.app.post_message(SessionStatusMessage(self.log_id, "Continuing session"))
 
     def start_new_session(self):
         if self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_message, self.log_id, "Starting new session")
+            self.app.post_message(SessionStatusMessage(self.log_id, "Starting new session"))
 
     def waiting_for_input(self):
         if self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_message, self.log_id, "Waiting for user input...\n")
+            self.app.post_message(SessionStatusMessage(self.log_id, "Waiting for user input...\n"))
 
     def interrupted(self):
         if self.app and self.app.is_running and self.log_id:
-            self.app.call_from_thread(self.app.write_message, self.log_id, "[Session interrupted by user]\n")
+            self.app.post_message(SessionStatusMessage(self.log_id, "[Session interrupted by user]\n"))
 
     def exit(self):
         if self.app and self.app.is_running:
-            self.app.call_from_thread(self.app.remove_subagent_tab, self.agent_id)
+            self.app.post_message(RemoveSubagentTabMessage(self.agent_id))
         del self.display_event_handler.displays[self.agent_id]

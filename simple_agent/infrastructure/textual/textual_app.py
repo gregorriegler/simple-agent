@@ -8,6 +8,7 @@ from textual.containers import Vertical, VerticalScroll
 from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible, Markdown
 
 from simple_agent.application.tool_library import ToolResult
+from simple_agent.infrastructure.textual.textual_messages import UserSaysMessage, AssistantSaysMessage, ToolCallMessage, ToolResultMessage, SessionStatusMessage, RemoveSubagentTabMessage
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal
 
 
@@ -266,3 +267,21 @@ class TextualApp(App):
         if not todo_widget:
             return
         todo_widget.update(self._load_todos(agent_id))
+
+    def on_user_says_message(self, message: UserSaysMessage) -> None:
+        self.write_message(message.log_id, message.content)
+
+    def on_assistant_says_message(self, message: AssistantSaysMessage) -> None:
+        self.write_message(message.log_id, message.content)
+
+    def on_tool_call_message(self, message: ToolCallMessage) -> None:
+        self.write_tool_call(message.tool_results_id, message.tool_str)
+
+    def on_tool_result_message(self, message: ToolResultMessage) -> None:
+        self.write_tool_result(message.tool_results_id, message.result)
+
+    def on_session_status_message(self, message: SessionStatusMessage) -> None:
+        self.write_message(message.log_id, message.status)
+
+    def on_remove_subagent_tab_message(self, message: RemoveSubagentTabMessage) -> None:
+        self.remove_subagent_tab(message.agent_id)
