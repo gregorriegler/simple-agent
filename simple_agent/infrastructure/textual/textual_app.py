@@ -110,7 +110,7 @@ class TextualApp(App):
         self._agent_panel_ids: dict[str, tuple[str, str]] = {}
         self._todo_widgets: dict[str, Markdown] = {}
         self._tool_results_to_agent: dict[str, str] = {}
-        self._suppressed_tool_calls: set[tuple[str, str]] = set()
+        self._suppressed_tool_calls: set[str] = set()
 
     @staticmethod
     def panel_ids_for(agent_id: str) -> tuple[str, str, str]:
@@ -188,15 +188,15 @@ class TextualApp(App):
         pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
         if "write-todos" in message:
             pending_for_panel.pop(call_id, None)
-            self._suppressed_tool_calls.add((tool_results_id, call_id))
+            self._suppressed_tool_calls.add(call_id)
             return
         pending_for_panel[call_id] = message
 
     def write_tool_result(self, tool_results_id: str, call_id: str, result: ToolResult) -> None:
         pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
         success = result.success
-        if (tool_results_id, call_id) in self._suppressed_tool_calls:
-            self._suppressed_tool_calls.discard((tool_results_id, call_id))
+        if call_id in self._suppressed_tool_calls:
+            self._suppressed_tool_calls.discard(call_id)
             pending_for_panel.pop(call_id, None)
             self._refresh_todos(tool_results_id)
             return
@@ -261,8 +261,9 @@ class TextualApp(App):
             self._tool_result_collapsibles.pop(tool_results_id, None)
             self._pending_tool_calls.pop(tool_results_id, None)
             self._tool_results_to_agent.pop(tool_results_id, None)
+            prefix = f"{agent_id}::tool_call::"
             self._suppressed_tool_calls = {
-                pair for pair in self._suppressed_tool_calls if pair[0] != tool_results_id
+                call_id for call_id in self._suppressed_tool_calls if not call_id.startswith(prefix)
             }
         self._todo_widgets.pop(agent_id, None)
 
