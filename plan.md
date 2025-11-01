@@ -1,5 +1,6 @@
+- BadIdentifier: 'tab-Agent-Coding#2' is an invalid id; identifiers must contain only letters, numbers, underscores, or hyphens, and must not begin with a
+  number.
 - can we use the codex api key?
-- add reviewer agent
 - do we need all those ifs in TextualDisplay?
 - does esc work?
 - deadlocks

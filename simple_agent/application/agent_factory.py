@@ -46,7 +46,7 @@ class AgentFactory:
         base_agent_id = f"{parent_agent_id}/{agent_name}"
         count = self._agent_instance_counts.get(base_agent_id, 0) + 1
         self._agent_instance_counts[base_agent_id] = count
-        suffix = "" if count == 1 else f"#{count}"
+        suffix = "" if count == 1 else f"-{count}"
         agent_id = f"{base_agent_id}{suffix}"
 
         subagent_context = SubagentContext(

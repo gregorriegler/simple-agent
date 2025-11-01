@@ -18,7 +18,7 @@ from simple_agent.infrastructure.textual.textual_messages import (
     ToolResultMessage,
     UserSaysMessage,
 )
-from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal
+from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
 
 
 class TextualApp(App):
@@ -62,15 +62,14 @@ class TextualApp(App):
         padding: 1;
     }
 
-    .left-panel-top {
-        height: 1fr;
+    .left-panel-top,
+    .left-panel-bottom {
+        min-height: 0;
     }
 
     .left-panel-bottom {
-        height: auto;
-        max-height: 30;
         background: $surface-darken-1;
-        border-top: solid $surface-lighten-1;
+        overflow-y: auto;
     }
 
     #right-panel {
@@ -132,7 +131,7 @@ class TextualApp(App):
         chat_scroll = VerticalScroll(Static("", id=log_id), id=f"{log_id}-scroll", classes="left-panel-top")
         todo = Markdown(self._load_todos(agent_id), id=f"{log_id}-todos")
         secondary_scroll = VerticalScroll(todo, id=f"{log_id}-secondary", classes="left-panel-bottom")
-        left_panel = Vertical(chat_scroll, secondary_scroll, id="left-panel")
+        left_panel = ResizableVertical(chat_scroll, secondary_scroll, id="left-panel")
         right_panel = VerticalScroll(id=tool_results_id)
         self._tool_result_collapsibles[tool_results_id] = []
         self._agent_panel_ids[agent_id] = (log_id, tool_results_id)
