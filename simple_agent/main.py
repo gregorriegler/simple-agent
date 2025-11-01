@@ -1,7 +1,9 @@
 #!/usr/bin/env -S uv run --script
 
 import argparse
+import sys
 import threading
+from typing import Any, Mapping
 
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.display import DummyDisplay
@@ -28,6 +30,8 @@ from simple_agent.application.subagent_context import SubagentContext
 
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.claude.claude_config import load_claude_config
+from simple_agent.infrastructure.configuration import load_user_configuration
+from simple_agent.infrastructure.openai import OpenAILLM, load_openai_config
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
@@ -139,8 +143,14 @@ def main():
             ]
         )
     else:
-        claude_config = load_claude_config()
-        llm = ClaudeLLM(claude_config)
+        user_config = load_user_configuration()
+        llm_provider = _get_declared_provider(user_config) or "claude"
+        if llm_provider == "openai":
+            openai_config = load_openai_config(user_config)
+            llm = OpenAILLM(openai_config)
+        else:
+            claude_config = load_claude_config(user_config)
+            llm = ClaudeLLM(claude_config)
 
     event_bus.subscribe(SessionStartedEvent, display_event_handler.handle_session_started)
     event_bus.subscribe(UserPromptRequestedEvent, display_event_handler.handle_user_prompt_requested)
@@ -245,7 +255,7 @@ def parse_args(argv=None) -> SessionArgs:
         help="Run in non-interactive mode (no user input prompts)"
     )
     parser.add_argument("--stub", action="store_true", help="Use LLM stub for testing")
-    parser.add_argument("message", nargs="*", help="Message to send to Claude")
+    parser.add_argument("message", nargs="*", help="Message to send to the agent")
     parsed = parser.parse_args(argv)
     display_type = DisplayType(getattr(parsed, "user_interface"))
     return SessionArgs(
@@ -254,7 +264,7 @@ def parse_args(argv=None) -> SessionArgs:
         bool(getattr(parsed, "system_prompt")),
         display_type,
         bool(getattr(parsed, "stub")),
-        bool(getattr(parsed, "non_interactive"))
+        bool(getattr(parsed, "non_interactive")),
     )
 
 
@@ -262,6 +272,22 @@ def build_start_message(message_parts):
     if not message_parts:
         return None
     return " ".join(message_parts)
+
+
+def _get_declared_provider(config: Mapping[str, Any]) -> str | None:
+    llm_section = config.get("llm")
+    if not isinstance(llm_section, Mapping):
+        return None
+
+    provider = llm_section.get("provider")
+    if provider is None:
+        return None
+
+    normalized = str(provider).lower()
+    if normalized not in {"claude", "openai"}:
+        print("Error: llm.provider must be either 'claude' or 'openai'", file=sys.stderr)
+        sys.exit(1)
+    return normalized
 
 
 if __name__ == "__main__":
