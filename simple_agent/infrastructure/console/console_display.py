@@ -1,3 +1,6 @@
+import os
+import sys
+
 from simple_agent.application.display import Display
 from simple_agent.application.io import IO
 from simple_agent.application.tool_library import ToolResult
@@ -32,6 +35,14 @@ class ConsoleDisplay(Display):
 
     def tool_result(self, call_id, result: ToolResult):
         message = result.message if result else ""
+        if result and result.display_language == "diff" and result.display_body:
+            colored_diff = _colorize_diff_for_console(result.display_body)
+            if "\n\n" in message:
+                summary, _, rest = message.partition("\n\n")
+                message = f"{summary}\n\n{colored_diff}"
+            else:
+                message = colored_diff
+
         lines = message.split("\n") if message else [""]
         if result.success:
             display_lines = lines[:3]
@@ -59,3 +70,48 @@ class ConsoleDisplay(Display):
     def exit(self):
         exit_msg = "       " * self.indent_level + "Exiting..."
         self.io.print(f"\n{exit_msg}")
+
+
+def _supports_color() -> bool:
+    if os.environ.get("NO_COLOR"):
+        return False
+    stream = sys.stdout
+    return bool(stream.isatty())
+
+
+def _colorize_diff_for_console(diff_text: str) -> str:
+    if not diff_text or not _supports_color():
+        return diff_text
+
+    reset = "\033[0m"
+    colors = {
+        "header_old": "\033[31;1m",  # bold red
+        "header_new": "\033[32;1m",  # bold green
+        "hunk": "\033[36m",          # cyan
+        "removed": "\033[31m",       # red
+        "added": "\033[32m",         # green
+        "info": "\033[90m",          # bright black
+    }
+
+    colored_lines = []
+    for line in diff_text.split("\n"):
+        color = ""
+        if line.startswith("---"):
+            color = colors["header_old"]
+        elif line.startswith("+++"):
+            color = colors["header_new"]
+        elif line.startswith("@@"):
+            color = colors["hunk"]
+        elif line.startswith("+"):
+            color = colors["added"]
+        elif line.startswith("-"):
+            color = colors["removed"]
+        elif line.startswith("\\ No newline"):
+            color = colors["info"]
+
+        if color:
+            colored_lines.append(f"{color}{line}{reset}")
+        else:
+            colored_lines.append(line)
+
+    return "\n".join(colored_lines)

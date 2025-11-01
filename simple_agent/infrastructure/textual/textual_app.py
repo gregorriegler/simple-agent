@@ -2,6 +2,7 @@ import threading
 import time
 from pathlib import Path
 
+from rich.syntax import Syntax
 from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, VerticalScroll
@@ -242,17 +243,35 @@ class TextualApp(App):
         classes = "tool-result" if success else "tool-result tool-result-error"
         language = result.display_language or "python"
 
-        line_count = len(message.splitlines()) or 1
-        height = min(line_count * 2 + 1, 30)
-        text_area.load_text(message)
-        text_area.language = language
-        text_area.remove_class("tool-call")
-        for cls in ("tool-result", "tool-result-error"):
-            text_area.remove_class(cls)
-        for cls in classes.split():
-            text_area.add_class(cls)
-        text_area.styles.height = height
-        text_area.styles.min_height = height
+        if language == "diff":
+            diff_renderable = Syntax(
+                message,
+                "diff",
+                theme="ansi_dark",
+                line_numbers=False,
+                word_wrap=True,
+            )
+            diff_widget = Static(diff_renderable)
+            for cls in classes.split():
+                diff_widget.add_class(cls)
+            height = min((len(message.splitlines()) or 1) * 2 + 1, 30)
+            diff_widget.styles.height = height
+            diff_widget.styles.min_height = height
+            text_area.remove()
+            contents = call_collapsible.query_one(Collapsible.Contents)
+            contents.mount(diff_widget)
+        else:
+            line_count = len(message.splitlines()) or 1
+            height = min(line_count * 2 + 1, 30)
+            text_area.load_text(message)
+            text_area.language = language
+            text_area.remove_class("tool-call")
+            for cls in ("tool-result", "tool-result-error"):
+                text_area.remove_class(cls)
+            for cls in classes.split():
+                text_area.add_class(cls)
+            text_area.styles.height = height
+            text_area.styles.min_height = height
 
         call_collapsible.title = title_text
         container = self.query_one(f"#{tool_results_id}", VerticalScroll)
