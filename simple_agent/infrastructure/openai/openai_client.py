@@ -19,15 +19,12 @@ class OpenAILLM(LLM):
     def __init__(self, config=None):
         self._config = config or load_openai_config()
 
-    def __call__(self, system_prompt: str, messages: ChatMessages) -> str:
+    def __call__(self, messages: ChatMessages) -> str:
         url = f"{self._config.base_url.rstrip('/')}/v1/chat/completions"
         api_key = self._config.api_key
         model = self._config.model
 
-        payload_messages: List[Dict[str, str]] = []
-        if system_prompt:
-            payload_messages.append({"role": "system", "content": system_prompt})
-        payload_messages.extend(messages)
+        payload_messages: List[Dict[str, str]] = list(messages)
 
         data = {
             "model": model,

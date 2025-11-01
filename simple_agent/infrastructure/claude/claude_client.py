@@ -18,7 +18,7 @@ class ClaudeLLM(LLM):
     def __init__(self, config=None):
         self._config = config or load_claude_config()
 
-    def __call__(self, system_prompt: str, messages: ChatMessages) -> str:
+    def __call__(self, messages: ChatMessages) -> str:
         url = "https://api.anthropic.com/v1/messages"
         api_key = self._config.api_key
         model = self._config.model
@@ -27,11 +27,17 @@ class ClaudeLLM(LLM):
             "x-api-key": api_key,
             "anthropic-version": "2023-06-01"
         }
+        payload_messages = list(messages)
+        system_prompt = (
+            payload_messages.pop(0).get("content", "")
+            if payload_messages and payload_messages[0].get("role") == "system"
+            else None
+        )
         data = {
             "model": model,
             "max_tokens": 4000,
-            "system": system_prompt,
-            "messages": messages
+            "messages": payload_messages,
+            **({"system": system_prompt} if system_prompt else {}),
         }
         try:
             logger.debug("Request:" + json.dumps(data, indent=4, ensure_ascii=False))

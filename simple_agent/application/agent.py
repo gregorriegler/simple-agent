@@ -13,29 +13,29 @@ class Agent:
         self,
         agent_id: str,
         agent_name: str,
-        system_prompt: str,
         tools: ToolLibrary,
         llm: LLM,
         user_input: Input,
         event_bus: EventBus,
-        session_storage: SessionStorage
+        session_storage: SessionStorage,
+        context: Messages
     ):
         self.agent_id = agent_id
         self.agent_name = agent_name
         self.llm: LLM = llm
-        self.system_prompt = system_prompt
         self.tools = tools
         self.user_input = user_input
         self.event_bus = event_bus
         self.session_storage = session_storage
         self._tool_call_counter = 0
+        self.context: Messages = context
 
-    def start(self, context: Messages = Messages()):
+    def start(self):
         try:
             tool_result: ToolResult = ContinueResult()
 
-            while self.user_prompts(context):
-                tool_result = self.run_tool_loop(context)
+            while self.user_prompts():
+                tool_result = self.run_tool_loop()
 
             self.notify_session_ended()
             return tool_result
@@ -43,22 +43,22 @@ class Agent:
             self.notify_session_ended()
             return ContinueResult()
 
-    def run_tool_loop(self, context):
+    def run_tool_loop(self):
         tool_result: ToolResult = ContinueResult()
 
         try:
             while tool_result.do_continue():
-                message, tools  = self.llm_responds(context)
+                message, tools  = self.llm_responds()
                 self.notify_about_message(message)
 
                 if self.user_input.escape_requested():
                     self.notify_about_interrupt()
-                    prompt = self.read_user_input_and_prompt_it(context)
+                    prompt = self.read_user_input_and_prompt_it()
                     if prompt:
                         break
                 if not tools:
                     break
-                tool_result = self.execute_tool(tools[0], context)
+                tool_result = self.execute_tool(tools[0])
         except KeyboardInterrupt:
             self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
 
@@ -72,33 +72,33 @@ class Agent:
         if message:
             self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
 
-    def llm_responds(self, context) -> MessageAndParsedTools:
-        answer = self.llm(self.system_prompt, context.to_list())
-        context.assistant_says(answer)
+    def llm_responds(self) -> MessageAndParsedTools:
+        answer = self.llm(self.context.to_list())
+        self.context.assistant_says(answer)
         self.event_bus.publish(AssistantRespondedEvent(self.agent_id, answer))
         return self.tools.parse_message_and_tools(answer)
 
-    def user_prompts(self, context):
+    def user_prompts(self):
         if not self.user_input.has_stacked_messages():
             self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
-        prompt = self.read_user_input_and_prompt_it(context)
+        prompt = self.read_user_input_and_prompt_it()
         return prompt
 
-    def read_user_input_and_prompt_it(self, context):
+    def read_user_input_and_prompt_it(self):
         prompt = self.user_input.read()
         if prompt:
-            context.user_says(prompt)
+            self.context.user_says(prompt)
             self.event_bus.publish(UserPromptedEvent(self.agent_id, prompt))
         return prompt
 
-    def execute_tool(self, tool: ParsedTool, context):
+    def execute_tool(self, tool: ParsedTool):
         self._tool_call_counter += 1
         call_id = f"{self.agent_id}::tool_call::{self._tool_call_counter}"
         self.event_bus.publish(ToolCalledEvent(self.agent_id, call_id, tool))
         tool_result = self.tools.execute_parsed_tool(tool)
         self.event_bus.publish(ToolResultEvent(self.agent_id, call_id, tool_result))
         if isinstance(tool_result, ContinueResult):
-            context.user_says(f"Result of {tool}\n{tool_result}")
+            self.context.user_says(f"Result of {tool}\n{tool_result}")
         return tool_result
 
     def notify_session_ended(self):

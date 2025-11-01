@@ -4,7 +4,7 @@ from .test_helpers import (
     create_all_tools_for_test
 )
 
-claude_stub = lambda system_prompt, messages: ""
+claude_stub = lambda messages: ""
 library = create_all_tools_for_test()
 
 

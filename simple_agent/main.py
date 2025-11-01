@@ -214,7 +214,7 @@ def print_system_prompt_command():
     agent_type_discovery = FileSystemAgentTypeDiscovery()
     dummy_event_bus = SimpleEventBus()
     create_agent = AgentFactory(
-        lambda system_prompt, messages: '',
+        lambda messages: '',
         dummy_event_bus,
         lambda agent_id, indent: DummyDisplay(),
         lambda indent: Input(DummyUserInput()),

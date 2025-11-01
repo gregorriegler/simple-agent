@@ -27,7 +27,7 @@ def create_all_tools_for_test():
 
     from simple_agent.application.session_storage import NoOpSessionStorage
     event_bus = SimpleEventBus()
-    llm = lambda system_prompt, messages: ''
+    llm = lambda messages: ''
     tool_library_factory = AllToolsFactory()
     agent_type_discovery = FileSystemAgentTypeDiscovery()
     create_agent = AgentFactory(

@@ -10,9 +10,12 @@ def test_claude_chat_returns_content_text(monkeypatch):
     monkeypatch.setattr(claude_client.requests, "post", create_successful_post(captured))
     chat = ClaudeLLM(StubClaudeConfig())
     system_prompt = "system prompt"
-    messages = [{"role": "user", "content": "Hello"}]
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": "Hello"}
+    ]
 
-    result = chat(system_prompt, messages)
+    result = chat(messages)
 
     assert result == "assistant response"
     assert captured["url"] == "https://api.anthropic.com/v1/messages"
@@ -25,7 +28,9 @@ def test_claude_chat_returns_content_text(monkeypatch):
         "model": "test-model",
         "max_tokens": 4000,
         "system": system_prompt,
-        "messages": messages
+        "messages": [
+            {"role": "user", "content": "Hello"}
+        ]
     }
 
 
@@ -34,7 +39,7 @@ def test_claude_chat_raises_error_when_content_missing(monkeypatch):
     chat = ClaudeLLM(StubClaudeConfig())
 
     with pytest.raises(ClaudeClientError) as error:
-        chat("system", [])
+        chat([])
 
     assert str(error.value) == "API response missing 'content' field"
 
@@ -44,7 +49,7 @@ def test_claude_chat_raises_error_when_request_fails(monkeypatch):
     chat = ClaudeLLM(StubClaudeConfig())
 
     with pytest.raises(ClaudeClientError) as error:
-        chat("system", [])
+        chat([])
 
     assert str(error.value) == "API request failed: network down"
 

@@ -5,7 +5,7 @@ from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.display import Display
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
-from simple_agent.application.llm import LLM
+from simple_agent.application.llm import LLM, Messages
 from simple_agent.application.system_prompt import AgentPrompt
 from simple_agent.application.tool_documentation import AgentTypeDiscovery, generate_tools_documentation
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
@@ -38,7 +38,8 @@ class AgentFactory:
         agent_type: str,
         parent_agent_id: str,
         indent_level: int,
-        user_input: Input
+        user_input: Input,
+        context: Messages
     ) -> Agent:
         agent_prompt = self.load_agent_prompt(agent_type)
         agent_name = agent_prompt.name
@@ -61,13 +62,15 @@ class AgentFactory:
         tools_documentation = generate_tools_documentation(subagent_tools.tools, self.agent_type_discovery)
         system_prompt = agent_prompt.render(tools_documentation)
 
+        context.seed_system_prompt(system_prompt)
+
         return Agent(
             agent_id,
             agent_name,
-            system_prompt,
             subagent_tools,
             self.llm,
             user_input,
             self.event_bus,
-            self.session_storage
+            self.session_storage,
+            context
         )
