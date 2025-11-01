@@ -55,12 +55,13 @@ agent "your message here"
 Create a `.simple-agent.toml` file either in your home directory or in the directory where you run the agent. Values from the current directory override those from `~`.
 
 ```toml
-[claude]
-api_key = "your-claude-api-key-here"
+[model]
 model = "claude-sonnet-4-5-20250929"
+adapter = "claude" # or "openai"
+api_key = "your-api-key-here"
 ```
 
-Both `claude.api_key` and `claude.model` are required; the agent exits with an error if either value is missing.
+All values inside `[model]` are required; pick the adapter that matches the infrastructure client you want to use.
 
 ## Direct tool usage
 

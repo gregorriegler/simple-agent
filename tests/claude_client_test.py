@@ -101,3 +101,7 @@ class StubClaudeConfig:
     @property
     def model(self):
         return "test-model"
+
+    @property
+    def adapter(self):
+        return "claude"

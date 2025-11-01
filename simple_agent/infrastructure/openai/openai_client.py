@@ -1,11 +1,11 @@
 import json
 import logging
-from typing import List, Dict
+from typing import Dict, List
 
 import requests
 
 from simple_agent.application.llm import LLM, ChatMessages
-from .openai_config import load_openai_config
+from simple_agent.infrastructure.model_config import load_model_config, ModelConfig
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="request.log", encoding="utf-8", level=logging.DEBUG)
@@ -16,11 +16,13 @@ class OpenAIClientError(RuntimeError):
 
 
 class OpenAILLM(LLM):
-    def __init__(self, config=None):
-        self._config = config or load_openai_config()
+    def __init__(self, config: ModelConfig | None = None):
+        self._config = config or load_model_config()
+        self._ensure_openai_adapter()
 
     def __call__(self, messages: ChatMessages) -> str:
-        url = f"{self._config.base_url.rstrip('/')}/v1/chat/completions"
+        base_url = self._config.base_url or "https://api.openai.com"
+        url = f"{base_url.rstrip('/')}/v1/chat/completions"
         api_key = self._config.api_key
         model = self._config.model
 
@@ -44,7 +46,9 @@ class OpenAILLM(LLM):
                 json=data,
                 timeout=self._config.request_timeout,
             )
-            logger.debug("Response:" + json.dumps(response.json(), indent=4, ensure_ascii=False))
+            logger.debug(
+                "Response:" + json.dumps(response.json(), indent=4, ensure_ascii=False)
+            )
             response.raise_for_status()
         except requests.exceptions.RequestException as error:
             raise OpenAIClientError(f"API request failed: {error}") from error
@@ -59,3 +63,9 @@ class OpenAILLM(LLM):
             raise OpenAIClientError("API response missing 'message.content' field")
 
         return message["content"] or ""
+
+    def _ensure_openai_adapter(self) -> None:
+        if self._config.adapter != "openai":
+            raise OpenAIClientError(
+                "Configured adapter is not 'openai'; cannot use OpenAI client"
+            )

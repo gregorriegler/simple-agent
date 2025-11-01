@@ -4,11 +4,10 @@ import sys
 
 from simple_agent.application.llm import Messages
 from simple_agent.application.session_storage import SessionStorage
-from .claude.claude_config import default_session_file_path
+from simple_agent.infrastructure.model_config import default_session_file_path
 
 
 class JsonFileSessionStorage(SessionStorage):
-
     def __init__(self, path=None):
         self.path = path or default_session_file_path()
 

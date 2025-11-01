@@ -3,7 +3,6 @@
 import argparse
 import sys
 import threading
-from typing import Any, Mapping
 
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.display import DummyDisplay
@@ -29,9 +28,9 @@ from simple_agent.application.user_input import DummyUserInput
 from simple_agent.application.subagent_context import SubagentContext
 
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
-from simple_agent.infrastructure.claude.claude_config import load_claude_config
 from simple_agent.infrastructure.configuration import load_user_configuration
-from simple_agent.infrastructure.openai import OpenAILLM, load_openai_config
+from simple_agent.infrastructure.model_config import load_model_config
+from simple_agent.infrastructure.openai import OpenAILLM
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
@@ -144,13 +143,11 @@ def main():
         )
     else:
         user_config = load_user_configuration()
-        llm_provider = _get_declared_provider(user_config) or "claude"
-        if llm_provider == "openai":
-            openai_config = load_openai_config(user_config)
-            llm = OpenAILLM(openai_config)
+        model_config = load_model_config(user_config)
+        if model_config.adapter == "openai":
+            llm = OpenAILLM(model_config)
         else:
-            claude_config = load_claude_config(user_config)
-            llm = ClaudeLLM(claude_config)
+            llm = ClaudeLLM(model_config)
 
     event_bus.subscribe(SessionStartedEvent, display_event_handler.handle_session_started)
     event_bus.subscribe(UserPromptRequestedEvent, display_event_handler.handle_user_prompt_requested)
@@ -272,22 +269,6 @@ def build_start_message(message_parts):
     if not message_parts:
         return None
     return " ".join(message_parts)
-
-
-def _get_declared_provider(config: Mapping[str, Any]) -> str | None:
-    llm_section = config.get("llm")
-    if not isinstance(llm_section, Mapping):
-        return None
-
-    provider = llm_section.get("provider")
-    if provider is None:
-        return None
-
-    normalized = str(provider).lower()
-    if normalized not in {"claude", "openai"}:
-        print("Error: llm.provider must be either 'claude' or 'openai'", file=sys.stderr)
-        sys.exit(1)
-    return normalized
 
 
 if __name__ == "__main__":
