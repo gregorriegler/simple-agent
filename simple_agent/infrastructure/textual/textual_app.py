@@ -83,11 +83,11 @@ class TextualApp(App):
     }
 
     .tool-result {
-        color: $text-muted;
+        background: $surface;
     }
 
     .tool-result-error {
-        color: $error;
+        border: round $error;
     }
 
     Pretty {
