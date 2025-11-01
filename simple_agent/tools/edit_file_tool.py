@@ -201,16 +201,12 @@ Replace mode: First deletes the specified range, then inserts new content at tha
 
         filename, edit_mode, line_range_token = parts[:3]
 
-        # For insert and replace modes, content must be on following lines
-        # For delete mode, no content is expected
         if edit_mode in ['insert', 'replace']:
             if len(parts) > 3:
                 return None, f'For {edit_mode} mode, content must start on the following line, not on the same line'
 
-            # Extract content from following lines
             if len(lines) > 1:
                 new_content = ''.join(lines[1:])
-                # Remove trailing newline if it's the only trailing newline
                 if new_content.endswith('\n') and not new_content.endswith('\n\n'):
                     new_content = new_content[:-1]
             else:
