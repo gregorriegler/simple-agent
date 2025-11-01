@@ -59,9 +59,12 @@ Create a `.simple-agent.toml` file either in your home directory or in the direc
 model = "claude-sonnet-4-5-20250929"
 adapter = "claude" # or "openai"
 api_key = "your-api-key-here"
+# base_url = "https://openrouter.ai/api/v1" # Optional when using the OpenAI adapter
 ```
 
 All values inside `[model]` are required; pick the adapter that matches the infrastructure client you want to use.
+
+When using the OpenAI adapter you can point the client at a compatible provider by overriding `base_url`, e.g. set it to `https://openrouter.ai/api/v1` for OpenRouter.
 
 ## Direct tool usage
 

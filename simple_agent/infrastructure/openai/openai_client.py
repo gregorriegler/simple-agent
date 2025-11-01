@@ -21,8 +21,8 @@ class OpenAILLM(LLM):
         self._ensure_openai_adapter()
 
     def __call__(self, messages: ChatMessages) -> str:
-        base_url = self._config.base_url or "https://api.openai.com"
-        url = f"{base_url.rstrip('/')}/v1/chat/completions"
+        base_url = self._config.base_url or "https://api.openai.com/v1"
+        url = f"{base_url.rstrip('/')}/chat/completions"
         api_key = self._config.api_key
         model = self._config.model
 
