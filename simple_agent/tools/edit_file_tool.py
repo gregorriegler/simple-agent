@@ -257,7 +257,7 @@ Replace mode: First deletes the specified range, then inserts new content at tha
             editor.save_file()
 
             if diff_lines:
-                diff_message = "".join(diff_lines).rstrip("\n")
+                diff_message = self._format_diff(diff_lines)
                 summary = f"Successfully edited {edit_args.filename}"
                 message = f"{summary}\n\n{diff_message}"
                 return ContinueResult(
@@ -279,3 +279,14 @@ Replace mode: First deletes the specified range, then inserts new content at tha
         except Exception as e:
             return ContinueResult(f'Unexpected error editing file "{edit_args.filename}": {str(e)}', success=False)
 
+    @staticmethod
+    def _format_diff(diff_lines):
+        formatted_lines = []
+        for line in diff_lines:
+            if line.endswith("\n"):
+                formatted_lines.append(line.rstrip("\n"))
+            else:
+                formatted_lines.append(line)
+                if line and line[0] in (" ", "-", "+"):
+                    formatted_lines.append("\\ No newline at end of file")
+        return "\n".join(formatted_lines)

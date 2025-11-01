@@ -7,7 +7,11 @@ library = create_all_tools_for_test()
 
 
 def test_edit_file_replace_single_word(tmp_path):
-    verify_edit_tool(library, "test.txt", "old\n", "🛠️ edit-file test.txt replace 1-1\nnew", tmp_path=tmp_path)
+    verify_edit_tool(library, "test.txt", "old\n", "🛠️ edit-file test.txt replace 1-1\nnew\n", tmp_path=tmp_path)
+
+
+def test_edit_file_replace_single_word_without_newlines(tmp_path):
+    verify_edit_tool(library, "test.txt", "old", "🛠️ edit-file test.txt replace 1-1\nnew", tmp_path=tmp_path)
 
 
 def test_edit_file_replace_two_consecutive_lines_with_one(tmp_path):
