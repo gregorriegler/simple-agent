@@ -4,8 +4,13 @@ from .session_storage import SessionStorage
 
 class PersistedMessages(Messages):
 
-    def __init__(self, session_storage: SessionStorage, messages: ChatMessages | None = None):
-        super().__init__(messages if messages is not None else [])
+    def __init__(
+        self,
+        session_storage: SessionStorage,
+        messages: ChatMessages | None = None,
+        system_prompt: str | None = None,
+    ):
+        super().__init__(messages, system_prompt)
         self._session_storage = session_storage
 
     def user_says(self, content: str):

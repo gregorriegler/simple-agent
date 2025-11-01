@@ -9,7 +9,7 @@ def create_llm_stub(responses: Sequence[str], *, default: str = "") -> LLM:
     index = 0
     fallback = responses[-1] if responses else default
 
-    def llm_stub(system_prompt: str, messages: ChatMessages) -> str:
+    def llm_stub(messages: ChatMessages) -> str:
         nonlocal index
         if index < len(responses):
             response = responses[index]

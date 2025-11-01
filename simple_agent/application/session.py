@@ -36,17 +36,26 @@ def run_session(
 
     event_bus.publish(SessionStartedEvent(agent_id, continue_session))
 
+    if continue_session:
+        persisted_messages = PersistedMessages(
+            session_storage,
+            session_storage.load().to_list(),
+        )
+    else:
+        persisted_messages = PersistedMessages(
+            session_storage,
+            system_prompt=system_prompt,
+        )
+
     agent = Agent(
         agent_id,
         agent_name,
-        system_prompt,
         tool_library,
         llm,
         user_input,
         event_bus,
-        session_storage
+        session_storage,
+        persisted_messages
     )
 
-    messages = session_storage.load().to_list() if continue_session else None
-    persisted_messages = PersistedMessages(session_storage, messages)
-    agent.start(persisted_messages)
+    agent.start()

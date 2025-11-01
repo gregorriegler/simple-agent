@@ -90,7 +90,7 @@ def test_subagent_cleanup_deletes_subagent_todo(tmp_path, monkeypatch):
 
 
 def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
-    def default_llm(system_prompt, messages):
+    def default_llm(messages):
         return ""
 
     llm = llm_stub if llm_stub is not None else default_llm

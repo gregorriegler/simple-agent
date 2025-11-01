@@ -1,3 +1,4 @@
+from simple_agent.application.llm import Messages
 from simple_agent.application.tool_library import ContinueResult
 from .base_tool import BaseTool
 from simple_agent.application.subagent_context import SubagentContext
@@ -49,7 +50,8 @@ class SubagentTool(BaseTool):
                 agenttype,
                 self.context.agent_id,
                 self.context.indent_level,
-                user_input
+                user_input,
+                Messages()
             )
             self.context.create_display(subagent.agent_id, subagent.agent_name, self.context.indent_level)
 
