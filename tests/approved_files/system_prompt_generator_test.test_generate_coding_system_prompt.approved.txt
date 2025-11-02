@@ -172,7 +172,7 @@ Examples:
 Creates a new subagent that will handle a specific task/todo and report back the result.
 
 Arguments:
- - agenttype: string (required) - Type of agent to create. Available types: 'coding', 'orchestrator', 'question'
+ - agenttype: string (required) - Type of agent to create. Available types: 'code-review', 'coding', 'orchestrator', 'question'
  - task_description: string (required) - Detailed description of the task for the subagent to perform
 
 Usage: 🛠️ subagent <agenttype> <task_description>

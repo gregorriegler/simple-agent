@@ -11,6 +11,7 @@ Successfully edited test.txt
 @@ -1 +1 @@
 -old
 +new
+\ No newline at end of file
 
 Initial file: test.txt
 Initial content:

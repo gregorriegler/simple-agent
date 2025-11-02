@@ -13,6 +13,7 @@ Successfully edited empty.txt
 +line1
 +line2
 +line3
+\ No newline at end of file
 
 Initial file: empty.txt
 Initial content:

@@ -18,6 +18,7 @@ Successfully edited test.txt
 +
 +
 +line10
+\ No newline at end of file
 
 Initial file: test.txt
 Initial content:

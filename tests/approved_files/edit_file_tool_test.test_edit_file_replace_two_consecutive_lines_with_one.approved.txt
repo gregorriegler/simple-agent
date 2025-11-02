@@ -12,6 +12,7 @@ Successfully edited test.txt
 -line2
 -line3
 +newline
+\ No newline at end of file
 
 Initial file: test.txt
 Initial content:
