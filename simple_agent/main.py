@@ -1,14 +1,11 @@
 #!/usr/bin/env -S uv run --script
 
 import argparse
-import sys
-import threading
 
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.display import DummyDisplay
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
-from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
 from simple_agent.application.events import (
     AssistantSaidEvent,
     SessionEndedEvent,
@@ -20,33 +17,34 @@ from simple_agent.application.events import (
     UserPromptRequestedEvent,
     UserPromptedEvent,
 )
-from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.input import Input
+from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session, SessionArgs
 from simple_agent.application.session_storage import NoOpSessionStorage
-from simple_agent.application.user_input import DummyUserInput
 from simple_agent.application.subagent_context import SubagentContext
-
+from simple_agent.application.tool_documentation import generate_tools_documentation
+from simple_agent.application.user_input import DummyUserInput
+from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.configuration import load_user_configuration
-from simple_agent.infrastructure.model_config import load_model_config
-from simple_agent.infrastructure.openai import OpenAILLM
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
 from simple_agent.infrastructure.event_logger import EventLogger
+from simple_agent.infrastructure.file_system_agent_type_discovery import FileSystemAgentTypeDiscovery
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
+from simple_agent.infrastructure.model_config import load_model_config
 from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
+from simple_agent.infrastructure.openai import OpenAILLM
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.system_prompt.agent_definition import load_agent_prompt
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
-from simple_agent.application.tool_documentation import generate_tools_documentation
-from simple_agent.infrastructure.file_system_agent_type_discovery import FileSystemAgentTypeDiscovery
+
 
 def main():
     args = parse_args()
