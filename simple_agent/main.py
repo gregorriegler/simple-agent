@@ -136,8 +136,8 @@ def main():
                 "🛠️ create-file newfile.txt\ncontent of newfile.txt\n",
                 "🛠️ edit-file newfile.txt replace 1\nnew content of newfile.txt\n",
                 "🛠️ bash rm newfile.txt",
-                "Subagent2 completed successfully\n🛠️ complete-task Task completed successfully",
-                "Subagent1 coding task completed\n🛠️ complete-task Task completed successfully",
+                "Subagent2 completed successfully\n🛠️ complete-task Subagent2 completed successfully",
+                "Subagent1 coding task completed\n🛠️ complete-task Subagent1 completed successfully",
                 "All tasks finished\n🛠️ complete-task Main task completed successfully"
             ]
         )
