@@ -251,7 +251,7 @@ class TextualApp(App):
         other_lines = lines[1:]
         if title_text is None:
             title_text = default_title
-        if success and other_lines and not result.display_body:
+        if success and other_lines and not result.display_body and not message.strip():
             message = "\n".join(other_lines)
 
         collapsibles = self._tool_result_collapsibles.setdefault(tool_results_id, [])
