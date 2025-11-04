@@ -2,15 +2,15 @@
 
 [![Tests](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml)
 
-Simple Agent is a CLI agent designed to orchestrate focused agents with built-in human oversight.
+Simple Agent aims to be a simple, highly extensible, and fully transparent general-purpose agent system.
 
-## Components
+## Features
 
-- [`simple_agent/main.py`](simple_agent/main.py): CLI entry point that wires the event bus, user interface, Claude client, and tool library before running a session.
-- [`simple_agent/application/session.py`](simple_agent/application/session.py): Orchestrates the lifecycle of a chat session, including streaming assistant output, tool execution, and persistence.
-- [`simple_agent/application/agent.py`](simple_agent/application/agent.py): Core chat loop that gathers user input, streams Claude responses, and coordinates tool execution.
-- [`simple_agent/tools/all_tools.py`](simple_agent/tools/all_tools.py): Registers built-in tools (bash, cat, edit_file, etc.), parses tool calls, and executes them.
-- [`simple_agent/infrastructure/system_prompt/agent_definition.py`](simple_agent/infrastructure/system_prompt/agent_definition.py): Loads agent definitions and renders prompts that describe available tools to Claude.
+- Full transparency: observe every tool call and agent decision with ease
+- Markdown-driven subagents: build modular agents from simple markdown files
+- Token-efficient tool calling: optimized tool execution to reduce overhead
+- CLI-first design: built for command-line use, with optional non-interactive mode
+- API integration: works with OpenAI and Anthropic APIs
 
 ## Installation and Usage
 
@@ -87,6 +87,14 @@ uv run --project . --script simple_agent/run_tool.py cat README.md
 # Generate coverage locally
 ./coverage.sh
 ```
+
+## Components
+
+- [`simple_agent/main.py`](simple_agent/main.py): CLI entry point that wires the event bus, user interface, Claude client, and tool library before running a session.
+- [`simple_agent/application/session.py`](simple_agent/application/session.py): Orchestrates the lifecycle of a chat session, including streaming assistant output, tool execution, and persistence.
+- [`simple_agent/application/agent.py`](simple_agent/application/agent.py): Core chat loop that gathers user input, streams Claude responses, and coordinates tool execution.
+- [`simple_agent/tools/all_tools.py`](simple_agent/tools/all_tools.py): Registers built-in tools (bash, cat, edit_file, etc.), parses tool calls, and executes them.
+- [`simple_agent/infrastructure/system_prompt/agent_definition.py`](simple_agent/infrastructure/system_prompt/agent_definition.py): Loads agent definitions and renders prompts that describe available tools to Claude.
 
 ## Text-to-Speech setup
 
