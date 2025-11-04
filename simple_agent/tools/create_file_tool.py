@@ -62,7 +62,7 @@ class CreateFileTool(BaseTool):
                     # Write content as-is, no processing
                     f.write(content)
             if content is not None:
-                return ContinueResult(f"Created file: {filename} with content")
+                return ContinueResult(f"Created file: {filename} with content", display_body=content)
             else:
                 return ContinueResult(f"Created empty file: {filename}")
         except OSError as e:
