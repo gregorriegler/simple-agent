@@ -1,12 +1,13 @@
 from simple_agent.application.display import Display
 from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.textual_messages import UserSaysMessage, AssistantSaysMessage, ToolCallMessage, ToolResultMessage, SessionStatusMessage
+from simple_agent.infrastructure.textual.textual_messages import RefreshTodosMessage, UserSaysMessage, AssistantSaysMessage, ToolCallMessage, ToolResultMessage, SessionStatusMessage
 
 class TextualDisplay(Display):
 
     def __init__(self, agent_name: str, app: TextualApp):
         self.agent_name = agent_name
+        self.agent_id = agent_name
         self.agent_prefix = f"{agent_name}: "
         self.app = app
 
@@ -42,6 +43,11 @@ class TextualDisplay(Display):
     def start_new_session(self):
         if self.app and self.app.is_running:
             self.app.post_message(SessionStatusMessage("log", "Starting new session"))
+            self.refresh_todos()
+
+    def refresh_todos(self):
+        if self.app and self.app.is_running:
+            self.app.post_message(RefreshTodosMessage(self.agent_id))
 
     def waiting_for_input(self):
         if self.app and self.app.is_running:

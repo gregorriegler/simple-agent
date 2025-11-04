@@ -57,6 +57,7 @@ class TextualSubagentDisplay(TextualDisplay):
     def start_new_session(self):
         if self.app and self.app.is_running and self.log_id:
             self.app.post_message(SessionStatusMessage(self.log_id, "Starting new session"))
+            self.refresh_todos()
 
     def waiting_for_input(self):
         if self.app and self.app.is_running and self.log_id:

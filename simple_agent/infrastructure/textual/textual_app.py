@@ -14,6 +14,7 @@ from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
     AssistantSaysMessage,
+    RefreshTodosMessage,
     RemoveSubagentTabMessage,
     SessionStatusMessage,
     ToolCallMessage,
@@ -334,6 +335,9 @@ class TextualApp(App):
         agent_id = self._tool_results_to_agent.get(tool_results_id)
         if not agent_id:
             return
+        self._refresh_todos_for_agent(agent_id)
+
+    def _refresh_todos_for_agent(self, agent_id: str) -> None:
         todo_widget = self._todo_widgets.get(agent_id)
         if not todo_widget:
             return
@@ -359,3 +363,6 @@ class TextualApp(App):
 
     def on_remove_subagent_tab_message(self, message: RemoveSubagentTabMessage) -> None:
         self.remove_subagent_tab(message.agent_id)
+
+    def on_refresh_todos_message(self, message: RefreshTodosMessage) -> None:
+        self._refresh_todos_for_agent(message.agent_id)
