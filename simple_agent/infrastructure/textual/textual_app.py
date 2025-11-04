@@ -1,3 +1,5 @@
+import os
+import signal
 import threading
 import time
 from pathlib import Path
@@ -42,6 +44,7 @@ class TextualApp(App):
         ("alt+left", "previous_tab", "Previous Tab"),
         ("alt+right", "next_tab", "Next Tab"),
         ("ctrl+c", "quit", "Quit"),
+        ("ctrl+q", "quit", "Quit"),
     ]
 
     CSS = """
@@ -111,6 +114,7 @@ class TextualApp(App):
         self._todo_widgets: dict[str, Markdown] = {}
         self._tool_results_to_agent: dict[str, str] = {}
         self._suppressed_tool_calls: set[str] = set()
+        self._signal_on_unmount = False
 
     @staticmethod
     def panel_ids_for(agent_id: str) -> tuple[str, str, str]:
@@ -146,6 +150,15 @@ class TextualApp(App):
     def on_unmount(self) -> None:
         if self.user_input:
             self.user_input.close()
+        if self._signal_on_unmount:
+            def _raise_sigint() -> None:
+                try:
+                    time.sleep(0.05)
+                    os.kill(os.getpid(), signal.SIGINT)
+                except BaseException:
+                    pass
+
+            threading.Thread(target=_raise_sigint, daemon=True).start()
 
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
@@ -154,6 +167,13 @@ class TextualApp(App):
             event.prevent_default()
             return
         return
+
+    def action_quit(self) -> None:
+        """Ensure Ctrl+C / Ctrl+Q stop the agent, not just the UI."""
+        if self.user_input:
+            self.user_input.close()
+        self._signal_on_unmount = True
+        self.exit()
 
     def action_previous_tab(self) -> None:
         self._switch_tab(-1)
