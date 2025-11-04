@@ -40,25 +40,37 @@ class ClaudeLLM(LLM):
             "messages": payload_messages,
             **({"system": system_prompt} if system_prompt else {}),
         }
+
+        timeout = self._config.request_timeout
+
         try:
             logger.debug("Request:" + json.dumps(data, indent=4, ensure_ascii=False))
-            response = requests.post(url, headers=headers, json=data)
+            response = requests.post(url, headers=headers, json=data, timeout=timeout)
             logger.debug(
                 "Response:" + json.dumps(response.json(), indent=4, ensure_ascii=False)
             )
             response.raise_for_status()
-            response_data = response.json()
-            if "content" not in response_data:
-                raise ClaudeClientError("API response missing 'content' field")
-            content = response_data["content"]
-            if not content:
-                return ""
-            first_content = content[0]
-            if "text" not in first_content:
-                raise ClaudeClientError("API response content missing 'text' field")
-            return first_content["text"]
         except requests.exceptions.RequestException as error:
             raise ClaudeClientError(f"API request failed: {error}") from error
+
+        response_data = response.json()
+
+        if "error" in response_data:
+            error_type = response_data["error"].get("type", "")
+            error_message = response_data["error"].get("message", "")
+            raise ClaudeClientError(f"Claude API error: {error_type} - {error_message}")
+
+        if "content" not in response_data:
+            raise ClaudeClientError("API response missing 'content' field")
+
+        content = response_data["content"]
+        if not content:
+            return ""
+
+        first_content = content[0]
+        if "text" not in first_content:
+            raise ClaudeClientError("API response content missing 'text' field")
+        return first_content["text"]
 
     def _ensure_claude_adapter(self) -> None:
         if self._config.adapter != "claude":

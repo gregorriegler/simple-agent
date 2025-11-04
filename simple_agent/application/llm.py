@@ -6,7 +6,6 @@ ChatMessages = List[ChatMessage]
 
 
 class LLM(Protocol):
-
     def __call__(self, messages: ChatMessages) -> str:
         ...
 

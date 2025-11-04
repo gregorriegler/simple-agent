@@ -38,14 +38,11 @@ class OpenAILLM(LLM):
             "Authorization": f"Bearer {api_key}",
         }
 
+        timeout = self._config.request_timeout
+
         try:
             logger.debug("Request:" + json.dumps(data, indent=4, ensure_ascii=False))
-            response = requests.post(
-                url,
-                headers=headers,
-                json=data,
-                timeout=self._config.request_timeout,
-            )
+            response = requests.post(url, headers=headers, json=data, timeout=timeout)
             logger.debug(
                 "Response:" + json.dumps(response.json(), indent=4, ensure_ascii=False)
             )
@@ -54,6 +51,7 @@ class OpenAILLM(LLM):
             raise OpenAIClientError(f"API request failed: {error}") from error
 
         response_data = response.json()
+
         choices = response_data.get("choices")
         if not choices:
             raise OpenAIClientError("API response missing 'choices' field")

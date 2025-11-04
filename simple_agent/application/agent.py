@@ -61,6 +61,7 @@ class Agent:
                 tool_result = self.execute_tool(tools[0])
         except KeyboardInterrupt:
             self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
+            raise
 
         return tool_result
 

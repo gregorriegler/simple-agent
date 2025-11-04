@@ -32,6 +32,7 @@ def test_claude_chat_returns_content_text(monkeypatch):
             {"role": "user", "content": "Hello"}
         ]
     }
+    assert captured["timeout"] == 60
 
 
 def test_claude_chat_raises_error_when_content_missing(monkeypatch):
@@ -57,10 +58,11 @@ def test_claude_chat_raises_error_when_request_fails(monkeypatch):
 def create_successful_post(captured):
     response = ResponseStub({"content": [{"text": "assistant response"}]})
 
-    def post(url, headers, json):
+    def post(url, headers, json, timeout=None):
         captured["url"] = url
         captured["headers"] = headers
         captured["json"] = json
+        captured["timeout"] = timeout
         return response
 
     return post
@@ -69,16 +71,15 @@ def create_successful_post(captured):
 def create_missing_content_post():
     response = ResponseStub({})
 
-    def post(url, headers, json):
+    def post(url, headers, json, timeout=None):
         return response
 
     return post
 
 
 def create_failing_post():
-    def post(url, headers, json):
+    def post(url, headers, json, timeout=None):
         raise requests.exceptions.RequestException("network down")
-
     return post
 
 
@@ -105,3 +106,7 @@ class StubClaudeConfig:
     @property
     def adapter(self):
         return "claude"
+
+    @property
+    def request_timeout(self):
+        return 60

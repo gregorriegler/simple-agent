@@ -1,3 +1,4 @@
+- the subagent result message is not the result shown in the tool call collapsible
 - do we need all those ifs in TextualDisplay?
 - does esc work?
 - deadlocks
