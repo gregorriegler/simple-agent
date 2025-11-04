@@ -2,13 +2,13 @@
 
 [![Tests](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml)
 
-Simple Agent aims to be a simple, highly extensible, and fully transparent general-purpose agent system.
+Simple Agent aims to be a simple, extensible, and transparent general-purpose agent system.
 
 ![Simple Agent Screenshot](doc/screenshot.png)
 
 ## Features
 
-- Full transparency: observe every tool call and agent decision with ease
+- Transparency: observe every tool call and agent decision with ease
 - Markdown-driven subagents: build modular agents from simple markdown files
 - Token-efficient tool calling: optimized tool execution to reduce overhead
 - CLI-first design: built for command-line use, with optional non-interactive mode
