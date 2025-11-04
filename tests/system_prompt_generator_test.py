@@ -106,3 +106,71 @@ def test_render_removes_placeholder_when_no_agents_content():
     result = prompt.render("TOOLS DOCS")
 
     assert result == "Header\n\nFooter"
+
+
+def test_load_project_local_agent_definition():
+    import os
+    import tempfile
+    
+    agents_dir = os.path.join(os.getcwd(), ".simple-agent", "agents")
+    os.makedirs(agents_dir, exist_ok=True)
+    
+    test_agent_path = os.path.join(agents_dir, "test-custom.agent.md")
+    test_agent_content = """---
+name: Test Custom Agent
+description: A test agent for validation
+tools: bash,cat
+---
+
+# Role
+You are a test agent for proving custom agent loading works.
+
+# Rules
+- Follow test rules
+- Be helpful
+"""
+    
+    try:
+        with open(test_agent_path, 'w', encoding='utf-8') as f:
+            f.write(test_agent_content)
+        
+        prompt = load_agent_prompt("test-custom")
+        
+        assert prompt.name == "Test Custom Agent"
+        assert prompt.tool_keys == ["bash", "cat"]
+        assert "You are a test agent for proving custom agent loading works" in prompt.template
+        assert "Follow test rules" in prompt.template
+    finally:
+        if os.path.exists(test_agent_path):
+            os.remove(test_agent_path)
+
+def test_custom_agent_appears_in_subagent_tool_documentation():
+    import os
+    
+    agents_dir = os.path.join(os.getcwd(), ".simple-agent", "agents")
+    os.makedirs(agents_dir, exist_ok=True)
+    
+    test_agent_path = os.path.join(agents_dir, "my-custom.agent.md")
+    test_agent_content = """---
+name: My Custom Agent
+description: A custom test agent
+tools: bash
+---
+
+# Role
+You are a custom agent.
+"""
+    
+    try:
+        with open(test_agent_path, 'w', encoding='utf-8') as f:
+            f.write(test_agent_content)
+        
+        tool_library = create_all_tools_for_test()
+        agent_type_discovery = FileSystemAgentTypeDiscovery()
+        tools_documentation = generate_tools_documentation(tool_library.tools, agent_type_discovery)
+        
+        assert "'my-custom'" in tools_documentation
+        assert "Available types:" in tools_documentation
+    finally:
+        if os.path.exists(test_agent_path):
+            os.remove(test_agent_path)

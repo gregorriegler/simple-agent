@@ -1,9 +1,15 @@
+import logging
 import os
 from typing import Any
 
 import yaml
 
 from simple_agent.application.system_prompt import AgentPrompt
+from simple_agent.infrastructure.agent_file_conventions import (
+    get_project_local_agents_dir,
+    filename_from_agent_type
+)
+logger = logging.getLogger(__name__)
 
 
 def extract_tool_keys(agent_type: str) -> list[str]:
@@ -12,7 +18,7 @@ def extract_tool_keys(agent_type: str) -> list[str]:
 
 
 def load_agent_prompt(agent_type: str) -> AgentPrompt:
-    filename = _system_prompt_filename(agent_type)
+    filename = filename_from_agent_type(agent_type)
     content = _load_agent_definitions_file(filename)
     metadata, template = _parse_front_matter(content)
     name = metadata.get('name', agent_type.capitalize())
@@ -29,10 +35,6 @@ def extract_tool_keys_from_prompt(content: str) -> list[str]:
 def extract_metadata(content: str) -> dict[str, Any]:
     metadata, _ = _parse_front_matter(content)
     return metadata
-
-
-def _system_prompt_filename(agent_type: str) -> str:
-    return f"{agent_type}.agent.md"
 
 
 def _parse_front_matter(content: str) -> tuple[dict[str, Any], str]:
@@ -113,6 +115,18 @@ def _read_agents_content() -> str:
 
 
 def _load_agent_definitions_file(filename: str) -> str:
+    project_local_dir = get_project_local_agents_dir()
+    project_local_path = os.path.join(project_local_dir, filename)
+    
+    if os.path.isfile(project_local_path):
+        try:
+            with open(project_local_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                logger.info(f"Loaded project-local agent definition: {filename}")
+                return content
+        except Exception as e:
+            logger.warning(f"Failed to load project-local agent {filename}: {e}")
+    
     try:
         from importlib import resources
         return resources.read_text('simple_agent', filename)
