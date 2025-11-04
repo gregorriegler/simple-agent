@@ -4,6 +4,8 @@
 
 Simple Agent aims to be a simple, highly extensible, and fully transparent general-purpose agent system.
 
+![Simple Agent Screenshot](doc/screenshot.png)
+
 ## Features
 
 - Full transparency: observe every tool call and agent decision with ease
