@@ -1,14 +1,16 @@
-from unittest.mock import patch
+from pathlib import Path
 
+import pytest
 from approvaltests import verify
 
-from simple_agent.infrastructure.system_prompt.agent_definition import (
-    extract_tool_keys,
-    load_agent_prompt
-)
+from simple_agent.application.agent_library import AgentLibrary
+from simple_agent.application.ground_rules import GroundRules
 from simple_agent.application.system_prompt import AgentPrompt
 from simple_agent.application.tool_documentation import generate_tools_documentation
-from simple_agent.infrastructure.file_system_agent_type_discovery import FileSystemAgentTypeDiscovery
+from simple_agent.infrastructure.agent_library import (
+    BuiltinAgentLibrary,
+    FileSystemAgentLibrary,
+)
 from tests.test_helpers import create_all_tools_for_test
 
 
@@ -22,31 +24,31 @@ def test_generate_coding_system_prompt():
     verify_system_prompt("coding", tool_library)
 
 
-def verify_system_prompt(system_prompt_md, tool_library):
-    with patch('simple_agent.infrastructure.system_prompt.agent_definition._read_agents_content') as mock_agents:
-        mock_agents.return_value = "# Test AGENTS.md content\nThis is a stub for testing."
-        agent_type_discovery = FileSystemAgentTypeDiscovery()
-        tools_documentation = generate_tools_documentation(tool_library.tools, agent_type_discovery)
-        prompt = load_agent_prompt(system_prompt_md)
-        system_prompt = prompt.render(tools_documentation)
-        verify(system_prompt)
+def verify_system_prompt(agent_type, tool_library):
+    agent_library = BuiltinAgentLibrary(GroundRulesStub())
+    tools_documentation = generate_tools_documentation(tool_library.tools, agent_library.list_agent_types())
+    prompt = agent_library.read_agent_definition(agent_type).load_prompt()
+    system_prompt = prompt.render(tools_documentation)
+    verify(system_prompt)
 
 
-def test_extract_tool_keys_from_prompt():
-    prompt_with_keys = """---
+@pytest.mark.parametrize(
+    ("agent_type", "definition_content", "expected_keys"),
+    [
+        (
+            "sample",
+            """---
 name: Sample Agent
 tools: write_todos,ls,cat
 ---
 
 # Role
-Content here"""
-
-    with patch('simple_agent.infrastructure.system_prompt.agent_definition._load_agent_definitions_file') as loader:
-        loader.return_value = prompt_with_keys
-        result = extract_tool_keys('sample')
-    assert result == ['write_todos', 'ls', 'cat']
-
-    prompt_with_list = """---
+Content here""",
+            ['write_todos', 'ls', 'cat'],
+        ),
+        (
+            "list-sample",
+            """---
 name: Sample List Agent
 tools:
 - bash
@@ -54,32 +56,34 @@ tools:
 ---
 
 # Role
-Content here"""
-
-    with patch('simple_agent.infrastructure.system_prompt.agent_definition._load_agent_definitions_file') as loader:
-        loader.return_value = prompt_with_list
-        result = extract_tool_keys('list-sample')
-    assert result == ['bash', 'cat']
-
-    prompt_without_keys = """---
+Content here""",
+            ['bash', 'cat'],
+        ),
+        (
+            "no-keys",
+            """---
 description: Sample agent
 ---
 
 # Role
-Content here"""
+Content here""",
+            [],
+        ),
+        (
+            "no-separator",
+            """# Role
+Content here""",
+            [],
+        ),
+    ],
+)
+def test_extract_tool_keys_from_prompt(agent_type, definition_content, expected_keys, tmp_path: Path):
+    agent_library = create_filesystem_agent_library(tmp_path)
+    write_agent_definition(tmp_path, agent_type, definition_content)
 
-    with patch('simple_agent.infrastructure.system_prompt.agent_definition._load_agent_definitions_file') as loader:
-        loader.return_value = prompt_without_keys
-        result = extract_tool_keys('no-keys')
-    assert result == []
+    result = extract_tool_keys(agent_type, agent_library)
 
-    prompt_no_separator = """# Role
-Content here"""
-
-    with patch('simple_agent.infrastructure.system_prompt.agent_definition._load_agent_definitions_file') as loader:
-        loader.return_value = prompt_no_separator
-        result = extract_tool_keys('no-separator')
-    assert result == []
+    assert result == expected_keys
 
 
 def test_render_inserts_agents_content_with_placeholder():
@@ -108,69 +112,23 @@ def test_render_removes_placeholder_when_no_agents_content():
     assert result == "Header\n\nFooter"
 
 
-def test_load_project_local_agent_definition():
-    import os
-    import tempfile
-    
-    agents_dir = os.path.join(os.getcwd(), ".simple-agent", "agents")
-    os.makedirs(agents_dir, exist_ok=True)
-    
-    test_agent_path = os.path.join(agents_dir, "test-custom.agent.md")
-    test_agent_content = """---
-name: Test Custom Agent
-description: A test agent for validation
-tools: bash,cat
----
+def extract_tool_keys(agent_type: str, agent_library: AgentLibrary) -> list[str]:
+    prompt = agent_library.read_agent_definition(agent_type).load_prompt()
+    return prompt.tool_keys
 
-# Role
-You are a test agent for proving custom agent loading works.
 
-# Rules
-- Follow test rules
-- Be helpful
-"""
-    
-    try:
-        with open(test_agent_path, 'w', encoding='utf-8') as f:
-            f.write(test_agent_content)
-        
-        prompt = load_agent_prompt("test-custom")
-        
-        assert prompt.name == "Test Custom Agent"
-        assert prompt.tool_keys == ["bash", "cat"]
-        assert "You are a test agent for proving custom agent loading works" in prompt.template
-        assert "Follow test rules" in prompt.template
-    finally:
-        if os.path.exists(test_agent_path):
-            os.remove(test_agent_path)
+def create_filesystem_agent_library(directory: Path) -> FileSystemAgentLibrary:
+    library = FileSystemAgentLibrary(str(directory))
+    library.ground_rules = GroundRulesStub()
+    return library
 
-def test_custom_agent_appears_in_subagent_tool_documentation():
-    import os
-    
-    agents_dir = os.path.join(os.getcwd(), ".simple-agent", "agents")
-    os.makedirs(agents_dir, exist_ok=True)
-    
-    test_agent_path = os.path.join(agents_dir, "my-custom.agent.md")
-    test_agent_content = """---
-name: My Custom Agent
-description: A custom test agent
-tools: bash
----
 
-# Role
-You are a custom agent.
-"""
-    
-    try:
-        with open(test_agent_path, 'w', encoding='utf-8') as f:
-            f.write(test_agent_content)
-        
-        tool_library = create_all_tools_for_test()
-        agent_type_discovery = FileSystemAgentTypeDiscovery()
-        tools_documentation = generate_tools_documentation(tool_library.tools, agent_type_discovery)
-        
-        assert "'my-custom'" in tools_documentation
-        assert "Available types:" in tools_documentation
-    finally:
-        if os.path.exists(test_agent_path):
-            os.remove(test_agent_path)
+def write_agent_definition(directory: Path, agent_type: str, content: str) -> None:
+    path = directory / f"{agent_type}.agent.md"
+    path.write_text(content, encoding="utf-8")
+
+
+class GroundRulesStub(GroundRules):
+
+      def read(self) -> str:
+          return "# Test AGENTS.md content\nThis is a stub for testing."

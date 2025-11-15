@@ -5,8 +5,9 @@ from approvaltests import Options, verify
 from approvaltests.scrubbers.scrubbers import create_regex_scrubber, combine_scrubbers
 
 from simple_agent.application.input import Input
-from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
+from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
+from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.tools.all_tools import AllTools
 
@@ -14,12 +15,8 @@ from simple_agent.tools.all_tools import AllTools
 def create_all_tools_for_test():
     from simple_agent.application.agent_factory import AgentFactory
     from simple_agent.application.event_bus import SimpleEventBus
-    from simple_agent.infrastructure.system_prompt.agent_definition import (
-        load_agent_prompt
-    )
     from simple_agent.application.subagent_context import SubagentContext
     from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
-    from simple_agent.infrastructure.file_system_agent_type_discovery import FileSystemAgentTypeDiscovery
 
     io = StdIO()
     create_subagent_display = lambda agent_id, indent: ConsoleSubagentDisplay(indent, agent_id, io, None)
@@ -29,16 +26,15 @@ def create_all_tools_for_test():
     event_bus = SimpleEventBus()
     llm = lambda messages: ''
     tool_library_factory = AllToolsFactory()
-    agent_type_discovery = FileSystemAgentTypeDiscovery()
+    agent_library = BuiltinAgentLibrary()
     create_agent = AgentFactory(
         llm,
         event_bus,
         create_subagent_display,
         create_subagent_input,
-        load_agent_prompt,
         NoOpSessionStorage(),
         tool_library_factory,
-        agent_type_discovery
+        agent_library
     )
 
     subagent_context = SubagentContext(

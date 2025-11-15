@@ -6,3 +6,4 @@ api_key = "sk-ant-api03-placeholder-key-replace-with-your-actual-claude-api-key"
 
 [paths]
 refactoring_tools_path = "C:\\Users\\riegl\\code\\csharp-refactoring-tools"
+agent_definitions_dir = "C:\\Users\\riegl\\code\\simple-agent-definitions" # Optional: override agent definition search path

@@ -68,6 +68,10 @@ All values inside `[model]` are required; pick the adapter that matches the infr
 
 When using the OpenAI adapter you can point the client at a compatible provider by overriding `base_url`, e.g. set it to `https://openrouter.ai/api/v1` for OpenRouter.
 
+### Custom agent definitions
+
+Agent definition files (`*.agent.md`) are discovered from the built-in `simple_agent` package and from `.simple-agent/agents` in your project directory. To point the agent at a different directory, add `agent_definitions_dir = "/path/to/agents"` under the `[paths]` section of `.simple-agent.toml`. When configured, only the files from that directory are used for type discovery and prompt loading.
+
 ## Direct tool usage
 
 You can execute a single tool call without starting a full session:

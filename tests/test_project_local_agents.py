@@ -1,46 +1,75 @@
-import os
-import tempfile
-from pathlib import Path
-from unittest.mock import patch
+from simple_agent.infrastructure.agent_library import (
+    FileSystemAgentLibrary,
+    create_agent_library,
+)
 
-from simple_agent.infrastructure.system_prompt.agent_definition import load_agent_prompt, _get_project_local_agents_dir
+def test_local_agents_given(tmp_path):
+    project_agents_dir = tmp_path / '.simple-agent' / 'agents'
+    project_agents_dir.mkdir(parents=True, exist_ok=True)
 
-
-def test_project_local_agents_directory_path():
-    with patch('os.getcwd', return_value='/test/path'):
-        result = _get_project_local_agents_dir()
-        assert result.endswith(os.path.join('.simple-agent', 'agents'))
-
-
-def test_load_agent_prompt_prefers_project_local():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        project_agents_dir = os.path.join(tmpdir, '.simple-agent', 'agents')
-        os.makedirs(project_agents_dir, exist_ok=True)
-        
-        project_agent_file = os.path.join(project_agents_dir, 'test.agent.md')
-        with open(project_agent_file, 'w', encoding='utf-8') as f:
-            f.write("""---
+    (project_agents_dir / 'test.agent.md').write_text("""---
 name: ProjectLocal
 tools: bash
 ---
-This is a project-local agent.""")
-        
-        with patch('os.getcwd', return_value=tmpdir):
-            prompt = load_agent_prompt('test')
-            assert prompt.name == 'ProjectLocal'
-            assert 'project-local agent' in prompt.template
+This is a project-local agent.""", encoding='utf-8')
+
+    agents = create_agent_library(config={}, cwd=str(tmp_path))
+    prompt = agents.read_agent_definition('test').load_prompt()
+    assert prompt.name == 'ProjectLocal'
+    assert 'project-local agent' in prompt.template
 
 
-def test_load_agent_prompt_falls_back_to_builtin():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        with patch('os.getcwd', return_value=tmpdir):
-            prompt = load_agent_prompt('coding')
-            assert prompt.name == 'Coding'
-            assert len(prompt.tool_keys) > 0
+def test_default_directory_falls_back_to_builtin_when_empty(tmp_path):
+    agents = create_agent_library(config={}, cwd=str(tmp_path))
+    prompt = agents.read_agent_definition('coding').load_prompt()
+    assert prompt.name == 'Coding'
+    assert len(prompt.tool_keys) > 0
 
 
-def test_load_agent_prompt_handles_missing_project_local_gracefully():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        with patch('os.getcwd', return_value=tmpdir):
-            prompt = load_agent_prompt('orchestrator')
-            assert prompt.name == 'Orchestrator'
+def test_load_agent_prompt_handles_missing_custom_definition_by_using_builtin(tmp_path):
+    agents = create_agent_library(config={}, cwd=str(tmp_path))
+    prompt = agents.read_agent_definition('orchestrator').load_prompt()
+    assert prompt.name == 'Orchestrator'
+
+
+def test_load_agent_prompt_prefers_configured_directory(tmp_path):
+    configured_dir = tmp_path / "agents"
+    configured_dir.mkdir()
+    (configured_dir / "custom.agent.md").write_text("""---
+name: Configured
+tools: bash
+---
+Configured definitions.""", encoding='utf-8')
+
+    agents = create_agent_library(
+        config={'paths': {'agent_definitions_dir': str(configured_dir)}},
+        cwd=str(tmp_path),
+    )
+    prompt = agents.read_agent_definition('custom').load_prompt()
+    assert prompt.name == 'Configured'
+    assert 'Configured definitions' in prompt.template
+
+
+def test_agent_type_discovery_uses_injected_definitions(tmp_path):
+    custom_dir = tmp_path / "agents"
+    custom_dir.mkdir()
+    (custom_dir / "alpha.agent.md").write_text("alpha", encoding='utf-8')
+    (custom_dir / "omega.agent.md").write_text("omega", encoding='utf-8')
+
+    agent_library = FileSystemAgentLibrary(str(custom_dir))
+    assert agent_library.list_agent_types() == ['alpha', 'omega']
+
+
+def test_agent_definitions_support_relative_configured_path(tmp_path):
+    agents_dir = tmp_path / "custom_agents"
+    agents_dir.mkdir()
+    (agents_dir / "via_config.agent.md").write_text("""---
+name: ConfigFile
+tools: bash
+---
+Config driven definition.""", encoding='utf-8')
+
+    config = {'paths': {'agent_definitions_dir': "custom_agents"}}
+    agents = create_agent_library(config=config, cwd=str(tmp_path))
+    prompt = agents.read_agent_definition('via_config').load_prompt()
+    assert prompt.name == 'ConfigFile'

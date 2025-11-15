@@ -1,20 +1,15 @@
-from typing import Protocol
+from typing import List
 
 
-class AgentTypeDiscovery(Protocol):
-    def discover_agent_types(self) -> list[str]:
-        ...
-
-
-def generate_tools_documentation(tools, agent_type_discovery: AgentTypeDiscovery):
+def generate_tools_documentation(tools, agent_types: List[str]) -> str:
     tools_lines = []
     for tool in tools:
-        tool_doc = _generate_tool_documentation(tool, agent_type_discovery)
+        tool_doc = _generate_tool_documentation(tool, agent_types)
         tools_lines.append(tool_doc)
     return "\n\n".join(tools_lines)
 
 
-def _generate_tool_documentation(tool, agent_type_discovery: AgentTypeDiscovery):
+def _generate_tool_documentation(tool, agent_types):
     usage_info = tool.get_usage_info()
     lines = usage_info.split('\n')
     if not lines:
@@ -53,7 +48,6 @@ def _generate_tool_documentation(tool, agent_type_discovery: AgentTypeDiscovery)
     remaining_lines = usage_info.split('\n')[2:]
 
     if tool_name == 'subagent':
-        agent_types = agent_type_discovery.discover_agent_types()
         if agent_types:
             agent_types_list = ', '.join(f"'{t}'" for t in agent_types)
             injected_lines = []

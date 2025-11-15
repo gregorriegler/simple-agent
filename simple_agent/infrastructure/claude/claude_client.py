@@ -4,7 +4,7 @@ import logging
 import requests
 
 from simple_agent.application.llm import LLM, ChatMessages
-from simple_agent.infrastructure.model_config import load_model_config, ModelConfig
+from simple_agent.infrastructure.model_config import ModelConfig
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="request.log", encoding="utf-8", level=logging.DEBUG)
@@ -15,8 +15,8 @@ class ClaudeClientError(RuntimeError):
 
 
 class ClaudeLLM(LLM):
-    def __init__(self, config: ModelConfig | None = None):
-        self._config = config or load_model_config()
+    def __init__(self, config: ModelConfig):
+        self._config = config
         self._ensure_claude_adapter()
 
     def __call__(self, messages: ChatMessages) -> str:

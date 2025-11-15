@@ -2,13 +2,6 @@ import os
 import sys
 from typing import Any, Mapping
 
-from simple_agent.infrastructure.configuration import load_user_configuration
-
-
-def load_model_config(config: Mapping[str, Any] | None = None) -> "ModelConfig":
-    config_data = config or load_user_configuration()
-    return ModelConfig(config_data)
-
 
 def default_session_file_path() -> str:
     return os.path.join(os.getcwd(), "claude-session.json")

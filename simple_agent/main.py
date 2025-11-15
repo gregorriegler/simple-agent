@@ -1,6 +1,7 @@
 #!/usr/bin/env -S uv run --script
 
 import argparse
+import os
 
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.display import DummyDisplay
@@ -24,6 +25,7 @@ from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
+from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.configuration import load_user_configuration
@@ -32,14 +34,12 @@ from simple_agent.infrastructure.console.console_subagent_display import Console
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
 from simple_agent.infrastructure.event_logger import EventLogger
-from simple_agent.infrastructure.file_system_agent_type_discovery import FileSystemAgentTypeDiscovery
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
-from simple_agent.infrastructure.model_config import load_model_config
+from simple_agent.infrastructure.model_config import ModelConfig
 from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
 from simple_agent.infrastructure.openai import OpenAILLM
 from simple_agent.infrastructure.stdio import StdIO
-from simple_agent.infrastructure.system_prompt.agent_definition import load_agent_prompt
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
@@ -122,6 +122,10 @@ def main():
     session_storage = JsonFileSessionStorage()
     todo_cleanup = FileSystemTodoCleanup()
 
+    cwd = os.getcwd()
+    user_config = load_user_configuration(cwd)
+    model_config = ModelConfig(user_config)
+
     if args.stub_llm:
         llm = create_llm_stub(
             [
@@ -140,8 +144,6 @@ def main():
             ]
         )
     else:
-        user_config = load_user_configuration()
-        model_config = load_model_config(user_config)
         if model_config.adapter == "openai":
             llm = OpenAILLM(model_config)
         else:
@@ -157,20 +159,18 @@ def main():
     event_bus.subscribe(SessionEndedEvent, display_event_handler.handle_session_ended)
 
     tool_library_factory = AllToolsFactory()
-    agent_type_discovery = FileSystemAgentTypeDiscovery()
+    agent_library = create_agent_library(user_config, cwd)
 
     create_agent = AgentFactory(
         llm,
         event_bus,
         create_subagent_display,
         create_subagent_input,
-        load_agent_prompt,
         session_storage,
         tool_library_factory,
-        agent_type_discovery
+        agent_library
     )
 
-    prompt = load_agent_prompt('orchestrator')
 
     subagent_context = SubagentContext(
         create_agent,
@@ -181,9 +181,10 @@ def main():
         event_bus
     )
 
+    prompt = agent_library.read_agent_definition('orchestrator').load_prompt()
     tools = tool_library_factory.create(prompt.tool_keys, subagent_context)
 
-    tools_documentation = generate_tools_documentation(tools.tools, agent_type_discovery)
+    tools_documentation = generate_tools_documentation(tools.tools, agent_library.list_agent_types())
     system_prompt = prompt.render(tools_documentation)
 
     run_session(
@@ -205,20 +206,21 @@ def main():
 
 
 def print_system_prompt_command():
+    cwd = os.getcwd()
+    user_config = load_user_configuration(cwd)
     tool_library_factory = AllToolsFactory()
-    agent_type_discovery = FileSystemAgentTypeDiscovery()
     dummy_event_bus = SimpleEventBus()
+    agent_library = create_agent_library(user_config, cwd)
     create_agent = AgentFactory(
         lambda messages: '',
         dummy_event_bus,
         lambda agent_id, indent: DummyDisplay(),
         lambda indent: Input(DummyUserInput()),
-        load_agent_prompt,
         NoOpSessionStorage(),
         tool_library_factory,
-        agent_type_discovery
+        agent_library
     )
-    prompt = load_agent_prompt('orchestrator')
+    prompt = agent_library.read_agent_definition('orchestrator').load_prompt()
     subagent_context = SubagentContext(
         create_agent,
         lambda agent_id, indent: DummyDisplay(),
@@ -228,7 +230,7 @@ def print_system_prompt_command():
         dummy_event_bus
     )
     tool_library = tool_library_factory.create(prompt.tool_keys, subagent_context)
-    tools_documentation = generate_tools_documentation(tool_library.tools, agent_type_discovery)
+    tools_documentation = generate_tools_documentation(tool_library.tools, agent_library.list_agent_types())
     system_prompt = prompt.render(tools_documentation)
     print(system_prompt)
     return

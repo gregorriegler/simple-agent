@@ -1,4 +1,3 @@
-- the subagent result message is not the result shown in the tool call collapsible
 - do we need all those ifs in TextualDisplay?
 - does esc work?
 - deadlocks
@@ -7,7 +6,6 @@
 - tdd loop
 - say should be a part of the agent
 - api key via env var
-- A place to show the tool results in full
 - Login with Claude Max subscription (We need to ask for a OAuth ClientId)
 - Caret placement
 - Refactoring opportunity in edit_file_tool.py
