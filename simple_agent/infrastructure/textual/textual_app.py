@@ -26,8 +26,8 @@ from simple_agent.infrastructure.textual.resizable_container import ResizableHor
 
 class TextualApp(App):
     @staticmethod
-    def create_and_start(user_input=None):
-        app = TextualApp(user_input)
+    def create_and_start(user_input=None, root_agent_id: str = "Agent", root_agent_title: str | None = None):
+        app = TextualApp(user_input, root_agent_id, root_agent_title)
         app._app_thread = threading.Thread(target=app.run, daemon=False)
         app._app_thread.start()
         time.sleep(0.5)
@@ -105,9 +105,11 @@ class TextualApp(App):
     }
     """
 
-    def __init__(self, user_input=None):
+    def __init__(self, user_input=None, root_agent_id: str = "Agent", root_agent_title: str | None = None):
         super().__init__()
         self.user_input = user_input
+        self._root_agent_id = root_agent_id
+        self._root_agent_title = root_agent_title or root_agent_id
         self._app_thread = None
         self._pending_tool_calls: dict[str, dict[str, tuple[str, TextArea, Collapsible]]] = {}
         self._tool_result_collapsibles: dict[str, list[Collapsible]] = {}
@@ -128,8 +130,8 @@ class TextualApp(App):
     def compose(self) -> ComposeResult:
         with Vertical():
             with TabbedContent(id="tabs"):
-                with TabPane("Agent", id="agent-tab"):
-                    yield self.create_agent_container("log", "tool-results", "Agent")
+                with TabPane(self._root_agent_title, id="agent-tab"):
+                    yield self.create_agent_container("log", "tool-results", self._root_agent_id)
             yield Input(placeholder="Enter your message...", id="user-input", valid_empty=True)
 
     def create_agent_container(self, log_id, tool_results_id, agent_id):

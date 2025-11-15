@@ -26,7 +26,7 @@ from simple_agent.application.tool_documentation import generate_tools_documenta
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
-from simple_agent.infrastructure.configuration import load_user_configuration
+from simple_agent.infrastructure.configuration import get_starting_agent_type, load_user_configuration
 from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
@@ -42,30 +42,36 @@ from simple_agent.infrastructure.textual.textual_user_input import TextualUserIn
 def main():
     args = parse_args()
 
+    cwd = os.getcwd()
+    user_config = load_user_configuration(cwd)
+    starting_agent_type = get_starting_agent_type(user_config)
+
     if args.show_system_prompt:
-        return print_system_prompt_command()
+        return print_system_prompt_command(starting_agent_type, user_config, cwd)
 
     if args.non_interactive:
         textual_user_input = NonInteractiveUserInput()
     else:
         textual_user_input = TextualUserInput()
 
-    textual_app = TextualApp.create_and_start(textual_user_input)
+    agent_library = create_agent_library(user_config, cwd)
+    prompt = agent_library.read_agent_definition(starting_agent_type).load_prompt()
+    textual_app = TextualApp.create_and_start(
+        textual_user_input,
+        root_agent_id=starting_agent_type,
+        root_agent_title=prompt.name
+    )
 
-    agent_id = "Agent"
-    display = TextualDisplay(agent_id, textual_app)
+    display = TextualDisplay(starting_agent_type, textual_app, prompt.name)
 
     user_input = Input(textual_user_input)
-    display_event_handler = DisplayEventHandler(display)
+    display_event_handler = DisplayEventHandler(display, starting_agent_type)
 
     if args.start_message:
         user_input.stack(args.start_message)
 
-    cwd = os.getcwd()
     session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
     todo_cleanup = FileSystemTodoCleanup()
-
-    user_config = load_user_configuration(cwd)
 
     llm = create_llm(args.stub_llm, user_config)
 
@@ -91,7 +97,6 @@ def main():
     event_bus.subscribe(SessionEndedEvent, display_event_handler.handle_session_ended)
 
     tool_library_factory = AllToolsFactory()
-    agent_library = create_agent_library(user_config, cwd)
 
     def _create_textual_subagent_display(_agent_id, _agent_name, _indent):
         subagent_display = TextualSubagentDisplay(
@@ -119,18 +124,17 @@ def main():
         _create_textual_subagent_display,
         create_subagent_input,
         0,
-        agent_id,
+        starting_agent_type,
         event_bus
     )
 
-    prompt = agent_library.read_agent_definition('orchestrator').load_prompt()
     tools = tool_library_factory.create(prompt.tool_keys, subagent_context)
     tools_documentation = generate_tools_documentation(tools.tools, agent_library.list_agent_types())
     system_prompt = prompt.render(tools_documentation)
 
     run_session(
         args.continue_session,
-        agent_id,
+        starting_agent_type,
         system_prompt,
         user_input,
         llm,
@@ -146,9 +150,7 @@ def main():
     return None
 
 
-def print_system_prompt_command():
-    cwd = os.getcwd()
-    user_config = load_user_configuration(cwd)
+def print_system_prompt_command(starting_agent_type, user_config, cwd):
     tool_library_factory = AllToolsFactory()
     dummy_event_bus = SimpleEventBus()
     agent_library = create_agent_library(user_config, cwd)
@@ -161,13 +163,13 @@ def print_system_prompt_command():
         tool_library_factory,
         agent_library
     )
-    prompt = agent_library.read_agent_definition('orchestrator').load_prompt()
+    prompt = agent_library.read_agent_definition(starting_agent_type).load_prompt()
     subagent_context = SubagentContext(
         create_agent,
         lambda agent_id, indent: DummyDisplay(),
         lambda indent: Input(DummyUserInput()),
         0,
-        "Agent",
+        starting_agent_type,
         dummy_event_bus
     )
     tool_library = tool_library_factory.create(prompt.tool_keys, subagent_context)

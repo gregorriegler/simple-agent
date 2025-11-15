@@ -72,6 +72,13 @@ When using the OpenAI adapter you can point the client at a compatible provider 
 
 Agent definition files (`*.agent.md`) are discovered from the built-in `simple_agent` package and from `.simple-agent/agents` in your project directory. To point the agent at a different directory, add `agent_definitions_dir = "/path/to/agents"` under the `[paths]` section of `.simple-agent.toml`. When configured, only the files from that directory are used for type discovery and prompt loading.
 
+To change which agent starts first, set it via the `[agents]` section:
+
+```toml
+[agents]
+start = "orchestrator"
+```
+
 ## Direct tool usage
 
 You can execute a single tool call without starting a full session:

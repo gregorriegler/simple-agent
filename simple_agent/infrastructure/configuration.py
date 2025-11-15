@@ -3,6 +3,8 @@ import sys
 import tomllib
 from typing import Any, Mapping, Tuple
 
+DEFAULT_STARTING_AGENT_TYPE = "orchestrator"
+
 
 def load_user_configuration(cwd: str) -> Mapping[str, Any]:
     config, found = _load_configuration_sources(cwd=cwd)
@@ -25,6 +27,10 @@ def load_user_configuration(cwd: str) -> Mapping[str, Any]:
 def load_optional_user_configuration(cwd: str) -> Mapping[str, Any]:
     config, _ = _load_configuration_sources(cwd=cwd)
     return config
+
+
+def get_starting_agent_type(config: Mapping[str, Any]) -> str:
+    return _extract_starting_agent_type(config) or DEFAULT_STARTING_AGENT_TYPE
 
 
 def _read_config(path: str) -> Mapping[str, Any]:
@@ -67,3 +73,16 @@ def _merge_dicts(base: Mapping[str, Any], override: Mapping[str, Any]) -> dict[s
         else:
             result[key] = value
     return result
+
+
+def _extract_starting_agent_type(config: Mapping[str, Any]) -> str | None:
+    agents_section = config.get("agents")
+    if isinstance(agents_section, Mapping):
+        for key in ("starting_agent", "start"):
+            value = agents_section.get(key)
+            if value is None:
+                continue
+            normalized = str(value).strip()
+            if normalized:
+                return normalized
+    return None

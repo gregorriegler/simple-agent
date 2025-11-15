@@ -14,9 +14,7 @@ from simple_agent.infrastructure.textual.textual_messages import (
 
 class TextualSubagentDisplay(TextualDisplay):
     def __init__(self, app: TextualApp, agent_id: str, agent_name: str, display_event_handler):
-        super().__init__(agent_name, app)
-        self.agent_id = agent_id
-        self.agent_name = agent_name
+        super().__init__(agent_id, app, agent_name)
         self.display_event_handler = display_event_handler
         self.log_id = None
         self.tool_results_id = None

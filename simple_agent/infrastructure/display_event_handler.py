@@ -4,8 +4,8 @@ from simple_agent.application.events import AssistantSaidEvent, ToolResultEvent,
 
 
 class DisplayEventHandler:
-    def __init__(self, display: Display):
-        self.displays = {"Agent": display}
+    def __init__(self, display: Display, agent_id: str = "Agent"):
+        self.displays = {agent_id: display}
 
     def register_display(self, agent_id: str, display: Display) -> None:
         self.displays[agent_id] = display

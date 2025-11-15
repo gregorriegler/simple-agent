@@ -5,10 +5,10 @@ from simple_agent.infrastructure.textual.textual_messages import RefreshTodosMes
 
 class TextualDisplay(Display):
 
-    def __init__(self, agent_name: str, app: TextualApp):
-        self.agent_name = agent_name
-        self.agent_id = agent_name
-        self.agent_prefix = f"{agent_name}: "
+    def __init__(self, agent_id: str, app: TextualApp, agent_name: str | None = None):
+        self.agent_id = agent_id
+        self.agent_name = agent_name or agent_id
+        self.agent_prefix = f"{self.agent_name}: "
         self.app = app
 
     def user_says(self, message):
