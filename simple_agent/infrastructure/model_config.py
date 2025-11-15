@@ -1,10 +1,5 @@
-import os
 import sys
-from typing import Any, Mapping
-
-
-def default_session_file_path() -> str:
-    return os.path.join(os.getcwd(), "claude-session.json")
+from typing import Mapping, Any
 
 
 class ModelConfig:

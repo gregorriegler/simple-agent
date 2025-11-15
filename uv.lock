@@ -715,6 +715,7 @@ source = { editable = "." }
 dependencies = [
     { name = "piper-tts" },
     { name = "pygame" },
+    { name = "pyyaml" },
     { name = "requests" },
     { name = "textual" },
 ]
@@ -746,6 +747,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'" },
     { name = "pytest-approvaltests", marker = "extra == 'dev'" },
     { name = "pytest-mock", marker = "extra == 'dev'" },
+    { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "requests" },
     { name = "textual", specifier = ">=0.47.0" },
 ]

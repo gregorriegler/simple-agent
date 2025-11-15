@@ -70,3 +70,4 @@ htmlcov/
 # Large model files
 *.onnx
 *.onnx.json
+/.simple-agent/

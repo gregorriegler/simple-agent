@@ -1,3 +1,5 @@
+- ModelConfig does validation and ModelConfig, belongs to application
+- --version
 - do we need all those ifs in TextualDisplay?
 - does esc work?
 - deadlocks
