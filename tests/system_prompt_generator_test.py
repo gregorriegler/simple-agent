@@ -113,8 +113,8 @@ def test_render_removes_placeholder_when_no_agents_content():
 
 
 def extract_tool_keys(agent_type: str, agent_library: AgentLibrary) -> list[str]:
-    prompt = agent_library.read_agent_definition(agent_type).load_prompt()
-    return prompt.tool_keys
+    definition = agent_library.read_agent_definition(agent_type)
+    return definition.tool_keys()
 
 
 def create_filesystem_agent_library(directory: Path) -> FileSystemAgentLibrary:
@@ -130,5 +130,11 @@ def write_agent_definition(directory: Path, agent_type: str, content: str) -> No
 
 class GroundRulesStub(GroundRules):
 
-      def read(self) -> str:
-          return "# Test AGENTS.md content\nThis is a stub for testing."
+    def __init__(self, stub = None):
+        if stub is not None:
+            self._stub = stub
+        else:
+            self._stub = "# Test AGENTS.md content\nThis is a stub for testing."
+
+    def read(self) -> str:
+        return self._stub

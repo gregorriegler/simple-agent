@@ -16,6 +16,8 @@ Agent:         session_ended:
 
 # Saved messages:
 system: Test system prompt
+
+
 user: Test message
 assistant: 🛠️ ls /tmp/test_path
 user: Result of 🛠️ ls /tmp/test_path

@@ -2,9 +2,11 @@ from pathlib import Path
 
 from approvaltests import verify, Options
 
+from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEvent
 from simple_agent.application.input import Input
+from simple_agent.application.app_context import AppContext
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
@@ -12,6 +14,7 @@ from simple_agent.infrastructure.console.console_user_input import ConsoleUserIn
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from .fake_display import FakeDisplay
 from .print_spy import IOSpy
+from .system_prompt_generator_test import GroundRulesStub
 from .test_helpers import all_scrubbers, create_test_prompt, create_session_args
 from .test_session_storage import SessionStorageStub
 from .test_tool_library import ToolLibraryStub
@@ -117,20 +120,35 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
     )
 
     test_session_storage = SessionStorageStub()
+    agent_library = BuiltinAgentLibrary()
+    app_context = AppContext(
+        llm=llm,
+        event_bus=event_bus,
+        session_storage=test_session_storage,
+        tool_library_factory=None,
+        agent_library=agent_library,
+        create_subagent_input=lambda indent: user_input
+    )
 
-    prompt = create_test_prompt()
     run_session(
         create_session_args(continue_session),
-        BuiltinAgentLibrary(),
-        event_bus,
-        llm,
-        prompt,
-        test_session_storage,
+        app_context,
         "Agent",
         cleanup_adapter,
         test_tool_library,
-        user_input
+        user_input,
+        create_test_agent_definition()
     )
+
+
+def create_test_agent_definition():
+    return AgentDefinition(
+        "Agent", """---
+name: Agent
+---""",
+        GroundRulesStub("Test system prompt")
+    )
+
 
 class SpyFileSystemTodoCleanup(FileSystemTodoCleanup):
     def __init__(self):

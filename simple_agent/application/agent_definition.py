@@ -10,9 +10,24 @@ logger = logging.getLogger(__name__)
 
 class AgentDefinition:
     def __init__(self, agent_type: str, content: str, ground_rules: GroundRules):
+        self._prompt = None
         self._agent_type = agent_type
         self._content = content
         self.ground_rules = ground_rules
+
+    def agent_type(self):
+        return self._agent_type
+
+    def agent_name(self):
+        return self.prompt().agent_name
+
+    def tool_keys(self):
+        return self.prompt().tool_keys
+
+    def prompt(self):
+        if not self._prompt:
+            self._prompt = self.load_prompt()
+        return self._prompt
 
     def load_prompt(self) -> AgentPrompt:
         metadata, template = self._parse_front_matter(self._content)

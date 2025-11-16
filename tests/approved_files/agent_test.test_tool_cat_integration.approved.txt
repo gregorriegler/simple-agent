@@ -13,6 +13,8 @@ Agent:         session_ended:
 
 # Saved messages:
 system: Test system prompt
+
+
 user: Test message
 assistant: 🛠️ cat /tmp/test_path/integration_test.txt
 user: Result of 🛠️ cat /tmp/test_path/integration_test.txt

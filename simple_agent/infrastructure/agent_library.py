@@ -17,7 +17,7 @@ from simple_agent.infrastructure.configuration import load_user_configuration
 from simple_agent.application.agent_definition import AgentDefinition
 
 
-class FileSystemAgentLibrary:
+class FileSystemAgentLibrary(AgentLibrary):
     def __init__(self, directory: str):
         self.directory = directory
         self.ground_rules = AgentsMdGroundRules()
