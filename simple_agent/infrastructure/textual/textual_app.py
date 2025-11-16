@@ -15,7 +15,7 @@ from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
     AssistantSaysMessage,
     RefreshTodosMessage,
-    RemoveSubagentTabMessage,
+    RemoveAgentTabMessage,
     SessionStatusMessage,
     ToolCallMessage,
     ToolResultMessage,
@@ -367,7 +367,7 @@ class TextualApp(App):
     def on_add_subagent_tab_message(self, message: AddSubagentTabMessage) -> None:
         self.add_subagent_tab(message.agent_id, message.tab_title)
 
-    def on_remove_subagent_tab_message(self, message: RemoveSubagentTabMessage) -> None:
+    def on_remove_agent_tab_message(self, message: RemoveAgentTabMessage) -> None:
         self.remove_subagent_tab(message.agent_id)
 
     def on_refresh_todos_message(self, message: RefreshTodosMessage) -> None:

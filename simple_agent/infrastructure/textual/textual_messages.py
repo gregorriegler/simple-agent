@@ -46,10 +46,13 @@ class AddSubagentTabMessage(Message):
         self.tab_title = tab_title
 
 
-class RemoveSubagentTabMessage(Message):
+class RemoveAgentTabMessage(Message):
     def __init__(self, agent_id: str) -> None:
         super().__init__()
         self.agent_id = agent_id
+
+
+RemoveSubagentTabMessage = RemoveAgentTabMessage
 
 
 class RefreshTodosMessage(Message):

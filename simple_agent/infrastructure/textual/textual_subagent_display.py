@@ -1,6 +1,6 @@
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
-from simple_agent.infrastructure.textual.textual_messages import RemoveSubagentTabMessage
+from simple_agent.infrastructure.textual.textual_messages import RemoveAgentTabMessage
 
 
 class TextualSubagentDisplay(TextualDisplay):
@@ -9,4 +9,4 @@ class TextualSubagentDisplay(TextualDisplay):
 
     def exit(self):
         if self.app and self.app.is_running:
-            self.app.post_message(RemoveSubagentTabMessage(self.agent_id))
+            self.app.post_message(RemoveAgentTabMessage(self.agent_id))
