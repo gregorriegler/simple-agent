@@ -19,7 +19,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
 )
 from simple_agent.application.input import Input
-from simple_agent.application.session import SessionArgs, run_session_new
+from simple_agent.application.session import SessionArgs, run_session
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.tool_documentation import generate_tools_documentation
@@ -129,7 +129,7 @@ def main():
     )
 
     tools = tool_library_factory.create(prompt.tool_keys, subagent_context)
-    run_session_new(
+    run_session(
         args,
         agent_library,
         display,

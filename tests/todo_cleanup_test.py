@@ -5,7 +5,7 @@ from approvaltests import verify, Options
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import SubagentFinishedEvent
 from simple_agent.application.input import Input
-from simple_agent.application.session import run_session_new
+from simple_agent.application.session import run_session
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
@@ -121,7 +121,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
     test_session_storage = SessionStorageStub()
 
     prompt = create_test_prompt()
-    run_session_new(
+    run_session(
         create_session_args(continue_session),
         BuiltinAgentLibrary(),
         display,

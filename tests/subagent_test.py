@@ -14,7 +14,7 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.input import Input
 from simple_agent.application.llm_stub import create_llm_stub
-from simple_agent.application.session import run_session_new
+from simple_agent.application.session import run_session
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
@@ -103,7 +103,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     )
 
     prompt = create_test_prompt()
-    run_session_new(
+    run_session(
         create_session_args(False),
         BuiltinAgentLibrary(),
         display,
