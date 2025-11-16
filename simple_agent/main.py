@@ -145,7 +145,7 @@ def print_system_prompt_command(user_config, cwd):
     create_agent = AgentFactory(
         lambda messages: '',
         dummy_event_bus,
-        lambda agent_id, indent: DummyDisplay(),
+        lambda agent_id, agent_name, indent: DummyDisplay(),
         lambda indent: Input(DummyUserInput()),
         NoOpSessionStorage(),
         tool_library_factory,
@@ -154,7 +154,7 @@ def print_system_prompt_command(user_config, cwd):
     prompt = agent_library.read_agent_definition(starting_agent_type).load_prompt()
     subagent_context = SubagentContext(
         create_agent,
-        lambda agent_id, indent: DummyDisplay(),
+        lambda agent_id, agent_name, indent: DummyDisplay(),
         lambda indent: Input(DummyUserInput()),
         0,
         starting_agent_type,

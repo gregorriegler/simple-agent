@@ -16,7 +16,7 @@ class AgentFactory:
         self,
         llm: LLM,
         event_bus: EventBus,
-        create_subagent_display: Callable[[str, int], Display],
+        create_subagent_display: Callable[[str, str, int], Display],
         create_subagent_input: Callable[[int], Input],
         session_storage,
         tool_library_factory: ToolLibraryFactory,
