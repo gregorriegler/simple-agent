@@ -1,14 +1,24 @@
 from simple_agent.application.display import Display
 from simple_agent.application.events import AssistantSaidEvent, ToolResultEvent, SessionEndedEvent, \
-    SessionInterruptedEvent, SessionStartedEvent, ToolCalledEvent, UserPromptedEvent, UserPromptRequestedEvent
+    SessionInterruptedEvent, SessionStartedEvent, ToolCalledEvent, UserPromptedEvent, UserPromptRequestedEvent, \
+    SubagentCreatedEvent
 
 
 class AllDisplays:
-    def __init__(self):
+    def __init__(self, display_factory=None):
         self.displays = {}
+        self._display_factory = display_factory
 
     def register_display(self, agent_id: str, display: Display) -> None:
         self.displays[agent_id] = display
+
+    def subagent_created(self, event: SubagentCreatedEvent) -> None:
+        if not self._display_factory:
+            return
+        if event.subagent_id in self.displays:
+            return
+        display = self._display_factory(event.subagent_id, event.subagent_name, event.indent_level)
+        self.register_display(event.subagent_id, display)
 
     def start_session(self, event: SessionStartedEvent) -> None:
         display = self.displays.get(event.agent_id)

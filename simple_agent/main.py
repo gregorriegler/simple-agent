@@ -10,6 +10,7 @@ from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
     AssistantSaidEvent,
+    SubagentCreatedEvent,
     SessionEndedEvent,
     SessionInterruptedEvent,
     SessionStartedEvent,
@@ -68,7 +69,14 @@ def main():
     if args.start_message:
         user_input.stack(args.start_message)
 
-    all_displays = AllDisplays()
+    def create_textual_subagent_display(_agent_id, _agent_name, indent):
+        return TextualSubagentDisplay(
+            textual_app,
+            _agent_id,
+            _agent_name
+        )
+
+    all_displays = AllDisplays(display_factory=create_textual_subagent_display)
     all_displays.register_display(starting_agent_type, display)
 
     session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
@@ -85,6 +93,7 @@ def main():
     event_bus.subscribe(ToolResultEvent, event_logger.log_event)
     event_bus.subscribe(SessionInterruptedEvent, event_logger.log_event)
     event_bus.subscribe(SessionEndedEvent, event_logger.log_event)
+    event_bus.subscribe(SubagentCreatedEvent, event_logger.log_event)
     event_bus.subscribe(SubagentFinishedEvent, lambda event: todo_cleanup.cleanup_todos_for_agent(event.subagent_id))
     event_bus.subscribe(SessionStartedEvent, all_displays.start_session)
     event_bus.subscribe(UserPromptRequestedEvent, all_displays.wait_for_input)
@@ -94,17 +103,9 @@ def main():
     event_bus.subscribe(ToolResultEvent, all_displays.tool_result)
     event_bus.subscribe(SessionInterruptedEvent, all_displays.interrupted)
     event_bus.subscribe(SessionEndedEvent, all_displays.exit)
+    event_bus.subscribe(SubagentCreatedEvent, all_displays.subagent_created)
 
     tool_library_factory = AllToolsFactory()
-
-    def create_textual_agent_display(_agent_id, _agent_name, indent):
-        subagent_display = TextualSubagentDisplay(
-            textual_app,
-            _agent_id,
-            _agent_name
-        )
-        all_displays.register_display(_agent_id, subagent_display)
-        return subagent_display
 
     create_subagent_input = lambda indent: user_input
 
@@ -116,7 +117,6 @@ def main():
         session_storage=session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        create_agent_display=create_textual_agent_display,
         create_subagent_input=create_subagent_input,
     )
 
@@ -124,7 +124,6 @@ def main():
 
     subagent_context = SubagentContext(
         create_agent,
-        create_textual_agent_display,
         create_subagent_input,
         0,
         starting_agent_type,
@@ -160,14 +159,12 @@ def print_system_prompt_command(user_config, cwd):
         session_storage=NoOpSessionStorage(),
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        create_agent_display=lambda agent_id, agent_name, indent: DummyDisplay(),
         create_subagent_input=lambda indent: Input(DummyUserInput()),
     )
     create_agent = AgentFactory(app_context)
     prompt = agent_library.read_agent_definition(starting_agent_type).load_prompt()
     subagent_context = SubagentContext(
         create_agent,
-        lambda agent_id, agent_name, indent: DummyDisplay(),
         lambda indent: Input(DummyUserInput()),
         0,
         starting_agent_type,

@@ -53,7 +53,7 @@ class SubagentTool(BaseTool):
                 user_input,
                 Messages()
             )
-            self.context.create_display(subagent.agent_id, subagent.agent_name, self.context.indent_level)
+            self.context.notify_subagent_created(subagent.agent_id, subagent.agent_name)
 
             result = subagent.start()
 

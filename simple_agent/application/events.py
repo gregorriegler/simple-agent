@@ -67,3 +67,11 @@ class AssistantRespondedEvent(AgentEvent):
 class SubagentFinishedEvent(AgentEvent):
     event_name: ClassVar[str] = "subagent_finished"
     subagent_id: str
+
+
+@dataclass
+class SubagentCreatedEvent(AgentEvent):
+    event_name: ClassVar[str] = "subagent_created"
+    subagent_id: str
+    subagent_name: str
+    indent_level: int

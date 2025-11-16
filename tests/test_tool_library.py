@@ -4,7 +4,6 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
 from simple_agent.tools import AllTools
 from simple_agent.application.subagent_context import SubagentContext
-from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
@@ -22,12 +21,6 @@ class ToolLibraryStub(AllTools):
     ):
         actual_io = io if io else StdIO()
 
-        def create_subagent_display(agent_id, agent_name, indent):
-            subagent_display = ConsoleSubagentDisplay(indent, agent_id, agent_name, actual_io)
-            if all_displays:
-                all_displays.register_display(agent_id, subagent_display)
-            return subagent_display
-
         create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, actual_io))
 
         from simple_agent.application.session_storage import NoOpSessionStorage
@@ -40,14 +33,12 @@ class ToolLibraryStub(AllTools):
             session_storage=NoOpSessionStorage(),
             tool_library_factory=tool_library_factory,
             agent_library=agent_library,
-            create_agent_display=create_subagent_display,
             create_subagent_input=create_subagent_input,
         )
         create_agent = AgentFactory(app_context)
 
         subagent_context = SubagentContext(
             create_agent,
-            create_subagent_display,
             create_subagent_input,
             1,
             "Agent",

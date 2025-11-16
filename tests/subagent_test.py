@@ -4,6 +4,7 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
     AssistantRespondedEvent,
     AssistantSaidEvent,
+    SubagentCreatedEvent,
     SessionEndedEvent,
     SessionInterruptedEvent,
     SessionStartedEvent,
@@ -68,7 +69,8 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     user_input.stack(message)
     test_session_storage = SessionStorageStub()
     event_bus = SimpleEventBus()
-    display_handler = AllDisplays()
+    display_factory = lambda agent_id, agent_name, indent: ConsoleDisplay(indent, agent_name or agent_id, io_spy)
+    display_handler = AllDisplays(display_factory=display_factory)
     display_handler.register_display("Agent", display)
 
     event_spy = EventSpy()
@@ -93,6 +95,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     event_bus.subscribe(SessionStartedEvent, display_handler.start_session)
     event_bus.subscribe(SessionInterruptedEvent, display_handler.interrupted)
     event_bus.subscribe(SessionEndedEvent, display_handler.exit)
+    event_bus.subscribe(SubagentCreatedEvent, display_handler.subagent_created)
 
     test_tool_library = ToolLibraryStub(
         llm_stub,

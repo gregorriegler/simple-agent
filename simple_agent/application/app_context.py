@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Callable
 
 from simple_agent.application.agent_library import AgentLibrary
-from simple_agent.application.display import Display, AgentDisplayFactory
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLM
@@ -17,5 +16,4 @@ class AppContext:
     session_storage: SessionStorage
     tool_library_factory: ToolLibraryFactory
     agent_library: AgentLibrary
-    create_agent_display: AgentDisplayFactory
     create_subagent_input: Callable[[int], Input]
