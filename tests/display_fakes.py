@@ -1,7 +1,7 @@
-from simple_agent.application.display import AgentDisplay
+from simple_agent.application.display import AgentDisplay, Display
 
 
-class FakeDisplay:
+class FakeDisplay(Display):
 
     def __init__(self, display_factory=None):
         self._agents: dict[str, AgentDisplay] = {}
