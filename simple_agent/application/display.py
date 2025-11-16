@@ -33,6 +33,11 @@ class Display(Protocol):
         ...
 
 
+class SubagentDisplayFactory(Protocol):
+    def __call__(self, agent_id: str, agent_name: str, indent: int) -> Display:
+        ...
+
+
 class DummyDisplay:
     def assistant_says(self, message) -> None:
         pass
