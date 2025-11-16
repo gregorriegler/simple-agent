@@ -17,7 +17,7 @@ from simple_agent.application.input import Input
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
-from simple_agent.infrastructure.console.console_display import ConsoleDisplay
+from simple_agent.infrastructure.console.console_display import ConsoleAgentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from tests.display_fakes import FakeDisplays
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
@@ -63,13 +63,13 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     llm_stub = create_llm_stub(answers)
     message, *remaining_inputs = inputs
     io_spy = IOSpy(remaining_inputs, escape_hits)
-    display = ConsoleDisplay(0, "Agent", io_spy)
+    display = ConsoleAgentDisplay(0, "Agent", io_spy)
     user_input_port = ConsoleUserInput(display.indent_level, io=io_spy)
     user_input = Input(user_input_port)
     user_input.stack(message)
     test_session_storage = SessionStorageStub()
     event_bus = SimpleEventBus()
-    display_factory = lambda agent_id, agent_name, indent: ConsoleDisplay(indent, agent_name or agent_id, io_spy)
+    display_factory = lambda agent_id, agent_name, indent: ConsoleAgentDisplay(indent, agent_name or agent_id, io_spy)
     display_handler = FakeDisplays(display_factory=display_factory)
     display_handler.register_display("Agent", display)
 

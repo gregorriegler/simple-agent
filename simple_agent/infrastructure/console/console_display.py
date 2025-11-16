@@ -12,7 +12,7 @@ def _indent_lines(text, prefix="    "):
     return "\n".join(f"{prefix}{line}" if line.strip() else line for line in lines)
 
 
-class ConsoleDisplay(AgentDisplay):
+class ConsoleAgentDisplay(AgentDisplay):
 
     def __init__(self, indent_level, agent_name, io):
         self.indent_level = indent_level

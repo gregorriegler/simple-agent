@@ -1,16 +1,16 @@
 from approvaltests import verify
 
 from simple_agent.application.tool_library import ContinueResult
-from simple_agent.infrastructure.console.console_display import ConsoleDisplay
+from simple_agent.infrastructure.console.console_display import ConsoleAgentDisplay
 from .print_spy import IOSpy
 
 
 def test_console_display_with_different_indentations_and_agents():
     io_spy = IOSpy()
 
-    agent = ConsoleDisplay(0, "Agent", io_spy)
-    subagent = ConsoleDisplay(1, "Subagent", io_spy)
-    subagent2 = ConsoleDisplay(2, "Subagent2", io_spy)
+    agent = ConsoleAgentDisplay(0, "Agent", io_spy)
+    subagent = ConsoleAgentDisplay(1, "Subagent", io_spy)
+    subagent2 = ConsoleAgentDisplay(2, "Subagent2", io_spy)
 
     agent.start_new_session()
     agent.assistant_says("Hello from Agent")

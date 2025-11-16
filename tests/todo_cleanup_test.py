@@ -7,7 +7,7 @@ from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEven
 from simple_agent.application.input import Input
 from simple_agent.application.session import run_session
 from simple_agent.application.llm_stub import create_llm_stub
-from simple_agent.infrastructure.console.console_display import ConsoleDisplay
+from simple_agent.infrastructure.console.console_display import ConsoleAgentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from tests.display_fakes import FakeDisplays
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
@@ -97,13 +97,13 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
     llm = llm_stub if llm_stub is not None else default_llm
 
     io_spy = IOSpy(["\n"])
-    display = ConsoleDisplay(0, "Agent", io_spy)
+    display = ConsoleAgentDisplay(0, "Agent", io_spy)
     user_input_port = ConsoleUserInput(display.indent_level, io=io_spy)
     user_input = Input(user_input_port)
     user_input.stack("test message")
 
     event_bus = SimpleEventBus()
-    display_factory = lambda agent_id, agent_name, indent: ConsoleDisplay(indent, agent_name or agent_id, io_spy)
+    display_factory = lambda agent_id, agent_name, indent: ConsoleAgentDisplay(indent, agent_name or agent_id, io_spy)
     display_handler = FakeDisplays(display_factory=display_factory)
     display_handler.register_display("Agent", display)
 

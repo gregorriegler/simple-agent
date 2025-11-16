@@ -9,7 +9,7 @@ from simple_agent.application.session import SessionArgs
 from simple_agent.application.system_prompt import AgentPrompt
 from simple_agent.application.app_context import AppContext
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
-from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
+from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentAgentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.tools.all_tools import AllTools
