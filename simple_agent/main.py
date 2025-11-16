@@ -89,7 +89,7 @@ def main():
     event_bus.subscribe(UserPromptRequestedEvent, display_event_handler.handle_user_prompt_requested)
     event_bus.subscribe(UserPromptedEvent, display_event_handler.handle_user_prompted)
     event_bus.subscribe(AssistantSaidEvent, display_event_handler.handle_assistant_said)
-    event_bus.subscribe(ToolCalledEvent, display_event_handler.handle_tool_called)
+    event_bus.subscribe(ToolCalledEvent, display_event_handler.tool_call)
     event_bus.subscribe(ToolResultEvent, display_event_handler.handle_tool_result)
     event_bus.subscribe(SessionInterruptedEvent, display_event_handler.handle_session_interrupted)
     event_bus.subscribe(SessionEndedEvent, display_event_handler.exit)

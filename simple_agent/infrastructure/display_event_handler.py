@@ -37,7 +37,7 @@ class DisplayEventHandler:
             return
         display.assistant_says(event.message)
 
-    def handle_tool_called(self, event: ToolCalledEvent) -> None:
+    def tool_call(self, event: ToolCalledEvent) -> None:
         display = self.displays.get(event.agent_id)
         if not display:
             return

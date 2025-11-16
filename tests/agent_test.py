@@ -117,7 +117,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
         event_bus.subscribe(event_type, event_spy.record_event)
 
     event_bus.subscribe(AssistantSaidEvent, display_handler.handle_assistant_said)
-    event_bus.subscribe(ToolCalledEvent, display_handler.handle_tool_called)
+    event_bus.subscribe(ToolCalledEvent, display_handler.tool_call)
     event_bus.subscribe(ToolResultEvent, display_handler.handle_tool_result)
     event_bus.subscribe(SessionStartedEvent, display_handler.handle_session_started)
     event_bus.subscribe(SessionInterruptedEvent, display_handler.handle_session_interrupted)
