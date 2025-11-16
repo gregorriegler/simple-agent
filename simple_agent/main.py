@@ -64,10 +64,11 @@ def main():
     display = TextualDisplay(starting_agent_type, textual_app, prompt.agent_name)
 
     user_input = Input(textual_user_input)
-    display_event_handler = DisplayEventHandler(display, starting_agent_type)
-
     if args.start_message:
         user_input.stack(args.start_message)
+
+    display_event_handler = DisplayEventHandler(display, starting_agent_type)
+
 
     session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
     todo_cleanup = FileSystemTodoCleanup()
