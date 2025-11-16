@@ -62,4 +62,3 @@ def run_session(
     )
 
     agent.start()
-    display.exit()

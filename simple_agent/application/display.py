@@ -5,6 +5,36 @@ from simple_agent.application.tool_library import ToolResult
 
 class Display(Protocol):
 
+    def agent_created(self, event) -> None:
+        ...
+
+    def start_session(self, event) -> None:
+        ...
+
+    def wait_for_input(self, event) -> None:
+        ...
+
+    def user_says(self, event) -> None:
+        ...
+
+    def assistant_says(self, event) -> None:
+        ...
+
+    def tool_call(self, event) -> None:
+        ...
+
+    def tool_result(self, event) -> None:
+        ...
+
+    def interrupted(self, event) -> None:
+        ...
+
+    def exit(self, event) -> None:
+        ...
+
+
+class AgentDisplay(Protocol):
+
     def assistant_says(self, message) -> None:
         ...
 
@@ -33,12 +63,7 @@ class Display(Protocol):
         ...
 
 
-class AgentDisplayFactory(Protocol):
-    def __call__(self, agent_id: str, agent_name: str, indent: int) -> Display:
-        ...
-
-
-class DummyDisplay:
+class DummyDisplay(AgentDisplay):
     def assistant_says(self, message) -> None:
         pass
     def user_says(self, message) -> None:

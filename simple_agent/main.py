@@ -3,9 +3,8 @@
 import argparse
 import os
 
-from simple_agent.application.app_context import AppContext
 from simple_agent.application.agent_factory import AgentFactory
-from simple_agent.application.display import DummyDisplay
+from simple_agent.application.app_context import AppContext
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
@@ -29,7 +28,6 @@ from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
 from simple_agent.infrastructure.configuration import get_starting_agent_type, load_user_configuration
-from simple_agent.infrastructure.display_event_handler import AllDisplays
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
@@ -37,7 +35,6 @@ from simple_agent.infrastructure.llm import create_llm
 from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
-from simple_agent.infrastructure.textual.textual_subagent_display import TextualSubagentDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
 
 
@@ -63,21 +60,12 @@ def main():
         root_agent_title=prompt.agent_name
     )
 
-    display = TextualDisplay(textual_app, starting_agent_type, prompt.agent_name)
+    display = TextualDisplay(textual_app)
+    display.create_agent_tab(starting_agent_type, prompt.agent_name)
 
     user_input = Input(textual_user_input)
     if args.start_message:
         user_input.stack(args.start_message)
-
-    def create_textual_subagent_display(_agent_id, _agent_name, indent):
-        return TextualSubagentDisplay(
-            textual_app,
-            _agent_id,
-            _agent_name
-        )
-
-    all_displays = AllDisplays(display_factory=create_textual_subagent_display)
-    all_displays.register_display(starting_agent_type, display)
 
     session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
     todo_cleanup = FileSystemTodoCleanup()
@@ -95,15 +83,15 @@ def main():
     event_bus.subscribe(SessionEndedEvent, event_logger.log_event)
     event_bus.subscribe(AgentCreatedEvent, event_logger.log_event)
     event_bus.subscribe(AgentFinishedEvent, lambda event: todo_cleanup.cleanup_todos_for_agent(event.subagent_id))
-    event_bus.subscribe(SessionStartedEvent, all_displays.start_session)
-    event_bus.subscribe(UserPromptRequestedEvent, all_displays.wait_for_input)
-    event_bus.subscribe(UserPromptedEvent, all_displays.user_says)
-    event_bus.subscribe(AssistantSaidEvent, all_displays.assistant_says)
-    event_bus.subscribe(ToolCalledEvent, all_displays.tool_call)
-    event_bus.subscribe(ToolResultEvent, all_displays.tool_result)
-    event_bus.subscribe(SessionInterruptedEvent, all_displays.interrupted)
-    event_bus.subscribe(SessionEndedEvent, all_displays.exit)
-    event_bus.subscribe(AgentCreatedEvent, all_displays.agent_created)
+    event_bus.subscribe(SessionStartedEvent, display.start_session)
+    event_bus.subscribe(UserPromptRequestedEvent, display.wait_for_input)
+    event_bus.subscribe(UserPromptedEvent, display.user_says)
+    event_bus.subscribe(AssistantSaidEvent, display.assistant_says)
+    event_bus.subscribe(ToolCalledEvent, display.tool_call)
+    event_bus.subscribe(ToolResultEvent, display.tool_result)
+    event_bus.subscribe(SessionInterruptedEvent, display.interrupted)
+    event_bus.subscribe(SessionEndedEvent, display.exit)
+    event_bus.subscribe(AgentCreatedEvent, display.agent_created)
 
     tool_library_factory = AllToolsFactory()
 

@@ -1,7 +1,7 @@
 import os
 import sys
 
-from simple_agent.application.display import Display
+from simple_agent.application.display import AgentDisplay
 from simple_agent.application.io import IO
 from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.stdio import StdIO
@@ -12,7 +12,7 @@ def _indent_lines(text, prefix="    "):
     return "\n".join(f"{prefix}{line}" if line.strip() else line for line in lines)
 
 
-class ConsoleDisplay(Display):
+class ConsoleDisplay(AgentDisplay):
 
     def __init__(self, indent_level, agent_name, io):
         self.indent_level = indent_level
