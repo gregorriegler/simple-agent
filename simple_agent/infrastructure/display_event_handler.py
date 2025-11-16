@@ -10,7 +10,7 @@ class DisplayEventHandler:
     def register_display(self, agent_id: str, display: Display) -> None:
         self.displays[agent_id] = display
 
-    def handle_session_started(self, event: SessionStartedEvent) -> None:
+    def start_session(self, event: SessionStartedEvent) -> None:
         display = self.displays.get(event.agent_id)
         if not display:
             return
@@ -19,19 +19,19 @@ class DisplayEventHandler:
         else:
             display.start_new_session()
 
-    def handle_user_prompt_requested(self, event: UserPromptRequestedEvent) -> None:
+    def wait_for_input(self, event: UserPromptRequestedEvent) -> None:
         display = self.displays.get(event.agent_id)
         if not display:
             return
         display.waiting_for_input()
 
-    def handle_user_prompted(self, event: UserPromptedEvent) -> None:
+    def user_says(self, event: UserPromptedEvent) -> None:
         display = self.displays.get(event.agent_id)
         if not display:
             return
         display.user_says(event.input_text)
 
-    def handle_assistant_said(self, event: AssistantSaidEvent) -> None:
+    def assistant_says(self, event: AssistantSaidEvent) -> None:
         display = self.displays.get(event.agent_id)
         if not display:
             return
