@@ -92,7 +92,7 @@ def main():
     event_bus.subscribe(ToolCalledEvent, display_event_handler.handle_tool_called)
     event_bus.subscribe(ToolResultEvent, display_event_handler.handle_tool_result)
     event_bus.subscribe(SessionInterruptedEvent, display_event_handler.handle_session_interrupted)
-    event_bus.subscribe(SessionEndedEvent, display_event_handler.handle_session_ended)
+    event_bus.subscribe(SessionEndedEvent, display_event_handler.exit)
 
     tool_library_factory = AllToolsFactory()
 

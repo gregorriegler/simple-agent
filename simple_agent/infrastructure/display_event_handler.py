@@ -55,7 +55,7 @@ class DisplayEventHandler:
             return
         display.interrupted()
 
-    def handle_session_ended(self, event: SessionEndedEvent) -> None:
+    def exit(self, event: SessionEndedEvent) -> None:
         display = self.displays.get(event.agent_id)
         if not display:
             return
