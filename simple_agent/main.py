@@ -97,7 +97,7 @@ def main():
 
     tool_library_factory = AllToolsFactory()
 
-    def create_textual_subagent_display(_agent_id, _agent_name, indent):
+    def create_textual_agent_display(_agent_id, _agent_name, indent):
         subagent_display = TextualSubagentDisplay(
             textual_app,
             _agent_id,
@@ -116,7 +116,7 @@ def main():
         session_storage=session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        create_subagent_display=create_textual_subagent_display,
+        create_agent_display=create_textual_agent_display,
         create_subagent_input=create_subagent_input,
     )
 
@@ -124,7 +124,7 @@ def main():
 
     subagent_context = SubagentContext(
         create_agent,
-        create_textual_subagent_display,
+        create_textual_agent_display,
         create_subagent_input,
         0,
         starting_agent_type,
@@ -160,7 +160,7 @@ def print_system_prompt_command(user_config, cwd):
         session_storage=NoOpSessionStorage(),
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        create_subagent_display=lambda agent_id, agent_name, indent: DummyDisplay(),
+        create_agent_display=lambda agent_id, agent_name, indent: DummyDisplay(),
         create_subagent_input=lambda indent: Input(DummyUserInput()),
     )
     create_agent = AgentFactory(app_context)

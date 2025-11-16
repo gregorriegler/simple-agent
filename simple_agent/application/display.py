@@ -33,7 +33,7 @@ class Display(Protocol):
         ...
 
 
-class SubagentDisplayFactory(Protocol):
+class AgentDisplayFactory(Protocol):
     def __call__(self, agent_id: str, agent_name: str, indent: int) -> Display:
         ...
 

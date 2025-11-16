@@ -22,7 +22,7 @@ def create_all_tools_for_test():
     from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
 
     io = StdIO()
-    create_subagent_display = lambda agent_id, indent: ConsoleSubagentDisplay(indent, agent_id, io, None)
+    create_subagent_display = lambda agent_id, agent_name, indent: ConsoleSubagentDisplay(indent, agent_id, io, None)
     create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, io))
 
     from simple_agent.application.session_storage import NoOpSessionStorage
@@ -36,7 +36,7 @@ def create_all_tools_for_test():
         session_storage=NoOpSessionStorage(),
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        create_subagent_display=create_subagent_display,
+        create_agent_display=create_subagent_display,
         create_subagent_input=create_subagent_input,
     )
     create_agent = AgentFactory(app_context)

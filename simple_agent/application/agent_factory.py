@@ -32,7 +32,7 @@ class AgentFactory:
 
         subagent_context = SubagentContext(
             self,
-            self._context.create_subagent_display,
+            self._context.create_agent_display,
             self._context.create_subagent_input,
             indent_level + 1,
             agent_id,

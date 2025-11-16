@@ -40,7 +40,7 @@ class ToolLibraryStub(AllTools):
             session_storage=NoOpSessionStorage(),
             tool_library_factory=tool_library_factory,
             agent_library=agent_library,
-            create_subagent_display=create_subagent_display,
+            create_agent_display=create_subagent_display,
             create_subagent_input=create_subagent_input,
         )
         create_agent = AgentFactory(app_context)
