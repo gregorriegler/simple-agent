@@ -69,9 +69,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     user_input.stack(message)
     test_session_storage = SessionStorageStub()
     event_bus = SimpleEventBus()
-    display_factory = lambda agent_id, agent_name, indent: ConsoleAgentDisplay(indent, agent_name or agent_id, io_spy)
-    display_handler = FakeDisplay(display_factory=display_factory)
-    display_handler.register_display("Agent", display)
+    display_handler = FakeDisplay()
 
     event_spy = EventSpy()
     tracked_events = [

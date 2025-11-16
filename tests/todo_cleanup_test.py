@@ -103,9 +103,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
     user_input.stack("test message")
 
     event_bus = SimpleEventBus()
-    display_factory = lambda agent_id, agent_name, indent: ConsoleAgentDisplay(indent, agent_name or agent_id, io_spy)
-    display_handler = FakeDisplay(display_factory=display_factory)
-    display_handler.register_display("Agent", display)
+    display_handler = FakeDisplay()
 
     cleanup_adapter = todo_cleanup if todo_cleanup is not None else FileSystemTodoCleanup()
 

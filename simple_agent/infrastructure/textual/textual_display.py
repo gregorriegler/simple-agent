@@ -1,4 +1,5 @@
-from simple_agent.application.display import AgentDisplay, AgentDisplayHub
+from simple_agent.application.display import AgentDisplay
+from simple_agent.infrastructure.display_hub import AgentDisplayHub
 from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import (

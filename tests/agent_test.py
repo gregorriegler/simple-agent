@@ -94,9 +94,8 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     message, *remaining_inputs = inputs
     io_spy = IOSpy(remaining_inputs, escape_hits)
     starting_agent = "Agent"
-    display = FakeDisplay(display_factory=lambda agent_id, agent_name, indent: ConsoleAgentDisplay(indent, agent_name or agent_id, io_spy))
+    display = FakeDisplay()
     agent_display = ConsoleAgentDisplay(0, starting_agent, io_spy)
-    display.register_display(starting_agent, agent_display)
     user_input_port = ConsoleUserInput(agent_display.indent_level, io=io_spy)
     user_input = Input(user_input_port)
     user_input.stack(message)

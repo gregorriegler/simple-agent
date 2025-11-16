@@ -1,16 +1,38 @@
-from simple_agent.application.display import AgentDisplay, AgentDisplayHub
+from simple_agent.application.display import Display
 
 
-class FakeDisplay(AgentDisplayHub):
+class FakeDisplay(Display):
 
-    def __init__(self, display_factory=None):
-        super().__init__()
-        self._display_factory = display_factory
+    def __init__(self):
+        self.events: list[dict] = []
 
-    def register_display(self, agent_id: str, display: AgentDisplay) -> None:
-        self._register_agent(agent_id, display)
+    def _record(self, name: str, agent_id: str, payload=None) -> None:
+        self.events.append({"event": name, "agent_id": agent_id, "payload": payload})
 
-    def _create_display(self, agent_id: str, agent_name: str | None, indent_level: int | None) -> AgentDisplay | None:
-        if not self._display_factory:
-            return None
-        return self._display_factory(agent_id, agent_name, indent_level)
+    def agent_created(self, event) -> None:
+        self._record("agent_created", event.subagent_id, {"name": getattr(event, "subagent_name", None), "indent": getattr(event, "indent_level", None)})
+
+    def start_session(self, event) -> None:
+        is_continuation = getattr(event, "is_continuation", False)
+        self._record("start_session", event.agent_id, {"is_continuation": is_continuation})
+
+    def wait_for_input(self, event) -> None:
+        self._record("wait_for_input", event.agent_id)
+
+    def user_says(self, event) -> None:
+        self._record("user_says", event.agent_id, getattr(event, "input_text", None))
+
+    def assistant_says(self, event) -> None:
+        self._record("assistant_says", event.agent_id, getattr(event, "message", None))
+
+    def tool_call(self, event) -> None:
+        self._record("tool_call", event.agent_id, {"call_id": getattr(event, "call_id", None), "tool": getattr(event, "tool", None)})
+
+    def tool_result(self, event) -> None:
+        self._record("tool_result", event.agent_id, {"call_id": getattr(event, "call_id", None), "result": getattr(event, "result", None)})
+
+    def interrupted(self, event) -> None:
+        self._record("interrupted", event.agent_id)
+
+    def exit(self, event) -> None:
+        self._record("exit", event.agent_id)
