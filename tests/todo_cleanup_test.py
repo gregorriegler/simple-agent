@@ -5,14 +5,15 @@ from approvaltests import verify, Options
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import SubagentFinishedEvent
 from simple_agent.application.input import Input
-from simple_agent.application.session import run_session
+from simple_agent.application.session import run_session_new
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.display_event_handler import AllDisplays
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
+from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from .print_spy import IOSpy
-from .test_helpers import all_scrubbers
+from .test_helpers import all_scrubbers, create_test_prompt, create_session_args
 from .test_session_storage import SessionStorageStub
 from .test_tool_library import ToolLibraryStub
 
@@ -119,16 +120,19 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
 
     test_session_storage = SessionStorageStub()
 
-    run_session(
-        continue_session,
-        "Agent",
-        "Test system prompt",
-        user_input,
-        llm,
-        test_tool_library,
-        test_session_storage,
+    prompt = create_test_prompt()
+    run_session_new(
+        create_session_args(continue_session),
+        BuiltinAgentLibrary(),
+        display,
         event_bus,
-        cleanup_adapter
+        llm,
+        prompt,
+        test_session_storage,
+        "Agent",
+        cleanup_adapter,
+        test_tool_library,
+        user_input
     )
 
 class SpyFileSystemTodoCleanup(FileSystemTodoCleanup):

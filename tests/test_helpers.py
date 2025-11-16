@@ -5,6 +5,8 @@ from approvaltests import Options, verify
 from approvaltests.scrubbers.scrubbers import create_regex_scrubber, combine_scrubbers
 
 from simple_agent.application.input import Input
+from simple_agent.application.session import SessionArgs
+from simple_agent.application.system_prompt import AgentPrompt
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
@@ -168,3 +170,14 @@ def verify_tool(library, command):
     result = library.execute_parsed_tool(tool.tools[0])
     verify(f"Command:\n{command}\n\nResult:\n{result}", options=Options()
            .with_scrubber(all_scrubbers()))
+
+
+def create_session_args(continue_session: bool, start_message: str | None = None) -> SessionArgs:
+    return SessionArgs(
+        continue_session=continue_session,
+        start_message=start_message,
+    )
+
+
+def create_test_prompt(agent_name: str = "Agent") -> AgentPrompt:
+    return AgentPrompt(agent_name, "Test system prompt", [], "")

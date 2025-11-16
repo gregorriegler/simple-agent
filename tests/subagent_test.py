@@ -14,15 +14,17 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.input import Input
 from simple_agent.application.llm_stub import create_llm_stub
-from simple_agent.application.session import run_session
+from simple_agent.application.session import run_session_new
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.display_event_handler import AllDisplays
+from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from .event_spy import EventSpy
 from .print_spy import IOSpy
 from .test_session_storage import SessionStorageStub
 from .test_tool_library import ToolLibraryStub
+from .test_helpers import create_test_prompt, create_session_args
 
 
 def test_subagent():
@@ -100,16 +102,19 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
         all_displays=display_handler
     )
 
-    run_session(
-        False,
-        "Agent",
-        "Test system prompt",
-        user_input,
-        llm_stub,
-        test_tool_library,
-        test_session_storage,
+    prompt = create_test_prompt()
+    run_session_new(
+        create_session_args(False),
+        BuiltinAgentLibrary(),
+        display,
         event_bus,
-        NoOpTodoCleanup()
+        llm_stub,
+        prompt,
+        test_session_storage,
+        "Agent",
+        NoOpTodoCleanup(),
+        test_tool_library,
+        user_input
     )
 
     result = f"# Events\n{event_spy.get_events_as_string()}\n\n# Saved messages:\n{test_session_storage.saved}"
