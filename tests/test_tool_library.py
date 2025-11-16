@@ -1,4 +1,5 @@
 from simple_agent.application.agent_factory import AgentFactory
+from simple_agent.application.app_context import AppContext
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
 from simple_agent.tools import AllTools
@@ -33,15 +34,16 @@ class ToolLibraryStub(AllTools):
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
         tool_library_factory = AllToolsFactory()
         agent_library = BuiltinAgentLibrary()
-        create_agent = AgentFactory(
-            llm,
-            actual_event_bus,
-            create_subagent_display,
-            create_subagent_input,
-            NoOpSessionStorage(),
-            tool_library_factory,
-            agent_library
+        app_context = AppContext(
+            llm=llm,
+            event_bus=actual_event_bus,
+            session_storage=NoOpSessionStorage(),
+            tool_library_factory=tool_library_factory,
+            agent_library=agent_library,
+            create_subagent_display=create_subagent_display,
+            create_subagent_input=create_subagent_input,
         )
+        create_agent = AgentFactory(app_context)
 
         subagent_context = SubagentContext(
             create_agent,

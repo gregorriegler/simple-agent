@@ -7,6 +7,7 @@ from approvaltests.scrubbers.scrubbers import create_regex_scrubber, combine_scr
 from simple_agent.application.input import Input
 from simple_agent.application.session import SessionArgs
 from simple_agent.application.system_prompt import AgentPrompt
+from simple_agent.application.app_context import AppContext
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.console.console_subagent_display import ConsoleSubagentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
@@ -29,15 +30,16 @@ def create_all_tools_for_test():
     llm = lambda messages: ''
     tool_library_factory = AllToolsFactory()
     agent_library = BuiltinAgentLibrary()
-    create_agent = AgentFactory(
-        llm,
-        event_bus,
-        create_subagent_display,
-        create_subagent_input,
-        NoOpSessionStorage(),
-        tool_library_factory,
-        agent_library
+    app_context = AppContext(
+        llm=llm,
+        event_bus=event_bus,
+        session_storage=NoOpSessionStorage(),
+        tool_library_factory=tool_library_factory,
+        agent_library=agent_library,
+        create_subagent_display=create_subagent_display,
+        create_subagent_input=create_subagent_input,
     )
+    create_agent = AgentFactory(app_context)
 
     subagent_context = SubagentContext(
         create_agent,

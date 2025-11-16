@@ -3,6 +3,7 @@
 import argparse
 import os
 
+from simple_agent.application.app_context import AppContext
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.display import DummyDisplay
 from simple_agent.application.display_type import DisplayType
@@ -109,15 +110,17 @@ def main():
 
     llm = create_llm(args.stub_llm, user_config)
 
-    create_agent = AgentFactory(
-        llm,
-        event_bus,
-        create_textual_subagent_display,
-        create_subagent_input,
-        session_storage,
-        tool_library_factory,
-        agent_library
+    app_context = AppContext(
+        llm=llm,
+        event_bus=event_bus,
+        session_storage=session_storage,
+        tool_library_factory=tool_library_factory,
+        agent_library=agent_library,
+        create_subagent_display=create_textual_subagent_display,
+        create_subagent_input=create_subagent_input,
     )
+
+    create_agent = AgentFactory(app_context)
 
     subagent_context = SubagentContext(
         create_agent,
@@ -151,15 +154,16 @@ def print_system_prompt_command(user_config, cwd):
     tool_library_factory = AllToolsFactory()
     dummy_event_bus = SimpleEventBus()
     agent_library = create_agent_library(user_config, cwd)
-    create_agent = AgentFactory(
-        lambda messages: '',
-        dummy_event_bus,
-        lambda agent_id, agent_name, indent: DummyDisplay(),
-        lambda indent: Input(DummyUserInput()),
-        NoOpSessionStorage(),
-        tool_library_factory,
-        agent_library
+    app_context = AppContext(
+        llm=lambda messages: '',
+        event_bus=dummy_event_bus,
+        session_storage=NoOpSessionStorage(),
+        tool_library_factory=tool_library_factory,
+        agent_library=agent_library,
+        create_subagent_display=lambda agent_id, agent_name, indent: DummyDisplay(),
+        create_subagent_input=lambda indent: Input(DummyUserInput()),
     )
+    create_agent = AgentFactory(app_context)
     prompt = agent_library.read_agent_definition(starting_agent_type).load_prompt()
     subagent_context = SubagentContext(
         create_agent,

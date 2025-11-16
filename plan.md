@@ -1,3 +1,9 @@
+- shutdown responsibilities should be singular. Proof: the SessionEnded event already calls AllDisplays.exit → TextualDisplay.exit →
+TextualApp.shutdown, yet run_session invokes display.exit() again (application/session.py:64-65), causing double shutdown and mixed ownership of lifecycle.
+
+- Hypothesis: subagents should not share input buffers. Proof: main.py:108 returns the same Input for every subagent, and SubagentTool pushes the task
+description onto that shared stack (tools/subagent_tool.py:47-49), so nested agents can steal each other’s queued prompts and are unnecessarily coupled. 
+
 - ModelConfig does validation and ModelConfig, belongs to application
 - --version
 - do we need all those ifs in TextualDisplay?
