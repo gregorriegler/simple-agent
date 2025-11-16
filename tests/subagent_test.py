@@ -17,15 +17,14 @@ from simple_agent.application.input import Input
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
-from simple_agent.infrastructure.console.console_display import ConsoleAgentDisplay
-from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
+from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from .event_spy import EventSpy
 from .fake_display import FakeDisplay
 from .print_spy import IOSpy
+from .test_helpers import create_test_prompt, create_session_args
 from .test_session_storage import SessionStorageStub
 from .test_tool_library import ToolLibraryStub
-from .test_helpers import create_test_prompt, create_session_args
 
 
 def test_subagent():
@@ -63,13 +62,12 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     llm_stub = create_llm_stub(answers)
     message, *remaining_inputs = inputs
     io_spy = IOSpy(remaining_inputs, escape_hits)
-    display = ConsoleAgentDisplay(0, "Agent", io_spy)
-    user_input_port = ConsoleUserInput(display.indent_level, io=io_spy)
+    user_input_port = ConsoleUserInput(0, io=io_spy)
     user_input = Input(user_input_port)
     user_input.stack(message)
     test_session_storage = SessionStorageStub()
     event_bus = SimpleEventBus()
-    display_handler = FakeDisplay()
+    display = FakeDisplay()
 
     event_spy = EventSpy()
     tracked_events = [
@@ -87,27 +85,26 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     for event_type in tracked_events:
         event_bus.subscribe(event_type, event_spy.record_event)
 
-    event_bus.subscribe(AssistantSaidEvent, display_handler.assistant_says)
-    event_bus.subscribe(ToolCalledEvent, display_handler.tool_call)
-    event_bus.subscribe(ToolResultEvent, display_handler.tool_result)
-    event_bus.subscribe(SessionStartedEvent, display_handler.start_session)
-    event_bus.subscribe(SessionInterruptedEvent, display_handler.interrupted)
-    event_bus.subscribe(SessionEndedEvent, display_handler.exit)
-    event_bus.subscribe(AgentCreatedEvent, display_handler.agent_created)
+    event_bus.subscribe(AssistantSaidEvent, display.assistant_says)
+    event_bus.subscribe(ToolCalledEvent, display.tool_call)
+    event_bus.subscribe(ToolResultEvent, display.tool_result)
+    event_bus.subscribe(SessionStartedEvent, display.start_session)
+    event_bus.subscribe(SessionInterruptedEvent, display.interrupted)
+    event_bus.subscribe(SessionEndedEvent, display.exit)
+    event_bus.subscribe(AgentCreatedEvent, display.agent_created)
 
     test_tool_library = ToolLibraryStub(
         llm_stub,
         io=io_spy,
         interrupts=[ctrl_c_hits],
         event_bus=event_bus,
-        all_displays=display_handler
+        all_displays=display
     )
 
     prompt = create_test_prompt()
     run_session(
         create_session_args(False),
         BuiltinAgentLibrary(),
-        display,
         event_bus,
         llm_stub,
         prompt,

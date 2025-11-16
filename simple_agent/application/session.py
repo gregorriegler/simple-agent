@@ -21,7 +21,6 @@ class SessionArgs:
 def run_session(
     args,
     agent_library,
-    display,
     event_bus,
     llm,
     prompt,

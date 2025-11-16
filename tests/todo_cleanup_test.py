@@ -5,12 +5,11 @@ from approvaltests import verify, Options
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEvent
 from simple_agent.application.input import Input
-from simple_agent.application.session import run_session
 from simple_agent.application.llm_stub import create_llm_stub
-from simple_agent.infrastructure.console.console_display import ConsoleAgentDisplay
+from simple_agent.application.session import run_session
+from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
-from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from .fake_display import FakeDisplay
 from .print_spy import IOSpy
 from .test_helpers import all_scrubbers, create_test_prompt, create_session_args
@@ -97,25 +96,24 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
     llm = llm_stub if llm_stub is not None else default_llm
 
     io_spy = IOSpy(["\n"])
-    display = ConsoleAgentDisplay(0, "Agent", io_spy)
-    user_input_port = ConsoleUserInput(display.indent_level, io=io_spy)
+    user_input_port = ConsoleUserInput(0, io=io_spy)
     user_input = Input(user_input_port)
     user_input.stack("test message")
 
     event_bus = SimpleEventBus()
-    display_handler = FakeDisplay()
+    display = FakeDisplay()
 
     cleanup_adapter = todo_cleanup if todo_cleanup is not None else FileSystemTodoCleanup()
 
     event_bus.subscribe(AgentFinishedEvent, lambda event: cleanup_adapter.cleanup_todos_for_agent(event.subagent_id))
-    event_bus.subscribe(AgentCreatedEvent, display_handler.agent_created)
+    event_bus.subscribe(AgentCreatedEvent, display.agent_created)
 
     test_tool_library = ToolLibraryStub(
         llm,
         io=io_spy,
         interrupts=[None],
         event_bus=event_bus,
-        all_displays=display_handler
+        all_displays=display
     )
 
     test_session_storage = SessionStorageStub()
@@ -124,7 +122,6 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
     run_session(
         create_session_args(continue_session),
         BuiltinAgentLibrary(),
-        display,
         event_bus,
         llm,
         prompt,

@@ -17,9 +17,8 @@ from simple_agent.application.input import Input
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
-from simple_agent.infrastructure.console.console_display import ConsoleAgentDisplay
-from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
+from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from .event_spy import EventSpy
 from .fake_display import FakeDisplay
 from .print_spy import IOSpy
@@ -95,8 +94,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     io_spy = IOSpy(remaining_inputs, escape_hits)
     starting_agent = "Agent"
     display = FakeDisplay()
-    agent_display = ConsoleAgentDisplay(0, starting_agent, io_spy)
-    user_input_port = ConsoleUserInput(agent_display.indent_level, io=io_spy)
+    user_input_port = ConsoleUserInput(0, io=io_spy)
     user_input = Input(user_input_port)
     user_input.stack(message)
     test_session_storage = SessionStorageStub()
@@ -138,7 +136,6 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     run_session(
         create_session_args(False),
         BuiltinAgentLibrary(),
-        agent_display,
         event_bus,
         llm_stub,
         prompt,
