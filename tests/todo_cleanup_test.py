@@ -9,9 +9,9 @@ from simple_agent.application.session import run_session
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.infrastructure.console.console_display import ConsoleAgentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
-from tests.display_fakes import FakeDisplay
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
+from .fake_display import FakeDisplay
 from .print_spy import IOSpy
 from .test_helpers import all_scrubbers, create_test_prompt, create_session_args
 from .test_session_storage import SessionStorageStub

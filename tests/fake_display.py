@@ -1,64 +1,16 @@
-from simple_agent.application.display import AgentDisplay, Display
+from simple_agent.application.display import AgentDisplay, AgentDisplayHub
 
 
-class FakeDisplay(Display):
+class FakeDisplay(AgentDisplayHub):
 
     def __init__(self, display_factory=None):
-        self._agents: dict[str, AgentDisplay] = {}
+        super().__init__()
         self._display_factory = display_factory
 
     def register_display(self, agent_id: str, display: AgentDisplay) -> None:
-        self._agents[agent_id] = display
+        self._register_agent(agent_id, display)
 
-    def agent_created(self, event) -> None:
+    def _create_display(self, agent_id: str, agent_name: str | None, indent_level: int | None) -> AgentDisplay | None:
         if not self._display_factory:
-            return
-        if event.subagent_id in self._agents:
-            return
-        display = self._display_factory(event.subagent_id, event.subagent_name, event.indent_level)
-        self.register_display(event.subagent_id, display)
-
-    def start_session(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if not agent:
-            return
-        if getattr(event, "is_continuation", False):
-            agent.continue_session()
-        else:
-            agent.start_new_session()
-
-    def wait_for_input(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.waiting_for_input()
-
-    def user_says(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.user_says(event.input_text)
-
-    def assistant_says(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.assistant_says(event.message)
-
-    def tool_call(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.tool_call(event.call_id, event.tool)
-
-    def tool_result(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.tool_result(event.call_id, event.result)
-
-    def interrupted(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.interrupted()
-
-    def exit(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.exit()
-            self._agents.pop(event.agent_id, None)
+            return None
+        return self._display_factory(agent_id, agent_name, indent_level)

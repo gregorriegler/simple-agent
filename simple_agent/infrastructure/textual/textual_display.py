@@ -1,4 +1,4 @@
-from simple_agent.application.display import AgentDisplay, Display
+from simple_agent.application.display import AgentDisplay, AgentDisplayHub
 from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import (
@@ -13,71 +13,20 @@ from simple_agent.infrastructure.textual.textual_messages import (
 )
 
 
-class TextualDisplay(Display):
+class TextualDisplay(AgentDisplayHub):
 
     def __init__(self, app):
+        super().__init__()
         self._app = app
-        self._agents: dict[str, TextualAgentDisplay] = {}
 
-    def create_agent_tab(self, agent_id: str, agent_name: str | None = None) -> 'TextualAgentDisplay':
-        existing = self._agents.get(agent_id)
-        if existing:
-            return existing
-        agent_display = TextualAgentDisplay(self, self._app, agent_id, agent_name)
-        self._agents[agent_id] = agent_display
-        return agent_display
+    def _create_display(self, agent_id: str, agent_name: str | None, indent_level: int | None) -> 'TextualAgentDisplay':
+        return TextualAgentDisplay(self, self._app, agent_id, agent_name)
 
-    def agent_created(self, event) -> None:
-        if event.subagent_id in self._agents:
-            return
-        self.create_agent_tab(event.subagent_id, event.subagent_name)
+    def _on_agent_removed(self, agent_id: str, agent: AgentDisplay) -> None:
+        self.remove_tab(agent_id)
 
-    def start_session(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if not agent:
-            return
-        if getattr(event, "is_continuation", False):
-            agent.continue_session()
-        else:
-            agent.start_new_session()
-
-    def wait_for_input(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.waiting_for_input()
-
-    def user_says(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.user_says(event.input_text)
-
-    def assistant_says(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.assistant_says(event.message)
-
-    def tool_call(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.tool_call(event.call_id, event.tool)
-
-    def tool_result(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.tool_result(event.call_id, event.result)
-
-    def interrupted(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.interrupted()
-
-    def exit(self, event) -> None:
-        agent = self._agents.get(event.agent_id)
-        if agent:
-            agent.exit()
-
-    def _agent_for(self, agent_id: str) -> 'TextualAgentDisplay | None':
-        return self._agents.get(agent_id)
+    def create_agent_tab(self, agent_id: str, agent_name: str | None = None) -> 'TextualAgentDisplay | None':
+        return self._ensure_agent(agent_id, agent_name, None)
 
     def remove_tab(self, agent_id: str) -> None:
         agent = self._agents.pop(agent_id, None)

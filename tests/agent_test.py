@@ -19,9 +19,9 @@ from simple_agent.application.session import run_session
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.console.console_display import ConsoleAgentDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
-from tests.display_fakes import FakeDisplay
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from .event_spy import EventSpy
+from .fake_display import FakeDisplay
 from .print_spy import IOSpy
 from .test_helpers import (
     create_temp_file,
