@@ -88,7 +88,7 @@ def test_extract_tool_keys_from_prompt(agent_type, definition_content, expected_
 
 def test_render_inserts_agents_content_with_placeholder():
     prompt = AgentPrompt(
-        name="Test",
+        agent_name="Test",
         template="Header\n{{AGENTS.MD}}\n{{DYNAMIC_TOOLS_PLACEHOLDER}}\nFooter",
         tool_keys=[],
         agents_content="AGENTS CONTENT"
@@ -101,7 +101,7 @@ def test_render_inserts_agents_content_with_placeholder():
 
 def test_render_removes_placeholder_when_no_agents_content():
     prompt = AgentPrompt(
-        name="Test",
+        agent_name="Test",
         template="Header\n{{AGENTS.MD}}\nFooter",
         tool_keys=[],
         agents_content=""

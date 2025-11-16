@@ -44,7 +44,6 @@ def main():
     cwd = os.getcwd()
     user_config = load_user_configuration(cwd)
 
-
     if args.show_system_prompt:
         return print_system_prompt_command(user_config, cwd)
 
@@ -59,10 +58,10 @@ def main():
     textual_app = TextualApp.create_and_start(
         textual_user_input,
         root_agent_id=starting_agent_type,
-        root_agent_title=prompt.name
+        root_agent_title=prompt.agent_name
     )
 
-    display = TextualDisplay(starting_agent_type, textual_app, prompt.name)
+    display = TextualDisplay(starting_agent_type, textual_app, prompt.agent_name)
 
     user_input = Input(textual_user_input)
     display_event_handler = DisplayEventHandler(display, starting_agent_type)

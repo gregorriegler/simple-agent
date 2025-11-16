@@ -15,21 +15,21 @@ This is a project-local agent.""", encoding='utf-8')
 
     agents = create_agent_library(config={}, cwd=str(tmp_path))
     prompt = agents.read_agent_definition('test').load_prompt()
-    assert prompt.name == 'ProjectLocal'
+    assert prompt.agent_name == 'ProjectLocal'
     assert 'project-local agent' in prompt.template
 
 
 def test_default_directory_falls_back_to_builtin_when_empty(tmp_path):
     agents = create_agent_library(config={}, cwd=str(tmp_path))
     prompt = agents.read_agent_definition('coding').load_prompt()
-    assert prompt.name == 'Coding'
+    assert prompt.agent_name == 'Coding'
     assert len(prompt.tool_keys) > 0
 
 
 def test_load_agent_prompt_handles_missing_custom_definition_by_using_builtin(tmp_path):
     agents = create_agent_library(config={}, cwd=str(tmp_path))
     prompt = agents.read_agent_definition('orchestrator').load_prompt()
-    assert prompt.name == 'Orchestrator'
+    assert prompt.agent_name == 'Orchestrator'
 
 
 def test_load_agent_prompt_prefers_configured_directory(tmp_path):
@@ -46,7 +46,7 @@ Configured definitions.""", encoding='utf-8')
         cwd=str(tmp_path),
     )
     prompt = agents.read_agent_definition('custom').load_prompt()
-    assert prompt.name == 'Configured'
+    assert prompt.agent_name == 'Configured'
     assert 'Configured definitions' in prompt.template
 
 
@@ -72,4 +72,4 @@ Config driven definition.""", encoding='utf-8')
     config = {'paths': {'agent_definitions_dir': "custom_agents"}}
     agents = create_agent_library(config=config, cwd=str(tmp_path))
     prompt = agents.read_agent_definition('via_config').load_prompt()
-    assert prompt.name == 'ConfigFile'
+    assert prompt.agent_name == 'ConfigFile'

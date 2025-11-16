@@ -78,6 +78,6 @@ def method_name(
         session_storage,
         event_bus,
         todo_cleanup,
-        prompt.name
+        prompt.agent_name
     )
     display.exit()
