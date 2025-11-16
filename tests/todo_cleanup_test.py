@@ -3,7 +3,7 @@ from pathlib import Path
 from approvaltests import verify, Options
 
 from simple_agent.application.event_bus import SimpleEventBus
-from simple_agent.application.events import SubagentCreatedEvent, SubagentFinishedEvent
+from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEvent
 from simple_agent.application.input import Input
 from simple_agent.application.session import run_session
 from simple_agent.application.llm_stub import create_llm_stub
@@ -109,8 +109,8 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
 
     cleanup_adapter = todo_cleanup if todo_cleanup is not None else FileSystemTodoCleanup()
 
-    event_bus.subscribe(SubagentFinishedEvent, lambda event: cleanup_adapter.cleanup_todos_for_agent(event.subagent_id))
-    event_bus.subscribe(SubagentCreatedEvent, display_handler.subagent_created)
+    event_bus.subscribe(AgentFinishedEvent, lambda event: cleanup_adapter.cleanup_todos_for_agent(event.subagent_id))
+    event_bus.subscribe(AgentCreatedEvent, display_handler.subagent_created)
 
     test_tool_library = ToolLibraryStub(
         llm,

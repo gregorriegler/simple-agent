@@ -10,11 +10,11 @@ from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
     AssistantSaidEvent,
-    SubagentCreatedEvent,
+    AgentCreatedEvent,
     SessionEndedEvent,
     SessionInterruptedEvent,
     SessionStartedEvent,
-    SubagentFinishedEvent,
+    AgentFinishedEvent,
     ToolCalledEvent,
     ToolResultEvent,
     UserPromptRequestedEvent,
@@ -93,8 +93,8 @@ def main():
     event_bus.subscribe(ToolResultEvent, event_logger.log_event)
     event_bus.subscribe(SessionInterruptedEvent, event_logger.log_event)
     event_bus.subscribe(SessionEndedEvent, event_logger.log_event)
-    event_bus.subscribe(SubagentCreatedEvent, event_logger.log_event)
-    event_bus.subscribe(SubagentFinishedEvent, lambda event: todo_cleanup.cleanup_todos_for_agent(event.subagent_id))
+    event_bus.subscribe(AgentCreatedEvent, event_logger.log_event)
+    event_bus.subscribe(AgentFinishedEvent, lambda event: todo_cleanup.cleanup_todos_for_agent(event.subagent_id))
     event_bus.subscribe(SessionStartedEvent, all_displays.start_session)
     event_bus.subscribe(UserPromptRequestedEvent, all_displays.wait_for_input)
     event_bus.subscribe(UserPromptedEvent, all_displays.user_says)
@@ -103,7 +103,7 @@ def main():
     event_bus.subscribe(ToolResultEvent, all_displays.tool_result)
     event_bus.subscribe(SessionInterruptedEvent, all_displays.interrupted)
     event_bus.subscribe(SessionEndedEvent, all_displays.exit)
-    event_bus.subscribe(SubagentCreatedEvent, all_displays.subagent_created)
+    event_bus.subscribe(AgentCreatedEvent, all_displays.subagent_created)
 
     tool_library_factory = AllToolsFactory()
 

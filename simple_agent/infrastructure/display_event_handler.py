@@ -1,7 +1,7 @@
 from simple_agent.application.display import Display
 from simple_agent.application.events import AssistantSaidEvent, ToolResultEvent, SessionEndedEvent, \
     SessionInterruptedEvent, SessionStartedEvent, ToolCalledEvent, UserPromptedEvent, UserPromptRequestedEvent, \
-    SubagentCreatedEvent
+    AgentCreatedEvent
 
 
 class AllDisplays:
@@ -12,7 +12,7 @@ class AllDisplays:
     def register_display(self, agent_id: str, display: Display) -> None:
         self.displays[agent_id] = display
 
-    def subagent_created(self, event: SubagentCreatedEvent) -> None:
+    def subagent_created(self, event: AgentCreatedEvent) -> None:
         if not self._display_factory:
             return
         if event.subagent_id in self.displays:
