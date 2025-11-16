@@ -128,10 +128,11 @@ class TextualApp(App):
         return tab_id, log_id, tool_results_id
 
     def compose(self) -> ComposeResult:
+        tab_id, log_id, tool_results_id = self.panel_ids_for(self._root_agent_id)
         with Vertical():
             with TabbedContent(id="tabs"):
-                with TabPane(self._root_agent_title, id="agent-tab"):
-                    yield self.create_agent_container("log", "tool-results", self._root_agent_id)
+                with TabPane(self._root_agent_title, id=tab_id):
+                    yield self.create_agent_container(log_id, tool_results_id, self._root_agent_id)
             yield Input(placeholder="Enter your message...", id="user-input", valid_empty=True)
 
     def create_agent_container(self, log_id, tool_results_id, agent_id):
