@@ -52,9 +52,6 @@ class RemoveAgentTabMessage(Message):
         self.agent_id = agent_id
 
 
-RemoveSubagentTabMessage = RemoveAgentTabMessage
-
-
 class RefreshTodosMessage(Message):
     def __init__(self, agent_id: str) -> None:
         super().__init__()
