@@ -8,6 +8,7 @@ from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.system_prompt import SystemPrompt
 from simple_agent.application.todo_cleanup import TodoCleanup
+from simple_agent.application.tool_documentation import generate_tools_documentation
 
 
 @dataclass
@@ -59,3 +60,24 @@ def run_session(
     )
 
     agent.start()
+
+
+def method_name(
+    args, agent_library, display, event_bus, llm, prompt, session_storage, starting_agent_type, todo_cleanup, tools,
+    user_input
+    ):
+    tools_documentation = generate_tools_documentation(tools.tools, agent_library.list_agent_types())
+    system_prompt = prompt.render(tools_documentation)
+    run_session(
+        args.continue_session,
+        starting_agent_type,
+        system_prompt,
+        user_input,
+        llm,
+        tools,
+        session_storage,
+        event_bus,
+        todo_cleanup,
+        prompt.name
+    )
+    display.exit()

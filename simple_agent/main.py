@@ -19,7 +19,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
 )
 from simple_agent.application.input import Input
-from simple_agent.application.session import run_session, SessionArgs
+from simple_agent.application.session import SessionArgs, method_name
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.tool_documentation import generate_tools_documentation
@@ -41,13 +41,12 @@ from simple_agent.infrastructure.textual.textual_user_input import TextualUserIn
 
 def main():
     args = parse_args()
-
     cwd = os.getcwd()
     user_config = load_user_configuration(cwd)
-    starting_agent_type = get_starting_agent_type(user_config)
+
 
     if args.show_system_prompt:
-        return print_system_prompt_command(starting_agent_type, user_config, cwd)
+        return print_system_prompt_command(user_config, cwd)
 
     if args.non_interactive:
         textual_user_input = NonInteractiveUserInput()
@@ -55,6 +54,7 @@ def main():
         textual_user_input = TextualUserInput()
 
     agent_library = create_agent_library(user_config, cwd)
+    starting_agent_type = get_starting_agent_type(user_config)
     prompt = agent_library.read_agent_definition(starting_agent_type).load_prompt()
     textual_app = TextualApp.create_and_start(
         textual_user_input,
@@ -129,28 +129,16 @@ def main():
     )
 
     tools = tool_library_factory.create(prompt.tool_keys, subagent_context)
-    tools_documentation = generate_tools_documentation(tools.tools, agent_library.list_agent_types())
-    system_prompt = prompt.render(tools_documentation)
-
-    run_session(
-        args.continue_session,
-        starting_agent_type,
-        system_prompt,
-        user_input,
-        llm,
-        tools,
-        session_storage,
-        event_bus,
-        todo_cleanup,
-        prompt.name
-    )
-
-    display.exit()
+    method_name(
+        args, agent_library, display, event_bus, llm, prompt, session_storage, starting_agent_type, todo_cleanup, tools,
+        user_input
+        )
 
     return None
 
 
-def print_system_prompt_command(starting_agent_type, user_config, cwd):
+def print_system_prompt_command(user_config, cwd):
+    starting_agent_type = get_starting_agent_type(user_config)
     tool_library_factory = AllToolsFactory()
     dummy_event_bus = SimpleEventBus()
     agent_library = create_agent_library(user_config, cwd)
