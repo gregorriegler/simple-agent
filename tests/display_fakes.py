@@ -28,37 +28,37 @@ class FakeDisplay:
             agent.start_new_session()
 
     def wait_for_input(self, event) -> None:
-        display = self._agents.get(event.agent_id)
-        if display:
-            display.waiting_for_input()
+        agent = self._agents.get(event.agent_id)
+        if agent:
+            agent.waiting_for_input()
 
     def user_says(self, event) -> None:
-        display = self._agents.get(event.agent_id)
-        if display:
-            display.user_says(event.input_text)
+        agent = self._agents.get(event.agent_id)
+        if agent:
+            agent.user_says(event.input_text)
 
     def assistant_says(self, event) -> None:
-        display = self._agents.get(event.agent_id)
-        if display:
-            display.assistant_says(event.message)
+        agent = self._agents.get(event.agent_id)
+        if agent:
+            agent.assistant_says(event.message)
 
     def tool_call(self, event) -> None:
-        display = self._agents.get(event.agent_id)
-        if display:
-            display.tool_call(event.call_id, event.tool)
+        agent = self._agents.get(event.agent_id)
+        if agent:
+            agent.tool_call(event.call_id, event.tool)
 
     def tool_result(self, event) -> None:
-        display = self._agents.get(event.agent_id)
-        if display:
-            display.tool_result(event.call_id, event.result)
+        agent = self._agents.get(event.agent_id)
+        if agent:
+            agent.tool_result(event.call_id, event.result)
 
     def interrupted(self, event) -> None:
-        display = self._agents.get(event.agent_id)
-        if display:
-            display.interrupted()
+        agent = self._agents.get(event.agent_id)
+        if agent:
+            agent.interrupted()
 
     def exit(self, event) -> None:
-        display = self._agents.get(event.agent_id)
-        if display:
-            display.exit()
+        agent = self._agents.get(event.agent_id)
+        if agent:
+            agent.exit()
             self._agents.pop(event.agent_id, None)
