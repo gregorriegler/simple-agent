@@ -17,6 +17,7 @@ class SessionArgs:
     stub_llm: bool = False
     non_interactive: bool = False
 
+
 def run_session(
     args,
     agent_library,
@@ -29,7 +30,7 @@ def run_session(
     todo_cleanup,
     tools,
     user_input
-    ):
+):
     tools_documentation = generate_tools_documentation(tools.tools, agent_library.list_agent_types())
     system_prompt = prompt.render(tools_documentation)
 
