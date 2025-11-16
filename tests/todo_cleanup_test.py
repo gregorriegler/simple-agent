@@ -9,7 +9,7 @@ from simple_agent.application.session import run_session
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
-from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
+from simple_agent.infrastructure.display_event_handler import AllDisplays
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from .print_spy import IOSpy
 from .test_helpers import all_scrubbers
@@ -102,7 +102,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
     user_input.stack("test message")
 
     event_bus = SimpleEventBus()
-    display_handler = DisplayEventHandler()
+    display_handler = AllDisplays()
     display_handler.register_display("Agent", display)
 
     cleanup_adapter = todo_cleanup if todo_cleanup is not None else FileSystemTodoCleanup()

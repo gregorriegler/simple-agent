@@ -3,7 +3,7 @@ from simple_agent.application.events import AssistantSaidEvent, ToolResultEvent,
     SessionInterruptedEvent, SessionStartedEvent, ToolCalledEvent, UserPromptedEvent, UserPromptRequestedEvent
 
 
-class DisplayEventHandler:
+class AllDisplays:
     def __init__(self):
         self.displays = {}
 

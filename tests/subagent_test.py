@@ -18,7 +18,7 @@ from simple_agent.application.session import run_session
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.console.console_display import ConsoleDisplay
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
-from simple_agent.infrastructure.display_event_handler import DisplayEventHandler
+from simple_agent.infrastructure.display_event_handler import AllDisplays
 from .event_spy import EventSpy
 from .print_spy import IOSpy
 from .test_session_storage import SessionStorageStub
@@ -66,7 +66,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     user_input.stack(message)
     test_session_storage = SessionStorageStub()
     event_bus = SimpleEventBus()
-    display_handler = DisplayEventHandler()
+    display_handler = AllDisplays()
     display_handler.register_display("Agent", display)
 
     event_spy = EventSpy()
