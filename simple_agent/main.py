@@ -103,7 +103,7 @@ def main():
     event_bus.subscribe(ToolResultEvent, all_displays.tool_result)
     event_bus.subscribe(SessionInterruptedEvent, all_displays.interrupted)
     event_bus.subscribe(SessionEndedEvent, all_displays.exit)
-    event_bus.subscribe(AgentCreatedEvent, all_displays.subagent_created)
+    event_bus.subscribe(AgentCreatedEvent, all_displays.agent_created)
 
     tool_library_factory = AllToolsFactory()
 

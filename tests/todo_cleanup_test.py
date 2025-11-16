@@ -110,7 +110,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
     cleanup_adapter = todo_cleanup if todo_cleanup is not None else FileSystemTodoCleanup()
 
     event_bus.subscribe(AgentFinishedEvent, lambda event: cleanup_adapter.cleanup_todos_for_agent(event.subagent_id))
-    event_bus.subscribe(AgentCreatedEvent, display_handler.subagent_created)
+    event_bus.subscribe(AgentCreatedEvent, display_handler.agent_created)
 
     test_tool_library = ToolLibraryStub(
         llm,

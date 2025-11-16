@@ -95,7 +95,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     event_bus.subscribe(SessionStartedEvent, display_handler.start_session)
     event_bus.subscribe(SessionInterruptedEvent, display_handler.interrupted)
     event_bus.subscribe(SessionEndedEvent, display_handler.exit)
-    event_bus.subscribe(AgentCreatedEvent, display_handler.subagent_created)
+    event_bus.subscribe(AgentCreatedEvent, display_handler.agent_created)
 
     test_tool_library = ToolLibraryStub(
         llm_stub,
