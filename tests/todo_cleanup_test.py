@@ -3,12 +3,14 @@ from pathlib import Path
 from approvaltests import verify, Options
 
 from simple_agent.application.agent_definition import AgentDefinition
+from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEvent
 from simple_agent.application.input import Input
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
+from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
@@ -17,7 +19,7 @@ from .print_spy import IOSpy
 from .system_prompt_generator_test import GroundRulesStub
 from .test_helpers import all_scrubbers, create_test_prompt, create_session_args
 from .test_session_storage import SessionStorageStub
-from .test_tool_library import ToolLibraryStub
+from .test_tool_library import ToolLibraryFactoryStub
 
 
 def test_new_session_deletes_all_todo_files(tmp_path, monkeypatch):
@@ -111,23 +113,31 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
     event_bus.subscribe(AgentFinishedEvent, lambda event: cleanup_adapter.cleanup_todos_for_agent(event.subagent_id))
     event_bus.subscribe(AgentCreatedEvent, display.agent_created)
 
-    test_tool_library = ToolLibraryStub(
+    test_session_storage = SessionStorageStub()
+    agent_library = BuiltinAgentLibrary()
+    create_subagent_input = lambda indent: user_input
+    tool_library_factory = ToolLibraryFactoryStub(
         llm,
         io=io_spy,
         interrupts=[None],
         event_bus=event_bus,
         all_displays=display
     )
-
-    test_session_storage = SessionStorageStub()
-    agent_library = BuiltinAgentLibrary()
     app_context = AppContext(
         llm=llm,
         event_bus=event_bus,
         session_storage=test_session_storage,
-        tool_library_factory=None,
+        tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        create_subagent_input=lambda indent: user_input
+        create_subagent_input=create_subagent_input
+    )
+    create_agent = AgentFactory(app_context)
+    subagent_context = SubagentContext(
+        create_agent,
+        create_subagent_input,
+        0,
+        "Agent",
+        event_bus
     )
 
     run_session(
@@ -135,9 +145,10 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
         app_context,
         "Agent",
         cleanup_adapter,
-        test_tool_library,
         user_input,
-        create_test_agent_definition()
+        create_test_agent_definition(),
+        tool_library_factory,
+        subagent_context
     )
 
 

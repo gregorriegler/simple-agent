@@ -117,8 +117,7 @@ def main():
         starting_agent_type,
         event_bus
     )
-    tools = tool_library_factory.create(agent_definition.tool_keys(), subagent_context)
-    run_session(args, app_context, starting_agent_type, todo_cleanup, tools, user_input, agent_definition)
+    run_session(args, app_context, starting_agent_type, todo_cleanup, user_input, agent_definition, tool_library_factory, subagent_context)
 
     textual_app.shutdown()
 

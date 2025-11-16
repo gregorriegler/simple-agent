@@ -1,6 +1,7 @@
 from approvaltests import verify
 
 from simple_agent.application.agent_definition import AgentDefinition
+from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
     AssistantRespondedEvent,
@@ -18,6 +19,7 @@ from simple_agent.application.input import Input
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
+from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
@@ -27,7 +29,7 @@ from .print_spy import IOSpy
 from .system_prompt_generator_test import GroundRulesStub
 from .test_helpers import create_test_prompt, create_session_args
 from .test_session_storage import SessionStorageStub
-from .test_tool_library import ToolLibraryStub
+from .test_tool_library import ToolLibraryFactoryStub
 
 
 def test_subagent():
@@ -96,7 +98,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     event_bus.subscribe(SessionEndedEvent, display.exit)
     event_bus.subscribe(AgentCreatedEvent, display.agent_created)
 
-    test_tool_library = ToolLibraryStub(
+    tool_library_factory = ToolLibraryFactoryStub(
         llm_stub,
         io=io_spy,
         interrupts=[ctrl_c_hits],
@@ -105,13 +107,22 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     )
 
     agent_library = BuiltinAgentLibrary()
+    create_subagent_input = lambda indent: user_input
     app_context = AppContext(
         llm=llm_stub,
         event_bus=event_bus,
         session_storage=test_session_storage,
-        tool_library_factory=None,
+        tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        create_subagent_input=lambda indent: user_input
+        create_subagent_input=create_subagent_input
+    )
+    create_agent = AgentFactory(app_context)
+    subagent_context = SubagentContext(
+        create_agent,
+        create_subagent_input,
+        0,
+        "Agent",
+        event_bus
     )
 
     run_session(
@@ -119,9 +130,10 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
         app_context,
         "Agent",
         NoOpTodoCleanup(),
-        test_tool_library,
         user_input,
-        create_test_agent_definition()
+        create_test_agent_definition(),
+        tool_library_factory,
+        subagent_context
     )
 
     result = f"# Events\n{event_spy.get_events_as_string()}\n\n# Saved messages:\n{test_session_storage.saved}"
