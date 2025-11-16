@@ -1,8 +1,7 @@
 from simple_agent.application.display import AgentDisplay
 
 
-class FakeDisplays:
-    """Test helper that routes events to per-agent displays."""
+class FakeDisplay:
 
     def __init__(self, display_factory=None):
         self.displays: dict[str, AgentDisplay] = {}
