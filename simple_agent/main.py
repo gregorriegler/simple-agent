@@ -19,7 +19,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
 )
 from simple_agent.application.input import Input
-from simple_agent.application.session import SessionArgs, method_name
+from simple_agent.application.session import SessionArgs, run_session_new
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.tool_documentation import generate_tools_documentation
@@ -108,6 +108,7 @@ def main():
     create_subagent_input = lambda indent: user_input
 
     llm = create_llm(args.stub_llm, user_config)
+
     create_agent = AgentFactory(
         llm,
         event_bus,
@@ -128,10 +129,19 @@ def main():
     )
 
     tools = tool_library_factory.create(prompt.tool_keys, subagent_context)
-    method_name(
-        args, agent_library, display, event_bus, llm, prompt, session_storage, starting_agent_type, todo_cleanup, tools,
+    run_session_new(
+        args,
+        agent_library,
+        display,
+        event_bus,
+        llm,
+        prompt,
+        session_storage,
+        starting_agent_type,
+        todo_cleanup,
+        tools,
         user_input
-        )
+    )
 
     return None
 

@@ -62,8 +62,17 @@ def run_session(
     agent.start()
 
 
-def method_name(
-    args, agent_library, display, event_bus, llm, prompt, session_storage, starting_agent_type, todo_cleanup, tools,
+def run_session_new(
+    args,
+    agent_library,
+    display,
+    event_bus,
+    llm,
+    prompt,
+    session_storage,
+    starting_agent_type,
+    todo_cleanup,
+    tools,
     user_input
     ):
     tools_documentation = generate_tools_documentation(tools.tools, agent_library.list_agent_types())
