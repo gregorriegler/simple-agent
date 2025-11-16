@@ -43,13 +43,13 @@ class DisplayEventHandler:
             return
         display.tool_call(event.call_id, event.tool)
 
-    def handle_tool_result(self, event: ToolResultEvent) -> None:
+    def tool_result(self, event: ToolResultEvent) -> None:
         display = self.displays.get(event.agent_id)
         if not display:
             return
         display.tool_result(event.call_id, event.result)
 
-    def handle_session_interrupted(self, event: SessionInterruptedEvent) -> None:
+    def interrupted(self, event: SessionInterruptedEvent) -> None:
         display = self.displays.get(event.agent_id)
         if not display:
             return

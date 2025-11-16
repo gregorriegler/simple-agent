@@ -87,9 +87,9 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
 
     event_bus.subscribe(AssistantSaidEvent, display_handler.assistant_says)
     event_bus.subscribe(ToolCalledEvent, display_handler.tool_call)
-    event_bus.subscribe(ToolResultEvent, display_handler.handle_tool_result)
+    event_bus.subscribe(ToolResultEvent, display_handler.tool_result)
     event_bus.subscribe(SessionStartedEvent, display_handler.start_session)
-    event_bus.subscribe(SessionInterruptedEvent, display_handler.handle_session_interrupted)
+    event_bus.subscribe(SessionInterruptedEvent, display_handler.interrupted)
     event_bus.subscribe(SessionEndedEvent, display_handler.exit)
 
     test_tool_library = ToolLibraryStub(
