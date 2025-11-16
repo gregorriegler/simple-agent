@@ -1,7 +1,16 @@
 from simple_agent.application.display import Display
 from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.textual_messages import AddSubagentTabMessage, RefreshTodosMessage, UserSaysMessage, AssistantSaysMessage, ToolCallMessage, ToolResultMessage, SessionStatusMessage
+from simple_agent.infrastructure.textual.textual_messages import (
+    AddSubagentTabMessage,
+    RefreshTodosMessage,
+    RemoveAgentTabMessage,
+    UserSaysMessage,
+    AssistantSaysMessage,
+    ToolCallMessage,
+    ToolResultMessage,
+    SessionStatusMessage,
+)
 
 class TextualDisplay(Display):
 
@@ -10,6 +19,7 @@ class TextualDisplay(Display):
         self.agent_name = agent_name or agent_id
         self.agent_prefix = f"{self.agent_name}: "
         self.app = app
+        self._exited = False
         _, self.log_id, self.tool_results_id = TextualApp.panel_ids_for(agent_id)
         self._ensure_tab_exists()
 
@@ -68,6 +78,10 @@ class TextualDisplay(Display):
             self.app.post_message(SessionStatusMessage(self.log_id, "\n[Session interrupted by user]"))
 
     def exit(self):
+        if self._exited:
+            return
+        self._exited = True
         if self.app and self.app.is_running:
-            self.app.post_message(SessionStatusMessage(self.log_id, "\nExiting..."))
-        self.app.shutdown()
+            if getattr(self.app, "has_agent_tab", None) and not self.app.has_agent_tab(self.agent_id):
+                return
+            self.app.post_message(RemoveAgentTabMessage(self.agent_id))

@@ -145,6 +145,8 @@ def main():
         user_input
     )
 
+    textual_app.shutdown()
+
     return None
 
 
