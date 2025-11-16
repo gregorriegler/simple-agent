@@ -102,7 +102,8 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
     user_input.stack("test message")
 
     event_bus = SimpleEventBus()
-    display_handler = DisplayEventHandler(display)
+    display_handler = DisplayEventHandler()
+    display_handler.register_display("Agent", display)
 
     cleanup_adapter = todo_cleanup if todo_cleanup is not None else FileSystemTodoCleanup()
 

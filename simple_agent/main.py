@@ -67,13 +67,11 @@ def main():
     if args.start_message:
         user_input.stack(args.start_message)
 
-    display_event_handler = DisplayEventHandler(display, starting_agent_type)
-
+    display_event_handler = DisplayEventHandler()
+    display_event_handler.register_display(starting_agent_type, display)
 
     session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
     todo_cleanup = FileSystemTodoCleanup()
-
-    llm = create_llm(args.stub_llm, user_config)
 
     event_logger = EventLogger('.simple-agent.events.log')
 
@@ -109,6 +107,8 @@ def main():
         return subagent_display
 
     create_subagent_input = lambda indent: user_input
+
+    llm = create_llm(args.stub_llm, user_config)
     create_agent = AgentFactory(
         llm,
         event_bus,

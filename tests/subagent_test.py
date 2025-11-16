@@ -66,7 +66,8 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     user_input.stack(message)
     test_session_storage = SessionStorageStub()
     event_bus = SimpleEventBus()
-    display_handler = DisplayEventHandler(display)
+    display_handler = DisplayEventHandler()
+    display_handler.register_display("Agent", display)
 
     event_spy = EventSpy()
     tracked_events = [
