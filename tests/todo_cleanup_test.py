@@ -114,7 +114,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
         io=io_spy,
         interrupts=[None],
         event_bus=event_bus,
-        display_event_handler=display_handler
+        all_displays=display_handler
     )
 
     test_session_storage = SessionStorageStub()

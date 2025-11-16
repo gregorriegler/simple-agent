@@ -96,12 +96,11 @@ def main():
 
     tool_library_factory = AllToolsFactory()
 
-    def _create_textual_subagent_display(_agent_id, _agent_name, _indent):
+    def _create_textual_subagent_display(_agent_id, _agent_name, indent):
         subagent_display = TextualSubagentDisplay(
             textual_app,
             _agent_id,
-            _agent_name,
-            all_displays
+            _agent_name
         )
         all_displays.register_display(_agent_id, subagent_display)
         return subagent_display

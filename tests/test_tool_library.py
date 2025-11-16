@@ -17,14 +17,14 @@ class ToolLibraryStub(AllTools):
         io=None,
         interrupts=None,
         event_bus=None,
-        display_event_handler=None
+        all_displays=None
     ):
         actual_io = io if io else StdIO()
 
         def create_subagent_display(agent_id, agent_name, indent):
-            subagent_display = ConsoleSubagentDisplay(indent, agent_id, agent_name, actual_io, display_event_handler)
-            if display_event_handler:
-                display_event_handler.register_display(agent_id, subagent_display)
+            subagent_display = ConsoleSubagentDisplay(indent, agent_id, agent_name, actual_io)
+            if all_displays:
+                all_displays.register_display(agent_id, subagent_display)
             return subagent_display
 
         create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, actual_io))

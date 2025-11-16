@@ -97,7 +97,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
         io=io_spy,
         interrupts=[ctrl_c_hits],
         event_bus=event_bus,
-        display_event_handler=display_handler
+        all_displays=display_handler
     )
 
     run_session(

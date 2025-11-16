@@ -60,3 +60,4 @@ class AllDisplays:
         if not display:
             return
         display.exit()
+        del self.displays[event.agent_id]
