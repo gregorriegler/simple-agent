@@ -62,7 +62,7 @@ def main():
         root_agent_title=prompt.agent_name
     )
 
-    display = TextualDisplay(starting_agent_type, textual_app, prompt.agent_name)
+    display = TextualDisplay(textual_app, starting_agent_type, prompt.agent_name)
 
     user_input = Input(textual_user_input)
     if args.start_message:

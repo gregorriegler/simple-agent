@@ -5,7 +5,7 @@ from simple_agent.infrastructure.textual.textual_messages import RefreshTodosMes
 
 class TextualDisplay(Display):
 
-    def __init__(self, agent_id: str, app: TextualApp, agent_name: str | None = None):
+    def __init__(self, app: TextualApp, agent_id: str, agent_name: str | None = None):
         self.agent_id = agent_id
         self.agent_name = agent_name or agent_id
         self.agent_prefix = f"{self.agent_name}: "
@@ -19,7 +19,7 @@ class TextualDisplay(Display):
         lines = str(message).split('\n')
         if lines and self.app and self.app.is_running:
             self.app.post_message(AssistantSaysMessage(
-                "log", 
+                "log",
                 f"\n{self.agent_prefix}{lines[0]}",
                 is_first_line=True
             ))

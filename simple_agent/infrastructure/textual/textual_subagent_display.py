@@ -14,7 +14,7 @@ from simple_agent.infrastructure.textual.textual_messages import (
 
 class TextualSubagentDisplay(TextualDisplay):
     def __init__(self, app: TextualApp, agent_id: str, agent_name: str):
-        super().__init__(agent_id, app, agent_name)
+        super().__init__(app, agent_id, agent_name)
         self.log_id = None
         self.tool_results_id = None
         self._create_tab()
