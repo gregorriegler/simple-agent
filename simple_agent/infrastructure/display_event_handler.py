@@ -9,9 +9,6 @@ class AllDisplays:
         self.displays = {}
         self._display_factory = display_factory
 
-    def register_display(self, agent_id: str, display: Display) -> None:
-        self.displays[agent_id] = display
-
     def agent_created(self, event: AgentCreatedEvent) -> None:
         if not self._display_factory:
             return
@@ -19,6 +16,9 @@ class AllDisplays:
             return
         display = self._display_factory(event.subagent_id, event.subagent_name, event.indent_level)
         self.register_display(event.subagent_id, display)
+
+    def register_display(self, agent_id: str, display: Display) -> None:
+        self.displays[agent_id] = display
 
     def start_session(self, event: SessionStartedEvent) -> None:
         display = self.displays.get(event.agent_id)

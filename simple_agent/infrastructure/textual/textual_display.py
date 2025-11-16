@@ -1,7 +1,7 @@
 from simple_agent.application.display import Display
 from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.textual_messages import RefreshTodosMessage, UserSaysMessage, AssistantSaysMessage, ToolCallMessage, ToolResultMessage, SessionStatusMessage
+from simple_agent.infrastructure.textual.textual_messages import AddSubagentTabMessage, RefreshTodosMessage, UserSaysMessage, AssistantSaysMessage, ToolCallMessage, ToolResultMessage, SessionStatusMessage
 
 class TextualDisplay(Display):
 
@@ -11,6 +11,15 @@ class TextualDisplay(Display):
         self.agent_prefix = f"{self.agent_name}: "
         self.app = app
         _, self.log_id, self.tool_results_id = TextualApp.panel_ids_for(agent_id)
+        self._ensure_tab_exists()
+
+    def _ensure_tab_exists(self):
+        if not self.app or not self.app.is_running:
+            return
+        if getattr(self.app, "has_agent_tab", None) and self.app.has_agent_tab(self.agent_id):
+            return
+        tab_title = self.agent_name or self.agent_id.split('/')[-1]
+        self.app.post_message(AddSubagentTabMessage(self.agent_id, tab_title))
 
     def user_says(self, message):
         if self.app and self.app.is_running:

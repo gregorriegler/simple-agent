@@ -119,6 +119,9 @@ class TextualApp(App):
         self._suppressed_tool_calls: set[str] = set()
         self._signal_on_unmount = False
 
+    def has_agent_tab(self, agent_id: str) -> bool:
+        return agent_id in self._agent_panel_ids
+
     @staticmethod
     def panel_ids_for(agent_id: str) -> tuple[str, str, str]:
         sanitized = agent_id.replace("/", "-")
