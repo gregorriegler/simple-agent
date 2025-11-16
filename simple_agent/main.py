@@ -118,7 +118,6 @@ def main():
         event_bus
     )
     tools = tool_library_factory.create(agent_definition.tool_keys(), subagent_context)
-    prompt = agent_definition.load_prompt()
     run_session(args, app_context, starting_agent_type, todo_cleanup, tools, user_input, agent_definition)
 
     textual_app.shutdown()
