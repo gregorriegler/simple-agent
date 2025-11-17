@@ -124,7 +124,7 @@ class TextualApp(App):
 
     @staticmethod
     def panel_ids_for(agent_id: str) -> tuple[str, str, str]:
-        sanitized = agent_id.replace("/", "-")
+        sanitized = agent_id.replace("/", "-").replace(" ", "-")
         tab_id = f"tab-{sanitized}"
         log_id = f"log-{sanitized}"
         tool_results_id = f"tool-results-{sanitized}"
