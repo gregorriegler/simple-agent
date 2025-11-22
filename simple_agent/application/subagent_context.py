@@ -17,7 +17,7 @@ class SubagentContext:
         agent_id: AgentId,
         event_bus: EventBus
     ):
-        self.create_agent = agent_factory
+        self.agent_factory = agent_factory
         self._create_subagent_input = create_subagent_input
         self.indent_level = indent_level
         self.agent_id = agent_id
