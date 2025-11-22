@@ -1,3 +1,4 @@
+from .agent_id import AgentId
 from .input import Input
 from .llm import LLM, Messages
 from .session_storage import SessionStorage
@@ -11,7 +12,7 @@ from .events import AssistantSaidEvent, AssistantRespondedEvent, ToolCalledEvent
 class Agent:
     def __init__(
         self,
-        agent_id: str,
+        agent_id: AgentId,
         agent_name: str,
         tools: ToolLibrary,
         llm: LLM,

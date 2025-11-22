@@ -46,7 +46,7 @@ class AgentFactory:
         context.seed_system_prompt(system_prompt)
 
         return Agent(
-            agent_id,
+            AgentId(agent_id),
             agent_name,
             subagent_tools,
             self._context.llm,
