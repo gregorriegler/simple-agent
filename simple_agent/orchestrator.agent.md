@@ -13,11 +13,6 @@ So you have to provide the relevant information including analysis results to th
 When you delegate a coding task, consider decomposing the task into smaller steps and give each to another subagent.
 This will improve the outputs, as subagents perform better on small changes.
 
-# Tools
-These are your only tools.
-To use a tool, answer in the described syntax.
-One tool execution per answer.
-
 {{DYNAMIC_TOOLS_PLACEHOLDER}}
 
 # Your Workflow

@@ -2,11 +2,16 @@ from typing import List
 
 
 def generate_tools_documentation(tools, agent_types: List[str]) -> str:
+    tools_header = """# Tools
+
+To use a tool, answer in the described syntax.
+One tool execution per answer.
+The tool should always be the last thing in your answer."""
     tools_lines = []
     for tool in tools:
         tool_doc = _generate_tool_documentation(tool, agent_types)
         tools_lines.append(tool_doc)
-    return "\n\n".join(tools_lines)
+    return tools_header + "\n\n".join(tools_lines)
 
 
 def _generate_tool_documentation(tool, agent_types):

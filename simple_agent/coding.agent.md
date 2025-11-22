@@ -46,11 +46,6 @@ d - Documentation (no code change)
 
 Example: r rename userId to id in User classs
 
-# Tools
-These are your tools.
-To use a tool, answer in the described syntax.
-One tool execution per answer.
-
 {{DYNAMIC_TOOLS_PLACEHOLDER}}
 
 # Task Completion

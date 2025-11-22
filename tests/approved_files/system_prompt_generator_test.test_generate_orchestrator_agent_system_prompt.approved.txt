@@ -11,11 +11,10 @@ When you delegate a coding task, consider decomposing the task into smaller step
 This will improve the outputs, as subagents perform better on small changes.
 
 # Tools
-These are your only tools.
+
 To use a tool, answer in the described syntax.
 One tool execution per answer.
-
-## write-todos
+The tool should always be the last thing in your answer.## write-todos
 Organize your work in TODOs. Use this tool to create or update those TODOs
 
 Arguments:
