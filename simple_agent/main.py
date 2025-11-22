@@ -44,7 +44,7 @@ def main():
     user_config = load_user_configuration(cwd)
 
     if args.show_system_prompt:
-        return print_system_prompt_command(user_config, cwd)
+        return print_system_prompt_command(user_config, cwd, args)
 
     if args.non_interactive:
         textual_user_input = NonInteractiveUserInput()
@@ -52,7 +52,7 @@ def main():
         textual_user_input = TextualUserInput()
 
     agent_library = create_agent_library(user_config, cwd)
-    starting_agent = get_starting_agent_type(user_config)
+    starting_agent = get_starting_agent_type(user_config, args)
     agent_definition = agent_library.read_agent_definition(starting_agent)
     textual_app = TextualApp.create_and_start(
         textual_user_input,
@@ -117,15 +117,24 @@ def main():
         starting_agent,
         event_bus
     )
-    run_session(args, app_context, starting_agent, todo_cleanup, user_input, agent_definition, tool_library_factory, subagent_context)
+    run_session(
+        args,
+        app_context,
+        starting_agent,
+        todo_cleanup,
+        user_input,
+        agent_definition,
+        tool_library_factory,
+        subagent_context
+    )
 
     textual_app.shutdown()
 
     return None
 
 
-def print_system_prompt_command(user_config, cwd):
-    starting_agent_type = get_starting_agent_type(user_config)
+def print_system_prompt_command(user_config, cwd, args):
+    starting_agent_type = get_starting_agent_type(user_config, args)
     tool_library_factory = AllToolsFactory()
     dummy_event_bus = SimpleEventBus()
     agent_library = create_agent_library(user_config, cwd)
@@ -155,6 +164,7 @@ def print_system_prompt_command(user_config, cwd):
 
 def parse_args(argv=None) -> SessionArgs:
     parser = argparse.ArgumentParser(description="Simple Agent")
+    parser.add_argument("-a", "--agent", action='store', type=str, help="Defines the starting agent")
     parser.add_argument("-c", "--continue", action="store_true", help="Continue previous session")
     parser.add_argument(
         "-s", "--system-prompt", action="store_true",
@@ -174,6 +184,7 @@ def parse_args(argv=None) -> SessionArgs:
         DisplayType.TEXTUAL,
         bool(getattr(parsed, "stub")),
         bool(getattr(parsed, "non_interactive")),
+        getattr(parsed, "agent"),
     )
 
 

@@ -24,6 +24,7 @@ Simple Agent aims to be a simple, extensible, and transparent general-purpose ag
 ### Usage method 1: shell wrapper (recommended for development)
 ```bash
 ./agent.sh "your message here"
+./agent.sh --agent <agent-type>  # defines the starting agent
 ./agent.sh --continue            # continue previous session
 ./agent.sh --user-interface console
 ./agent.sh --system-prompt       # print rendered system prompt
