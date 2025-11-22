@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from simple_agent.application.agent_identifier import AgentId
 from simple_agent.application.todo_cleanup import TodoCleanup
 
 
@@ -22,5 +23,5 @@ class FileSystemTodoCleanup(TodoCleanup):
 
     @staticmethod
     def _todo_path_for_agent(agent_id: str) -> Path:
-        sanitized_id = agent_id.replace("/", ".").replace("\\", ".")
-        return Path(f".{sanitized_id}.todos.md")
+        agent_id_obj = AgentId(agent_id)
+        return Path(f".{agent_id_obj.for_filesystem()}.todos.md")

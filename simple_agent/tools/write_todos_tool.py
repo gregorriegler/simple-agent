@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from simple_agent.application.agent_identifier import AgentId
 from simple_agent.application.tool_library import ContinueResult
 
 from .base_tool import BaseTool
@@ -23,13 +24,12 @@ class WriteTodosTool(BaseTool):
 
     def __init__(self, agent_id="Agent"):
         super().__init__()
-        self.agent_id = agent_id
+        self.agent_id = AgentId(agent_id)
 
     def execute(self, args):
         if not args or not args.strip():
             return ContinueResult("No todo content provided", success=False)
         content = args
-        sanitized_id = self.agent_id.replace("/", ".").replace("\\", ".")
-        path = Path(f".{sanitized_id}.todos.md")
+        path = Path(f".{self.agent_id.for_filesystem()}.todos.md")
         path.write_text(content, encoding="utf-8")
         return ContinueResult("Updated TODOS")

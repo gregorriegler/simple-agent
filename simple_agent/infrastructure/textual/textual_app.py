@@ -10,6 +10,7 @@ from textual.app import App, ComposeResult
 from textual.containers import Vertical, VerticalScroll
 from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible, Markdown
 
+from simple_agent.application.agent_identifier import AgentId
 from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
@@ -124,7 +125,8 @@ class TextualApp(App):
 
     @staticmethod
     def panel_ids_for(agent_id: str) -> tuple[str, str, str]:
-        sanitized = agent_id.replace("/", "-").replace(" ", "-")
+        agent_id_obj = AgentId(agent_id)
+        sanitized = agent_id_obj.for_ui()
         tab_id = f"tab-{sanitized}"
         log_id = f"log-{sanitized}"
         tool_results_id = f"tool-results-{sanitized}"

@@ -89,9 +89,9 @@ def test_subagent_cleanup_deletes_subagent_todo(tmp_path, monkeypatch):
 
     run_test_session(continue_session=False, llm_stub=llm_stub, todo_cleanup=todo_cleanup)
 
-    assert ".Agent.Coding.todos.md" in created_files
+    assert ".Agent-Coding.todos.md" in created_files
     assert "Agent/Coding" in todo_cleanup.cleaned_agents
-    assert not Path('.Agent.Coding.todos.md').exists()
+    assert not Path('.Agent-Coding.todos.md').exists()
 
 
 def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
