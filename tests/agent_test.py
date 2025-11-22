@@ -2,6 +2,7 @@ from approvaltests import verify, Options
 
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_factory import AgentFactory
+from simple_agent.application.app_context import AppContext
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
     AssistantRespondedEvent,
@@ -20,18 +21,17 @@ from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
 from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
-from simple_agent.application.app_context import AppContext
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from .event_spy import EventSpy
 from .fake_display import FakeDisplay
 from .print_spy import IOSpy
+from .session_storage_stub import SessionStorageStub
 from .system_prompt_generator_test import GroundRulesStub
 from .test_helpers import (
     create_temp_file,
-    create_temp_directory_structure, all_scrubbers, create_test_prompt, create_session_args
+    create_temp_directory_structure, all_scrubbers, create_session_args
 )
-from .test_session_storage import SessionStorageStub
 from .test_tool_library import ToolLibraryFactoryStub
 
 
