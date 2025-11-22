@@ -62,7 +62,7 @@ def main():
     )
 
     display = TextualDisplay(textual_app)
-    display.create_agent_tab(starting_agent, agent_definition.agent_name())
+    display.create_agent_tab(AgentId(starting_agent), agent_definition.agent_name())
 
     user_input = Input(textual_user_input)
     if args.start_message:

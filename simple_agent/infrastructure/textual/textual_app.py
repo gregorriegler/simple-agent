@@ -109,7 +109,7 @@ class TextualApp(App):
     def __init__(self, user_input=None, root_agent_id: str = "Agent", root_agent_title: str | None = None):
         super().__init__()
         self.user_input = user_input
-        self._root_agent_id = root_agent_id
+        self._root_agent_id = AgentId(root_agent_id)
         self._root_agent_title = root_agent_title or root_agent_id
         self._app_thread = None
         self._pending_tool_calls: dict[str, dict[str, tuple[str, TextArea, Collapsible]]] = {}
