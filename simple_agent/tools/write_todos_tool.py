@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from simple_agent.application.agent_identifier import AgentId
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_library import ContinueResult
 
 from .base_tool import BaseTool

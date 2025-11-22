@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from simple_agent.application.agent_identifier import AgentId
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.todo_cleanup import TodoCleanup
 
 
@@ -11,7 +11,7 @@ class FileSystemTodoCleanup(TodoCleanup):
         for file_path in cwd.glob(".*.todos.md"):
             if file_path.is_file():
                 file_path.unlink()
-        
+
         todos_file = cwd / ".todos.md"
         if todos_file.exists() and todos_file.is_file():
             todos_file.unlink()

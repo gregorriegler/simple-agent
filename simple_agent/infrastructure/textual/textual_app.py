@@ -10,7 +10,7 @@ from textual.app import App, ComposeResult
 from textual.containers import Vertical, VerticalScroll
 from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible, Markdown
 
-from simple_agent.application.agent_identifier import AgentId
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
