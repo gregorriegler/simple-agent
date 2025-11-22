@@ -1,6 +1,6 @@
 import textwrap
 
-from .test_helpers import create_all_tools_for_test
+from tests.test_helpers import create_all_tools_for_test
 
 library = create_all_tools_for_test()
 
