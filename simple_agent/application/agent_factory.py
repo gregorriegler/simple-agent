@@ -23,7 +23,7 @@ class AgentFactory:
         user_input: Input,
         context: Messages
     ) -> Agent:
-        agent_prompt = self._context.agent_library.read_agent_definition(agent_type).load_prompt()
+        agent_prompt = self._context.agent_library.read_agent_definition(AgentId(agent_type)).load_prompt()
         agent_name = agent_prompt.agent_name
         base_agent_id = f"{parent_agent_id}/{agent_name}"
         count = self._agent_instance_counts.get(base_agent_id, 0) + 1

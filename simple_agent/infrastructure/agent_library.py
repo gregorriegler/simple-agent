@@ -5,6 +5,7 @@ import os
 from importlib import resources
 from typing import Any, Mapping
 
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.ground_rules import GroundRules
 from simple_agent.infrastructure.agent_file_conventions import (
@@ -33,16 +34,16 @@ class FileSystemAgentLibrary(AgentLibrary):
         ]
         return sorted(agent_types)
 
-    def read_agent_definition(self, agent_type: str) -> AgentDefinition:
-        filename = filename_from_agent_type(agent_type)
+    def read_agent_definition(self, agent_id: AgentId) -> AgentDefinition:
+        filename = filename_from_agent_type(agent_id.raw)
         path = os.path.join(self.directory, filename)
         try:
             with open(path, 'r', encoding='utf-8') as handle:
                 content = handle.read()
-                return AgentDefinition(agent_type, content, self.ground_rules)
+                return AgentDefinition(agent_id.raw, content, self.ground_rules)
         except FileNotFoundError as error:
             raise FileNotFoundError(
-                f"Agent definition '{agent_type}' not found in {self.directory}"
+                f"Agent definition '{agent_id.raw}' not found in {self.directory}"
             ) from error
 
     def has_any(self) -> bool:
@@ -60,17 +61,17 @@ class BuiltinAgentLibrary:
     def list_agent_types(self) -> list[str]:
         return self._discover_agent_types()
 
-    def read_agent_definition(self, agent_type: str) -> AgentDefinition:
-        filename = filename_from_agent_type(agent_type)
+    def read_agent_definition(self, agent_id: AgentId) -> AgentDefinition:
+        filename = filename_from_agent_type(agent_id.raw)
         try:
             content = resources.read_text(self.package, filename, encoding='utf-8')
-            return AgentDefinition(agent_type, content, self.ground_rules)
+            return AgentDefinition(agent_id.raw, content, self.ground_rules)
         except (FileNotFoundError, ModuleNotFoundError):
             package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             path = os.path.join(package_root, filename)
             with open(path, 'r', encoding='utf-8') as handle:
                 content = handle.read()
-                return AgentDefinition(agent_type, content, self.ground_rules)
+                return AgentDefinition(agent_id.raw, content, self.ground_rules)
 
 
     def _discover_agent_types(self) -> list[str]:

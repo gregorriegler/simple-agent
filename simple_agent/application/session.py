@@ -27,7 +27,7 @@ class SessionArgs:
 def run_session(
     args: SessionArgs,
     app_context: AppContext,
-    starting_agent_type,
+    starting_agent_id: AgentId,
     todo_cleanup,
     user_input,
     agent_definition: AgentDefinition,
@@ -41,7 +41,7 @@ def run_session(
     if not args.continue_session:
         todo_cleanup.cleanup_all_todos()
 
-    app_context.event_bus.publish(SessionStartedEvent(AgentId(starting_agent_type), args.continue_session))
+    app_context.event_bus.publish(SessionStartedEvent(starting_agent_id, args.continue_session))
 
     if args.continue_session:
         persisted_messages = PersistedMessages(
@@ -55,7 +55,7 @@ def run_session(
         )
 
     agent = Agent(
-        starting_agent_type,
+        starting_agent_id,
         agent_definition.agent_name(),
         tools,
         app_context.llm,

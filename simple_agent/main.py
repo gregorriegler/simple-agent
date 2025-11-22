@@ -28,7 +28,7 @@ from simple_agent.application.tool_documentation import generate_tools_documenta
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
-from simple_agent.infrastructure.configuration import get_starting_agent_type, load_user_configuration
+from simple_agent.infrastructure.configuration import get_starting_agent, load_user_configuration
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
@@ -53,7 +53,7 @@ def main():
         textual_user_input = TextualUserInput()
 
     agent_library = create_agent_library(user_config, cwd)
-    starting_agent = get_starting_agent_type(user_config, args)
+    starting_agent = get_starting_agent(user_config, args)
     agent_definition = agent_library.read_agent_definition(starting_agent)
     textual_app = TextualApp.create_and_start(
         textual_user_input,
@@ -62,7 +62,7 @@ def main():
     )
 
     display = TextualDisplay(textual_app)
-    display.create_agent_tab(AgentId(starting_agent), agent_definition.agent_name())
+    display.create_agent_tab(starting_agent, agent_definition.agent_name())
 
     user_input = Input(textual_user_input)
     if args.start_message:
@@ -115,7 +115,7 @@ def main():
         create_agent,
         create_subagent_input,
         0,
-        AgentId(starting_agent),
+        starting_agent,
         event_bus
     )
     run_session(
@@ -135,7 +135,7 @@ def main():
 
 
 def print_system_prompt_command(user_config, cwd, args):
-    starting_agent_type = get_starting_agent_type(user_config, args)
+    starting_agent_type = get_starting_agent(user_config, args)
     tool_library_factory = AllToolsFactory()
     dummy_event_bus = SimpleEventBus()
     agent_library = create_agent_library(user_config, cwd)
@@ -153,7 +153,7 @@ def print_system_prompt_command(user_config, cwd, args):
         create_agent,
         lambda indent: Input(DummyUserInput()),
         0,
-        AgentId(starting_agent_type),
+        starting_agent_type,
         dummy_event_bus
     )
     tool_library = tool_library_factory.create(prompt.tool_keys, subagent_context)
