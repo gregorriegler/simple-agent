@@ -1,5 +1,7 @@
 from textual.message import Message
 
+from simple_agent.application.agent_id import AgentId
+
 
 class UserSaysMessage(Message):
     def __init__(self, log_id: str, content: str) -> None:
@@ -40,19 +42,19 @@ class SessionStatusMessage(Message):
 
 
 class AddSubagentTabMessage(Message):
-    def __init__(self, agent_id: str, tab_title: str) -> None:
+    def __init__(self, agent_id: AgentId, tab_title: str) -> None:
         super().__init__()
         self.agent_id = agent_id
         self.tab_title = tab_title
 
 
 class RemoveAgentTabMessage(Message):
-    def __init__(self, agent_id: str) -> None:
+    def __init__(self, agent_id: AgentId) -> None:
         super().__init__()
         self.agent_id = agent_id
 
 
 class RefreshTodosMessage(Message):
-    def __init__(self, agent_id: str) -> None:
+    def __init__(self, agent_id: AgentId) -> None:
         super().__init__()
         self.agent_id = agent_id

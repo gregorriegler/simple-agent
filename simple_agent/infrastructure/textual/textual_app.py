@@ -114,19 +114,18 @@ class TextualApp(App):
         self._app_thread = None
         self._pending_tool_calls: dict[str, dict[str, tuple[str, TextArea, Collapsible]]] = {}
         self._tool_result_collapsibles: dict[str, list[Collapsible]] = {}
-        self._agent_panel_ids: dict[str, tuple[str, str]] = {}
+        self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
         self._todo_widgets: dict[str, Markdown] = {}
-        self._tool_results_to_agent: dict[str, str] = {}
+        self._tool_results_to_agent: dict[str, AgentId] = {}
         self._suppressed_tool_calls: set[str] = set()
         self._signal_on_unmount = False
 
-    def has_agent_tab(self, agent_id: str) -> bool:
+    def has_agent_tab(self, agent_id: AgentId) -> bool:
         return agent_id in self._agent_panel_ids
 
     @staticmethod
-    def panel_ids_for(agent_id: str) -> tuple[str, str, str]:
-        agent_id_obj = AgentId(agent_id)
-        sanitized = agent_id_obj.for_ui()
+    def panel_ids_for(agent_id: AgentId) -> tuple[str, str, str]:
+        sanitized = agent_id.for_ui()
         tab_id = f"tab-{sanitized}"
         log_id = f"log-{sanitized}"
         tool_results_id = f"tool-results-{sanitized}"
@@ -149,7 +148,7 @@ class TextualApp(App):
         self._tool_result_collapsibles[tool_results_id] = []
         self._agent_panel_ids[agent_id] = (log_id, tool_results_id)
         self._tool_results_to_agent[tool_results_id] = agent_id
-        self._todo_widgets[agent_id] = todo
+        self._todo_widgets[str(agent_id)] = todo
         self._pending_tool_calls[tool_results_id] = {}
         return ResizableHorizontal(left_panel, right_panel, id="tab-content")
 
@@ -306,7 +305,7 @@ class TextualApp(App):
         container.scroll_end(animate=False)
         self._refresh_todos(tool_results_id)
 
-    def add_subagent_tab(self, agent_id: str, tab_title: str) -> tuple[str, str]:
+    def add_subagent_tab(self, agent_id: AgentId, tab_title: str) -> tuple[str, str]:
         tab_id, log_id, tool_results_id = self.panel_ids_for(agent_id)
 
         new_tab = TabPane(tab_title, id=tab_id)
@@ -317,7 +316,7 @@ class TextualApp(App):
         tabs.active = tab_id
         return log_id, tool_results_id
 
-    def remove_subagent_tab(self, agent_id: str) -> None:
+    def remove_subagent_tab(self, agent_id: AgentId) -> None:
         tab_id, _, tool_results_id = self.panel_ids_for(agent_id)
         self.query_one("#tabs", TabbedContent).remove_pane(tab_id)
         panel_ids = self._agent_panel_ids.pop(agent_id, None)
@@ -329,10 +328,10 @@ class TextualApp(App):
             self._suppressed_tool_calls = {
                 call_id for call_id in self._suppressed_tool_calls if not call_id.startswith(prefix)
             }
-        self._todo_widgets.pop(agent_id, None)
+        self._todo_widgets.pop(str(agent_id), None)
 
-    def _load_todos(self, agent_id: str) -> str:
-        sanitized = agent_id.replace("/", ".").replace("\\", ".")
+    def _load_todos(self, agent_id: AgentId) -> str:
+        sanitized = agent_id.for_filesystem()
         path = Path(f".{sanitized}.todos.md")
         if not path.exists():
             return ""
@@ -345,8 +344,8 @@ class TextualApp(App):
             return
         self._refresh_todos_for_agent(agent_id)
 
-    def _refresh_todos_for_agent(self, agent_id: str) -> None:
-        todo_widget = self._todo_widgets.get(agent_id)
+    def _refresh_todos_for_agent(self, agent_id: AgentId) -> None:
+        todo_widget = self._todo_widgets.get(str(agent_id))
         if not todo_widget:
             return
         todo_widget.update(self._load_todos(agent_id))

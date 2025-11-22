@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_definition import AgentDefinition
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.events import SessionStartedEvent
@@ -40,7 +41,7 @@ def run_session(
     if not args.continue_session:
         todo_cleanup.cleanup_all_todos()
 
-    app_context.event_bus.publish(SessionStartedEvent(starting_agent_type, args.continue_session))
+    app_context.event_bus.publish(SessionStartedEvent(AgentId(starting_agent_type), args.continue_session))
 
     if args.continue_session:
         persisted_messages = PersistedMessages(

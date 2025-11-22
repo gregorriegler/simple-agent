@@ -1,3 +1,4 @@
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.display import AgentDisplay
 from simple_agent.infrastructure.display_hub import AgentDisplayHub
 from simple_agent.application.tool_library import ToolResult
@@ -20,16 +21,16 @@ class TextualDisplay(AgentDisplayHub):
         super().__init__()
         self._app = app
 
-    def _create_display(self, agent_id: str, agent_name: str | None, indent_level: int | None) -> 'TextualAgentDisplay':
+    def _create_display(self, agent_id: AgentId, agent_name: str | None, indent_level: int | None) -> 'TextualAgentDisplay':
         return TextualAgentDisplay(self, self._app, agent_id, agent_name)
 
-    def _on_agent_removed(self, agent_id: str, agent: AgentDisplay) -> None:
+    def _on_agent_removed(self, agent_id: AgentId, agent: AgentDisplay) -> None:
         self.remove_tab(agent_id)
 
-    def create_agent_tab(self, agent_id: str, agent_name: str | None = None) -> 'TextualAgentDisplay | None':
+    def create_agent_tab(self, agent_id: AgentId, agent_name: str | None = None) -> 'TextualAgentDisplay | None':
         return self._ensure_agent(agent_id, agent_name, None)
 
-    def remove_tab(self, agent_id: str) -> None:
+    def remove_tab(self, agent_id: AgentId) -> None:
         agent = self._agents.pop(agent_id, None)
         if agent:
             agent._close_tab()
@@ -37,11 +38,11 @@ class TextualDisplay(AgentDisplayHub):
 
 class TextualAgentDisplay(AgentDisplay):
 
-    def __init__(self, hub: TextualDisplay, app: TextualApp, agent_id: str, agent_name: str | None = None):
+    def __init__(self, hub: TextualDisplay, app: TextualApp, agent_id: AgentId, agent_name: str | None = None):
         self._hub = hub
         self._app = app
         self._agent_id = agent_id
-        self._agent_name = agent_name or agent_id
+        self._agent_name = agent_name or str(agent_id)
         self._exited = False
         _, self._log_id, self._tool_results_id = TextualApp.panel_ids_for(agent_id)
         self._ensure_tab_exists()
@@ -51,7 +52,7 @@ class TextualAgentDisplay(AgentDisplay):
             return
         if getattr(self._app, "has_agent_tab", None) and self._app.has_agent_tab(self._agent_id):
             return
-        tab_title = self._agent_name or self._agent_id.split('/')[-1]
+        tab_title = self._agent_name or str(self._agent_id).split('/')[-1]
         self._app.post_message(AddSubagentTabMessage(self._agent_id, tab_title))
 
     def user_says(self, message):

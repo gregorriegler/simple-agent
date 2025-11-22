@@ -1,24 +1,25 @@
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.display import AgentDisplay, Display
 
 
 class AgentDisplayHub(Display):
 
     def __init__(self):
-        self._agents: dict[str, AgentDisplay] = {}
+        self._agents: dict[AgentId, AgentDisplay] = {}
 
-    def _create_display(self, agent_id: str, agent_name: str | None, indent_level: int | None) -> AgentDisplay | None:
+    def _create_display(self, agent_id: AgentId, agent_name: str | None, indent_level: int | None) -> AgentDisplay | None:
         raise NotImplementedError
 
-    def _on_agent_removed(self, agent_id: str, agent: AgentDisplay) -> None:
+    def _on_agent_removed(self, agent_id: AgentId, agent: AgentDisplay) -> None:
         self._agents.pop(agent_id, None)
 
-    def _agent_for(self, agent_id: str) -> AgentDisplay | None:
+    def _agent_for(self, agent_id: AgentId) -> AgentDisplay | None:
         return self._agents.get(agent_id)
 
-    def _register_agent(self, agent_id: str, display: AgentDisplay) -> None:
+    def _register_agent(self, agent_id: AgentId, display: AgentDisplay) -> None:
         self._agents[agent_id] = display
 
-    def _ensure_agent(self, agent_id: str, agent_name: str | None = None, indent_level: int | None = None) -> AgentDisplay | None:
+    def _ensure_agent(self, agent_id: AgentId, agent_name: str | None = None, indent_level: int | None = None) -> AgentDisplay | None:
         existing = self._agent_for(agent_id)
         if existing:
             return existing

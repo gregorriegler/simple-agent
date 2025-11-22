@@ -16,12 +16,11 @@ class FileSystemTodoCleanup(TodoCleanup):
         if todos_file.exists() and todos_file.is_file():
             todos_file.unlink()
 
-    def cleanup_todos_for_agent(self, agent_id: str) -> None:
+    def cleanup_todos_for_agent(self, agent_id: AgentId) -> None:
         todo_path = self._todo_path_for_agent(agent_id)
         if todo_path.exists() and todo_path.is_file():
             todo_path.unlink()
 
     @staticmethod
-    def _todo_path_for_agent(agent_id: str) -> Path:
-        agent_id_obj = AgentId(agent_id)
-        return Path(f".{agent_id_obj.for_filesystem()}.todos.md")
+    def _todo_path_for_agent(agent_id: AgentId) -> Path:
+        return Path(f".{agent_id.for_filesystem()}.todos.md")

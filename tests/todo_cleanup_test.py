@@ -91,7 +91,7 @@ def test_subagent_cleanup_deletes_subagent_todo(tmp_path, monkeypatch):
     run_test_session(continue_session=False, llm_stub=llm_stub, todo_cleanup=todo_cleanup)
 
     assert ".Agent-Coding.todos.md" in created_files
-    assert "Agent/Coding" in todo_cleanup.cleaned_agents
+    assert AgentId("Agent/Coding") in todo_cleanup.cleaned_agents
     assert not Path('.Agent-Coding.todos.md').exists()
 
 
@@ -165,8 +165,8 @@ name: Agent
 class SpyFileSystemTodoCleanup(FileSystemTodoCleanup):
     def __init__(self):
         super().__init__()
-        self.cleaned_agents: list[str] = []
+        self.cleaned_agents: list[AgentId] = []
 
-    def cleanup_todos_for_agent(self, agent_id: str) -> None:
+    def cleanup_todos_for_agent(self, agent_id: AgentId) -> None:
         self.cleaned_agents.append(agent_id)
         super().cleanup_todos_for_agent(agent_id)

@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 from typing import Any, ClassVar
 
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_library import ToolResult
 
 
 @dataclass
 class AgentEvent:
-    agent_id: str
+    agent_id: AgentId
     event_name: ClassVar[str] = "agent_event"
 
 
@@ -66,12 +67,12 @@ class AssistantRespondedEvent(AgentEvent):
 @dataclass
 class AgentFinishedEvent(AgentEvent):
     event_name: ClassVar[str] = "agent_finished"
-    subagent_id: str
+    subagent_id: AgentId
 
 
 @dataclass
 class AgentCreatedEvent(AgentEvent):
     event_name: ClassVar[str] = "agent_created"
-    subagent_id: str
+    subagent_id: AgentId
     subagent_name: str
     indent_level: int
