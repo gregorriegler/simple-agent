@@ -56,7 +56,7 @@ def main():
     agent_definition = agent_library.read_agent_definition(starting_agent_id)
     textual_app = TextualApp.create_and_start(
         textual_user_input,
-        root_agent_id=agent_definition.agent_type(),
+        root_agent_id=starting_agent_id,
         root_agent_title=agent_definition.agent_name()
     )
 

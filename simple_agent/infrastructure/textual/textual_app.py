@@ -27,7 +27,7 @@ from simple_agent.infrastructure.textual.resizable_container import ResizableHor
 
 class TextualApp(App):
     @staticmethod
-    def create_and_start(user_input=None, root_agent_id: str = "Agent", root_agent_title: str | None = None):
+    def create_and_start(user_input=None, root_agent_id: AgentId = AgentId("Agent"), root_agent_title: str | None = None):
         app = TextualApp(user_input, root_agent_id, root_agent_title)
         app._app_thread = threading.Thread(target=app.run, daemon=False)
         app._app_thread.start()
@@ -106,11 +106,11 @@ class TextualApp(App):
     }
     """
 
-    def __init__(self, user_input=None, root_agent_id: str = "Agent", root_agent_title: str | None = None):
+    def __init__(self, user_input=None, root_agent_id: AgentId = AgentId("Agent"), root_agent_title: str | None = None):
         super().__init__()
         self.user_input = user_input
-        self._root_agent_id = AgentId(root_agent_id)
-        self._root_agent_title = root_agent_title or root_agent_id
+        self._root_agent_id = root_agent_id
+        self._root_agent_title = root_agent_title or str(root_agent_id)
         self._app_thread = None
         self._pending_tool_calls: dict[str, dict[str, tuple[str, TextArea, Collapsible]]] = {}
         self._tool_result_collapsibles: dict[str, list[Collapsible]] = {}
