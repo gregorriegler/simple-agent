@@ -4,7 +4,6 @@ import argparse
 import os
 
 from simple_agent.application.agent_factory import AgentFactory
-from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
@@ -53,8 +52,8 @@ def main():
         textual_user_input = TextualUserInput()
 
     agent_library = create_agent_library(user_config, cwd)
-    starting_agent = get_starting_agent(user_config, args)
-    agent_definition = agent_library.read_agent_definition(starting_agent)
+    starting_agent_id = get_starting_agent(user_config, args)
+    agent_definition = agent_library.read_agent_definition(starting_agent_id)
     textual_app = TextualApp.create_and_start(
         textual_user_input,
         root_agent_id=agent_definition.agent_type(),
@@ -62,7 +61,7 @@ def main():
     )
 
     display = TextualDisplay(textual_app)
-    display.create_agent_tab(starting_agent, agent_definition.agent_name())
+    display.create_agent_tab(starting_agent_id, agent_definition.agent_name())
 
     user_input = Input(textual_user_input)
     if args.start_message:
@@ -115,13 +114,13 @@ def main():
         create_agent,
         create_subagent_input,
         0,
-        starting_agent,
+        starting_agent_id,
         event_bus
     )
     run_session(
         args,
         app_context,
-        starting_agent,
+        starting_agent_id,
         todo_cleanup,
         user_input,
         agent_definition,

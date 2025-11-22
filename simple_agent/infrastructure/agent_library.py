@@ -35,7 +35,7 @@ class FileSystemAgentLibrary(AgentLibrary):
         return sorted(agent_types)
 
     def read_agent_definition(self, agent_id: AgentId) -> AgentDefinition:
-        filename = filename_from_agent_type(agent_id.raw)
+        filename = filename_from_agent_type(agent_id)
         path = os.path.join(self.directory, filename)
         try:
             with open(path, 'r', encoding='utf-8') as handle:
@@ -62,7 +62,7 @@ class BuiltinAgentLibrary:
         return self._discover_agent_types()
 
     def read_agent_definition(self, agent_id: AgentId) -> AgentDefinition:
-        filename = filename_from_agent_type(agent_id.raw)
+        filename = filename_from_agent_type(agent_id)
         try:
             content = resources.read_text(self.package, filename, encoding='utf-8')
             return AgentDefinition(agent_id.raw, content, self.ground_rules)
