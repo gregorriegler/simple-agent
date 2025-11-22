@@ -14,7 +14,7 @@ class AgentFactory:
         app_context: AppContext
     ):
         self._context = app_context
-        self._agent_instance_counts: dict[tuple[str, str], int] = {}
+        self._agent_instance_counts: dict[str, int] = {}
 
     def __call__(
         self,
@@ -27,17 +27,13 @@ class AgentFactory:
         definition = self._context.agent_library.read_agent_definition(agent_type)
         agent_prompt = definition.load_prompt()
         agent_name = definition.agent_name()
-        agent_cache_id = f"{parent_agent_id}/{agent_name}"
-        count = self._agent_instance_counts.get(agent_cache_id, 0) + 1
-        self._agent_instance_counts[agent_cache_id] = count
-        suffix = "" if count == 1 else f"-{count}"
-        agent_id = f"{agent_cache_id}{suffix}"
+        agent_id = parent_agent_id.create_subagent_id(agent_name, self._agent_instance_counts)
 
         subagent_context = SubagentContext(
             self,
             self._context.create_subagent_input,
             indent_level + 1,
-            AgentId(agent_id),
+            agent_id,
             self._context.event_bus
         )
 
@@ -48,7 +44,7 @@ class AgentFactory:
         context.seed_system_prompt(system_prompt)
 
         return Agent(
-            AgentId(agent_id),
+            agent_id,
             agent_name,
             subagent_tools,
             self._context.llm,

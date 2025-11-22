@@ -4,6 +4,13 @@ class AgentId:
             raise ValueError("Agent ID cannot be empty")
         self._raw_id = raw_id
 
+    def create_subagent_id(self, agent_name: str, instance_counts: dict[str, int]) -> 'AgentId':
+        cache_id = f"{self._raw_id}/{agent_name}"
+        count = instance_counts.get(cache_id, 0) + 1
+        instance_counts[cache_id] = count
+        suffix = "" if count == 1 else f"-{count}"
+        return AgentId(f"{cache_id}{suffix}")
+
     @property
     def raw(self) -> str:
         return self._raw_id
