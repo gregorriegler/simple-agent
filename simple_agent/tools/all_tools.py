@@ -31,7 +31,7 @@ class AllTools(ToolLibrary):
     def _create_static_tools(self):
         tool_map = {
             'write_todos': lambda: WriteTodosTool(
-                self.subagent_context.agent_id.raw
+                self.subagent_context.agent_id
             ) if self.subagent_context else WriteTodosTool("Agent"),
             'ls': lambda: LsTool(),
             'cat': lambda: CatTool(),

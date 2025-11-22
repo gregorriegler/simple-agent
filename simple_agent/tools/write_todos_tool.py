@@ -22,9 +22,9 @@ class WriteTodosTool(BaseTool):
         "🛠️ write-todos\n- [ ] Feature exploration\n- [ ] **Implementing tool**\n- [x] Initial setup\n🛠️🔚"
     ]
 
-    def __init__(self, agent_id="Agent"):
+    def __init__(self, agent_id : AgentId):
         super().__init__()
-        self.agent_id = AgentId(agent_id)
+        self.agent_id = agent_id
 
     def execute(self, args):
         if not args or not args.strip():
