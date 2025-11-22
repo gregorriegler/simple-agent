@@ -3,7 +3,7 @@ import sys
 import tomllib
 from typing import Any, Mapping, Tuple
 
-from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.session import SessionArgs
 
 DEFAULT_STARTING_AGENT_TYPE = "orchestrator"
@@ -32,10 +32,10 @@ def load_optional_user_configuration(cwd: str) -> Mapping[str, Any]:
     return config
 
 
-def get_starting_agent(config: Mapping[str, Any], args: SessionArgs | None = None) -> AgentId:
+def get_starting_agent(config: Mapping[str, Any], args: SessionArgs | None = None) -> AgentType:
     if args and args.agent:
-        return AgentId(args.agent)
-    return AgentId(_extract_starting_agent_type(config) or DEFAULT_STARTING_AGENT_TYPE)
+        return AgentType(args.agent)
+    return AgentType(_extract_starting_agent_type(config) or DEFAULT_STARTING_AGENT_TYPE)
 
 
 def _read_config(path: str) -> Mapping[str, Any]:

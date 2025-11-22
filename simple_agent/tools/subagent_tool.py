@@ -2,7 +2,7 @@ from simple_agent.application.llm import Messages
 from simple_agent.application.tool_library import ContinueResult
 from .base_tool import BaseTool
 from simple_agent.application.subagent_context import SubagentContext
-from ..application.agent_id import AgentId
+from ..application.agent_type import AgentType
 
 
 class SubagentTool(BaseTool):
@@ -40,7 +40,7 @@ class SubagentTool(BaseTool):
         if len(parts) < 2:
             return ContinueResult('STDERR: subagent: missing agenttype or task description', success=False)
 
-        agent_type = parts[0]
+        agent_type_str = parts[0]
         task_description = parts[1]
 
         subagent = None
@@ -48,7 +48,7 @@ class SubagentTool(BaseTool):
             user_input = self.context.create_input(self.context.indent_level)
             user_input.stack(task_description)
             subagent = self.context.agent_factory(
-                AgentId(agent_type),
+                AgentType(agent_type_str),
                 self.context.agent_id,
                 self.context.indent_level,
                 user_input,

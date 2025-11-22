@@ -1,4 +1,4 @@
-from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.infrastructure.agent_library import (
     FileSystemAgentLibrary,
     create_agent_library,
@@ -15,21 +15,21 @@ tools: bash
 This is a project-local agent.""", encoding='utf-8')
 
     agents = create_agent_library(config={}, cwd=str(tmp_path))
-    prompt = agents.read_agent_definition(AgentId('test')).load_prompt()
+    prompt = agents.read_agent_definition(AgentType('test')).load_prompt()
     assert prompt.agent_name == 'ProjectLocal'
     assert 'project-local agent' in prompt.template
 
 
 def test_default_directory_falls_back_to_builtin_when_empty(tmp_path):
     agents = create_agent_library(config={}, cwd=str(tmp_path))
-    prompt = agents.read_agent_definition(AgentId('coding')).load_prompt()
+    prompt = agents.read_agent_definition(AgentType('coding')).load_prompt()
     assert prompt.agent_name == 'Coding'
     assert len(prompt.tool_keys) > 0
 
 
 def test_load_agent_prompt_handles_missing_custom_definition_by_using_builtin(tmp_path):
     agents = create_agent_library(config={}, cwd=str(tmp_path))
-    prompt = agents.read_agent_definition(AgentId('orchestrator')).load_prompt()
+    prompt = agents.read_agent_definition(AgentType('orchestrator')).load_prompt()
     assert prompt.agent_name == 'Orchestrator'
 
 
@@ -46,7 +46,7 @@ Configured definitions.""", encoding='utf-8')
         config={'paths': {'agent_definitions_dir': str(configured_dir)}},
         cwd=str(tmp_path),
     )
-    prompt = agents.read_agent_definition(AgentId('custom')).load_prompt()
+    prompt = agents.read_agent_definition(AgentType('custom')).load_prompt()
     assert prompt.agent_name == 'Configured'
     assert 'Configured definitions' in prompt.template
 
@@ -72,5 +72,5 @@ Config driven definition.""", encoding='utf-8')
 
     config = {'paths': {'agent_definitions_dir': "custom_agents"}}
     agents = create_agent_library(config=config, cwd=str(tmp_path))
-    prompt = agents.read_agent_definition(AgentId('via_config')).load_prompt()
+    prompt = agents.read_agent_definition(AgentType('via_config')).load_prompt()
     assert prompt.agent_name == 'ConfigFile'

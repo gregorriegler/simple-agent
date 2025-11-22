@@ -1,5 +1,6 @@
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
@@ -17,13 +18,12 @@ class AgentFactory:
 
     def __call__(
         self,
-        agent_type: AgentId,
+        agent_type: AgentType,
         parent_agent_id: AgentId,
         indent_level: int,
         user_input: Input,
         context: Messages
     ) -> Agent:
-        # todo pass AgentId
         definition = self._context.agent_library.read_agent_definition(agent_type)
         agent_prompt = definition.load_prompt()
         agent_name = definition.agent_name()

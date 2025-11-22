@@ -3,21 +3,21 @@ from typing import Any
 
 import yaml
 
-from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.ground_rules import GroundRules
 from simple_agent.application.system_prompt import AgentPrompt
 
 logger = logging.getLogger(__name__)
 
 class AgentDefinition:
-    def __init__(self, agent_id: AgentId, content: str, ground_rules: GroundRules):
+    def __init__(self, agent_type: AgentType, content: str, ground_rules: GroundRules):
         self._prompt = None
-        self._agent_id = agent_id
+        self._agent_type = agent_type
         self._content = content
         self.ground_rules = ground_rules
 
-    def agent_id(self) -> AgentId:
-        return self._agent_id
+    def agent_type(self) -> AgentType:
+        return self._agent_type
 
     def agent_name(self):
         return self.prompt().agent_name
@@ -32,7 +32,7 @@ class AgentDefinition:
 
     def load_prompt(self) -> AgentPrompt:
         metadata, template = self._parse_front_matter(self._content)
-        name = metadata.get('name', str(self._agent_id).capitalize())
+        name = metadata.get('name', str(self._agent_type).capitalize())
         tool_keys = self._read_tool_keys(metadata.get('tools'))
         ground_rules = self.ground_rules.read()
         return AgentPrompt(name, template, tool_keys, ground_rules)
