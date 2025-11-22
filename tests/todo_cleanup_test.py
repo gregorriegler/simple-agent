@@ -13,7 +13,6 @@ from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
 from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
-from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from .fake_display import FakeDisplay
 from .print_spy import IOSpy
@@ -21,6 +20,7 @@ from .system_prompt_generator_test import GroundRulesStub
 from .test_helpers import all_scrubbers, create_session_args
 from .session_storage_stub import SessionStorageStub
 from .test_tool_library import ToolLibraryFactoryStub
+from .user_input_stub import UserInputStub
 
 
 def test_new_session_deletes_all_todo_files(tmp_path, monkeypatch):
@@ -102,7 +102,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
     llm = llm_stub if llm_stub is not None else default_llm
 
     io_spy = IOSpy(["\n"])
-    user_input_port = ConsoleUserInput(0, io=io_spy)
+    user_input_port = UserInputStub(io=io_spy)
     user_input = Input(user_input_port)
     user_input.stack("test message")
 
