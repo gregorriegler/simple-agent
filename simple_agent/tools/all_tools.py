@@ -30,16 +30,14 @@ class AllTools(ToolLibrary):
 
     def _create_static_tools(self):
         tool_map = {
-            'write_todos': lambda: WriteTodosTool(
-                self.subagent_context.agent_id
-            ) if self.subagent_context else WriteTodosTool("Agent"),
+            'write_todos': lambda: WriteTodosTool(self.subagent_context.agent_id),
             'ls': lambda: LsTool(),
             'cat': lambda: CatTool(),
             'create_file': lambda: CreateFileTool(),
             'edit_file': lambda: EditFileTool(),
             'complete_task': lambda: CompleteTaskTool(),
             'bash': lambda: BashTool(),
-            'subagent': lambda: SubagentTool(self.subagent_context) if self.subagent_context else None
+            'subagent': lambda: SubagentTool(self.subagent_context)
         }
 
         if not self.tool_keys:
