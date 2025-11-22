@@ -1,5 +1,5 @@
 from simple_agent.application.agent import Agent
-from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.input import Input
@@ -14,7 +14,7 @@ class AgentFactory:
         app_context: AppContext
     ):
         self._context = app_context
-        self._agent_instance_counts: dict[str, int] = {}
+        self._agent_suffixer = AgentIdSuffixer()
 
     def __call__(
         self,
@@ -27,7 +27,7 @@ class AgentFactory:
         definition = self._context.agent_library.read_agent_definition(agent_type)
         agent_prompt = definition.load_prompt()
         agent_name = definition.agent_name()
-        agent_id = parent_agent_id.create_subagent_id(agent_name, self._agent_instance_counts)
+        agent_id = parent_agent_id.create_subagent_id(agent_name, self._agent_suffixer)
 
         subagent_context = SubagentContext(
             self,
