@@ -4,6 +4,7 @@ from approvaltests import verify, Options
 
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_factory import AgentFactory
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEvent
@@ -136,7 +137,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
         create_agent,
         create_subagent_input,
         0,
-        "Agent",
+        AgentId("Agent"),
         event_bus
     )
 

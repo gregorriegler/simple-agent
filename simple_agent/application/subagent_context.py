@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEvent
 
@@ -13,7 +14,7 @@ class SubagentContext:
         agent_factory: "AgentFactory",
         create_subagent_input,
         indent_level: int,
-        agent_id: str,
+        agent_id: AgentId,
         event_bus: EventBus
     ):
         self.create_agent = agent_factory
@@ -27,7 +28,7 @@ class SubagentContext:
         return self._create_subagent_input
 
     def notify_subagent_created(self, subagent_id: str, subagent_name: str) -> None:
-        self._event_bus.publish(AgentCreatedEvent(self.agent_id, subagent_id, subagent_name, self.indent_level))
+        self._event_bus.publish(AgentCreatedEvent(self.agent_id.raw, subagent_id, subagent_name, self.indent_level))
 
     def notify_subagent_finished(self, subagent_id: str) -> None:
-        self._event_bus.publish(AgentFinishedEvent(self.agent_id, subagent_id))
+        self._event_bus.publish(AgentFinishedEvent(self.agent_id.raw, subagent_id))

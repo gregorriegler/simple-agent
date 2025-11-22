@@ -2,6 +2,7 @@ from approvaltests import verify, Options
 
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_factory import AgentFactory
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
@@ -152,7 +153,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
         create_agent,
         create_subagent_input,
         0,
-        starting_agent,
+        AgentId(starting_agent),
         event_bus
     )
 

@@ -4,6 +4,7 @@ tools:
   - bash
   - ls
   - cat
+  - create_file
   - write_todos
   - complete_task
 ---

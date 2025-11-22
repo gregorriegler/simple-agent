@@ -1,4 +1,5 @@
 from simple_agent.application.agent_factory import AgentFactory
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
@@ -45,7 +46,7 @@ class ToolLibraryStub(AllTools):
                 create_agent,
                 create_subagent_input,
                 1,
-                "Agent",
+                AgentId("Agent"),
                 actual_event_bus
             )
 

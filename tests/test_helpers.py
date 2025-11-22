@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from approvaltests import Options, verify
 from approvaltests.scrubbers.scrubbers import create_regex_scrubber, combine_scrubbers
 
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.input import Input
 from simple_agent.application.session import SessionArgs
@@ -42,7 +43,7 @@ def create_all_tools_for_test():
         create_agent,
         create_subagent_input,
         0,
-        "Agent",
+        AgentId("Agent"),
         event_bus
     )
 

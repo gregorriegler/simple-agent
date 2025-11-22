@@ -4,6 +4,7 @@ import argparse
 import os
 
 from simple_agent.application.agent_factory import AgentFactory
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
@@ -114,7 +115,7 @@ def main():
         create_agent,
         create_subagent_input,
         0,
-        starting_agent,
+        AgentId(starting_agent),
         event_bus
     )
     run_session(
@@ -152,7 +153,7 @@ def print_system_prompt_command(user_config, cwd, args):
         create_agent,
         lambda indent: Input(DummyUserInput()),
         0,
-        starting_agent_type,
+        AgentId(starting_agent_type),
         dummy_event_bus
     )
     tool_library = tool_library_factory.create(prompt.tool_keys, subagent_context)

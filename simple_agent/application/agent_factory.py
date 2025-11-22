@@ -1,4 +1,5 @@
 from simple_agent.application.agent import Agent
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
@@ -34,7 +35,7 @@ class AgentFactory:
             self,
             self._context.create_subagent_input,
             indent_level + 1,
-            agent_id,
+            AgentId(agent_id),
             self._context.event_bus
         )
 
