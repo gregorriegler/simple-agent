@@ -23,7 +23,6 @@ from simple_agent.application.session import run_session
 from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
-from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from tests.event_spy import EventSpy
 from tests.fake_display import FakeDisplay
 from tests.print_spy import IOSpy
@@ -34,6 +33,7 @@ from tests.test_helpers import (
     create_temp_directory_structure, all_scrubbers, create_session_args
 )
 from tests.test_tool_library import ToolLibraryFactoryStub
+from tests.user_input_stub import UserInputStub
 
 
 def test_chat_with_regular_response():
@@ -100,7 +100,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     io_spy = IOSpy(remaining_inputs, escape_hits)
     starting_agent = "Agent"
     display = FakeDisplay()
-    user_input_port = ConsoleUserInput(0, io=io_spy)
+    user_input_port = UserInputStub(io=io_spy)
     user_input = Input(user_input_port)
     user_input.stack(message)
     test_session_storage = SessionStorageStub()

@@ -10,9 +10,9 @@ from simple_agent.application.input import Input
 from simple_agent.application.session import SessionArgs
 from simple_agent.application.system_prompt import AgentPrompt
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
-from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.tools.all_tools import AllTools
+from tests.user_input_stub import UserInputStub
 
 
 def create_all_tools_for_test():
@@ -22,7 +22,7 @@ def create_all_tools_for_test():
     from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
 
     io = StdIO()
-    create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, io))
+    create_subagent_input = lambda indent: Input(UserInputStub(io))
 
     from simple_agent.application.session_storage import NoOpSessionStorage
     event_bus = SimpleEventBus()

@@ -5,11 +5,11 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
 from simple_agent.tools import AllTools
 from simple_agent.application.subagent_context import SubagentContext
-from simple_agent.infrastructure.console.console_user_input import ConsoleUserInput
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
+from tests.user_input_stub import UserInputStub
 
 
 class ToolLibraryStub(AllTools):
@@ -24,7 +24,7 @@ class ToolLibraryStub(AllTools):
     ):
         actual_io = io if io else StdIO()
 
-        create_subagent_input = lambda indent: Input(ConsoleUserInput(indent, actual_io))
+        create_subagent_input = lambda indent: Input(UserInputStub(actual_io))
 
         from simple_agent.application.session_storage import NoOpSessionStorage
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
