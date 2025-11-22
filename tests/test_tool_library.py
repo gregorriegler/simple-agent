@@ -18,7 +18,6 @@ class ToolLibraryStub(AllTools):
         io=None,
         interrupts=None,
         event_bus=None,
-        all_displays=None,
         subagent_context: SubagentContext | None = None,
         tool_keys: list[str] | None = None
     ):
@@ -89,7 +88,6 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
             io=self._io,
             interrupts=self._interrupts,
             event_bus=self._event_bus,
-            all_displays=self._all_displays,
             subagent_context=subagent_context,
             tool_keys=tool_keys
         )

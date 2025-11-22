@@ -1,6 +1,6 @@
 from approvaltests import Options, verify
 
-from .test_helpers import all_scrubbers, temp_directory, create_all_tools_for_test
+from tests.test_helpers import create_all_tools_for_test, temp_directory, all_scrubbers
 
 library = create_all_tools_for_test()
 

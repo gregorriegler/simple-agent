@@ -1,4 +1,0 @@
-Command:
-🛠️ cat /tmp/test_path/empty.txt 1-5
-
-Result:
