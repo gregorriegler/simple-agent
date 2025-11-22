@@ -3,6 +3,8 @@ import sys
 import tomllib
 from typing import Any, Mapping, Tuple
 
+from simple_agent.application.session import SessionArgs
+
 DEFAULT_STARTING_AGENT_TYPE = "orchestrator"
 
 
@@ -29,7 +31,9 @@ def load_optional_user_configuration(cwd: str) -> Mapping[str, Any]:
     return config
 
 
-def get_starting_agent_type(config: Mapping[str, Any]) -> str:
+def get_starting_agent_type(config: Mapping[str, Any], args: SessionArgs | None = None) -> str:
+    if args and args.agent:
+        return args.agent
     return _extract_starting_agent_type(config) or DEFAULT_STARTING_AGENT_TYPE
 
 

@@ -13,12 +13,14 @@ from simple_agent.application.tool_library_factory import ToolLibraryFactory
 
 @dataclass
 class SessionArgs:
-    continue_session: bool
-    start_message: str | None
+    continue_session: bool = False
+    start_message: str | None = None
     show_system_prompt: bool = False
     display_type: DisplayType = DisplayType.TEXTUAL
     stub_llm: bool = False
     non_interactive: bool = False
+    agent: str | None = None
+
 
 
 def run_session(

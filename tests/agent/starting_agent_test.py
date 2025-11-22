@@ -1,3 +1,4 @@
+from simple_agent.application.session import SessionArgs
 from simple_agent.infrastructure.configuration import (
     DEFAULT_STARTING_AGENT_TYPE,
     get_starting_agent_type,
@@ -12,6 +13,12 @@ def test_reads_starting_agent_from_config_section():
     config = {"agents": {"start": "custom-root"}}
 
     assert get_starting_agent_type(config) == "custom-root"
+
+
+def test_args_overwrites_config():
+    config = {"agents": {"start": "custom-root"}}
+
+    assert get_starting_agent_type(config, SessionArgs(agent="from-args")) == "from-args"
 
 
 def test_ignores_blank_values():

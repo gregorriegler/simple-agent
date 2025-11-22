@@ -52,8 +52,8 @@ def main():
         textual_user_input = TextualUserInput()
 
     agent_library = create_agent_library(user_config, cwd)
-    starting_agent_type = get_starting_agent_type(user_config)
-    agent_definition = agent_library.read_agent_definition(starting_agent_type)
+    starting_agent = get_starting_agent_type(user_config)
+    agent_definition = agent_library.read_agent_definition(starting_agent)
     textual_app = TextualApp.create_and_start(
         textual_user_input,
         root_agent_id=agent_definition.agent_type(),
@@ -61,7 +61,7 @@ def main():
     )
 
     display = TextualDisplay(textual_app)
-    display.create_agent_tab(starting_agent_type, agent_definition.agent_name())
+    display.create_agent_tab(starting_agent, agent_definition.agent_name())
 
     user_input = Input(textual_user_input)
     if args.start_message:
@@ -114,10 +114,10 @@ def main():
         create_agent,
         create_subagent_input,
         0,
-        starting_agent_type,
+        starting_agent,
         event_bus
     )
-    run_session(args, app_context, starting_agent_type, todo_cleanup, user_input, agent_definition, tool_library_factory, subagent_context)
+    run_session(args, app_context, starting_agent, todo_cleanup, user_input, agent_definition, tool_library_factory, subagent_context)
 
     textual_app.shutdown()
 
