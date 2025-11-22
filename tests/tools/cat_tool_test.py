@@ -1,8 +1,4 @@
-from .test_helpers import (
-    create_temp_file,
-    verify_tool,
-    create_all_tools_for_test
-)
+from tests.test_helpers import create_all_tools_for_test, create_temp_file, verify_tool
 
 library = create_all_tools_for_test()
 

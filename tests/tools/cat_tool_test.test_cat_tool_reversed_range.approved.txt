@@ -1,0 +1,5 @@
+Command:
+🛠️ cat /tmp/test_path/test.txt 10-5
+
+Result:
+STDERR: Start line (10) cannot be greater than end line (5)
