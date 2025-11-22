@@ -155,7 +155,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
 
 def create_test_agent_definition():
     return AgentDefinition(
-        "Agent", """---
+        AgentId("Agent"), """---
 name: Agent
 ---""",
         GroundRulesStub("Test system prompt")

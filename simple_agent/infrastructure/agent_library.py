@@ -40,7 +40,7 @@ class FileSystemAgentLibrary(AgentLibrary):
         try:
             with open(path, 'r', encoding='utf-8') as handle:
                 content = handle.read()
-                return AgentDefinition(agent_id.raw, content, self.ground_rules)
+                return AgentDefinition(agent_id, content, self.ground_rules)
         except FileNotFoundError as error:
             raise FileNotFoundError(
                 f"Agent definition '{agent_id.raw}' not found in {self.directory}"
@@ -65,13 +65,13 @@ class BuiltinAgentLibrary:
         filename = filename_from_agent_type(agent_id)
         try:
             content = resources.read_text(self.package, filename, encoding='utf-8')
-            return AgentDefinition(agent_id.raw, content, self.ground_rules)
+            return AgentDefinition(agent_id, content, self.ground_rules)
         except (FileNotFoundError, ModuleNotFoundError):
             package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             path = os.path.join(package_root, filename)
             with open(path, 'r', encoding='utf-8') as handle:
                 content = handle.read()
-                return AgentDefinition(agent_id.raw, content, self.ground_rules)
+                return AgentDefinition(agent_id, content, self.ground_rules)
 
 
     def _discover_agent_types(self) -> list[str]:
