@@ -1,5 +1,0 @@
-Command:
-/subagent say hello
-
-Result:
-STDERR: subagent error: pytest: reading from stdin while output is captured!  Consider using `-s`.
