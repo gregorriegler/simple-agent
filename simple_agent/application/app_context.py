@@ -16,4 +16,4 @@ class AppContext:
     session_storage: SessionStorage
     tool_library_factory: ToolLibraryFactory
     agent_library: AgentLibrary
-    create_subagent_input: Callable[[int], Input]
+    create_subagent_input: Callable[[], Input]

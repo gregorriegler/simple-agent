@@ -68,7 +68,7 @@ def main():
 
     tool_library_factory = AllToolsFactory()
 
-    create_subagent_input = lambda indent: user_input
+    create_subagent_input = lambda: Input(textual_user_input)
 
     llm = create_llm(args.stub_llm, user_config)
 
@@ -113,19 +113,20 @@ def print_system_prompt_command(user_config, cwd, args):
     tool_library_factory = AllToolsFactory()
     dummy_event_bus = SimpleEventBus()
     agent_library = create_agent_library(user_config, cwd)
+    create_subagent_input = lambda: Input(DummyUserInput())
     app_context = AppContext(
         llm=lambda messages: '',
         event_bus=dummy_event_bus,
         session_storage=NoOpSessionStorage(),
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        create_subagent_input=lambda indent: Input(DummyUserInput()),
+        create_subagent_input=create_subagent_input,
     )
     create_agent = AgentFactory(app_context)
     prompt = agent_library.read_agent_definition(starting_agent_type).load_prompt()
     subagent_context = SubagentContext(
         create_agent,
-        lambda indent: Input(DummyUserInput()),
+        create_subagent_input,
         0,
         AgentId("Agent"),
         dummy_event_bus

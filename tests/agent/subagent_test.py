@@ -108,7 +108,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     )
 
     agent_library = BuiltinAgentLibrary()
-    create_subagent_input = lambda indent: user_input
+    create_subagent_input = lambda: Input(user_input_port)
     app_context = AppContext(
         llm=llm_stub,
         event_bus=event_bus,
