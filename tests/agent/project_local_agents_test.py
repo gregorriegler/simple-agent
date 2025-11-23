@@ -43,7 +43,7 @@ tools: bash
 Configured definitions.""", encoding='utf-8')
 
     agents = create_agent_library(
-        config={'paths': {'agent_definitions_dir': str(configured_dir)}},
+        config={'agents': {'path': str(configured_dir)}},
         cwd=str(tmp_path),
     )
     prompt = agents.read_agent_definition(AgentType('custom')).load_prompt()
@@ -70,7 +70,7 @@ tools: bash
 ---
 Config driven definition.""", encoding='utf-8')
 
-    config = {'paths': {'agent_definitions_dir': "custom_agents"}}
+    config = {'agents': {'path': "custom_agents"}}
     agents = create_agent_library(config=config, cwd=str(tmp_path))
     prompt = agents.read_agent_definition(AgentType('via_config')).load_prompt()
     assert prompt.agent_name == 'ConfigFile'

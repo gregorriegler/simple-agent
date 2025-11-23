@@ -77,6 +77,7 @@ To change which agent starts first, set it via the `[agents]` section:
 
 ```toml
 [agents]
+path = "/path/to/custom/agents"
 start = "orchestrator"
 ```
 

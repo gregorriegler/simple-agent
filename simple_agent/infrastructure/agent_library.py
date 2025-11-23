@@ -114,16 +114,11 @@ def _candidate_directories(config: Mapping[str, Any], cwd: str) -> list[str]:
 
 
 def _extract_agents_dir_from_config(config: Mapping[str, Any]) -> str | None:
-    for section_name, key_names in (
-        ("paths", ("agent_definitions_dir", "agent_definitions_path")),
-        ("agents", ("definitions_dir", "definitions_path", "path")),
-    ):
-        section = config.get(section_name)
-        if isinstance(section, Mapping):
-            for key in key_names:
-                value = section.get(key)
-                if value:
-                    return str(value)
+    agents_section = config.get("agents")
+    if isinstance(agents_section, Mapping):
+        value = agents_section.get("path")
+        if value:
+            return str(value)
     return None
 
 
