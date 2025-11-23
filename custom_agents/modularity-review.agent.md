@@ -41,4 +41,5 @@ Where
 Strength = 1 if integration strength is high (components share lots of knowledge), else 0
 Strength = 1 if distance is high (different services, teams, deploy units, etc.), else 0
 
-Use this knowledge to find one way to increase modularity, and report it back
+Explore decreasing distance before decreasing strength.
+Use this knowledge to find one way to increase modularity, and report it back.
