@@ -29,20 +29,17 @@ class Messages:
         if content:
             self._messages.append({"role": role, "content": content})
 
-    def seed_system_prompt(self, content: str | None) -> bool:
+    def seed_system_prompt(self, content: str | None):
         if not content:
-            return False
+            return
 
         system_message = {"role": "system", "content": content}
 
         if self._messages and self._messages[0].get("role") == "system":
-            if self._messages[0] == system_message:
-                return False
             self._messages[0] = system_message
-            return True
+            return
 
         self._messages.insert(0, system_message)
-        return True
 
     def to_list(self) -> ChatMessages:
         return list(self._messages)
