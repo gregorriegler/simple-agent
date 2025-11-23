@@ -1,4 +1,3 @@
-from simple_agent.application.llm import Messages
 from simple_agent.application.tool_library import ContinueResult
 from .base_tool import BaseTool
 from simple_agent.application.subagent_context import SubagentContext
@@ -43,24 +42,11 @@ class SubagentTool(BaseTool):
         agent_type_str = parts[0]
         task_description = parts[1]
 
-        subagent = None
         try:
-            user_input = self.context.create_input()
-            user_input.stack(task_description)
-            subagent = self.context.agent_factory(
+            result = self.context.spawn_subagent(
                 AgentType(agent_type_str),
-                self.context.agent_id,
-                self.context.indent_level,
-                user_input,
-                Messages()
+                task_description
             )
-            self.context.notify_subagent_created(subagent.agent_id, subagent.agent_name)
-
-            result = subagent.start()
-
             return ContinueResult(str(result), success=result.success)
         except Exception as e:
             return ContinueResult(f'STDERR: subagent error: {str(e)}', success=False)
-        finally:
-            if subagent is not None:
-                self.context.notify_subagent_finished(subagent.agent_id)
