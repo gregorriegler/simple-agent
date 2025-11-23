@@ -6,6 +6,7 @@ from approvaltests.scrubbers.scrubbers import create_regex_scrubber, combine_scr
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
+
 from simple_agent.application.input import Input
 from simple_agent.application.session import SessionArgs
 from simple_agent.application.system_prompt import AgentPrompt
@@ -22,7 +23,7 @@ def create_all_tools_for_test():
     from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
 
     io = StdIO()
-    create_subagent_input = lambda indent: Input(UserInputStub(io))
+    create_subagent_input = lambda: Input(UserInputStub(io))
 
     from simple_agent.application.session_storage import NoOpSessionStorage
     event_bus = SimpleEventBus()

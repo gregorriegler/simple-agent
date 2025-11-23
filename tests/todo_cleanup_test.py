@@ -8,6 +8,7 @@ from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEvent
+
 from simple_agent.application.input import Input
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
@@ -116,7 +117,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
 
     test_session_storage = SessionStorageStub()
     agent_library = BuiltinAgentLibrary()
-    create_subagent_input = lambda indent: user_input
+    create_subagent_input = lambda: Input(user_input_port)
     tool_library_factory = ToolLibraryFactoryStub(
         llm,
         io=io_spy,

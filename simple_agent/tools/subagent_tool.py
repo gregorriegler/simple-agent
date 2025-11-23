@@ -45,7 +45,7 @@ class SubagentTool(BaseTool):
 
         subagent = None
         try:
-            user_input = self.context.create_input(self.context.indent_level)
+            user_input = self.context.create_input()
             user_input.stack(task_description)
             subagent = self.context.agent_factory(
                 AgentType(agent_type_str),
