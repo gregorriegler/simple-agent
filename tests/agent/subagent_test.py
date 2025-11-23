@@ -20,7 +20,7 @@ from simple_agent.application.events import (
 from simple_agent.application.input import Input
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
-from simple_agent.application.subagent_context import SubagentContext
+from simple_agent.application.agent_factory import SubagentContext
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from tests.event_spy import EventSpy

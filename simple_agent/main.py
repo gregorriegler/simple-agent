@@ -3,7 +3,7 @@
 import argparse
 import os
 
-from simple_agent.application.agent_factory import AgentFactory
+from simple_agent.application.agent_factory import AgentFactory, SubagentContext
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.display_type import DisplayType
@@ -11,7 +11,6 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
 from simple_agent.application.session import SessionArgs, run_session
 from simple_agent.application.session_storage import NoOpSessionStorage
-from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
@@ -120,14 +119,6 @@ def print_system_prompt_command(user_config, cwd, args):
     create_subagent_input = lambda: Input(DummyUserInput())
     llm = lambda messages: ''
     session_storage = NoOpSessionStorage()
-    app_context = AppContext(
-        llm=llm,
-        event_bus=dummy_event_bus,
-        session_storage=session_storage,
-        tool_library_factory=tool_library_factory,
-        agent_library=agent_library,
-        create_subagent_input=create_subagent_input,
-    )
     create_agent = AgentFactory(
         llm=llm,
         event_bus=dummy_event_bus,

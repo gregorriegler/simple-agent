@@ -12,7 +12,7 @@ from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEven
 from simple_agent.application.input import Input
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
-from simple_agent.application.subagent_context import SubagentContext
+from simple_agent.application.agent_factory import SubagentContext
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from .fake_display import FakeDisplay

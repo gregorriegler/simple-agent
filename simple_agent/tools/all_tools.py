@@ -1,6 +1,6 @@
 import re
 
-from simple_agent.application.subagent_context import SubagentContext
+from simple_agent.application.agent_factory import SubagentContext
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from .bash_tool import BashTool

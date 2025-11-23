@@ -2,12 +2,12 @@ from dataclasses import dataclass
 
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_definition import AgentDefinition
+from simple_agent.application.agent_factory import SubagentContext
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.events import SessionStartedEvent
 from simple_agent.application.persisted_messages import PersistedMessages
-from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.tool_documentation import generate_tools_documentation
 
 

@@ -5,7 +5,7 @@ from simple_agent.application.event_bus import SimpleEventBus
 
 from simple_agent.application.input import Input
 from simple_agent.tools import AllTools
-from simple_agent.application.subagent_context import SubagentContext
+from simple_agent.application.agent_factory import SubagentContext
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
