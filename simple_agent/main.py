@@ -97,7 +97,6 @@ def main():
         todo_cleanup,
         user_input,
         agent_definition,
-        tool_library_factory,
         subagent_context
     )
 

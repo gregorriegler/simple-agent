@@ -9,7 +9,6 @@ from simple_agent.application.events import SessionStartedEvent
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.tool_documentation import generate_tools_documentation
-from simple_agent.application.tool_library_factory import ToolLibraryFactory
 
 
 @dataclass
@@ -31,10 +30,9 @@ def run_session(
     todo_cleanup,
     user_input,
     agent_definition: AgentDefinition,
-    tool_library_factory: ToolLibraryFactory,
     subagent_context: SubagentContext
 ):
-    tools = tool_library_factory.create(agent_definition.tool_keys(), subagent_context)
+    tools = app_context.tool_library_factory.create(agent_definition.tool_keys(), subagent_context)
     tools_documentation = generate_tools_documentation(tools.tools, app_context.agent_library.list_agent_types())
     system_prompt = agent_definition.prompt().render(tools_documentation)
 

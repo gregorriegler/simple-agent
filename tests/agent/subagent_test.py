@@ -133,7 +133,6 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
         NoOpTodoCleanup(),
         user_input,
         create_test_agent_definition(),
-        tool_library_factory,
         subagent_context
     )
 

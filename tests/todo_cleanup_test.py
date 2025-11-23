@@ -149,7 +149,6 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
         cleanup_adapter,
         user_input,
         create_test_agent_definition(),
-        tool_library_factory,
         subagent_context
     )
 
