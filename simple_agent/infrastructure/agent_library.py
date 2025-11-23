@@ -93,11 +93,12 @@ class BuiltinAgentLibrary:
 def build_runtime_agent_definitions() -> AgentLibrary:
     cwd = os.getcwd()
     config = load_user_configuration(cwd=cwd)
-    return create_agent_library(config, cwd)
+    agents_path = extract_agents_path_from_config(config)
+    return create_agent_library(agents_path, cwd)
 
 
-def create_agent_library(config: Mapping[str, Any], cwd: str) -> AgentLibrary:
-    for directory in _candidate_directories(config, cwd):
+def create_agent_library(agents_path: str | None, cwd: str) -> AgentLibrary:
+    for directory in _candidate_directories(agents_path, cwd):
         filesystem_definitions = FileSystemAgentLibrary(directory)
         if filesystem_definitions.has_any():
             return filesystem_definitions
@@ -105,21 +106,20 @@ def create_agent_library(config: Mapping[str, Any], cwd: str) -> AgentLibrary:
     return BuiltinAgentLibrary()
 
 
-def _candidate_directories(config: Mapping[str, Any], cwd: str) -> list[str]:
-    configured_path = _extract_agents_dir_from_config(config)
-    if configured_path:
-        return [_normalize_agents_dir(configured_path, cwd)]
-
-    return [get_project_local_agents_dir(base_dir=cwd)]
-
-
-def _extract_agents_dir_from_config(config: Mapping[str, Any]) -> str | None:
+def extract_agents_path_from_config(config: Mapping[str, Any]) -> str | None:
     agents_section = config.get("agents")
     if isinstance(agents_section, Mapping):
         value = agents_section.get("path")
         if value:
             return str(value)
     return None
+
+
+def _candidate_directories(agents_path: str | None, cwd: str) -> list[str]:
+    if agents_path:
+        return [_normalize_agents_dir(agents_path, cwd)]
+
+    return [get_project_local_agents_dir(base_dir=cwd)]
 
 
 def _normalize_agents_dir(path: str, cwd: str) -> str:

@@ -14,7 +14,7 @@ from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
-from simple_agent.infrastructure.agent_library import create_agent_library
+from simple_agent.infrastructure.agent_library import create_agent_library, extract_agents_path_from_config
 from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.infrastructure.configuration import get_starting_agent, load_user_configuration
 from simple_agent.infrastructure.event_logger import EventLogger
@@ -41,7 +41,8 @@ def main():
     else:
         textual_user_input = TextualUserInput()
 
-    agent_library = create_agent_library(user_config, cwd)
+    agents_path = extract_agents_path_from_config(user_config)
+    agent_library = create_agent_library(agents_path, cwd)
     starting_agent_type = get_starting_agent(user_config, args)
     agent_definition = agent_library.read_agent_definition(starting_agent_type)
     root_agent_id = AgentId("Agent")
@@ -111,7 +112,8 @@ def print_system_prompt_command(user_config, cwd, args):
     starting_agent_type = get_starting_agent(user_config, args)
     tool_library_factory = AllToolsFactory()
     dummy_event_bus = SimpleEventBus()
-    agent_library = create_agent_library(user_config, cwd)
+    agents_path = extract_agents_path_from_config(user_config)
+    agent_library = create_agent_library(agents_path, cwd)
     create_subagent_input = lambda: Input(DummyUserInput())
     app_context = AppContext(
         llm=lambda messages: '',
