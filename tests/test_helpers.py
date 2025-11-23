@@ -30,14 +30,6 @@ def create_all_tools_for_test():
     session_storage = NoOpSessionStorage()
     tool_library_factory = AllToolsFactory()
     agent_library = BuiltinAgentLibrary()
-    app_context = AppContext(
-        llm=llm,
-        event_bus=event_bus,
-        session_storage=session_storage,
-        tool_library_factory=tool_library_factory,
-        agent_library=agent_library,
-        create_subagent_input=create_subagent_input,
-    )
     create_agent = AgentFactory(
         llm=llm,
         event_bus=event_bus,
@@ -45,6 +37,15 @@ def create_all_tools_for_test():
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
         create_subagent_input=create_subagent_input
+    )
+    app_context = AppContext(
+        llm=llm,
+        event_bus=event_bus,
+        session_storage=session_storage,
+        tool_library_factory=tool_library_factory,
+        agent_library=agent_library,
+        create_subagent_input=create_subagent_input,
+        agent_factory=create_agent
     )
 
     agent_id = AgentId("Agent")

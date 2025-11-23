@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, TYPE_CHECKING
 
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.event_bus_protocol import EventBus
@@ -7,6 +7,9 @@ from simple_agent.application.input import Input
 from simple_agent.application.llm import LLM
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
+
+if TYPE_CHECKING:
+    from simple_agent.application.agent_factory import AgentFactory
 
 
 @dataclass
@@ -17,3 +20,4 @@ class AppContext:
     tool_library_factory: ToolLibraryFactory
     agent_library: AgentLibrary
     create_subagent_input: Callable[[], Input]
+    agent_factory: 'AgentFactory'

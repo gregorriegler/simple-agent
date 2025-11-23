@@ -29,9 +29,14 @@ def run_session(
     starting_agent_id: AgentId,
     todo_cleanup,
     user_input,
-    agent_definition: AgentDefinition,
-    tool_context: ToolContext
+    agent_definition: AgentDefinition
 ):
+    tool_context = ToolContext(
+        starting_agent_id,
+        lambda agent_type, task_description: app_context.agent_factory.spawn_subagent(
+            starting_agent_id, agent_type, task_description, 0
+        )
+    )
     tools = app_context.tool_library_factory.create(agent_definition.tool_keys(), tool_context)
     tools_documentation = generate_tools_documentation(tools.tools, app_context.agent_library.list_agent_types())
     system_prompt = agent_definition.prompt().render(tools_documentation)

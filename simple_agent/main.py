@@ -3,7 +3,7 @@
 import argparse
 import os
 
-from simple_agent.application.agent_factory import AgentFactory, ToolContext
+from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.display_type import DisplayType
@@ -68,15 +68,6 @@ def main():
 
     llm = create_llm(args.stub_llm, user_config)
 
-    app_context = AppContext(
-        llm=llm,
-        event_bus=event_bus,
-        session_storage=session_storage,
-        tool_library_factory=tool_library_factory,
-        agent_library=agent_library,
-        create_subagent_input=create_subagent_input,
-    )
-
     create_agent = AgentFactory(
         llm=llm,
         event_bus=event_bus,
@@ -86,20 +77,23 @@ def main():
         create_subagent_input=create_subagent_input
     )
 
-    tool_context = ToolContext(
-        root_agent_id,
-        lambda agent_type, task_description: create_agent.spawn_subagent(
-            root_agent_id, agent_type, task_description, 0
-        )
+    app_context = AppContext(
+        llm=llm,
+        event_bus=event_bus,
+        session_storage=session_storage,
+        tool_library_factory=tool_library_factory,
+        agent_library=agent_library,
+        create_subagent_input=create_subagent_input,
+        agent_factory=create_agent
     )
+
     run_session(
         args,
         app_context,
         root_agent_id,
         todo_cleanup,
         user_input,
-        agent_definition,
-        tool_context
+        agent_definition
     )
 
     textual_app.shutdown()
@@ -109,6 +103,7 @@ def main():
 
 def print_system_prompt_command(user_config, cwd, args):
     from simple_agent.application.agent_id import AgentId
+    from simple_agent.application.agent_factory import ToolContext
 
     starting_agent_type = get_starting_agent(user_config, args)
     tool_library_factory = AllToolsFactory()
