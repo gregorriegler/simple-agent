@@ -50,6 +50,7 @@ def create_all_tools_for_test():
 
     agent_id = AgentId("Agent")
     tool_context = ToolContext(
+        [],
         agent_id,
         lambda agent_type, task_description: create_agent.spawn_subagent(
             agent_id, agent_type, task_description, 0

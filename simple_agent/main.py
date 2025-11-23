@@ -124,12 +124,13 @@ def print_system_prompt_command(user_config, cwd, args):
     prompt = agent_library.read_agent_definition(starting_agent_type).load_prompt()
     agent_id = AgentId("Agent")
     tool_context = ToolContext(
+        prompt.tool_keys,
         agent_id,
         lambda agent_type, task_description: create_agent.spawn_subagent(
             agent_id, agent_type, task_description, 0
         )
     )
-    tool_library = tool_library_factory.create(prompt.tool_keys, tool_context)
+    tool_library = tool_library_factory.create(tool_context)
     tools_documentation = generate_tools_documentation(tool_library.tools, agent_library.list_agent_types())
     system_prompt = prompt.render(tools_documentation)
     print(system_prompt)

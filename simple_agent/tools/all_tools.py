@@ -107,7 +107,6 @@ class AllTools(ToolLibrary):
 class AllToolsFactory(ToolLibraryFactory):
     def create(
         self,
-        tool_keys: list[str],
         tool_context: ToolContext
     ) -> ToolLibrary:
-        return AllTools(tool_keys, tool_context)
+        return AllTools(tool_context.tool_keys, tool_context)

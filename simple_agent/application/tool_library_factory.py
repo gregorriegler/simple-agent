@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 class ToolLibraryFactory(Protocol):
     def create(
         self,
-        tool_keys: list[str],
         tool_context: "ToolContext"
     ) -> ToolLibrary:
         ...

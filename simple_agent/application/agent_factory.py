@@ -15,7 +15,8 @@ from simple_agent.application.tool_library_factory import ToolLibraryFactory
 
 class ToolContext:
 
-    def __init__(self, agent_id: AgentId, spawn_subagent):
+    def __init__(self, tool_keys: list[str], agent_id: AgentId, spawn_subagent):
+        self.tool_keys = tool_keys
         self.agent_id = agent_id
         self.spawn_subagent = spawn_subagent
 
@@ -52,13 +53,14 @@ class AgentFactory:
         agent_id = parent_agent_id.create_subagent_id(agent_name, self._agent_suffixer)
 
         tool_context = ToolContext(
+            agent_prompt.tool_keys,
             agent_id,
             lambda agent_type, task_description: self.spawn_subagent(
                 agent_id, agent_type, task_description, indent_level + 1
             )
         )
 
-        subagent_tools = self._tool_library_factory.create(agent_prompt.tool_keys, tool_context)
+        subagent_tools = self._tool_library_factory.create(tool_context)
         tools_documentation = generate_tools_documentation(subagent_tools.tools, self._agent_library.list_agent_types())
         system_prompt = agent_prompt.render(tools_documentation)
 

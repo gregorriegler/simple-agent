@@ -33,14 +33,6 @@ class ToolLibraryStub(AllTools):
             tool_library_factory = AllToolsFactory()
             agent_library = BuiltinAgentLibrary()
             session_storage = NoOpSessionStorage()
-            app_context = AppContext(
-                llm=llm,
-                event_bus=actual_event_bus,
-                session_storage=session_storage,
-                tool_library_factory=tool_library_factory,
-                agent_library=agent_library,
-                create_subagent_input=create_subagent_input,
-            )
             create_agent = AgentFactory(
                 llm=llm,
                 event_bus=actual_event_bus,
@@ -49,9 +41,19 @@ class ToolLibraryStub(AllTools):
                 agent_library=agent_library,
                 create_subagent_input=create_subagent_input
             )
+            app_context = AppContext(
+                llm=llm,
+                event_bus=actual_event_bus,
+                session_storage=session_storage,
+                tool_library_factory=tool_library_factory,
+                agent_library=agent_library,
+                create_subagent_input=create_subagent_input,
+                agent_factory=create_agent
+            )
 
             agent_id = AgentId("Agent")
             actual_tool_context = ToolContext(
+                tool_keys or [],
                 agent_id,
                 lambda agent_type, task_description: create_agent.spawn_subagent(
                     agent_id, agent_type, task_description, 1
@@ -89,7 +91,6 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
 
     def create(
         self,
-        tool_keys: list[str],
         tool_context: ToolContext
     ) -> AllTools:
         return ToolLibraryStub(
@@ -98,5 +99,5 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
             interrupts=self._interrupts,
             event_bus=self._event_bus,
             tool_context=tool_context,
-            tool_keys=tool_keys
+            tool_keys=tool_context.tool_keys
         )
