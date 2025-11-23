@@ -46,8 +46,8 @@ def main():
     starting_agent_type = get_starting_agent(user_config, args)
     agent_definition = agent_library.read_agent_definition(starting_agent_type)
     root_agent_id = AgentId(agent_definition.agent_name())
-    textual_app = TextualApp.create_and_start(textual_user_input, root_agent_id)
 
+    textual_app = TextualApp.create_and_start(textual_user_input, root_agent_id)
     display = TextualDisplay(textual_app)
     display.create_agent_tab(root_agent_id, agent_definition.agent_name())
 
