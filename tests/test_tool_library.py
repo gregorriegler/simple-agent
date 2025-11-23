@@ -60,7 +60,7 @@ class ToolLibraryStub(AllTools):
                 )
             )
 
-        super().__init__(tool_keys=tool_keys, tool_context=actual_tool_context)
+        super().__init__(tool_context=actual_tool_context)
         self.interrupts = interrupts or []
         self.counter = 0
 
@@ -98,6 +98,5 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
             io=self._io,
             interrupts=self._interrupts,
             event_bus=self._event_bus,
-            tool_context=tool_context,
-            tool_keys=tool_context.tool_keys
+            tool_context=tool_context
         )

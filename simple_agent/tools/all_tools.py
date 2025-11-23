@@ -16,13 +16,10 @@ from .write_todos_tool import WriteTodosTool
 class AllTools(ToolLibrary):
     def __init__(
         self,
-        tool_keys: list[str] = None,
-        tool_context: ToolContext | None = None
+        tool_context: ToolContext
     ):
-        if tool_keys is None:
-            self.tool_keys = []
-        self.tool_keys = tool_keys
         self.tool_context = tool_context
+        self.tool_keys = tool_context.tool_keys if tool_context.tool_keys else []
 
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
@@ -109,4 +106,4 @@ class AllToolsFactory(ToolLibraryFactory):
         self,
         tool_context: ToolContext
     ) -> ToolLibrary:
-        return AllTools(tool_context.tool_keys, tool_context)
+        return AllTools(tool_context)
