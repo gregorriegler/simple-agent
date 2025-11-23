@@ -23,4 +23,4 @@ class FileSystemTodoCleanup(TodoCleanup):
 
     @staticmethod
     def _todo_path_for_agent(agent_id: AgentId) -> Path:
-        return Path(f".{agent_id.for_filesystem()}.todos.md")
+        return Path(agent_id.todo_filename())

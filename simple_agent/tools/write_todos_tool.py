@@ -21,14 +21,14 @@ class WriteTodosTool(BaseTool):
         "🛠️ write-todos\n- [ ] Feature exploration\n- [ ] **Implementing tool**\n- [x] Initial setup\n🛠️🔚"
     ]
 
-    def __init__(self, file_identifier: str):
+    def __init__(self, filename: str):
         super().__init__()
-        self.file_identifier = file_identifier
+        self.filename = filename
 
     def execute(self, args):
         if not args or not args.strip():
             return ContinueResult("No todo content provided", success=False)
         content = args
-        path = Path(f".{self.file_identifier}.todos.md")
+        path = Path(self.filename)
         path.write_text(content, encoding="utf-8")
         return ContinueResult("Updated TODOS")

@@ -21,6 +21,9 @@ class AgentId:
     def for_filesystem(self) -> str:
         return self._raw_id.replace("/", "-").replace("\\", "-").replace(" ", "-")
 
+    def todo_filename(self) -> str:
+        return f".{self.for_filesystem()}.todos.md"
+
     def for_ui(self) -> str:
         return self.for_filesystem()
 

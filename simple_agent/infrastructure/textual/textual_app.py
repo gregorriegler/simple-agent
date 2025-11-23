@@ -331,8 +331,7 @@ class TextualApp(App):
         self._todo_widgets.pop(str(agent_id), None)
 
     def _load_todos(self, agent_id: AgentId) -> str:
-        sanitized = agent_id.for_filesystem()
-        path = Path(f".{sanitized}.todos.md")
+        path = Path(agent_id.todo_filename())
         if not path.exists():
             return ""
         content = path.read_text(encoding="utf-8").strip()
