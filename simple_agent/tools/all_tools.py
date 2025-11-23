@@ -38,7 +38,7 @@ class AllTools(ToolLibrary):
             'edit_file': lambda: EditFileTool(),
             'complete_task': lambda: CompleteTaskTool(),
             'bash': lambda: BashTool(),
-            'subagent': lambda: SubagentTool(self.subagent_context)
+            'subagent': lambda: SubagentTool(self.subagent_context.spawn_subagent)
         }
 
         if not self.tool_keys:

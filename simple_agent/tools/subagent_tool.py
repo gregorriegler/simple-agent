@@ -1,6 +1,5 @@
-from simple_agent.application.tool_library import ContinueResult
+from simple_agent.application.tool_library import ContinueResult, SpawnSubagent
 from .base_tool import BaseTool
-from simple_agent.application.subagent_context import SubagentContext
 from ..application.agent_type import AgentType
 
 
@@ -26,9 +25,9 @@ class SubagentTool(BaseTool):
         "🛠️ subagent default Create a simple HTML page with a form"
     ]
 
-    def __init__(self, context: SubagentContext):
+    def __init__(self, spawn_subagent: SpawnSubagent):
         super().__init__()
-        self.context = context
+        self._spawn_subagent = spawn_subagent
 
     def execute(self, args):
         if not args or not args.strip():
@@ -43,7 +42,7 @@ class SubagentTool(BaseTool):
         task_description = parts[1]
 
         try:
-            result = self.context.spawn_subagent(
+            result = self._spawn_subagent(
                 AgentType(agent_type_str),
                 task_description
             )
