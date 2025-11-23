@@ -6,7 +6,7 @@ from simple_agent.tools import AllTools
 if __name__ == "__main__":
     command = ' '.join(sys.argv[1:])
 
-    tools = AllTools(subagent_context=None)
+    tools = AllTools(tool_context=None)
     try:
         result = tools.parse_message_and_tools(f"🛠️ {command}")
         if not result.tools:

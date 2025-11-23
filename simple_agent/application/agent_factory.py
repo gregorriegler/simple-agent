@@ -13,47 +13,11 @@ from simple_agent.application.tool_documentation import generate_tools_documenta
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 
 
-class SubagentContext:
+class ToolContext:
 
-    def __init__(
-        self,
-        agent_factory: "AgentFactory",
-        create_subagent_input,
-        indent_level: int,
-        agent_id: AgentId,
-        event_bus: EventBus
-    ):
-        self.agent_factory = agent_factory
-        self.create_input = create_subagent_input
-        self.indent_level = indent_level
+    def __init__(self, agent_id: AgentId, spawn_subagent):
         self.agent_id = agent_id
-        self._event_bus = event_bus
-
-    def notify_subagent_created(self, subagent_id: AgentId, subagent_name: str) -> None:
-        self._event_bus.publish(AgentCreatedEvent(self.agent_id, subagent_id, subagent_name, self.indent_level))
-
-    def notify_subagent_finished(self, subagent_id: AgentId) -> None:
-        self._event_bus.publish(AgentFinishedEvent(self.agent_id, subagent_id))
-
-    def spawn_subagent(self, agent_type: AgentType, task_description: str):
-        user_input = self.create_input()
-        user_input.stack(task_description)
-
-        subagent = self.agent_factory(
-            agent_type,
-            self.agent_id,
-            self.indent_level,
-            user_input,
-            Messages()
-        )
-
-        self.notify_subagent_created(subagent.agent_id, subagent.agent_name)
-
-        try:
-            result = subagent.start()
-            return result
-        finally:
-            self.notify_subagent_finished(subagent.agent_id)
+        self.spawn_subagent = spawn_subagent
 
 
 class AgentFactory:
@@ -87,15 +51,14 @@ class AgentFactory:
         agent_name = definition.agent_name()
         agent_id = parent_agent_id.create_subagent_id(agent_name, self._agent_suffixer)
 
-        subagent_context = SubagentContext(
-            self,
-            self._create_subagent_input,
-            indent_level + 1,
+        tool_context = ToolContext(
             agent_id,
-            self._event_bus
+            lambda agent_type, task_description: self.spawn_subagent(
+                agent_id, agent_type, task_description, indent_level + 1
+            )
         )
 
-        subagent_tools = self._tool_library_factory.create(agent_prompt.tool_keys, subagent_context)
+        subagent_tools = self._tool_library_factory.create(agent_prompt.tool_keys, tool_context)
         tools_documentation = generate_tools_documentation(subagent_tools.tools, self._agent_library.list_agent_types())
         system_prompt = agent_prompt.render(tools_documentation)
 
@@ -111,3 +74,30 @@ class AgentFactory:
             self._session_storage,
             context
         )
+
+    def spawn_subagent(
+        self,
+        parent_agent_id: AgentId,
+        agent_type: AgentType,
+        task_description: str,
+        indent_level: int
+    ):
+        user_input = self._create_subagent_input()
+        user_input.stack(task_description)
+
+        subagent = self(
+            agent_type,
+            parent_agent_id,
+            indent_level,
+            user_input,
+            Messages()
+        )
+
+        subagent_id = subagent.agent_id
+        self._event_bus.publish(AgentCreatedEvent(parent_agent_id, subagent_id, subagent.agent_name, indent_level))
+
+        try:
+            result = subagent.start()
+            return result
+        finally:
+            self._event_bus.publish(AgentFinishedEvent(parent_agent_id, subagent_id))

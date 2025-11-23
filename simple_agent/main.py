@@ -3,7 +3,7 @@
 import argparse
 import os
 
-from simple_agent.application.agent_factory import AgentFactory, SubagentContext
+from simple_agent.application.agent_factory import AgentFactory, ToolContext
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.display_type import DisplayType
@@ -86,12 +86,11 @@ def main():
         create_subagent_input=create_subagent_input
     )
 
-    subagent_context = SubagentContext(
-        create_agent,
-        create_subagent_input,
-        0,
+    tool_context = ToolContext(
         root_agent_id,
-        event_bus
+        lambda agent_type, task_description: create_agent.spawn_subagent(
+            root_agent_id, agent_type, task_description, 0
+        )
     )
     run_session(
         args,
@@ -100,7 +99,7 @@ def main():
         todo_cleanup,
         user_input,
         agent_definition,
-        subagent_context
+        tool_context
     )
 
     textual_app.shutdown()
@@ -128,14 +127,14 @@ def print_system_prompt_command(user_config, cwd, args):
         create_subagent_input=create_subagent_input
     )
     prompt = agent_library.read_agent_definition(starting_agent_type).load_prompt()
-    subagent_context = SubagentContext(
-        create_agent,
-        create_subagent_input,
-        0,
-        AgentId("Agent"),
-        dummy_event_bus
+    agent_id = AgentId("Agent")
+    tool_context = ToolContext(
+        agent_id,
+        lambda agent_type, task_description: create_agent.spawn_subagent(
+            agent_id, agent_type, task_description, 0
+        )
     )
-    tool_library = tool_library_factory.create(prompt.tool_keys, subagent_context)
+    tool_library = tool_library_factory.create(prompt.tool_keys, tool_context)
     tools_documentation = generate_tools_documentation(tool_library.tools, agent_library.list_agent_types())
     system_prompt = prompt.render(tools_documentation)
     print(system_prompt)

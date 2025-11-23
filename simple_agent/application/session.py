@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_definition import AgentDefinition
-from simple_agent.application.agent_factory import SubagentContext
+from simple_agent.application.agent_factory import ToolContext
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.display_type import DisplayType
@@ -30,9 +30,9 @@ def run_session(
     todo_cleanup,
     user_input,
     agent_definition: AgentDefinition,
-    subagent_context: SubagentContext
+    tool_context: ToolContext
 ):
-    tools = app_context.tool_library_factory.create(agent_definition.tool_keys(), subagent_context)
+    tools = app_context.tool_library_factory.create(agent_definition.tool_keys(), tool_context)
     tools_documentation = generate_tools_documentation(tools.tools, app_context.agent_library.list_agent_types())
     system_prompt = agent_definition.prompt().render(tools_documentation)
 

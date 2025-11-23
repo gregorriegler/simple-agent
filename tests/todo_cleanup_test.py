@@ -12,7 +12,7 @@ from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEven
 from simple_agent.application.input import Input
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
-from simple_agent.application.agent_factory import SubagentContext
+from simple_agent.application.agent_factory import ToolContext
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from .fake_display import FakeDisplay
@@ -141,12 +141,12 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
         agent_library=agent_library,
         create_subagent_input=create_subagent_input
     )
-    subagent_context = SubagentContext(
-        create_agent,
-        create_subagent_input,
-        0,
-        AgentId("Agent"),
-        event_bus
+    agent_id = AgentId("Agent")
+    tool_context = ToolContext(
+        agent_id,
+        lambda agent_type, task_description: create_agent.spawn_subagent(
+            agent_id, agent_type, task_description, 0
+        )
     )
 
     run_session(
@@ -156,7 +156,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
         cleanup_adapter,
         user_input,
         create_test_agent_definition(),
-        subagent_context
+        tool_context
     )
 
 

@@ -17,7 +17,7 @@ from tests.user_input_stub import UserInputStub
 
 
 def create_all_tools_for_test():
-    from simple_agent.application.agent_factory import AgentFactory, SubagentContext
+    from simple_agent.application.agent_factory import AgentFactory, ToolContext
     from simple_agent.application.event_bus import SimpleEventBus
     from simple_agent.tools.all_tools import AllToolsFactory
 
@@ -47,15 +47,15 @@ def create_all_tools_for_test():
         create_subagent_input=create_subagent_input
     )
 
-    subagent_context = SubagentContext(
-        create_agent,
-        create_subagent_input,
-        0,
-        AgentId("Agent"),
-        event_bus
+    agent_id = AgentId("Agent")
+    tool_context = ToolContext(
+        agent_id,
+        lambda agent_type, task_description: create_agent.spawn_subagent(
+            agent_id, agent_type, task_description, 0
+        )
     )
 
-    return AllTools(subagent_context=subagent_context)
+    return AllTools(tool_context=tool_context)
 
 
 def create_temp_file(tmp_path, filename, contents):

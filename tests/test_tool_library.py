@@ -1,11 +1,10 @@
-from simple_agent.application.agent_factory import AgentFactory
+from simple_agent.application.agent_factory import AgentFactory, ToolContext
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.app_context import AppContext
 from simple_agent.application.event_bus import SimpleEventBus
 
 from simple_agent.application.input import Input
 from simple_agent.tools import AllTools
-from simple_agent.application.agent_factory import SubagentContext
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
@@ -20,7 +19,7 @@ class ToolLibraryStub(AllTools):
         io=None,
         interrupts=None,
         event_bus=None,
-        subagent_context: SubagentContext | None = None,
+        tool_context: ToolContext | None = None,
         tool_keys: list[str] | None = None
     ):
         actual_io = io if io else StdIO()
@@ -29,8 +28,8 @@ class ToolLibraryStub(AllTools):
 
         from simple_agent.application.session_storage import NoOpSessionStorage
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
-        actual_subagent_context = subagent_context
-        if actual_subagent_context is None:
+        actual_tool_context = tool_context
+        if actual_tool_context is None:
             tool_library_factory = AllToolsFactory()
             agent_library = BuiltinAgentLibrary()
             session_storage = NoOpSessionStorage()
@@ -51,15 +50,15 @@ class ToolLibraryStub(AllTools):
                 create_subagent_input=create_subagent_input
             )
 
-            actual_subagent_context = SubagentContext(
-                create_agent,
-                create_subagent_input,
-                1,
-                AgentId("Agent"),
-                actual_event_bus
+            agent_id = AgentId("Agent")
+            actual_tool_context = ToolContext(
+                agent_id,
+                lambda agent_type, task_description: create_agent.spawn_subagent(
+                    agent_id, agent_type, task_description, 1
+                )
             )
 
-        super().__init__(tool_keys=tool_keys, subagent_context=actual_subagent_context)
+        super().__init__(tool_keys=tool_keys, tool_context=actual_tool_context)
         self.interrupts = interrupts or []
         self.counter = 0
 
@@ -91,13 +90,13 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
     def create(
         self,
         tool_keys: list[str],
-        subagent_context: SubagentContext
+        tool_context: ToolContext
     ) -> AllTools:
         return ToolLibraryStub(
             self._llm,
             io=self._io,
             interrupts=self._interrupts,
             event_bus=self._event_bus,
-            subagent_context=subagent_context,
+            tool_context=tool_context,
             tool_keys=tool_keys
         )

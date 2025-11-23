@@ -1,6 +1,6 @@
 import re
 
-from simple_agent.application.agent_factory import SubagentContext
+from simple_agent.application.agent_factory import ToolContext
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from .bash_tool import BashTool
@@ -17,12 +17,12 @@ class AllTools(ToolLibrary):
     def __init__(
         self,
         tool_keys: list[str] = None,
-        subagent_context: SubagentContext | None = None
+        tool_context: ToolContext | None = None
     ):
         if tool_keys is None:
             self.tool_keys = []
         self.tool_keys = tool_keys
-        self.subagent_context = subagent_context
+        self.tool_context = tool_context
 
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
@@ -31,14 +31,14 @@ class AllTools(ToolLibrary):
 
     def _create_static_tools(self):
         tool_map = {
-            'write_todos': lambda: WriteTodosTool(self.subagent_context.agent_id.todo_filename()),
+            'write_todos': lambda: WriteTodosTool(self.tool_context.agent_id.todo_filename()),
             'ls': lambda: LsTool(),
             'cat': lambda: CatTool(),
             'create_file': lambda: CreateFileTool(),
             'edit_file': lambda: EditFileTool(),
             'complete_task': lambda: CompleteTaskTool(),
             'bash': lambda: BashTool(),
-            'subagent': lambda: SubagentTool(self.subagent_context.spawn_subagent)
+            'subagent': lambda: SubagentTool(self.tool_context.spawn_subagent)
         }
 
         if not self.tool_keys:
@@ -108,6 +108,6 @@ class AllToolsFactory(ToolLibraryFactory):
     def create(
         self,
         tool_keys: list[str],
-        subagent_context: SubagentContext
+        tool_context: ToolContext
     ) -> ToolLibrary:
-        return AllTools(tool_keys, subagent_context)
+        return AllTools(tool_keys, tool_context)
