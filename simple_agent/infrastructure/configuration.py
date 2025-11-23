@@ -33,6 +33,8 @@ def load_optional_user_configuration(cwd: str) -> Mapping[str, Any]:
 
 
 def get_starting_agent(config: Mapping[str, Any], args: SessionArgs | None = None) -> AgentType:
+    if args.stub_llm:
+        return AgentType(DEFAULT_STARTING_AGENT_TYPE)
     if args and args.agent:
         return AgentType(args.agent)
     return AgentType(_extract_starting_agent_type(config) or DEFAULT_STARTING_AGENT_TYPE)

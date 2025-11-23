@@ -41,7 +41,8 @@ def main():
     else:
         textual_user_input = TextualUserInput()
 
-    agents_path = extract_agents_path_from_config(user_config)
+
+    agents_path = None if args.stub_llm else extract_agents_path_from_config(user_config)
     agent_library = create_agent_library(agents_path, cwd)
     starting_agent_type = get_starting_agent(user_config, args)
     agent_definition = agent_library.read_agent_definition(starting_agent_type)
