@@ -78,7 +78,14 @@ def main():
         create_subagent_input=create_subagent_input,
     )
 
-    create_agent = AgentFactory(app_context)
+    create_agent = AgentFactory(
+        llm=llm,
+        event_bus=event_bus,
+        session_storage=session_storage,
+        tool_library_factory=tool_library_factory,
+        agent_library=agent_library,
+        create_subagent_input=create_subagent_input
+    )
 
     subagent_context = SubagentContext(
         create_agent,
@@ -111,15 +118,24 @@ def print_system_prompt_command(user_config, cwd, args):
     agents_path = user_config.agents_path()
     agent_library = create_agent_library(agents_path, cwd)
     create_subagent_input = lambda: Input(DummyUserInput())
+    llm = lambda messages: ''
+    session_storage = NoOpSessionStorage()
     app_context = AppContext(
-        llm=lambda messages: '',
+        llm=llm,
         event_bus=dummy_event_bus,
-        session_storage=NoOpSessionStorage(),
+        session_storage=session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
         create_subagent_input=create_subagent_input,
     )
-    create_agent = AgentFactory(app_context)
+    create_agent = AgentFactory(
+        llm=llm,
+        event_bus=dummy_event_bus,
+        session_storage=session_storage,
+        tool_library_factory=tool_library_factory,
+        agent_library=agent_library,
+        create_subagent_input=create_subagent_input
+    )
     prompt = agent_library.read_agent_definition(starting_agent_type).load_prompt()
     subagent_context = SubagentContext(
         create_agent,

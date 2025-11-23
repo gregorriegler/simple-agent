@@ -117,7 +117,14 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
         agent_library=agent_library,
         create_subagent_input=create_subagent_input
     )
-    create_agent = AgentFactory(app_context)
+    create_agent = AgentFactory(
+        llm=llm_stub,
+        event_bus=event_bus,
+        session_storage=test_session_storage,
+        tool_library_factory=tool_library_factory,
+        agent_library=agent_library,
+        create_subagent_input=create_subagent_input
+    )
     subagent_context = SubagentContext(
         create_agent,
         create_subagent_input,

@@ -33,15 +33,23 @@ class ToolLibraryStub(AllTools):
         if actual_subagent_context is None:
             tool_library_factory = AllToolsFactory()
             agent_library = BuiltinAgentLibrary()
+            session_storage = NoOpSessionStorage()
             app_context = AppContext(
                 llm=llm,
                 event_bus=actual_event_bus,
-                session_storage=NoOpSessionStorage(),
+                session_storage=session_storage,
                 tool_library_factory=tool_library_factory,
                 agent_library=agent_library,
                 create_subagent_input=create_subagent_input,
             )
-            create_agent = AgentFactory(app_context)
+            create_agent = AgentFactory(
+                llm=llm,
+                event_bus=actual_event_bus,
+                session_storage=session_storage,
+                tool_library_factory=tool_library_factory,
+                agent_library=agent_library,
+                create_subagent_input=create_subagent_input
+            )
 
             actual_subagent_context = SubagentContext(
                 create_agent,

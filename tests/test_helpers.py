@@ -28,17 +28,25 @@ def create_all_tools_for_test():
     from simple_agent.application.session_storage import NoOpSessionStorage
     event_bus = SimpleEventBus()
     llm = lambda messages: ''
+    session_storage = NoOpSessionStorage()
     tool_library_factory = AllToolsFactory()
     agent_library = BuiltinAgentLibrary()
     app_context = AppContext(
         llm=llm,
         event_bus=event_bus,
-        session_storage=NoOpSessionStorage(),
+        session_storage=session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
         create_subagent_input=create_subagent_input,
     )
-    create_agent = AgentFactory(app_context)
+    create_agent = AgentFactory(
+        llm=llm,
+        event_bus=event_bus,
+        session_storage=session_storage,
+        tool_library_factory=tool_library_factory,
+        agent_library=agent_library,
+        create_subagent_input=create_subagent_input
+    )
 
     subagent_context = SubagentContext(
         create_agent,
