@@ -41,17 +41,12 @@ def main():
     else:
         textual_user_input = TextualUserInput()
 
-
     agents_path = None if args.stub_llm else user_config.agents_path()
     agent_library = create_agent_library(agents_path, cwd)
     starting_agent_type = get_starting_agent(user_config, args)
     agent_definition = agent_library.read_agent_definition(starting_agent_type)
-    root_agent_id = AgentId("Agent")
-    textual_app = TextualApp.create_and_start(
-        textual_user_input,
-        root_agent_id=root_agent_id,
-        root_agent_title=agent_definition.agent_name()
-    )
+    root_agent_id = AgentId(agent_definition.agent_name())
+    textual_app = TextualApp.create_and_start(textual_user_input, root_agent_id)
 
     display = TextualDisplay(textual_app)
     display.create_agent_tab(root_agent_id, agent_definition.agent_name())

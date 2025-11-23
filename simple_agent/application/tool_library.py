@@ -33,7 +33,7 @@ class CompleteResult(ToolResult):
 
 
 class SpawnSubagent(Protocol):
-    """Minimal interface for spawning subagents - just what tools need to know"""
+
     def __call__(self, agent_type: "AgentType", task_description: str) -> ToolResult:
         ...
 

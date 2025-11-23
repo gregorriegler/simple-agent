@@ -27,8 +27,8 @@ from simple_agent.infrastructure.textual.resizable_container import ResizableHor
 
 class TextualApp(App):
     @staticmethod
-    def create_and_start(user_input=None, root_agent_id: AgentId = AgentId("Agent"), root_agent_title: str | None = None):
-        app = TextualApp(user_input, root_agent_id, root_agent_title)
+    def create_and_start(user_input=None, root_agent_id: AgentId = AgentId("Agent")):
+        app = TextualApp(user_input, root_agent_id)
         app._app_thread = threading.Thread(target=app.run, daemon=False)
         app._app_thread.start()
         time.sleep(0.5)
@@ -106,11 +106,10 @@ class TextualApp(App):
     }
     """
 
-    def __init__(self, user_input=None, root_agent_id: AgentId = AgentId("Agent"), root_agent_title: str | None = None):
+    def __init__(self, user_input=None, root_agent_id: AgentId = AgentId("Agent")):
         super().__init__()
         self.user_input = user_input
         self._root_agent_id = root_agent_id
-        self._root_agent_title = root_agent_title or str(root_agent_id)
         self._app_thread = None
         self._pending_tool_calls: dict[str, dict[str, tuple[str, TextArea, Collapsible]]] = {}
         self._tool_result_collapsibles: dict[str, list[Collapsible]] = {}
@@ -135,7 +134,7 @@ class TextualApp(App):
         tab_id, log_id, tool_results_id = self.panel_ids_for(self._root_agent_id)
         with Vertical():
             with TabbedContent(id="tabs"):
-                with TabPane(self._root_agent_title, id=tab_id):
+                with TabPane(self._root_agent_id.raw, id=tab_id):
                     yield self.create_agent_container(log_id, tool_results_id, self._root_agent_id)
             yield Input(placeholder="Enter your message...", id="user-input", valid_empty=True)
 
