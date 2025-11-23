@@ -2,6 +2,7 @@ import re
 
 from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
+from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from .bash_tool import BashTool
 from .cat_tool import CatTool
 from .complete_task_tool import CompleteTaskTool
@@ -101,3 +102,12 @@ class AllTools(ToolLibrary):
 
     def _discover_dynamic_tools(self):
         return []
+
+
+class AllToolsFactory(ToolLibraryFactory):
+    def create(
+        self,
+        tool_keys: list[str],
+        subagent_context: SubagentContext
+    ) -> ToolLibrary:
+        return AllTools(tool_keys, subagent_context)

@@ -15,7 +15,7 @@ from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
-from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
+from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.infrastructure.configuration import get_starting_agent, load_user_configuration
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.subscribe_events import subscribe_events

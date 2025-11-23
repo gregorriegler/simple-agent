@@ -7,7 +7,7 @@ from simple_agent.application.input import Input
 from simple_agent.tools import AllTools
 from simple_agent.application.subagent_context import SubagentContext
 from simple_agent.infrastructure.stdio import StdIO
-from simple_agent.infrastructure.all_tools_factory import AllToolsFactory
+from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from tests.user_input_stub import UserInputStub
