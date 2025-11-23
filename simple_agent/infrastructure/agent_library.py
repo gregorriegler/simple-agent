@@ -92,8 +92,8 @@ class BuiltinAgentLibrary:
 
 def build_runtime_agent_definitions() -> AgentLibrary:
     cwd = os.getcwd()
-    config = load_user_configuration(cwd=cwd)
-    agents_path = extract_agents_path_from_config(config)
+    user_config = load_user_configuration(cwd=cwd)
+    agents_path = user_config.agents_path()
     return create_agent_library(agents_path, cwd)
 
 
@@ -104,15 +104,6 @@ def create_agent_library(agents_path: str | None, cwd: str) -> AgentLibrary:
             return filesystem_definitions
 
     return BuiltinAgentLibrary()
-
-
-def extract_agents_path_from_config(config: Mapping[str, Any]) -> str | None:
-    agents_section = config.get("agents")
-    if isinstance(agents_section, Mapping):
-        value = agents_section.get("path")
-        if value:
-            return str(value)
-    return None
 
 
 def _candidate_directories(agents_path: str | None, cwd: str) -> list[str]:

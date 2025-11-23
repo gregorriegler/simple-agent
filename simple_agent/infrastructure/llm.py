@@ -1,11 +1,11 @@
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
-from simple_agent.infrastructure.model_config import ModelConfig
+from simple_agent.infrastructure.user_configuration import UserConfiguration
 from simple_agent.infrastructure.openai import OpenAILLM
 
 
-def create_llm(stub_llm, user_config):
-    model_config = ModelConfig(user_config)
+def create_llm(stub_llm, user_config: UserConfiguration):
+    model_config = user_config.model_config()
     if stub_llm:
         return create_llm_stub(
             [

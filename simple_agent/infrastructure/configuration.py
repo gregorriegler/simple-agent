@@ -5,11 +5,10 @@ from typing import Any, Mapping, Tuple
 
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.session import SessionArgs
+from simple_agent.infrastructure.user_configuration import UserConfiguration, DEFAULT_STARTING_AGENT_TYPE
 
-DEFAULT_STARTING_AGENT_TYPE = "orchestrator"
 
-
-def load_user_configuration(cwd: str) -> Mapping[str, Any]:
+def load_user_configuration(cwd: str) -> UserConfiguration:
     config, found = _load_configuration_sources(cwd=cwd)
 
     if not found:
@@ -24,20 +23,20 @@ def load_user_configuration(cwd: str) -> Mapping[str, Any]:
         )
         sys.exit(1)
 
-    return config
+    return UserConfiguration(config)
 
 
-def load_optional_user_configuration(cwd: str) -> Mapping[str, Any]:
+def load_optional_user_configuration(cwd: str) -> UserConfiguration:
     config, _ = _load_configuration_sources(cwd=cwd)
-    return config
+    return UserConfiguration(config)
 
 
-def get_starting_agent(config: Mapping[str, Any], args: SessionArgs | None = None) -> AgentType:
-    if args.stub_llm:
+def get_starting_agent(user_config: UserConfiguration, args: SessionArgs | None = None) -> AgentType:
+    if args and args.stub_llm:
         return AgentType(DEFAULT_STARTING_AGENT_TYPE)
     if args and args.agent:
         return AgentType(args.agent)
-    return AgentType(_extract_starting_agent_type(config) or DEFAULT_STARTING_AGENT_TYPE)
+    return user_config.starting_agent_type()
 
 
 def _read_config(path: str) -> Mapping[str, Any]:
@@ -80,16 +79,3 @@ def _merge_dicts(base: Mapping[str, Any], override: Mapping[str, Any]) -> dict[s
         else:
             result[key] = value
     return result
-
-
-def _extract_starting_agent_type(config: Mapping[str, Any]) -> str | None:
-    agents_section = config.get("agents")
-    if isinstance(agents_section, Mapping):
-        for key in ("starting_agent", "start"):
-            value = agents_section.get(key)
-            if value is None:
-                continue
-            normalized = str(value).strip()
-            if normalized:
-                return normalized
-    return None
