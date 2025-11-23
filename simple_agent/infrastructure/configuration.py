@@ -5,7 +5,7 @@ from typing import Any, Mapping, Tuple
 
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.session import SessionArgs
-from simple_agent.infrastructure.user_configuration import UserConfiguration, DEFAULT_STARTING_AGENT_TYPE
+from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 
 def load_user_configuration(cwd: str) -> UserConfiguration:
@@ -33,7 +33,7 @@ def load_optional_user_configuration(cwd: str) -> UserConfiguration:
 
 def get_starting_agent(user_config: UserConfiguration, args: SessionArgs | None = None) -> AgentType:
     if args and args.stub_llm:
-        return AgentType(DEFAULT_STARTING_AGENT_TYPE)
+        return UserConfiguration.default_starting_agent_type()
     if args and args.agent:
         return AgentType(args.agent)
     return user_config.starting_agent_type()

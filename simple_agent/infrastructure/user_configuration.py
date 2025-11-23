@@ -27,6 +27,10 @@ class UserConfiguration:
                 normalized = str(value).strip()
                 if normalized:
                     return AgentType(normalized)
+        return self.default_starting_agent_type()
+
+    @staticmethod
+    def default_starting_agent_type():
         return AgentType(DEFAULT_STARTING_AGENT_TYPE)
 
     def model_config(self) -> ModelConfig:
