@@ -22,10 +22,8 @@ class UserConfiguration:
     def starting_agent_type(self) -> AgentType:
         agents_section = self._config.get("agents")
         if isinstance(agents_section, Mapping):
-            for key in ("starting_agent", "start"):
-                value = agents_section.get(key)
-                if value is None:
-                    continue
+            value = agents_section.get("start")
+            if value is not None:
                 normalized = str(value).strip()
                 if normalized:
                     return AgentType(normalized)
