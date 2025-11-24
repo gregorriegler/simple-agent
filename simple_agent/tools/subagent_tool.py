@@ -11,7 +11,7 @@ class SubagentTool(BaseTool):
             "name": "agenttype",
             "type": "string",
             "required": True,
-            "description": "Type of agent to create {{AGENT_TYPES}}. The agenttype is expected to be on the same line as the toolcall"
+            "description": "Type of agent to create. {{AGENT_TYPES}}"
         },
         {
             "name": "task_description",
@@ -49,3 +49,10 @@ class SubagentTool(BaseTool):
             return ContinueResult(str(result), success=result.success)
         except Exception as e:
             return ContinueResult(f'STDERR: subagent error: {str(e)}', success=False)
+
+    def finalize_documentation(self, doc: str, context: dict) -> str:
+        agent_types = context.get('agent_types', [])
+        if not agent_types:
+            return doc
+        types_str = ', '.join(f"'{t}'" for t in agent_types)
+        return doc.replace('{{AGENT_TYPES}}', f"Available types: {types_str}")

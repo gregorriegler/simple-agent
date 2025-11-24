@@ -52,6 +52,9 @@ class BaseTool(Tool):
 
         return self._generate_usage_info_from_metadata()
 
+    def finalize_documentation(self, doc: str, context: dict) -> str:
+        return doc
+
     def _generate_usage_info_from_metadata(self):
         lines = [f"Tool: {self.name}"]
 
