@@ -1,8 +1,7 @@
 import re
 
-from simple_agent.application.agent_factory import ToolContext
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
-from simple_agent.application.tool_library_factory import ToolLibraryFactory
+from simple_agent.application.tool_library_factory import ToolLibraryFactory, ToolContext
 from .bash_tool import BashTool
 from .cat_tool import CatTool
 from .complete_task_tool import CompleteTaskTool

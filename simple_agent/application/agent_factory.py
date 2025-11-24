@@ -10,15 +10,7 @@ from simple_agent.application.input import Input
 from simple_agent.application.llm import LLM, Messages
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.tool_documentation import generate_tools_documentation
-from simple_agent.application.tool_library_factory import ToolLibraryFactory
-
-
-class ToolContext:
-
-    def __init__(self, tool_keys: list[str], agent_id: AgentId, spawn_subagent):
-        self.tool_keys = tool_keys
-        self.agent_id = agent_id
-        self.spawn_subagent = spawn_subagent
+from simple_agent.application.tool_library_factory import ToolLibraryFactory, ToolContext
 
 
 class AgentFactory:
