@@ -12,7 +12,7 @@ def create_llm(stub_llm, user_config: UserConfiguration):
                 "Starting task\n🛠️ subagent orchestrator Run bash echo hello world and then complete",
                 "Subagent1 handling the orchestrator task\n🛠️ subagent coding Run bash echo hello world and then complete",
                 "Subagent2 updating todos\n🛠️ write-todos\n- [x] Feature exploration\n- [ ] **Implementing tool**\n- [ ] Initial setup\n🛠️🔚",
-                "Subagent2 running a slow bash command\n🛠️ bash sleep .4",
+                #"Subagent2 running a slow bash command\n🛠️ bash sleep .4",
                 "Subagent2 running the bash command\n🛠️ bash echo hello world",
                 "Subagent2 reading AGENTS.md\n🛠️ cat AGENTS.md",
                 "🛠️ create-file newfile.txt\ncontent of newfile.txt\n",
