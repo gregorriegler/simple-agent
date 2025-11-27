@@ -76,9 +76,9 @@ class BuiltinAgentLibrary:
 
     def _discover_agent_types(self) -> list[str]:
         try:
-            package_contents = resources.contents(self.package)
+            package_contents = [item.name for item in resources.files(self.package).iterdir()]
             names = [name for name in package_contents if name.endswith('.agent.md')]
-        except (FileNotFoundError, ModuleNotFoundError):
+        except (FileNotFoundError, ModuleNotFoundError, TypeError):
             names = []
 
         if names:

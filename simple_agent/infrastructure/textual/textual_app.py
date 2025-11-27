@@ -1,13 +1,17 @@
+import logging
 import os
 import signal
 import threading
 import time
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
+
 from rich.syntax import Syntax
 from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, VerticalScroll
+from textual.css.query import NoMatches
 from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible, Markdown
 
 from simple_agent.application.agent_id import AgentId
@@ -34,14 +38,50 @@ class TextualApp(App):
         time.sleep(0.5)
         return app
 
+    @staticmethod
+    def create_and_start_test(user_input=None, root_agent_id: AgentId = AgentId("Agent")):
+        """Start the app in test mode using Textual's run_test() for headless testing."""
+        import asyncio
+        import io
+        import sys
+
+        app = TextualApp(user_input, root_agent_id)
+        app._test_ready = threading.Event()
+        app._test_shutdown = threading.Event()
+
+        async def run_test_wrapper():
+            async with app.run_test() as pilot:
+                # On Windows, Textual's headless mode tries to write to _original_stdout/_original_stderr
+                # which may have invalid handles. Replace them with valid streams.
+                if sys.platform == "win32":
+                    app._original_stdout = io.StringIO()
+                    app._original_stderr = io.StringIO()
+                app._pilot = pilot
+                await pilot.pause()  # Wait for app to fully mount
+                app._test_ready.set()
+                while not app._test_shutdown.is_set():
+                    await asyncio.sleep(0.1)
+
+        def thread_target():
+            asyncio.run(run_test_wrapper())
+
+        app._app_thread = threading.Thread(target=thread_target, daemon=False)
+        app._app_thread.start()
+        app._test_ready.wait()
+        return app
+
     def shutdown(self):
-        if self.is_running:
+        if hasattr(self, '_test_shutdown'):
+            self._test_shutdown.set()
+            if self._app_thread and self._app_thread.is_alive():
+                self._app_thread.join(timeout=2.0)
+        elif self.is_running:
             self.call_from_thread(self.exit)
-        if self._app_thread and self._app_thread.is_alive():
-            self._app_thread.join(timeout=2.0)
-            if self._app_thread.is_alive():
-                import sys
-                print("Warning: TextualApp thread did not exit cleanly", file=sys.stderr)
+            if self._app_thread and self._app_thread.is_alive():
+                self._app_thread.join(timeout=2.0)
+                if self._app_thread.is_alive():
+                    import sys
+                    print("Warning: TextualApp thread did not exit cleanly", file=sys.stderr)
     BINDINGS = [
         ("alt+left", "previous_tab", "Previous Tab"),
         ("alt+right", "next_tab", "Next Tab"),
@@ -205,11 +245,14 @@ class TextualApp(App):
         event.input.value = ""
 
     def write_message(self, log_id: str, message: str) -> None:
-        container = self.query_one(f"#{log_id}", Static)
-        current = str(container.render())
-        new_content = f"{current}\n{message}" if current else message
-        container.update(new_content)
-        self.query_one(f"#{log_id}-scroll", VerticalScroll).scroll_end(animate=False)
+        try:
+            container = self.query_one(f"#{log_id}", Static)
+            current = str(container.render())
+            new_content = f"{current}\n{message}" if current else message
+            container.update(new_content)
+            self.query_one(f"#{log_id}-scroll", VerticalScroll).scroll_end(animate=False)
+        except NoMatches:
+            logger.warning("Could not find log container #%s", log_id)
 
     def write_tool_call(self, tool_results_id: str, call_id: str, message: str) -> None:
         pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})

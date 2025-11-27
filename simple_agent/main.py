@@ -18,6 +18,7 @@ from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.infrastructure.configuration import get_starting_agent, load_user_configuration
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.subscribe_events import subscribe_events
+from simple_agent.application.events import UserPromptRequestedEvent
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.infrastructure.llm import create_llm
@@ -27,8 +28,10 @@ from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
 
 
-def main():
+def main(on_user_prompt_requested=None):
     args = parse_args()
+    if on_user_prompt_requested:
+        args.on_user_prompt_requested = on_user_prompt_requested
     cwd = os.getcwd()
     user_config = load_user_configuration(cwd)
 
@@ -46,7 +49,10 @@ def main():
     agent_definition = agent_library.read_agent_definition(starting_agent_type)
     root_agent_id = AgentId(agent_definition.agent_name())
 
-    textual_app = TextualApp.create_and_start(textual_user_input, root_agent_id)
+    if args.test_mode:
+        textual_app = TextualApp.create_and_start_test(textual_user_input, root_agent_id)
+    else:
+        textual_app = TextualApp.create_and_start(textual_user_input, root_agent_id)
     display = TextualDisplay(textual_app)
     display.create_agent_tab(root_agent_id, agent_definition.agent_name())
 
@@ -61,6 +67,11 @@ def main():
 
     event_bus = SimpleEventBus()
     subscribe_events(event_bus, event_logger, todo_cleanup, display)
+
+    if args.on_user_prompt_requested:
+        def on_prompt_wrapper(_):
+            args.on_user_prompt_requested(textual_app)
+        event_bus.subscribe(UserPromptRequestedEvent, on_prompt_wrapper)
 
     tool_library_factory = AllToolsFactory()
 
@@ -96,8 +107,10 @@ def main():
         agent_definition
     )
 
-    textual_app.shutdown()
+    if args.test_mode:
+        return textual_app
 
+    textual_app.shutdown()
     return None
 
 
@@ -150,6 +163,7 @@ def parse_args(argv=None) -> SessionArgs:
         help="Run in non-interactive mode (no user input prompts)"
     )
     parser.add_argument("--stub", action="store_true", help="Use LLM stub for testing")
+    parser.add_argument("--test", action="store_true", help="Run in test mode using Textual's run_test()")
     parser.add_argument("message", nargs="*", help="Message to send to the agent")
     parsed = parser.parse_args(argv)
     return SessionArgs(
@@ -160,6 +174,7 @@ def parse_args(argv=None) -> SessionArgs:
         bool(getattr(parsed, "stub")),
         bool(getattr(parsed, "non_interactive")),
         getattr(parsed, "agent"),
+        bool(getattr(parsed, "test")),
     )
 
 

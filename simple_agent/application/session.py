@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Callable, Any
 
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_definition import AgentDefinition
@@ -20,6 +21,8 @@ class SessionArgs:
     stub_llm: bool = False
     non_interactive: bool = False
     agent: str | None = None
+    test_mode: bool = False
+    on_user_prompt_requested: Callable[[Any], None] | None = None
 
 
 
