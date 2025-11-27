@@ -8,7 +8,6 @@ from rich.console import Console
 
 from simple_agent.main import main
 
-@pytest.mark.skip(reason="no way of currently testing this")
 def test_golden_master_agent_stub(monkeypatch):
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     os.chdir(project_root)
@@ -26,8 +25,8 @@ def test_golden_master_agent_stub(monkeypatch):
     def unblock_agent(app):
         # Capture screen from Textual's thread context
         async def do_capture():
-            # Wait for UI to stabilize
-            await app._pilot.pause()
+            for _ in range(5):
+                await app._pilot.pause()
             console = Console(record=True, width=80, force_terminal=False)
             console.print(app.screen._compositor)
             captured.append(console.export_text())
@@ -42,4 +41,4 @@ def test_golden_master_agent_stub(monkeypatch):
 
     app.shutdown()
 
-    verify(captured[0])
+    verify(captured[0].replace("▃", "").replace("╸", ""))
