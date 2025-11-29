@@ -1,5 +1,6 @@
 import re
 
+from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
 from simple_agent.application.tool_library_factory import ToolLibraryFactory, ToolContext
 from .bash_tool import BashTool
@@ -15,9 +16,11 @@ from .write_todos_tool import WriteTodosTool
 class AllTools(ToolLibrary):
     def __init__(
         self,
-        tool_context: ToolContext
+        tool_context: ToolContext,
+        spawner: SubagentSpawner
     ):
         self.tool_context = tool_context
+        self._spawner = spawner
         self.tool_keys = tool_context.tool_keys if tool_context.tool_keys else []
 
         static_tools = self._create_static_tools()
@@ -34,7 +37,7 @@ class AllTools(ToolLibrary):
             'edit_file': lambda: EditFileTool(),
             'complete_task': lambda: CompleteTaskTool(),
             'bash': lambda: BashTool(),
-            'subagent': lambda: SubagentTool(self.tool_context.spawn_subagent)
+            'subagent': lambda: SubagentTool(self._spawner)
         }
 
         if not self.tool_keys:
@@ -103,6 +106,7 @@ class AllTools(ToolLibrary):
 class AllToolsFactory(ToolLibraryFactory):
     def create(
         self,
-        tool_context: ToolContext
+        tool_context: ToolContext,
+        spawner: SubagentSpawner
     ) -> ToolLibrary:
-        return AllTools(tool_context)
+        return AllTools(tool_context, spawner)

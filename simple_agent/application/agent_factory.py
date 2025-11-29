@@ -54,13 +54,13 @@ class AgentFactory:
 
         tool_context = ToolContext(
             agent_prompt.tool_keys,
-            agent_id,
-            lambda agent_type, task_description: self.spawn_subagent(
-                agent_id, agent_type, task_description, indent_level + 1
-            )
+            agent_id
+        )
+        spawner = lambda agent_type, task_description: self.spawn_subagent(
+            agent_id, agent_type, task_description, indent_level + 1
         )
 
-        subagent_tools = self._tool_library_factory.create(tool_context)
+        subagent_tools = self._tool_library_factory.create(tool_context, spawner)
         tools_documentation = generate_tools_documentation(subagent_tools.tools, self._agent_library.list_agent_types())
         system_prompt = agent_prompt.render(tools_documentation)
 
@@ -86,12 +86,12 @@ class AgentFactory:
     ) -> Agent:
         tool_context = ToolContext(
             agent_definition.tool_keys(),
-            agent_id,
-            lambda agent_type, task_description: self.spawn_subagent(
-                agent_id, agent_type, task_description, 0
-            )
+            agent_id
         )
-        tools = self._tool_library_factory.create(tool_context)
+        spawner = lambda agent_type, task_description: self.spawn_subagent(
+            agent_id, agent_type, task_description, 0
+        )
+        tools = self._tool_library_factory.create(tool_context, spawner)
         tools_documentation = generate_tools_documentation(
             tools.tools, self._agent_library.list_agent_types()
         )

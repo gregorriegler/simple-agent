@@ -20,6 +20,7 @@ class ToolLibraryStub(AllTools):
         interrupts=None,
         event_bus=None,
         tool_context: ToolContext | None = None,
+        spawner=None,
         tool_keys: list[str] | None = None
     ):
         actual_io = io if io else StdIO()
@@ -29,6 +30,7 @@ class ToolLibraryStub(AllTools):
         from simple_agent.application.session_storage import NoOpSessionStorage
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
         actual_tool_context = tool_context
+        actual_spawner = spawner
         if actual_tool_context is None:
             tool_library_factory = AllToolsFactory()
             agent_library = BuiltinAgentLibrary()
@@ -45,13 +47,13 @@ class ToolLibraryStub(AllTools):
             agent_id = AgentId("Agent")
             actual_tool_context = ToolContext(
                 tool_keys or [],
-                agent_id,
-                lambda agent_type, task_description: agent_factory.spawn_subagent(
-                    agent_id, agent_type, task_description, 1
-                )
+                agent_id
+            )
+            actual_spawner = lambda agent_type, task_description: agent_factory.spawn_subagent(
+                agent_id, agent_type, task_description, 1
             )
 
-        super().__init__(tool_context=actual_tool_context)
+        super().__init__(tool_context=actual_tool_context, spawner=actual_spawner)
         self.interrupts = interrupts or []
         self.counter = 0
 
@@ -82,12 +84,14 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
 
     def create(
         self,
-        tool_context: ToolContext
+        tool_context: ToolContext,
+        spawner=None
     ) -> AllTools:
         return ToolLibraryStub(
             self._llm,
             io=self._io,
             interrupts=self._interrupts,
             event_bus=self._event_bus,
-            tool_context=tool_context
+            tool_context=tool_context,
+            spawner=spawner
         )

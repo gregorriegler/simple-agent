@@ -48,7 +48,7 @@ def test_golden_master_agent_stub(monkeypatch):
 
     def unblock_agent(app):
         async def do_capture():
-            for _ in range(10):
+            for _ in range(30):
                 await app._pilot.pause()
             console = Console(record=True, width=80, force_terminal=False)
             console.print(app.screen._compositor)

@@ -1,8 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol, List, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from simple_agent.application.agent_type import AgentType
+from typing import Protocol, List
 
 
 @dataclass
@@ -30,12 +27,6 @@ class ContinueResult(ToolResult):
 class CompleteResult(ToolResult):
     def do_continue(self) -> bool:
         return False
-
-
-class SpawnSubagent(Protocol):
-
-    def __call__(self, agent_type: "AgentType", task_description: str) -> ToolResult:
-        ...
 
 
 class ParsedTool:
