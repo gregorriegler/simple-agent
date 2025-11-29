@@ -5,7 +5,6 @@ from simple_agent.infrastructure.openai import OpenAILLM
 
 
 def create_llm(stub_llm, user_config: UserConfiguration):
-    model_config = user_config.model_config()
     if stub_llm:
         return create_llm_stub(
             [
@@ -24,6 +23,7 @@ def create_llm(stub_llm, user_config: UserConfiguration):
             ]
         )
 
+    model_config = user_config.model_config()
     if model_config.adapter == "openai":
         return OpenAILLM(model_config)
 

@@ -11,7 +11,6 @@ from simple_agent.main import main
 
 
 def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.68):
-    """Verify that actual output matches approved file within a similarity threshold."""
     if not approved_path.exists():
         approved_path.parent.mkdir(parents=True, exist_ok=True)
         approved_path.write_text(actual, encoding="utf-8")
@@ -48,7 +47,6 @@ def test_golden_master_agent_stub(monkeypatch):
     capture_done = threading.Event()
 
     def unblock_agent(app):
-        # Capture screen from Textual's thread context
         async def do_capture():
             for _ in range(10):
                 await app._pilot.pause()
@@ -57,7 +55,6 @@ def test_golden_master_agent_stub(monkeypatch):
             captured.append(console.export_text())
             capture_done.set()
 
-        # Schedule capture on Textual's thread, then unblock
         app.call_from_thread(do_capture)
         capture_done.wait(timeout=5.0)
         app.user_input.submit_input("")

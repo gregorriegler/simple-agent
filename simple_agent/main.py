@@ -15,7 +15,7 @@ from simple_agent.application.tool_documentation import generate_tools_documenta
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.tools.all_tools import AllToolsFactory
-from simple_agent.infrastructure.configuration import get_starting_agent, load_user_configuration
+from simple_agent.infrastructure.configuration import get_starting_agent, load_user_configuration, stub_user_config
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.application.events import UserPromptRequestedEvent
@@ -33,7 +33,10 @@ def main(on_user_prompt_requested=None):
     if on_user_prompt_requested:
         args.on_user_prompt_requested = on_user_prompt_requested
     cwd = os.getcwd()
-    user_config = load_user_configuration(cwd)
+    if args.stub_llm:
+        user_config = stub_user_config()
+    else:
+        user_config = load_user_configuration(cwd)
 
     if args.show_system_prompt:
         return print_system_prompt_command(user_config, cwd, args)

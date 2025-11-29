@@ -31,6 +31,10 @@ def load_optional_user_configuration(cwd: str) -> UserConfiguration:
     return UserConfiguration(config)
 
 
+def stub_user_config() -> UserConfiguration:
+    return UserConfiguration({})
+
+
 def get_starting_agent(user_config: UserConfiguration, args: SessionArgs | None = None) -> AgentType:
     if args and args.stub_llm:
         return UserConfiguration.default_starting_agent_type()
