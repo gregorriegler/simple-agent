@@ -69,6 +69,38 @@ class AgentFactory:
             context
         )
 
+    def create_root_agent(
+        self,
+        agent_id: AgentId,
+        agent_definition,
+        user_input: Input,
+        persisted_messages
+    ) -> Agent:
+        tool_context = ToolContext(
+            agent_definition.tool_keys(),
+            agent_id,
+            lambda agent_type, task_description: self.spawn_subagent(
+                agent_id, agent_type, task_description, 0
+            )
+        )
+        tools = self._tool_library_factory.create(tool_context)
+        tools_documentation = generate_tools_documentation(
+            tools.tools, self._agent_library.list_agent_types()
+        )
+        system_prompt = agent_definition.prompt().render(tools_documentation)
+        persisted_messages.seed_system_prompt(system_prompt)
+
+        return Agent(
+            agent_id,
+            agent_definition.agent_name(),
+            tools,
+            self._llm,
+            user_input,
+            self._event_bus,
+            self._session_storage,
+            persisted_messages
+        )
+
     def spawn_subagent(
         self,
         parent_agent_id: AgentId,
