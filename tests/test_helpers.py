@@ -5,8 +5,6 @@ from approvaltests import Options, verify
 from approvaltests.scrubbers.scrubbers import create_regex_scrubber, combine_scrubbers
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.app_context import AppContext
-
 from simple_agent.application.input import Input
 from simple_agent.application.session import SessionArgs
 from simple_agent.application.system_prompt import AgentPrompt
@@ -30,7 +28,7 @@ def create_all_tools_for_test():
     session_storage = NoOpSessionStorage()
     tool_library_factory = AllToolsFactory()
     agent_library = BuiltinAgentLibrary()
-    create_agent = AgentFactory(
+    agent_factory = AgentFactory(
         llm=llm,
         event_bus=event_bus,
         session_storage=session_storage,
@@ -38,21 +36,12 @@ def create_all_tools_for_test():
         agent_library=agent_library,
         create_subagent_input=create_subagent_input
     )
-    app_context = AppContext(
-        llm=llm,
-        event_bus=event_bus,
-        session_storage=session_storage,
-        tool_library_factory=tool_library_factory,
-        agent_library=agent_library,
-        create_subagent_input=create_subagent_input,
-        agent_factory=create_agent
-    )
 
     agent_id = AgentId("Agent")
     tool_context = ToolContext(
         [],
         agent_id,
-        lambda agent_type, task_description: create_agent.spawn_subagent(
+        lambda agent_type, task_description: agent_factory.spawn_subagent(
             agent_id, agent_type, task_description, 0
         )
     )

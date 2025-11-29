@@ -1,7 +1,7 @@
-from simple_agent.application.agent_factory import AgentFactory, ToolContext
+from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.app_context import AppContext
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.tool_library_factory import ToolContext
 
 from simple_agent.application.input import Input
 from simple_agent.tools import AllTools
@@ -33,7 +33,7 @@ class ToolLibraryStub(AllTools):
             tool_library_factory = AllToolsFactory()
             agent_library = BuiltinAgentLibrary()
             session_storage = NoOpSessionStorage()
-            create_agent = AgentFactory(
+            agent_factory = AgentFactory(
                 llm=llm,
                 event_bus=actual_event_bus,
                 session_storage=session_storage,
@@ -41,21 +41,12 @@ class ToolLibraryStub(AllTools):
                 agent_library=agent_library,
                 create_subagent_input=create_subagent_input
             )
-            app_context = AppContext(
-                llm=llm,
-                event_bus=actual_event_bus,
-                session_storage=session_storage,
-                tool_library_factory=tool_library_factory,
-                agent_library=agent_library,
-                create_subagent_input=create_subagent_input,
-                agent_factory=create_agent
-            )
 
             agent_id = AgentId("Agent")
             actual_tool_context = ToolContext(
                 tool_keys or [],
                 agent_id,
-                lambda agent_type, task_description: create_agent.spawn_subagent(
+                lambda agent_type, task_description: agent_factory.spawn_subagent(
                     agent_id, agent_type, task_description, 1
                 )
             )

@@ -5,7 +5,6 @@ import os
 
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.app_context import AppContext
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
@@ -82,7 +81,7 @@ def main(on_user_prompt_requested=None):
 
     llm = create_llm(args.stub_llm, user_config)
 
-    create_agent = AgentFactory(
+    agent_factory = AgentFactory(
         llm=llm,
         event_bus=event_bus,
         session_storage=session_storage,
@@ -91,19 +90,9 @@ def main(on_user_prompt_requested=None):
         create_subagent_input=create_subagent_input
     )
 
-    app_context = AppContext(
-        llm=llm,
-        event_bus=event_bus,
-        session_storage=session_storage,
-        tool_library_factory=tool_library_factory,
-        agent_library=agent_library,
-        create_subagent_input=create_subagent_input,
-        agent_factory=create_agent
-    )
-
     run_session(
         args,
-        app_context,
+        agent_factory,
         root_agent_id,
         todo_cleanup,
         user_input,

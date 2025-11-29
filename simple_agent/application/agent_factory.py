@@ -31,6 +31,14 @@ class AgentFactory:
         self._create_subagent_input = create_subagent_input
         self._agent_suffixer = AgentIdSuffixer()
 
+    @property
+    def event_bus(self) -> EventBus:
+        return self._event_bus
+
+    @property
+    def session_storage(self) -> SessionStorage:
+        return self._session_storage
+
     def __call__(
         self,
         agent_type: AgentType,

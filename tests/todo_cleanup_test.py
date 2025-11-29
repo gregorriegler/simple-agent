@@ -5,7 +5,6 @@ from approvaltests import verify, Options
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.app_context import AppContext
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEvent
 
@@ -124,7 +123,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
         event_bus=event_bus,
         all_displays=display
     )
-    create_agent = AgentFactory(
+    agent_factory = AgentFactory(
         llm=llm,
         event_bus=event_bus,
         session_storage=test_session_storage,
@@ -132,20 +131,11 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
         agent_library=agent_library,
         create_subagent_input=create_subagent_input
     )
-    app_context = AppContext(
-        llm=llm,
-        event_bus=event_bus,
-        session_storage=test_session_storage,
-        tool_library_factory=tool_library_factory,
-        agent_library=agent_library,
-        create_subagent_input=create_subagent_input,
-        agent_factory=create_agent
-    )
     agent_id = AgentId("Agent")
 
     run_session(
         create_session_args(continue_session),
-        app_context,
+        agent_factory,
         agent_id,
         cleanup_adapter,
         user_input,
