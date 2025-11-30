@@ -3,12 +3,11 @@ from pathlib import Path
 from approvaltests import verify, Options
 
 from simple_agent.application.agent_definition import AgentDefinition
-from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEvent
 from simple_agent.application.llm_stub import create_llm_stub
-from simple_agent.application.session import run_session
+from simple_agent.application.session import Session
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from .fake_display import FakeDisplay
@@ -118,21 +117,20 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
         event_bus=event_bus,
         all_displays=display
     )
-    agent_factory = AgentFactory(
+    session = Session(
         llm=llm,
         event_bus=event_bus,
         session_storage=test_session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        user_input=user_input_port
+        user_input=user_input_port,
+        todo_cleanup=cleanup_adapter
     )
     agent_id = AgentId("Agent")
 
-    run_session(
+    session.run(
         create_session_args(continue_session, start_message="test message"),
-        agent_factory,
         agent_id,
-        cleanup_adapter,
         create_test_agent_definition()
     )
 

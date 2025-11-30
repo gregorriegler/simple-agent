@@ -1,14 +1,19 @@
 from dataclasses import dataclass
-from typing import Callable, Any, TYPE_CHECKING
+from typing import Callable, Any
 
 from simple_agent.application.agent_definition import AgentDefinition
+from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.display_type import DisplayType
+from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.events import SessionStartedEvent
+from simple_agent.application.llm import LLM
 from simple_agent.application.persisted_messages import PersistedMessages
-
-if TYPE_CHECKING:
-    from simple_agent.application.agent_factory import AgentFactory
+from simple_agent.application.session_storage import SessionStorage
+from simple_agent.application.todo_cleanup import TodoCleanup
+from simple_agent.application.tool_library_factory import ToolLibraryFactory
+from simple_agent.application.user_input import UserInput
 
 
 @dataclass
@@ -24,32 +29,58 @@ class SessionArgs:
     on_user_prompt_requested: Callable[[Any], None] | None = None
 
 
+class Session:
+    def __init__(
+        self,
+        llm: LLM,
+        event_bus: EventBus,
+        session_storage: SessionStorage,
+        tool_library_factory: ToolLibraryFactory,
+        agent_library: AgentLibrary,
+        user_input: UserInput,
+        todo_cleanup: TodoCleanup,
+    ):
+        self._llm = llm
+        self._event_bus = event_bus
+        self._session_storage = session_storage
+        self._tool_library_factory = tool_library_factory
+        self._agent_library = agent_library
+        self._user_input = user_input
+        self._todo_cleanup = todo_cleanup
 
-def run_session(
-    args: SessionArgs,
-    agent_factory: 'AgentFactory',
-    starting_agent_id: AgentId,
-    todo_cleanup,
-    agent_definition: AgentDefinition
-):
-    if not args.continue_session:
-        todo_cleanup.cleanup_all_todos()
-
-    agent_factory.event_bus.publish(SessionStartedEvent(starting_agent_id, args.continue_session))
-
-    if args.continue_session:
-        persisted_messages = PersistedMessages(
-            agent_factory.session_storage,
-            agent_factory.session_storage.load().to_list(),
+    def run(
+        self,
+        args: SessionArgs,
+        starting_agent_id: AgentId,
+        agent_definition: AgentDefinition
+    ):
+        agent_factory = AgentFactory(
+            self._llm,
+            self._event_bus,
+            self._session_storage,
+            self._tool_library_factory,
+            self._agent_library,
+            self._user_input
         )
-    else:
-        persisted_messages = PersistedMessages(agent_factory.session_storage)
 
-    agent = agent_factory.create_agent(
-        starting_agent_id,
-        agent_definition,
-        args.start_message,
-        persisted_messages
-    )
+        if not args.continue_session:
+            self._todo_cleanup.cleanup_all_todos()
 
-    agent.start()
+        self._event_bus.publish(SessionStartedEvent(starting_agent_id, args.continue_session))
+
+        if args.continue_session:
+            persisted_messages = PersistedMessages(
+                self._session_storage,
+                self._session_storage.load().to_list(),
+            )
+        else:
+            persisted_messages = PersistedMessages(self._session_storage)
+
+        agent = agent_factory.create_agent(
+            starting_agent_id,
+            agent_definition,
+            args.start_message,
+            persisted_messages
+        )
+
+        agent.start()

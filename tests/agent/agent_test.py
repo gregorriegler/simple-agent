@@ -1,7 +1,6 @@
 from approvaltests import verify, Options
 
 from simple_agent.application.agent_definition import AgentDefinition
-from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
@@ -17,7 +16,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
 )
 from simple_agent.application.llm_stub import create_llm_stub
-from simple_agent.application.session import run_session
+from simple_agent.application.session import Session
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from tests.event_spy import EventSpy
@@ -134,21 +133,20 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     )
 
     agent_library = BuiltinAgentLibrary()
-    agent_factory = AgentFactory(
+    session = Session(
         llm=llm_stub,
         event_bus=event_bus,
         session_storage=test_session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        user_input=user_input_port
+        user_input=user_input_port,
+        todo_cleanup=NoOpTodoCleanup()
     )
     agent_id = AgentId(starting_agent)
 
-    run_session(
+    session.run(
         create_session_args(False, start_message=message),
-        agent_factory,
         agent_id,
-        NoOpTodoCleanup(),
         create_test_agent_definition()
     )
 

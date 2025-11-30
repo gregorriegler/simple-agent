@@ -7,16 +7,16 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
-from simple_agent.application.session import SessionArgs, run_session
+from simple_agent.application.session import Session, SessionArgs
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
+from simple_agent.application.events import UserPromptRequestedEvent
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.infrastructure.configuration import get_starting_agent, load_user_configuration, stub_user_config
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.subscribe_events import subscribe_events
-from simple_agent.application.events import UserPromptRequestedEvent
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.infrastructure.llm import create_llm
@@ -73,22 +73,17 @@ def main(on_user_prompt_requested=None):
 
     llm = create_llm(args.stub_llm, user_config)
 
-    agent_factory = AgentFactory(
+    session = Session(
         llm=llm,
         event_bus=event_bus,
         session_storage=session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        user_input=textual_user_input
+        user_input=textual_user_input,
+        todo_cleanup=todo_cleanup
     )
 
-    run_session(
-        args,
-        agent_factory,
-        root_agent_id,
-        todo_cleanup,
-        agent_definition
-    )
+    session.run(args, root_agent_id, agent_definition)
 
     if args.test_mode:
         return textual_app
@@ -98,7 +93,6 @@ def main(on_user_prompt_requested=None):
 
 
 def print_system_prompt_command(user_config, cwd, args):
-    from simple_agent.application.agent_id import AgentId
     from simple_agent.application.tool_library_factory import ToolContext
 
     starting_agent_type = get_starting_agent(user_config, args)
