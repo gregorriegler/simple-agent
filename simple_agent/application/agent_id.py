@@ -23,6 +23,9 @@ class AgentId:
         parent_raw = self._raw_id.rsplit("/", 1)[0]
         return AgentId(parent_raw)
 
+    def depth(self) -> int:
+        return self._raw_id.count("/")
+
     @property
     def raw(self) -> str:
         return self._raw_id

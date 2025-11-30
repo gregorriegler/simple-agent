@@ -42,12 +42,12 @@ class AgentFactory:
     def create_subagent_input(self) -> Input:
         return self._create_subagent_input()
 
-    def create_spawner(self, parent_agent_id: AgentId, indent_level: int) -> SubagentSpawner:
+    def create_spawner(self, parent_agent_id: AgentId) -> SubagentSpawner:
         def spawn(agent_type, task_description):
             user_input = self.create_subagent_input()
             user_input.stack(task_description)
             subagent = self.create_subagent(
-                agent_type, parent_agent_id, indent_level, user_input, Messages()
+                agent_type, parent_agent_id, user_input, Messages()
             )
             return subagent.start()
         return spawn
@@ -56,7 +56,6 @@ class AgentFactory:
         self,
         agent_type: AgentType,
         parent_agent_id: AgentId,
-        indent_level: int,
         user_input: Input,
         context: Messages
     ) -> Agent:
@@ -69,7 +68,7 @@ class AgentFactory:
             agent_prompt.tool_keys,
             agent_id
         )
-        spawner = self.create_spawner(agent_id, indent_level + 1)
+        spawner = self.create_spawner(agent_id)
 
         subagent_tools = self._tool_library_factory.create(tool_context, spawner)
         tools_documentation = generate_tools_documentation(subagent_tools.tools, self._agent_library.list_agent_types())
@@ -86,7 +85,6 @@ class AgentFactory:
             self._event_bus,
             self._session_storage,
             context,
-            indent_level
         )
 
     def create_root_agent(
@@ -100,7 +98,7 @@ class AgentFactory:
             agent_definition.tool_keys(),
             agent_id
         )
-        spawner = self.create_spawner(agent_id, indent_level=0)
+        spawner = self.create_spawner(agent_id)
         tools = self._tool_library_factory.create(tool_context, spawner)
         tools_documentation = generate_tools_documentation(
             tools.tools, self._agent_library.list_agent_types()

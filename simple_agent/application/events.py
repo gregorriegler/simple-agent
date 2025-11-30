@@ -73,4 +73,3 @@ class AgentFinishedEvent(AgentEvent):
 class AgentCreatedEvent(AgentEvent):
     event_name: ClassVar[str] = "agent_created"
     agent_name: str
-    indent_level: int

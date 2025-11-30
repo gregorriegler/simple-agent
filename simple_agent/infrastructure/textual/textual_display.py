@@ -21,7 +21,7 @@ class TextualDisplay(AgentDisplayHub):
         super().__init__()
         self._app = app
 
-    def _create_display(self, agent_id: AgentId, agent_name: str | None, indent_level: int | None) -> 'TextualAgentDisplay':
+    def _create_display(self, agent_id: AgentId, agent_name: str | None) -> 'TextualAgentDisplay':
         return TextualAgentDisplay(self, self._app, agent_id, agent_name)
 
     def _on_agent_removed(self, agent_id: AgentId, agent: AgentDisplay) -> None:

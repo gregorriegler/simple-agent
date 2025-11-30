@@ -7,7 +7,7 @@ class AgentDisplayHub(Display):
     def __init__(self):
         self._agents: dict[AgentId, AgentDisplay] = {}
 
-    def _create_display(self, agent_id: AgentId, agent_name: str | None, indent_level: int | None) -> AgentDisplay | None:
+    def _create_display(self, agent_id: AgentId, agent_name: str | None) -> AgentDisplay | None:
         raise NotImplementedError
 
     def _on_agent_removed(self, agent_id: AgentId, agent: AgentDisplay) -> None:
@@ -19,17 +19,17 @@ class AgentDisplayHub(Display):
     def _register_agent(self, agent_id: AgentId, display: AgentDisplay) -> None:
         self._agents[agent_id] = display
 
-    def _ensure_agent(self, agent_id: AgentId, agent_name: str | None = None, indent_level: int | None = None) -> AgentDisplay | None:
+    def _ensure_agent(self, agent_id: AgentId, agent_name: str | None = None) -> AgentDisplay | None:
         existing = self._agent_for(agent_id)
         if existing:
             return existing
-        created = self._create_display(agent_id, agent_name, indent_level)
+        created = self._create_display(agent_id, agent_name)
         if created:
             self._register_agent(agent_id, created)
         return created
 
     def agent_created(self, event) -> None:
-        self._ensure_agent(event.agent_id, getattr(event, "agent_name", None), getattr(event, "indent_level", None))
+        self._ensure_agent(event.agent_id, getattr(event, "agent_name", None))
 
     def start_session(self, event) -> None:
         agent = self._agent_for(event.agent_id)

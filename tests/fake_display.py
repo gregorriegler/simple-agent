@@ -10,7 +10,7 @@ class FakeDisplay(Display):
         self.events.append({"event": name, "agent_id": agent_id, "payload": payload})
 
     def agent_created(self, event) -> None:
-        self._record("agent_created", event.agent_id, {"name": getattr(event, "agent_name", None), "indent": getattr(event, "indent_level", None)})
+        self._record("agent_created", event.agent_id, {"name": getattr(event, "agent_name", None)})
 
     def start_session(self, event) -> None:
         is_continuation = getattr(event, "is_continuation", False)
