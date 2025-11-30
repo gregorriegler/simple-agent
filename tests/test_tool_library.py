@@ -2,8 +2,6 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.tool_library_factory import ToolContext
-
-from simple_agent.application.input import Input
 from simple_agent.tools import AllTools
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.tools.all_tools import AllToolsFactory
@@ -25,8 +23,6 @@ class ToolLibraryStub(AllTools):
     ):
         actual_io = io if io else StdIO()
 
-        create_subagent_input = lambda: Input(UserInputStub(actual_io))
-
         from simple_agent.application.session_storage import NoOpSessionStorage
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
         actual_tool_context = tool_context
@@ -41,7 +37,7 @@ class ToolLibraryStub(AllTools):
                 session_storage=session_storage,
                 tool_library_factory=tool_library_factory,
                 agent_library=agent_library,
-                create_subagent_input=create_subagent_input
+                user_input=UserInputStub(actual_io)
             )
 
             agent_id = AgentId("Agent")

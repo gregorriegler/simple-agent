@@ -7,8 +7,6 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEvent
-
-from simple_agent.application.input import Input
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
@@ -102,8 +100,6 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
 
     io_spy = IOSpy(["\n"])
     user_input_port = UserInputStub(io=io_spy)
-    user_input = Input(user_input_port)
-    user_input.stack("test message")
 
     event_bus = SimpleEventBus()
     display = FakeDisplay()
@@ -115,7 +111,6 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
 
     test_session_storage = SessionStorageStub()
     agent_library = BuiltinAgentLibrary()
-    create_subagent_input = lambda: Input(user_input_port)
     tool_library_factory = ToolLibraryFactoryStub(
         llm,
         io=io_spy,
@@ -129,16 +124,15 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
         session_storage=test_session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        create_subagent_input=create_subagent_input
+        user_input=user_input_port
     )
     agent_id = AgentId("Agent")
 
     run_session(
-        create_session_args(continue_session),
+        create_session_args(continue_session, start_message="test message"),
         agent_factory,
         agent_id,
         cleanup_adapter,
-        user_input,
         create_test_agent_definition()
     )
 

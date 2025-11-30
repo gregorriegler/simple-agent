@@ -7,7 +7,6 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
-from simple_agent.application.input import Input
 from simple_agent.application.session import SessionArgs, run_session
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_documentation import generate_tools_documentation
@@ -57,10 +56,6 @@ def main(on_user_prompt_requested=None):
         textual_app = TextualApp.create_and_start(textual_user_input, root_agent_id)
     display = TextualDisplay(textual_app)
 
-    user_input = Input(textual_user_input)
-    if args.start_message:
-        user_input.stack(args.start_message)
-
     session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
     todo_cleanup = FileSystemTodoCleanup()
 
@@ -76,8 +71,6 @@ def main(on_user_prompt_requested=None):
 
     tool_library_factory = AllToolsFactory()
 
-    create_subagent_input = lambda: Input(textual_user_input)
-
     llm = create_llm(args.stub_llm, user_config)
 
     agent_factory = AgentFactory(
@@ -86,7 +79,7 @@ def main(on_user_prompt_requested=None):
         session_storage=session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        create_subagent_input=create_subagent_input
+        user_input=textual_user_input
     )
 
     run_session(
@@ -94,7 +87,6 @@ def main(on_user_prompt_requested=None):
         agent_factory,
         root_agent_id,
         todo_cleanup,
-        user_input,
         agent_definition
     )
 
@@ -114,7 +106,6 @@ def print_system_prompt_command(user_config, cwd, args):
     dummy_event_bus = SimpleEventBus()
     agents_path = user_config.agents_path()
     agent_library = create_agent_library(agents_path, cwd)
-    create_subagent_input = lambda: Input(DummyUserInput())
     llm = lambda messages: ''
     session_storage = NoOpSessionStorage()
     agent_factory = AgentFactory(
@@ -123,7 +114,7 @@ def print_system_prompt_command(user_config, cwd, args):
         session_storage=session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        create_subagent_input=create_subagent_input
+        user_input=DummyUserInput()
     )
     prompt = agent_library.read_agent_definition(starting_agent_type).load_prompt()
     agent_id = AgentId("Agent")

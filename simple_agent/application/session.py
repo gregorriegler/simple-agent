@@ -30,7 +30,6 @@ def run_session(
     agent_factory: 'AgentFactory',
     starting_agent_id: AgentId,
     todo_cleanup,
-    user_input,
     agent_definition: AgentDefinition
 ):
     if not args.continue_session:
@@ -49,7 +48,7 @@ def run_session(
     agent = agent_factory.create_root_agent(
         starting_agent_id,
         agent_definition,
-        user_input,
+        args.start_message,
         persisted_messages
     )
 

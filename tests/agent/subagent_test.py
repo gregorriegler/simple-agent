@@ -16,7 +16,6 @@ from simple_agent.application.events import (
     UserPromptRequestedEvent,
     UserPromptedEvent,
 )
-from simple_agent.application.input import Input
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import run_session
 from simple_agent.application.todo_cleanup import NoOpTodoCleanup
@@ -67,8 +66,6 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     message, *remaining_inputs = inputs
     io_spy = IOSpy(remaining_inputs, escape_hits)
     user_input_port = UserInputStub(io=io_spy)
-    user_input = Input(user_input_port)
-    user_input.stack(message)
     test_session_storage = SessionStorageStub()
     event_bus = SimpleEventBus()
     display = FakeDisplay()
@@ -106,23 +103,21 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     )
 
     agent_library = BuiltinAgentLibrary()
-    create_subagent_input = lambda: Input(user_input_port)
     agent_factory = AgentFactory(
         llm=llm_stub,
         event_bus=event_bus,
         session_storage=test_session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        create_subagent_input=create_subagent_input
+        user_input=user_input_port
     )
     agent_id = AgentId("Agent")
 
     run_session(
-        create_session_args(False),
+        create_session_args(False, start_message=message),
         agent_factory,
         agent_id,
         NoOpTodoCleanup(),
-        user_input,
         create_test_agent_definition()
     )
 

@@ -1,5 +1,3 @@
-from typing import Callable
-
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.agent_library import AgentLibrary
@@ -11,6 +9,7 @@ from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.tool_library_factory import ToolLibraryFactory, ToolContext
+from simple_agent.application.user_input import UserInput
 
 
 class AgentFactory:
@@ -21,14 +20,14 @@ class AgentFactory:
         session_storage: SessionStorage,
         tool_library_factory: ToolLibraryFactory,
         agent_library: AgentLibrary,
-        create_subagent_input: Callable[[], Input]
+        user_input: UserInput
     ):
         self._llm = llm
         self._event_bus = event_bus
         self._session_storage = session_storage
         self._tool_library_factory = tool_library_factory
         self._agent_library = agent_library
-        self._create_subagent_input = create_subagent_input
+        self._user_input = user_input
         self._agent_suffixer = AgentIdSuffixer()
 
     @property
@@ -39,15 +38,16 @@ class AgentFactory:
     def session_storage(self) -> SessionStorage:
         return self._session_storage
 
-    def create_subagent_input(self) -> Input:
-        return self._create_subagent_input()
+    def create_input(self, initial_message: str | None = None) -> Input:
+        inp = Input(self._user_input)
+        if initial_message:
+            inp.stack(initial_message)
+        return inp
 
     def create_spawner(self, parent_agent_id: AgentId) -> SubagentSpawner:
         def spawn(agent_type, task_description):
-            user_input = self.create_subagent_input()
-            user_input.stack(task_description)
             subagent = self.create_subagent(
-                agent_type, parent_agent_id, user_input, Messages()
+                agent_type, parent_agent_id, task_description, Messages()
             )
             return subagent.start()
         return spawn
@@ -56,7 +56,7 @@ class AgentFactory:
         self,
         agent_type: AgentType,
         parent_agent_id: AgentId,
-        user_input: Input,
+        initial_message: str | None,
         context: Messages
     ) -> Agent:
         definition = self._agent_library.read_agent_definition(agent_type)
@@ -81,7 +81,7 @@ class AgentFactory:
             agent_name,
             subagent_tools,
             self._llm,
-            user_input,
+            self.create_input(initial_message),
             self._event_bus,
             self._session_storage,
             context,
@@ -91,7 +91,7 @@ class AgentFactory:
         self,
         agent_id: AgentId,
         agent_definition,
-        user_input: Input,
+        initial_message: str | None,
         persisted_messages
     ) -> Agent:
         tool_context = ToolContext(
@@ -111,7 +111,7 @@ class AgentFactory:
             agent_definition.agent_name(),
             tools,
             self._llm,
-            user_input,
+            self.create_input(initial_message),
             self._event_bus,
             self._session_storage,
             persisted_messages
