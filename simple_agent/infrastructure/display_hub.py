@@ -29,7 +29,7 @@ class AgentDisplayHub(Display):
         return created
 
     def agent_created(self, event) -> None:
-        self._ensure_agent(event.subagent_id, getattr(event, "subagent_name", None), getattr(event, "indent_level", None))
+        self._ensure_agent(event.agent_id, getattr(event, "agent_name", None), getattr(event, "indent_level", None))
 
     def start_session(self, event) -> None:
         agent = self._agent_for(event.agent_id)

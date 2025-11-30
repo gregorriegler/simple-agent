@@ -86,7 +86,6 @@ class AgentFactory:
             self._event_bus,
             self._session_storage,
             context,
-            parent_agent_id,
             indent_level
         )
 

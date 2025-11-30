@@ -67,12 +67,10 @@ class AssistantRespondedEvent(AgentEvent):
 @dataclass
 class AgentFinishedEvent(AgentEvent):
     event_name: ClassVar[str] = "agent_finished"
-    subagent_id: AgentId
 
 
 @dataclass
 class AgentCreatedEvent(AgentEvent):
     event_name: ClassVar[str] = "agent_created"
-    subagent_id: AgentId
-    subagent_name: str
+    agent_name: str
     indent_level: int

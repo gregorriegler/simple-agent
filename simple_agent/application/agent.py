@@ -24,7 +24,6 @@ class Agent:
         event_bus: EventBus,
         session_storage: SessionStorage,
         context: Messages,
-        parent_agent_id: AgentId | None = None,
         indent_level: int = 0
     ):
         self.agent_id = agent_id
@@ -36,7 +35,6 @@ class Agent:
         self.session_storage = session_storage
         self._tool_call_counter = 0
         self.context: Messages = context
-        self._parent_agent_id = parent_agent_id
         self._indent_level = indent_level
 
     def start(self):
@@ -57,12 +55,12 @@ class Agent:
 
     def _notify_agent_created(self):
         self.event_bus.publish(
-            AgentCreatedEvent(self._parent_agent_id, self.agent_id, self.agent_name, self._indent_level)
+            AgentCreatedEvent(self.agent_id, self.agent_name, self._indent_level)
         )
 
     def _notify_agent_finished(self):
         self.event_bus.publish(
-            AgentFinishedEvent(self._parent_agent_id, self.agent_id)
+            AgentFinishedEvent(self.agent_id)
         )
 
     def run_tool_loop(self):

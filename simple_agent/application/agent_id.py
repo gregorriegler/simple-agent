@@ -14,6 +14,15 @@ class AgentId:
         suffix = suffixer.suffix(base_id)
         return base_id.with_suffix(suffix)
 
+    def has_parent(self) -> bool:
+        return "/" in self._raw_id
+
+    def parent(self) -> 'AgentId | None':
+        if "/" not in self._raw_id:
+            return None
+        parent_raw = self._raw_id.rsplit("/", 1)[0]
+        return AgentId(parent_raw)
+
     @property
     def raw(self) -> str:
         return self._raw_id

@@ -110,7 +110,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
 
     cleanup_adapter = todo_cleanup if todo_cleanup is not None else FileSystemTodoCleanup()
 
-    event_bus.subscribe(AgentFinishedEvent, lambda event: cleanup_adapter.cleanup_todos_for_agent(event.subagent_id) if event.agent_id else None)
+    event_bus.subscribe(AgentFinishedEvent, lambda event: cleanup_adapter.cleanup_todos_for_agent(event.agent_id) if event.agent_id.has_parent() else None)
     event_bus.subscribe(AgentCreatedEvent, display.agent_created)
 
     test_session_storage = SessionStorageStub()
