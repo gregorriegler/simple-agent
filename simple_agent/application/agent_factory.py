@@ -1,7 +1,6 @@
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.agent_library import AgentLibrary
-from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLM, Messages
@@ -46,56 +45,25 @@ class AgentFactory:
 
     def create_spawner(self, parent_agent_id: AgentId) -> SubagentSpawner:
         def spawn(agent_type, task_description):
-            subagent = self.create_subagent(
-                agent_type, parent_agent_id, task_description, Messages()
+            definition = self._agent_library.read_agent_definition(agent_type)
+            agent_id = parent_agent_id.create_subagent_id(
+                definition.agent_name(), self._agent_suffixer
+            )
+            subagent = self.create_agent(
+                agent_id, definition, task_description, Messages()
             )
             return subagent.start()
         return spawn
 
-    def create_subagent(
-        self,
-        agent_type: AgentType,
-        parent_agent_id: AgentId,
-        initial_message: str | None,
-        context: Messages
-    ) -> Agent:
-        definition = self._agent_library.read_agent_definition(agent_type)
-        agent_prompt = definition.load_prompt()
-        agent_name = definition.agent_name()
-        agent_id = parent_agent_id.create_subagent_id(agent_name, self._agent_suffixer)
-
-        tool_context = ToolContext(
-            agent_prompt.tool_keys,
-            agent_id
-        )
-        spawner = self.create_spawner(agent_id)
-
-        subagent_tools = self._tool_library_factory.create(tool_context, spawner)
-        tools_documentation = generate_tools_documentation(subagent_tools.tools, self._agent_library.list_agent_types())
-        system_prompt = agent_prompt.render(tools_documentation)
-
-        context.seed_system_prompt(system_prompt)
-
-        return Agent(
-            agent_id,
-            agent_name,
-            subagent_tools,
-            self._llm,
-            self.create_input(initial_message),
-            self._event_bus,
-            self._session_storage,
-            context,
-        )
-
-    def create_root_agent(
+    def create_agent(
         self,
         agent_id: AgentId,
-        agent_definition,
+        definition,
         initial_message: str | None,
-        persisted_messages
+        messages: Messages
     ) -> Agent:
         tool_context = ToolContext(
-            agent_definition.tool_keys(),
+            definition.tool_keys(),
             agent_id
         )
         spawner = self.create_spawner(agent_id)
@@ -103,16 +71,16 @@ class AgentFactory:
         tools_documentation = generate_tools_documentation(
             tools.tools, self._agent_library.list_agent_types()
         )
-        system_prompt = agent_definition.prompt().render(tools_documentation)
-        persisted_messages.seed_system_prompt(system_prompt)
+        system_prompt = definition.prompt().render(tools_documentation)
+        messages.seed_system_prompt(system_prompt)
 
         return Agent(
             agent_id,
-            agent_definition.agent_name(),
+            definition.agent_name(),
             tools,
             self._llm,
             self.create_input(initial_message),
             self._event_bus,
             self._session_storage,
-            persisted_messages
+            messages
         )

@@ -45,7 +45,7 @@ def run_session(
     else:
         persisted_messages = PersistedMessages(agent_factory.session_storage)
 
-    agent = agent_factory.create_root_agent(
+    agent = agent_factory.create_agent(
         starting_agent_id,
         agent_definition,
         args.start_message,
