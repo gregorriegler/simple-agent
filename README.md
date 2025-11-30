@@ -1,6 +1,7 @@
 # Simple Agent
 
 [![Tests](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml)
+[![Codecov](https://codecov.io/gh/gregorriegler/simple-agent/branch/main/graph/badge.svg)](https://codecov.io/gh/gregorriegler/simple-agent)
 
 Simple Agent aims to be a simple, extensible, and transparent general-purpose agent system.
 
