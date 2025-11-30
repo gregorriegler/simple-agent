@@ -1,7 +1,6 @@
-import re
-
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
+from simple_agent.application.tool_message_parser import parse_tool_calls
 from simple_agent.application.tool_library_factory import ToolLibraryFactory, ToolContext
 from .bash_tool import BashTool
 from .cat_tool import CatTool
@@ -53,46 +52,17 @@ class AllTools(ToolLibrary):
         return tools
 
     def parse_message_and_tools(self, text) -> MessageAndParsedTools:
-        pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?'
-        end_marker = r'^🛠️🔚'
-        lines = text.splitlines(keepends=True)
-        parsed_tools = []
-        message = ""
-        first_tool_index = None
+        parsed = parse_tool_calls(text)
 
-        i = 0
-        while i < len(lines):
-            match = re.match(pattern, lines[i], re.DOTALL)
-            if match:
-                if first_tool_index is None:
-                    first_tool_index = i
-                    message = ''.join(lines[:i]).rstrip()
+        tools = []
+        for raw_call in parsed.tool_calls:
+            tool_instance = self.tool_dict.get(raw_call.name)
+            if not tool_instance:
+                # Unknown tool - return message as-is with no tools
+                return MessageAndParsedTools(message=text, tools=[])
+            tools.append(ParsedTool(raw_call.name, raw_call.arguments, tool_instance))
 
-                command, same_line_args = match.groups()
-                tool = self.tool_dict.get(command)
-                if not tool:
-                    return MessageAndParsedTools(message=text, tools=[])
-
-                all_arg_lines = []
-                if same_line_args:
-                    all_arg_lines.append(same_line_args)
-
-                i += 1
-                while i < len(lines) and not re.match(r'^🛠️ ', lines[i]) and not re.match(end_marker, lines[i]):
-                    all_arg_lines.append(lines[i])
-                    i += 1
-
-                if i < len(lines) and re.match(end_marker, lines[i]):
-                    i += 1
-
-                arguments = ''.join(all_arg_lines).rstrip()
-                parsed_tools.append(ParsedTool(command, arguments, tool))
-            else:
-                i += 1
-
-        if parsed_tools:
-            return MessageAndParsedTools(message=message, tools=parsed_tools)
-        return MessageAndParsedTools(message=text, tools=[])
+        return MessageAndParsedTools(message=parsed.message, tools=tools)
 
     def execute_parsed_tool(self, parsed_tool):
         args = parsed_tool.arguments if parsed_tool.arguments else None
