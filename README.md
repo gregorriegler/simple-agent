@@ -1,7 +1,7 @@
 # Simple Agent
 
 [![Tests](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml)
-[![Codecov](https://codecov.io/gh/gregorriegler/simple-agent/branch/main/graph/badge.svg)](https://codecov.io/gh/gregorriegler/simple-agent)
+[![Coverage](docs/coverage.svg)](#generate-coverage-locally)
 
 Simple Agent aims to be a simple, extensible, and transparent general-purpose agent system.
 
@@ -100,9 +100,11 @@ uv run --project . --script simple_agent/run_tool.py cat README.md
 # Approve received files
 ./approve.sh
 
-# Generate coverage locally
-./coverage.sh
+# Generate coverage locally and refresh the badge
+./coverage.sh --badge
 ```
+
+Running the coverage script with `--badge` creates `docs/coverage.svg`, keeping the coverage badge self-hosted.
 
 ## Components
 
