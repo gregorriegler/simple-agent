@@ -27,9 +27,6 @@ class TextualDisplay(AgentDisplayHub):
     def _on_agent_removed(self, agent_id: AgentId, agent: AgentDisplay) -> None:
         self.remove_tab(agent_id)
 
-    def create_agent_tab(self, agent_id: AgentId, agent_name: str | None = None) -> 'TextualAgentDisplay | None':
-        return self._ensure_agent(agent_id, agent_name, None)
-
     def remove_tab(self, agent_id: AgentId) -> None:
         agent = self._agents.pop(agent_id, None)
         if agent:

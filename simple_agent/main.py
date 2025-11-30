@@ -56,7 +56,6 @@ def main(on_user_prompt_requested=None):
     else:
         textual_app = TextualApp.create_and_start(textual_user_input, root_agent_id)
     display = TextualDisplay(textual_app)
-    display.create_agent_tab(root_agent_id, agent_definition.agent_name())
 
     user_input = Input(textual_user_input)
     if args.start_message:

@@ -33,7 +33,7 @@ def subscribe_events(
     event_bus.subscribe(AgentCreatedEvent, event_logger.log_event)
     event_bus.subscribe(
         AgentFinishedEvent,
-        lambda event: todo_cleanup.cleanup_todos_for_agent(event.subagent_id),
+        lambda event: todo_cleanup.cleanup_todos_for_agent(event.subagent_id) if event.agent_id else None,
     )
     event_bus.subscribe(SessionStartedEvent, display.start_session)
     event_bus.subscribe(UserPromptRequestedEvent, display.wait_for_input)

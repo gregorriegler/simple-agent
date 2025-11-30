@@ -56,16 +56,14 @@ class Agent:
             self._notify_agent_finished()
 
     def _notify_agent_created(self):
-        if self._parent_agent_id:
-            self.event_bus.publish(
-                AgentCreatedEvent(self._parent_agent_id, self.agent_id, self.agent_name, self._indent_level)
-            )
+        self.event_bus.publish(
+            AgentCreatedEvent(self._parent_agent_id, self.agent_id, self.agent_name, self._indent_level)
+        )
 
     def _notify_agent_finished(self):
-        if self._parent_agent_id:
-            self.event_bus.publish(
-                AgentFinishedEvent(self._parent_agent_id, self.agent_id)
-            )
+        self.event_bus.publish(
+            AgentFinishedEvent(self._parent_agent_id, self.agent_id)
+        )
 
     def run_tool_loop(self):
         tool_result: ToolResult = ContinueResult()
