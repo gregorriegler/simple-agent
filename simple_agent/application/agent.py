@@ -4,9 +4,13 @@ from .llm import LLM, Messages
 from .session_storage import SessionStorage
 from .tool_library import ToolResult, ContinueResult, ToolLibrary, MessageAndParsedTools, ParsedTool
 from .event_bus_protocol import EventBus
-from .events import AssistantSaidEvent, AssistantRespondedEvent, ToolCalledEvent, ToolResultEvent, SessionEndedEvent, \
-    SessionInterruptedEvent, \
+from .events import (
+    AgentCreatedEvent, AgentFinishedEvent,
+    AssistantSaidEvent, AssistantRespondedEvent,
+    ToolCalledEvent, ToolResultEvent,
+    SessionEndedEvent, SessionInterruptedEvent,
     UserPromptRequestedEvent, UserPromptedEvent
+)
 
 
 class Agent:
@@ -19,7 +23,9 @@ class Agent:
         user_input: Input,
         event_bus: EventBus,
         session_storage: SessionStorage,
-        context: Messages
+        context: Messages,
+        parent_agent_id: AgentId | None = None,
+        indent_level: int = 0
     ):
         self.agent_id = agent_id
         self.agent_name = agent_name
@@ -30,8 +36,11 @@ class Agent:
         self.session_storage = session_storage
         self._tool_call_counter = 0
         self.context: Messages = context
+        self._parent_agent_id = parent_agent_id
+        self._indent_level = indent_level
 
     def start(self):
+        self._notify_agent_created()
         try:
             tool_result: ToolResult = ContinueResult()
 
@@ -43,6 +52,20 @@ class Agent:
         except (EOFError, KeyboardInterrupt):
             self.notify_session_ended()
             return ContinueResult()
+        finally:
+            self._notify_agent_finished()
+
+    def _notify_agent_created(self):
+        if self._parent_agent_id:
+            self.event_bus.publish(
+                AgentCreatedEvent(self._parent_agent_id, self.agent_id, self.agent_name, self._indent_level)
+            )
+
+    def _notify_agent_finished(self):
+        if self._parent_agent_id:
+            self.event_bus.publish(
+                AgentFinishedEvent(self._parent_agent_id, self.agent_id)
+            )
 
     def run_tool_loop(self):
         tool_result: ToolResult = ContinueResult()

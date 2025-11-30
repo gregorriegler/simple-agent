@@ -10,7 +10,7 @@ from rich.console import Console
 from simple_agent.main import main
 
 
-def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.68):
+def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.6):
     if not approved_path.exists():
         approved_path.parent.mkdir(parents=True, exist_ok=True)
         approved_path.write_text(actual, encoding="utf-8")

@@ -108,6 +108,7 @@ def main(on_user_prompt_requested=None):
 
 def print_system_prompt_command(user_config, cwd, args):
     from simple_agent.application.agent_id import AgentId
+    from simple_agent.application.subagent_spawner import BoundSubagentSpawner
     from simple_agent.application.tool_library_factory import ToolContext
 
     starting_agent_type = get_starting_agent(user_config, args)
@@ -118,7 +119,7 @@ def print_system_prompt_command(user_config, cwd, args):
     create_subagent_input = lambda: Input(DummyUserInput())
     llm = lambda messages: ''
     session_storage = NoOpSessionStorage()
-    create_agent = AgentFactory(
+    agent_factory = AgentFactory(
         llm=llm,
         event_bus=dummy_event_bus,
         session_storage=session_storage,
@@ -132,8 +133,10 @@ def print_system_prompt_command(user_config, cwd, args):
         prompt.tool_keys,
         agent_id
     )
-    spawner = lambda agent_type, task_description: create_agent.spawn_subagent(
-        agent_id, agent_type, task_description, 0
+    spawner = BoundSubagentSpawner(
+        agent_factory,
+        agent_id,
+        indent_level=0
     )
     tool_library = tool_library_factory.create(tool_context, spawner)
     tools_documentation = generate_tools_documentation(tool_library.tools, agent_library.list_agent_types())
