@@ -8,7 +8,7 @@ from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLM, Messages
 from simple_agent.application.session_storage import SessionStorage
-from simple_agent.application.subagent_spawner import BoundSubagentSpawner
+from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.tool_library_factory import ToolLibraryFactory, ToolContext
 
@@ -42,6 +42,16 @@ class AgentFactory:
     def create_subagent_input(self) -> Input:
         return self._create_subagent_input()
 
+    def create_spawner(self, parent_agent_id: AgentId, indent_level: int) -> SubagentSpawner:
+        def spawn(agent_type, task_description):
+            user_input = self.create_subagent_input()
+            user_input.stack(task_description)
+            subagent = self.create_subagent(
+                agent_type, parent_agent_id, indent_level, user_input, Messages()
+            )
+            return subagent.start()
+        return spawn
+
     def create_subagent(
         self,
         agent_type: AgentType,
@@ -59,11 +69,7 @@ class AgentFactory:
             agent_prompt.tool_keys,
             agent_id
         )
-        spawner = BoundSubagentSpawner(
-            self,
-            agent_id,
-            indent_level + 1
-        )
+        spawner = self.create_spawner(agent_id, indent_level + 1)
 
         subagent_tools = self._tool_library_factory.create(tool_context, spawner)
         tools_documentation = generate_tools_documentation(subagent_tools.tools, self._agent_library.list_agent_types())
@@ -95,11 +101,7 @@ class AgentFactory:
             agent_definition.tool_keys(),
             agent_id
         )
-        spawner = BoundSubagentSpawner(
-            self,
-            agent_id,
-            indent_level=0
-        )
+        spawner = self.create_spawner(agent_id, indent_level=0)
         tools = self._tool_library_factory.create(tool_context, spawner)
         tools_documentation = generate_tools_documentation(
             tools.tools, self._agent_library.list_agent_types()
