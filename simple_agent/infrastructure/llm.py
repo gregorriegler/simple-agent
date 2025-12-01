@@ -1,34 +1,21 @@
-from simple_agent.application.llm_stub import create_llm_stub
+from simple_agent.application.llm import LLM
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
-from simple_agent.infrastructure.user_configuration import UserConfiguration
-from simple_agent.infrastructure.openai import OpenAILLM
 from simple_agent.infrastructure.gemini import GeminiLLM
+from simple_agent.infrastructure.openai import OpenAILLM
+from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 
-def create_llm(stub_llm, user_config: UserConfiguration):
-    if stub_llm:
-        return create_llm_stub(
-            [
-                "Starting task\n🛠️ subagent orchestrator Run bash echo hello world and then complete",
-                "Subagent1 handling the orchestrator task\n🛠️ subagent coding Run bash echo hello world and then complete",
-                "Subagent2 updating todos\n🛠️ write-todos\n- [x] Feature exploration\n- [ ] **Implementing tool**\n- [ ] Initial setup\n🛠️🔚",
-                #"Subagent2 running a slow bash command\n🛠️ bash sleep .4",
-                "Subagent2 running the bash command\n🛠️ bash echo hello world",
-                "Subagent2 reading AGENTS.md\n🛠️ cat AGENTS.md",
-                "🛠️ create-file newfile.txt\ncontent of newfile.txt\n",
-                "🛠️ edit-file newfile.txt replace 1\nnew content of newfile.txt\n",
-                "🛠️ bash rm newfile.txt",
-                "🛠️ complete-task Subagent2 completed successfully",
-                "🛠️ complete-task Subagent1 completed successfully",
-                "🛠️ complete-task Main task completed successfully"
-            ]
-        )
+class RemoteLLMProvider:
 
-    model_config = user_config.model_config()
-    if model_config.adapter == "openai":
-        return OpenAILLM(model_config)
+    def __init__(self, user_config: UserConfiguration):
+        self._registry = user_config.models_registry()
 
-    if model_config.adapter == "gemini":
-        return GeminiLLM(model_config)
+    def get(self, model_name: str | None = None) -> LLM:
+        model_config = self._registry.get(model_name)
+        if model_config.adapter == "openai":
+            return OpenAILLM(model_config)
 
-    return ClaudeLLM(model_config)
+        if model_config.adapter == "gemini":
+            return GeminiLLM(model_config)
+
+        return ClaudeLLM(model_config)

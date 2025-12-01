@@ -60,26 +60,46 @@ Create a `.simple-agent.toml` file either in your home directory or in the direc
 
 ```toml
 [model]
+default = "claude"  # Which model configuration to use by default
+
+[models.claude]
 model = "claude-sonnet-4-5-20250929"
-adapter = "claude" # or "openai" or "gemini"
-api_key = "your-api-key-here"
-# base_url = "https://openrouter.ai/api/v1" # Optional when using the OpenAI adapter
+adapter = "claude"
+api_key = "${ANTHROPIC_API_KEY}"  # Or use a literal API key
 ```
 
-All values inside `[model]` are required; pick the adapter that matches the infrastructure client you want to use.
+The `[model]` section specifies which model to use by default. Define one or more models under `[models.*]` sections. API keys can reference environment variables using `${VAR_NAME}` syntax.
+
+### Multiple models
+
+You can define multiple model configurations and switch between them:
+
+```toml
+[model]
+default = "claude"
+
+[models.claude]
+model = "claude-sonnet-4-5-20250929"
+adapter = "claude"
+api_key = "${ANTHROPIC_API_KEY}"
+
+[models.openai]
+model = "gpt-4o"
+adapter = "openai"
+api_key = "${OPENAI_API_KEY}"
+# base_url = "https://openrouter.ai/api/v1"  # Optional: for OpenRouter, etc.
+
+[models.gemini]
+model = "gemini-2.5-pro"
+adapter = "gemini"
+api_key = "${GOOGLE_API_KEY}"
+```
 
 ### Adapter-specific configuration
 
 **OpenAI adapter:** You can point the client at a compatible provider by overriding `base_url`, e.g. set it to `https://openrouter.ai/api/v1` for OpenRouter.
 
-**Gemini adapter:** Configure with a Google AI API key and model name:
-```toml
-[model]
-model = "gemini-2.5-pro"  # or "gemini-1.5-flash", "gemini-1.5-pro", etc.
-adapter = "gemini"
-api_key = "your-google-api-key-here"
-# base_url = "https://generativelanguage.googleapis.com/v1beta" # Optional, defaults to Google's API
-```
+**Gemini adapter:** Configure with a Google AI API key and model name (e.g., `gemini-2.5-pro`, `gemini-1.5-flash`).
 
 ### Custom agent definitions
 

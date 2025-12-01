@@ -10,6 +10,11 @@ class LLM(Protocol):
         ...
 
 
+class LLMProvider(Protocol):
+    def get(self, model_name: str | None = None) -> LLM:
+        ...
+
+
 class Messages:
     def __init__(
         self,

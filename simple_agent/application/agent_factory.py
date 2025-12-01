@@ -3,7 +3,7 @@ from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
-from simple_agent.application.llm import LLM, Messages
+from simple_agent.application.llm import LLMProvider, Messages
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_documentation import generate_tools_documentation
@@ -11,23 +11,25 @@ from simple_agent.application.tool_library_factory import ToolLibraryFactory, To
 from simple_agent.application.user_input import UserInput
 
 
+
+
 class AgentFactory:
     def __init__(
         self,
-        llm: LLM,
         event_bus: EventBus,
         session_storage: SessionStorage,
         tool_library_factory: ToolLibraryFactory,
         agent_library: AgentLibrary,
-        user_input: UserInput
+        user_input: UserInput,
+        llm_provider: LLMProvider
     ):
-        self._llm = llm
         self._event_bus = event_bus
         self._session_storage = session_storage
         self._tool_library_factory = tool_library_factory
         self._agent_library = agent_library
         self._user_input = user_input
         self._agent_suffixer = AgentIdSuffixer()
+        self._llm_provider = llm_provider
 
     @property
     def event_bus(self) -> EventBus:
@@ -74,11 +76,13 @@ class AgentFactory:
         system_prompt = definition.prompt().render(tools_documentation)
         messages.seed_system_prompt(system_prompt)
 
+        llm = self._llm_provider.get(definition.model())
+
         return Agent(
             agent_id,
             definition.agent_name(),
             tools,
-            self._llm,
+            llm,
             self.create_input(initial_message),
             self._event_bus,
             self._session_storage,

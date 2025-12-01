@@ -27,8 +27,8 @@ You are a helper.
 
     assert prompt_first.agent_name == "helper"
     assert prompt_first.template == "You are a helper.\n"
-    assert prompt_first.tool_keys == ["hammer", "saw"]
     assert prompt_first.agents_content == "shared ground rules"
+    assert agent_definition.tool_keys() == ["hammer", "saw"]
     assert prompt_second is prompt_first, "prompt should be cached"
     assert ground_rules.calls == 1
 
@@ -58,3 +58,42 @@ def test_read_tool_keys_handles_various_inputs():
     assert AgentDefinition._read_tool_keys("hammer, saw , ") == ["hammer", "saw"]
     assert AgentDefinition._read_tool_keys([" alpha", "", "beta "]) == ["alpha", "beta"]
     assert AgentDefinition._read_tool_keys(123) == []
+
+
+def test_model_returns_value_from_front_matter():
+    content = """---
+name: helper
+model: gemini-flash
+---
+You are a helper.
+"""
+    agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
+
+    assert agent_definition.model() == "gemini-flash"
+
+
+def test_model_returns_none_when_not_specified():
+    content = """---
+name: helper
+---
+You are a helper.
+"""
+    agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
+
+    assert agent_definition.model() is None
+
+
+def test_model_and_prompt_share_cached_load():
+    content = """---
+name: helper
+model: gpt-4
+---
+You are a helper.
+"""
+    agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
+
+    model = agent_definition.model()
+    prompt = agent_definition.prompt()
+
+    assert model == "gpt-4"
+    assert prompt.agent_name == "helper"

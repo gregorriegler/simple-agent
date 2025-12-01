@@ -19,7 +19,8 @@ from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
-from simple_agent.infrastructure.llm import create_llm
+from simple_agent.application.llm_stub import StubLLMProvider
+from simple_agent.infrastructure.llm import RemoteLLMProvider
 from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
@@ -71,16 +72,19 @@ def main(on_user_prompt_requested=None):
 
     tool_library_factory = AllToolsFactory()
 
-    llm = create_llm(args.stub_llm, user_config)
+    if args.stub_llm:
+        llm_provider = StubLLMProvider()
+    else:
+        llm_provider = RemoteLLMProvider(user_config)
 
     session = Session(
-        llm=llm,
         event_bus=event_bus,
         session_storage=session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
         user_input=textual_user_input,
-        todo_cleanup=todo_cleanup
+        todo_cleanup=todo_cleanup,
+        llm_provider=llm_provider
     )
 
     session.run(args, root_agent_id, agent_definition)
@@ -100,26 +104,25 @@ def print_system_prompt_command(user_config, cwd, args):
     dummy_event_bus = SimpleEventBus()
     agents_path = user_config.agents_path()
     agent_library = create_agent_library(agents_path, cwd)
-    llm = lambda messages: ''
     session_storage = NoOpSessionStorage()
     agent_factory = AgentFactory(
-        llm=llm,
-        event_bus=dummy_event_bus,
-        session_storage=session_storage,
-        tool_library_factory=tool_library_factory,
-        agent_library=agent_library,
-        user_input=DummyUserInput()
+        dummy_event_bus,
+        session_storage,
+        tool_library_factory,
+        agent_library,
+        DummyUserInput(),
+        StubLLMProvider.dummy()
     )
-    prompt = agent_library.read_agent_definition(starting_agent_type).load_prompt()
+    agent_definition = agent_library.read_agent_definition(starting_agent_type)
     agent_id = AgentId("Agent")
     tool_context = ToolContext(
-        prompt.tool_keys,
+        agent_definition.tool_keys(),
         agent_id
     )
     spawner = agent_factory.create_spawner(agent_id)
     tool_library = tool_library_factory.create(tool_context, spawner)
     tools_documentation = generate_tools_documentation(tool_library.tools, agent_library.list_agent_types())
-    system_prompt = prompt.render(tools_documentation)
+    system_prompt = agent_definition.prompt().render(tools_documentation)
     print(system_prompt)
     return
 

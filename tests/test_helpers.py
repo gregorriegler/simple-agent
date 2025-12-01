@@ -18,22 +18,22 @@ def create_all_tools_for_test():
     from simple_agent.application.tool_library_factory import ToolContext
     from simple_agent.application.event_bus import SimpleEventBus
     from simple_agent.tools.all_tools import AllToolsFactory
+    from simple_agent.application.llm_stub import StubLLMProvider
 
     io = StdIO()
 
     from simple_agent.application.session_storage import NoOpSessionStorage
     event_bus = SimpleEventBus()
-    llm = lambda messages: ''
     session_storage = NoOpSessionStorage()
     tool_library_factory = AllToolsFactory()
     agent_library = BuiltinAgentLibrary()
     agent_factory = AgentFactory(
-        llm=llm,
-        event_bus=event_bus,
-        session_storage=session_storage,
-        tool_library_factory=tool_library_factory,
-        agent_library=agent_library,
-        user_input=UserInputStub(io)
+        event_bus,
+        session_storage,
+        tool_library_factory,
+        agent_library,
+        UserInputStub(io),
+        StubLLMProvider.dummy()
     )
 
     agent_id = AgentId("Agent")
@@ -177,4 +177,4 @@ def create_session_args(continue_session: bool, start_message: str | None = None
 
 
 def create_test_prompt(agent_name: str = "Agent") -> AgentPrompt:
-    return AgentPrompt(agent_name, "Test system prompt", [], "")
+    return AgentPrompt(agent_name, "Test system prompt", "")

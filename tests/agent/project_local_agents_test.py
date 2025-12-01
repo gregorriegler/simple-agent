@@ -15,21 +15,22 @@ tools: bash
 This is a project-local agent.""", encoding='utf-8')
 
     agents = create_agent_library(agents_path=None, cwd=str(tmp_path))
-    prompt = agents.read_agent_definition(AgentType('test')).load_prompt()
+    prompt = agents.read_agent_definition(AgentType('test')).prompt()
     assert prompt.agent_name == 'ProjectLocal'
     assert 'project-local agent' in prompt.template
 
 
 def test_default_directory_falls_back_to_builtin_when_empty(tmp_path):
     agents = create_agent_library(agents_path=None, cwd=str(tmp_path))
-    prompt = agents.read_agent_definition(AgentType('coding')).load_prompt()
+    definition = agents.read_agent_definition(AgentType('coding'))
+    prompt = definition.prompt()
     assert prompt.agent_name == 'Coding'
-    assert len(prompt.tool_keys) > 0
+    assert len(definition.tool_keys()) > 0
 
 
 def test_load_agent_prompt_handles_missing_custom_definition_by_using_builtin(tmp_path):
     agents = create_agent_library(agents_path=None, cwd=str(tmp_path))
-    prompt = agents.read_agent_definition(AgentType('orchestrator')).load_prompt()
+    prompt = agents.read_agent_definition(AgentType('orchestrator')).prompt()
     assert prompt.agent_name == 'Orchestrator'
 
 
@@ -46,7 +47,7 @@ Configured definitions.""", encoding='utf-8')
         agents_path=str(configured_dir),
         cwd=str(tmp_path),
     )
-    prompt = agents.read_agent_definition(AgentType('custom')).load_prompt()
+    prompt = agents.read_agent_definition(AgentType('custom')).prompt()
     assert prompt.agent_name == 'Configured'
     assert 'Configured definitions' in prompt.template
 
@@ -71,5 +72,5 @@ tools: bash
 Config driven definition.""", encoding='utf-8')
 
     agents = create_agent_library(agents_path="custom_agents", cwd=str(tmp_path))
-    prompt = agents.read_agent_definition(AgentType('via_config')).load_prompt()
+    prompt = agents.read_agent_definition(AgentType('via_config')).prompt()
     assert prompt.agent_name == 'ConfigFile'

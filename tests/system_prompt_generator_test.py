@@ -28,7 +28,7 @@ def test_generate_coding_system_prompt():
 def verify_system_prompt(agent_type, tool_library):
     agent_library = BuiltinAgentLibrary(GroundRulesStub())
     tools_documentation = generate_tools_documentation(tool_library.tools, agent_library.list_agent_types())
-    prompt = agent_library.read_agent_definition(AgentType(agent_type)).load_prompt()
+    prompt = agent_library.read_agent_definition(AgentType(agent_type)).prompt()
     system_prompt = prompt.render(tools_documentation)
     verify(system_prompt)
 
@@ -92,7 +92,6 @@ def test_render_inserts_agents_content_with_placeholder():
     prompt = AgentPrompt(
         agent_name="Test",
         template="Header\n{{AGENTS.MD}}\n{{DYNAMIC_TOOLS_PLACEHOLDER}}\nFooter",
-        tool_keys=[],
         agents_content="AGENTS CONTENT"
     )
 
@@ -105,7 +104,6 @@ def test_render_removes_placeholder_when_no_agents_content():
     prompt = AgentPrompt(
         agent_name="Test",
         template="Header\n{{AGENTS.MD}}\nFooter",
-        tool_keys=[],
         agents_content=""
     )
 

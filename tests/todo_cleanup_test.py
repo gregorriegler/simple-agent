@@ -4,17 +4,19 @@ from approvaltests import verify, Options
 
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEvent
+from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import Session
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from .fake_display import FakeDisplay
 from .print_spy import IOSpy
+from .session_storage_stub import SessionStorageStub
 from .system_prompt_generator_test import GroundRulesStub
 from .test_helpers import all_scrubbers, create_session_args
-from .session_storage_stub import SessionStorageStub
 from .test_tool_library import ToolLibraryFactoryStub
 from .user_input_stub import UserInputStub
 
@@ -118,13 +120,13 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
         all_displays=display
     )
     session = Session(
-        llm=llm,
         event_bus=event_bus,
         session_storage=test_session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
         user_input=user_input_port,
-        todo_cleanup=cleanup_adapter
+        todo_cleanup=cleanup_adapter,
+        llm_provider=StubLLMProvider.for_testing(llm)
     )
     agent_id = AgentId("Agent")
 
@@ -137,7 +139,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
 
 def create_test_agent_definition():
     return AgentDefinition(
-        AgentId("Agent"), """---
+        AgentType("Agent"), """---
 name: Agent
 ---""",
         GroundRulesStub("Test system prompt")

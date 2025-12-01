@@ -1,8 +1,21 @@
 [model]
+default = "claude"
+
+[models.claude]
 model = "claude-sonnet-4-5-20250929"
 adapter = "claude"
-api_key = "sk-ant-api03-placeholder-key-replace-with-your-actual-claude-api-key"
-# base_url = "https://openrouter.ai/api/v1" # Optional: override for the OpenAI adapter
+api_key = "${ANTHROPIC_API_KEY}"
+
+# [models.openai]
+# model = "gpt-4o"
+# adapter = "openai"
+# api_key = "${OPENAI_API_KEY}"
+# base_url = "https://openrouter.ai/api/v1" # Optional: override for OpenRouter, etc.
+
+# [models.gemini]
+# model = "gemini-2.5-pro"
+# adapter = "gemini"
+# api_key = "${GOOGLE_API_KEY}"
 
 [paths]
 refactoring_tools_path = "C:\\Users\\riegl\\code\\csharp-refactoring-tools"

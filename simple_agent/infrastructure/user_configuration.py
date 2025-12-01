@@ -1,7 +1,7 @@
 from typing import Mapping, Any
 
 from simple_agent.application.agent_type import AgentType
-from simple_agent.infrastructure.model_config import ModelConfig
+from simple_agent.infrastructure.model_config import ModelsRegistry
 
 
 DEFAULT_STARTING_AGENT_TYPE = "orchestrator"
@@ -33,5 +33,5 @@ class UserConfiguration:
     def default_starting_agent_type():
         return AgentType(DEFAULT_STARTING_AGENT_TYPE)
 
-    def model_config(self) -> ModelConfig:
-        return ModelConfig(self._config)
+    def models_registry(self) -> ModelsRegistry:
+        return ModelsRegistry.from_config(self._config)

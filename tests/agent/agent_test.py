@@ -30,6 +30,7 @@ from tests.test_helpers import (
 )
 from tests.test_tool_library import ToolLibraryFactoryStub
 from tests.user_input_stub import UserInputStub
+from simple_agent.application.llm_stub import StubLLMProvider
 
 
 def test_chat_with_regular_response():
@@ -134,13 +135,13 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
 
     agent_library = BuiltinAgentLibrary()
     session = Session(
-        llm=llm_stub,
         event_bus=event_bus,
         session_storage=test_session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
         user_input=user_input_port,
-        todo_cleanup=NoOpTodoCleanup()
+        todo_cleanup=NoOpTodoCleanup(),
+        llm_provider=StubLLMProvider.for_testing(llm_stub)
     )
     agent_id = AgentId(starting_agent)
 

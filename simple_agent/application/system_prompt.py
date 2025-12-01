@@ -7,7 +7,6 @@ SystemPrompt = str
 class AgentPrompt:
     agent_name: str
     template: str
-    tool_keys: list[str]
     agents_content: str
 
     def render(self, tools_documentation: str) -> SystemPrompt:

@@ -11,10 +11,12 @@ logger = logging.getLogger(__name__)
 
 class AgentDefinition:
     def __init__(self, agent_type: AgentType, content: str, ground_rules: GroundRules):
-        self._prompt = None
         self._agent_type = agent_type
         self._content = content
         self.ground_rules = ground_rules
+        self._metadata: dict[str, Any] | None = None
+        self._template: str | None = None
+        self._prompt: AgentPrompt | None = None
 
     def agent_type(self) -> AgentType:
         return self._agent_type
@@ -23,19 +25,29 @@ class AgentDefinition:
         return self.prompt().agent_name
 
     def tool_keys(self):
-        return self.prompt().tool_keys
+        metadata, _ = self._load()
+        return self._read_tool_keys(metadata.get('tools'))
 
-    def prompt(self):
+    def model(self) -> str | None:
+        metadata, _ = self._load()
+        model_value = metadata.get('model')
+        return str(model_value).strip() if model_value is not None else None
+
+    def prompt(self) -> AgentPrompt:
         if not self._prompt:
-            self._prompt = self.load_prompt()
+            self._prompt = self._build_prompt()
         return self._prompt
 
-    def load_prompt(self) -> AgentPrompt:
-        metadata, template = self._parse_front_matter(self._content)
+    def _load(self) -> tuple[dict[str, Any], str]:
+        if self._metadata is None:
+            self._metadata, self._template = self._parse_front_matter(self._content)
+        return self._metadata, self._template
+
+    def _build_prompt(self) -> AgentPrompt:
+        metadata, template = self._load()
         name = metadata.get('name', str(self._agent_type).capitalize())
-        tool_keys = self._read_tool_keys(metadata.get('tools'))
         ground_rules = self.ground_rules.read()
-        return AgentPrompt(name, template, tool_keys, ground_rules)
+        return AgentPrompt(name, template, ground_rules)
 
     def _parse_front_matter(self, content: str) -> tuple[dict[str, Any], str]:
         if not content:

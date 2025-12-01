@@ -2,18 +2,20 @@ from dataclasses import dataclass
 from typing import Callable, Any
 
 from simple_agent.application.agent_definition import AgentDefinition
+from simple_agent.application.llm import LLMProvider
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.events import SessionStartedEvent
-from simple_agent.application.llm import LLM
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.todo_cleanup import TodoCleanup
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from simple_agent.application.user_input import UserInput
+
+
 
 
 @dataclass
@@ -32,21 +34,21 @@ class SessionArgs:
 class Session:
     def __init__(
         self,
-        llm: LLM,
         event_bus: EventBus,
         session_storage: SessionStorage,
         tool_library_factory: ToolLibraryFactory,
         agent_library: AgentLibrary,
         user_input: UserInput,
         todo_cleanup: TodoCleanup,
+        llm_provider: LLMProvider,
     ):
-        self._llm = llm
         self._event_bus = event_bus
         self._session_storage = session_storage
         self._tool_library_factory = tool_library_factory
         self._agent_library = agent_library
         self._user_input = user_input
         self._todo_cleanup = todo_cleanup
+        self._llm_provider = llm_provider
 
     def run(
         self,
@@ -55,12 +57,12 @@ class Session:
         agent_definition: AgentDefinition
     ):
         agent_factory = AgentFactory(
-            self._llm,
             self._event_bus,
             self._session_storage,
             self._tool_library_factory,
             self._agent_library,
-            self._user_input
+            self._user_input,
+            self._llm_provider
         )
 
         if not args.continue_session:
