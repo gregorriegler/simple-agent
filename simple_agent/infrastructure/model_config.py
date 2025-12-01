@@ -57,7 +57,7 @@ class ModelConfig:
             print("Error: model.adapter must be configured to select an adapter", file=sys.stderr)
             sys.exit(1)
         normalized = str(adapter).strip().lower()
-        if normalized not in {"claude", "openai"}:
-            print("Error: model.adapter must be either 'claude' or 'openai'", file=sys.stderr)
+        if normalized not in {"claude", "openai", "gemini"}:
+            print("Error: model.adapter must be either 'claude', 'openai', or 'gemini'", file=sys.stderr)
             sys.exit(1)
         return normalized

@@ -13,7 +13,7 @@ Simple Agent aims to be a simple, extensible, and transparent general-purpose ag
 - Markdown-driven subagents: build modular agents from simple markdown files
 - Token-efficient tool calling: optimized tool execution to reduce overhead
 - CLI-first design: built for command-line use, with optional non-interactive mode
-- API integration: works with OpenAI and Anthropic APIs
+- API integration: works with OpenAI, Anthropic, and Google Gemini APIs
 
 ## Installation and Usage
 
@@ -61,14 +61,25 @@ Create a `.simple-agent.toml` file either in your home directory or in the direc
 ```toml
 [model]
 model = "claude-sonnet-4-5-20250929"
-adapter = "claude" # or "openai"
+adapter = "claude" # or "openai" or "gemini"
 api_key = "your-api-key-here"
 # base_url = "https://openrouter.ai/api/v1" # Optional when using the OpenAI adapter
 ```
 
 All values inside `[model]` are required; pick the adapter that matches the infrastructure client you want to use.
 
-When using the OpenAI adapter you can point the client at a compatible provider by overriding `base_url`, e.g. set it to `https://openrouter.ai/api/v1` for OpenRouter.
+### Adapter-specific configuration
+
+**OpenAI adapter:** You can point the client at a compatible provider by overriding `base_url`, e.g. set it to `https://openrouter.ai/api/v1` for OpenRouter.
+
+**Gemini adapter:** Configure with a Google AI API key and model name:
+```toml
+[model]
+model = "gemini-2.5-pro"  # or "gemini-1.5-flash", "gemini-1.5-pro", etc.
+adapter = "gemini"
+api_key = "your-google-api-key-here"
+# base_url = "https://generativelanguage.googleapis.com/v1beta" # Optional, defaults to Google's API
+```
 
 ### Custom agent definitions
 
