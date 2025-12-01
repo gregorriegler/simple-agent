@@ -9,6 +9,7 @@ tools:
   - edit_file
   - write_todos
   - complete_task
+model: gemini-pro
 ---
 
 {{AGENTS.MD}}
