@@ -1,6 +1,6 @@
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
-    AgentCreatedEvent,
+    AgentStartedEvent,
     AgentFinishedEvent,
     AssistantSaidEvent,
     SessionEndedEvent,
@@ -30,7 +30,7 @@ def subscribe_events(
     event_bus.subscribe(ToolResultEvent, event_logger.log_event)
     event_bus.subscribe(SessionInterruptedEvent, event_logger.log_event)
     event_bus.subscribe(SessionEndedEvent, event_logger.log_event)
-    event_bus.subscribe(AgentCreatedEvent, event_logger.log_event)
+    event_bus.subscribe(AgentStartedEvent, event_logger.log_event)
     event_bus.subscribe(
         AgentFinishedEvent,
         lambda event: todo_cleanup.cleanup_todos_for_agent(event.agent_id) if event.agent_id.has_parent() else None,
@@ -43,4 +43,4 @@ def subscribe_events(
     event_bus.subscribe(ToolResultEvent, display.tool_result)
     event_bus.subscribe(SessionInterruptedEvent, display.interrupted)
     event_bus.subscribe(SessionEndedEvent, display.exit)
-    event_bus.subscribe(AgentCreatedEvent, display.agent_created)
+    event_bus.subscribe(AgentStartedEvent, display.agent_created)

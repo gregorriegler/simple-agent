@@ -6,7 +6,7 @@ from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
-from simple_agent.application.events import AgentCreatedEvent, AgentFinishedEvent
+from simple_agent.application.events import AgentStartedEvent, AgentFinishedEvent
 from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.session import Session
@@ -108,7 +108,7 @@ def run_test_session(continue_session, llm_stub=None, todo_cleanup=None):
     cleanup_adapter = todo_cleanup if todo_cleanup is not None else FileSystemTodoCleanup()
 
     event_bus.subscribe(AgentFinishedEvent, lambda event: cleanup_adapter.cleanup_todos_for_agent(event.agent_id) if event.agent_id.has_parent() else None)
-    event_bus.subscribe(AgentCreatedEvent, display.agent_created)
+    event_bus.subscribe(AgentStartedEvent, display.agent_created)
 
     test_session_storage = SessionStorageStub()
     agent_library = BuiltinAgentLibrary()

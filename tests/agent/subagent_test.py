@@ -6,7 +6,7 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
     AssistantRespondedEvent,
     AssistantSaidEvent,
-    AgentCreatedEvent,
+    AgentStartedEvent,
     SessionEndedEvent,
     SessionInterruptedEvent,
     SessionStartedEvent,
@@ -92,7 +92,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     event_bus.subscribe(SessionStartedEvent, display.start_session)
     event_bus.subscribe(SessionInterruptedEvent, display.interrupted)
     event_bus.subscribe(SessionEndedEvent, display.exit)
-    event_bus.subscribe(AgentCreatedEvent, display.agent_created)
+    event_bus.subscribe(AgentStartedEvent, display.agent_created)
 
     tool_library_factory = ToolLibraryFactoryStub(
         llm_stub,

@@ -5,7 +5,7 @@ from .session_storage import SessionStorage
 from .tool_library import ToolResult, ContinueResult, ToolLibrary, MessageAndParsedTools, ParsedTool
 from .event_bus_protocol import EventBus
 from .events import (
-    AgentCreatedEvent, AgentFinishedEvent,
+    AgentStartedEvent, AgentFinishedEvent,
     AssistantSaidEvent, AssistantRespondedEvent,
     ToolCalledEvent, ToolResultEvent,
     SessionEndedEvent, SessionInterruptedEvent,
@@ -36,7 +36,7 @@ class Agent:
         self.context: Messages = context
 
     def start(self):
-        self._notify_agent_created()
+        self._notify_agent_started()
         try:
             tool_result: ToolResult = ContinueResult()
 
@@ -51,9 +51,9 @@ class Agent:
         finally:
             self._notify_agent_finished()
 
-    def _notify_agent_created(self):
+    def _notify_agent_started(self):
         self.event_bus.publish(
-            AgentCreatedEvent(self.agent_id, self.agent_name)
+            AgentStartedEvent(self.agent_id, self.agent_name)
         )
 
     def _notify_agent_finished(self):

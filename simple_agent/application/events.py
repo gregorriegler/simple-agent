@@ -70,6 +70,6 @@ class AgentFinishedEvent(AgentEvent):
 
 
 @dataclass
-class AgentCreatedEvent(AgentEvent):
-    event_name: ClassVar[str] = "agent_created"
+class AgentStartedEvent(AgentEvent):
+    event_name: ClassVar[str] = "agent_started"
     agent_name: str
