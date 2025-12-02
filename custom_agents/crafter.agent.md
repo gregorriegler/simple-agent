@@ -9,7 +9,7 @@ tools:
   - edit_file
   - write_todos
   - complete_task
-model: sonnet
+model: claude-sonnet
 ---
 
 {{DYNAMIC_TOOLS_PLACEHOLDER}}
