@@ -23,5 +23,6 @@ The problem is that ... [3/10]
 # Environment
 - We are in a bash environment
 - We use uv
+- To run the tests use the `./test.sh` script
 - avoid interactive commands such as `git diff`.
   - E.g. use `git --no-pager diff` instead

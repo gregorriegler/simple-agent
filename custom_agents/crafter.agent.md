@@ -61,6 +61,7 @@ Whenever there is a **bug to fix** or a **change/feature to implement**, you mus
 This is non-optional for behavioral changes.
 
 To achieve this, you conceptually spawn a dedicated **"test-writer" subagent**:
+Provide the subagent with necessary file locations and context.
 
 - The **test-writer subagent** has a single responsibility:
   - Understand your intended behavior (bug fix or new feature).
