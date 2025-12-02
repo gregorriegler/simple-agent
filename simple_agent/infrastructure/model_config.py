@@ -78,8 +78,8 @@ class ModelsRegistry:
         key = name or self.default
         if key not in self.models:
             available = ", ".join(self.models.keys())
-            print(f"Error: Unknown model configuration: '{key}'. Available models: {available}", file=sys.stderr)
-            sys.exit(1)
+            print(f"Warning: Unknown model configuration: '{key}'. Falling back to default: '{self.default}'. Available models: {available}", file=sys.stderr)
+            return self.models[self.default]
         return self.models[key]
 
     @staticmethod
