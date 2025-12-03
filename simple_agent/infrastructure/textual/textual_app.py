@@ -33,7 +33,18 @@ class TextualApp(App):
     @staticmethod
     def create_and_start(user_input=None, root_agent_id: AgentId = AgentId("Agent")):
         app = TextualApp(user_input, root_agent_id)
-        app._app_thread = threading.Thread(target=app.run, daemon=False)
+
+        def run_with_suppressed_shutdown_error():
+            try:
+                app.run()
+            except RuntimeError as e:
+                # Suppress "cannot schedule new futures after shutdown" which occurs
+                # when asyncio.run() cleans up the executor before Textual finishes
+                # stopping its timers. This is benign during app exit.
+                if "cannot schedule new futures after shutdown" not in str(e):
+                    raise
+
+        app._app_thread = threading.Thread(target=run_with_suppressed_shutdown_error, daemon=False)
         app._app_thread.start()
         time.sleep(0.5)
         return app
@@ -115,6 +126,7 @@ class TextualApp(App):
     .left-panel-bottom {
         background: $surface-darken-1;
         overflow-y: auto;
+        padding: 1 1 0 1;
     }
 
     #right-panel {
