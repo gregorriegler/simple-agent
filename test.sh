@@ -15,19 +15,38 @@ show_help() {
     echo ""
     echo "Options:"
     echo "  -h, --help      Show this help message and exit"
+    echo "  -v, --verbose   Show verbose output with full tracebacks"
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-    show_help
-    exit 0
-fi
+verbose=false
+while [[ "${1:-}" == -* ]]; do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -v|--verbose)
+            verbose=true
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1"
+            show_help
+            exit 1
+            ;;
+    esac
+done
 
 export USE_APPROVE_SH_REPORTER=true
 
 cd "$(dirname "$0")"
 
 test_target="tests/"
-pytest_args=(-v)
+if [[ "$verbose" == true ]]; then
+    pytest_args=(-v)
+else
+    pytest_args=(-x --tb=short)
+fi
 
 if [[ -n "${1:-}" ]]; then
     if [[ -f "tests/$1" ]]; then
@@ -44,5 +63,5 @@ if ! output=$(uv run pytest "$test_target" "${pytest_args[@]}" 2>&1); then
     exit 1
 fi
 
-passed_tests=$(echo "$output" | grep -c "PASSED" || echo "0")
+passed_tests=$(echo "$output" | grep -oE '[0-9]+ passed' | grep -oE '[0-9]+' || echo "0")
 echo "✅ All $passed_tests tests passed"

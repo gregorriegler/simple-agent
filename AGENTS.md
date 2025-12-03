@@ -24,9 +24,10 @@ The problem is that ... [3/10]
 - We are in a bash environment
 - We use uv
 - To run the tests use the `./test.sh` script
-  - `./test.sh` - Run all tests
+  - `./test.sh` - Run all tests (stops on first failure, short tracebacks)
   - `./test.sh test_foo.py` - Run a specific test file
   - `./test.sh test_foo` - Run tests matching a pattern
+  - `./test.sh -v` - Verbose mode with full tracebacks
   - `./test.sh -h` - Show help
 - avoid interactive commands such as `git diff`.
   - E.g. use `git --no-pager diff` instead

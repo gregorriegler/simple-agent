@@ -126,9 +126,10 @@ uv run --project . --script simple_agent/run_tool.py cat README.md
 
 ```bash
 # Run tests
-./test.sh                    # Run all tests
+./test.sh                    # Run all tests (stops on first failure)
 ./test.sh test_foo.py        # Run a specific test file
 ./test.sh test_foo           # Run tests matching a pattern
+./test.sh -v                 # Verbose mode with full tracebacks
 ./test.sh -h                 # Show help
 
 # Approve received files
