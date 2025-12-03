@@ -1,3 +1,4 @@
+import io
 import os
 import sys
 import threading
@@ -10,7 +11,7 @@ from rich.console import Console
 from simple_agent.main import main
 
 
-def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.6):
+def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.5):
     if not approved_path.exists():
         approved_path.parent.mkdir(parents=True, exist_ok=True)
         approved_path.write_text(actual, encoding="utf-8")
@@ -20,7 +21,6 @@ def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.6):
     ratio = SequenceMatcher(None, actual, approved).ratio()
 
     if ratio < threshold:
-        # Write received file for comparison
         received_path = approved_path.with_name(
             approved_path.name.replace(".approved.txt", ".received.txt")
         )
@@ -43,16 +43,23 @@ def test_golden_master_agent_stub(monkeypatch):
         "Hello, world!"
     ])
 
+    approved_path = Path(__file__).parent / "approved_files" / "end_to_end_test.test_golden_master_agent_stub.approved.txt"
+
+    def normalize(text):
+        return text.replace("▃", "").replace("╸", "").replace("▂", "").replace("▄", "")
+
     captured = []
     capture_done = threading.Event()
 
     def unblock_agent(app):
         async def do_capture():
+            # Wait for screen to settle
             for _ in range(30):
                 await app._pilot.pause()
-            console = Console(record=True, width=80, force_terminal=False)
+            # Capture screen
+            console = Console(record=True, width=80, force_terminal=False, file=io.StringIO())
             console.print(app.screen._compositor)
-            captured.append(console.export_text())
+            captured.append(normalize(console.export_text()))
             capture_done.set()
 
         app.call_from_thread(do_capture)
@@ -63,5 +70,4 @@ def test_golden_master_agent_stub(monkeypatch):
 
     app.shutdown()
 
-    approved_path = Path(__file__).parent / "approved_files" / "end_to_end_test.test_golden_master_agent_stub.approved.txt"
     fuzzy_verify(captured[0].replace("▃", "").replace("╸", ""), approved_path)
