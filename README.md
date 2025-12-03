@@ -126,7 +126,10 @@ uv run --project . --script simple_agent/run_tool.py cat README.md
 
 ```bash
 # Run tests
-./test.sh
+./test.sh                    # Run all tests
+./test.sh test_foo.py        # Run a specific test file
+./test.sh test_foo           # Run tests matching a pattern
+./test.sh -h                 # Show help
 
 # Approve received files
 ./approve.sh
