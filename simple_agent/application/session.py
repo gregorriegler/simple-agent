@@ -65,8 +65,6 @@ class Session:
             self._llm_provider
         )
 
-        if not args.continue_session:
-            self._todo_cleanup.cleanup_all_todos()
 
         self._event_bus.publish(SessionStartedEvent(starting_agent_id, args.continue_session))
 

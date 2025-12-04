@@ -83,7 +83,6 @@ class TextualAgentDisplay(AgentDisplay):
     def start_new_session(self):
         if self._app and self._app.is_running:
             self._app.post_message(SessionStatusMessage(self._log_id, "Starting new session"))
-            self.refresh_todos()
 
     def refresh_todos(self):
         if self._app and self._app.is_running:

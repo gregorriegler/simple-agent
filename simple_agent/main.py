@@ -51,6 +51,11 @@ def main(on_user_prompt_requested=None):
     agent_definition = agent_library.read_agent_definition(starting_agent_type)
     root_agent_id = AgentId(agent_definition.agent_name())
 
+    todo_cleanup = FileSystemTodoCleanup()
+    
+    if not args.continue_session:
+        todo_cleanup.cleanup_all_todos()
+
     if args.test_mode:
         textual_app = TextualApp.create_and_start_test(textual_user_input, root_agent_id)
     else:
@@ -58,7 +63,6 @@ def main(on_user_prompt_requested=None):
     display = TextualDisplay(textual_app)
 
     session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
-    todo_cleanup = FileSystemTodoCleanup()
 
     event_logger = EventLogger('.simple-agent.events.log')
 
