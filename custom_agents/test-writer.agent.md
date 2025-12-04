@@ -32,6 +32,7 @@ A test describes a fact, so we don't want 'should' in its name.
 It describes the intended behavior of the system.
 A test needs to be easily readable and expressive.
 No indentation, no logic and speak domain language instead of technical details.
+No monkeypatch unless its impossible to inject a mock/sub/spy/fake.
 It describes the "what", not the "how".
 The shorter, the better.
 When arrange, act and assert fits, we split it by an empty line.
