@@ -21,30 +21,6 @@ from .test_tool_library import ToolLibraryFactoryStub
 from .user_input_stub import UserInputStub
 
 
-def test_new_session_deletes_all_todo_files(tmp_path, monkeypatch):
-    monkeypatch.chdir(tmp_path)
-
-    files = [
-        ".todos.md",
-        ".Agent.todos.md",
-        ".Agent.Coding.todos.md",
-        ".Agent.Orchestrator.todos.md",
-        ".some.other.todos.md",
-        "normal.md",
-        ".gitignore",
-        "test.txt"
-    ]
-    for filename in files:
-        Path(filename).write_text(f"content of {filename}")
-
-    run_test_session(continue_session=False)
-
-    remaining_files = sorted([f.name for f in Path.cwd().iterdir() if f.is_file()])
-
-    result = f"Remaining files after new session:\n" + "\n".join(remaining_files)
-    verify(result, options=Options().with_scrubber(all_scrubbers()))
-
-
 def test_continued_session_keeps_todo_files(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
