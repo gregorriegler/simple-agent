@@ -73,3 +73,9 @@ class AgentFinishedEvent(AgentEvent):
 class AgentStartedEvent(AgentEvent):
     event_name: ClassVar[str] = "agent_started"
     agent_name: str
+
+
+@dataclass
+class ErrorEvent(AgentEvent):
+    event_name: ClassVar[str] = "error"
+    message: str
