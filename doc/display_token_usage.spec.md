@@ -67,4 +67,11 @@ class ModelInfo:
     def get_context_window(model_name: str) -> int:
         # Fuzzy matching or direct lookup
         return ModelInfo.KNOWN_MODELS.get(model_name, 0)
+# Slices
+
+## [ ] Slice 1: End-to-End Walking Skeleton
+- [ ] **Core Types**: Update `LLM` protocol and introduce `LLMResponse`, `TokenUsage`.
+- [ ] **Agent Logic**: Update `Agent` to handle `LLMResponse` and emit enriched event.
+- [ ] **Infrastructure**: Update `OpenAILLM` to return real usage data; update other providers with dummy data.
+- [ ] **UI**: Update Textual app to display token usage in tab title.
 ```
