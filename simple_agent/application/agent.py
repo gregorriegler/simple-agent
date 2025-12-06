@@ -9,7 +9,8 @@ from .events import (
     AssistantSaidEvent, AssistantRespondedEvent,
     ToolCalledEvent, ToolResultEvent,
     SessionEndedEvent, SessionInterruptedEvent,
-    UserPromptRequestedEvent, UserPromptedEvent
+    UserPromptRequestedEvent, UserPromptedEvent,
+    ErrorEvent
 )
 
 
@@ -80,6 +81,8 @@ class Agent:
         except KeyboardInterrupt:
             self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
             raise
+        except Exception as e:
+            self.event_bus.publish(ErrorEvent(self.agent_id, str(e)))
 
         return tool_result
 

@@ -5,7 +5,6 @@ from tests.session_test_bed import SessionTestBed
 from tests.test_helpers import create_temp_file, create_temp_directory_structure, all_scrubbers
 
 
-@pytest.mark.skip
 def test_llm_error_emits_error_event():
     result = SessionTestBed() \
         .with_failing_llm("429 Too Many Requests") \
