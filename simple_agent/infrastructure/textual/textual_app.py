@@ -301,7 +301,11 @@ class TextualApp(App):
             pending_for_panel.pop(call_id, None)
             self._suppressed_tool_calls.add(call_id)
             return
-        container = self.query_one(f"#{tool_results_id}", VerticalScroll)
+        try:
+            container = self.query_one(f"#{tool_results_id}", VerticalScroll)
+        except NoMatches:
+            logger.warning("Could not find tool results container #%s", tool_results_id)
+            return
         collapsibles = self._tool_result_collapsibles.setdefault(tool_results_id, [])
         for collapsible in collapsibles:
             collapsible.collapsed = True

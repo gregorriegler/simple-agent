@@ -59,23 +59,23 @@ def test_golden_master_agent_stub(monkeypatch):
                 console.print(app.screen._compositor)
                 return normalize(console.export_text())
 
-            # Wait for screen to stabilize (no changes for consecutive checks)
+            # Wait for screen to stabilize with substantial content
+            max_attempts = 60
             last_content = None
             stable_count = 0
-            max_attempts = 50
-            stable_threshold = 3  # Require 3 consecutive identical captures
 
             for _ in range(max_attempts):
                 await app._pilot.pause()
-                current_content = get_screen_content()
+                content = get_screen_content()
 
-                if current_content == last_content:
+                if content == last_content:
                     stable_count += 1
-                    if stable_count >= stable_threshold:
+                    # Stable and has expected content - done
+                    if stable_count >= 3 and "complete-task" in content:
                         break
                 else:
                     stable_count = 0
-                    last_content = current_content
+                    last_content = content
 
             captured.append(get_screen_content())
             capture_done.set()
