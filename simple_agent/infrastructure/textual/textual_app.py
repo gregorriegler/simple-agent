@@ -347,7 +347,16 @@ class TextualApp(App):
             pending_for_panel.pop(call_id, None)
             self._refresh_todos(tool_results_id)
             return
-        title_source, text_area, call_collapsible = pending_for_panel.pop(call_id)
+        pending_entry = pending_for_panel.pop(call_id, None)
+        if pending_entry is None:
+            logger.warning(
+                "Tool result received with no matching call. tool_results_id=%s call_id=%s",
+                tool_results_id,
+                call_id,
+            )
+            self._refresh_todos(tool_results_id)
+            return
+        title_source, text_area, call_collapsible = pending_entry
         message = result.display_body if result.display_body else result.message
         message = message or ""
         title_text = result.display_title if result.display_title else None
@@ -382,8 +391,16 @@ class TextualApp(App):
             diff_widget.styles.height = height
             diff_widget.styles.min_height = height
             text_area.remove()
-            contents = call_collapsible.query_one(Collapsible.Contents)
-            contents.mount(diff_widget)
+            try:
+                contents = call_collapsible.query_one(Collapsible.Contents)
+                contents.mount(diff_widget)
+            except NoMatches:
+                logger.warning(
+                    "Missing collapsible contents for tool result. tool_results_id=%s call_id=%s",
+                    tool_results_id,
+                    call_id,
+                )
+                call_collapsible.mount(diff_widget)
         else:
             line_count = len(message.splitlines()) or 1
             height = min(line_count * 2 + 1, 30)
