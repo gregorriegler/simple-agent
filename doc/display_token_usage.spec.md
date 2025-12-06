@@ -1,21 +1,18 @@
-# Display Token Usage in Tab Title (Client-Side Estimation)
+# Display Token Usage in Tab Title (API Data)
 
 ## Problem
-Users cannot see which model is being used or how many tokens have been consumed relative to the context window.
+Users cannot see which model is being used or how many tokens have been consumed.
 
 ## Solution
-1.  **Client-Side Estimation**:
-    -   We will estimate token usage on the client side (in `Agent`) to avoid changing the LLM protocol.
-    -   Heuristic: 1 token ~= 4 characters.
-    -   We will maintain a `ModelRegistry` with known context window sizes (e.g., `gpt-4o`: 128k, `claude-3-5-sonnet`: 200k).
-    -   Configuration in `.simple-agent.toml` can override `context_window` and `model_name`.
+1.  **LLM Protocol Update**:
+    -   Update `LLM` protocol to return a `LLMResponse` object instead of a string.
+    -   `LLMResponse` contains `content` (str), `model` (str), and `usage` (dict).
+    -   Update `ClaudeLLM`, `OpenAILLM`, and `GeminiLLM` to return this object.
 
 2.  **Agent Changes**:
-    -   `Agent` will receive `model_name` in `__init__`.
-    -   In `llm_responds()`, `Agent` will calculate total characters in `self.context` and the new answer.
-    -   Convert characters to tokens.
-    -   Retrieve `max_tokens` for the model.
-    -   Emit `AssistantRespondedEvent` with additional metadata: `model`, `token_count`, `max_tokens`.
+    -   Update `Agent.llm_responds` to handle `LLMResponse`.
+    -   Extract `token_count` (total tokens) and `model`.
+    -   Emit `AssistantRespondedEvent` with `model`, `token_count`, and `max_tokens` (looked up via helper).
 
 3.  **Event Update**:
     -   Update `AssistantRespondedEvent` dataclass to include:
@@ -27,15 +24,23 @@ Users cannot see which model is being used or how many tokens have been consumed
 
 4.  **Frontend (Textual)**:
     -   Update `TextualDisplay` to subscribe to `AssistantRespondedEvent`.
-    -   When received, post a `TokenUsageMessage` (internal UI message) to `TextualApp`.
-    -   `TextualApp` updates the tab title: `Title [Model: 50%]`.
+    -   Update `TextualApp` to update the tab title.
 
 ## Design Details
 
-### Token Estimation
+### LLM Response
 ```python
-def estimate_tokens(text: str) -> int:
-    return len(text) // 4
+@dataclass
+class TokenUsage:
+    input_tokens: int
+    output_tokens: int
+    total_tokens: int
+
+@dataclass
+class LLMResponse:
+    content: str
+    model: str
+    usage: TokenUsage | None
 ```
 
 ### Event
