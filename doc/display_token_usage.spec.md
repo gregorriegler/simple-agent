@@ -40,7 +40,7 @@ class TokenUsage:
 class LLMResponse:
     content: str
     model: str
-    usage: TokenUsage | None
+    usage: TokenUsage
 ```
 
 ### Event
@@ -52,20 +52,15 @@ class AssistantRespondedEvent(AgentEvent):
     model: str = ""
     token_count: int = 0
     max_tokens: int = 0
+```
+
 ### Model Info Helper
 ```python
 class ModelInfo:
     KNOWN_MODELS = {
         "gpt-4o": 128000,
         "claude-3-5-sonnet-20240620": 200000,
-        # ... others
-    }
-    
-    @staticmethod
-    def get_context_window(model_name: str, config_override: int | None = None) -> int:
-        if config_override:
-            return config_override
+    def get_context_window(model_name: str) -> int:
         # Fuzzy matching or direct lookup
         return ModelInfo.KNOWN_MODELS.get(model_name, 0)
-```
 ```
