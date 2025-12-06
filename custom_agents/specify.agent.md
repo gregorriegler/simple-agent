@@ -1,5 +1,5 @@
 ---
-name: Align on Goal
+name: Specify
 tools:
   - subagent
   - bash
