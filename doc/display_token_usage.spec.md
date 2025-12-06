@@ -60,6 +60,10 @@ class ModelInfo:
     KNOWN_MODELS = {
         "gpt-4o": 128000,
         "claude-3-5-sonnet-20240620": 200000,
+        # ... others
+    }
+    
+    @staticmethod
     def get_context_window(model_name: str) -> int:
         # Fuzzy matching or direct lookup
         return ModelInfo.KNOWN_MODELS.get(model_name, 0)
