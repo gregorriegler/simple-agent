@@ -29,6 +29,18 @@ from simple_agent.infrastructure.textual.textual_messages import (
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
 
 
+class SubmittableTextArea(TextArea):
+
+    def _on_key(self, event: events.Key) -> None:
+        # ctrl+j is how Windows/mintty sends Ctrl+Enter
+        if event.key in ("ctrl+enter", "ctrl+j"):
+            self.app.action_submit_input()
+            event.stop()
+            event.prevent_default()
+            return
+        super()._on_key(event)
+
+
 class TextualApp(App):
     @staticmethod
     def create_and_start(user_input=None, root_agent_id: AgentId = AgentId("Agent")):
@@ -98,6 +110,7 @@ class TextualApp(App):
         ("alt+right", "next_tab", "Next Tab"),
         ("ctrl+c", "quit", "Quit"),
         ("ctrl+q", "quit", "Quit"),
+        ("ctrl+enter", "submit_input", "Submit"),
     ]
 
     CSS = """
@@ -153,8 +166,17 @@ class TextualApp(App):
     }
 
     #user-input {
-        height: 3;
+        height: 5;
+        min-height: 3;
+        max-height: 10;
         border: solid $primary;
+    }
+
+    #input-hint {
+        height: 1;
+        color: $text-muted;
+        text-align: right;
+        padding-right: 1;
     }
     """
 
@@ -188,7 +210,8 @@ class TextualApp(App):
             with TabbedContent(id="tabs"):
                 with TabPane(self._root_agent_id.raw, id=tab_id):
                     yield self.create_agent_container(log_id, tool_results_id, self._root_agent_id)
-            yield Input(placeholder="Enter your message...", id="user-input", valid_empty=True)
+            yield Static("Ctrl+Enter to submit", id="input-hint")
+            yield SubmittableTextArea(id="user-input")
 
     def create_agent_container(self, log_id, tool_results_id, agent_id):
         chat_scroll = VerticalScroll(Static("", id=log_id), id=f"{log_id}-scroll", classes="left-panel-top")
@@ -204,7 +227,7 @@ class TextualApp(App):
         return ResizableHorizontal(left_panel, right_panel, id="tab-content")
 
     def on_mount(self) -> None:
-        self.query_one("#user-input", Input).focus()
+        self.query_one("#user-input", TextArea).focus()
 
     def on_unmount(self) -> None:
         if self.user_input:
@@ -223,6 +246,10 @@ class TextualApp(App):
         if event.key == "escape":
             if self.user_input:
                 self.user_input.request_escape()
+            event.prevent_default()
+            return
+        if event.key == "ctrl+enter":
+            self.action_submit_input()
             event.prevent_default()
             return
         return
@@ -251,10 +278,12 @@ class TextualApp(App):
         if new_tab_id:
             tabs.active = new_tab_id
 
-    def on_input_submitted(self, event: Input.Submitted) -> None:
-        if self.user_input:
-            self.user_input.submit_input(event.value.strip())
-        event.input.value = ""
+    def action_submit_input(self) -> None:
+        text_area = self.query_one("#user-input", TextArea)
+        content = text_area.text.strip()
+        if self.user_input and content:
+            self.user_input.submit_input(content)
+        text_area.clear()
 
     def write_message(self, log_id: str, message: str) -> None:
         try:
