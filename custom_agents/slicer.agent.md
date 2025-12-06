@@ -1,5 +1,5 @@
 ---
-name: Slicing Agent
+name: Slicer
 tools:
   - bash
   - ls
