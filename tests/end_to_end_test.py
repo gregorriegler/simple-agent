@@ -31,7 +31,6 @@ def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.5):
             f"Approved: {approved_path}"
         )
 
-@pytest.mark.skip(reason="Temporarily ignored - golden master needs update")
 def test_golden_master_agent_stub(monkeypatch):
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     os.chdir(project_root)
@@ -80,7 +79,8 @@ def test_golden_master_agent_stub(monkeypatch):
             capture_done.set()
 
         app.call_from_thread(do_capture)
-        capture_done.wait(timeout=5.0)
+        if not capture_done.wait(timeout=10.0):
+            pytest.fail("Timed out waiting for screen capture")
         app.user_input.submit_input("")
 
     app = main(on_user_prompt_requested=unblock_agent)
