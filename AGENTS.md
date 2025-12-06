@@ -11,14 +11,8 @@ Example:
 The problem is that there is a missing semicolon. Confidence: [10/10]
 The problem is that ... [3/10]
 
-## Architecture
-- We are following a minimal ports and adapters architecture which means there is main, application and infrastructure where
-  - main depends on both application and infrastructure,
-  - infrastructure depends on application,
-  - and application may never depend on the other two.
-  - whenever application needs access to infrastructure we implement a port and an adapter 
-  - whenever we unittest we cover what is in application
-  - infrastructure is tested only by integration tests
+# Architecture
+To get an overview of the Architecture read `doc/overview.md`
 
 # Environment
 - We are in a bash environment
