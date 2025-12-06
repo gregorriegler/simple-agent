@@ -42,7 +42,15 @@ class SessionTestResult:
 
 class SessionTestBed:
     def __init__(self):
-        self._llm = lambda m: ""
+        class DefaultLLM:
+            @property
+            def model(self) -> str:
+                return "default-model"
+            
+            def __call__(self, m):
+                return ""
+        
+        self._llm = DefaultLLM()
         self._user_inputs = ["\n"]
         self._start_message = "test message"
         self._escape_hits = None
@@ -56,9 +64,15 @@ class SessionTestBed:
         return self
 
     def with_failing_llm(self, error_message: str) -> "SessionTestBed":
-        def failing(messages):
-            raise ClaudeClientError(error_message)
-        self._llm = failing
+        class FailingLLM:
+            @property
+            def model(self) -> str:
+                return "failing-model"
+            
+            def __call__(self, messages):
+                raise ClaudeClientError(error_message)
+        
+        self._llm = FailingLLM()
         return self
 
     def with_user_inputs(self, start_message: str, *remaining) -> "SessionTestBed":

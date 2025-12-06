@@ -14,6 +14,10 @@ class GeminiLLM(LLM):
         self._config = config
         self._ensure_gemini_adapter()
 
+    @property
+    def model(self) -> str:
+        return self._config.model
+
     def __call__(self, messages: ChatMessages) -> LLMResponse:
         api_key = self._config.api_key
         model = self._config.model

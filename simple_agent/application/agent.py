@@ -58,7 +58,7 @@ class Agent:
 
     def _notify_agent_started(self):
         self.event_bus.publish(
-            AgentStartedEvent(self.agent_id, self.agent_name)
+            AgentStartedEvent(self.agent_id, self.agent_name, self.llm.model)
         )
 
     def _notify_agent_finished(self):

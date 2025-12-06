@@ -20,6 +20,10 @@ class OpenAILLM(LLM):
         self._config = config
         self._ensure_openai_adapter()
 
+    @property
+    def model(self) -> str:
+        return self._config.model
+
     def __call__(self, messages: ChatMessages) -> LLMResponse:
         base_url = self._config.base_url or "https://api.openai.com/v1"
         url = f"{base_url.rstrip('/')}/chat/completions"
@@ -61,7 +65,7 @@ class OpenAILLM(LLM):
             raise OpenAIClientError("API response missing 'message.content' field")
 
         content = message["content"] or ""
-        
+
         usage_data = response_data.get("usage", {})
         usage = TokenUsage(
             input_tokens=usage_data.get("prompt_tokens", 0),

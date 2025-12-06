@@ -26,8 +26,8 @@ class TextualDisplay(AgentDisplayHub):
         super().__init__()
         self._app = app
 
-    def _create_display(self, agent_id: AgentId, agent_name: str | None) -> 'TextualAgentDisplay':
-        return TextualAgentDisplay(self, self._app, agent_id, agent_name)
+    def _create_display(self, agent_id: AgentId, agent_name: str | None, model: str = "") -> 'TextualAgentDisplay':
+        return TextualAgentDisplay(self, self._app, agent_id, agent_name, model)
 
     def _on_agent_removed(self, agent_id: AgentId, agent: AgentDisplay) -> None:
         self.remove_tab(agent_id)
@@ -40,11 +40,12 @@ class TextualDisplay(AgentDisplayHub):
 
 class TextualAgentDisplay(AgentDisplay):
 
-    def __init__(self, hub: TextualDisplay, app: TextualApp, agent_id: AgentId, agent_name: str | None = None):
+    def __init__(self, hub: TextualDisplay, app: TextualApp, agent_id: AgentId, agent_name: str | None = None, model: str = ""):
         self._hub = hub
         self._app = app
         self._agent_id = agent_id
         self._agent_name = agent_name or str(agent_id)
+        self._model = model
         self._exited = False
         _, self._log_id, self._tool_results_id = TextualApp.panel_ids_for(agent_id)
         self._ensure_tab_exists()
@@ -52,10 +53,27 @@ class TextualAgentDisplay(AgentDisplay):
     def _ensure_tab_exists(self) -> None:
         if not self._app or not self._app.is_running:
             return
-        if getattr(self._app, "has_agent_tab", None) and self._app.has_agent_tab(self._agent_id):
+        tab_exists = getattr(self._app, "has_agent_tab", None) and self._app.has_agent_tab(self._agent_id)
+        if tab_exists:
+            # Tab already exists, but update title if we have model info
+            if self._model:
+                tab_title = self._get_tab_title(0, 0)
+                self._app.post_message(UpdateTabTitleMessage(self._agent_id, tab_title))
             return
-        tab_title = self._agent_name or str(self._agent_id).split('/')[-1]
+        tab_title = self._get_tab_title(0, 0)
         self._app.post_message(AddSubagentTabMessage(self._agent_id, tab_title))
+
+    def _get_tab_title(self, token_count: int, max_tokens: int) -> str:
+        base_title = self._agent_name or str(self._agent_id).split('/')[-1]
+        
+        if not self._model:
+            return base_title
+        
+        if max_tokens == 0:
+            return f"{base_title} [{self._model}: 0.0%]"
+        
+        percentage = (token_count / max_tokens) * 100
+        return f"{base_title} [{self._model}: {percentage:.1f}%]"
 
     def user_says(self, message):
         if self._app and self._app.is_running:
@@ -75,15 +93,7 @@ class TextualAgentDisplay(AgentDisplay):
         if not (self._app and self._app.is_running):
             return
 
-        base_title = self._agent_name or str(self._agent_id).split('/')[-1]
-
-        # Calculate percentage
-        if max_tokens > 0:
-            percentage = (token_count / max_tokens) * 100
-            new_title = f"{base_title} [{model}: {percentage:.1f}%]"
-        else:
-            new_title = f"{base_title} [{model}: {token_count} tokens]"
-
+        new_title = self._get_tab_title(token_count, max_tokens)
         self._app.post_message(UpdateTabTitleMessage(self._agent_id, new_title))
 
     def tool_call(self, call_id, tool):

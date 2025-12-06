@@ -19,6 +19,10 @@ class ClaudeLLM(LLM):
         self._config = config
         self._ensure_claude_adapter()
 
+    @property
+    def model(self) -> str:
+        return self._config.model
+
     def __call__(self, messages: ChatMessages) -> LLMResponse:
         url = "https://api.anthropic.com/v1/messages"
         api_key = self._config.api_key

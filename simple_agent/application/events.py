@@ -76,6 +76,7 @@ class AgentFinishedEvent(AgentEvent):
 class AgentStartedEvent(AgentEvent):
     event_name: ClassVar[str] = "agent_started"
     agent_name: str
+    model: str = ""
 
 
 @dataclass

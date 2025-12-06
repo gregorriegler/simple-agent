@@ -5,20 +5,28 @@ from collections.abc import Sequence
 from .llm import ChatMessages, LLM, LLMResponse, TokenUsage
 
 
+class StubLLM:
+    def __init__(self, responses: Sequence[str], default: str = "", model: str = "stub-model"):
+        self._responses = responses
+        self._default = default
+        self._model_name = model
+        self._index = 0
+        self._fallback = responses[-1] if responses else default
+
+    @property
+    def model(self) -> str:
+        return self._model_name
+
+    def __call__(self, messages: ChatMessages) -> LLMResponse:
+        content = self._fallback
+        if self._index < len(self._responses):
+            content = self._responses[self._index]
+            self._index += 1
+        return LLMResponse(content=content, model=self._model_name, usage=TokenUsage(0, 0, 0))
+
+
 def create_llm_stub(responses: Sequence[str], *, default: str = "") -> LLM:
-    index = 0
-    fallback = responses[-1] if responses else default
-
-    def llm_stub(messages: ChatMessages) -> LLMResponse:
-        nonlocal index
-        content = fallback
-        if index < len(responses):
-            content = responses[index]
-            index += 1
-        return LLMResponse(content=content, model="stub-model", usage=TokenUsage(0, 0, 0))
-
-
-    return llm_stub
+    return StubLLM(responses, default)
 
 
 def _create_default_stub_llm() -> LLM:
@@ -43,7 +51,15 @@ class StubLLMProvider:
 
     @classmethod
     def dummy(cls) -> 'StubLLMProvider':
-        return cls.for_testing(lambda messages: LLMResponse(content='', model="dummy", usage=TokenUsage()))
+        class DummyLLM:
+            @property
+            def model(self) -> str:
+                return "dummy"
+            
+            def __call__(self, messages):
+                return LLMResponse(content='', model="dummy", usage=TokenUsage())
+        
+        return cls.for_testing(DummyLLM())
 
     @classmethod
     def for_testing(cls, llm: LLM) -> 'StubLLMProvider':
