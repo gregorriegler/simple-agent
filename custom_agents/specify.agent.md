@@ -1,7 +1,6 @@
 ---
 name: Specify
 tools:
-  - subagent
   - bash
   - ls
   - cat
