@@ -1,22 +1,22 @@
 import subprocess
 from ..application.tool_library import ContinueResult
-from .base_tool import BaseTool
+from .base_tool import BaseTool, ToolArgument
 
 class BashTool(BaseTool):
     name = 'bash'
     description = "Execute bash commands"
     arguments = [
-        {
-            "name": "command",
-            "type": "string",
-            "required": True,
-            "description": "The bash command to execute"
-        }
+        ToolArgument(
+            name="command",
+            type="string",
+            required=True,
+            description="The bash command to execute",
+        )
     ]
     examples = [
-        "🛠️ bash echo hello",
-        "🛠️ bash ls -la",
-        "🛠️ bash pwd"
+        {"command": "echo hello"},
+        {"command": "ls -la"},
+        {"command": "pwd"},
     ]
 
     def execute(self, args):

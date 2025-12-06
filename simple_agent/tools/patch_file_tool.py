@@ -1,5 +1,5 @@
 from ..application.tool_library import ContinueResult, ToolResult
-from .base_tool import BaseTool
+from .base_tool import BaseTool, ToolArgument
 from .argument_parser import split_arguments
 import os
 import re
@@ -16,22 +16,28 @@ class PatchFileTool(BaseTool):
     name = "patch-file"
     description = "Apply a unified diff patch to a file"
     arguments = [
-        {
-            "name": "filename",
-            "type": "string",
-            "required": True,
-            "description": "Path to the file to patch"
-        },
-        {
-            "name": "patch_content",
-            "type": "string",
-            "required": True,
-            "description": "Unified diff patch content to apply"
-        }
+        ToolArgument(
+            name="filename",
+            type="string",
+            required=True,
+            description="Path to the file to patch",
+        ),
+        ToolArgument(
+            name="patch_content",
+            type="string",
+            required=True,
+            description="Unified diff patch content to apply",
+        ),
     ]
     examples = [
-        "🛠️ patch-file myfile.txt \"@@ -1,3 +1,3 @@\\n-old line\\n+new line\\n context line\"",
-        "🛠️ patch-file test.py \"@@ -5,2 +5,2 @@\\n-    old_var = 1\\n+    new_var = 2\""
+        {
+            "filename": "myfile.txt",
+            "patch_content": "@@ -1,3 +1,3 @@\\n-old line\\n+new line\\n context line",
+        },
+        {
+            "filename": "test.py",
+            "patch_content": "@@ -5,2 +5,2 @@\\n-    old_var = 1\\n+    new_var = 2",
+        },
     ]
 
     def __init__(self, runcommand):

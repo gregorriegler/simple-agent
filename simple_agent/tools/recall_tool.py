@@ -10,7 +10,7 @@ class RecallTool(BaseTool):
     description = "Retrieve all stored memories from .memory.md"
     arguments = []
     examples = [
-        "🛠️ recall"
+        {}
     ]
 
     def __init__(self, runcommand):
