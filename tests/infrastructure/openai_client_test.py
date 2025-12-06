@@ -12,7 +12,8 @@ def test_openai_client_respects_base_url_override(monkeypatch):
 
     result = client(messages)
 
-    assert result == "assistant response"
+    assert result.content == "assistant response"
+    assert result.model == "test-openai-model"
     assert captured["url"] == "https://openrouter.ai/api/v1/chat/completions"
     assert captured["headers"] == {
         "Content-Type": "application/json",
@@ -22,7 +23,14 @@ def test_openai_client_respects_base_url_override(monkeypatch):
 
 
 def _create_successful_post(captured):
-    response = _ResponseStub({"choices": [{"message": {"content": "assistant response"}}]})
+    response = _ResponseStub({
+        "choices": [{"message": {"content": "assistant response"}}],
+        "usage": {
+            "prompt_tokens": 10,
+            "completion_tokens": 20,
+            "total_tokens": 30
+        }
+    })
 
     def post(url, headers, json, timeout=None):
         captured["url"] = url

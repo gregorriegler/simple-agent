@@ -58,3 +58,10 @@ class RefreshTodosMessage(Message):
     def __init__(self, agent_id: AgentId) -> None:
         super().__init__()
         self.agent_id = agent_id
+
+
+class UpdateTabTitleMessage(Message):
+    def __init__(self, agent_id: AgentId, title: str) -> None:
+        super().__init__()
+        self.agent_id = agent_id
+        self.title = title

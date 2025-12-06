@@ -1,14 +1,32 @@
 from typing import Protocol, Iterator, Dict, List
+from dataclasses import dataclass
 
 
 ChatMessage = Dict[str, str]
 ChatMessages = List[ChatMessage]
 
 
-class LLM(Protocol):
-    def __call__(self, messages: ChatMessages) -> str:
-        ...
+@dataclass
+class TokenUsage:
+    input_tokens: int = 0
+    output_tokens: int = 0
+    total_tokens: int = 0
 
+
+@dataclass
+class LLMResponse:
+    content: str
+    model: str = ""
+    usage: TokenUsage = None
+
+    def __post_init__(self):
+        if self.usage is None:
+            self.usage = TokenUsage()
+
+
+class LLM(Protocol):
+    def __call__(self, messages: ChatMessages) -> LLMResponse:
+        ...
 
 class LLMProvider(Protocol):
     def get(self, model_name: str | None = None) -> LLM:

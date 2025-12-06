@@ -2,20 +2,21 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from .llm import ChatMessages, LLM
+from .llm import ChatMessages, LLM, LLMResponse, TokenUsage
 
 
 def create_llm_stub(responses: Sequence[str], *, default: str = "") -> LLM:
     index = 0
     fallback = responses[-1] if responses else default
 
-    def llm_stub(messages: ChatMessages) -> str:
+    def llm_stub(messages: ChatMessages) -> LLMResponse:
         nonlocal index
+        content = fallback
         if index < len(responses):
-            response = responses[index]
+            content = responses[index]
             index += 1
-            return response
-        return fallback
+        return LLMResponse(content=content, model="stub-model", usage=TokenUsage(0, 0, 0))
+
 
     return llm_stub
 
@@ -42,7 +43,7 @@ class StubLLMProvider:
 
     @classmethod
     def dummy(cls) -> 'StubLLMProvider':
-        return cls.for_testing(lambda messages: '')
+        return cls.for_testing(lambda messages: LLMResponse(content='', model="dummy", usage=TokenUsage()))
 
     @classmethod
     def for_testing(cls, llm: LLM) -> 'StubLLMProvider':

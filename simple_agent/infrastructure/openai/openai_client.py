@@ -4,7 +4,7 @@ from typing import Dict, List
 
 import requests
 
-from simple_agent.application.llm import LLM, ChatMessages
+from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
 from simple_agent.infrastructure.model_config import ModelConfig
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class OpenAILLM(LLM):
         self._config = config
         self._ensure_openai_adapter()
 
-    def __call__(self, messages: ChatMessages) -> str:
+    def __call__(self, messages: ChatMessages) -> LLMResponse:
         base_url = self._config.base_url or "https://api.openai.com/v1"
         url = f"{base_url.rstrip('/')}/chat/completions"
         api_key = self._config.api_key
@@ -60,7 +60,16 @@ class OpenAILLM(LLM):
         if not message or "content" not in message:
             raise OpenAIClientError("API response missing 'message.content' field")
 
-        return message["content"] or ""
+        content = message["content"] or ""
+        
+        usage_data = response_data.get("usage", {})
+        usage = TokenUsage(
+            input_tokens=usage_data.get("prompt_tokens", 0),
+            output_tokens=usage_data.get("completion_tokens", 0),
+            total_tokens=usage_data.get("total_tokens", 0),
+        )
+
+        return LLMResponse(content=content, model=model, usage=usage)
 
     def _ensure_openai_adapter(self) -> None:
         if self._config.adapter != "openai":

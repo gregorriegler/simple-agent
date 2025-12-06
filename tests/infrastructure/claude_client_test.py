@@ -17,7 +17,11 @@ def test_claude_chat_returns_content_text(monkeypatch):
 
     result = chat(messages)
 
-    assert result == "assistant response"
+    assert result.content == "assistant response"
+    assert result.model == "test-model"
+    assert result.usage.input_tokens == 10
+    assert result.usage.output_tokens == 20
+    assert result.usage.total_tokens == 30
     assert captured["url"] == "https://api.anthropic.com/v1/messages"
     assert captured["headers"] == {
         "Content-Type": "application/json",
@@ -56,7 +60,13 @@ def test_claude_chat_raises_error_when_request_fails(monkeypatch):
 
 
 def create_successful_post(captured):
-    response = ResponseStub({"content": [{"text": "assistant response"}]})
+    response = ResponseStub({
+        "content": [{"text": "assistant response"}],
+        "usage": {
+            "input_tokens": 10,
+            "output_tokens": 20
+        }
+    })
 
     def post(url, headers, json, timeout=None):
         captured["url"] = url

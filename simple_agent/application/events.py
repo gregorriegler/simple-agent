@@ -62,6 +62,9 @@ class UserPromptedEvent(AgentEvent):
 class AssistantRespondedEvent(AgentEvent):
     event_name: ClassVar[str] = "assistant_responded"
     response: str
+    model: str = ""
+    token_count: int = 0
+    max_tokens: int = 0
 
 
 @dataclass

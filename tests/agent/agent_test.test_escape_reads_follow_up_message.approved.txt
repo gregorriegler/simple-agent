@@ -1,7 +1,7 @@
 # Events
 Agent:       session_started: False
 Agent:         user_prompted: Hello
-Agent:   assistant_responded: Assistant response
+Agent:   assistant_responded: Assistant response stub-model 0 0
 Agent:        assistant_said: Assistant response
 Agent:   session_interrupted: 
 Agent: user_prompt_requested: 

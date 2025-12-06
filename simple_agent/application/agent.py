@@ -1,3 +1,5 @@
+import logging
+
 from .agent_id import AgentId
 from .input import Input
 from .llm import LLM, Messages
@@ -12,6 +14,8 @@ from .events import (
     UserPromptRequestedEvent, UserPromptedEvent,
     ErrorEvent
 )
+
+logger = logging.getLogger(__name__)
 
 
 class Agent:
@@ -95,9 +99,22 @@ class Agent:
             self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
 
     def llm_responds(self) -> MessageAndParsedTools:
-        answer = self.llm(self.context.to_list())
+        from simple_agent.application.model_info import ModelInfo
+
+        response = self.llm(self.context.to_list())
+        answer = response.content
+        model = response.model
+        token_count = response.usage.total_tokens if response.usage else 0
+        max_tokens = ModelInfo.get_context_window(model)
+
         self.context.assistant_says(answer)
-        self.event_bus.publish(AssistantRespondedEvent(self.agent_id, answer))
+        self.event_bus.publish(AssistantRespondedEvent(
+            self.agent_id,
+            answer,
+            model=model,
+            token_count=token_count,
+            max_tokens=max_tokens
+        ))
         return self.tools.parse_message_and_tools(answer)
 
     def user_prompts(self):

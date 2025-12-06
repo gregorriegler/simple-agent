@@ -15,7 +15,8 @@ def test_gemini_chat_returns_text_from_parts(monkeypatch):
 
     result = chat(messages)
 
-    assert result == "assistant response"
+    assert result.content == "assistant response"
+    assert result.model == "test-model"
     expected_url = "https://generativelanguage.googleapis.com/v1beta/models/test-model:generateContent?key=test-api-key"
     assert captured["url"] == expected_url
     assert captured["headers"] == {
@@ -40,7 +41,7 @@ def test_gemini_chat_handles_system_prompt(monkeypatch):
 
     result = chat(messages)
 
-    assert result == "assistant response"
+    assert result.content == "assistant response"
     # System prompt should be prepended to first user message
     assert captured["json"]["contents"] == [
         {"role": "user", "parts": [{"text": "You are a helpful assistant\n\nHello"}]}
@@ -59,7 +60,7 @@ def test_gemini_chat_converts_assistant_to_model_role(monkeypatch):
 
     result = chat(messages)
 
-    assert result == "assistant response"
+    assert result.content == "assistant response"
     # Assistant role should be converted to 'model' for Gemini
     assert captured["json"]["contents"] == [
         {"role": "user", "parts": [{"text": "Hello"}]},
@@ -77,7 +78,7 @@ def test_gemini_chat_respects_base_url_override(monkeypatch):
 
     result = chat(messages)
 
-    assert result == "assistant response"
+    assert result.content == "assistant response"
     expected_url = f"{custom_base_url}/models/test-model:generateContent?key=test-api-key"
     assert captured["url"] == expected_url
 
@@ -98,7 +99,7 @@ def test_gemini_chat_concatenates_multiple_text_parts(monkeypatch):
 
     result = chat([{"role": "user", "content": "Hello"}])
 
-    assert result == "First part. Second part."
+    assert result.content == "First part. Second part."
 
 
 def test_gemini_chat_raises_error_when_candidates_missing(monkeypatch):

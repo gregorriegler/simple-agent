@@ -1,3 +1,5 @@
+import logging
+
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.display import AgentDisplay
 from simple_agent.infrastructure.display_hub import AgentDisplayHub
@@ -11,8 +13,11 @@ from simple_agent.infrastructure.textual.textual_messages import (
     SessionStatusMessage,
     ToolCallMessage,
     ToolResultMessage,
+    UpdateTabTitleMessage,
     UserSaysMessage,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class TextualDisplay(AgentDisplayHub):
@@ -66,10 +71,24 @@ class TextualAgentDisplay(AgentDisplay):
         for line in lines[1:]:
             self._app.post_message(AssistantSaysMessage(self._log_id, line, is_first_line=False))
 
+    def assistant_responded(self, model: str, token_count: int, max_tokens: int):
+        if not (self._app and self._app.is_running):
+            return
+
+        base_title = self._agent_name or str(self._agent_id).split('/')[-1]
+
+        # Calculate percentage
+        if max_tokens > 0:
+            percentage = (token_count / max_tokens) * 100
+            new_title = f"{base_title} [{model}: {percentage:.1f}%]"
+        else:
+            new_title = f"{base_title} [{model}: {token_count} tokens]"
+
+        self._app.post_message(UpdateTabTitleMessage(self._agent_id, new_title))
+
     def tool_call(self, call_id, tool):
         if self._app and self._app.is_running:
             self._app.post_message(ToolCallMessage(self._tool_results_id, call_id, str(tool)))
-
     def tool_result(self, call_id, result: ToolResult):
         if not result:
             return

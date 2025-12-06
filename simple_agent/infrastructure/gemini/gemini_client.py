@@ -1,7 +1,7 @@
 import requests
 from typing import Dict, List
 
-from simple_agent.application.llm import LLM, ChatMessages
+from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
 from simple_agent.infrastructure.model_config import ModelConfig
 
 
@@ -14,7 +14,7 @@ class GeminiLLM(LLM):
         self._config = config
         self._ensure_gemini_adapter()
 
-    def __call__(self, messages: ChatMessages) -> str:
+    def __call__(self, messages: ChatMessages) -> LLMResponse:
         api_key = self._config.api_key
         model = self._config.model
 
@@ -64,7 +64,17 @@ class GeminiLLM(LLM):
 
         # Concatenate all text parts
         text_parts = [part.get("text", "") for part in parts if "text" in part]
-        return "".join(text_parts)
+        text_content = "".join(text_parts)
+
+        # Gemini usage data extraction (if available, otherwise 0)
+        usage_metadata = response_data.get("usageMetadata", {})
+        usage = TokenUsage(
+            input_tokens=usage_metadata.get("promptTokenCount", 0),
+            output_tokens=usage_metadata.get("candidatesTokenCount", 0),
+            total_tokens=usage_metadata.get("totalTokenCount", 0),
+        )
+
+        return LLMResponse(content=text_content, model=model, usage=usage)
 
     def _convert_messages_to_gemini_format(self, messages: ChatMessages) -> List[Dict]:
         """

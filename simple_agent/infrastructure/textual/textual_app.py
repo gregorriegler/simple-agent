@@ -24,6 +24,7 @@ from simple_agent.infrastructure.textual.textual_messages import (
     SessionStatusMessage,
     ToolCallMessage,
     ToolResultMessage,
+    UpdateTabTitleMessage,
     UserSaysMessage,
 )
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
@@ -456,6 +457,16 @@ class TextualApp(App):
 
     def on_remove_agent_tab_message(self, message: RemoveAgentTabMessage) -> None:
         self.remove_subagent_tab(message.agent_id)
+
+    def on_update_tab_title_message(self, message: UpdateTabTitleMessage) -> None:
+        tab_id, _, _ = self.panel_ids_for(message.agent_id)
+        try:
+            tabs = self.query_one("#tabs", TabbedContent)
+            tab = tabs.get_tab(tab_id)
+            if tab:
+                tab.label = message.title
+        except (NoMatches, Exception):
+            pass
 
     def on_refresh_todos_message(self, message: RefreshTodosMessage) -> None:
         self._refresh_todos_for_agent(message.agent_id)

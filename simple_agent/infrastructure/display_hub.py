@@ -54,6 +54,10 @@ class AgentDisplayHub(Display):
         agent = self._agent_for(event.agent_id)
         if agent:
             agent.assistant_says(event.message)
+    def assistant_responded(self, event) -> None:
+        agent = self._agent_for(event.agent_id)
+        if agent:
+            agent.assistant_responded(event.model, event.token_count, event.max_tokens)
 
     def tool_call(self, event) -> None:
         agent = self._agent_for(event.agent_id)

@@ -3,7 +3,7 @@ import logging
 
 import requests
 
-from simple_agent.application.llm import LLM, ChatMessages
+from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
 from simple_agent.infrastructure.model_config import ModelConfig
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class ClaudeLLM(LLM):
         self._config = config
         self._ensure_claude_adapter()
 
-    def __call__(self, messages: ChatMessages) -> str:
+    def __call__(self, messages: ChatMessages) -> LLMResponse:
         url = "https://api.anthropic.com/v1/messages"
         api_key = self._config.api_key
         model = self._config.model
@@ -63,14 +63,24 @@ class ClaudeLLM(LLM):
         if "content" not in response_data:
             raise ClaudeClientError("API response missing 'content' field")
 
-        content = response_data["content"]
-        if not content:
-            return ""
+        content_list = response_data["content"]
+        content = ""
+        if content_list:
+            first_content = content_list[0]
+            if "text" not in first_content:
+                raise ClaudeClientError("API response content missing 'text' field")
+            content = first_content["text"]
 
-        first_content = content[0]
-        if "text" not in first_content:
-            raise ClaudeClientError("API response content missing 'text' field")
-        return first_content["text"]
+        usage_data = response_data.get("usage", {})
+        input_tokens = usage_data.get("input_tokens", 0)
+        output_tokens = usage_data.get("output_tokens", 0)
+        usage = TokenUsage(
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+            total_tokens=input_tokens + output_tokens,
+        )
+
+        return LLMResponse(content=content, model=model, usage=usage)
 
     def _ensure_claude_adapter(self) -> None:
         if self._config.adapter != "claude":
