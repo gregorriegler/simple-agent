@@ -190,6 +190,7 @@ class TextualApp(App):
         self._tool_result_collapsibles: dict[str, list[Collapsible]] = {}
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
         self._todo_widgets: dict[str, Markdown] = {}
+        self._todo_containers: dict[str, tuple] = {}
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._suppressed_tool_calls: set[str] = set()
         self._signal_on_unmount = False
@@ -213,12 +214,20 @@ class TextualApp(App):
                     yield self.create_agent_container(log_id, tool_results_id, self._root_agent_id)
             yield Static("Ctrl+Enter to submit", id="input-hint")
             yield SubmittableTextArea(id="user-input")
-
     def create_agent_container(self, log_id, tool_results_id, agent_id):
         chat_scroll = VerticalScroll(Static("", id=log_id), id=f"{log_id}-scroll", classes="left-panel-top")
         todo = Markdown(self._load_todos(agent_id), id=f"{log_id}-todos")
         secondary_scroll = VerticalScroll(todo, id=f"{log_id}-secondary", classes="left-panel-bottom")
+
         left_panel = ResizableVertical(chat_scroll, secondary_scroll, id="left-panel")
+
+        todo_content = self._load_todos(agent_id)
+        if not todo_content:
+            secondary_scroll.styles.display = "none"
+            left_panel.splitter.styles.display = "none"
+
+        self._todo_containers[str(agent_id)] = (secondary_scroll, left_panel.splitter)
+
         right_panel = VerticalScroll(id=tool_results_id)
         self._tool_result_collapsibles[tool_results_id] = []
         self._agent_panel_ids[agent_id] = (log_id, tool_results_id)
@@ -417,6 +426,7 @@ class TextualApp(App):
                 call_id for call_id in self._suppressed_tool_calls if not call_id.startswith(prefix)
             }
         self._todo_widgets.pop(str(agent_id), None)
+        self._todo_containers.pop(str(agent_id), None)
 
     def _load_todos(self, agent_id: AgentId) -> str:
         path = Path(agent_id.todo_filename())
@@ -435,7 +445,18 @@ class TextualApp(App):
         todo_widget = self._todo_widgets.get(str(agent_id))
         if not todo_widget:
             return
-        todo_widget.update(self._load_todos(agent_id))
+        todo_content = self._load_todos(agent_id)
+        todo_widget.update(todo_content)
+
+        container_tuple = self._todo_containers.get(str(agent_id))
+        if container_tuple:
+            secondary_scroll, splitter = container_tuple
+            if todo_content:
+                secondary_scroll.styles.display = "block"
+                splitter.styles.display = "block"
+            else:
+                secondary_scroll.styles.display = "none"
+                splitter.styles.display = "none"
 
     def on_user_says_message(self, message: UserSaysMessage) -> None:
         self.write_message(message.log_id, message.content)
