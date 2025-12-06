@@ -31,7 +31,8 @@ def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.5):
             f"Approved: {approved_path}"
         )
 
-@pytest.mark.skipif(os.getenv("CI") == "true", reason="Flaky on CI due to Textual timing issues")
+#@pytest.mark.skipif(os.getenv("CI") == "true", reason="Flaky on CI due to Textual timing issues")
+#@pytest.mark.skip()
 def test_golden_master_agent_stub(monkeypatch):
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     os.chdir(project_root)
@@ -53,13 +54,30 @@ def test_golden_master_agent_stub(monkeypatch):
 
     def unblock_agent(app):
         async def do_capture():
-            # Wait for screen to settle
-            for _ in range(30):
+            def get_screen_content():
+                console = Console(record=True, width=80, force_terminal=False, file=io.StringIO())
+                console.print(app.screen._compositor)
+                return normalize(console.export_text())
+
+            # Wait for screen to stabilize (no changes for consecutive checks)
+            last_content = None
+            stable_count = 0
+            max_attempts = 50
+            stable_threshold = 3  # Require 3 consecutive identical captures
+
+            for _ in range(max_attempts):
                 await app._pilot.pause()
-            # Capture screen
-            console = Console(record=True, width=80, force_terminal=False, file=io.StringIO())
-            console.print(app.screen._compositor)
-            captured.append(normalize(console.export_text()))
+                current_content = get_screen_content()
+
+                if current_content == last_content:
+                    stable_count += 1
+                    if stable_count >= stable_threshold:
+                        break
+                else:
+                    stable_count = 0
+                    last_content = current_content
+
+            captured.append(get_screen_content())
             capture_done.set()
 
         app.call_from_thread(do_capture)
