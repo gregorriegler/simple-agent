@@ -1,11 +1,25 @@
 import subprocess
+from dataclasses import asdict, dataclass, is_dataclass
+from typing import Any, Dict, Iterable, List
+
 from simple_agent.application.tool_library import ToolResult, Tool
+
+
+@dataclass
+class ToolArgument:
+    """Metadata for a tool argument."""
+
+    name: str
+    description: str
+    required: bool = True
+    multiline: bool = False
+    type: str = "string"
 
 
 class BaseTool(Tool):
     name = ''
     description = ''
-    arguments = []
+    arguments: List[ToolArgument] = []
     examples = []
     _custom_usage_info = None
 
@@ -55,6 +69,56 @@ class BaseTool(Tool):
     def finalize_documentation(self, doc: str, context: dict) -> str:
         return doc
 
+    def _normalize_argument(self, arg: ToolArgument | Dict[str, Any]) -> Dict[str, Any]:
+        if is_dataclass(arg):
+            normalized = asdict(arg)
+        else:
+            normalized = dict(arg)
+
+        normalized.setdefault("type", "string")
+        normalized.setdefault("required", False)
+        normalized.setdefault("description", "")
+        normalized.setdefault("multiline", False)
+        return normalized
+
+    def _format_example(self, example: Any, arguments: Iterable[Dict[str, Any]]):
+        if isinstance(example, str):
+            return example
+
+        if not isinstance(example, dict):
+            return str(example)
+
+        inline_values = []
+        multiline_values = []
+
+        for arg in arguments:
+            value = example.get(arg["name"], "")
+            if value is None:
+                value = ""
+
+            if arg.get("multiline"):
+                if value != "":
+                    multiline_values.append(str(value))
+            else:
+                if value != "":
+                    inline_values.append(str(value))
+
+        syntax = f"🛠️ {self.name}"
+        if inline_values:
+            syntax += " " + " ".join(inline_values)
+
+        if multiline_values:
+            multiline_text = "\n".join(multiline_values)
+            syntax += "\n" + multiline_text
+            if multiline_text.endswith("\n"):
+                syntax += "🛠️🔚"
+            elif "\n" in multiline_text:
+                syntax += "\n🛠️🔚"
+            else:
+                syntax += "🛠️🔚"
+
+        return syntax
+
     def _generate_usage_info_from_metadata(self):
         lines = [f"Tool: {self.name}"]
 
@@ -64,7 +128,8 @@ class BaseTool(Tool):
         if self.arguments:
             lines.append("")
             lines.append("Arguments:")
-            for arg in self.arguments:
+            normalized_args = [self._normalize_argument(arg) for arg in self.arguments]
+            for arg in normalized_args:
                 required_str = " (required)" if arg.get('required', False) else " (optional)"
                 type_str = f" - {arg['name']}: {arg.get('type', 'string')}{required_str}"
                 if 'description' in arg:
@@ -73,8 +138,8 @@ class BaseTool(Tool):
 
             # Generate syntax
             lines.append("")
-            required_args = [f"<{arg['name']}>" for arg in self.arguments if arg.get('required', False)]
-            optional_args = [f"[{arg['name']}]" for arg in self.arguments if not arg.get('required', False)]
+            required_args = [f"<{arg['name']}>" for arg in normalized_args if arg.get('required', False)]
+            optional_args = [f"[{arg['name']}]" for arg in normalized_args if not arg.get('required', False)]
             all_args = required_args + optional_args
             syntax = f"🛠️ {self.name}"
             if all_args:
@@ -84,7 +149,8 @@ class BaseTool(Tool):
         if hasattr(self, 'examples') and self.examples:
             lines.append("")
             lines.append("Examples:")
+            example_args = [self._normalize_argument(arg) for arg in self.arguments]
             for example in self.examples:
-                lines.append(f"{example}")
+                lines.append(self._format_example(example, example_args))
 
         return "\n".join(lines)

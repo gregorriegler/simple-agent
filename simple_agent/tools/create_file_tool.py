@@ -2,7 +2,7 @@ import os
 
 from ..application.tool_library import ContinueResult
 
-from .base_tool import BaseTool
+from .base_tool import BaseTool, ToolArgument
 
 
 class CreateFileTool(BaseTool):
@@ -14,23 +14,24 @@ class CreateFileTool(BaseTool):
 - Everything after the filename until 🛠️🔚 or message end is captured as content"""
 
     arguments = [
-        {
-            "name": "filename",
-            "type": "string",
-            "required": True,
-            "description": "Path to the file to create (directories will be created automatically)"
-        },
-        {
-            "name": "content",
-            "type": "string",
-            "required": False,
-            "description": "Initial content for the file. Everything after the filename is content!"
-        }
+        ToolArgument(
+            name="filename",
+            type="string",
+            required=True,
+            description="Path to the file to create (directories will be created automatically)",
+        ),
+        ToolArgument(
+            name="content",
+            type="string",
+            required=False,
+            multiline=True,
+            description="Initial content for the file. Everything after the filename is content!",
+        ),
     ]
     examples = [
-        "🛠️ create-file newfile.txt",
-        "🛠️ create-file script.py\nprint(\"Hello World\")🛠️🔚",
-        "🛠️ create-file multi-line.py\nLine 1\nLine 2\n🛠️🔚",
+        {"filename": "newfile.txt", "content": ""},
+        {"filename": "script.py", "content": "print(\"Hello World\")"},
+        {"filename": "multi-line.py", "content": "Line 1\nLine 2"},
     ]
 
     def execute(self, args):

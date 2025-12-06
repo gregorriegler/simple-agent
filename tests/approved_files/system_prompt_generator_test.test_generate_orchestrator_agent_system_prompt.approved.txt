@@ -91,23 +91,20 @@ Arguments:
  - filename: string (required) - Path to the file to edit
  - edit_mode: string (required) - Edit mode: 'replace' (delete range then insert), 'insert', 'delete'
  - line_range: string (required) - Line range in format 'start-end' or 'line_number' (e.g., '1-3' or '10' for single line)
+ - content: string (optional) - Optional content for insert/replace operations
 
-Usage: 🛠️ edit-file <filename> <edit_mode> <line_range>
+Usage: 🛠️ edit-file <filename> <edit_mode> <line_range> [content]
 
 Examples:
 🛠️ edit-file myfile.txt replace 1-3
-Hello World
-🛠️🔚
+Hello World🛠️🔚
 🛠️ edit-file test.txt delete 1
 🛠️ edit-file test.txt insert 1
-New Headline
-🛠️🔚
+New Headline🛠️🔚
 🛠️ edit-file test.py insert 3
-print('hello')
-🛠️🔚
+print('hello')🛠️🔚
 🛠️ edit-file test.py replace 5
-new = 2
-🛠️🔚
+new = 2🛠️🔚
 
 ## complete-task
 Signal task completion with a summary of what was accomplished

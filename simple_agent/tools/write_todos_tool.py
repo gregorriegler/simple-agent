@@ -2,23 +2,24 @@ from pathlib import Path
 
 from simple_agent.application.tool_library import ContinueResult
 
-from .base_tool import BaseTool
+from .base_tool import BaseTool, ToolArgument
 
 
 class WriteTodosTool(BaseTool):
     name = "write-todos"
     description = "Organize your work in TODOs. Use this tool to create or update those TODOs"
     arguments = [
-        {
-            "name": "content",
-            "type": "string",
-            "required": True,
-            "description": "Markdown checklist to represent the todos. Use - [ ] for todo, - [ ] **doing** for in-progress, - [x] for done"
-        }
+        ToolArgument(
+            name="content",
+            type="string",
+            required=True,
+            multiline=True,
+            description="Markdown checklist to represent the todos. Use - [ ] for todo, - [ ] **doing** for in-progress, - [x] for done",
+        )
     ]
     examples = [
-        "🛠️ write-todos\n- [ ] Item 1\n🛠️🔚",
-        "🛠️ write-todos\n- [ ] Feature exploration\n- [ ] **Implementing tool**\n- [x] Initial setup\n🛠️🔚"
+        {"content": "- [ ] Item 1\n"},
+        {"content": "- [ ] Feature exploration\n- [ ] **Implementing tool**\n- [x] Initial setup"},
     ]
 
     def __init__(self, filename: str):

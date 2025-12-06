@@ -2,23 +2,23 @@ from pathlib import Path
 
 from ..application.tool_library import ContinueResult
 
-from .base_tool import BaseTool
+from .base_tool import BaseTool, ToolArgument
 
 
 class RememberTool(BaseTool):
     name = "remember"
     description = "Store a memory to .memory.md for later recall"
     arguments = [
-        {
-            "name": "content",
-            "type": "string",
-            "required": True,
-            "description": "The memory content to store"
-        }
+        ToolArgument(
+            name="content",
+            type="string",
+            required=True,
+            description="The memory content to store",
+        )
     ]
     examples = [
-        "🛠️ remember The user prefers Python over JavaScript",
-        "🛠️ remember API key format: sk-proj-xxxxx"
+        {"content": "The user prefers Python over JavaScript"},
+        {"content": "API key format: sk-proj-xxxxx"},
     ]
 
     def __init__(self, runcommand):

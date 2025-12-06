@@ -3,7 +3,7 @@ import os
 from dataclasses import dataclass
 
 from .argument_parser import split_arguments
-from .base_tool import BaseTool
+from .base_tool import BaseTool, ToolArgument
 from ..application.tool_library import ContinueResult
 
 
@@ -148,31 +148,63 @@ class EditFileTool(BaseTool):
 Replace mode: First deletes the specified range, then inserts new content at that position."""
 
     arguments = [
-        {
-            "name": "filename",
-            "type": "string",
-            "required": True,
-            "description": "Path to the file to edit"
-        },
-        {
-            "name": "edit_mode",
-            "type": "string",
-            "required": True,
-            "description": "Edit mode: 'replace' (delete range then insert), 'insert', 'delete'"
-        },
-        {
-            "name": "line_range",
-            "type": "string",
-            "required": True,
-            "description": "Line range in format 'start-end' or 'line_number' (e.g., '1-3' or '10' for single line)"
-        }
+        ToolArgument(
+            name="filename",
+            type="string",
+            required=True,
+            description="Path to the file to edit",
+        ),
+        ToolArgument(
+            name="edit_mode",
+            type="string",
+            required=True,
+            description="Edit mode: 'replace' (delete range then insert), 'insert', 'delete'",
+        ),
+        ToolArgument(
+            name="line_range",
+            type="string",
+            required=True,
+            description="Line range in format 'start-end' or 'line_number' (e.g., '1-3' or '10' for single line)",
+        ),
+        ToolArgument(
+            name="content",
+            type="string",
+            required=False,
+            multiline=True,
+            description="Optional content for insert/replace operations",
+        ),
     ]
     examples = [
-        "🛠️ edit-file myfile.txt replace 1-3\nHello World\n🛠️🔚",
-        "🛠️ edit-file test.txt delete 1",
-        "🛠️ edit-file test.txt insert 1\nNew Headline\n🛠️🔚",
-        "🛠️ edit-file test.py insert 3\nprint('hello')\n🛠️🔚",
-        "🛠️ edit-file test.py replace 5\nnew = 2\n🛠️🔚",
+        {
+            "filename": "myfile.txt",
+            "edit_mode": "replace",
+            "line_range": "1-3",
+            "content": "Hello World",
+        },
+        {
+            "filename": "test.txt",
+            "edit_mode": "delete",
+            "line_range": "1",
+            "content": "",
+        },
+        {
+            "filename": "test.txt",
+            "edit_mode": "insert",
+            "line_range": "1",
+            "content": "New Headline",
+        },
+        {
+            "filename": "test.py",
+            "edit_mode": "insert",
+            "line_range": "3",
+            "content": "print('hello')",
+        },
+        {
+            "filename": "test.py",
+            "edit_mode": "replace",
+            "line_range": "5",
+            "content": "new = 2",
+        },
     ]
 
     def __init__(self):

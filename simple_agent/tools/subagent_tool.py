@@ -1,6 +1,6 @@
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library import ContinueResult
-from .base_tool import BaseTool
+from .base_tool import BaseTool, ToolArgument
 from ..application.agent_type import AgentType
 
 
@@ -8,22 +8,28 @@ class SubagentTool(BaseTool):
     name = 'subagent'
     description = "Creates a new subagent that will handle a specific task/todo and report back the result."
     arguments = [
-        {
-            "name": "agenttype",
-            "type": "string",
-            "required": True,
-            "description": "Type of agent to create. {{AGENT_TYPES}}"
-        },
-        {
-            "name": "task_description",
-            "type": "string",
-            "required": True,
-            "description": "Detailed description of the task for the subagent to perform"
-        }
+        ToolArgument(
+            name="agenttype",
+            type="string",
+            required=True,
+            description="Type of agent to create. {{AGENT_TYPES}}",
+        ),
+        ToolArgument(
+            name="task_description",
+            type="string",
+            required=True,
+            description="Detailed description of the task for the subagent to perform",
+        ),
     ]
     examples = [
-        "🛠️ subagent default Write a Python function to calculate fibonacci numbers",
-        "🛠️ subagent default Create a simple HTML page with a form"
+        {
+            "agenttype": "default",
+            "task_description": "Write a Python function to calculate fibonacci numbers",
+        },
+        {
+            "agenttype": "default",
+            "task_description": "Create a simple HTML page with a form",
+        },
     ]
 
     def __init__(self, spawn_subagent: SubagentSpawner):
