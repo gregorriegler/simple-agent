@@ -1,7 +1,7 @@
 # Simple Agent
 
 [![Tests](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml)
-[![Coverage](docs/coverage.svg)](#generate-coverage-locally)
+[![Coverage](doc/coverage.svg)](#generate-coverage-locally)
 
 Simple Agent aims to be a simple, extensible, and transparent general-purpose agent system.
 
