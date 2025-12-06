@@ -29,6 +29,9 @@ class Display(Protocol):
     def interrupted(self, event) -> None:
         ...
 
+    def error_occurred(self, event) -> None:
+        ...
+
     def exit(self, event) -> None:
         ...
 
@@ -59,6 +62,9 @@ class AgentDisplay(Protocol):
     def interrupted(self) -> None:
         ...
 
+    def error_occurred(self, message) -> None:
+        ...
+
     def exit(self) -> None:
         ...
 
@@ -79,6 +85,8 @@ class DummyDisplay(AgentDisplay):
     def waiting_for_input(self) -> None:
         pass
     def interrupted(self) -> None:
+        pass
+    def error_occurred(self, message) -> None:
         pass
     def exit(self) -> None:
         pass

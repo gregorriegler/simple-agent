@@ -70,6 +70,11 @@ class AgentDisplayHub(Display):
         if agent:
             agent.interrupted()
 
+    def error_occurred(self, event) -> None:
+        agent = self._agent_for(event.agent_id)
+        if agent:
+            agent.error_occurred(event.message)
+
     def exit(self, event) -> None:
         agent = self._agent_for(event.agent_id)
         if not agent:

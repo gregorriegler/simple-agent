@@ -30,10 +30,11 @@ from tests.user_input_stub import UserInputStub
 
 
 class SessionTestResult:
-    def __init__(self, event_spy: EventSpy, error_events: list, session_storage: SessionStorageStub):
+    def __init__(self, event_spy: EventSpy, error_events: list, session_storage: SessionStorageStub, display: FakeDisplay):
         self.events = event_spy
         self.error_events = error_events
         self.saved_messages = session_storage.saved
+        self.display_events = display.events
 
     def as_approval_string(self) -> str:
         return f"# Events\n{self.events.get_events_as_string()}\n\n# Saved messages:\n{self.saved_messages}"
@@ -118,6 +119,7 @@ class SessionTestBed:
         event_bus.subscribe(SessionInterruptedEvent, display.interrupted)
         event_bus.subscribe(SessionEndedEvent, display.exit)
         event_bus.subscribe(AgentStartedEvent, display.agent_created)
+        event_bus.subscribe(ErrorEvent, display.error_occurred)
 
         for event_type, handler in self._custom_event_subscriptions:
             event_bus.subscribe(event_type, handler)
@@ -146,7 +148,7 @@ class SessionTestBed:
             _create_test_agent_definition()
         )
 
-        return SessionTestResult(event_spy, error_events, session_storage)
+        return SessionTestResult(event_spy, error_events, session_storage, display)
 
 
 def _create_test_agent_definition():

@@ -15,6 +15,17 @@ def test_llm_error_emits_error_event():
     assert "429" in str(result.error_events[0])
 
 
+def test_llm_error_displayed_to_user():
+    result = SessionTestBed() \
+        .with_failing_llm("429 Too Many Requests") \
+        .with_user_inputs("Hello") \
+        .run()
+
+    error_display_events = [e for e in result.display_events if e["event"] == "error_occurred"]
+    assert len(error_display_events) == 1
+    assert "429" in error_display_events[0]["payload"]
+
+
 def test_chat_with_regular_response():
     verify_chat(["Hello", "\n"], ["Hello! How can I help you?"])
 

@@ -3,6 +3,7 @@ from simple_agent.application.events import (
     AgentStartedEvent,
     AgentFinishedEvent,
     AssistantSaidEvent,
+    ErrorEvent,
     SessionEndedEvent,
     SessionInterruptedEvent,
     SessionStartedEvent,
@@ -29,6 +30,7 @@ def subscribe_events(
     event_bus.subscribe(ToolCalledEvent, event_logger.log_event)
     event_bus.subscribe(ToolResultEvent, event_logger.log_event)
     event_bus.subscribe(SessionInterruptedEvent, event_logger.log_event)
+    event_bus.subscribe(ErrorEvent, event_logger.log_event)
     event_bus.subscribe(SessionEndedEvent, event_logger.log_event)
     event_bus.subscribe(AgentStartedEvent, event_logger.log_event)
     event_bus.subscribe(
@@ -42,5 +44,6 @@ def subscribe_events(
     event_bus.subscribe(ToolCalledEvent, display.tool_call)
     event_bus.subscribe(ToolResultEvent, display.tool_result)
     event_bus.subscribe(SessionInterruptedEvent, display.interrupted)
+    event_bus.subscribe(ErrorEvent, display.error_occurred)
     event_bus.subscribe(SessionEndedEvent, display.exit)
     event_bus.subscribe(AgentStartedEvent, display.agent_created)

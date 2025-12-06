@@ -36,3 +36,6 @@ class FakeDisplay(Display):
 
     def exit(self, event) -> None:
         self._record("exit", event.agent_id)
+
+    def error_occurred(self, event) -> None:
+        self._record("error_occurred", event.agent_id, getattr(event, "message", None))

@@ -96,6 +96,10 @@ class TextualAgentDisplay(AgentDisplay):
         if self._app and self._app.is_running:
             self._app.post_message(SessionStatusMessage(self._log_id, "\n[Session interrupted by user]"))
 
+    def error_occurred(self, message):
+        if self._app and self._app.is_running:
+            self._app.post_message(SessionStatusMessage(self._log_id, f"\n[red]Error: {message}[/red]"))
+
     def exit(self):
         self._hub.remove_tab(self._agent_id)
 
