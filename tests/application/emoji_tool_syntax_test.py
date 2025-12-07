@@ -1,6 +1,7 @@
-from simple_agent.application.tool_syntax import EmojiToolSyntax
+from simple_agent.application.emoji_tool_syntax import EmojiToolSyntax
 from simple_agent.application.tool_message_parser import parse_tool_calls
-from simple_agent.tools.base_tool import BaseTool, ToolArgument
+from simple_agent.tools.base_tool import BaseTool
+from simple_agent.application.tool_library import ToolArgument
 
 
 class SimpleTool(BaseTool):

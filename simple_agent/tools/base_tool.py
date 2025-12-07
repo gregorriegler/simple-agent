@@ -2,7 +2,7 @@ import subprocess
 from typing import List
 
 from simple_agent.application.tool_library import ToolResult, Tool, ToolArgument
-from simple_agent.application.tool_syntax import EmojiToolSyntax
+from simple_agent.application.emoji_tool_syntax import EmojiToolSyntax
 
 CURRENT_SYNTAX = EmojiToolSyntax()
 

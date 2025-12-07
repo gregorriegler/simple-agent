@@ -3,27 +3,6 @@ from typing import Protocol, List, Dict, Any
 
 
 @dataclass
-class RawToolCall:
-    name: str
-    arguments: str
-
-
-@dataclass
-class ParsedMessage:
-    message: str
-    tool_calls: List[RawToolCall]
-
-
-@dataclass
-class ToolArgument:
-    name: str
-    description: str
-    required: bool = True
-    multiline: bool = False
-    type: str = "string"
-
-
-@dataclass
 class ToolResult:
     message: str = ""
     success: bool = True
@@ -70,6 +49,15 @@ class MessageAndParsedTools:
     def __iter__(self):
         yield self.message
         yield self.tools
+
+
+@dataclass
+class ToolArgument:
+    name: str
+    description: str
+    required: bool = True
+    multiline: bool = False
+    type: str = "string"
 
 
 class Tool(Protocol):

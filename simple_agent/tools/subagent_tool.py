@@ -1,6 +1,6 @@
 from simple_agent.application.subagent_spawner import SubagentSpawner
-from simple_agent.application.tool_library import ContinueResult
-from .base_tool import BaseTool, ToolArgument
+from simple_agent.application.tool_library import ContinueResult, ToolArgument
+from .base_tool import BaseTool
 from ..application.agent_type import AgentType
 
 

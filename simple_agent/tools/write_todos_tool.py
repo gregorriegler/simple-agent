@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from simple_agent.application.tool_library import ContinueResult
+from simple_agent.application.tool_library import ContinueResult, ToolArgument
 
-from .base_tool import BaseTool, ToolArgument
+from .base_tool import BaseTool
 
 
 class WriteTodosTool(BaseTool):

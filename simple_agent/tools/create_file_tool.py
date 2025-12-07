@@ -1,8 +1,8 @@
 import os
 
-from ..application.tool_library import ContinueResult
+from ..application.tool_library import ContinueResult, ToolArgument
 
-from .base_tool import BaseTool, ToolArgument
+from .base_tool import BaseTool
 
 
 class CreateFileTool(BaseTool):

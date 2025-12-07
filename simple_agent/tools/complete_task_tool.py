@@ -1,5 +1,5 @@
-from ..application.tool_library import CompleteResult
-from .base_tool import BaseTool, ToolArgument
+from ..application.tool_library import CompleteResult, ToolArgument
+from .base_tool import BaseTool
 
 
 class CompleteTaskTool(BaseTool):
