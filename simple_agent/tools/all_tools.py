@@ -1,8 +1,9 @@
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
-from simple_agent.application.tool_message_parser import parse_tool_calls, CURRENT_SYNTAX
+from simple_agent.application.tool_message_parser import parse_tool_calls
 from simple_agent.application.tool_library_factory import ToolLibraryFactory, ToolContext
+from simple_agent.application.tool_syntax import ToolSyntax
 from .bash_tool import BashTool
 from .cat_tool import CatTool
 from .complete_task_tool import CompleteTaskTool
@@ -18,11 +19,13 @@ class AllTools(ToolLibrary):
         self,
         tool_context: ToolContext,
         spawner: SubagentSpawner,
-        agent_types: AgentTypes
+        agent_types: AgentTypes,
+        tool_syntax: ToolSyntax
     ):
         self.tool_context = tool_context
         self._spawner = spawner
         self._agent_types = agent_types
+        self.tool_syntax = tool_syntax
         self.tool_keys = tool_context.tool_keys if tool_context.tool_keys else []
 
         static_tools = self._create_static_tools()
@@ -55,7 +58,7 @@ class AllTools(ToolLibrary):
         return tools
 
     def parse_message_and_tools(self, text) -> MessageAndParsedTools:
-        parsed = parse_tool_calls(text, CURRENT_SYNTAX)
+        parsed = parse_tool_calls(text, self.tool_syntax)
 
         tools = []
         for raw_call in parsed.tool_calls:
@@ -74,10 +77,13 @@ class AllTools(ToolLibrary):
 
 
 class AllToolsFactory(ToolLibraryFactory):
+    def __init__(self, tool_syntax: ToolSyntax):
+        self.tool_syntax = tool_syntax
+
     def create(
         self,
         tool_context: ToolContext,
         spawner: SubagentSpawner,
         agent_types: AgentTypes
     ) -> ToolLibrary:
-        return AllTools(tool_context, spawner, agent_types)
+        return AllTools(tool_context, spawner, agent_types, self.tool_syntax)

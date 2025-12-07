@@ -3,9 +3,6 @@ from typing import List, Dict
 
 from simple_agent.application.tool_library import ToolResult, Tool, ToolArgument
 from simple_agent.application.tool_syntax import RawToolCall
-from simple_agent.application.emoji_tool_syntax import EmojiToolSyntax
-
-CURRENT_SYNTAX = EmojiToolSyntax()
 
 
 class BaseTool(Tool):

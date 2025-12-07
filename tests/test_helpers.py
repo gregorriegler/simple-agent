@@ -20,13 +20,15 @@ def create_all_tools_for_test():
     from simple_agent.application.event_bus import SimpleEventBus
     from simple_agent.tools.all_tools import AllToolsFactory
     from simple_agent.application.llm_stub import StubLLMProvider
+    from simple_agent.application.emoji_tool_syntax import EmojiToolSyntax
 
     io = StdIO()
 
     from simple_agent.application.session_storage import NoOpSessionStorage
     event_bus = SimpleEventBus()
     session_storage = NoOpSessionStorage()
-    tool_library_factory = AllToolsFactory()
+    tool_syntax = EmojiToolSyntax()
+    tool_library_factory = AllToolsFactory(tool_syntax)
     agent_library = BuiltinAgentLibrary()
     agent_factory = AgentFactory(
         event_bus,
@@ -49,7 +51,8 @@ def create_all_tools_for_test():
     return AllTools(
         tool_context=tool_context,
         spawner=spawner,
-        agent_types=AgentTypes(agent_library.list_agent_types())
+        agent_types=AgentTypes(agent_library.list_agent_types()),
+        tool_syntax=tool_syntax
     )
 
 

@@ -1,9 +1,7 @@
-from simple_agent.application.emoji_tool_syntax import EmojiToolSyntax
-
-CURRENT_SYNTAX = EmojiToolSyntax()
+from simple_agent.application.tool_syntax import ToolSyntax
 
 
-def generate_tools_documentation(tools) -> str:
+def generate_tools_documentation(tools, tool_syntax: ToolSyntax) -> str:
     tools_header = """# Tools
 
 To use a tool, answer in the described syntax.
@@ -11,7 +9,7 @@ One tool execution per answer.
 The tool should always be the last thing in your answer."""
     tools_lines = []
     for tool in tools:
-        tool_doc = _generate_tool_documentation(tool, CURRENT_SYNTAX)
+        tool_doc = _generate_tool_documentation(tool, tool_syntax)
         tools_lines.append(tool_doc)
     return tools_header + "\n\n".join(tools_lines)
 

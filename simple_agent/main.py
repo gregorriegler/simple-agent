@@ -13,6 +13,7 @@ from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.application.events import UserPromptRequestedEvent
+from simple_agent.application.emoji_tool_syntax import EmojiToolSyntax
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.infrastructure.configuration import get_starting_agent, load_user_configuration, stub_user_config
@@ -75,7 +76,8 @@ def main(on_user_prompt_requested=None):
             args.on_user_prompt_requested(textual_app)
         event_bus.subscribe(UserPromptRequestedEvent, on_prompt_wrapper)
 
-    tool_library_factory = AllToolsFactory()
+    tool_syntax = EmojiToolSyntax()
+    tool_library_factory = AllToolsFactory(tool_syntax)
 
     if args.stub_llm:
         llm_provider = StubLLMProvider()
@@ -105,7 +107,8 @@ def print_system_prompt_command(user_config, cwd, args):
     from simple_agent.application.tool_library_factory import ToolContext
 
     starting_agent_type = get_starting_agent(user_config, args)
-    tool_library_factory = AllToolsFactory()
+    tool_syntax = EmojiToolSyntax()
+    tool_library_factory = AllToolsFactory(tool_syntax)
     dummy_event_bus = SimpleEventBus()
     agents_path = user_config.agents_path()
     agent_library = create_agent_library(agents_path, cwd)
@@ -126,7 +129,7 @@ def print_system_prompt_command(user_config, cwd, args):
     )
     spawner = agent_factory.create_spawner(agent_id)
     tool_library = tool_library_factory.create(tool_context, spawner, AgentTypes(agent_library.list_agent_types()))
-    tools_documentation = generate_tools_documentation(tool_library.tools)
+    tools_documentation = generate_tools_documentation(tool_library.tools, tool_syntax)
     system_prompt = agent_definition.prompt().render(tools_documentation)
     print(system_prompt)
     return

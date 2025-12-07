@@ -197,7 +197,7 @@ class TestEmojiToolSyntaxCompatibility:
         text = "Some message\n🛠️ test_tool arg1 arg2"
 
         syntax_result = syntax.parse(text)
-        parser_result = parse_tool_calls(text)
+        parser_result = parse_tool_calls(text, syntax)
 
         assert syntax_result == parser_result
 
@@ -210,7 +210,7 @@ line2
 🛠️🔚"""
 
         syntax_result = syntax.parse(text)
-        parser_result = parse_tool_calls(text)
+        parser_result = parse_tool_calls(text, syntax)
 
         assert syntax_result == parser_result
 
@@ -221,7 +221,7 @@ line2
 🛠️ tool2 arg2 arg3"""
 
         syntax_result = syntax.parse(text)
-        parser_result = parse_tool_calls(text)
+        parser_result = parse_tool_calls(text, syntax)
 
         assert syntax_result == parser_result
 
@@ -230,7 +230,7 @@ line2
         text = "Just a regular message"
 
         syntax_result = syntax.parse(text)
-        parser_result = parse_tool_calls(text)
+        parser_result = parse_tool_calls(text, syntax)
 
         assert syntax_result == parser_result
 
@@ -255,7 +255,6 @@ class TestEmojiToolSyntaxRoundTrip:
         tool = MultilineTool()
 
         example = {'inline_arg': 'test', 'multiline_arg': 'line1\nline2'}
-        # Combine header and body arguments, mark body as multiline
         all_args = list(tool.arguments)
         if tool.body:
             all_args.append(tool.body)

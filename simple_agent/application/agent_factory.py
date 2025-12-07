@@ -73,7 +73,7 @@ class AgentFactory:
         tools = self._tool_library_factory.create(
             tool_context, spawner, AgentTypes(self._agent_library.list_agent_types())
         )
-        tools_documentation = generate_tools_documentation(tools.tools)
+        tools_documentation = generate_tools_documentation(tools.tools, tools.tool_syntax)
         system_prompt = definition.prompt().render(tools_documentation)
         messages.seed_system_prompt(system_prompt)
 
