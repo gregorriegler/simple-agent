@@ -1,20 +1,15 @@
 import re
-from dataclasses import dataclass
+
+from simple_agent.application.tool_library import ParsedMessage, RawToolCall
+from simple_agent.application.tool_syntax import EmojiToolSyntax
+
+CURRENT_SYNTAX = EmojiToolSyntax()
 
 
-@dataclass
-class RawToolCall:
-    name: str
-    arguments: str
+def parse_tool_calls(text: str, syntax=None) -> ParsedMessage:
+    if syntax is not None:
+        return syntax.parse(text)
 
-
-@dataclass
-class ParsedMessage:
-    message: str
-    tool_calls: list[RawToolCall]
-
-
-def parse_tool_calls(text: str) -> ParsedMessage:
     pattern = r'^🛠️ ([\w-]+)(?:\s+(.*))?'
     end_marker = r'^🛠️🔚'
     lines = text.splitlines(keepends=True)

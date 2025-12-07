@@ -4,8 +4,7 @@ import re
 from dataclasses import asdict, is_dataclass
 from typing import Any, Dict, Iterable, Protocol
 
-from simple_agent.application.tool_library import Tool
-from simple_agent.application.tool_message_parser import ParsedMessage, RawToolCall
+from simple_agent.application.tool_library import Tool, ParsedMessage, RawToolCall
 
 
 class ToolSyntax(Protocol):

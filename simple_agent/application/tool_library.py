@@ -3,6 +3,18 @@ from typing import Protocol, List, Dict, Any
 
 
 @dataclass
+class RawToolCall:
+    name: str
+    arguments: str
+
+
+@dataclass
+class ParsedMessage:
+    message: str
+    tool_calls: List['RawToolCall']
+
+
+@dataclass
 class ToolArgument:
     name: str
     description: str
