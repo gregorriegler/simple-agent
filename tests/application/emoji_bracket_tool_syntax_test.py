@@ -1,4 +1,79 @@
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
+from simple_agent.tools.base_tool import BaseTool
+from simple_agent.application.tool_library import ToolArgument
+
+
+class SimpleTool(BaseTool):
+    name = 'test_tool'
+    description = 'A test tool'
+    arguments = [
+        ToolArgument(name='arg1', description='First argument', required=True),
+        ToolArgument(name='arg2', description='Second argument', required=False),
+    ]
+    examples = [
+        {'arg1': 'value1', 'arg2': 'value2'},
+        {'arg1': 'only_required'},
+    ]
+
+
+class MultilineTool(BaseTool):
+    name = 'multiline_tool'
+    description = 'Tool with multiline input'
+    arguments = [
+        ToolArgument(name='inline_arg', description='Inline argument', required=True),
+        ToolArgument(name='multiline_arg', description='Multiline content', required=True, multiline=True),
+    ]
+    examples = [
+        {'inline_arg': 'test', 'multiline_arg': 'line1\nline2\nline3'},
+    ]
+
+
+class TestEmojiBracketDocumentation:
+    def test_renders_simple_tool_documentation(self):
+        syntax = EmojiBracketToolSyntax()
+        tool = SimpleTool()
+
+        doc = syntax.render_documentation(tool)
+
+        assert 'Tool: test_tool' in doc
+        assert 'Description: A test tool' in doc
+        assert 'Arguments:' in doc
+        assert 'arg1: string (required) - First argument' in doc
+        assert 'arg2: string (optional) - Second argument' in doc
+        assert 'Usage: 🛠️[test_tool <arg1> [arg2]]' in doc
+        assert 'Examples:' in doc
+        assert '🛠️[test_tool value1 value2]' in doc
+        assert '🛠️[/end]' in doc
+        assert '🛠️[test_tool only_required]' in doc
+
+    def test_renders_multiline_tool_documentation(self):
+        syntax = EmojiBracketToolSyntax()
+        tool = MultilineTool()
+
+        doc = syntax.render_documentation(tool)
+
+        assert 'Tool: multiline_tool' in doc
+        assert 'Usage: 🛠️[multiline_tool <inline_arg> <multiline_arg>]' in doc
+        assert '🛠️[multiline_tool test]' in doc
+        assert 'line1\nline2\nline3' in doc
+        assert '🛠️[/end]' in doc
+
+    def test_renders_tool_without_arguments(self):
+        class NoArgsTool(BaseTool):
+            name = 'no_args'
+            description = 'Tool without arguments'
+            arguments = []
+            examples = []
+
+        syntax = EmojiBracketToolSyntax()
+        tool = NoArgsTool()
+
+        doc = syntax.render_documentation(tool)
+
+        assert 'Tool: no_args' in doc
+        assert 'Description: Tool without arguments' in doc
+        assert 'Arguments:' not in doc
+        assert 'Usage: 🛠️[no_args]' in doc
 
 
 class TestEmojiBracketBasicParsing:
@@ -284,3 +359,37 @@ line2
 
         # Should parse successfully, body handling is implementation choice
         assert len(result.tool_calls) == 1
+
+
+class TestEmojiBracketRoundTrip:
+    """Tests that generated examples can be parsed back correctly"""
+
+    def test_round_trip_simple_example(self):
+        syntax = EmojiBracketToolSyntax()
+        tool = SimpleTool()
+
+        doc = syntax.render_documentation(tool)
+
+        # Extract the first example (should be "🛠️[test_tool value1 value2]")
+        example_line = "🛠️[test_tool value1 value2]\n🛠️[/end]"
+
+        result = syntax.parse(example_line)
+
+        assert len(result.tool_calls) == 1
+        assert result.tool_calls[0].name == "test_tool"
+        assert result.tool_calls[0].arguments == "value1 value2"
+
+    def test_round_trip_multiline_example(self):
+        syntax = EmojiBracketToolSyntax()
+        tool = MultilineTool()
+
+        example = {'inline_arg': 'test', 'multiline_arg': 'line1\nline2'}
+        formatted = syntax._format_example(example, [syntax._normalize_argument(arg) for arg in tool.arguments], tool.name)
+
+        result = syntax.parse(formatted)
+
+        assert len(result.tool_calls) == 1
+        assert result.tool_calls[0].name == "multiline_tool"
+        assert "test" in result.tool_calls[0].arguments
+        assert "line1" in result.tool_calls[0].body
+        assert "line2" in result.tool_calls[0].body
