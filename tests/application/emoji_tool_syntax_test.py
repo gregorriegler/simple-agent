@@ -1,11 +1,9 @@
-"""Tests for tool syntax abstraction."""
-
 from simple_agent.application.tool_syntax import EmojiToolSyntax
+from simple_agent.application.tool_message_parser import parse_tool_calls
 from simple_agent.tools.base_tool import BaseTool, ToolArgument
 
 
 class SimpleTool(BaseTool):
-    """Simple test tool with basic configuration."""
     name = 'test_tool'
     description = 'A test tool'
     arguments = [
@@ -19,7 +17,6 @@ class SimpleTool(BaseTool):
 
 
 class MultilineTool(BaseTool):
-    """Tool with multiline argument."""
     name = 'multiline_tool'
     description = 'Tool with multiline input'
     arguments = [
@@ -32,10 +29,7 @@ class MultilineTool(BaseTool):
 
 
 class TestEmojiToolSyntaxDocumentation:
-    """Tests for EmojiToolSyntax.render_documentation()."""
-
     def test_renders_simple_tool_documentation(self):
-        """Test rendering documentation for a simple tool."""
         syntax = EmojiToolSyntax()
         tool = SimpleTool()
 
@@ -52,7 +46,6 @@ class TestEmojiToolSyntaxDocumentation:
         assert '🛠️ test_tool only_required' in doc
 
     def test_renders_multiline_tool_documentation(self):
-        """Test rendering documentation with multiline examples."""
         syntax = EmojiToolSyntax()
         tool = MultilineTool()
 
@@ -65,7 +58,6 @@ class TestEmojiToolSyntaxDocumentation:
         assert '🛠️🔚' in doc
 
     def test_renders_tool_without_arguments(self):
-        """Test rendering documentation for a tool with no arguments."""
         class NoArgsTool(BaseTool):
             name = 'no_args'
             description = 'Tool without arguments'
@@ -79,15 +71,11 @@ class TestEmojiToolSyntaxDocumentation:
 
         assert 'Tool: no_args' in doc
         assert 'Description: Tool without arguments' in doc
-        # Should not have Arguments or Usage sections
         assert 'Arguments:' not in doc
 
 
 class TestEmojiToolSyntaxParsing:
-    """Tests for EmojiToolSyntax.parse()."""
-
     def test_parses_simple_tool_call(self):
-        """Test parsing a simple tool call."""
         syntax = EmojiToolSyntax()
         text = "Some message\n🛠️ test_tool arg1 arg2"
 
@@ -99,7 +87,6 @@ class TestEmojiToolSyntaxParsing:
         assert result.tool_calls[0].arguments == "arg1 arg2"
 
     def test_parses_tool_call_without_message(self):
-        """Test parsing tool call at the beginning."""
         syntax = EmojiToolSyntax()
         text = "🛠️ test_tool arg1 arg2"
 
@@ -111,7 +98,6 @@ class TestEmojiToolSyntaxParsing:
         assert result.tool_calls[0].arguments == "arg1 arg2"
 
     def test_parses_multiline_tool_call(self):
-        """Test parsing a multiline tool call."""
         syntax = EmojiToolSyntax()
         text = """Message here
 🛠️ multiline_tool inline_arg
@@ -128,7 +114,6 @@ line3
         assert result.tool_calls[0].arguments == "inline_arg\nline1\nline2\nline3"
 
     def test_parses_multiple_tool_calls(self):
-        """Test parsing multiple tool calls."""
         syntax = EmojiToolSyntax()
         text = """Message
 🛠️ tool1 arg1
@@ -144,7 +129,6 @@ line3
         assert result.tool_calls[1].arguments == "arg2 arg3"
 
     def test_parses_tool_call_without_arguments(self):
-        """Test parsing a tool call with no arguments."""
         syntax = EmojiToolSyntax()
         text = "🛠️ no_args_tool"
 
@@ -156,7 +140,6 @@ line3
         assert result.tool_calls[0].arguments == ""
 
     def test_returns_message_only_when_no_tools(self):
-        """Test parsing text without any tool calls."""
         syntax = EmojiToolSyntax()
         text = "Just a regular message"
 
@@ -166,7 +149,6 @@ line3
         assert len(result.tool_calls) == 0
 
     def test_parses_tool_with_hyphenated_name(self):
-        """Test parsing tool with hyphenated name."""
         syntax = EmojiToolSyntax()
         text = "🛠️ tool-with-hyphens arg1"
 
@@ -177,21 +159,92 @@ line3
         assert result.tool_calls[0].arguments == "arg1"
 
 
-class TestEmojiToolSyntaxRoundTrip:
-    """Tests that verify formatting and parsing work together."""
-
-    def test_round_trip_simple_example(self):
-        """Test that formatted examples can be parsed back."""
+class TestEmojiToolSyntaxCompatibility:
+    def test_produces_identical_output_to_basetool_simple(self):
         syntax = EmojiToolSyntax()
         tool = SimpleTool()
 
-        # Get documentation which includes formatted examples
+        syntax_output = syntax.render_documentation(tool)
+        basetool_output = tool.get_usage_info()
+
+        assert syntax_output == basetool_output
+
+    def test_produces_identical_output_to_basetool_multiline(self):
+        syntax = EmojiToolSyntax()
+        tool = MultilineTool()
+
+        syntax_output = syntax.render_documentation(tool)
+        basetool_output = tool.get_usage_info()
+
+        assert syntax_output == basetool_output
+
+    def test_produces_identical_output_to_basetool_no_args(self):
+        class NoArgsTool(BaseTool):
+            name = 'no_args'
+            description = 'Tool without arguments'
+            arguments = []
+            examples = []
+
+        syntax = EmojiToolSyntax()
+        tool = NoArgsTool()
+
+        syntax_output = syntax.render_documentation(tool)
+        basetool_output = tool.get_usage_info()
+
+        assert syntax_output == basetool_output
+
+    def test_produces_identical_parsing_to_parse_tool_calls_simple(self):
+        syntax = EmojiToolSyntax()
+        text = "Some message\n🛠️ test_tool arg1 arg2"
+
+        syntax_result = syntax.parse(text)
+        parser_result = parse_tool_calls(text)
+
+        assert syntax_result == parser_result
+
+    def test_produces_identical_parsing_to_parse_tool_calls_multiline(self):
+        syntax = EmojiToolSyntax()
+        text = """Message here
+🛠️ multiline_tool inline_arg
+line1
+line2
+🛠️🔚"""
+
+        syntax_result = syntax.parse(text)
+        parser_result = parse_tool_calls(text)
+
+        assert syntax_result == parser_result
+
+    def test_produces_identical_parsing_to_parse_tool_calls_multiple(self):
+        syntax = EmojiToolSyntax()
+        text = """Message
+🛠️ tool1 arg1
+🛠️ tool2 arg2 arg3"""
+
+        syntax_result = syntax.parse(text)
+        parser_result = parse_tool_calls(text)
+
+        assert syntax_result == parser_result
+
+    def test_produces_identical_parsing_to_parse_tool_calls_no_tools(self):
+        syntax = EmojiToolSyntax()
+        text = "Just a regular message"
+
+        syntax_result = syntax.parse(text)
+        parser_result = parse_tool_calls(text)
+
+        assert syntax_result == parser_result
+
+
+class TestEmojiToolSyntaxRoundTrip:
+    def test_round_trip_simple_example(self):
+        syntax = EmojiToolSyntax()
+        tool = SimpleTool()
+
         doc = syntax.render_documentation(tool)
 
-        # Extract an example line
         example_line = "🛠️ test_tool value1 value2"
 
-        # Parse it
         result = syntax.parse(example_line)
 
         assert len(result.tool_calls) == 1
@@ -199,15 +252,12 @@ class TestEmojiToolSyntaxRoundTrip:
         assert result.tool_calls[0].arguments == "value1 value2"
 
     def test_round_trip_multiline_example(self):
-        """Test that multiline formatted examples can be parsed back."""
         syntax = EmojiToolSyntax()
         tool = MultilineTool()
 
-        # Format an example
         example = {'inline_arg': 'test', 'multiline_arg': 'line1\nline2'}
         formatted = syntax._format_example(example, [syntax._normalize_argument(arg) for arg in tool.arguments], tool.name)
 
-        # Parse it
         result = syntax.parse(formatted)
 
         assert len(result.tool_calls) == 1
