@@ -78,7 +78,7 @@ class EmojiToolSyntax:
                     i += 1
 
                 arguments = ''.join(all_arg_lines).rstrip()
-                tool_calls.append(RawToolCall(command, arguments))
+                tool_calls.append(RawToolCall(name=command, arguments=arguments, body=""))
             else:
                 i += 1
 
@@ -100,7 +100,6 @@ class EmojiToolSyntax:
         return normalized
 
     def _format_example(self, example: Any, arguments: Iterable[Dict[str, Any]], tool_name: str) -> str:
-        """Format an example tool call using 🛠️ syntax."""
         if isinstance(example, str):
             return example
 

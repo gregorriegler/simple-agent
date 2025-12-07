@@ -8,6 +8,7 @@ from simple_agent.application.tool_library import Tool
 class RawToolCall:
     name: str
     arguments: str
+    body: str = ""
 
 
 @dataclass
