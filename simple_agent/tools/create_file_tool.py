@@ -34,21 +34,21 @@ class CreateFileTool(BaseTool):
         {"filename": "multi-line.py", "content": "Line 1\nLine 2"},
     ]
 
-    def execute(self, args):
+    def execute(self, raw_call):
+        args = raw_call.arguments
+        body = raw_call.body
+
         if not args:
             return ContinueResult('No filename specified', success=False)
 
-        # Simple string splitting - first word is filename, rest is content
+        # Simple string splitting - first word is filename
         parts = args.strip().split(None, 1)
 
         if not parts:
             return ContinueResult('No filename specified', success=False)
 
         filename = parts[0]
-        content = parts[1] if len(parts) > 1 else None
-
-        if content == '':
-            content = None
+        content = body if body else None
 
         try:
             # Check if file already exists

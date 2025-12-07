@@ -1,11 +1,11 @@
 Command:
-🛠️ create-file src/tmp/test_path/helper.py # Helper module
+🛠️ create-file src/tmp/test_path/helper.py
 
 Result:
-Created file: src/tmp/test_path/helper.py with content
+Created empty file: src/tmp/test_path/helper.py
 
 File created: src/tmp/test_path/helper.py
 File content:
 --- FILE CONTENT START ---
-# Helper module
+
 --- FILE CONTENT END ---

@@ -30,10 +30,21 @@ class CompleteResult(ToolResult):
 
 
 class ParsedTool:
-    def __init__(self, name, arguments, tool_instance):
-        self.name = name
-        self.arguments = arguments
+    def __init__(self, raw_call, tool_instance):
+        self.raw_call = raw_call
         self.tool_instance = tool_instance
+
+    @property
+    def name(self):
+        return self.raw_call.name
+
+    @property
+    def arguments(self):
+        return self.raw_call.arguments
+
+    @property
+    def body(self):
+        return self.raw_call.body
 
     def __str__(self):
         if self.arguments:
@@ -78,7 +89,7 @@ class Tool(Protocol):
     def examples(self) -> List[Dict[str, Any]]:
         ...
 
-    def execute(self, *args, **kwargs) -> ToolResult:
+    def execute(self, raw_call: "RawToolCall") -> ToolResult:
         ...
 
     def get_template_variables(self) -> Dict[str, str]:

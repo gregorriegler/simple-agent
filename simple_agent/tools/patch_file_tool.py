@@ -184,8 +184,8 @@ class PatchFileTool(BaseTool):
 
         return new_lines, None
 
-    def execute(self, args) -> ToolResult:
-        patch_args, error = self._parse_arguments(args)
+    def execute(self, raw_call) -> ToolResult:
+        patch_args, error = self._parse_arguments(raw_call.arguments)
         if error:
             return ContinueResult(error, success=False)
 

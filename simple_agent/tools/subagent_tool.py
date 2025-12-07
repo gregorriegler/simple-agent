@@ -38,7 +38,8 @@ class SubagentTool(BaseTool):
         self._spawn_subagent = spawn_subagent
         self._agent_types = agent_types
 
-    def execute(self, args):
+    def execute(self, raw_call):
+        args = raw_call.arguments
         if not args or not args.strip():
             return ContinueResult('STDERR: subagent: missing arguments', success=False)
 

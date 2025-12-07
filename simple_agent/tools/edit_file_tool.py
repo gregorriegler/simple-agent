@@ -214,61 +214,8 @@ Replace mode: First deletes the specified range, then inserts new content at tha
             "replace": ReplaceMode
         }
 
-    def parse_arguments(self, args):
-        if not args:
-            return None, 'No arguments specified'
-
-        # Split args into first line and remaining content
-        lines = args.splitlines(keepends=True)
-        first_line = lines[0].rstrip('\n\r')
-
-        # Parse the command line arguments
-        try:
-            parts = split_arguments(first_line)
-        except ValueError as e:
-            return None, f"Error parsing arguments: {str(e)}"
-
-        if len(parts) < 3:
-            return None, 'Usage: edit-file <filename> <edit_mode> <line_range>'
-
-        filename, edit_mode, line_range_token = parts[:3]
-
-        if edit_mode in ['insert', 'replace']:
-            if len(parts) > 3:
-                return None, f'For {edit_mode} mode, content must start on the following line, not on the same line'
-
-            if len(lines) > 1:
-                new_content = ''.join(lines[1:])
-                if new_content.endswith('\n') and not new_content.endswith('\n\n'):
-                    new_content = new_content[:-1]
-            else:
-                new_content = None
-        elif edit_mode == 'delete':
-            if len(parts) > 3:
-                return None, 'Delete mode does not accept content arguments'
-            new_content = None
-        else:
-            return None, f'Invalid edit mode: {edit_mode}. Supported modes: insert, delete, replace'
-
-        try:
-            if '-' in line_range_token:
-                start_line, end_line = map(int, line_range_token.split('-'))
-            else:
-                start_line = end_line = int(line_range_token)
-        except ValueError:
-            return None, 'Invalid line range format. Use format "start-end" (e.g., "1-5")'
-
-        edit_args = EditFileArgs(
-            filename=filename,
-            edit_mode=edit_mode,
-            start_line=start_line,
-            end_line=end_line,
-            new_content=new_content
-        )
-        return edit_args, None
-
-    def execute(self, args):
-        edit_args, error = self.parse_arguments(args)
+    def execute(self, raw_call):
+        edit_args, error = self.parse_arguments(raw_call)
         if error or edit_args is None:
             return ContinueResult(error or "Failed to parse arguments", success=False)
 
@@ -310,6 +257,59 @@ Replace mode: First deletes the specified range, then inserts new content at tha
             return ContinueResult(f'Error editing file "{edit_args.filename}": {str(e)}', success=False)
         except Exception as e:
             return ContinueResult(f'Unexpected error editing file "{edit_args.filename}": {str(e)}', success=False)
+
+    def parse_arguments(self, raw_call):
+        args = raw_call.arguments
+        body = raw_call.body
+
+        if not args:
+            return None, 'No arguments specified'
+
+        # Parse the command line arguments (inline args only)
+        first_line = args.strip()
+
+        # Parse the command line arguments
+        try:
+            parts = split_arguments(first_line)
+        except ValueError as e:
+            return None, f"Error parsing arguments: {str(e)}"
+
+        if len(parts) < 3:
+            return None, 'Usage: edit-file <filename> <edit_mode> <line_range>'
+
+        filename, edit_mode, line_range_token = parts[:3]
+
+        if edit_mode in ['insert', 'replace']:
+            if len(parts) > 3:
+                return None, f'For {edit_mode} mode, content must start on the following line, not on the same line'
+
+            new_content = body
+            # Remove trailing newline for consistency with old behavior
+            if new_content.endswith('\n') and not new_content.endswith('\n\n'):
+                new_content = new_content[:-1]
+        elif edit_mode == 'delete':
+            if len(parts) > 3:
+                return None, 'Delete mode does not accept content arguments'
+            new_content = None
+        else:
+            return None, f'Invalid edit mode: {edit_mode}. Supported modes: insert, delete, replace'
+
+        try:
+            if '-' in line_range_token:
+                start_line, end_line = map(int, line_range_token.split('-'))
+            else:
+                start_line = end_line = int(line_range_token)
+        except ValueError:
+            return None, 'Invalid line range format. Use format "start-end" (e.g., "1-5")'
+
+        edit_args = EditFileArgs(
+            filename=filename,
+            edit_mode=edit_mode,
+            start_line=start_line,
+            end_line=end_line,
+            new_content=new_content
+        )
+        return edit_args, None
 
     @staticmethod
     def _format_diff(diff_lines):

@@ -61,8 +61,7 @@ class ToolLibraryStub(AllTools):
         if self.interrupts and self.counter < len(self.interrupts) and self.interrupts[self.counter]:
             self.counter += 1
             raise KeyboardInterrupt()
-        args = parsed_tool.arguments if parsed_tool.arguments else None
-        result = parsed_tool.tool_instance.execute(args)
+        result = parsed_tool.tool_instance.execute(parsed_tool.raw_call)
         self.counter += 1
         return result
 

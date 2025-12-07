@@ -26,10 +26,13 @@ class WriteTodosTool(BaseTool):
         super().__init__()
         self.filename = filename
 
-    def execute(self, args):
-        if not args or not args.strip():
+    def execute(self, raw_call):
+        body = raw_call.body
+        if not body or not body.strip():
             return ContinueResult("No todo content provided", success=False)
-        content = args
+
+        content = body
+
         path = Path(self.filename)
         path.write_text(content, encoding="utf-8")
         return ContinueResult("Updated TODOS")

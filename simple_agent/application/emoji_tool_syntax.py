@@ -65,20 +65,23 @@ class EmojiToolSyntax (ToolSyntax):
 
                 command, same_line_args = match.groups()
 
-                all_arg_lines = []
-                if same_line_args:
-                    all_arg_lines.append(same_line_args)
+                # Collect first line arguments (inline)
+                inline_args = same_line_args.rstrip('\n\r') if same_line_args else ""
 
+                # Collect body content (multiline content after the first line)
+                body_lines = []
                 i += 1
                 while i < len(lines) and not re.match(r'^🛠️ ', lines[i]) and not re.match(end_marker, lines[i]):
-                    all_arg_lines.append(lines[i])
+                    body_lines.append(lines[i])
                     i += 1
 
                 if i < len(lines) and re.match(end_marker, lines[i]):
                     i += 1
 
-                arguments = ''.join(all_arg_lines).rstrip()
-                tool_calls.append(RawToolCall(name=command, arguments=arguments, body=""))
+                body = ''.join(body_lines).rstrip() if body_lines else ""
+                arguments = inline_args
+
+                tool_calls.append(RawToolCall(name=command, arguments=arguments, body=body))
             else:
                 i += 1
 

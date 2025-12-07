@@ -18,7 +18,8 @@ class CompleteTaskTool(BaseTool):
         {"summary": "Fixed the bug in the payment processing module"},
     ]
 
-    def execute(self, args):
+    def execute(self, raw_call):
+        args = raw_call.arguments
         if not args or not args.strip():
             return CompleteResult('STDERR: complete-task: missing summary', success=False)
         summary = args.strip()

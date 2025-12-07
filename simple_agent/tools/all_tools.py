@@ -62,14 +62,12 @@ class AllTools(ToolLibrary):
             tool_instance = self.tool_dict.get(raw_call.name)
             if not tool_instance:
                 return MessageAndParsedTools(message=text, tools=[])
-            tools.append(ParsedTool(raw_call.name, raw_call.arguments, tool_instance))
+            tools.append(ParsedTool(raw_call, tool_instance))
 
         return MessageAndParsedTools(message=parsed.message, tools=tools)
 
     def execute_parsed_tool(self, parsed_tool):
-        args = parsed_tool.arguments if parsed_tool.arguments else None
-        result = parsed_tool.tool_instance.execute(args)
-        return result
+        return parsed_tool.tool_instance.execute(parsed_tool.raw_call)
 
     def _discover_dynamic_tools(self):
         return []

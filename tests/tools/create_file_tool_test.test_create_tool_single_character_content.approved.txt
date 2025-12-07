@@ -2,10 +2,10 @@ Command:
 🛠️ create-file test.txt a
 
 Result:
-Created file: test.txt with content
+Created empty file: test.txt
 
 File created: test.txt
 File content:
 --- FILE CONTENT START ---
-a
+
 --- FILE CONTENT END ---

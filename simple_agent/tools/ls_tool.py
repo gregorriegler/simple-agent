@@ -18,6 +18,7 @@ class LsTool(BaseTool):
         {"path": "/home/user"},
     ]
 
-    def execute(self, path="."):
+    def execute(self, raw_call):
+        path = raw_call.arguments if raw_call.arguments else "."
         result = self.run_command("ls", ["-a", path] if path else ["-a"])
         return ContinueResult(result['output'], success=result['success'])

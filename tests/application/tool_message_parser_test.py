@@ -15,7 +15,8 @@ def test_parse_simple_tool_call():
 def test_parse_multiline_arguments():
     text = "Message\n🛠️ create_file path.txt\nline1\nline2\n🛠️🔚"
     result = parse_tool_calls(text)
-    assert result.tool_calls[0].arguments == "path.txt\nline1\nline2"
+    assert result.tool_calls[0].arguments == "path.txt"
+    assert result.tool_calls[0].body == "line1\nline2"
 
 
 def test_parse_no_tools():
@@ -39,7 +40,8 @@ def test_parse_tool_with_hyphen_in_name():
     text = "🛠️ create-file test.txt\ncontent"
     result = parse_tool_calls(text)
     assert result.tool_calls[0].name == "create-file"
-    assert result.tool_calls[0].arguments == "test.txt\ncontent"
+    assert result.tool_calls[0].arguments == "test.txt"
+    assert result.tool_calls[0].body == "content"
 
 
 def test_parse_tool_with_multiline_message():
@@ -71,7 +73,8 @@ def test_parse_tool_with_end_marker():
     result = parse_tool_calls(text)
     assert result.message == "I will create a file"
     assert result.tool_calls[0].name == "create-file"
-    assert result.tool_calls[0].arguments == "test.txt\nLine 1\nLine 2"
+    assert result.tool_calls[0].arguments == "test.txt"
+    assert result.tool_calls[0].body == "Line 1\nLine 2"
 
 
 def test_parse_two_multiline_tools():
@@ -89,9 +92,11 @@ def test_parse_two_multiline_tools():
     assert result.message == "I will create two files"
     assert len(result.tool_calls) == 2
     assert result.tool_calls[0].name == "create-file"
-    assert result.tool_calls[0].arguments == "first.txt\nFirst line"
+    assert result.tool_calls[0].arguments == "first.txt"
+    assert result.tool_calls[0].body == "First line"
     assert result.tool_calls[1].name == "create-file"
-    assert result.tool_calls[1].arguments == "second.txt\nSecond line"
+    assert result.tool_calls[1].arguments == "second.txt"
+    assert result.tool_calls[1].body == "Second line"
 
 
 def test_parse_unknown_tool_returns_raw_call():

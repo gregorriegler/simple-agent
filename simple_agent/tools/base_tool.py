@@ -2,6 +2,7 @@ import subprocess
 from typing import List, Dict
 
 from simple_agent.application.tool_library import ToolResult, Tool, ToolArgument
+from simple_agent.application.tool_syntax import RawToolCall
 from simple_agent.application.emoji_tool_syntax import EmojiToolSyntax
 
 CURRENT_SYNTAX = EmojiToolSyntax()
@@ -13,7 +14,7 @@ class BaseTool(Tool):
     arguments: List[ToolArgument] = []
     examples = []
 
-    def execute(self, *args, **kwargs) -> ToolResult:
+    def execute(self, raw_call: RawToolCall) -> ToolResult:
         raise NotImplementedError("Subclasses must implement execute()")
 
     @staticmethod

@@ -17,7 +17,7 @@ class RecallTool(BaseTool):
         super().__init__()
         self.runcommand = runcommand
 
-    def execute(self, args):
+    def execute(self, raw_call):
         path = Path(".memory.md")
 
         if not path.exists():

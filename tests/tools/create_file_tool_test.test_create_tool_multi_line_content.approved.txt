@@ -11,7 +11,6 @@ Created file: a with content
 File created: a
 File content:
 --- FILE CONTENT START ---
-First Line
 Second Line
 Third Line
 --- FILE CONTENT END ---

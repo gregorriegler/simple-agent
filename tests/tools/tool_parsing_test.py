@@ -89,7 +89,8 @@ def test_parse_tool_with_create_file_multiline():
     assert message_and_tools.message == "I will create a file with 3 lines"
     assert message_and_tools.tools[0] is not None
     assert message_and_tools.tools[0].name == "create-file"
-    assert message_and_tools.tools[0].arguments == "test.txt\nLine 1\nLine 2\nLine 3"
+    assert message_and_tools.tools[0].arguments == "test.txt"
+    assert message_and_tools.tools[0].body == "Line 1\nLine 2\nLine 3"
     assert type(message_and_tools.tools[0].tool_instance).__name__ == "CreateFileTool"
 
 
@@ -108,7 +109,8 @@ def test_parse_tool_with_create_file_goes_til_end():
     assert message_and_tools.message == "I will create a file with 3 lines"
     assert message_and_tools.tools[0] is not None
     assert message_and_tools.tools[0].name == "create-file"
-    assert message_and_tools.tools[0].arguments == "test.txt\nLine 1\nLine 2\nLine 3"
+    assert message_and_tools.tools[0].arguments == "test.txt"
+    assert message_and_tools.tools[0].body == "Line 1\nLine 2\nLine 3"
     assert type(message_and_tools.tools[0].tool_instance).__name__ == "CreateFileTool"
 
 
@@ -129,7 +131,8 @@ def test_parse_tool_with_multiline_and_message_after():
     assert message_and_tools.message == "I will create a file"
     assert message_and_tools.tools[0] is not None
     assert message_and_tools.tools[0].name == "create-file"
-    assert message_and_tools.tools[0].arguments == "test.txt\nLine 1\nLine 2"
+    assert message_and_tools.tools[0].arguments == "test.txt"
+    assert message_and_tools.tools[0].body == "Line 1\nLine 2"
     assert type(message_and_tools.tools[0].tool_instance).__name__ == "CreateFileTool"
 
 
@@ -150,9 +153,11 @@ def test_parse_tool_with_two_multiline_tools():
     assert message_and_tools.message == "I will create two files"
     assert len(message_and_tools.tools) == 2
     assert message_and_tools.tools[0].name == "create-file"
-    assert message_and_tools.tools[0].arguments == "first.txt\nFirst line"
+    assert message_and_tools.tools[0].arguments == "first.txt"
+    assert message_and_tools.tools[0].body == "First line"
     assert message_and_tools.tools[1].name == "create-file"
-    assert message_and_tools.tools[1].arguments == "second.txt\nSecond line"
+    assert message_and_tools.tools[1].arguments == "second.txt"
+    assert message_and_tools.tools[1].body == "Second line"
 
 
 def dedent(text):

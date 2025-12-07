@@ -112,7 +112,8 @@ line3
         assert result.message == "Message here"
         assert len(result.tool_calls) == 1
         assert result.tool_calls[0].name == "multiline_tool"
-        assert result.tool_calls[0].arguments == "inline_arg\nline1\nline2\nline3"
+        assert result.tool_calls[0].arguments == "inline_arg"
+        assert result.tool_calls[0].body == "line1\nline2\nline3"
 
     def test_parses_multiple_tool_calls(self):
         syntax = EmojiToolSyntax()
@@ -261,5 +262,5 @@ class TestEmojiToolSyntaxRoundTrip:
         assert len(result.tool_calls) == 1
         assert result.tool_calls[0].name == "multiline_tool"
         assert "test" in result.tool_calls[0].arguments
-        assert "line1" in result.tool_calls[0].arguments
-        assert "line2" in result.tool_calls[0].arguments
+        assert "line1" in result.tool_calls[0].body
+        assert "line2" in result.tool_calls[0].body
