@@ -1,0 +1,89 @@
+from simple_agent.application.tool_library import Tool, RawToolCall
+from simple_agent.application.tool_syntax import ParsedMessage, ToolSyntax
+
+
+class EmojiBracketToolSyntax(ToolSyntax):
+    """Emoji-bracket syntax implementation per v1 spec.
+
+    This implements the 🛠️[tool_name args]...🛠️[/end] syntax as specified in
+    doc/emoji_bracket_tool_syntax.spec.md
+    """
+
+    def render_documentation(self, tool: Tool) -> str:
+        # TODO: Implement documentation rendering
+        return f"Tool: {tool.name}"
+
+    def parse(self, text: str) -> ParsedMessage:
+        START_MARKER = "🛠️["
+        END_MARKER = "🛠️[/end]"
+
+        tool_calls = []
+        message = ""
+        first_tool_found = False
+
+        pos = 0
+        while pos < len(text):
+            # Look for start marker
+            start_idx = text.find(START_MARKER, pos)
+
+            if start_idx == -1:
+                # No more tool calls found
+                if not first_tool_found:
+                    message = text
+                break
+
+            # Capture message before first tool call
+            if not first_tool_found:
+                message = text[:start_idx].rstrip()
+                first_tool_found = True
+
+            # Find closing bracket for header
+            header_start = start_idx + len(START_MARKER)
+            header_end = text.find("]", header_start)
+
+            if header_end == -1:
+                # Missing closing bracket - treat as plain text and continue
+                # If this was the first potential tool, include everything as message
+                if not tool_calls:
+                    message = text
+                    break
+                pos = start_idx + len(START_MARKER)
+                continue
+
+            # Extract header
+            header = text[header_start:header_end]
+
+            # Parse header: first token is tool name, rest is arguments
+            header_parts = header.split(None, 1)
+            if not header_parts:
+                # Empty header - treat as plain text
+                pos = header_end + 1
+                continue
+
+            tool_name = header_parts[0]
+            arguments = header_parts[1] if len(header_parts) > 1 else ""
+
+            # Find end marker
+            body_start = header_end + 1
+            end_idx = text.find(END_MARKER, body_start)
+
+            if end_idx == -1:
+                # Missing end marker - best effort: treat rest as body
+                body = text[body_start:].rstrip()
+                tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=body))
+                break
+
+            # Extract body (skip leading newline if present)
+            body_text = text[body_start:end_idx]
+            if body_text.startswith('\n'):
+                body_text = body_text[1:]
+            elif body_text.startswith('\r\n'):
+                body_text = body_text[2:]
+            body = body_text.rstrip('\n\r')
+
+            tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=body))
+
+            # Continue after end marker
+            pos = end_idx + len(END_MARKER)
+
+        return ParsedMessage(message=message, tool_calls=tool_calls)
