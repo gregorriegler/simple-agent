@@ -1,10 +1,14 @@
 # NOW 
-- i dont see what model is used or how many tokens i used so far
+- create proper ToolSyntax abstraction
 
 # NEXT
-- cannot /clear context
+- reliable tool syntax for all models
+- reliable file edit tools for all models
 
 # LATER
+- rag for code
+- say as a tool (too much noise in root)
+- cannot /clear context
 - add review agent
 - shutdown responsibilities should be singular. Proof: the SessionEnded event already calls AllDisplays.exit → TextualDisplay.exit →
 TextualApp.shutdown, yet run_session invokes display.exit() again (application/session.py:64-65), causing double shutdown and mixed ownership of lifecycle.
