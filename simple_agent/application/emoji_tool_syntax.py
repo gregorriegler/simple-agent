@@ -16,10 +16,19 @@ class EmojiToolSyntax (ToolSyntax):
         if hasattr(tool, 'description') and tool.description:
             lines.append(f"Description: {tool.description}")
 
+        # Combine arguments and body for documentation
+        all_arguments = []
+        body_arg_name = None
         if hasattr(tool, 'arguments') and tool.arguments:
+            all_arguments.extend(tool.arguments)
+        if hasattr(tool, 'body') and tool.body:
+            all_arguments.append(tool.body)
+            body_arg_name = tool.body.name
+
+        if all_arguments:
             lines.append("")
             lines.append("Arguments:")
-            normalized_args = [self._normalize_argument(arg) for arg in tool.arguments]
+            normalized_args = [self._normalize_argument(arg, is_body=(arg.name == body_arg_name)) for arg in all_arguments]
             for arg in normalized_args:
                 required_str = " (required)" if arg.get('required', False) else " (optional)"
                 type_str = f" - {arg['name']}: {arg.get('type', 'string')}{required_str}"
@@ -40,7 +49,7 @@ class EmojiToolSyntax (ToolSyntax):
         if hasattr(tool, 'examples') and tool.examples:
             lines.append("")
             lines.append("Examples:")
-            example_args = [self._normalize_argument(arg) for arg in tool.arguments]
+            example_args = [self._normalize_argument(arg, is_body=(arg.name == body_arg_name)) for arg in all_arguments]
             for example in tool.examples:
                 lines.append(self._format_example(example, example_args, tool.name))
 
@@ -89,7 +98,7 @@ class EmojiToolSyntax (ToolSyntax):
             return ParsedMessage(message=message, tool_calls=tool_calls)
         return ParsedMessage(message=text, tool_calls=[])
 
-    def _normalize_argument(self, arg: Any) -> Dict[str, Any]:
+    def _normalize_argument(self, arg: Any, is_body: bool = False) -> Dict[str, Any]:
         """Normalize argument to dict format."""
         if is_dataclass(arg):
             normalized = asdict(arg)
@@ -99,7 +108,8 @@ class EmojiToolSyntax (ToolSyntax):
         normalized.setdefault("type", "string")
         normalized.setdefault("required", False)
         normalized.setdefault("description", "")
-        normalized.setdefault("multiline", False)
+        # Mark body arguments as multiline for formatting purposes
+        normalized["multiline"] = is_body
         return normalized
 
     def _format_example(self, example: Any, arguments: Iterable[Dict[str, Any]], tool_name: str) -> str:

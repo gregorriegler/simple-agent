@@ -21,8 +21,8 @@ class MultilineTool(BaseTool):
     description = 'Tool with multiline input'
     arguments = [
         ToolArgument(name='inline_arg', description='Inline argument', required=True),
-        ToolArgument(name='multiline_arg', description='Multiline content', required=True, multiline=True),
     ]
+    body = ToolArgument(name='multiline_arg', description='Multiline content', required=True)
     examples = [
         {'inline_arg': 'test', 'multiline_arg': 'line1\nline2\nline3'},
     ]
@@ -384,7 +384,12 @@ class TestEmojiBracketRoundTrip:
         tool = MultilineTool()
 
         example = {'inline_arg': 'test', 'multiline_arg': 'line1\nline2'}
-        formatted = syntax._format_example(example, [syntax._normalize_argument(arg) for arg in tool.arguments], tool.name)
+        # Combine header and body arguments, mark body as multiline
+        all_args = list(tool.arguments)
+        if tool.body:
+            all_args.append(tool.body)
+        normalized_args = [syntax._normalize_argument(arg, is_body=(arg == tool.body)) for arg in all_args]
+        formatted = syntax._format_example(example, normalized_args, tool.name)
 
         result = syntax.parse(formatted)
 

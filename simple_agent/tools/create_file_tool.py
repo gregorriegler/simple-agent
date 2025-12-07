@@ -20,14 +20,13 @@ class CreateFileTool(BaseTool):
             required=True,
             description="Path to the file to create (directories will be created automatically)",
         ),
-        ToolArgument(
-            name="content",
-            type="string",
-            required=False,
-            multiline=True,
-            description="Initial content for the file. Everything after the filename is content!",
-        ),
     ]
+    body = ToolArgument(
+        name="content",
+        type="string",
+        required=False,
+        description="Initial content for the file. Everything after the filename is content!",
+    )
     examples = [
         {"filename": "newfile.txt", "content": ""},
         {"filename": "script.py", "content": "print(\"Hello World\")"},

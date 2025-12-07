@@ -2,6 +2,7 @@
 - create proper ToolSyntax abstraction
 
 # NEXT
+- ToolArguments array is a primitive obsession, should contain body, too.
 - reliable tool syntax for all models
 - reliable file edit tools for all models
 

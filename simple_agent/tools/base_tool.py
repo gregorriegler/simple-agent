@@ -12,6 +12,7 @@ class BaseTool(Tool):
     name = ''
     description = ''
     arguments: List[ToolArgument] = []
+    body: ToolArgument | None = None
     examples = []
 
     def execute(self, raw_call: RawToolCall) -> ToolResult:

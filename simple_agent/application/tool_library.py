@@ -74,7 +74,6 @@ class ToolArgument:
     name: str
     description: str
     required: bool = True
-    multiline: bool = False
     type: str = "string"
 
 
@@ -90,6 +89,10 @@ class Tool(Protocol):
 
     @property
     def arguments(self) -> List[ToolArgument]:
+        ...
+
+    @property
+    def body(self) -> ToolArgument | None:
         ...
 
     @property
