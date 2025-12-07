@@ -11,7 +11,7 @@ class RawToolCall:
 @dataclass
 class ParsedMessage:
     message: str
-    tool_calls: List['RawToolCall']
+    tool_calls: List[RawToolCall]
 
 
 @dataclass
