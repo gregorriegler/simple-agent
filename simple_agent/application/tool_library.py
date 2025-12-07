@@ -76,15 +76,6 @@ class ToolArgument:
     required: bool = True
     type: str = "string"
 
-    def to_dict(self, multiline: bool = False) -> Dict[str, Any]:
-        return {
-            "name": self.name,
-            "description": self.description,
-            "required": self.required,
-            "type": self.type,
-            "multiline": multiline,
-        }
-
 
 class ToolArguments:
 
