@@ -3,10 +3,10 @@ from dataclasses import is_dataclass, asdict
 from typing import Any, Dict, Iterable
 
 from simple_agent.application.tool_library import Tool
-from simple_agent.application.tool_syntax import ParsedMessage, RawToolCall
+from simple_agent.application.tool_syntax import ParsedMessage, RawToolCall, ToolSyntax
 
 
-class EmojiToolSyntax:
+class EmojiToolSyntax (ToolSyntax):
     """Current 🛠️-based syntax implementation."""
 
     def render_documentation(self, tool: Tool) -> str:
