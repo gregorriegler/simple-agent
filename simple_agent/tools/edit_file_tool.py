@@ -172,12 +172,6 @@ Replace mode: First deletes the specified range, then inserts new content at tha
         required=False,
         description="Optional content for insert/replace operations",
     ))
-    body = ToolArgument(
-        name="content",
-        type="string",
-        required=False,
-        description="Optional content for insert/replace operations",
-    )
     examples = [
         {
             "filename": "myfile.txt",

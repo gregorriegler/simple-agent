@@ -1,7 +1,6 @@
-from dataclasses import is_dataclass, asdict
-from typing import Any, Dict, Iterable
+from typing import Any
 
-from simple_agent.application.tool_library import Tool, RawToolCall
+from simple_agent.application.tool_library import Tool, ToolArgument, RawToolCall
 from simple_agent.application.tool_syntax import ParsedMessage, ToolSyntax
 
 
@@ -13,69 +12,45 @@ class EmojiBracketToolSyntax(ToolSyntax):
     """
 
     def render_documentation(self, tool: Tool) -> str:
-        """Generate documentation using 🛠️[tool_name args] bracket syntax."""
         lines = [f"Tool: {tool.name}"]
 
         if hasattr(tool, 'description') and tool.description:
             lines.append(f"Description: {tool.description}")
 
-        # Combine arguments and body for documentation
-        all_arguments = []
-        body_arg_name = None
-        if hasattr(tool, 'arguments') and tool.arguments:
-            all_arguments.extend(tool.arguments)
-        if hasattr(tool, 'body') and tool.body:
-            all_arguments.append(tool.body)
-            body_arg_name = tool.body.name
-
-        if all_arguments:
+        if tool.arguments:
             lines.append("")
             lines.append("Arguments:")
-            normalized_args = [self._normalize_argument(arg, is_body=(arg.name == body_arg_name)) for arg in all_arguments]
-            for arg in normalized_args:
-                required_str = " (required)" if arg.get('required', False) else " (optional)"
-                type_str = f" - {arg['name']}: {arg.get('type', 'string')}{required_str}"
-                if 'description' in arg:
-                    type_str += f" - {arg['description']}"
-                lines.append(type_str)
-        else:
-            normalized_args = []
+            for arg in tool.arguments.all:
+                lines.append(self._format_arg_doc(arg))
 
-        # Generate syntax (always show usage)
         lines.append("")
-        required_args = [f"<{arg['name']}>" for arg in normalized_args if arg.get('required', False)]
-        optional_args = [f"[{arg['name']}]" for arg in normalized_args if not arg.get('required', False)]
-        all_args = required_args + optional_args
+        syntax_parts = []
+        if tool.arguments:
+            for arg in tool.arguments.all:
+                syntax_parts.append(f"<{arg.name}>" if arg.required else f"[{arg.name}]")
         syntax = f"🛠️[{tool.name}"
-        if all_args:
-            syntax += " " + " ".join(all_args)
+        if syntax_parts:
+            syntax += " " + " ".join(syntax_parts)
         syntax += "]"
         lines.append(f"Usage: {syntax}")
 
         if hasattr(tool, 'examples') and tool.examples:
             lines.append("")
             lines.append("Examples:")
-            example_args = [self._normalize_argument(arg, is_body=(arg.name == body_arg_name)) for arg in all_arguments]
             for example in tool.examples:
-                lines.append(self._format_example(example, example_args, tool.name))
+                lines.append(self._format_example(example, tool))
 
         return "\n".join(lines)
 
-    def _normalize_argument(self, arg: Any, is_body: bool = False) -> Dict[str, Any]:
-        """Normalize argument to dict format."""
-        if is_dataclass(arg):
-            normalized = asdict(arg)
-        else:
-            normalized = dict(arg)
+    def _format_arg_doc(self, arg: ToolArgument) -> str:
+        """Format a single argument for documentation."""
+        required_str = " (required)" if arg.required else " (optional)"
+        type_str = f" - {arg.name}: {arg.type}{required_str}"
+        if arg.description:
+            type_str += f" - {arg.description}"
+        return type_str
 
-        normalized.setdefault("type", "string")
-        normalized.setdefault("required", False)
-        normalized.setdefault("description", "")
-        # Mark body arguments as multiline for formatting purposes
-        normalized["multiline"] = is_body
-        return normalized
-
-    def _format_example(self, example: Any, arguments: Iterable[Dict[str, Any]], tool_name: str) -> str:
+    def _format_example(self, example: Any, tool: Tool) -> str:
         """Format an example in emoji bracket syntax."""
         if isinstance(example, str):
             return example
@@ -83,29 +58,27 @@ class EmojiBracketToolSyntax(ToolSyntax):
         if not isinstance(example, dict):
             return str(example)
 
+        # Collect inline argument values (header args)
         inline_values = []
-        multiline_values = []
+        for arg in tool.arguments:
+            value = example.get(arg.name, "")
+            if value:
+                inline_values.append(str(value))
 
-        for arg in arguments:
-            value = example.get(arg["name"], "")
-            if value is None:
-                value = ""
+        # Collect body value
+        body_value = ""
+        if tool.arguments.body:
+            value = example.get(tool.arguments.body.name, "")
+            if value:
+                body_value = str(value)
 
-            if arg.get("multiline"):
-                if value != "":
-                    multiline_values.append(str(value))
-            else:
-                if value != "":
-                    inline_values.append(str(value))
-
-        syntax = f"🛠️[{tool_name}"
+        syntax = f"🛠️[{tool.name}"
         if inline_values:
             syntax += " " + " ".join(inline_values)
         syntax += "]"
 
-        if multiline_values:
-            multiline_text = "\n".join(multiline_values)
-            syntax += "\n" + multiline_text
+        if body_value:
+            syntax += "\n" + body_value
             syntax += "\n🛠️[/end]"
         else:
             syntax += "\n🛠️[/end]"

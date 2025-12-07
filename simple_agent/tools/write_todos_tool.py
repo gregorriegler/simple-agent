@@ -17,12 +17,6 @@ class WriteTodosTool(BaseTool):
             description="Markdown checklist to represent the todos. Use - [ ] for todo, - [ ] **doing** for in-progress, - [x] for done",
         )
     )
-    body = ToolArgument(
-        name="content",
-        type="string",
-        required=True,
-        description="Markdown checklist to represent the todos. Use - [ ] for todo, - [ ] **doing** for in-progress, - [x] for done",
-    )
     examples = [
         {"content": "- [ ] Item 1\n"},
         {"content": "- [ ] Feature exploration\n- [ ] **Implementing tool**\n- [x] Initial setup"},

@@ -76,6 +76,15 @@ class ToolArgument:
     required: bool = True
     type: str = "string"
 
+    def to_dict(self, multiline: bool = False) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "description": self.description,
+            "required": self.required,
+            "type": self.type,
+            "multiline": multiline,
+        }
+
 
 class ToolArguments:
 
@@ -109,6 +118,13 @@ class ToolArguments:
     def body(self) -> ToolArgument | None:
         return self._body
 
+    @property
+    def all(self) -> List[ToolArgument]:
+        """Return all arguments: header args followed by body (if present)."""
+        if self._body:
+            return self._header + [self._body]
+        return self._header
+
 
 class Tool(Protocol):
 
@@ -122,10 +138,6 @@ class Tool(Protocol):
 
     @property
     def arguments(self) -> ToolArguments:
-        ...
-
-    @property
-    def body(self) -> ToolArgument | None:
         ...
 
     @property

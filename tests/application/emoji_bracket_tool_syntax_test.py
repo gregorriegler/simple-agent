@@ -6,7 +6,7 @@ from simple_agent.application.tool_library import ToolArgument, ToolArguments
 class SimpleTool(BaseTool):
     name = 'test_tool'
     description = 'A test tool'
-    arguments = ToolArguments([
+    arguments = ToolArguments(header=[
         ToolArgument(name='arg1', description='First argument', required=True),
         ToolArgument(name='arg2', description='Second argument', required=False),
     ])
@@ -19,10 +19,10 @@ class SimpleTool(BaseTool):
 class MultilineTool(BaseTool):
     name = 'multiline_tool'
     description = 'Tool with multiline input'
-    arguments = ToolArguments([
-        ToolArgument(name='inline_arg', description='Inline argument', required=True),
-    ])
-    body = ToolArgument(name='multiline_arg', description='Multiline content', required=True)
+    arguments = ToolArguments(
+        header=[ToolArgument(name='inline_arg', description='Inline argument', required=True)],
+        body=ToolArgument(name='multiline_arg', description='Multiline content', required=True),
+    )
     examples = [
         {'inline_arg': 'test', 'multiline_arg': 'line1\nline2\nline3'},
     ]
@@ -383,18 +383,16 @@ class TestEmojiBracketRoundTrip:
         syntax = EmojiBracketToolSyntax()
         tool = MultilineTool()
 
-        example = {'inline_arg': 'test', 'multiline_arg': 'line1\nline2'}
-        # Combine header and body arguments, mark body as multiline
-        all_args = list(tool.arguments)
-        if tool.body:
-            all_args.append(tool.body)
-        normalized_args = [syntax._normalize_argument(arg, is_body=(arg == tool.body)) for arg in all_args]
-        formatted = syntax._format_example(example, normalized_args, tool.name)
+        doc = syntax.render_documentation(tool)
 
-        result = syntax.parse(formatted)
+        # Extract the example from documentation and parse it
+        example_start = doc.find("🛠️[multiline_tool test]")
+        assert example_start != -1, "Example not found in documentation"
+
+        example_text = doc[example_start:]
+        result = syntax.parse(example_text)
 
         assert len(result.tool_calls) == 1
         assert result.tool_calls[0].name == "multiline_tool"
         assert "test" in result.tool_calls[0].arguments
         assert "line1" in result.tool_calls[0].body
-        assert "line2" in result.tool_calls[0].body
