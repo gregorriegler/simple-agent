@@ -1,3 +1,5 @@
+from typing import Callable, List
+
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
 from simple_agent.application.tool_message_parser import parse_tool_calls, CURRENT_SYNTAX
@@ -16,10 +18,12 @@ class AllTools(ToolLibrary):
     def __init__(
         self,
         tool_context: ToolContext,
-        spawner: SubagentSpawner
+        spawner: SubagentSpawner,
+        get_agent_types: Callable[[], List[str]] = None
     ):
         self.tool_context = tool_context
         self._spawner = spawner
+        self._get_agent_types = get_agent_types or (lambda: [])
         self.tool_keys = tool_context.tool_keys if tool_context.tool_keys else []
 
         static_tools = self._create_static_tools()
@@ -36,7 +40,7 @@ class AllTools(ToolLibrary):
             'edit_file': lambda: EditFileTool(),
             'complete_task': lambda: CompleteTaskTool(),
             'bash': lambda: BashTool(),
-            'subagent': lambda: SubagentTool(self._spawner)
+            'subagent': lambda: SubagentTool(self._spawner, self._get_agent_types)
         }
 
         if not self.tool_keys:
@@ -77,6 +81,7 @@ class AllToolsFactory(ToolLibraryFactory):
     def create(
         self,
         tool_context: ToolContext,
-        spawner: SubagentSpawner
+        spawner: SubagentSpawner,
+        get_agent_types: Callable[[], List[str]] = None
     ) -> ToolLibrary:
-        return AllTools(tool_context, spawner)
+        return AllTools(tool_context, spawner, get_agent_types)

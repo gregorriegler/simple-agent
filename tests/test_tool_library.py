@@ -81,7 +81,8 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
     def create(
         self,
         tool_context: ToolContext,
-        spawner=None
+        spawner=None,
+        get_agent_types=None
     ) -> AllTools:
         return ToolLibraryStub(
             self._llm,

@@ -6,7 +6,10 @@ from simple_agent.tools import AllTools
 if __name__ == "__main__":
     command = ' '.join(sys.argv[1:])
 
-    tools = AllTools(tool_context=None)
+    def dummy_spawner(agent_type, task_description):
+        raise NotImplementedError("Subagent spawning not available in run_tool.py")
+
+    tools = AllTools(tool_context=None, spawner=dummy_spawner)
     try:
         result = tools.parse_message_and_tools(f"🛠️ {command}")
         if not result.tools:

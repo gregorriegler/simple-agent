@@ -124,8 +124,8 @@ def print_system_prompt_command(user_config, cwd, args):
         agent_id
     )
     spawner = agent_factory.create_spawner(agent_id)
-    tool_library = tool_library_factory.create(tool_context, spawner)
-    tools_documentation = generate_tools_documentation(tool_library.tools, agent_library.list_agent_types())
+    tool_library = tool_library_factory.create(tool_context, spawner, agent_library.list_agent_types)
+    tools_documentation = generate_tools_documentation(tool_library.tools)
     system_prompt = agent_definition.prompt().render(tools_documentation)
     print(system_prompt)
     return

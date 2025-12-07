@@ -69,10 +69,10 @@ class AgentFactory:
             agent_id
         )
         spawner = self.create_spawner(agent_id)
-        tools = self._tool_library_factory.create(tool_context, spawner)
-        tools_documentation = generate_tools_documentation(
-            tools.tools, self._agent_library.list_agent_types()
+        tools = self._tool_library_factory.create(
+            tool_context, spawner, self._agent_library.list_agent_types
         )
+        tools_documentation = generate_tools_documentation(tools.tools)
         system_prompt = definition.prompt().render(tools_documentation)
         messages.seed_system_prompt(system_prompt)
 

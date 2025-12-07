@@ -45,7 +45,11 @@ def create_all_tools_for_test():
         agent_id, agent_type, task_description, 0
     )
 
-    return AllTools(tool_context=tool_context, spawner=spawner)
+    return AllTools(
+        tool_context=tool_context,
+        spawner=spawner,
+        get_agent_types=agent_library.list_agent_types
+    )
 
 
 def create_temp_file(tmp_path, filename, contents):

@@ -1,5 +1,5 @@
 import subprocess
-from typing import List
+from typing import List, Dict
 
 from simple_agent.application.tool_library import ToolResult, Tool, ToolArgument
 from simple_agent.application.emoji_tool_syntax import EmojiToolSyntax
@@ -50,5 +50,10 @@ class BaseTool(Tool):
         except Exception as e:
             return {'output': f'Error: {str(e)}', 'success': False}
 
-    def finalize_documentation(self, doc: str, context: dict) -> str:
-        return doc
+    def get_template_variables(self) -> Dict[str, str]:
+        """Return variables to substitute in documentation templates.
+
+        Override this method to provide runtime values for template placeholders
+        like {{VARIABLE_NAME}} in tool descriptions or arguments.
+        """
+        return {}

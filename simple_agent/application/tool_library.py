@@ -81,7 +81,7 @@ class Tool(Protocol):
     def execute(self, *args, **kwargs) -> ToolResult:
         ...
 
-    def finalize_documentation(self, doc: str, context: dict) -> str:
+    def get_template_variables(self) -> Dict[str, str]:
         ...
 
 

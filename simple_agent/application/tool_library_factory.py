@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Protocol, Callable, List
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.subagent_spawner import SubagentSpawner
@@ -16,6 +16,7 @@ class ToolLibraryFactory(Protocol):
     def create(
         self,
         tool_context: ToolContext,
-        spawner: SubagentSpawner
+        spawner: SubagentSpawner,
+        get_agent_types: Callable[[], List[str]] = None
     ) -> ToolLibrary:
         ...

@@ -27,7 +27,7 @@ def test_generate_coding_system_prompt():
 
 def verify_system_prompt(agent_type, tool_library):
     agent_library = BuiltinAgentLibrary(GroundRulesStub())
-    tools_documentation = generate_tools_documentation(tool_library.tools, agent_library.list_agent_types())
+    tools_documentation = generate_tools_documentation(tool_library.tools)
     prompt = agent_library.read_agent_definition(AgentType(agent_type)).prompt()
     system_prompt = prompt.render(tools_documentation)
     verify(system_prompt)
