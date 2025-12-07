@@ -1,6 +1,6 @@
 import os
 
-from ..application.tool_library import ContinueResult, ToolArgument
+from ..application.tool_library import ContinueResult, ToolArgument, ToolArguments
 
 from .base_tool import BaseTool
 
@@ -13,14 +13,14 @@ class CreateFileTool(BaseTool):
 - Do NOT add commentary after the tool in the same message
 - Everything after the filename until 🛠️🔚 or message end is captured as content"""
 
-    arguments = [
+    arguments = ToolArguments([
         ToolArgument(
             name="filename",
             type="string",
             required=True,
             description="Path to the file to create (directories will be created automatically)",
         ),
-    ]
+    ])
     body = ToolArgument(
         name="content",
         type="string",

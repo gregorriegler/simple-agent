@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from ..application.tool_library import ContinueResult
+from ..application.tool_library import ContinueResult, ToolArguments
 
 from .base_tool import BaseTool
 
@@ -8,7 +8,7 @@ from .base_tool import BaseTool
 class RecallTool(BaseTool):
     name = "recall"
     description = "Retrieve all stored memories from .memory.md"
-    arguments = []
+    arguments = ToolArguments()
     examples = [
         {}
     ]

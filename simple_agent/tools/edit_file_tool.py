@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from .argument_parser import split_arguments
 from .base_tool import BaseTool
-from ..application.tool_library import ContinueResult, ToolArgument
+from ..application.tool_library import ContinueResult, ToolArgument, ToolArguments
 
 
 @dataclass
@@ -147,7 +147,7 @@ class EditFileTool(BaseTool):
 
 Replace mode: First deletes the specified range, then inserts new content at that position."""
 
-    arguments = [
+    arguments = ToolArguments([
         ToolArgument(
             name="filename",
             type="string",
@@ -166,7 +166,7 @@ Replace mode: First deletes the specified range, then inserts new content at tha
             required=True,
             description="Line range in format 'start-end' or 'line_number' (e.g., '1-3' or '10' for single line)",
         ),
-    ]
+    ])
     body = ToolArgument(
         name="content",
         type="string",

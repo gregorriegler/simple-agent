@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from ..application.tool_library import ContinueResult, ToolArgument
+from ..application.tool_library import ContinueResult, ToolArgument, ToolArguments
 
 from .base_tool import BaseTool
 
@@ -8,14 +8,14 @@ from .base_tool import BaseTool
 class RememberTool(BaseTool):
     name = "remember"
     description = "Store a memory to .memory.md for later recall"
-    arguments = [
+    arguments = ToolArguments([
         ToolArgument(
             name="content",
             type="string",
             required=True,
             description="The memory content to store",
         )
-    ]
+    ])
     examples = [
         {"content": "The user prefers Python over JavaScript"},
         {"content": "API key format: sk-proj-xxxxx"},

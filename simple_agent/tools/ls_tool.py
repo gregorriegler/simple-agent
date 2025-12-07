@@ -1,18 +1,18 @@
-from ..application.tool_library import ContinueResult, ToolArgument
+from ..application.tool_library import ContinueResult, ToolArgument, ToolArguments
 from .base_tool import BaseTool
 
 
 class LsTool(BaseTool):
     name = "ls"
     description = "List directory contents with detailed information"
-    arguments = [
+    arguments = ToolArguments([
         ToolArgument(
             name="path",
             type="string",
             required=False,
             description="Directory path to list (defaults to current directory)",
         )
-    ]
+    ])
     examples = [
         {"path": ""},
         {"path": "/home/user"},

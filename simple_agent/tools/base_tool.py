@@ -1,14 +1,14 @@
 import subprocess
 from typing import List, Dict
 
-from simple_agent.application.tool_library import ToolResult, Tool, ToolArgument
+from simple_agent.application.tool_library import ToolResult, Tool, ToolArgument, ToolArguments
 from simple_agent.application.tool_syntax import RawToolCall
 
 
 class BaseTool(Tool):
     name = ''
     description = ''
-    arguments: List[ToolArgument] = []
+    arguments: ToolArguments = ToolArguments()
     body: ToolArgument | None = None
     examples = []
 

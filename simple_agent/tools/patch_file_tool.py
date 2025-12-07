@@ -1,4 +1,4 @@
-from ..application.tool_library import ContinueResult, ToolResult, ToolArgument
+from ..application.tool_library import ContinueResult, ToolResult, ToolArgument, ToolArguments
 from .base_tool import BaseTool
 from .argument_parser import split_arguments
 import os
@@ -15,7 +15,7 @@ class PatchFileArgs:
 class PatchFileTool(BaseTool):
     name = "patch-file"
     description = "Apply a unified diff patch to a file"
-    arguments = [
+    arguments = ToolArguments([
         ToolArgument(
             name="filename",
             type="string",
@@ -28,7 +28,7 @@ class PatchFileTool(BaseTool):
             required=True,
             description="Unified diff patch content to apply",
         ),
-    ]
+    ])
     examples = [
         {
             "filename": "myfile.txt",

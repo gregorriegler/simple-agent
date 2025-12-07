@@ -1,15 +1,15 @@
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.tools.base_tool import BaseTool
-from simple_agent.application.tool_library import ToolArgument
+from simple_agent.application.tool_library import ToolArgument, ToolArguments
 
 
 class SimpleTool(BaseTool):
     name = 'test_tool'
     description = 'A test tool'
-    arguments = [
+    arguments = ToolArguments([
         ToolArgument(name='arg1', description='First argument', required=True),
         ToolArgument(name='arg2', description='Second argument', required=False),
-    ]
+    ])
     examples = [
         {'arg1': 'value1', 'arg2': 'value2'},
         {'arg1': 'only_required'},
@@ -19,9 +19,9 @@ class SimpleTool(BaseTool):
 class MultilineTool(BaseTool):
     name = 'multiline_tool'
     description = 'Tool with multiline input'
-    arguments = [
+    arguments = ToolArguments([
         ToolArgument(name='inline_arg', description='Inline argument', required=True),
-    ]
+    ])
     body = ToolArgument(name='multiline_arg', description='Multiline content', required=True)
     examples = [
         {'inline_arg': 'test', 'multiline_arg': 'line1\nline2\nline3'},
@@ -62,7 +62,7 @@ class TestEmojiBracketDocumentation:
         class NoArgsTool(BaseTool):
             name = 'no_args'
             description = 'Tool without arguments'
-            arguments = []
+            arguments = ToolArguments()
             examples = []
 
         syntax = EmojiBracketToolSyntax()

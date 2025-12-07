@@ -77,6 +77,52 @@ class ToolArgument:
     type: str = "string"
 
 
+class ToolArguments:
+    """Wrapper class for a collection of ToolArguments.
+
+    Addresses primitive obsession by encapsulating behavior specific to
+    collections of tool arguments.
+    """
+
+    def __init__(self, arguments: List[ToolArgument] = None):
+        self._arguments: List[ToolArgument] = arguments or []
+
+    def __iter__(self):
+        return iter(self._arguments)
+
+    def __len__(self):
+        return len(self._arguments)
+
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            # Support dict-like access by name
+            for arg in self._arguments:
+                if arg.name == key:
+                    return arg
+            raise KeyError(f"Argument '{key}' not found")
+        return self._arguments[key]
+
+    def __bool__(self):
+        return bool(self._arguments)
+
+    def find_by_name(self, name: str) -> ToolArgument | None:
+        """Find an argument by name, returning None if not found."""
+        for arg in self._arguments:
+            if arg.name == name:
+                return arg
+        return None
+
+    @property
+    def required(self) -> 'ToolArguments':
+        """Return a new ToolArguments containing only required arguments."""
+        return ToolArguments([arg for arg in self._arguments if arg.required])
+
+    @property
+    def optional(self) -> 'ToolArguments':
+        """Return a new ToolArguments containing only optional arguments."""
+        return ToolArguments([arg for arg in self._arguments if not arg.required])
+
+
 class Tool(Protocol):
 
     @property
@@ -88,7 +134,7 @@ class Tool(Protocol):
         ...
 
     @property
-    def arguments(self) -> List[ToolArgument]:
+    def arguments(self) -> ToolArguments:
         ...
 
     @property

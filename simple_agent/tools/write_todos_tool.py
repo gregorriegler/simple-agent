@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from simple_agent.application.tool_library import ContinueResult, ToolArgument
+from simple_agent.application.tool_library import ContinueResult, ToolArgument, ToolArguments
 
 from .base_tool import BaseTool
 
@@ -8,7 +8,7 @@ from .base_tool import BaseTool
 class WriteTodosTool(BaseTool):
     name = "write-todos"
     description = "Organize your work in TODOs. Use this tool to create or update those TODOs"
-    arguments = []
+    arguments = ToolArguments()
     body = ToolArgument(
         name="content",
         type="string",

@@ -1,6 +1,6 @@
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.subagent_spawner import SubagentSpawner
-from simple_agent.application.tool_library import ContinueResult, ToolArgument
+from simple_agent.application.tool_library import ContinueResult, ToolArgument, ToolArguments
 from .base_tool import BaseTool
 from ..application.agent_type import AgentType
 
@@ -8,7 +8,7 @@ from ..application.agent_type import AgentType
 class SubagentTool(BaseTool):
     name = 'subagent'
     description = "Creates a new subagent that will handle a specific task/todo and report back the result."
-    arguments = [
+    arguments = ToolArguments([
         ToolArgument(
             name="agenttype",
             type="string",
@@ -21,7 +21,7 @@ class SubagentTool(BaseTool):
             required=True,
             description="Detailed description of the task for the subagent to perform",
         ),
-    ]
+    ])
     examples = [
         {
             "agenttype": "default",

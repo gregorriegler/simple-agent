@@ -1,4 +1,4 @@
-from ..application.tool_library import ContinueResult, ToolArgument
+from ..application.tool_library import ContinueResult, ToolArgument, ToolArguments
 from .base_tool import BaseTool
 from .argument_parser import split_arguments
 
@@ -6,7 +6,7 @@ from .argument_parser import split_arguments
 class CatTool(BaseTool):
     name = 'cat'
     description = "Display file contents with line numbers"
-    arguments = [
+    arguments = ToolArguments([
         ToolArgument(
             name="filename",
             type="string",
@@ -19,7 +19,7 @@ class CatTool(BaseTool):
             required=False,
             description="Optional line range in format 'start-end' (e.g., '1-10')",
         ),
-    ]
+    ])
     examples = [
         {"filename": "myfile.txt"},
         {"filename": "script.py", "line_range": "1-20"},
