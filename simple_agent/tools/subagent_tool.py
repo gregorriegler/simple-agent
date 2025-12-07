@@ -1,5 +1,4 @@
-from typing import Callable, List
-
+from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library import ContinueResult, ToolArgument
 from .base_tool import BaseTool
@@ -34,10 +33,10 @@ class SubagentTool(BaseTool):
         },
     ]
 
-    def __init__(self, spawn_subagent: SubagentSpawner, get_agent_types: Callable[[], List[str]] = None):
+    def __init__(self, spawn_subagent: SubagentSpawner, agent_types: AgentTypes):
         super().__init__()
         self._spawn_subagent = spawn_subagent
-        self._get_agent_types = get_agent_types or (lambda: [])
+        self._agent_types = agent_types
 
     def execute(self, args):
         if not args or not args.strip():
@@ -61,8 +60,7 @@ class SubagentTool(BaseTool):
             return ContinueResult(f'STDERR: subagent error: {str(e)}', success=False)
 
     def get_template_variables(self) -> dict:
-        agent_types = self._get_agent_types()
-        if not agent_types:
+        if not self._agent_types:  # Empty AgentTypes
             return {}
-        types_str = ', '.join(f"'{t}'" for t in agent_types)
+        types_str = ', '.join(f"'{t}'" for t in self._agent_types)
         return {'AGENT_TYPES': f"Available types: {types_str}"}

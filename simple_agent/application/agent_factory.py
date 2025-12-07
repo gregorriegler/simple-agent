@@ -1,6 +1,7 @@
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.agent_library import AgentLibrary
+from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLMProvider, Messages
@@ -70,7 +71,7 @@ class AgentFactory:
         )
         spawner = self.create_spawner(agent_id)
         tools = self._tool_library_factory.create(
-            tool_context, spawner, self._agent_library.list_agent_types
+            tool_context, spawner, AgentTypes(self._agent_library.list_agent_types())
         )
         tools_documentation = generate_tools_documentation(tools.tools)
         system_prompt = definition.prompt().render(tools_documentation)

@@ -1,5 +1,6 @@
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.tool_library_factory import ToolContext
 from simple_agent.tools import AllTools
@@ -19,7 +20,8 @@ class ToolLibraryStub(AllTools):
         event_bus=None,
         tool_context: ToolContext | None = None,
         spawner=None,
-        tool_keys: list[str] | None = None
+        tool_keys: list[str] | None = None,
+        agent_types: AgentTypes = None
     ):
         actual_io = io if io else StdIO()
 
@@ -27,6 +29,7 @@ class ToolLibraryStub(AllTools):
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
         actual_tool_context = tool_context
         actual_spawner = spawner
+        actual_agent_types = agent_types if agent_types is not None else AgentTypes.empty()
         if actual_tool_context is None:
             tool_library_factory = AllToolsFactory()
             agent_library = BuiltinAgentLibrary()
@@ -48,8 +51,9 @@ class ToolLibraryStub(AllTools):
             actual_spawner = lambda agent_type, task_description: agent_factory.spawn_subagent(
                 agent_id, agent_type, task_description, 1
             )
+            actual_agent_types = AgentTypes(agent_library.list_agent_types())
 
-        super().__init__(tool_context=actual_tool_context, spawner=actual_spawner)
+        super().__init__(tool_context=actual_tool_context, spawner=actual_spawner, agent_types=actual_agent_types)
         self.interrupts = interrupts or []
         self.counter = 0
 
@@ -82,7 +86,7 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
         self,
         tool_context: ToolContext,
         spawner=None,
-        get_agent_types=None
+        agent_types: AgentTypes = AgentTypes.empty()
     ) -> AllTools:
         return ToolLibraryStub(
             self._llm,

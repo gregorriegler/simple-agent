@@ -1,5 +1,4 @@
-from typing import Callable, List
-
+from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
 from simple_agent.application.tool_message_parser import parse_tool_calls, CURRENT_SYNTAX
@@ -19,11 +18,11 @@ class AllTools(ToolLibrary):
         self,
         tool_context: ToolContext,
         spawner: SubagentSpawner,
-        get_agent_types: Callable[[], List[str]] = None
+        agent_types: AgentTypes
     ):
         self.tool_context = tool_context
         self._spawner = spawner
-        self._get_agent_types = get_agent_types or (lambda: [])
+        self._agent_types = agent_types
         self.tool_keys = tool_context.tool_keys if tool_context.tool_keys else []
 
         static_tools = self._create_static_tools()
@@ -40,7 +39,7 @@ class AllTools(ToolLibrary):
             'edit_file': lambda: EditFileTool(),
             'complete_task': lambda: CompleteTaskTool(),
             'bash': lambda: BashTool(),
-            'subagent': lambda: SubagentTool(self._spawner, self._get_agent_types)
+            'subagent': lambda: SubagentTool(self._spawner, self._agent_types)
         }
 
         if not self.tool_keys:
@@ -62,7 +61,6 @@ class AllTools(ToolLibrary):
         for raw_call in parsed.tool_calls:
             tool_instance = self.tool_dict.get(raw_call.name)
             if not tool_instance:
-                # Unknown tool - return message as-is with no tools
                 return MessageAndParsedTools(message=text, tools=[])
             tools.append(ParsedTool(raw_call.name, raw_call.arguments, tool_instance))
 
@@ -82,6 +80,6 @@ class AllToolsFactory(ToolLibraryFactory):
         self,
         tool_context: ToolContext,
         spawner: SubagentSpawner,
-        get_agent_types: Callable[[], List[str]] = None
+        agent_types: AgentTypes
     ) -> ToolLibrary:
-        return AllTools(tool_context, spawner, get_agent_types)
+        return AllTools(tool_context, spawner, agent_types)

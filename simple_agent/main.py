@@ -5,6 +5,7 @@ import os
 
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.session import Session, SessionArgs
@@ -124,7 +125,7 @@ def print_system_prompt_command(user_config, cwd, args):
         agent_id
     )
     spawner = agent_factory.create_spawner(agent_id)
-    tool_library = tool_library_factory.create(tool_context, spawner, agent_library.list_agent_types)
+    tool_library = tool_library_factory.create(tool_context, spawner, AgentTypes(agent_library.list_agent_types()))
     tools_documentation = generate_tools_documentation(tool_library.tools)
     system_prompt = agent_definition.prompt().render(tools_documentation)
     print(system_prompt)

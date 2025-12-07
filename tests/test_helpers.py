@@ -5,6 +5,7 @@ from approvaltests import Options, verify
 from approvaltests.scrubbers.scrubbers import create_regex_scrubber, combine_scrubbers
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.session import SessionArgs
 from simple_agent.application.system_prompt import AgentPrompt
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
@@ -48,7 +49,7 @@ def create_all_tools_for_test():
     return AllTools(
         tool_context=tool_context,
         spawner=spawner,
-        get_agent_types=agent_library.list_agent_types
+        agent_types=AgentTypes(agent_library.list_agent_types())
     )
 
 
