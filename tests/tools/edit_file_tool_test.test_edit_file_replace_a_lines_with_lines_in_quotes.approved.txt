@@ -1,7 +1,8 @@
 Command:
-🛠️ edit-file test.txt replace 2
+🛠️[edit-file test.txt replace 2]
 "insert1
 insert2"
+🛠️[/end]
 
 Result:
 Successfully edited test.txt

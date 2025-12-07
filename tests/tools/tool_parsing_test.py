@@ -6,7 +6,7 @@ library = create_all_tools_for_test()
 
 
 def test_parse_tool_with_cat_command():
-    text = "🛠️ cat test.txt"
+    text = "🛠️[cat test.txt]"
 
     message_and_tools = library.parse_message_and_tools(text)
 
@@ -21,7 +21,7 @@ def test_parse_tool_with_message_and_cat_command():
     text = dedent("""
     I will read test.txt
 
-    🛠️ cat test.txt
+    🛠️[cat test.txt]
     """)
 
     message_and_tools = library.parse_message_and_tools(text)
@@ -38,7 +38,7 @@ def test_parse_tool_with_multiline_message_and_ls_command():
     Let me read
     the current folder
 
-    🛠️ ls
+    🛠️[ls]
     """)
 
     message_and_tools = library.parse_message_and_tools(text)
@@ -56,8 +56,8 @@ def test_parse_tool_with_message_and_two_tool_calls():
     text = dedent("""
     I will run ls and read test.txt
 
-    🛠️ ls
-    🛠️ cat test.txt
+    🛠️[ls]
+    🛠️[cat test.txt]
     """)
 
     message_and_tools = library.parse_message_and_tools(text)
@@ -77,11 +77,11 @@ def test_parse_tool_with_create_file_multiline():
     text = dedent("""
     I will create a file with 3 lines
 
-    🛠️ create-file test.txt
+    🛠️[create-file test.txt]
     Line 1
     Line 2
     Line 3
-    🛠️🔚
+    🛠️[/end]
     """)
 
     message_and_tools = library.parse_message_and_tools(text)
@@ -98,7 +98,7 @@ def test_parse_tool_with_create_file_goes_til_end():
     text = dedent("""
     I will create a file with 3 lines
 
-    🛠️ create-file test.txt
+    🛠️[create-file test.txt]
     Line 1
     Line 2
     Line 3
@@ -118,10 +118,10 @@ def test_parse_tool_with_multiline_and_message_after():
     text = dedent("""
     I will create a file
 
-    🛠️ create-file test.txt
+    🛠️[create-file test.txt]
     Line 1
     Line 2
-    🛠️🔚
+    🛠️[/end]
 
     This is text after the tool
     """)
@@ -140,12 +140,12 @@ def test_parse_tool_with_two_multiline_tools():
     text = dedent("""
     I will create two files
 
-    🛠️ create-file first.txt
+    🛠️[create-file first.txt]
     First line
-    🛠️🔚
-    🛠️ create-file second.txt
+    🛠️[/end]
+    🛠️[create-file second.txt]
     Second line
-    🛠️🔚
+    🛠️[/end]
     """)
 
     message_and_tools = library.parse_message_and_tools(text)

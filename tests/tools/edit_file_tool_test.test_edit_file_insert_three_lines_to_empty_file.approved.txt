@@ -1,8 +1,9 @@
 Command:
-🛠️ edit-file empty.txt insert 1
+🛠️[edit-file empty.txt insert 1]
 line1
 line2
 line3
+🛠️[/end]
 
 Result:
 Successfully edited empty.txt

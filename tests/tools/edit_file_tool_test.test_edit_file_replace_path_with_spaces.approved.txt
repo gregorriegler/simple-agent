@@ -1,6 +1,7 @@
 Command:
-🛠️ edit-file "notes folder/note file.txt" replace 1
+🛠️[edit-file "notes folder/note file.txt" replace 1]
 "updated line"
+🛠️[/end]
 
 Result:
 Successfully edited notes folder/note file.txt

@@ -9,11 +9,11 @@ library = create_all_tools_for_test()
 
 def test_write_todos_creates_markdown_file(tmp_path):
     command = textwrap.dedent("""
-    🛠️ write-todos
+    🛠️[write-todos]
     - [ ] Item 1
     - [ ] **Work in progress**
     - [x] Completed
-    🛠️🔚
+    🛠️[/end]
     """).strip()
 
     with temp_directory(tmp_path):

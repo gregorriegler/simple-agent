@@ -1,4 +1,3 @@
-import pytest
 from approvaltests import verify, Options
 
 from tests.session_test_bed import SessionTestBed
@@ -44,23 +43,23 @@ def test_abort():
 
 def test_tool_cat(tmp_path):
     temp_file = create_temp_file(tmp_path, "testfile.txt", "Hello world")
-    verify_chat(["Test message", "\n"], [f"🛠️ cat {temp_file}", "🛠️ complete-task summary"])
+    verify_chat(["Test message", "\n"], [f"🛠️[cat {temp_file}]", "🛠️[complete-task summary]"])
 
 
 def test_tool_cat_integration(tmp_path):
     temp_file = create_temp_file(tmp_path, "integration_test.txt", "Integration test content\nLine 2")
-    verify_chat(["Test message", "\n"], [f"🛠️ cat {temp_file}", "🛠️ complete-task summary"])
+    verify_chat(["Test message", "\n"], [f"🛠️[cat {temp_file}]", "🛠️[complete-task summary]"])
 
 
 def test_tool_ls_integration(tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
-    verify_chat(["Test message", "\n"], [f"🛠️ ls {directory_path}", "🛠️ complete-task summary"])
+    verify_chat(["Test message", "\n"], [f"🛠️[ls {directory_path}]", "🛠️[complete-task summary]"])
 
 
 def test_chat_with_task_completion():
     verify_chat(
         ["Say Hello", "\n"], [
-            "Hello!\n🛠️ complete-task I successfully said hello",
+            "Hello!\n🛠️[complete-task I successfully said hello]",
             "ignored"
         ]
     )
@@ -71,7 +70,7 @@ def test_escape_reads_follow_up_message():
 
 
 def test_escape_aborts_tool_call():
-    verify_chat(["Hello", "Follow-up message", "\n"], ["🛠️ cat hello.txt", "🛠️ complete-task summary"], [True, False])
+    verify_chat(["Hello", "Follow-up message", "\n"], ["🛠️[cat hello.txt]", "🛠️[complete-task summary]"], [True, False])
 
 
 def test_interrupt_reads_follow_up_message():
@@ -80,7 +79,7 @@ def test_interrupt_reads_follow_up_message():
 
 def test_interrupt_aborts_tool_call():
     verify_chat(
-        ["Hello", "Follow-up message", "\n"], ["🛠️ cat hello.txt", "🛠️ complete-task summary"], [], [True, False]
+        ["Hello", "Follow-up message", "\n"], ["🛠️[cat hello.txt]", "🛠️[complete-task summary]"], [], [True, False]
     )
 
 

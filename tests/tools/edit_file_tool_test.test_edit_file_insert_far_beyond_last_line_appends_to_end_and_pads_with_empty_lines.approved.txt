@@ -1,6 +1,7 @@
 Command:
-🛠️ edit-file test.txt insert 10
+🛠️[edit-file test.txt insert 10]
 line10
+🛠️[/end]
 
 Result:
 Successfully edited test.txt

@@ -1,5 +1,5 @@
 Command:
-🛠️ cat /tmp/test_path/test.txt abc-def
+🛠️[cat /tmp/test_path/test.txt abc-def]
 
 Result:
 STDERR: Invalid range format 'abc-def'. Use format 'start-end' (e.g., '1-5')

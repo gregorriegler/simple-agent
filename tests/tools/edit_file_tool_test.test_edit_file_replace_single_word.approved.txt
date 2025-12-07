@@ -1,7 +1,7 @@
 Command:
-🛠️ edit-file test.txt replace 1-1
+🛠️[edit-file test.txt replace 1-1]
 new
-
+🛠️[/end]
 
 Result:
 Successfully edited test.txt

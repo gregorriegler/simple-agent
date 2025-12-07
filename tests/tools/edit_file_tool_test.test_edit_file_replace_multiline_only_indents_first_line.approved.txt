@@ -1,8 +1,9 @@
 Command:
-🛠️ edit-file test.py replace 2
+🛠️[edit-file test.py replace 2]
 line1
 line2
     line3
+🛠️[/end]
 
 Result:
 Successfully edited test.py

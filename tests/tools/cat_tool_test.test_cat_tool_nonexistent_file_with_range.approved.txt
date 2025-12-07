@@ -1,5 +1,5 @@
 Command:
-🛠️ cat /tmp/test_path/file.txt 1-5
+🛠️[cat /tmp/test_path/file.txt 1-5]
 
 Result:
 STDERR: cat: '/tmp/test_path/file.txt': No such file or directory

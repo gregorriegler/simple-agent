@@ -1,5 +1,5 @@
 Command:
-🛠️ edit-file test.txt insert 2
+🛠️[edit-file test.txt insert 2]
 
 Result:
 Successfully edited test.txt

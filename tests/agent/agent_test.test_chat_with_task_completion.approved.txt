@@ -2,7 +2,7 @@
 Agent:       session_started: False
 Agent:         user_prompted: Say Hello
 Agent:   assistant_responded: Hello!
-🛠️ complete-task I successfully said hello stub-model 0 0
+🛠️[complete-task I successfully said hello] stub-model 0 0
 Agent:        assistant_said: Hello!
 Agent:           tool_called: Agent::tool_call::1 🛠️ complete-task I successfully said hello
 Agent:           tool_result: Agent::tool_call::1 I successfully said hello
@@ -15,4 +15,4 @@ system: Test system prompt
 
 user: Say Hello
 assistant: Hello!
-🛠️ complete-task I successfully said hello
+🛠️[complete-task I successfully said hello]

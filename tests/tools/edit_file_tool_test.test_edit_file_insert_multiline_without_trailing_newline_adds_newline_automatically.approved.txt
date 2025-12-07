@@ -1,7 +1,8 @@
 Command:
-🛠️ edit-file test.txt insert 2
+🛠️[edit-file test.txt insert 2]
 inserted_line1
 inserted_line2
+🛠️[/end]
 
 Result:
 Successfully edited test.txt

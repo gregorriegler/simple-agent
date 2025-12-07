@@ -1,6 +1,7 @@
 Command:
-🛠️ edit-file test.py replace 2
+🛠️[edit-file test.py replace 2]
         manually_indented
+🛠️[/end]
 
 Result:
 Successfully edited test.py

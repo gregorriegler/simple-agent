@@ -13,7 +13,7 @@ from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.application.events import UserPromptRequestedEvent
-from simple_agent.application.emoji_tool_syntax import EmojiToolSyntax
+from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.infrastructure.configuration import get_starting_agent, load_user_configuration, stub_user_config
@@ -76,7 +76,7 @@ def main(on_user_prompt_requested=None):
             args.on_user_prompt_requested(textual_app)
         event_bus.subscribe(UserPromptRequestedEvent, on_prompt_wrapper)
 
-    tool_syntax = EmojiToolSyntax()
+    tool_syntax = EmojiBracketToolSyntax()
     tool_library_factory = AllToolsFactory(tool_syntax)
 
     if args.stub_llm:
@@ -107,7 +107,7 @@ def print_system_prompt_command(user_config, cwd, args):
     from simple_agent.application.tool_library_factory import ToolContext
 
     starting_agent_type = get_starting_agent(user_config, args)
-    tool_syntax = EmojiToolSyntax()
+    tool_syntax = EmojiBracketToolSyntax()
     tool_library_factory = AllToolsFactory(tool_syntax)
     dummy_event_bus = SimpleEventBus()
     agents_path = user_config.agents_path()

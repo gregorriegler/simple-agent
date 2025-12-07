@@ -43,7 +43,8 @@ class TestEmojiBracketDocumentation:
         assert 'Usage: 🛠️[test_tool <arg1> [arg2]]' in doc
         assert 'Examples:' in doc
         assert '🛠️[test_tool value1 value2]' in doc
-        assert '🛠️[/end]' in doc
+        # No [/end] for bodyless tools
+        assert '🛠️[/end]' not in doc
         assert '🛠️[test_tool only_required]' in doc
 
     def test_renders_multiline_tool_documentation(self):
@@ -80,7 +81,7 @@ class TestEmojiBracketBasicParsing:
 
     def test_parses_simple_tool_call_with_no_body(self):
         syntax = EmojiBracketToolSyntax()
-        text = "🛠️[create-file]\n🛠️[/end]"
+        text = "🛠️[create-file]"
 
         result = syntax.parse(text)
 
@@ -120,7 +121,7 @@ class TestEmojiBracketHeaderParsing:
 
     def test_parses_tool_name_with_multiple_arguments(self):
         syntax = EmojiBracketToolSyntax()
-        text = "🛠️[run-query main.sql 100]\n🛠️[/end]"
+        text = "🛠️[run-query main.sql 100]"
 
         result = syntax.parse(text)
 
@@ -129,7 +130,7 @@ class TestEmojiBracketHeaderParsing:
 
     def test_parses_tool_name_with_underscores(self):
         syntax = EmojiBracketToolSyntax()
-        text = "🛠️[run_query test.sql]\n🛠️[/end]"
+        text = "🛠️[run_query test.sql]"
 
         result = syntax.parse(text)
 
@@ -137,7 +138,7 @@ class TestEmojiBracketHeaderParsing:
 
     def test_parses_tool_name_with_numbers(self):
         syntax = EmojiBracketToolSyntax()
-        text = "🛠️[tool1 arg]\n🛠️[/end]"
+        text = "🛠️[tool1 arg]"
 
         result = syntax.parse(text)
 
@@ -361,6 +362,84 @@ line2
         assert len(result.tool_calls) == 1
 
 
+class TestEmojiBracketBodylessTools:
+    """Tests for bodyless tool call parsing (tools without [/end])"""
+
+    def test_parses_single_bodyless_tool(self):
+        syntax = EmojiBracketToolSyntax()
+        text = "🛠️[ls path/to/dir]"
+
+        result = syntax.parse(text)
+
+        assert len(result.tool_calls) == 1
+        assert result.tool_calls[0].name == "ls"
+        assert result.tool_calls[0].arguments == "path/to/dir"
+        assert result.tool_calls[0].body == ""
+
+    def test_parses_bodyless_tool_with_trailing_whitespace(self):
+        syntax = EmojiBracketToolSyntax()
+        text = "🛠️[ls path/to/dir]   \n\n"
+
+        result = syntax.parse(text)
+
+        assert len(result.tool_calls) == 1
+        assert result.tool_calls[0].name == "ls"
+        assert result.tool_calls[0].body == ""
+
+    def test_parses_multiple_bodyless_tools(self):
+        syntax = EmojiBracketToolSyntax()
+        text = "🛠️[ls dir1]\n🛠️[ls dir2]\n🛠️[ls dir3]"
+
+        result = syntax.parse(text)
+
+        assert len(result.tool_calls) == 3
+        assert result.tool_calls[0].arguments == "dir1"
+        assert result.tool_calls[1].arguments == "dir2"
+        assert result.tool_calls[2].arguments == "dir3"
+        for tc in result.tool_calls:
+            assert tc.body == ""
+
+    def test_parses_mixed_bodyless_and_body_tools(self):
+        syntax = EmojiBracketToolSyntax()
+        text = """🛠️[ls dir1]
+🛠️[cat file.txt]
+content of file
+🛠️[/end]
+🛠️[ls dir2]"""
+
+        result = syntax.parse(text)
+
+        assert len(result.tool_calls) == 3
+        assert result.tool_calls[0].name == "ls"
+        assert result.tool_calls[0].body == ""
+        assert result.tool_calls[1].name == "cat"
+        assert result.tool_calls[1].body == "content of file"
+        assert result.tool_calls[2].name == "ls"
+        assert result.tool_calls[2].body == ""
+
+    def test_parses_bodyless_tool_with_message_before(self):
+        syntax = EmojiBracketToolSyntax()
+        text = "Here are the files:\n🛠️[ls mydir]"
+
+        result = syntax.parse(text)
+
+        assert result.message == "Here are the files:"
+        assert len(result.tool_calls) == 1
+        assert result.tool_calls[0].body == ""
+
+    def test_still_supports_legacy_bodyless_with_end_marker(self):
+        """Backwards compatibility: bodyless tools with [/end] should still work"""
+        syntax = EmojiBracketToolSyntax()
+        text = "🛠️[ls dir]\n🛠️[/end]"
+
+        result = syntax.parse(text)
+
+        assert len(result.tool_calls) == 1
+        assert result.tool_calls[0].name == "ls"
+        # Empty body is fine
+        assert result.tool_calls[0].body == ""
+
+
 class TestEmojiBracketRoundTrip:
     """Tests that generated examples can be parsed back correctly"""
 
@@ -371,7 +450,8 @@ class TestEmojiBracketRoundTrip:
         doc = syntax.render_documentation(tool)
 
         # Extract the first example (should be "🛠️[test_tool value1 value2]")
-        example_line = "🛠️[test_tool value1 value2]\n🛠️[/end]"
+        # Bodyless tools no longer have [/end]
+        example_line = "🛠️[test_tool value1 value2]"
 
         result = syntax.parse(example_line)
 

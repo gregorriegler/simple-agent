@@ -1,5 +1,5 @@
 Command:
-🛠️ create-file src/tmp/test_path/helper.py
+🛠️[create-file src/tmp/test_path/helper.py]
 
 Result:
 Created empty file: src/tmp/test_path/helper.py

@@ -1,5 +1,5 @@
 Command:
-🛠️ cat '/tmp/test_path with spaces.txt'
+🛠️[cat '/tmp/test_path with spaces.txt']
 
 Result:
      1	line 1

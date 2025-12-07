@@ -1,9 +1,9 @@
 Command:
-🛠️ write-todos
+🛠️[write-todos]
 - [ ] Item 1
 - [ ] **Work in progress**
 - [x] Completed
-🛠️🔚
+🛠️[/end]
 
 Result:
 Updated TODOS

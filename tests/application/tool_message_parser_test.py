@@ -1,12 +1,12 @@
 import textwrap
 
 from simple_agent.application.tool_message_parser import parse_tool_calls
-from simple_agent.application.emoji_tool_syntax import EmojiToolSyntax
+from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 
-syntax = EmojiToolSyntax()
+syntax = EmojiBracketToolSyntax()
 
 def test_parse_simple_tool_call():
-    text = "Hello\n🛠️ bash echo hello"
+    text = "Hello\n🛠️[bash echo hello]"
     result = parse_tool_calls(text, syntax)
     assert result.message == "Hello"
     assert len(result.tool_calls) == 1
@@ -15,7 +15,7 @@ def test_parse_simple_tool_call():
 
 
 def test_parse_multiline_arguments():
-    text = "Message\n🛠️ create_file path.txt\nline1\nline2\n🛠️🔚"
+    text = "Message\n🛠️[create_file path.txt]\nline1\nline2\n🛠️[/end]"
     result = parse_tool_calls(text, syntax)
     assert result.tool_calls[0].arguments == "path.txt"
     assert result.tool_calls[0].body == "line1\nline2"
@@ -29,7 +29,7 @@ def test_parse_no_tools():
 
 
 def test_parse_multiple_tools():
-    text = "Start\n🛠️ ls\n🛠️ bash pwd"
+    text = "Start\n🛠️[ls]\n🛠️[bash pwd]"
     result = parse_tool_calls(text, syntax)
     assert len(result.tool_calls) == 2
     assert result.tool_calls[0].name == "ls"
@@ -39,7 +39,7 @@ def test_parse_multiple_tools():
 
 
 def test_parse_tool_with_hyphen_in_name():
-    text = "🛠️ create-file test.txt\ncontent"
+    text = "🛠️[create-file test.txt]\ncontent\n🛠️[/end]"
     result = parse_tool_calls(text, syntax)
     assert result.tool_calls[0].name == "create-file"
     assert result.tool_calls[0].arguments == "test.txt"
@@ -51,7 +51,7 @@ def test_parse_tool_with_multiline_message():
     Let me read
     the current folder
 
-    🛠️ ls
+    🛠️[ls]
     """)
     result = parse_tool_calls(text, syntax)
     assert result.message == dedent("""
@@ -65,10 +65,10 @@ def test_parse_tool_with_end_marker():
     text = dedent("""
     I will create a file
 
-    🛠️ create-file test.txt
+    🛠️[create-file test.txt]
     Line 1
     Line 2
-    🛠️🔚
+    🛠️[/end]
 
     This is text after the tool
     """)
@@ -83,12 +83,12 @@ def test_parse_two_multiline_tools():
     text = dedent("""
     I will create two files
 
-    🛠️ create-file first.txt
+    🛠️[create-file first.txt]
     First line
-    🛠️🔚
-    🛠️ create-file second.txt
+    🛠️[/end]
+    🛠️[create-file second.txt]
     Second line
-    🛠️🔚
+    🛠️[/end]
     """)
     result = parse_tool_calls(text, syntax)
     assert result.message == "I will create two files"
@@ -103,7 +103,7 @@ def test_parse_two_multiline_tools():
 
 def test_parse_unknown_tool_returns_raw_call():
     """Parser does not validate tool names - returns raw calls for any tool name."""
-    text = "🛠️ nonexistent_tool arg1"
+    text = "🛠️[nonexistent_tool arg1]"
     result = parse_tool_calls(text, syntax)
     assert len(result.tool_calls) == 1
     assert result.tool_calls[0].name == "nonexistent_tool"

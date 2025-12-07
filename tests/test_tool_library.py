@@ -3,7 +3,7 @@ from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.tool_library_factory import ToolContext
-from simple_agent.application.emoji_tool_syntax import EmojiToolSyntax
+from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.tools import AllTools
 from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.tools.all_tools import AllToolsFactory
@@ -54,7 +54,7 @@ class ToolLibraryStub(AllTools):
             )
             actual_agent_types = AgentTypes(agent_library.list_agent_types())
 
-        tool_syntax = EmojiToolSyntax()
+        tool_syntax = EmojiBracketToolSyntax()
         super().__init__(tool_context=actual_tool_context, spawner=actual_spawner, agent_types=actual_agent_types, tool_syntax=tool_syntax)
         self.interrupts = interrupts or []
         self.counter = 0

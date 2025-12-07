@@ -1,5 +1,5 @@
 Command:
-🛠️ edit-file complex_program.py replace 1-20
+🛠️[edit-file complex_program.py replace 1-20]
 class DataHandler:
     def __init__(self, source_data):
         self.original_data = source_data
@@ -23,6 +23,7 @@ class DataHandler:
                 self.cleaned_items.append(outcome)
         return self.cleaned_items
 
+🛠️[/end]
 
 Result:
 Successfully edited complex_program.py

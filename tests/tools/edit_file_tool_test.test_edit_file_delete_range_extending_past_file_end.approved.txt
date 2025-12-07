@@ -1,5 +1,5 @@
 Command:
-🛠️ edit-file test.txt delete 2-10
+🛠️[edit-file test.txt delete 2-10]
 
 Result:
 Successfully edited test.txt

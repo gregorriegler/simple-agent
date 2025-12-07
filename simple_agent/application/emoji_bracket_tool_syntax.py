@@ -80,8 +80,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
         if body_value:
             syntax += "\n" + body_value
             syntax += "\n🛠️[/end]"
-        else:
-            syntax += "\n🛠️[/end]"
+        # No [/end] needed for bodyless tools
 
         return syntax
 
@@ -135,27 +134,63 @@ class EmojiBracketToolSyntax(ToolSyntax):
             tool_name = header_parts[0]
             arguments = header_parts[1] if len(header_parts) > 1 else ""
 
-            # Find end marker
-            body_start = header_end + 1
-            end_idx = text.find(END_MARKER, body_start)
+            # Determine if this is a bodyless tool call or has a body
+            # Look for the next START_MARKER and END_MARKER after the header
+            after_header = header_end + 1
+            next_start_idx = text.find(START_MARKER, after_header)
+            end_idx = text.find(END_MARKER, after_header)
 
+            # Check if this is a bodyless call:
+            # - No end marker exists, or
+            # - Next start marker comes before end marker (with only whitespace between)
+            # - End of string comes right after header (with only whitespace)
+            text_after_header = text[after_header:]
+
+            is_bodyless = False
             if end_idx == -1:
-                # Missing end marker - best effort: treat rest as body
-                body = text[body_start:].rstrip()
+                # No end marker - check if next tool or end of string
+                if next_start_idx == -1:
+                    # No more tools, no end marker - bodyless if only whitespace remains
+                    is_bodyless = text_after_header.strip() == ""
+                else:
+                    # Next tool exists - bodyless if only whitespace before it
+                    between = text[after_header:next_start_idx]
+                    is_bodyless = between.strip() == ""
+            elif next_start_idx != -1 and next_start_idx < end_idx:
+                # Next tool comes before end marker - bodyless if only whitespace between
+                between = text[after_header:next_start_idx]
+                is_bodyless = between.strip() == ""
+
+            if is_bodyless:
+                # Bodyless tool call
+                tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=""))
+                if next_start_idx != -1:
+                    pos = next_start_idx
+                else:
+                    break
+            else:
+                # Tool call with body - find end marker
+                if end_idx == -1:
+                    # Missing end marker - best effort: treat rest as body
+                    body = text[after_header:].rstrip()
+                    if body.startswith('\n'):
+                        body = body[1:]
+                    elif body.startswith('\r\n'):
+                        body = body[2:]
+                    tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=body))
+                    break
+
+                # Extract body (skip leading newline if present)
+                body_text = text[after_header:end_idx]
+                if body_text.startswith('\n'):
+                    body_text = body_text[1:]
+                elif body_text.startswith('\r\n'):
+                    body_text = body_text[2:]
+                body = body_text.rstrip('\n\r')
+
                 tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=body))
-                break
 
-            # Extract body (skip leading newline if present)
-            body_text = text[body_start:end_idx]
-            if body_text.startswith('\n'):
-                body_text = body_text[1:]
-            elif body_text.startswith('\r\n'):
-                body_text = body_text[2:]
-            body = body_text.rstrip('\n\r')
-
-            tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=body))
-
-            # Continue after end marker
-            pos = end_idx + len(END_MARKER)
+                # Continue after end marker
+                pos = end_idx + len(END_MARKER)
 
         return ParsedMessage(message=message, tool_calls=tool_calls)
