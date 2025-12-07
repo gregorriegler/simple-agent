@@ -1,14 +1,7 @@
 from dataclasses import dataclass
 from typing import Protocol, List
 
-from simple_agent.application.tool_library import Tool
-
-
-@dataclass
-class RawToolCall:
-    name: str
-    arguments: str
-    body: str = ""
+from simple_agent.application.tool_library import Tool, RawToolCall
 
 
 @dataclass

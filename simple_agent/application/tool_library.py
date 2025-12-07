@@ -3,6 +3,13 @@ from typing import Protocol, List, Dict, Any
 
 
 @dataclass
+class RawToolCall:
+    name: str
+    arguments: str
+    body: str = ""
+
+
+@dataclass
 class ToolResult:
     message: str = ""
     success: bool = True
@@ -89,7 +96,7 @@ class Tool(Protocol):
     def examples(self) -> List[Dict[str, Any]]:
         ...
 
-    def execute(self, raw_call: "RawToolCall") -> ToolResult:
+    def execute(self, raw_call: RawToolCall) -> ToolResult:
         ...
 
     def get_template_variables(self) -> Dict[str, str]:
