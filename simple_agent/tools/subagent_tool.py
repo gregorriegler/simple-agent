@@ -8,7 +8,7 @@ from ..application.agent_type import AgentType
 class SubagentTool(BaseTool):
     name = 'subagent'
     description = "Creates a new subagent that will handle a specific task/todo and report back the result."
-    arguments = ToolArguments([
+    arguments = ToolArguments(header=[
         ToolArgument(
             name="agenttype",
             type="string",

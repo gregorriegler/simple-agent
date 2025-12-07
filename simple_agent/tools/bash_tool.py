@@ -6,7 +6,7 @@ from .base_tool import BaseTool
 class BashTool(BaseTool):
     name = 'bash'
     description = "Execute bash commands"
-    arguments = ToolArguments([
+    arguments = ToolArguments(header=[
         ToolArgument(
             name="command",
             type="string",

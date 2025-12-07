@@ -13,14 +13,19 @@ class CreateFileTool(BaseTool):
 - Do NOT add commentary after the tool in the same message
 - Everything after the filename until 🛠️🔚 or message end is captured as content"""
 
-    arguments = ToolArguments([
+    arguments = ToolArguments(header=[
         ToolArgument(
             name="filename",
             type="string",
             required=True,
             description="Path to the file to create (directories will be created automatically)",
         ),
-    ])
+    ], body=ToolArgument(
+        name="content",
+        type="string",
+        required=False,
+        description="Initial content for the file. Everything after the filename is content!",
+    ))
     body = ToolArgument(
         name="content",
         type="string",

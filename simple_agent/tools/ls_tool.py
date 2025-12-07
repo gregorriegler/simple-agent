@@ -5,7 +5,7 @@ from .base_tool import BaseTool
 class LsTool(BaseTool):
     name = "ls"
     description = "List directory contents with detailed information"
-    arguments = ToolArguments([
+    arguments = ToolArguments(header=[
         ToolArgument(
             name="path",
             type="string",

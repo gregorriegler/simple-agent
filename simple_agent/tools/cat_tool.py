@@ -6,7 +6,7 @@ from .argument_parser import split_arguments
 class CatTool(BaseTool):
     name = 'cat'
     description = "Display file contents with line numbers"
-    arguments = ToolArguments([
+    arguments = ToolArguments(header=[
         ToolArgument(
             name="filename",
             type="string",

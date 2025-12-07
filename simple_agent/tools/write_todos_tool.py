@@ -8,7 +8,15 @@ from .base_tool import BaseTool
 class WriteTodosTool(BaseTool):
     name = "write-todos"
     description = "Organize your work in TODOs. Use this tool to create or update those TODOs"
-    arguments = ToolArguments()
+    arguments = ToolArguments(
+        header=[],
+        body=ToolArgument(
+            name="content",
+            type="string",
+            required=True,
+            description="Markdown checklist to represent the todos. Use - [ ] for todo, - [ ] **doing** for in-progress, - [x] for done",
+        )
+    )
     body = ToolArgument(
         name="content",
         type="string",

@@ -15,7 +15,7 @@ class PatchFileArgs:
 class PatchFileTool(BaseTool):
     name = "patch-file"
     description = "Apply a unified diff patch to a file"
-    arguments = ToolArguments([
+    arguments = ToolArguments(header=[
         ToolArgument(
             name="filename",
             type="string",

@@ -5,7 +5,7 @@ from .base_tool import BaseTool
 class CompleteTaskTool(BaseTool):
     name = "complete-task"
     description = "Signal task completion with a summary of what was accomplished"
-    arguments = ToolArguments([
+    arguments = ToolArguments(header=[
         ToolArgument(
             name="summary",
             type="string",

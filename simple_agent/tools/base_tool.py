@@ -8,7 +8,7 @@ from simple_agent.application.tool_syntax import RawToolCall
 class BaseTool(Tool):
     name = ''
     description = ''
-    arguments: ToolArguments = ToolArguments()
+    arguments: ToolArguments = ToolArguments(header=[], body=None)
     body: ToolArgument | None = None
     examples = []
 

@@ -8,7 +8,7 @@ from .base_tool import BaseTool
 class RememberTool(BaseTool):
     name = "remember"
     description = "Store a memory to .memory.md for later recall"
-    arguments = ToolArguments([
+    arguments = ToolArguments(header=[
         ToolArgument(
             name="content",
             type="string",

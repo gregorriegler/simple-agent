@@ -78,49 +78,36 @@ class ToolArgument:
 
 
 class ToolArguments:
-    """Wrapper class for a collection of ToolArguments.
 
-    Addresses primitive obsession by encapsulating behavior specific to
-    collections of tool arguments.
-    """
-
-    def __init__(self, arguments: List[ToolArgument] = None):
-        self._arguments: List[ToolArgument] = arguments or []
+    def __init__(self, header: List[ToolArgument] = None, body: ToolArgument | None = None):
+        self._header: List[ToolArgument] = header or []
+        self._body: ToolArgument | None = body
 
     def __iter__(self):
-        return iter(self._arguments)
+        return iter(self._header)
 
     def __len__(self):
-        return len(self._arguments)
+        return len(self._header)
 
     def __getitem__(self, key):
         if isinstance(key, str):
             # Support dict-like access by name
-            for arg in self._arguments:
+            for arg in self._header:
                 if arg.name == key:
                     return arg
             raise KeyError(f"Argument '{key}' not found")
-        return self._arguments[key]
+        return self._header[key]
 
     def __bool__(self):
-        return bool(self._arguments)
-
-    def find_by_name(self, name: str) -> ToolArgument | None:
-        """Find an argument by name, returning None if not found."""
-        for arg in self._arguments:
-            if arg.name == name:
-                return arg
-        return None
+        return bool(self._header) or self._body is not None
 
     @property
-    def required(self) -> 'ToolArguments':
-        """Return a new ToolArguments containing only required arguments."""
-        return ToolArguments([arg for arg in self._arguments if arg.required])
+    def header(self) -> List[ToolArgument]:
+        return self._header
 
     @property
-    def optional(self) -> 'ToolArguments':
-        """Return a new ToolArguments containing only optional arguments."""
-        return ToolArguments([arg for arg in self._arguments if not arg.required])
+    def body(self) -> ToolArgument | None:
+        return self._body
 
 
 class Tool(Protocol):
