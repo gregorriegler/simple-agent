@@ -291,7 +291,7 @@ class TextualApp(App):
     def action_submit_input(self) -> None:
         text_area = self.query_one("#user-input", TextArea)
         content = text_area.text.strip()
-        if self.user_input and content:
+        if self.user_input:
             self.user_input.submit_input(content)
         text_area.clear()
 
