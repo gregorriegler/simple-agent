@@ -2,18 +2,7 @@ import subprocess
 from dataclasses import asdict, dataclass, is_dataclass
 from typing import Any, Dict, Iterable, List
 
-from simple_agent.application.tool_library import ToolResult, Tool
-
-
-@dataclass
-class ToolArgument:
-    """Metadata for a tool argument."""
-
-    name: str
-    description: str
-    required: bool = True
-    multiline: bool = False
-    type: str = "string"
+from simple_agent.application.tool_library import ToolResult, Tool, ToolArgument
 
 
 class BaseTool(Tool):

@@ -1,5 +1,14 @@
 from dataclasses import dataclass
-from typing import Protocol, List
+from typing import Protocol, List, Dict, Any
+
+
+@dataclass
+class ToolArgument:
+    name: str
+    description: str
+    required: bool = True
+    multiline: bool = False
+    type: str = "string"
 
 
 @dataclass
@@ -53,10 +62,29 @@ class MessageAndParsedTools:
 
 class Tool(Protocol):
 
+    @property
+    def name(self) -> str:
+        ...
+
+    @property
+    def description(self) -> str:
+        ...
+
+    @property
+    def arguments(self) -> List[ToolArgument]:
+        ...
+
+    @property
+    def examples(self) -> List[Dict[str, Any]]:
+        ...
+
     def get_usage_info(self) -> str:
         ...
 
     def execute(self, *args, **kwargs) -> ToolResult:
+        ...
+
+    def finalize_documentation(self, doc: str, context: dict) -> str:
         ...
 
 
