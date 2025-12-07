@@ -12,7 +12,6 @@ class BaseTool(Tool):
     description = ''
     arguments: List[ToolArgument] = []
     examples = []
-    _custom_usage_info = None
 
     def execute(self, *args, **kwargs) -> ToolResult:
         raise NotImplementedError("Subclasses must implement execute()")
@@ -50,12 +49,6 @@ class BaseTool(Tool):
             return {'output': 'Command timed out (30s limit)', 'success': False}
         except Exception as e:
             return {'output': f'Error: {str(e)}', 'success': False}
-
-    def get_usage_info(self, syntax):
-        if hasattr(self, '_custom_usage_info') and self._custom_usage_info is not None:
-            return self._custom_usage_info()
-
-        return syntax.render_documentation(self)
 
     def finalize_documentation(self, doc: str, context: dict) -> str:
         return doc

@@ -19,14 +19,8 @@ The tool should always be the last thing in your answer."""
     return tools_header + "\n\n".join(tools_lines)
 
 
-def _generate_tool_documentation(tool, context: dict, syntax=None):
-    if syntax is not None:
-        try:
-            usage_info = syntax.render_documentation(tool)
-        except (AttributeError, TypeError):
-            usage_info = tool.get_usage_info(syntax)
-    else:
-        usage_info = tool.get_usage_info(CURRENT_SYNTAX)
+def _generate_tool_documentation(tool, context: dict, syntax):
+    usage_info = syntax.render_documentation(tool)
     usage_info = tool.finalize_documentation(usage_info, context)
 
     lines = usage_info.split('\n')
