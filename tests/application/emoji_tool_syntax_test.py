@@ -165,7 +165,7 @@ class TestEmojiToolSyntaxCompatibility:
         tool = SimpleTool()
 
         syntax_output = syntax.render_documentation(tool)
-        basetool_output = tool.get_usage_info()
+        basetool_output = tool.get_usage_info(syntax)
 
         assert syntax_output == basetool_output
 
@@ -174,7 +174,7 @@ class TestEmojiToolSyntaxCompatibility:
         tool = MultilineTool()
 
         syntax_output = syntax.render_documentation(tool)
-        basetool_output = tool.get_usage_info()
+        basetool_output = tool.get_usage_info(syntax)
 
         assert syntax_output == basetool_output
 
@@ -189,7 +189,7 @@ class TestEmojiToolSyntaxCompatibility:
         tool = NoArgsTool()
 
         syntax_output = syntax.render_documentation(tool)
-        basetool_output = tool.get_usage_info()
+        basetool_output = tool.get_usage_info(syntax)
 
         assert syntax_output == basetool_output
 

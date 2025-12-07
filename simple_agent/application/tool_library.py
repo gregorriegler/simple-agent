@@ -90,7 +90,7 @@ class Tool(Protocol):
     def examples(self) -> List[Dict[str, Any]]:
         ...
 
-    def get_usage_info(self) -> str:
+    def get_usage_info(self, syntax) -> str:
         ...
 
     def execute(self, *args, **kwargs) -> ToolResult:

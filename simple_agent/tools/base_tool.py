@@ -3,6 +3,9 @@ from dataclasses import asdict, dataclass, is_dataclass
 from typing import Any, Dict, Iterable, List
 
 from simple_agent.application.tool_library import ToolResult, Tool, ToolArgument
+from simple_agent.application.tool_syntax import EmojiToolSyntax
+
+CURRENT_SYNTAX = EmojiToolSyntax()
 
 
 class BaseTool(Tool):
@@ -49,11 +52,11 @@ class BaseTool(Tool):
         except Exception as e:
             return {'output': f'Error: {str(e)}', 'success': False}
 
-    def get_usage_info(self):
+    def get_usage_info(self, syntax):
         if hasattr(self, '_custom_usage_info') and self._custom_usage_info is not None:
             return self._custom_usage_info()
 
-        return self._generate_usage_info_from_metadata()
+        return syntax.render_documentation(self)
 
     def finalize_documentation(self, doc: str, context: dict) -> str:
         return doc

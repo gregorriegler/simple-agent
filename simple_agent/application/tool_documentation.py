@@ -24,9 +24,9 @@ def _generate_tool_documentation(tool, context: dict, syntax=None):
         try:
             usage_info = syntax.render_documentation(tool)
         except (AttributeError, TypeError):
-            usage_info = tool.get_usage_info()
+            usage_info = tool.get_usage_info(syntax)
     else:
-        usage_info = tool.get_usage_info()
+        usage_info = tool.get_usage_info(CURRENT_SYNTAX)
     usage_info = tool.finalize_documentation(usage_info, context)
 
     lines = usage_info.split('\n')
