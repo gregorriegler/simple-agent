@@ -76,7 +76,7 @@ To change from `🛠️` syntax to another Syntax (whatever that syntax might be
 **Responsibilities:**
 - Define data interface for tools
 - Provide execution contract
-- Allow documentation customization (finalize_documentation)
+- Provide template variables for documentation customization (get_template_variables)
 - **NO formatting or syntax logic**
 
 **Interface:**
@@ -108,8 +108,8 @@ class Tool(Protocol):
         """Execute the tool with given arguments."""
         ...
 
-    def finalize_documentation(self, doc: str, context: dict) -> str:
-        """Customize generated documentation (e.g., substitute {{PLACEHOLDERS}})."""
+    def get_template_variables(self, context: dict) -> Dict[str, str]:
+        """Return template variables to substitute in documentation (e.g., {{PLACEHOLDERS}})."""
         ...
 ```
 
@@ -186,20 +186,25 @@ class EmojiToolSyntax:
 **Responsibilities:**
 - Generate documentation for all tools
 - Use ToolSyntax to format each tool
-- Apply tool-specific customizations (finalize_documentation)
+- Substitute template variables from tools (get_template_variables)
 
 **Changes:**
 ```python
-# BEFORE (current)
+# BEFORE (original)
 def _generate_tool_documentation(tool, context: dict):
     usage_info = tool.get_usage_info()  # Tool formats itself
     usage_info = tool.finalize_documentation(usage_info, context)
     # ... format with markdown
 
-# AFTER (new)
+# AFTER (current implementation)
 def _generate_tool_documentation(tool: Tool, context: dict, syntax: ToolSyntax):
     usage_info = syntax.render_documentation(tool)  # Syntax formats tool
-    usage_info = tool.finalize_documentation(usage_info, context)
+
+    # Substitute template variables
+    template_vars = tool.get_template_variables(context)
+    for key, value in template_vars.items():
+        usage_info = usage_info.replace(f'{{{{{key}}}}}', value)
+
     # ... format with markdown
 ```
 
@@ -311,7 +316,7 @@ def __str__(self):
 - ✅ **Phase 2, Step 2.1**: Add Properties to Tool Protocol
   - Added `@property` declarations for `name`, `description`, `arguments`, `examples` to Tool Protocol
   - Added TYPE_CHECKING import for ToolArgument to avoid circular dependency
-  - Added method signatures for `get_usage_info()`, `execute()`, and `finalize_documentation()`
+  - Added method signatures for `get_usage_info()`, `execute()`, and `get_template_variables()`
   - All 172 tests passing
 - ✅ **Phase 2, Step 2.2**: Verify BaseTool Satisfies Extended Protocol
   - BaseTool class attributes (`name`, `description`, `arguments`, `examples`) satisfy Tool Protocol property requirements
