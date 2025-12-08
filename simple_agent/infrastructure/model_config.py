@@ -37,9 +37,6 @@ class ModelConfig:
             sys.exit(1)
 
         normalized_adapter = str(adapter).strip().lower()
-        if normalized_adapter not in {"claude", "openai", "gemini", "gemini_v1"}:
-            print(f"Error: model.adapter must be 'claude', 'openai', 'gemini', or 'gemini_v1' in configuration '{name}'", file=sys.stderr)
-            sys.exit(1)
 
         api_key_raw = config.get("api_key")
         if not api_key_raw:
