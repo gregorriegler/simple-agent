@@ -1,6 +1,6 @@
 from simple_agent.application.llm import LLM
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
-from simple_agent.infrastructure.gemini import GeminiLLM
+from simple_agent.infrastructure.gemini import GeminiLLM, GeminiV1LLM
 from simple_agent.infrastructure.openai import OpenAILLM
 from simple_agent.infrastructure.user_configuration import UserConfiguration
 
@@ -17,5 +17,8 @@ class RemoteLLMProvider:
 
         if model_config.adapter == "gemini":
             return GeminiLLM(model_config)
+
+        if model_config.adapter == "gemini_v1":
+            return GeminiV1LLM(model_config)
 
         return ClaudeLLM(model_config)
