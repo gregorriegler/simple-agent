@@ -20,7 +20,7 @@ Organize your work in TODOs. Use this tool to create or update those TODOs
 Arguments:
  - content: string (required) - Markdown checklist to represent the todos. Use - [ ] for todo, - [ ] **doing** for in-progress, - [x] for done
 
-Usage: 🛠️[write-todos <content>]
+Usage: 🛠️[write-todos]
 
 Examples:
 🛠️[write-todos]
@@ -61,15 +61,11 @@ Examples:
 ## create-file
 Create new files with optional content
 
-- End content with 🛠️🔚 marker
-- Do NOT add commentary after the tool in the same message
-- Everything after the filename until 🛠️🔚 or message end is captured as content
-
 Arguments:
  - filename: string (required) - Path to the file to create (directories will be created automatically)
  - content: string (optional) - Initial content for the file. Everything after the filename is content!
 
-Usage: 🛠️[create-file <filename> [content]]
+Usage: 🛠️[create-file <filename>]
 
 Examples:
 🛠️[create-file newfile.txt]
@@ -84,18 +80,13 @@ Line 2
 ## edit-file
 Edit files by replacing content in specified line ranges.
 
-- End multiline content with 🛠️🔚 marker
-- Everything from the next line until 🛠️🔚 is captured as content
-
-Replace mode: First deletes the specified range, then inserts new content at that position.
-
 Arguments:
  - filename: string (required) - Path to the file to edit
  - edit_mode: string (required) - Edit mode: 'replace' (delete range then insert), 'insert', 'delete'
  - line_range: string (required) - Line range in format 'start-end' or 'line_number' (e.g., '1-3' or '10' for single line)
  - content: string (optional) - Optional content for insert/replace operations
 
-Usage: 🛠️[edit-file <filename> <edit_mode> <line_range> [content]]
+Usage: 🛠️[edit-file <filename> <edit_mode> <line_range>]
 
 Examples:
 🛠️[edit-file myfile.txt replace 1-3]

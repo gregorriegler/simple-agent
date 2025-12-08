@@ -54,7 +54,7 @@ class TestEmojiBracketDocumentation:
         doc = syntax.render_documentation(tool)
 
         assert 'Tool: multiline_tool' in doc
-        assert 'Usage: 🛠️[multiline_tool <inline_arg> <multiline_arg>]' in doc
+        assert 'Usage: 🛠️[multiline_tool <inline_arg>]' in doc
         assert '🛠️[multiline_tool test]' in doc
         assert 'line1\nline2\nline3' in doc
         assert '🛠️[/end]' in doc

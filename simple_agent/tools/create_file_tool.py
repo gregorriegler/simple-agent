@@ -7,12 +7,7 @@ from .base_tool import BaseTool
 
 class CreateFileTool(BaseTool):
     name = "create-file"
-    description = """Create new files with optional content
-
-- End content with 🛠️🔚 marker
-- Do NOT add commentary after the tool in the same message
-- Everything after the filename until 🛠️🔚 or message end is captured as content"""
-
+    description = "Create new files with optional content"
     arguments = ToolArguments(header=[
         ToolArgument(
             name="filename",

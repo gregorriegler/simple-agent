@@ -139,13 +139,7 @@ class ReplaceMode:
 
 class EditFileTool(BaseTool):
     name = "edit-file"
-    name = "edit-file"
-    description = """Edit files by replacing content in specified line ranges.
-
-- End multiline content with 🛠️🔚 marker
-- Everything from the next line until 🛠️🔚 is captured as content
-
-Replace mode: First deletes the specified range, then inserts new content at that position."""
+    description = "Edit files by replacing content in specified line ranges."
 
     arguments = ToolArguments(header=[
         ToolArgument(
@@ -173,36 +167,11 @@ Replace mode: First deletes the specified range, then inserts new content at tha
         description="Optional content for insert/replace operations",
     ))
     examples = [
-        {
-            "filename": "myfile.txt",
-            "edit_mode": "replace",
-            "line_range": "1-3",
-            "content": "Hello World",
-        },
-        {
-            "filename": "test.txt",
-            "edit_mode": "delete",
-            "line_range": "1",
-            "content": "",
-        },
-        {
-            "filename": "test.txt",
-            "edit_mode": "insert",
-            "line_range": "1",
-            "content": "New Headline",
-        },
-        {
-            "filename": "test.py",
-            "edit_mode": "insert",
-            "line_range": "3",
-            "content": "print('hello')",
-        },
-        {
-            "filename": "test.py",
-            "edit_mode": "replace",
-            "line_range": "5",
-            "content": "new = 2",
-        },
+        {"filename": "myfile.txt", "edit_mode": "replace", "line_range": "1-3", "content": "Hello World"},
+        {"filename": "test.txt", "edit_mode": "delete", "line_range": "1"},
+        {"filename": "test.txt", "edit_mode": "insert", "line_range": "1", "content": "New Headline"},
+        {"filename": "test.py", "edit_mode": "insert", "line_range": "3", "content": "print('hello')"},
+        {"filename": "test.py", "edit_mode": "replace", "line_range": "5", "content": "new = 2"},
     ]
 
     def __init__(self):

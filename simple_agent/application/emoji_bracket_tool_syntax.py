@@ -26,7 +26,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
         lines.append("")
         syntax_parts = []
         if tool.arguments:
-            for arg in tool.arguments.all:
+            for arg in tool.arguments.header:
                 syntax_parts.append(f"<{arg.name}>" if arg.required else f"[{arg.name}]")
         syntax = f"🛠️[{tool.name}"
         if syntax_parts:
