@@ -1,0 +1,31 @@
+Command:
+🛠️[edit-file test.txt string_replace]
+<<<<<<< OLD
+hello
+=======
+goodbye
+>>>>>>> NEW
+🛠️[/end]
+
+Result:
+Successfully edited test.txt
+
+--- test.txt (original)
++++ test.txt (updated)
+@@ -1 +1 @@
+-hello world
++goodbye world
+
+Initial file: test.txt
+Initial content:
+--- INITIAL CONTENT START ---
+hello world
+
+--- INITIAL CONTENT END ---
+
+File after edit: test.txt
+Final content:
+--- FINAL CONTENT START ---
+goodbye world
+
+--- FINAL CONTENT END ---

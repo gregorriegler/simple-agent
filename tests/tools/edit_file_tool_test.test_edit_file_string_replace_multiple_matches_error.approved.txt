@@ -1,0 +1,31 @@
+Command:
+🛠️[edit-file test.txt string_replace]
+<<<<<<< OLD
+foo
+=======
+replaced
+>>>>>>> NEW
+🛠️[/end]
+
+Result:
+Unexpected error editing file "test.txt": String appears 2 times in file. Provide more surrounding context to make it unique.
+
+Initial file: test.txt
+Initial content:
+--- INITIAL CONTENT START ---
+foo
+bar
+foo
+baz
+
+--- INITIAL CONTENT END ---
+
+File after edit: test.txt
+Final content:
+--- FINAL CONTENT START ---
+foo
+bar
+foo
+baz
+
+--- FINAL CONTENT END ---

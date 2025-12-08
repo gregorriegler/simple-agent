@@ -8,6 +8,18 @@ class RawToolCall:
     arguments: str
     body: str = ""
 
+    def header(self) -> str:
+        if self.arguments:
+            return f"🛠️ {self.name} {self.arguments}"
+        return f"🛠️ {self.name}"
+
+    def __str__(self) -> str:
+        if self.arguments:
+            if self.body:
+                return f"🛠️ {self.name} {self.arguments} {self.body}"
+            return f"🛠️ {self.name} {self.arguments}"
+        return f"🛠️ {self.name}"
+
 
 @dataclass
 class ToolResult:
@@ -53,10 +65,11 @@ class ParsedTool:
     def body(self):
         return self.raw_call.body
 
+    def header(self):
+        return self.raw_call.header()
+
     def __str__(self):
-        if self.arguments:
-            return f"🛠️ {self.name} {self.arguments}"
-        return f"🛠️ {self.name}"
+        return self.raw_call.__str__()
 
 
 @dataclass

@@ -7,114 +7,164 @@ library = create_all_tools_for_test()
 
 
 def test_edit_file_replace_single_word(tmp_path):
-    verify_edit_tool(library, "test.txt", "old\n", "🛠️[edit-file test.txt replace 1-1]\nnew\n🛠️[/end]", tmp_path=tmp_path)
+    initial_content = "old\n"
+    command = """🛠️[edit-file test.txt replace 1-1]
+new
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_single_word_without_newlines(tmp_path):
-    verify_edit_tool(library, "test.txt", "old", "🛠️[edit-file test.txt replace 1-1]\nnew\n🛠️[/end]", tmp_path=tmp_path)
+    initial_content = "old"
+    command = """🛠️[edit-file test.txt replace 1-1]
+new
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_two_consecutive_lines_with_one(tmp_path):
-    verify_edit_tool(library, "test.txt", "line1\nline2\nline3\n", "🛠️[edit-file test.txt replace 2-3]\nnewline\n🛠️[/end]", tmp_path=tmp_path)
+    initial_content = "line1\nline2\nline3\n"
+    command = """🛠️[edit-file test.txt replace 2-3]
+newline
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_a_lines_with_lines_in_quotes(tmp_path):
-    command = "🛠️[edit-file test.txt replace 2]\n\"insert1\ninsert2\"\n🛠️[/end]"
-    verify_edit_tool(library, "test.txt", "line1\nline2\n", command, tmp_path=tmp_path)
+    initial_content = "line1\nline2\n"
+    command = """🛠️[edit-file test.txt replace 2]
+"insert1
+insert2"
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_empty_lines_with_function(tmp_path):
     initial_content = "line1\nline2\n\n\n\nline6\n"
-    function_def = "def hello():\n    return 'world'"
-    command = f"🛠️[edit-file template.py replace 3-5]\n{function_def}\n🛠️[/end]"
+    command = """🛠️[edit-file template.py replace 3-5]
+def hello():
+    return 'world'
+🛠️[/end]"""
     verify_edit_tool(library, "template.py", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_path_with_spaces(tmp_path):
-    command = '🛠️[edit-file "notes folder/note file.txt" replace 1]\n"updated line"\n🛠️[/end]'
-    verify_edit_tool(library, "notes folder/note file.txt", "original line\n", command, tmp_path=tmp_path)
+    initial_content = "original line\n"
+    command = """🛠️[edit-file "notes folder/note file.txt" replace 1]
+"updated line"
+🛠️[/end]"""
+    verify_edit_tool(library, "notes folder/note file.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_three_lines_to_empty_file(tmp_path):
-    command = "🛠️[edit-file empty.txt insert 1]\nline1\nline2\nline3\n🛠️[/end]"
-    verify_edit_tool(library, "empty.txt", "", command, tmp_path=tmp_path)
+    initial_content = ""
+    command = """🛠️[edit-file empty.txt insert 1]
+line1
+line2
+line3
+🛠️[/end]"""
+    verify_edit_tool(library, "empty.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_line_without_explicit_newline_adds_newline_automatically(tmp_path):
     initial_content = "line1\nline2\n"
-    command = "🛠️[edit-file test.txt insert 2]\ninserted_line\n🛠️[/end]"
+    command = """🛠️[edit-file test.txt insert 2]
+inserted_line
+🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_multiline_without_trailing_newline_adds_newline_automatically(tmp_path):
     initial_content = "line1\nline2\n"
-    command = "🛠️[edit-file test.txt insert 2]\ninserted_line1\ninserted_line2\n🛠️[/end]"
+    command = """🛠️[edit-file test.txt insert 2]
+inserted_line1
+inserted_line2
+🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_preserves_indentation_in_multiline_content(tmp_path):
     initial_content = "line1\nline2\n"
-    command = "🛠️[edit-file test.py insert 3]\ndef hello():\n    return 'world'\n🛠️[/end]"
+    command = """🛠️[edit-file test.py insert 3]
+def hello():
+    return 'world'
+🛠️[/end]"""
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_beyond_last_line_appends_to_end(tmp_path):
     initial_content = "line1\nline2\n"
-    command = "🛠️[edit-file test.txt insert 3]\nline3\n🛠️[/end]"
+    command = """🛠️[edit-file test.txt insert 3]
+line3
+🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_far_beyond_last_line_appends_to_end_and_pads_with_empty_lines(tmp_path):
     initial_content = "line1\nline2\n"
-    command = "🛠️[edit-file test.txt insert 10]\nline10\n🛠️[/end]"
+    command = """🛠️[edit-file test.txt insert 10]
+line10
+🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_without_content_inserts_an_empty_line(tmp_path):
     initial_content = "line1\nline2\n"
-    command = "🛠️[edit-file test.txt insert 2]"
+    command = """🛠️[edit-file test.txt insert 2]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_delete_a_line(tmp_path):
     initial_content = "line1\nline2\n"
-    command = "🛠️[edit-file test.txt delete 1]"
+    command = """🛠️[edit-file test.txt delete 1]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_delete_range_extending_past_file_end(tmp_path):
     initial_content = "line1\nline2\nline3\n"
-    command = "🛠️[edit-file test.txt delete 2-10]"
+    command = """🛠️[edit-file test.txt delete 2-10]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_range_beyond_file_end_leaves_file_unchanged(tmp_path):
     initial_content = "line1\nline2\n"
-    command = "🛠️[edit-file test.txt replace 5-7]\nreplacement\n🛠️[/end]"
+    command = """🛠️[edit-file test.txt replace 5-7]
+replacement
+🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_with_auto_indent_python(tmp_path):
     initial_content = "line1\n    existing = 1\nline3\n"
-    command = "🛠️[edit-file test.py replace 2]\nnew = 2\n🛠️[/end]"
+    command = """🛠️[edit-file test.py replace 2]
+new = 2
+🛠️[/end]"""
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_insert_with_auto_indent(tmp_path):
     initial_content = "line1\n    line2\nline3\n"
-    command = "🛠️[edit-file test.py insert 2]\nnew_line\n🛠️[/end]"
+    command = """🛠️[edit-file test.py insert 2]
+new_line
+🛠️[/end]"""
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_preserves_manual_indentation(tmp_path):
     initial_content = "line1\n    existing\nline3\n"
-    command = "🛠️[edit-file test.py replace 2]\n        manually_indented\n🛠️[/end]"
+    command = """🛠️[edit-file test.py replace 2]
+        manually_indented
+🛠️[/end]"""
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 
 def test_edit_file_replace_multiline_only_indents_first_line(tmp_path):
     initial_content = "line1\n    existing\nline3\n"
-    command = "🛠️[edit-file test.py replace 2]\nline1\nline2\n    line3\n🛠️[/end]"
+    command = """🛠️[edit-file test.py replace 2]
+line1
+line2
+    line3
+🛠️[/end]"""
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
 
@@ -167,8 +217,103 @@ def test_edit_file_replace_complex_python_program_rename_functions_and_variables
         return self.cleaned_items
 """
 
-    command = f"🛠️[edit-file complex_program.py replace 1-20]\n{replacement_content}\n🛠️[/end]"
+    command = f"""🛠️[edit-file complex_program.py replace 1-20]
+{replacement_content}
+🛠️[/end]"""
     verify_edit_tool(library, "complex_program.py", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_string_replace_basic(tmp_path):
+    """Basic string replacement - find and replace exact match."""
+    initial_content = "hello world\n"
+    command = """🛠️[edit-file test.txt string_replace]
+<<<<<<< OLD
+hello
+=======
+goodbye
+>>>>>>> NEW
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_string_replace_multiline(tmp_path):
+    """Replace multiple lines at once."""
+    initial_content = "line1\nline2\nline3\nline4\n"
+    command = """🛠️[edit-file test.txt string_replace]
+<<<<<<< OLD
+line2
+line3
+=======
+replaced
+>>>>>>> NEW
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_string_replace_preserves_indentation(tmp_path):
+    """Whitespace in old_string and new_string is preserved exactly."""
+    initial_content = "def foo():\n    old_code = 1\n    return old_code\n"
+    command = """🛠️[edit-file test.py string_replace]
+<<<<<<< OLD
+    old_code = 1
+=======
+    new_code = 42
+>>>>>>> NEW
+🛠️[/end]"""
+    verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_string_replace_not_found(tmp_path):
+    """Error when string is not found in file."""
+    initial_content = "hello world\n"
+    command = """🛠️[edit-file test.txt string_replace]
+<<<<<<< OLD
+nonexistent
+=======
+replacement
+>>>>>>> NEW
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_string_replace_multiple_matches_error(tmp_path):
+    """Error when string appears multiple times - need more context."""
+    initial_content = "foo\nbar\nfoo\nbaz\n"
+    command = """🛠️[edit-file test.txt string_replace]
+<<<<<<< OLD
+foo
+=======
+replaced
+>>>>>>> NEW
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_string_replace_with_unique_context(tmp_path):
+    """Adding surrounding context makes the match unique."""
+    initial_content = "foo\nbar\nfoo\nbaz\n"
+    command = """🛠️[edit-file test.txt string_replace]
+<<<<<<< OLD
+bar
+foo
+=======
+bar
+replaced
+>>>>>>> NEW
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_string_replace_delete_string(tmp_path):
+    """Empty new_string effectively deletes the old_string."""
+    initial_content = "keep\ndelete_me\nkeep\n"
+    command = """🛠️[edit-file test.txt string_replace]
+<<<<<<< OLD
+delete_me
+=======
+>>>>>>> NEW
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):

@@ -65,13 +65,13 @@ class TextualAgentDisplay(AgentDisplay):
 
     def _get_tab_title(self, token_count: int, max_tokens: int) -> str:
         base_title = self._agent_name or str(self._agent_id).split('/')[-1]
-        
+
         if not self._model:
             return base_title
-        
+
         if max_tokens == 0:
             return f"{base_title} [{self._model}: 0.0%]"
-        
+
         percentage = (token_count / max_tokens) * 100
         return f"{base_title} [{self._model}: {percentage:.1f}%]"
 
@@ -98,7 +98,8 @@ class TextualAgentDisplay(AgentDisplay):
 
     def tool_call(self, call_id, tool):
         if self._app and self._app.is_running:
-            self._app.post_message(ToolCallMessage(self._tool_results_id, call_id, str(tool)))
+            self._app.post_message(ToolCallMessage(self._tool_results_id, call_id, tool.header()))
+
     def tool_result(self, call_id, result: ToolResult):
         if not result:
             return
