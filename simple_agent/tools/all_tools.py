@@ -10,7 +10,6 @@ from .complete_task_tool import CompleteTaskTool
 from .create_file_tool import CreateFileTool
 from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
-from .replace_content_tool import ReplaceContentTool
 from .subagent_tool import SubagentTool
 from .write_todos_tool import WriteTodosTool
 
@@ -41,7 +40,6 @@ class AllTools(ToolLibrary):
             'cat': lambda: CatTool(),
             'create_file': lambda: CreateFileTool(),
             'edit_file': lambda: EditFileTool(),
-            'replace-content': lambda: ReplaceContentTool(),
             'complete_task': lambda: CompleteTaskTool(),
             'bash': lambda: BashTool(),
             'subagent': lambda: SubagentTool(self._spawner, self._agent_types)

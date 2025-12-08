@@ -146,21 +146,21 @@ Running the coverage script with `--badge` creates `docs/coverage.svg`, keeping 
 - [`simple_agent/main.py`](simple_agent/main.py): CLI entry point that wires the event bus, user interface, Claude client, and tool library before running a session.
 - [`simple_agent/application/session.py`](simple_agent/application/session.py): Orchestrates the lifecycle of a chat session, including streaming assistant output, tool execution, and persistence.
 - [`simple_agent/application/agent.py`](simple_agent/application/agent.py): Core chat loop that gathers user input, streams Claude responses, and coordinates tool execution.
-- [`simple_agent/tools/all_tools.py`](simple_agent/tools/all_tools.py): Registers built-in tools (bash, cat, replace-content, etc.), parses tool calls, and executes them.
+- [`simple_agent/tools/all_tools.py`](simple_agent/tools/all_tools.py): Registers built-in tools (bash, cat, edit_file, etc.), parses tool calls, and executes them.
 - [`simple_agent/infrastructure/system_prompt/agent_definition.py`](simple_agent/infrastructure/system_prompt/agent_definition.py): Loads agent definitions and renders prompts that describe available tools to Claude.
 
 ## File Editing
 
-The `replace-content` tool is the recommended way to edit files. It uses a search-and-replace block format that is more reliable than line-number-based editing.
+The `edit-file` tool is the recommended way to edit files. It uses a search-and-replace block format that is more reliable than line-number-based editing.
 
-### `replace-content` tool
+### `edit-file` tool
 
-The `replace-content` tool takes a filename and a multiline string argument. The string uses `<<<<<<< SEARCH`, `=======`, and `>>>>>>> REPLACE` markers to define the content to search for and the content to replace it with.
+The `edit-file` tool takes a filename and a multiline string argument. The string uses `<<<<<<< SEARCH`, `=======`, and `>>>>>>> REPLACE` markers to define the content to search for and the content to replace it with.
 
 **Example:**
 
 ```
-🛠️[replace-content myfile.txt]
+🛠️[edit-file myfile.txt]
 <<<<<<< SEARCH
 Hello, world!
 =======
@@ -169,8 +169,6 @@ Hello, universe!
 ```
 
 This will replace the text "Hello, world!" with "Hello, universe!" in the file `myfile.txt`.
-
-The `edit-file` tool is deprecated and should not be used in new agents.
 
 ## Text-to-Speech setup
 
