@@ -82,6 +82,8 @@ Line 2
 🛠️[/end]
 
 ## edit-file
+DEPRECATED: Use the `replace-content` tool instead.
+
 Edit files by replacing content in specified line ranges.
 
 - End multiline content with 🛠️🔚 marker
@@ -110,6 +112,31 @@ print('hello')
 🛠️[/end]
 🛠️[edit-file test.py replace 5]
 new = 2
+🛠️[/end]
+
+## replace-content
+Replace the first occurrence of a block of content in a file with new content.
+
+Arguments:
+ - filename: string (required) - Path to the file to edit
+ - replace_block: string (required) - A block of text containing the content to search for and the content to replace it with, formatted as follows:
+<<<<<<< SEARCH
+... content to search for ...
+=======
+... new content to insert ...
+>>>>>>> REPLACE
+
+
+Usage: 🛠️[replace-content <filename> <replace_block>]
+
+Examples:
+🛠️[replace-content myfile.txt]
+<<<<<<< SEARCH
+Hello, world!
+=======
+Hello, universe!
+>>>>>>> REPLACE
+
 🛠️[/end]
 
 ## complete-task

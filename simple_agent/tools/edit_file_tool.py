@@ -140,7 +140,9 @@ class ReplaceMode:
 class EditFileTool(BaseTool):
     name = "edit-file"
     name = "edit-file"
-    description = """Edit files by replacing content in specified line ranges.
+    description = """DEPRECATED: Use the `replace-content` tool instead.
+
+Edit files by replacing content in specified line ranges.
 
 - End multiline content with 🛠️🔚 marker
 - Everything from the next line until 🛠️🔚 is captured as content
