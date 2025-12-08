@@ -151,16 +151,20 @@ Running the coverage script with `--badge` creates `docs/coverage.svg`, keeping 
 
 ## File Editing
 
-The `edit-file` tool is the recommended way to edit files. It uses a search-and-replace block format that is more reliable than line-number-based editing.
+This project provides two tools for editing files: `edit-file` and `replace-content`.
 
 ### `edit-file` tool
 
-The `edit-file` tool takes a filename and a multiline string argument. The string uses `<<<<<<< SEARCH`, `=======`, and `>>>>>>> REPLACE` markers to define the content to search for and the content to replace it with.
+The `edit-file` tool allows you to edit files by specifying line numbers. This tool is useful for precise, targeted edits when you know the exact lines you want to change.
+
+### `replace-content` tool
+
+The `replace-content` tool is the recommended way to edit files for most use cases. It uses a search-and-replace block format that is more reliable than line-number-based editing, especially for LLM-powered agents.
 
 **Example:**
 
 ```
-🛠️[edit-file myfile.txt]
+🛠️[replace-content myfile.txt]
 <<<<<<< SEARCH
 Hello, world!
 =======

@@ -4,7 +4,14 @@ new
 🛠️[/end]
 
 Result:
-Invalid format: Block must start with '<<<<<<< SEARCH'
+Successfully edited test.txt
+
+--- test.txt (original)
++++ test.txt (updated)
+@@ -1 +1 @@
+-old
++new
+\ No newline at end of file
 
 Initial file: test.txt
 Initial content:
@@ -16,6 +23,5 @@ old
 File after edit: test.txt
 Final content:
 --- FINAL CONTENT START ---
-old
-
+new
 --- FINAL CONTENT END ---
