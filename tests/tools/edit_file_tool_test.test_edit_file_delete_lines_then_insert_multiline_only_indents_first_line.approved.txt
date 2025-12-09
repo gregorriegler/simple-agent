@@ -1,0 +1,39 @@
+Command:
+🛠️[edit-file test.py delete_lines_then_insert 2]
+line1
+line2
+    line3
+🛠️[/end]
+
+Result:
+Successfully edited test.py
+
+--- test.py (original)
++++ test.py (updated)
+@@ -1,3 +1,5 @@
+ line1
+-    existing
++line1
++line2
++    line3
+ line3
+
+Initial file: test.py
+Initial content:
+--- INITIAL CONTENT START ---
+line1
+    existing
+line3
+
+--- INITIAL CONTENT END ---
+
+File after edit: test.py
+Final content:
+--- FINAL CONTENT START ---
+line1
+line1
+line2
+    line3
+line3
+
+--- FINAL CONTENT END ---

@@ -1,0 +1,35 @@
+Command:
+🛠️[edit-file test.txt delete_lines_then_insert 5-7]
+replacement
+🛠️[/end]
+
+Result:
+Successfully edited test.txt
+
+--- test.txt (original)
++++ test.txt (updated)
+@@ -1,2 +1,5 @@
+ line1
+ line2
++
++
++replacement
+\ No newline at end of file
+
+Initial file: test.txt
+Initial content:
+--- INITIAL CONTENT START ---
+line1
+line2
+
+--- INITIAL CONTENT END ---
+
+File after edit: test.txt
+Final content:
+--- FINAL CONTENT START ---
+line1
+line2
+
+
+replacement
+--- FINAL CONTENT END ---

@@ -11,7 +11,7 @@ from ..application.tool_library import ContinueResult, ToolArgument, ToolArgumen
 class EditMode(Enum):
     INSERT = "insert"
     DELETE = "delete"
-    REPLACE = "replace"
+    DELETE_LINES_THEN_INSERT = "delete_lines_then_insert"
     STRING_REPLACE = "string_replace"
 
 
@@ -134,8 +134,8 @@ class DeleteMode:
         editor.lines = new_lines
 
 
-class ReplaceMode:
-    mode = EditMode.REPLACE
+class DeleteLinesThenInsertMode:
+    mode = EditMode.DELETE_LINES_THEN_INSERT
     requires_content = False
     allows_content = True
 
@@ -231,7 +231,7 @@ class EditFileTool(BaseTool):
             name="edit_mode",
             type="string",
             required=True,
-            description="Edit mode: 'insert', 'delete', 'string_replace', 'replace' (delete range then insert)",
+            description="Edit mode: 'insert', 'delete', 'string_replace', 'delete_lines_then_insert' (delete range then insert)",
         ),
         ToolArgument(
             name="line_range",
@@ -252,10 +252,10 @@ class EditFileTool(BaseTool):
         description="Optional content for insert/replace operations",
     ))
     examples = [
- #       {"filename": "myfile.txt", "edit_mode": "replace", "line_range": "1-3", "content": "Hello World"},
+        {"filename": "myfile.txt", "edit_mode": "delete_lines_then_insert", "line_range": "1-3", "content": "Hello World"},
         {"filename": "test.txt", "edit_mode": "delete", "line_range": "1"},
         {"filename": "test.py", "edit_mode": "insert", "line_range": "3", "content": "print('hello')"},
- #       {"filename": "test.py", "edit_mode": "replace", "line_range": "5", "content": "new = 2"},
+        {"filename": "test.py", "edit_mode": "delete_lines_then_insert", "line_range": "5", "content": "new = 2"},
         "🛠️[edit-file test.py string_replace]\n<<<<<<< OLD\nold_value = 1\n=======\nnew_value = 2\n>>>>>>> NEW\n🛠️[/end]",
         "🛠️[edit-file test.py string_replace all]\n<<<<<<< OLD\nold_value = 1\n=======\nnew_value = 2\n>>>>>>> NEW\n🛠️[/end]",
         "🛠️[edit-file test.py string_replace nth:2]\n<<<<<<< OLD\nold_value = 1\n=======\nnew_value = 2\n>>>>>>> NEW\n🛠️[/end]",
@@ -264,7 +264,7 @@ class EditFileTool(BaseTool):
     MODE_CLASSES = [
         InsertMode,
         DeleteMode,
-        ReplaceMode,
+        DeleteLinesThenInsertMode,
         StringReplaceMode
     ]
 
