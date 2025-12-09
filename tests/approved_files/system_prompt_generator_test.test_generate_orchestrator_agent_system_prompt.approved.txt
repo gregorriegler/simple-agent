@@ -101,6 +101,20 @@ old_value = 1
 new_value = 2
 >>>>>>> NEW
 🛠️[/end]
+🛠️[edit-file test.py string_replace all]
+<<<<<<< OLD
+old_value = 1
+=======
+new_value = 2
+>>>>>>> NEW
+🛠️[/end]
+🛠️[edit-file test.py string_replace nth:2]
+<<<<<<< OLD
+old_value = 1
+=======
+new_value = 2
+>>>>>>> NEW
+🛠️[/end]
 
 ## complete-task
 Signal task completion with a summary of what was accomplished
