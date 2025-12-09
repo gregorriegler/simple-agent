@@ -1,0 +1,31 @@
+Command:
+🛠️[edit-file test.txt string_replace all extra_arg]
+<<<<<<< OLD
+foo
+=======
+replaced
+>>>>>>> NEW
+🛠️[/end]
+
+Result:
+Too many arguments for string_replace mode
+
+Initial file: test.txt
+Initial content:
+--- INITIAL CONTENT START ---
+foo
+bar
+foo
+baz
+
+--- INITIAL CONTENT END ---
+
+File after edit: test.txt
+Final content:
+--- FINAL CONTENT START ---
+foo
+bar
+foo
+baz
+
+--- FINAL CONTENT END ---
