@@ -1,5 +1,5 @@
 Command:
-🛠️[edit-file test.py replace 2]
+🛠️[edit-file test.py delete_lines_then_insert 2]
         manually_indented
 🛠️[/end]
 

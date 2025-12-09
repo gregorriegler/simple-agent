@@ -1,5 +1,5 @@
 Command:
-🛠️[edit-file complex_program.py replace 1-20]
+🛠️[edit-file complex_program.py delete_lines_then_insert 1-20]
 class DataHandler:
     def __init__(self, source_data):
         self.original_data = source_data
@@ -39,7 +39,7 @@ Successfully edited complex_program.py
 +    def __init__(self, source_data):
 +        self.original_data = source_data
 +        self.cleaned_items = []
- 
+
 -    def validate_input(self, data_item):
 -        if not data_item:
 +    def check_validity(self, data_entry):
@@ -47,7 +47,7 @@ Successfully edited complex_program.py
              return False
 -        return len(data_item) > 0
 +        return len(data_entry) > 0
- 
+
 -    def process_single_item(self, item):
 -        if self.validate_input(item):
 -            cleaned_item = item.strip().lower()
@@ -57,7 +57,7 @@ Successfully edited complex_program.py
 +            normalized_entry = entry.strip().lower()
 +            return normalized_entry
          return None
- 
+
 -    def batch_process(self):
 -        for current_item in self.raw_data:
 -            result = self.process_single_item(current_item)

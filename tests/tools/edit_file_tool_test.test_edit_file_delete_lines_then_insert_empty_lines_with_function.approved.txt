@@ -1,5 +1,5 @@
 Command:
-🛠️[edit-file template.py replace 3-5]
+🛠️[edit-file template.py delete_lines_then_insert 3-5]
 def hello():
     return 'world'
 🛠️[/end]
