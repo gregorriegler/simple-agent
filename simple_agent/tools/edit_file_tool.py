@@ -257,6 +257,8 @@ class EditFileTool(BaseTool):
         {"filename": "test.py", "edit_mode": "insert", "line_range": "3", "content": "print('hello')"},
  #       {"filename": "test.py", "edit_mode": "replace", "line_range": "5", "content": "new = 2"},
         "🛠️[edit-file test.py string_replace]\n<<<<<<< OLD\nold_value = 1\n=======\nnew_value = 2\n>>>>>>> NEW\n🛠️[/end]",
+        "🛠️[edit-file test.py string_replace all]\n<<<<<<< OLD\nold_value = 1\n=======\nnew_value = 2\n>>>>>>> NEW\n🛠️[/end]",
+        "🛠️[edit-file test.py string_replace nth:2]\n<<<<<<< OLD\nold_value = 1\n=======\nnew_value = 2\n>>>>>>> NEW\n🛠️[/end]",
     ]
 
     MODE_CLASSES = [
