@@ -218,7 +218,7 @@ class StringReplaceMode:
 
 class EditFileTool(BaseTool):
     name = "edit-file"
-    description = "Edit files by replacing content in specified line ranges."
+    description = "Edit files by replacing content in specified line ranges. Careful, whenever you make line-altering edits, the line numbers of subsequent lines will change."
 
     arguments = ToolArguments(header=[
         ToolArgument(

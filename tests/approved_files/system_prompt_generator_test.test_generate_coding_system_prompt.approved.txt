@@ -111,7 +111,7 @@ Line 2
 🛠️[/end]
 
 ## edit-file
-Edit files by replacing content in specified line ranges.
+Edit files by replacing content in specified line ranges. Careful, whenever you make line-altering edits, the line numbers of subsequent lines will change.
 
 Arguments:
  - filename: string (required) - Path to the file to edit
