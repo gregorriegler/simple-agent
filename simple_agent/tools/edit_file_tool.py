@@ -23,6 +23,7 @@ class EditFileArgs:
     end_line: int
     new_content: str | None
     old_string: str | None = None
+    replace_mode: str | None = None
 
 
 class FileEditor:
@@ -170,16 +171,39 @@ class StringReplaceMode:
         content = ''.join(editor.lines)
         old_string = args.old_string
         new_string = args.new_content if args.new_content is not None else ""
+        replace_mode = args.replace_mode if args.replace_mode is not None else "single"
 
         # Count occurrences for uniqueness check
         count = content.count(old_string)
         if count == 0:
-            raise ValueError("String not found in file. Make sure the old_string matches exactly (including whitespace).")
-        if count > 1:
-            raise ValueError(f"String appears {count} times in file. Provide more surrounding context to make it unique.")
+            raise ValueError(
+                "String not found in file. Make sure the old_string matches exactly (including whitespace).")
 
-        # Perform the replacement
-        new_content = content.replace(old_string, new_string, 1)
+        if replace_mode == "single":
+            if count > 1:
+                raise ValueError(
+                    f"String appears {count} times in file. Provide more surrounding context to make it unique.")
+            new_content = content.replace(old_string, new_string, 1)
+        elif replace_mode == "all":
+            new_content = content.replace(old_string, new_string)
+        elif replace_mode.startswith("nth:"):
+            try:
+                n = int(replace_mode.split(":")[1])
+                if n <= 0:
+                    raise ValueError("Nth occurrence must be a positive integer.")
+
+                start_index = -1
+                for i in range(n):
+                    start_index = content.find(old_string, start_index + 1)
+                    if start_index == -1:
+                        raise ValueError(f"Could not find the {n}th occurrence of the string.")
+
+                new_content = content[:start_index] + new_string + content[start_index + len(old_string):]
+            except (ValueError, IndexError):
+                raise ValueError("Invalid format for nth. Expected 'nth:positive_integer'.")
+        else:
+            raise ValueError(f"Invalid replace_mode: {replace_mode}")
+
         editor.lines = new_content.splitlines(keepends=True)
 
         # Handle empty file case
@@ -214,6 +238,12 @@ class EditFileTool(BaseTool):
             type="string",
             required=False,
             description="Line range in format 'start-end' or 'line_number' (e.g., '1-3' or '10' for single line)",
+        ),
+        ToolArgument(
+            name="replace_mode",
+            type="string",
+            required=False,
+            description="For 'string_replace' mode: 'single' (default), 'all', or 'nth:N' to replace the Nth occurrence.",
         ),
     ], body=ToolArgument(
         name="content",
@@ -359,6 +389,16 @@ class EditFileTool(BaseTool):
 
         # Handle string_replace mode separately (no line_range)
         if getattr(mode_class, 'uses_string_matching', False):
+            replace_mode = "single"
+            if len(parts) > 2:
+                replace_mode = parts[2]
+
+            if len(parts) > 3:
+                return None, "Too many arguments for string_replace mode"
+
+            if replace_mode not in ["single", "all"] and not replace_mode.startswith("nth:"):
+                return None, f"Invalid replace_mode: {replace_mode}"
+
             parsed, error = self._parse_string_replace_body(body)
             if error:
                 return None, error
@@ -369,7 +409,8 @@ class EditFileTool(BaseTool):
                 start_line=0,
                 end_line=0,
                 new_content=new_string,
-                old_string=old_string
+                old_string=old_string,
+                replace_mode=replace_mode
             ), None
 
         # For other modes, require line_range

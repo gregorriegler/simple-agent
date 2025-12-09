@@ -333,3 +333,53 @@ def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
             f"Command:\n{command}\n\nResult:\n{result}\n\n{initial_file_info}\n\n{final_file_info}",
             options=Options().with_scrubber(all_scrubbers())
         )
+
+def test_edit_file_string_replace_all(tmp_path):
+    """Replace all occurrences of a string."""
+    initial_content = "foo\nbar\nfoo\nbaz\n"
+    command = """🛠️[edit-file test.txt string_replace all]
+<<<<<<< OLD
+foo
+=======
+replaced
+>>>>>>> NEW
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_string_replace_nth(tmp_path):
+    """Replace the nth occurrence of a string."""
+    initial_content = "foo\nbar\nfoo\nbaz\n"
+    command = """🛠️[edit-file test.txt string_replace nth:2]
+<<<<<<< OLD
+foo
+=======
+replaced
+>>>>>>> NEW
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+
+def test_edit_file_string_replace_single_default(tmp_path):
+    """Replace a single occurrence of a string by default."""
+    initial_content = "foo\nbar\nbaz\n"
+    command = """🛠️[edit-file test.txt string_replace]
+<<<<<<< OLD
+foo
+=======
+replaced
+>>>>>>> NEW
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+
+def test_string_replace_with_extra_args(tmp_path):
+    """Should raise an error if too many arguments are provided."""
+    initial_content = "foo\nbar\nfoo\nbaz\n"
+    command = """🛠️[edit-file test.txt string_replace all extra_arg]
+<<<<<<< OLD
+foo
+=======
+replaced
+>>>>>>> NEW
+🛠️[/end]"""
+    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
