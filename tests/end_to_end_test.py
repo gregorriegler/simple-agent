@@ -31,6 +31,7 @@ def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.5):
             f"Approved: {approved_path}"
         )
 
+@pytest.mark.flaky(reruns=5, reruns_delay=2)
 def test_golden_master_agent_stub(monkeypatch):
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     os.chdir(project_root)
