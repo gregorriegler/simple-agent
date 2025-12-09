@@ -15,29 +15,53 @@ show_help() {
     echo ""
     echo "Options:"
     echo "  -h, --help      Show this help message and exit"
-    echo "  -v, --verbose   Show verbose output with full tracebacks"
+    echo "  -v, --verbose   Show verbose output with progress and full tracebacks"
 }
 
 filter_pytest_output() {
     local output="$1"
     local verbose="$2"
-
+    
     if [[ "$verbose" == true ]]; then
-        # Verbose mode: only filter out deprecation warnings
-        echo "$output" | grep -v "PytestDeprecationWarning" | grep -v "asyncio_default_fixture_loop_scope" | grep -v "warnings.warn" || echo "$output"
-    else
-        # Quiet mode: filter out deprecation warnings and pytest session header
-        # Keep test progress, failures, and summary
+        # Verbose mode: show everything except deprecation warnings
         echo "$output" | \
             grep -v "PytestDeprecationWarning" | \
             grep -v "asyncio_default_fixture_loop_scope" | \
-            grep -v "warnings.warn" | \
-            grep -v "^platform " | \
-            grep -v "^rootdir: " | \
-            grep -v "^configfile: " | \
-            grep -v "^plugins: " | \
-            grep -v "^asyncio: mode=" | \
-            grep -v "^collected " || true
+            grep -v "warnings.warn" || echo "$output"
+    else
+        # Quiet mode: hide noisy logs and summary line, only show failures
+        local in_failure_section=false
+        
+        while IFS= read -r line; do
+            # Detect if we're in the FAILURES/ERRORS section
+            if [[ "$line" == *"FAILURES"* ]] || [[ "$line" == *"ERRORS"* ]]; then
+                in_failure_section=true
+            fi
+            
+            # Check if we're at the short test summary
+            if [[ "$line" == *"short test summary"* ]]; then
+                in_failure_section=true
+            fi
+            
+            # Show lines that are:
+            # 1. In the FAILURES/ERRORS section (or test summary)
+            # 2. Empty lines between sections
+            if [[ "$in_failure_section" == true ]] || [[ -z "$line" ]]; then
+                # Skip deprecation warnings and header lines
+                if [[ "$line" != *"PytestDeprecationWarning"* ]] && \
+                   [[ "$line" != *"asyncio_default_fixture_loop_scope"* ]] && \
+                   [[ "$line" != *"warnings.warn"* ]] && \
+                   [[ "$line" != *"test session starts"* ]] && \
+                   [[ "$line" != "platform"* ]] && \
+                   [[ "$line" != "rootdir:"* ]] && \
+                   [[ "$line" != "configfile:"* ]] && \
+                   [[ "$line" != "plugins:"* ]] && \
+                   [[ "$line" != "asyncio:"* ]] && \
+                   [[ "$line" != "collected"* ]]; then
+                    echo "$line"
+                fi
+            fi
+        done <<< "$output"
     fi
 }
 
