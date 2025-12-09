@@ -1,5 +1,5 @@
 Command:
-🛠️[edit-file complex_program.py replace 1-20]
+🛠️[edit-file complex_program.py delete_lines_then_insert 1-20]
 class DataHandler:
     def __init__(self, source_data):
         self.original_data = source_data

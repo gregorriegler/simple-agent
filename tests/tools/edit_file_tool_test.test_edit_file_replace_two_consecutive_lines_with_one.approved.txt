@@ -1,5 +1,5 @@
 Command:
-🛠️[edit-file test.txt replace 2-3]
+🛠️[edit-file test.txt delete_lines_then_insert 2-3]
 newline
 🛠️[/end]
 

@@ -8,7 +8,7 @@ library = create_all_tools_for_test()
 
 def test_edit_file_replace_single_word(tmp_path):
     initial_content = "old\n"
-    command = """🛠️[edit-file test.txt replace 1-1]
+    command = """🛠️[edit-file test.txt delete_lines_then_insert 1-1]
 new
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
@@ -16,7 +16,7 @@ new
 
 def test_edit_file_replace_single_word_without_newlines(tmp_path):
     initial_content = "old"
-    command = """🛠️[edit-file test.txt replace 1-1]
+    command = """🛠️[edit-file test.txt delete_lines_then_insert 1-1]
 new
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
@@ -24,7 +24,7 @@ new
 
 def test_edit_file_replace_two_consecutive_lines_with_one(tmp_path):
     initial_content = "line1\nline2\nline3\n"
-    command = """🛠️[edit-file test.txt replace 2-3]
+    command = """🛠️[edit-file test.txt delete_lines_then_insert 2-3]
 newline
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
@@ -32,7 +32,7 @@ newline
 
 def test_edit_file_replace_a_lines_with_lines_in_quotes(tmp_path):
     initial_content = "line1\nline2\n"
-    command = """🛠️[edit-file test.txt replace 2]
+    command = """🛠️[edit-file test.txt delete_lines_then_insert 2]
 "insert1
 insert2"
 🛠️[/end]"""
@@ -41,7 +41,7 @@ insert2"
 
 def test_edit_file_replace_empty_lines_with_function(tmp_path):
     initial_content = "line1\nline2\n\n\n\nline6\n"
-    command = """🛠️[edit-file template.py replace 3-5]
+    command = """🛠️[edit-file template.py delete_lines_then_insert 3-5]
 def hello():
     return 'world'
 🛠️[/end]"""
@@ -50,7 +50,7 @@ def hello():
 
 def test_edit_file_replace_path_with_spaces(tmp_path):
     initial_content = "original line\n"
-    command = """🛠️[edit-file "notes folder/note file.txt" replace 1]
+    command = """🛠️[edit-file "notes folder/note file.txt" delete_lines_then_insert 1]
 "updated line"
 🛠️[/end]"""
     verify_edit_tool(library, "notes folder/note file.txt", initial_content, command, tmp_path=tmp_path)
@@ -128,7 +128,7 @@ def test_edit_file_delete_range_extending_past_file_end(tmp_path):
 
 def test_edit_file_replace_range_beyond_file_end_leaves_file_unchanged(tmp_path):
     initial_content = "line1\nline2\n"
-    command = """🛠️[edit-file test.txt replace 5-7]
+    command = """🛠️[edit-file test.txt delete_lines_then_insert 5-7]
 replacement
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
@@ -136,7 +136,7 @@ replacement
 
 def test_edit_file_replace_with_auto_indent_python(tmp_path):
     initial_content = "line1\n    existing = 1\nline3\n"
-    command = """🛠️[edit-file test.py replace 2]
+    command = """🛠️[edit-file test.py delete_lines_then_insert 2]
 new = 2
 🛠️[/end]"""
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
@@ -152,7 +152,7 @@ new_line
 
 def test_edit_file_replace_preserves_manual_indentation(tmp_path):
     initial_content = "line1\n    existing\nline3\n"
-    command = """🛠️[edit-file test.py replace 2]
+    command = """🛠️[edit-file test.py delete_lines_then_insert 2]
         manually_indented
 🛠️[/end]"""
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
@@ -160,7 +160,7 @@ def test_edit_file_replace_preserves_manual_indentation(tmp_path):
 
 def test_edit_file_replace_multiline_only_indents_first_line(tmp_path):
     initial_content = "line1\n    existing\nline3\n"
-    command = """🛠️[edit-file test.py replace 2]
+    command = """🛠️[edit-file test.py delete_lines_then_insert 2]
 line1
 line2
     line3
@@ -217,7 +217,7 @@ def test_edit_file_replace_complex_python_program_rename_functions_and_variables
         return self.cleaned_items
 """
 
-    command = f"""🛠️[edit-file complex_program.py replace 1-20]
+    command = f"""🛠️[edit-file complex_program.py delete_lines_then_insert 1-20]
 {replacement_content}
 🛠️[/end]"""
     verify_edit_tool(library, "complex_program.py", initial_content, command, tmp_path=tmp_path)

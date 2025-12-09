@@ -1,5 +1,5 @@
 Command:
-🛠️[edit-file test.txt replace 1-1]
+🛠️[edit-file test.txt delete_lines_then_insert 1-1]
 new
 🛠️[/end]
 
