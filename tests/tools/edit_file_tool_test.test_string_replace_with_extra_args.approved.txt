@@ -6,7 +6,7 @@ Command:
 🛠️[/end]
 
 Result:
-Too many arguments for string_replace mode
+Invalid edit mode: string_replace. Supported modes: insert, delete, delete_lines_then_insert, replace
 
 Initial file: test.txt
 Initial content:

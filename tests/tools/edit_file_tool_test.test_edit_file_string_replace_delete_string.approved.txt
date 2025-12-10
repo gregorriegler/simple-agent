@@ -1,5 +1,5 @@
 Command:
-🛠️[edit-file test.txt string_replace]
+🛠️[edit-file test.txt replace]
 @@
 -delete_me
 🛠️[/end]

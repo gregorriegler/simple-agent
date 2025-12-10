@@ -1,5 +1,5 @@
 Command:
-🛠️[edit-file test.txt string_replace all]
+🛠️[edit-file test.txt replace all]
 @@
 -foo
 +replaced

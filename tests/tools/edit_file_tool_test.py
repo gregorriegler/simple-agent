@@ -268,7 +268,7 @@ def test_edit_file_string_replace_basic(tmp_path):
     """Basic string replacement - find and replace exact match."""
     initial_content = "hello world\n"
     command = textwrap.dedent("""
-        🛠️[edit-file test.txt string_replace]
+        🛠️[edit-file test.txt replace]
         @@
         -hello
         +goodbye
@@ -281,7 +281,7 @@ def test_edit_file_string_replace_multiline(tmp_path):
     """Replace multiple lines at once."""
     initial_content = "line1\nline2\nline3\nline4\n"
     command = textwrap.dedent("""
-        🛠️[edit-file test.txt string_replace]
+        🛠️[edit-file test.txt replace]
         @@
         -line2
         -line3
@@ -295,7 +295,7 @@ def test_edit_file_string_replace_preserves_indentation(tmp_path):
     """Whitespace in old_string and new_string is preserved exactly."""
     initial_content = "def foo():\n    old_code = 1\n    return old_code\n"
     command = textwrap.dedent("""
-        🛠️[edit-file test.py string_replace]
+        🛠️[edit-file test.py replace]
         @@
         -    old_code = 1
         +    new_code = 42
@@ -308,7 +308,7 @@ def test_edit_file_string_replace_not_found(tmp_path):
     """Error when string is not found in file."""
     initial_content = "hello world\n"
     command = textwrap.dedent("""
-        🛠️[edit-file test.txt string_replace]
+        🛠️[edit-file test.txt replace]
         @@
         -nonexistent
         +replacement
@@ -321,7 +321,7 @@ def test_edit_file_string_replace_multiple_matches_error(tmp_path):
     """Error when string appears multiple times - need more context."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
     command = textwrap.dedent("""
-        🛠️[edit-file test.txt string_replace]
+        🛠️[edit-file test.txt replace]
         @@
         -foo
         +replaced
@@ -334,7 +334,7 @@ def test_edit_file_string_replace_with_unique_context(tmp_path):
     """Adding surrounding context makes the match unique."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
     command = textwrap.dedent("""
-        🛠️[edit-file test.txt string_replace]
+        🛠️[edit-file test.txt replace]
         @@
         -bar
         -foo
@@ -349,7 +349,7 @@ def test_edit_file_string_replace_delete_string(tmp_path):
     """Empty new_string effectively deletes the old_string."""
     initial_content = "keep\ndelete_me\nkeep\n"
     command = textwrap.dedent("""
-        🛠️[edit-file test.txt string_replace]
+        🛠️[edit-file test.txt replace]
         @@
         -delete_me
         🛠️[/end]
@@ -379,7 +379,7 @@ def test_edit_file_string_replace_all(tmp_path):
     """Replace all occurrences of a string."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
     command = textwrap.dedent("""
-        🛠️[edit-file test.txt string_replace all]
+        🛠️[edit-file test.txt replace all]
         @@
         -foo
         +replaced
@@ -392,7 +392,7 @@ def test_edit_file_string_replace_nth(tmp_path):
     """Replace the nth occurrence of a string."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
     command = textwrap.dedent("""
-        🛠️[edit-file test.txt string_replace nth:2]
+        🛠️[edit-file test.txt replace nth:2]
         @@
         -foo
         +replaced
@@ -405,7 +405,7 @@ def test_edit_file_string_replace_single_default(tmp_path):
     """Replace a single occurrence of a string by default."""
     initial_content = "foo\nbar\nbaz\n"
     command = textwrap.dedent("""
-        🛠️[edit-file test.txt string_replace]
+        🛠️[edit-file test.txt replace]
         @@
         -foo
         +replaced
