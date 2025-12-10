@@ -298,25 +298,18 @@ class TextualApp(App):
 
     def write_message(self, log_id: str, message: str) -> None:
         try:
+            # Escape brackets to prevent Rich markup interpretation
+            escaped_message = message.replace("[", "\\[")
+
             container = self.query_one(f"#{log_id}", Static)
             current = str(container.render())
-            new_content = f"{current}\n{message}" if current else message
+            new_content = f"{current}\n{escaped_message}" if current else escaped_message
             container.update(new_content)
             self.query_one(f"#{log_id}-scroll", VerticalScroll).scroll_end(animate=False)
         except NoMatches:
             logger.warning("Could not find log container #%s", log_id)
-        except MarkupError as e:
-            logger.warning("Invalid markup in message: %s. Message: %s", e, message)
-            # Try again with escaped content
-            try:
-                container = self.query_one(f"#{log_id}", Static)
-                current = str(container.render())
-                escaped_message = message.replace("[", "\\[").replace("]", "\\]")
-                new_content = f"{current}\n{escaped_message}" if current else escaped_message
-                container.update(new_content)
-                self.query_one(f"#{log_id}-scroll", VerticalScroll).scroll_end(animate=False)
-            except Exception as e2:
-                logger.error("Failed to display escaped message: %s", e2)
+        except Exception as e:
+            logger.error("Failed to display message: %s. Message: %s", e, message)
 
     def write_tool_call(self, tool_results_id: str, call_id: str, message: str) -> None:
         pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
