@@ -16,7 +16,7 @@ The problem is that ... [3/10]
 To get an overview of the Architecture read `doc/overview.md`
 
 # Environment
-- You are in a bash environment, using uv
+- You are in a bash environment, using uv.
 - Always us the `./test.sh` script to run the tests
   - `./test.sh` - Run all tests (stops on first failure, short tracebacks)
   - `./test.sh test_foo.py` - Run a specific test file
