@@ -17,7 +17,7 @@ To get an overview of the Architecture read `doc/overview.md`
 
 # Environment
 - You are in a bash environment, using uv
-- To run the tests use the `./test.sh` script
+- Always us the `./test.sh` script to run the tests
   - `./test.sh` - Run all tests (stops on first failure, short tracebacks)
   - `./test.sh test_foo.py` - Run a specific test file
   - `./test.sh test_foo` - Run tests matching a pattern
