@@ -1,39 +1,23 @@
 Command:
-🛠️[edit-file test.txt replace all]
+🛠️[replace-file-content test.txt]
 @@
--foo
-+replaced
+-nonexistent
++replacement
 🛠️[/end]
 
 Result:
-Successfully edited test.txt
-
---- test.txt (original)
-+++ test.txt (updated)
-@@ -1,4 +1,4 @@
--foo
-+replaced
- bar
--foo
-+replaced
- baz
+String not found in file. Make sure the old_string matches exactly (including whitespace).
 
 Initial file: test.txt
 Initial content:
 --- INITIAL CONTENT START ---
-foo
-bar
-foo
-baz
+hello world
 
 --- INITIAL CONTENT END ---
 
 File after edit: test.txt
 Final content:
 --- FINAL CONTENT START ---
-replaced
-bar
-replaced
-baz
+hello world
 
 --- FINAL CONTENT END ---

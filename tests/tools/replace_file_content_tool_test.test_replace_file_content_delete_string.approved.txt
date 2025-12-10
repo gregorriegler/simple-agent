@@ -1,23 +1,34 @@
 Command:
-🛠️[edit-file test.txt replace]
+🛠️[replace-file-content test.txt]
 @@
--nonexistent
-+replacement
+-delete_me
 🛠️[/end]
 
 Result:
-Unexpected error editing file "test.txt": String not found in file. Make sure the old_string matches exactly (including whitespace).
+Successfully replaced content in test.txt
+
+--- test.txt (original)
++++ test.txt (updated)
+@@ -1,3 +1,3 @@
+ keep
+-delete_me
++
+ keep
 
 Initial file: test.txt
 Initial content:
 --- INITIAL CONTENT START ---
-hello world
+keep
+delete_me
+keep
 
 --- INITIAL CONTENT END ---
 
 File after edit: test.txt
 Final content:
 --- FINAL CONTENT START ---
-hello world
+keep
+
+keep
 
 --- FINAL CONTENT END ---

@@ -1,34 +1,35 @@
 Command:
-🛠️[edit-file test.txt replace]
+🛠️[replace-file-content test.txt]
 @@
--delete_me
+-foo
++replaced
 🛠️[/end]
 
 Result:
-Successfully edited test.txt
+Successfully replaced content in test.txt
 
 --- test.txt (original)
 +++ test.txt (updated)
 @@ -1,3 +1,3 @@
- keep
--delete_me
-+
- keep
+-foo
++replaced
+ bar
+ baz
 
 Initial file: test.txt
 Initial content:
 --- INITIAL CONTENT START ---
-keep
-delete_me
-keep
+foo
+bar
+baz
 
 --- INITIAL CONTENT END ---
 
 File after edit: test.txt
 Final content:
 --- FINAL CONTENT START ---
-keep
-
-keep
+replaced
+bar
+baz
 
 --- FINAL CONTENT END ---

@@ -1,12 +1,22 @@
 Command:
-🛠️[edit-file test.txt replace]
+🛠️[replace-file-content test.txt all]
 @@
 -foo
 +replaced
 🛠️[/end]
 
 Result:
-Unexpected error editing file "test.txt": String appears 2 times in file. Provide more surrounding context to make it unique.
+Successfully replaced content in test.txt
+
+--- test.txt (original)
++++ test.txt (updated)
+@@ -1,4 +1,4 @@
+-foo
++replaced
+ bar
+-foo
++replaced
+ baz
 
 Initial file: test.txt
 Initial content:
@@ -21,9 +31,9 @@ baz
 File after edit: test.txt
 Final content:
 --- FINAL CONTENT START ---
-foo
+replaced
 bar
-foo
+replaced
 baz
 
 --- FINAL CONTENT END ---

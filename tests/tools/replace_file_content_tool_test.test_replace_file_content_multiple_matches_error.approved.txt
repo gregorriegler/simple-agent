@@ -1,38 +1,29 @@
 Command:
-🛠️[edit-file test.txt replace]
+🛠️[replace-file-content test.txt]
 @@
--line2
--line3
+-foo
 +replaced
 🛠️[/end]
 
 Result:
-Successfully edited test.txt
-
---- test.txt (original)
-+++ test.txt (updated)
-@@ -1,4 +1,3 @@
- line1
--line2
--line3
-+replaced
- line4
+String appears 2 times in file. Provide more surrounding context to make it unique.
 
 Initial file: test.txt
 Initial content:
 --- INITIAL CONTENT START ---
-line1
-line2
-line3
-line4
+foo
+bar
+foo
+baz
 
 --- INITIAL CONTENT END ---
 
 File after edit: test.txt
 Final content:
 --- FINAL CONTENT START ---
-line1
-replaced
-line4
+foo
+bar
+foo
+baz
 
 --- FINAL CONTENT END ---

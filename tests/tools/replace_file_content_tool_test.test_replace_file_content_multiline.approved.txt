@@ -1,38 +1,38 @@
 Command:
-🛠️[edit-file test.txt replace nth:2]
+🛠️[replace-file-content test.txt]
 @@
--foo
+-line2
+-line3
 +replaced
 🛠️[/end]
 
 Result:
-Successfully edited test.txt
+Successfully replaced content in test.txt
 
 --- test.txt (original)
 +++ test.txt (updated)
-@@ -1,4 +1,4 @@
- foo
- bar
--foo
+@@ -1,4 +1,3 @@
+ line1
+-line2
+-line3
 +replaced
- baz
+ line4
 
 Initial file: test.txt
 Initial content:
 --- INITIAL CONTENT START ---
-foo
-bar
-foo
-baz
+line1
+line2
+line3
+line4
 
 --- INITIAL CONTENT END ---
 
 File after edit: test.txt
 Final content:
 --- FINAL CONTENT START ---
-foo
-bar
+line1
 replaced
-baz
+line4
 
 --- FINAL CONTENT END ---

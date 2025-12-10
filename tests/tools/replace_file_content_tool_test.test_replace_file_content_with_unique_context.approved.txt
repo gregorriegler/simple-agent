@@ -1,12 +1,23 @@
 Command:
-🛠️[edit-file test.txt string_replace all extra_arg]
+🛠️[replace-file-content test.txt]
 @@
+-bar
 -foo
++bar
 +replaced
 🛠️[/end]
 
 Result:
-Invalid edit mode: string_replace. Supported modes: insert, delete, delete_lines_then_insert, replace
+Successfully replaced content in test.txt
+
+--- test.txt (original)
++++ test.txt (updated)
+@@ -1,4 +1,4 @@
+ foo
+ bar
+-foo
++replaced
+ baz
 
 Initial file: test.txt
 Initial content:
@@ -23,7 +34,7 @@ Final content:
 --- FINAL CONTENT START ---
 foo
 bar
-foo
+replaced
 baz
 
 --- FINAL CONTENT END ---

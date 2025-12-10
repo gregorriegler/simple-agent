@@ -12,7 +12,6 @@ class EditMode(Enum):
     INSERT = "insert"
     DELETE = "delete"
     DELETE_LINES_THEN_INSERT = "delete_lines_then_insert"
-    REPLACE = "replace"
 
 
 @dataclass
@@ -22,8 +21,6 @@ class EditFileArgs:
     start_line: int
     end_line: int
     new_content: str | None
-    old_string: str | None = None
-    replace_mode: str | None = None
 
 
 class FileEditor:
@@ -157,68 +154,9 @@ class DeleteLinesThenInsertMode:
             insert_mode.apply(editor, insert_args)
 
 
-class ReplaceMode:
-    """Replace exact string matches - more reliable than line-based editing."""
-    mode = EditMode.REPLACE
-    requires_content = False
-    allows_content = True
-    uses_string_matching = True
-
-    def apply(self, editor: FileEditor, args: EditFileArgs):
-        if args.old_string is None:
-            raise ValueError("old_string is required for replace mode")
-
-        content = ''.join(editor.lines)
-        old_string = args.old_string
-        new_string = args.new_content if args.new_content is not None else ""
-        replace_mode = args.replace_mode if args.replace_mode is not None else "single"
-
-        # Count occurrences for uniqueness check
-        count = content.count(old_string)
-        if count == 0:
-            raise ValueError(
-                "String not found in file. Make sure the old_string matches exactly (including whitespace).")
-
-        if replace_mode == "single":
-            if count > 1:
-                raise ValueError(
-                    f"String appears {count} times in file. Provide more surrounding context to make it unique.")
-            new_content = content.replace(old_string, new_string, 1)
-        elif replace_mode == "all":
-            new_content = content.replace(old_string, new_string)
-        elif replace_mode.startswith("nth:"):
-            try:
-                n = int(replace_mode.split(":")[1])
-                if n <= 0:
-                    raise ValueError("Nth occurrence must be a positive integer.")
-
-                start_index = -1
-                for i in range(n):
-                    start_index = content.find(old_string, start_index + 1)
-                    if start_index == -1:
-                        raise ValueError(f"Could not find the {n}th occurrence of the string.")
-
-                new_content = content[:start_index] + new_string + content[start_index + len(old_string):]
-            except (ValueError, IndexError):
-                raise ValueError("Invalid format for nth. Expected 'nth:positive_integer'.")
-        else:
-            raise ValueError(f"Invalid replace_mode: {replace_mode}")
-
-        editor.lines = new_content.splitlines(keepends=True)
-
-        # Handle empty file case
-        if not editor.lines and new_content:
-            editor.lines = [new_content]
-
-        # Ensure file ends with newline if it originally did
-        if editor.lines and not editor.lines[-1].endswith('\n'):
-            if editor.original_lines and editor.original_lines[-1].endswith('\n'):
-                editor.lines[-1] += '\n'
-
-
 class EditFileTool(BaseTool):
     name = "edit-file"
-    description = "Edit files by replacing content in specified line ranges or using string replacement. Careful, whenever you make line-altering edits, the line numbers of subsequent lines will change."
+    description = "Edit files using line-based operations: insert, delete, or delete_lines_then_insert. Careful, whenever you make line-altering edits, the line numbers of subsequent lines will change."
 
     arguments = ToolArguments(header=[
         ToolArgument(
@@ -231,41 +169,31 @@ class EditFileTool(BaseTool):
             name="edit_mode",
             type="string",
             required=True,
-            description="Edit mode: 'insert', 'delete', 'replace'",
+            description="Edit mode: 'insert', 'delete', 'delete_lines_then_insert'",
         ),
         ToolArgument(
             name="line_range",
             type="string",
-            required=False,
+            required=True,
             description="Line range in format 'start-end' or 'line_number' (e.g., '1-3' or '10' for single line)",
-        ),
-        ToolArgument(
-            name="replace_mode",
-            type="string",
-            required=False,
-            description="For 'replace' mode: 'single' (default), 'all', or 'nth:N' to replace the Nth occurrence.",
         ),
     ], body=ToolArgument(
         name="content",
         type="string",
         required=False,
-        description="Optional content for insert/replace operations",
+        description="Optional content for insert/delete_lines_then_insert operations",
     ))
     examples = [
         {"filename": "test.txt", "edit_mode": "delete", "line_range": "1"},
         {"filename": "test.py", "edit_mode": "insert", "line_range": "3", "content": "print('hello')"},
-        "🛠️[edit-file test.py replace]\n@@\n-old_value = 1\n+new_value = 2\n🛠️[/end]",
-        "🛠️[edit-file test.py replace all]\n@@\n-old_value = 1\n+new_value = 2\n🛠️[/end]",
-        "🛠️[edit-file test.py replace nth:2]\n@@\n-old_value = 1\n+new_value = 2\n🛠️[/end]",
-        # {"filename": "myfile.txt", "edit_mode": "delete_lines_then_insert", "line_range": "1-3", "content": "Hello World"},
-        # {"filename": "test.py", "edit_mode": "delete_lines_then_insert", "line_range": "5", "content": "new = 2"},
+        {"filename": "myfile.txt", "edit_mode": "delete_lines_then_insert", "line_range": "1-3", "content": "Hello World"},
+        {"filename": "test.py", "edit_mode": "delete_lines_then_insert", "line_range": "5", "content": "new = 2"},
     ]
 
     MODE_CLASSES = [
         InsertMode,
         DeleteMode,
         DeleteLinesThenInsertMode,
-        ReplaceMode
     ]
 
     def __init__(self):
@@ -339,37 +267,6 @@ class EditFileTool(BaseTool):
                 return None, f'{edit_mode.capitalize()} mode does not accept content arguments'
             return None, None
 
-    def _parse_replace_body(self, body: str) -> tuple[tuple[str, str], None] | tuple[None, str]:
-        """Parse body with @@ diff format (lines prefixed with - for old, + for new)."""
-        if not body:
-            return None, "replace mode requires body with diff format"
-
-        # Find the opening @@
-        if not body.startswith("@@"):
-            return None, "Missing '@@' marker at the start"
-
-        # Remove the @@ marker and process the rest
-        lines = body[2:].lstrip('\n').split('\n')
-
-        old_lines = []
-        new_lines = []
-
-        for line in lines:
-            if line.startswith('-'):
-                old_lines.append(line[1:])
-            elif line.startswith('+'):
-                new_lines.append(line[1:])
-            elif line == '':
-                # Empty lines are preserved as-is
-                continue
-            else:
-                return None, "All lines must start with '-' (old) or '+' (new)"
-
-        old_string = '\n'.join(old_lines)
-        new_string = '\n'.join(new_lines)
-
-        return (old_string, new_string), None
-
     def parse_arguments(self, raw_call):
         args = raw_call.arguments
         body = raw_call.body
@@ -383,7 +280,7 @@ class EditFileTool(BaseTool):
             return None, f"Error parsing arguments: {str(e)}"
 
         if len(parts) < 2:
-            return None, 'Usage: edit-file <filename> <edit_mode> [line_range]'
+            return None, 'Usage: edit-file <filename> <edit_mode> <line_range>'
 
         filename, edit_mode = parts[:2]
 
@@ -392,33 +289,7 @@ class EditFileTool(BaseTool):
             valid_modes = ", ".join(self.modes.keys())
             return None, f'Invalid edit mode: {edit_mode}. Supported modes: {valid_modes}'
 
-        # Handle replace mode separately (no line_range)
-        if getattr(mode_class, 'uses_string_matching', False):
-            replace_mode = "single"
-            if len(parts) > 2:
-                replace_mode = parts[2]
-
-            if len(parts) > 3:
-                return None, "Too many arguments for replace mode"
-
-            if replace_mode not in ["single", "all"] and not replace_mode.startswith("nth:"):
-                return None, f"Invalid replace_mode: {replace_mode}"
-
-            parsed, error = self._parse_replace_body(body)
-            if error:
-                return None, error
-            old_string, new_string = parsed
-            return EditFileArgs(
-                filename=filename,
-                edit_mode=edit_mode,
-                start_line=0,
-                end_line=0,
-                new_content=new_string,
-                old_string=old_string,
-                replace_mode=replace_mode
-            ), None
-
-        # For other modes, require line_range
+        # All modes require line_range
         if len(parts) < 3:
             return None, 'Usage: edit-file <filename> <edit_mode> <line_range>'
 

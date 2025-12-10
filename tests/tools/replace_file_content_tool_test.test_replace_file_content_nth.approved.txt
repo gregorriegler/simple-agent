@@ -1,29 +1,38 @@
 Command:
-🛠️[edit-file test.txt replace]
+🛠️[replace-file-content test.txt nth:2]
 @@
--hello
-+goodbye
+-foo
++replaced
 🛠️[/end]
 
 Result:
-Successfully edited test.txt
+Successfully replaced content in test.txt
 
 --- test.txt (original)
 +++ test.txt (updated)
-@@ -1 +1 @@
--hello world
-+goodbye world
+@@ -1,4 +1,4 @@
+ foo
+ bar
+-foo
++replaced
+ baz
 
 Initial file: test.txt
 Initial content:
 --- INITIAL CONTENT START ---
-hello world
+foo
+bar
+foo
+baz
 
 --- INITIAL CONTENT END ---
 
 File after edit: test.txt
 Final content:
 --- FINAL CONTENT START ---
-goodbye world
+foo
+bar
+replaced
+baz
 
 --- FINAL CONTENT END ---

@@ -1,23 +1,12 @@
 Command:
-🛠️[edit-file test.txt replace]
+🛠️[replace-file-content test.txt all extra_arg]
 @@
--bar
 -foo
-+bar
 +replaced
 🛠️[/end]
 
 Result:
-Successfully edited test.txt
-
---- test.txt (original)
-+++ test.txt (updated)
-@@ -1,4 +1,4 @@
- foo
- bar
--foo
-+replaced
- baz
+Too many arguments for replace-file-content
 
 Initial file: test.txt
 Initial content:
@@ -34,7 +23,7 @@ Final content:
 --- FINAL CONTENT START ---
 foo
 bar
-replaced
+foo
 baz
 
 --- FINAL CONTENT END ---

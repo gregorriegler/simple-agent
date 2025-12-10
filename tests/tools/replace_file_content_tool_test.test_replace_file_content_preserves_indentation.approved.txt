@@ -1,12 +1,12 @@
 Command:
-🛠️[edit-file test.py replace]
+🛠️[replace-file-content test.py]
 @@
 -    old_code = 1
 +    new_code = 42
 🛠️[/end]
 
 Result:
-Successfully edited test.py
+Successfully replaced content in test.py
 
 --- test.py (original)
 +++ test.py (updated)
