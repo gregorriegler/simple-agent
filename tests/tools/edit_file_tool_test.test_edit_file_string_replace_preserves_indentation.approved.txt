@@ -1,10 +1,8 @@
 Command:
 🛠️[edit-file test.py string_replace]
-<<<<<<< OLD
-    old_code = 1
-=======
-    new_code = 42
->>>>>>> NEW
+@@
+-    old_code = 1
++    new_code = 42
 🛠️[/end]
 
 Result:

@@ -1,10 +1,8 @@
 Command:
 🛠️[edit-file test.txt string_replace nth:2]
-<<<<<<< OLD
-foo
-=======
-replaced
->>>>>>> NEW
+@@
+-foo
++replaced
 🛠️[/end]
 
 Result:

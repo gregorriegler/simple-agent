@@ -254,9 +254,9 @@ class EditFileTool(BaseTool):
     examples = [
         {"filename": "test.txt", "edit_mode": "delete", "line_range": "1"},
         {"filename": "test.py", "edit_mode": "insert", "line_range": "3", "content": "print('hello')"},
-        "🛠️[edit-file test.py string_replace]\n<<<<<<< OLD\nold_value = 1\n=======\nnew_value = 2\n>>>>>>> NEW\n🛠️[/end]",
-        "🛠️[edit-file test.py string_replace all]\n<<<<<<< OLD\nold_value = 1\n=======\nnew_value = 2\n>>>>>>> NEW\n🛠️[/end]",
-        "🛠️[edit-file test.py string_replace nth:2]\n<<<<<<< OLD\nold_value = 1\n=======\nnew_value = 2\n>>>>>>> NEW\n🛠️[/end]",
+        "🛠️[edit-file test.py string_replace]\n@@\n-old_value = 1\n+new_value = 2\n🛠️[/end]",
+        "🛠️[edit-file test.py string_replace all]\n@@\n-old_value = 1\n+new_value = 2\n🛠️[/end]",
+        "🛠️[edit-file test.py string_replace nth:2]\n@@\n-old_value = 1\n+new_value = 2\n🛠️[/end]",
         {"filename": "myfile.txt", "edit_mode": "delete_lines_then_insert", "line_range": "1-3", "content": "Hello World"},
         {"filename": "test.py", "edit_mode": "delete_lines_then_insert", "line_range": "5", "content": "new = 2"},
     ]
@@ -340,30 +340,33 @@ class EditFileTool(BaseTool):
             return None, None
 
     def _parse_string_replace_body(self, body: str) -> tuple[tuple[str, str], None] | tuple[None, str]:
-        """Parse body with <<<<<<< OLD / ======= / >>>>>>> NEW markers."""
+        """Parse body with @@ diff format (lines prefixed with - for old, + for new)."""
         if not body:
-            return None, "string_replace mode requires body with OLD and NEW sections"
+            return None, "string_replace mode requires body with diff format"
 
-        old_marker = "<<<<<<< OLD\n"
-        separator = "\n=======\n"
-        new_marker = "\n>>>>>>> NEW"
+        # Find the opening @@
+        if not body.startswith("@@"):
+            return None, "Missing '@@' marker at the start"
 
-        if old_marker not in body:
-            return None, "Missing '<<<<<<< OLD' marker"
-        if separator not in body:
-            return None, "Missing '=======' separator"
-        if new_marker not in body:
-            return None, "Missing '>>>>>>> NEW' marker"
+        # Remove the @@ marker and process the rest
+        lines = body[2:].lstrip('\n').split('\n')
 
-        # Extract old_string: between "<<<<<<< OLD\n" and "\n======="
-        old_start = body.index(old_marker) + len(old_marker)
-        sep_pos = body.index(separator)
-        old_string = body[old_start:sep_pos]
+        old_lines = []
+        new_lines = []
 
-        # Extract new_string: between "\n=======\n" and "\n>>>>>>> NEW"
-        new_start = sep_pos + len(separator)
-        new_end = body.index(new_marker)
-        new_string = body[new_start:new_end]
+        for line in lines:
+            if line.startswith('-'):
+                old_lines.append(line[1:])
+            elif line.startswith('+'):
+                new_lines.append(line[1:])
+            elif line == '':
+                # Empty lines are preserved as-is
+                continue
+            else:
+                return None, "All lines must start with '-' (old) or '+' (new)"
+
+        old_string = '\n'.join(old_lines)
+        new_string = '\n'.join(new_lines)
 
         return (old_string, new_string), None
 

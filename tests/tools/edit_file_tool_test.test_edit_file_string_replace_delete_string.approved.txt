@@ -1,9 +1,7 @@
 Command:
 🛠️[edit-file test.txt string_replace]
-<<<<<<< OLD
-delete_me
-=======
->>>>>>> NEW
+@@
+-delete_me
 🛠️[/end]
 
 Result:

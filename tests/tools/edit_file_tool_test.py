@@ -227,11 +227,9 @@ def test_edit_file_string_replace_basic(tmp_path):
     """Basic string replacement - find and replace exact match."""
     initial_content = "hello world\n"
     command = """🛠️[edit-file test.txt string_replace]
-<<<<<<< OLD
-hello
-=======
-goodbye
->>>>>>> NEW
+@@
+-hello
++goodbye
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
@@ -240,12 +238,10 @@ def test_edit_file_string_replace_multiline(tmp_path):
     """Replace multiple lines at once."""
     initial_content = "line1\nline2\nline3\nline4\n"
     command = """🛠️[edit-file test.txt string_replace]
-<<<<<<< OLD
-line2
-line3
-=======
-replaced
->>>>>>> NEW
+@@
+-line2
+-line3
++replaced
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
@@ -254,11 +250,9 @@ def test_edit_file_string_replace_preserves_indentation(tmp_path):
     """Whitespace in old_string and new_string is preserved exactly."""
     initial_content = "def foo():\n    old_code = 1\n    return old_code\n"
     command = """🛠️[edit-file test.py string_replace]
-<<<<<<< OLD
-    old_code = 1
-=======
-    new_code = 42
->>>>>>> NEW
+@@
+-    old_code = 1
++    new_code = 42
 🛠️[/end]"""
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
 
@@ -267,11 +261,9 @@ def test_edit_file_string_replace_not_found(tmp_path):
     """Error when string is not found in file."""
     initial_content = "hello world\n"
     command = """🛠️[edit-file test.txt string_replace]
-<<<<<<< OLD
-nonexistent
-=======
-replacement
->>>>>>> NEW
+@@
+-nonexistent
++replacement
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
@@ -280,11 +272,9 @@ def test_edit_file_string_replace_multiple_matches_error(tmp_path):
     """Error when string appears multiple times - need more context."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
     command = """🛠️[edit-file test.txt string_replace]
-<<<<<<< OLD
-foo
-=======
-replaced
->>>>>>> NEW
+@@
+-foo
++replaced
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
@@ -293,13 +283,11 @@ def test_edit_file_string_replace_with_unique_context(tmp_path):
     """Adding surrounding context makes the match unique."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
     command = """🛠️[edit-file test.txt string_replace]
-<<<<<<< OLD
-bar
-foo
-=======
-bar
-replaced
->>>>>>> NEW
+@@
+-bar
+-foo
++bar
++replaced
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
@@ -308,10 +296,8 @@ def test_edit_file_string_replace_delete_string(tmp_path):
     """Empty new_string effectively deletes the old_string."""
     initial_content = "keep\ndelete_me\nkeep\n"
     command = """🛠️[edit-file test.txt string_replace]
-<<<<<<< OLD
-delete_me
-=======
->>>>>>> NEW
+@@
+-delete_me
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
@@ -338,11 +324,9 @@ def test_edit_file_string_replace_all(tmp_path):
     """Replace all occurrences of a string."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
     command = """🛠️[edit-file test.txt string_replace all]
-<<<<<<< OLD
-foo
-=======
-replaced
->>>>>>> NEW
+@@
+-foo
++replaced
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
@@ -351,11 +335,9 @@ def test_edit_file_string_replace_nth(tmp_path):
     """Replace the nth occurrence of a string."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
     command = """🛠️[edit-file test.txt string_replace nth:2]
-<<<<<<< OLD
-foo
-=======
-replaced
->>>>>>> NEW
+@@
+-foo
++replaced
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
@@ -364,11 +346,9 @@ def test_edit_file_string_replace_single_default(tmp_path):
     """Replace a single occurrence of a string by default."""
     initial_content = "foo\nbar\nbaz\n"
     command = """🛠️[edit-file test.txt string_replace]
-<<<<<<< OLD
-foo
-=======
-replaced
->>>>>>> NEW
+@@
+-foo
++replaced
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
@@ -376,10 +356,8 @@ def test_string_replace_with_extra_args(tmp_path):
     """Should raise an error if too many arguments are provided."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
     command = """🛠️[edit-file test.txt string_replace all extra_arg]
-<<<<<<< OLD
-foo
-=======
-replaced
->>>>>>> NEW
+@@
+-foo
++replaced
 🛠️[/end]"""
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
