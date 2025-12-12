@@ -2,6 +2,7 @@
 
 [![Tests](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml)
 [![Coverage](doc/coverage.svg)](#generate-coverage-locally)
+[![LoC](doc/loc.svg)](#generate-coverage-locally)
 
 Simple Agent aims to be a simple, extensible, and transparent general-purpose agent system.
 
@@ -135,11 +136,14 @@ uv run --project . --script simple_agent/run_tool.py cat README.md
 # Approve received files
 ./approve.sh
 
-# Generate coverage locally and refresh the badge
+# Generate coverage locally and refresh the badges
 ./coverage.sh --badge
+uv run python loc_badge.py --output doc/loc.svg
 ```
 
-Running the coverage script with `--badge` creates `docs/coverage.svg`, keeping the coverage badge self-hosted.
+Running the coverage script with `--badge` creates `doc/coverage.svg`, and `loc_badge.py` generates `doc/loc.svg`, keeping the badges self-hosted.
+
+Badge updates run automatically on `main` via the [`Coverage Badge` workflow](.github/workflows/coverage-badge.yml), which commits refreshed coverage and LoC badges after each push.
 
 ## Components
 

@@ -30,8 +30,12 @@ jobs:
         shell: bash
         run: ./coverage.sh --badge
 
+      - name: Generate LoC badge
+        shell: bash
+        run: uv run python loc_badge.py --output doc/loc.svg
+
       - name: Commit coverage badge
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: update coverage badge"
-          file_pattern: doc/coverage.svg
+          commit_message: "chore: update coverage and LoC badges"
+          file_pattern: doc/coverage.svg doc/loc.svg
