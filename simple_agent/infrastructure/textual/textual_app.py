@@ -7,8 +7,8 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-from rich.markup import MarkupError
 from rich.syntax import Syntax
+from rich.text import Text
 from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Vertical, VerticalScroll
@@ -297,19 +297,27 @@ class TextualApp(App):
         text_area.clear()
 
     def write_message(self, log_id: str, message: str) -> None:
+        new_content = ""
         try:
-            # Escape brackets to prevent Rich markup interpretation
-            escaped_message = message.replace("[", "\\[")
-
             container = self.query_one(f"#{log_id}", Static)
-            current = str(container.render())
-            new_content = f"{current}\n{escaped_message}" if current else escaped_message
-            container.update(new_content)
+            renderable = getattr(container, "renderable", None)
+
+            if isinstance(renderable, Text):
+                log_text = renderable.copy()
+            else:
+                log_text = Text(str(renderable) if renderable is not None else "")
+
+            if log_text.plain:
+                log_text.append("\n")
+            log_text.append(message)
+
+            new_content = log_text.plain
+            container.update(log_text)
             self.query_one(f"#{log_id}-scroll", VerticalScroll).scroll_end(animate=False)
         except NoMatches:
             logger.warning("Could not find log container #%s", log_id)
         except Exception as e:
-            logger.error("Failed to display message: %s. Message: %s", e, message)
+            logger.error("Failed to display message: %s. Message: %s", e, new_content or message)
 
     def write_tool_call(self, tool_results_id: str, call_id: str, message: str) -> None:
         pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
