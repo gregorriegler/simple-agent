@@ -1,8 +1,8 @@
 Command:
-🛠️[replace-file-content test.txt]
-@@
--nonexistent
-+replacement
+🛠️[replace-file-content test.txt single]
+nonexistent
+@@@
+replacement
 🛠️[/end]
 
 Result:

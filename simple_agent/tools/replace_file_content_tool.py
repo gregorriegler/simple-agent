@@ -45,9 +45,6 @@ class FileReplacer:
                 "String not found in file. Make sure the old_string matches exactly (including whitespace).")
 
         if replace_mode == "single":
-            if count > 1:
-                raise ValueError(
-                    f"String appears {count} times in file. Provide more surrounding context to make it unique.")
             self.new_content = content.replace(old_string, new_string, 1)
         elif replace_mode == "all":
             self.new_content = content.replace(old_string, new_string)
@@ -99,20 +96,20 @@ class ReplaceFileContentTool(BaseTool):
         ToolArgument(
             name="replace_mode",
             type="string",
-            required=False,
-            description="Replace mode: 'single' (default), 'all', or 'nth:N' to replace the Nth occurrence.",
+            required=True,
+            description="Replace mode: 'single', 'all'. 'single' replaces only the first occurence. 'all' replaces all occurences.",
         ),
     ], body=ToolArgument(
         name="content",
         type="string",
         required=True,
-        description="Diff-style content with @@ marker, lines prefixed with - (old) and + (new)",
+        description="Content with @@@ separator: text before @@@ is search string, text after is replacement string",
     ))
 
     examples = [
-        "🛠️[replace-file-content test.py]\n@@\n-old_value = 1\n+new_value = 2\n🛠️[/end]",
-        "🛠️[replace-file-content test.py all]\n@@\n-old_value = 1\n+new_value = 2\n🛠️[/end]",
-        "🛠️[replace-file-content test.py nth:2]\n@@\n-old_value = 1\n+new_value = 2\n🛠️[/end]",
+        "🛠️[replace-file-content test.txt single]\nsearch content\n@@@\nreplacement content\n🛠️[/end]",
+        "🛠️[replace-file-content test.txt all]\nfoo\n@@@\nbar\n🛠️[/end]",
+        "🛠️[replace-file-content test.txt nth:2]\nold_value = 1\n@@@\nnew_value = 2\n🛠️[/end]",
     ]
 
     def execute(self, raw_call):
@@ -160,33 +157,21 @@ class ReplaceFileContentTool(BaseTool):
             return ContinueResult(f'Unexpected error replacing content in "{replace_args.filename}": {str(e)}', success=False)
 
     def _parse_replace_body(self, body: str) -> tuple[tuple[str, str], None] | tuple[None, str]:
-        """Parse body with @@ diff format (lines prefixed with - for old, + for new)."""
+        """Parse body with @@@ separator (text before @@@ is search string, text after is replacement)."""
         if not body:
-            return None, "replace-file-content requires body with diff format"
+            return None, "replace-file-content requires body with @@@ separator"
 
-        # Find the opening @@
-        if not body.startswith("@@"):
-            return None, "Missing '@@' marker at the start"
+        # Find the @@@ separator
+        if "@@@" not in body:
+            return None, "Missing '@@@' separator between search and replacement content"
 
-        # Remove the @@ marker and process the rest
-        lines = body[2:].lstrip('\n').split('\n')
+        # Split on @@@ separator
+        parts = body.split("@@@", 1)
+        if len(parts) != 2:
+            return None, "Body must contain exactly one '@@@' separator"
 
-        old_lines = []
-        new_lines = []
-
-        for line in lines:
-            if line.startswith('-'):
-                old_lines.append(line[1:])
-            elif line.startswith('+'):
-                new_lines.append(line[1:])
-            elif line == '':
-                # Empty lines are preserved as-is
-                continue
-            else:
-                return None, "All lines must start with '-' (old) or '+' (new)"
-
-        old_string = '\n'.join(old_lines)
-        new_string = '\n'.join(new_lines)
+        old_string = parts[0].rstrip('\n')
+        new_string = parts[1].lstrip('\n')
 
         return (old_string, new_string), None
 

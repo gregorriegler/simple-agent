@@ -1,7 +1,7 @@
 Command:
-🛠️[replace-file-content test.txt]
-@@
--delete_me
+🛠️[replace-file-content test.txt single]
+delete_me
+@@@
 🛠️[/end]
 
 Result:

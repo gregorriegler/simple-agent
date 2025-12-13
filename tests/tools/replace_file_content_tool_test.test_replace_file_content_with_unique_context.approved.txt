@@ -1,10 +1,10 @@
 Command:
-🛠️[replace-file-content test.txt]
-@@
--bar
--foo
-+bar
-+replaced
+🛠️[replace-file-content test.txt single]
+bar
+foo
+@@@
+bar
+replaced
 🛠️[/end]
 
 Result:

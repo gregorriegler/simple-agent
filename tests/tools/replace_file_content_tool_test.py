@@ -30,10 +30,10 @@ def test_replace_file_content_basic(tmp_path):
     """Basic string replacement - find and replace exact match."""
     initial_content = "hello world\n"
     command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt]
-        @@
-        -hello
-        +goodbye
+        🛠️[replace-file-content test.txt single]
+        hello
+        @@@
+        goodbye
         🛠️[/end]
         """).strip()
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
@@ -43,11 +43,11 @@ def test_replace_file_content_multiline(tmp_path):
     """Replace multiple lines at once."""
     initial_content = "line1\nline2\nline3\nline4\n"
     command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt]
-        @@
-        -line2
-        -line3
-        +replaced
+        🛠️[replace-file-content test.txt single]
+        line2
+        line3
+        @@@
+        replaced
         🛠️[/end]
         """).strip()
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
@@ -57,10 +57,10 @@ def test_replace_file_content_preserves_indentation(tmp_path):
     """Whitespace in old_string and new_string is preserved exactly."""
     initial_content = "def foo():\n    old_code = 1\n    return old_code\n"
     command = textwrap.dedent("""
-        🛠️[replace-file-content test.py]
-        @@
-        -    old_code = 1
-        +    new_code = 42
+        🛠️[replace-file-content test.py single]
+            old_code = 1
+        @@@
+            new_code = 42
         🛠️[/end]
         """).strip()
     verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
@@ -70,23 +70,23 @@ def test_replace_file_content_not_found(tmp_path):
     """Error when string is not found in file."""
     initial_content = "hello world\n"
     command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt]
-        @@
-        -nonexistent
-        +replacement
+        🛠️[replace-file-content test.txt single]
+        nonexistent
+        @@@
+        replacement
         🛠️[/end]
         """).strip()
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
 
 
 def test_replace_file_content_multiple_matches_error(tmp_path):
-    """Error when string appears multiple times - need more context."""
+    """When string appears multiple times, single mode replaces only the first occurrence."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
     command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt]
-        @@
-        -foo
-        +replaced
+        🛠️[replace-file-content test.txt single]
+        foo
+        @@@
+        replaced
         🛠️[/end]
         """).strip()
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
@@ -96,12 +96,12 @@ def test_replace_file_content_with_unique_context(tmp_path):
     """Adding surrounding context makes the match unique."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
     command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt]
-        @@
-        -bar
-        -foo
-        +bar
-        +replaced
+        🛠️[replace-file-content test.txt single]
+        bar
+        foo
+        @@@
+        bar
+        replaced
         🛠️[/end]
         """).strip()
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
@@ -111,9 +111,9 @@ def test_replace_file_content_delete_string(tmp_path):
     """Empty new_string effectively deletes the old_string."""
     initial_content = "keep\ndelete_me\nkeep\n"
     command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt]
-        @@
-        -delete_me
+        🛠️[replace-file-content test.txt single]
+        delete_me
+        @@@
         🛠️[/end]
         """).strip()
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
@@ -124,48 +124,21 @@ def test_replace_file_content_all(tmp_path):
     initial_content = "foo\nbar\nfoo\nbaz\n"
     command = textwrap.dedent("""
         🛠️[replace-file-content test.txt all]
-        @@
-        -foo
-        +replaced
+        foo
+        @@@
+        replaced
         🛠️[/end]
         """).strip()
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
-
-
-def test_replace_file_content_nth(tmp_path):
-    """Replace the nth occurrence of a string."""
-    initial_content = "foo\nbar\nfoo\nbaz\n"
-    command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt nth:2]
-        @@
-        -foo
-        +replaced
-        🛠️[/end]
-        """).strip()
-    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
-
 
 def test_replace_file_content_single_default(tmp_path):
     """Replace a single occurrence of a string by default."""
     initial_content = "foo\nbar\nbaz\n"
     command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt]
-        @@
-        -foo
-        +replaced
-        🛠️[/end]
-        """).strip()
-    verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
-
-
-def test_replace_file_content_with_extra_args(tmp_path):
-    """Should raise an error if too many arguments are provided."""
-    initial_content = "foo\nbar\nfoo\nbaz\n"
-    command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt all extra_arg]
-        @@
-        -foo
-        +replaced
+        🛠️[replace-file-content test.txt single]
+        foo
+        @@@
+        replaced
         🛠️[/end]
         """).strip()
     verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)

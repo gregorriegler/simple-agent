@@ -1,8 +1,8 @@
 Command:
-🛠️[replace-file-content test.py]
-@@
--    old_code = 1
-+    new_code = 42
+🛠️[replace-file-content test.py single]
+    old_code = 1
+@@@
+    new_code = 42
 🛠️[/end]
 
 Result:

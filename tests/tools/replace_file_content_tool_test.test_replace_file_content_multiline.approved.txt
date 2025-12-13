@@ -1,9 +1,9 @@
 Command:
-🛠️[replace-file-content test.txt]
-@@
--line2
--line3
-+replaced
+🛠️[replace-file-content test.txt single]
+line2
+line3
+@@@
+replaced
 🛠️[/end]
 
 Result:

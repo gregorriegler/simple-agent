@@ -32,7 +32,10 @@ class EmojiBracketToolSyntax(ToolSyntax):
         if syntax_parts:
             syntax += " " + " ".join(syntax_parts)
         syntax += "]"
-        lines.append(f"Usage: {syntax}")
+        if tool.arguments.body:
+            syntax += "\n<content>\n🛠️[/end]"
+
+        lines.append(f"Usage:\n{syntax}")
 
         if hasattr(tool, 'examples') and tool.examples:
             lines.append("")

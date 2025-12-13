@@ -1,8 +1,8 @@
 Command:
 🛠️[replace-file-content test.txt all]
-@@
--foo
-+replaced
+foo
+@@@
+replaced
 🛠️[/end]
 
 Result:

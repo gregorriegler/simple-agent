@@ -1,0 +1,18 @@
+Tool: multiline_tool
+Description: Tool with multiline input
+
+Arguments:
+ - inline_arg: string (required) - Inline argument
+ - multiline_arg: string (required) - Multiline content
+
+Usage:
+🛠️[multiline_tool <inline_arg>]
+<content>
+🛠️[/end]
+
+Examples:
+🛠️[multiline_tool test]
+line1
+line2
+line3
+🛠️[/end]

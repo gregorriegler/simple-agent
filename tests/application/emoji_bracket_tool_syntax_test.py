@@ -1,3 +1,5 @@
+from approvaltests import verify
+
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.tools.base_tool import BaseTool
 from simple_agent.application.tool_library import ToolArgument, ToolArguments
@@ -35,17 +37,7 @@ class TestEmojiBracketDocumentation:
 
         doc = syntax.render_documentation(tool)
 
-        assert 'Tool: test_tool' in doc
-        assert 'Description: A test tool' in doc
-        assert 'Arguments:' in doc
-        assert 'arg1: string (required) - First argument' in doc
-        assert 'arg2: string (optional) - Second argument' in doc
-        assert 'Usage: 🛠️[test_tool <arg1> [arg2]]' in doc
-        assert 'Examples:' in doc
-        assert '🛠️[test_tool value1 value2]' in doc
-        # No [/end] for bodyless tools
-        assert '🛠️[/end]' not in doc
-        assert '🛠️[test_tool only_required]' in doc
+        verify(doc)
 
     def test_renders_multiline_tool_documentation(self):
         syntax = EmojiBracketToolSyntax()
@@ -53,11 +45,7 @@ class TestEmojiBracketDocumentation:
 
         doc = syntax.render_documentation(tool)
 
-        assert 'Tool: multiline_tool' in doc
-        assert 'Usage: 🛠️[multiline_tool <inline_arg>]' in doc
-        assert '🛠️[multiline_tool test]' in doc
-        assert 'line1\nline2\nline3' in doc
-        assert '🛠️[/end]' in doc
+        verify(doc)
 
     def test_renders_tool_without_arguments(self):
         class NoArgsTool(BaseTool):
@@ -71,10 +59,7 @@ class TestEmojiBracketDocumentation:
 
         doc = syntax.render_documentation(tool)
 
-        assert 'Tool: no_args' in doc
-        assert 'Description: Tool without arguments' in doc
-        assert 'Arguments:' not in doc
-        assert 'Usage: 🛠️[no_args]' in doc
+        verify(doc)
 
 
 class TestEmojiBracketBasicParsing:
