@@ -7,7 +7,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-from rich.markup import MarkupError
+from rich.markup import escape, MarkupError
 from rich.syntax import Syntax
 from textual import events
 from textual.app import App, ComposeResult
@@ -299,7 +299,7 @@ class TextualApp(App):
     def write_message(self, log_id: str, message: str) -> None:
         try:
             # Escape brackets to prevent Rich markup interpretation
-            escaped_message = message.replace("[", "\\[")
+            escaped_message = escape(message)
 
             container = self.query_one(f"#{log_id}", Static)
             current = str(container.render())
