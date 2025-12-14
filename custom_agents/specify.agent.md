@@ -20,9 +20,10 @@ Facilitate alignment on the problem to solve by interviewing the user and specif
 
 # What's a SPEC_FILE
 SPEC_FILE = A file we use to write our specification to.
-We store it under `doc/{name}.spec.md` where 'name' reflects what it is about.
+We store it under `doc/spec/{name}.spec.md` where 'name' reflects what it is about.
 A SPEC_FILE must contain a headline with its name, then the problem description, and then the proposed solution.
-It may contain links to relevant code files.
+It must contain links to relevant code files, if those already exist.
+E.g. An existing implementation that already exist.
 For complex changes, a design diagram of the implementation is helpful.
 We do not do estimates. 
 We really put focus on keeping the SPEC_FILE as simple as concise as possible.
