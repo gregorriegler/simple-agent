@@ -88,4 +88,9 @@ def test_golden_master_agent_stub(monkeypatch):
 
     app.shutdown()
 
+    # Cleanup: Remove newfile.txt if it was created by the stub
+    newfile_path = Path(project_root) / "newfile.txt"
+    if newfile_path.exists():
+        newfile_path.unlink()
+
     fuzzy_verify(captured[0].replace("▃", "").replace("╸", ""), approved_path)
