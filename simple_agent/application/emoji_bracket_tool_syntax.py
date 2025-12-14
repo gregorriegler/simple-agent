@@ -31,9 +31,12 @@ class EmojiBracketToolSyntax(ToolSyntax):
         syntax = f"🛠️[{tool.name}"
         if syntax_parts:
             syntax += " " + " ".join(syntax_parts)
-        syntax += "]"
+
         if tool.arguments.body:
+            syntax += "]"
             syntax += "\n<content>\n🛠️[/end]"
+        else:
+            syntax += " /]"
 
         lines.append(f"Usage:\n{syntax}")
 
@@ -78,18 +81,21 @@ class EmojiBracketToolSyntax(ToolSyntax):
         syntax = f"🛠️[{tool.name}"
         if inline_values:
             syntax += " " + " ".join(inline_values)
-        syntax += "]"
 
         if body_value:
+            syntax += "]"
             syntax += "\n" + body_value
             syntax += "\n🛠️[/end]"
-        # No [/end] needed for bodyless tools
+        else:
+            # Self-closing syntax for bodyless tools
+            syntax += " /]"
 
         return syntax
 
     def parse(self, text: str) -> ParsedMessage:
         START_MARKER = "🛠️["
         END_MARKER = "🛠️[/end]"
+        SELF_CLOSING_SUFFIX = " /]"
 
         tool_calls = []
         message = ""
@@ -111,18 +117,30 @@ class EmojiBracketToolSyntax(ToolSyntax):
                 message = text[:start_idx].rstrip()
                 first_tool_found = True
 
-            # Find closing bracket for header
+            # Find closing bracket for header - check for self-closing first
             header_start = start_idx + len(START_MARKER)
-            header_end = text.find("]", header_start)
+            self_closing_idx = text.find(SELF_CLOSING_SUFFIX, header_start)
+            regular_close_idx = text.find("]", header_start)
 
-            if header_end == -1:
-                # Missing closing bracket - treat as plain text and continue
-                # If this was the first potential tool, include everything as message
-                if not tool_calls:
-                    message = text
-                    break
-                pos = start_idx + len(START_MARKER)
-                continue
+            # Determine if this is self-closing
+            is_self_closing = False
+            header_end = -1
+
+            if self_closing_idx != -1:
+                # Check if this self-closing comes before a regular close
+                if regular_close_idx == -1 or self_closing_idx + len(SELF_CLOSING_SUFFIX) - 1 == regular_close_idx:
+                    is_self_closing = True
+                    header_end = self_closing_idx
+
+            if not is_self_closing:
+                if regular_close_idx == -1:
+                    # Missing closing bracket - treat as plain text and continue
+                    if not tool_calls:
+                        message = text
+                        break
+                    pos = start_idx + len(START_MARKER)
+                    continue
+                header_end = regular_close_idx
 
             # Extract header
             header = text[header_start:header_end]
@@ -137,42 +155,15 @@ class EmojiBracketToolSyntax(ToolSyntax):
             tool_name = header_parts[0]
             arguments = header_parts[1] if len(header_parts) > 1 else ""
 
-            # Determine if this is a bodyless tool call or has a body
-            # Look for the next START_MARKER and END_MARKER after the header
-            after_header = header_end + 1
-            next_start_idx = text.find(START_MARKER, after_header)
-            end_idx = text.find(END_MARKER, after_header)
-
-            # Check if this is a bodyless call:
-            # - No end marker exists, or
-            # - Next start marker comes before end marker (with only whitespace between)
-            # - End of string comes right after header (with only whitespace)
-            text_after_header = text[after_header:]
-
-            is_bodyless = False
-            if end_idx == -1:
-                # No end marker - check if next tool or end of string
-                if next_start_idx == -1:
-                    # No more tools, no end marker - bodyless if only whitespace remains
-                    is_bodyless = text_after_header.strip() == ""
-                else:
-                    # Next tool exists - bodyless if only whitespace before it
-                    between = text[after_header:next_start_idx]
-                    is_bodyless = between.strip() == ""
-            elif next_start_idx != -1 and next_start_idx < end_idx:
-                # Next tool comes before end marker - bodyless if only whitespace between
-                between = text[after_header:next_start_idx]
-                is_bodyless = between.strip() == ""
-
-            if is_bodyless:
-                # Bodyless tool call
+            if is_self_closing:
+                # Self-closing tool call - no body
                 tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=""))
-                if next_start_idx != -1:
-                    pos = next_start_idx
-                else:
-                    break
+                pos = header_end + len(SELF_CLOSING_SUFFIX)
             else:
-                # Tool call with body - find end marker
+                # Tool call with body - must find end marker
+                after_header = header_end + 1
+                end_idx = text.find(END_MARKER, after_header)
+
                 if end_idx == -1:
                     # Missing end marker - best effort: treat rest as body
                     body = text[after_header:].rstrip()

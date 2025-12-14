@@ -56,8 +56,8 @@ def test_parse_tool_with_message_and_two_tool_calls():
     text = dedent("""
     I will run ls and read test.txt
 
-    🛠️[ls]
-    🛠️[cat test.txt]
+    🛠️[ls /]
+    🛠️[cat test.txt /]
     """)
 
     message_and_tools = library.parse_message_and_tools(text)

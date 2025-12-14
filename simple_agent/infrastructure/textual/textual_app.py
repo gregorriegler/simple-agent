@@ -515,7 +515,6 @@ class TextualApp(App):
         self.write_message(message.log_id, message.content)
 
     def on_assistant_says_message(self, message: AssistantSaysMessage) -> None:
-        logger.info(f"on_assistant_says_message: log_id={message.log_id}, content_length={len(message.content)}")
         self.write_message(message.log_id, message.content)
 
     def on_tool_call_message(self, message: ToolCallMessage) -> None:

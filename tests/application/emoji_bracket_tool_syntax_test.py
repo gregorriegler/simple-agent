@@ -373,7 +373,7 @@ class TestEmojiBracketBodylessTools:
 
     def test_parses_multiple_bodyless_tools(self):
         syntax = EmojiBracketToolSyntax()
-        text = "🛠️[ls dir1]\n🛠️[ls dir2]\n🛠️[ls dir3]"
+        text = "🛠️[ls dir1 /]\n🛠️[ls dir2 /]\n🛠️[ls dir3 /]"
 
         result = syntax.parse(text)
 
@@ -386,11 +386,11 @@ class TestEmojiBracketBodylessTools:
 
     def test_parses_mixed_bodyless_and_body_tools(self):
         syntax = EmojiBracketToolSyntax()
-        text = """🛠️[ls dir1]
+        text = """🛠️[ls dir1 /]
 🛠️[cat file.txt]
 content of file
 🛠️[/end]
-🛠️[ls dir2]"""
+🛠️[ls dir2 /]"""
 
         result = syntax.parse(text)
 

@@ -29,7 +29,7 @@ def test_parse_no_tools():
 
 
 def test_parse_multiple_tools():
-    text = "Start\n🛠️[ls]\n🛠️[bash pwd]"
+    text = "Start\n🛠️[ls /]\n🛠️[bash pwd /]"
     result = parse_tool_calls(text, syntax)
     assert len(result.tool_calls) == 2
     assert result.tool_calls[0].name == "ls"

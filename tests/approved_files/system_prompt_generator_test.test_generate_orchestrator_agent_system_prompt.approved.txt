@@ -17,7 +17,7 @@ One tool execution per answer.
 The tool should always be the last thing in your answer.
 
 Syntax Example (bodyless tool):
-🛠️[MOCK_TOOL_NAME REQUIRED_VALUE OPTIONAL_VALUE]
+🛠️[MOCK_TOOL_NAME REQUIRED_VALUE OPTIONAL_VALUE /]
 
 Syntax Example (tool with body):
 🛠️[MOCK_TOOL_WITH_BODY HEADER_VALUE]
@@ -38,7 +38,6 @@ Usage:
 Examples:
 🛠️[write-todos]
 - [ ] Item 1
-
 🛠️[/end]
 🛠️[write-todos]
 - [ ] Feature exploration
@@ -53,11 +52,11 @@ Arguments:
  - path: string (optional) - Directory path to list (defaults to current directory)
 
 Usage:
-🛠️[ls [path]]
+🛠️[ls [path] /]
 
 Examples:
-🛠️[ls]
-🛠️[ls /home/user]
+🛠️[ls /]
+🛠️[ls /home/user /]
 
 ## cat tool
 Display file contents with line numbers
@@ -67,11 +66,11 @@ Arguments:
  - line_range: string (optional) - Optional line range in format 'start-end' (e.g., '1-10')
 
 Usage:
-🛠️[cat <filename> [line_range]]
+🛠️[cat <filename> [line_range] /]
 
 Examples:
-🛠️[cat myfile.txt]
-🛠️[cat script.py 1-20]
+🛠️[cat myfile.txt /]
+🛠️[cat script.py 1-20 /]
 
 ## create-file tool
 Create new files with optional content
@@ -86,7 +85,7 @@ Usage:
 🛠️[/end]
 
 Examples:
-🛠️[create-file newfile.txt]
+🛠️[create-file newfile.txt /]
 🛠️[create-file script.py]
 print("Hello World")
 🛠️[/end]
@@ -132,11 +131,11 @@ Arguments:
  - summary: string (required) - Final summary of what was accomplished
 
 Usage:
-🛠️[complete-task <summary>]
+🛠️[complete-task <summary> /]
 
 Examples:
-🛠️[complete-task Successfully created the user registration system]
-🛠️[complete-task Fixed the bug in the payment processing module]
+🛠️[complete-task Successfully created the user registration system /]
+🛠️[complete-task Fixed the bug in the payment processing module /]
 
 ## bash tool
 Execute bash commands
@@ -145,12 +144,12 @@ Arguments:
  - command: string (required) - The bash command to execute
 
 Usage:
-🛠️[bash <command>]
+🛠️[bash <command> /]
 
 Examples:
-🛠️[bash echo hello]
-🛠️[bash ls -la]
-🛠️[bash pwd]
+🛠️[bash echo hello /]
+🛠️[bash ls -la /]
+🛠️[bash pwd /]
 
 ## subagent tool
 Creates a new subagent that will handle a specific task/todo and report back the result.
@@ -160,11 +159,11 @@ Arguments:
  - task_description: string (required) - Detailed description of the task for the subagent to perform
 
 Usage:
-🛠️[subagent <agenttype> <task_description>]
+🛠️[subagent <agenttype> <task_description> /]
 
 Examples:
-🛠️[subagent default Write a Python function to calculate fibonacci numbers]
-🛠️[subagent default Create a simple HTML page with a form]
+🛠️[subagent default Write a Python function to calculate fibonacci numbers /]
+🛠️[subagent default Create a simple HTML page with a form /]
 
 # Your Workflow
 1. Think about what information is needed to fulfill the given task and define the questions for those.

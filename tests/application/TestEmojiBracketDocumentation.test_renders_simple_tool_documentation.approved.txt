@@ -6,8 +6,8 @@ Arguments:
  - arg2: string (optional) - Second argument
 
 Usage:
-🛠️[test_tool <arg1> [arg2]]
+🛠️[test_tool <arg1> [arg2] /]
 
 Examples:
-🛠️[test_tool value1 value2]
-🛠️[test_tool only_required]
+🛠️[test_tool value1 value2 /]
+🛠️[test_tool only_required /]
