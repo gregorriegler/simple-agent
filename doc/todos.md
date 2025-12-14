@@ -1,8 +1,6 @@
 # NOW 
-- reliable tool syntax for all models
 
 # NEXT
-- reliable file edit tools for all mode ls
 - tool call syntax without /end should have /] at the end of line i think
 - when you hit escape multiple times, and enter a new message, its escaping after submitting new user message even
 

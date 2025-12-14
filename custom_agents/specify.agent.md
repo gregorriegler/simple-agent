@@ -5,9 +5,10 @@ tools:
   - ls
   - cat
   - create_file
-  - edit_file
+  - replace_file_content
   - write_todos
   - complete_task
+model: claude-opus
 ---
 
 {{AGENTS.MD}}

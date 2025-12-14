@@ -5,7 +5,7 @@ tools:
   - ls
   - cat
   - create_file
-  - edit_file
+  - replace_file_content
   - complete_task
 ---
 
