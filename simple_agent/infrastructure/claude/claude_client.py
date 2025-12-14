@@ -7,7 +7,6 @@ from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUs
 from simple_agent.infrastructure.model_config import ModelConfig
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="request.log", encoding="utf-8", level=logging.DEBUG)
 
 
 class ClaudeClientError(RuntimeError):

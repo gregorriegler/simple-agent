@@ -1,4 +1,4 @@
-import logging
+from simple_agent.logging_config import get_logger
 
 from .agent_id import AgentId
 from .input import Input
@@ -15,7 +15,7 @@ from .events import (
     ErrorEvent
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class Agent:

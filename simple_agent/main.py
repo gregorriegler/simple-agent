@@ -7,29 +7,32 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.display_type import DisplayType
+from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.events import UserPromptRequestedEvent
+from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.session import Session, SessionArgs
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
-from simple_agent.application.events import UserPromptRequestedEvent
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.infrastructure.agent_library import create_agent_library
-from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.infrastructure.configuration import get_starting_agent, load_user_configuration, stub_user_config
 from simple_agent.infrastructure.event_logger import EventLogger
-from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
-from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.infrastructure.llm import RemoteLLMProvider
 from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
+from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
+from simple_agent.tools.all_tools import AllToolsFactory
+from simple_agent.logging_config import setup_logging
 
 
 def main(on_user_prompt_requested=None):
+    setup_logging()
+
     args = parse_args()
     if on_user_prompt_requested:
         args.on_user_prompt_requested = on_user_prompt_requested
@@ -54,7 +57,7 @@ def main(on_user_prompt_requested=None):
     root_agent_id = AgentId(agent_definition.agent_name())
 
     todo_cleanup = FileSystemTodoCleanup()
-    
+
     if not args.continue_session:
         todo_cleanup.cleanup_all_todos()
 
@@ -66,7 +69,7 @@ def main(on_user_prompt_requested=None):
 
     session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
 
-    event_logger = EventLogger('.simple-agent.events.log')
+    event_logger = EventLogger()
 
     event_bus = SimpleEventBus()
     subscribe_events(event_bus, event_logger, todo_cleanup, display)
