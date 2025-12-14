@@ -7,7 +7,6 @@ tools:
   - cat
   - create_file
   - replace_file_content
-  - replace_file_content
   - write_todos
   - complete_task
 model: gemini-2-5-pro
