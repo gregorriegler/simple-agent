@@ -47,7 +47,17 @@ Example: r rename userId to id in User classs
 
 To use a tool, answer in the described syntax.
 One tool execution per answer.
-The tool should always be the last thing in your answer.## write-todos
+The tool should always be the last thing in your answer.
+
+Syntax Example (bodyless tool):
+🛠️[MOCK_TOOL_NAME REQUIRED_VALUE OPTIONAL_VALUE]
+
+Syntax Example (tool with body):
+🛠️[MOCK_TOOL_WITH_BODY HEADER_VALUE]
+EXAMPLE BODY CONTENT HERE
+🛠️[/end]
+
+## write-todos tool
 Organize your work in TODOs. Use this tool to create or update those TODOs
 
 Arguments:
@@ -69,7 +79,7 @@ Examples:
 - [x] Initial setup
 🛠️[/end]
 
-## ls
+## ls tool
 List directory contents with detailed information
 
 Arguments:
@@ -82,7 +92,7 @@ Examples:
 🛠️[ls]
 🛠️[ls /home/user]
 
-## cat
+## cat tool
 Display file contents with line numbers
 
 Arguments:
@@ -96,7 +106,7 @@ Examples:
 🛠️[cat myfile.txt]
 🛠️[cat script.py 1-20]
 
-## create-file
+## create-file tool
 Create new files with optional content
 
 Arguments:
@@ -118,7 +128,7 @@ Line 1
 Line 2
 🛠️[/end]
 
-## replace-file-content
+## replace-file-content tool
 Replace exact string matches in files. Unlike edit-file, this tool uses string matching instead of line numbers, making it more reliable for replacing specific content.
 
 Arguments:
@@ -148,7 +158,7 @@ old_value = 1
 new_value = 2
 🛠️[/end]
 
-## complete-task
+## complete-task tool
 Signal task completion with a summary of what was accomplished
 
 Arguments:
@@ -161,7 +171,7 @@ Examples:
 🛠️[complete-task Successfully created the user registration system]
 🛠️[complete-task Fixed the bug in the payment processing module]
 
-## bash
+## bash tool
 Execute bash commands
 
 Arguments:
@@ -175,7 +185,7 @@ Examples:
 🛠️[bash ls -la]
 🛠️[bash pwd]
 
-## subagent
+## subagent tool
 Creates a new subagent that will handle a specific task/todo and report back the result.
 
 Arguments:
