@@ -79,6 +79,29 @@ def test_parse_tool_with_end_marker():
     assert result.tool_calls[0].body == "Line 1\nLine 2"
 
 
+def test_parse_tool_with_nested_like_body():
+    text = dedent("""
+    I will create a file that contains tool syntax
+
+    🛠️[create-file nested.txt]
+    Start of file
+    🛠️[subagent default Run bash echo hi]
+    🛠️[/end]
+    🛠️[/end]
+    """)
+    result = parse_tool_calls(text, syntax)
+
+    assert result.message == "I will create a file that contains tool syntax"
+    assert len(result.tool_calls) == 1
+    assert result.tool_calls[0].name == "create-file"
+    assert result.tool_calls[0].arguments == "nested.txt"
+    assert result.tool_calls[0].body == dedent("""
+    Start of file
+    🛠️[subagent default Run bash echo hi]
+    🛠️[/end]
+    """)
+
+
 def test_parse_two_multiline_tools():
     text = dedent("""
     I will create two files

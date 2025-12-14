@@ -160,31 +160,53 @@ class EmojiBracketToolSyntax(ToolSyntax):
                 tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=""))
                 pos = header_end + len(SELF_CLOSING_SUFFIX)
             else:
-                # Tool call with body - must find end marker
+                # Tool call with body - must find matching end marker
                 after_header = header_end + 1
-                end_idx = text.find(END_MARKER, after_header)
+                search_pos = after_header
+                depth = 1
+                end_idx = -1
 
-                if end_idx == -1:
-                    # Missing end marker - best effort: treat rest as body
-                    body = text[after_header:].rstrip()
-                    if body.startswith('\n'):
-                        body = body[1:]
-                    elif body.startswith('\r\n'):
-                        body = body[2:]
+                while True:
+                    next_start = text.find(START_MARKER, search_pos)
+                    next_end = text.find(END_MARKER, search_pos)
+
+                    if next_end == -1:
+                        # Missing end marker - best effort: treat rest as body
+                        body = text[after_header:].rstrip()
+                        if body.startswith('\n'):
+                            body = body[1:]
+                        elif body.startswith('\r\n'):
+                            body = body[2:]
+                        tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=body))
+                        pos = len(text)
+                        break
+
+                    if next_start != -1 and next_start < next_end:
+                        # Nested start marker - increase depth and continue searching
+                        depth += 1
+                        search_pos = next_start + len(START_MARKER)
+                        continue
+
+                    depth -= 1
+                    if depth == 0:
+                        end_idx = next_end
+                        break
+
+                    search_pos = next_end + len(END_MARKER)
+
+                if end_idx != -1:
+                    # Extract body (skip leading newline if present)
+                    body_text = text[after_header:end_idx]
+                    if body_text.startswith('\n'):
+                        body_text = body_text[1:]
+                    elif body_text.startswith('\r\n'):
+                        body_text = body_text[2:]
+                    body = body_text.rstrip('\n\r')
+
                     tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=body))
-                    break
 
-                # Extract body (skip leading newline if present)
-                body_text = text[after_header:end_idx]
-                if body_text.startswith('\n'):
-                    body_text = body_text[1:]
-                elif body_text.startswith('\r\n'):
-                    body_text = body_text[2:]
-                body = body_text.rstrip('\n\r')
+                    # Continue after end marker
+                    pos = end_idx + len(END_MARKER)
 
-                tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=body))
-
-                # Continue after end marker
-                pos = end_idx + len(END_MARKER)
 
         return ParsedMessage(message=message, tool_calls=tool_calls)
