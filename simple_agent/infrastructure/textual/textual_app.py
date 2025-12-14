@@ -328,6 +328,7 @@ class TextualApp(App):
         for panel_tool_calls in self._pending_tool_calls.values():
             for _, text_area, _ in panel_tool_calls.values():
                 text_area.load_text(f"In Progress {frame}")
+                text_area.refresh()
         self.loading_frame_index = (self.loading_frame_index + 1) % len(self.loading_frames)
 
     def write_tool_call(self, tool_results_id: str, call_id: str, message: str) -> None:
