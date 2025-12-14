@@ -27,6 +27,7 @@ dependencies = [
     "requests",
     "textual>=0.47.0",
     "pyyaml>=6.0.2",
+    "treelib>=1.8.0",
 ]
 [project.urls]
 Homepage = "https://github.com/gregorriegler/simple-agent"
