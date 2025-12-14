@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from simple_agent.application.tree_display import generate_tree
 
 SystemPrompt = str
 
@@ -10,7 +11,10 @@ class AgentPrompt:
     agents_content: str
 
     def render(self, tools_documentation: str) -> SystemPrompt:
-        result = self.template.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_documentation)
+        tree_output = generate_tree(max_depth=2)
+        project_structure = f"\n# Project Structure\n\n```\n{tree_output}```\n"
+        
+        result = self.template.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_documentation + project_structure)
         if not self.agents_content:
             return result.replace("{{AGENTS.MD}}", "")
 

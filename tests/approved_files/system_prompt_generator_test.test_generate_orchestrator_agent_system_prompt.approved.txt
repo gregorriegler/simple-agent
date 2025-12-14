@@ -163,6 +163,123 @@ Usage:
 Examples:
 🛠️[subagent default Write a Python function to calculate fibonacci numbers /]
 🛠️[subagent default Create a simple HTML page with a form /]
+# Project Structure
+
+```
+./
+├── .gitignore
+├── AGENTS.md
+├── LICENSE
+├── PUBLISHING.md
+├── README.md
+├── __init__.py
+├── agent.sh
+├── approvaltests_config.json
+├── approve.sh
+├── coverage.sh
+├── coverage_badge.py
+├── custom_agents/
+│   ├── blank.agent.md
+│   ├── brownfield-crafter.agent.md
+│   ├── crafter.agent.md
+│   ├── debug.agent.md
+│   ├── decompose-refactoring.agent.md
+│   ├── development.agent.md
+│   ├── eliminate-dead-code.agent.md
+│   ├── execute-refactoring.agent.md
+│   ├── greenfield-crafter.agent.md
+│   ├── haiku.agent.md
+│   ├── implement-refactor.agent.md
+│   ├── make-it-pass.agent.md
+│   ├── modularity-review.agent.md
+│   ├── mutation-test.agent.md
+│   ├── plan-refactoring.agent.md
+│   ├── planning.agent.md
+│   ├── preparatory-refactoring.agent.md
+│   ├── refactor.agent.md
+│   ├── refactoring-analysis.md
+│   ├── refine-scenarios.agent.md
+│   ├── review.agent.md
+│   ├── simple-task.agent.md
+│   ├── slicer.agent.md
+│   ├── sonnet.agent.md
+│   ├── specify.agent.md
+│   ├── test-writer.agent.md
+│   ├── write-a-failing-test.agent.deactivated.md
+│   └── write-bash-scripts.agent.md
+├── doc/
+│   ├── coverage.svg
+│   ├── loc.svg
+│   ├── magic-prompts.md
+│   ├── overview.md
+│   ├── process-flow-diagram.md
+│   ├── screenshot.png
+│   ├── spec/
+│   └── todos.md
+├── download_voice_model.sh
+├── install.sh
+├── loc_badge.py
+├── process/
+│   ├── align-on-goal.md
+│   ├── debug.md
+│   ├── development-process.md
+│   ├── eliminate-dead-code.md
+│   ├── execute-refactoring.md
+│   ├── make-it-pass.md
+│   ├── mutation-test.md
+│   ├── plan-refactoring.md
+│   ├── planning-process.md
+│   ├── preparatory-refactoring.md
+│   ├── refactor.md
+│   ├── refine-scenarios.md
+│   ├── simple-task.md
+│   ├── write-a-failing-test.md
+│   └── write-bash-scripts.md
+├── pyproject.toml
+├── say.py
+├── say.sh
+├── simple_agent/
+│   ├── __init__.py
+│   ├── analysis.agent.md.bak
+│   ├── application/
+│   ├── code-review.agent.md
+│   ├── coding.agent.md
+│   ├── infrastructure/
+│   ├── logging_config.py
+│   ├── main.py
+│   ├── orchestrator.agent.md
+│   ├── question.agent.md
+│   ├── run_tool.py
+│   └── tools/
+├── system-prompt.md
+├── test.sh
+├── tests/
+│   ├── __init__.py
+│   ├── agent/
+│   ├── application/
+│   ├── approvaltests_config.json
+│   ├── approve_sh_reporter.py
+│   ├── approved_files/
+│   ├── conftest.py
+│   ├── end_to_end_test.py
+│   ├── event_bus_test.py
+│   ├── event_spy.py
+│   ├── fake_display.py
+│   ├── infrastructure/
+│   ├── input_test.py
+│   ├── main_test.py
+│   ├── print_spy.py
+│   ├── session_storage_stub.py
+│   ├── session_test_bed.py
+│   ├── system_prompt_generator_test.py
+│   ├── test_helpers.py
+│   ├── todo_cleanup_test.py
+│   ├── tools/
+│   └── user_input_stub.py
+├── todo_tooling_wishlist.md
+└── uv.lock
+```
+
 
 # Your Workflow
 1. Think about what information is needed to fulfill the given task and define the questions for those.

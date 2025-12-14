@@ -97,7 +97,9 @@ def test_render_inserts_agents_content_with_placeholder():
 
     result = prompt.render("TOOLS DOCS")
 
-    assert result == "Header\nAGENTS CONTENT\nTOOLS DOCS\nFooter"
+    assert "Header\nAGENTS CONTENT\nTOOLS DOCS" in result
+    assert "# Project Structure" in result
+    assert "Footer" in result
 
 
 def test_render_removes_placeholder_when_no_agents_content():
