@@ -11,6 +11,7 @@ from rich.syntax import Syntax
 from rich.text import Text
 from textual import events
 from textual.app import App, ComposeResult
+from textual.timer import Timer
 from textual.containers import Vertical, VerticalScroll
 from textual.css.query import NoMatches
 from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible, Markdown
@@ -195,6 +196,9 @@ class TextualApp(App):
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._suppressed_tool_calls: set[str] = set()
         self._signal_on_unmount = False
+        self.loading_timer: Timer | None = None
+        self.loading_frames = ["⠇", "⠏", "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧"]
+        self.loading_frame_index = 0
 
     def has_agent_tab(self, agent_id: AgentId) -> bool:
         return agent_id in self._agent_panel_ids
@@ -300,24 +304,31 @@ class TextualApp(App):
         new_content = ""
         try:
             container = self.query_one(f"#{log_id}", Static)
-            renderable = getattr(container, "renderable", None)
 
-            if isinstance(renderable, Text):
-                log_text = renderable.copy()
+            # Get current content using render() like the old working code
+            current_text = str(container.render())
+
+            # Build new content
+            if current_text:
+                new_content = current_text + "\n" + message
             else:
-                log_text = Text(str(renderable) if renderable is not None else "")
+                new_content = message
 
-            if log_text.plain:
-                log_text.append("\n")
-            log_text.append(message)
-
-            new_content = log_text.plain
+            # Update with Text object (no markup interpretation)
+            log_text = Text(new_content)
             container.update(log_text)
             self.query_one(f"#{log_id}-scroll", VerticalScroll).scroll_end(animate=False)
         except NoMatches:
             logger.warning("Could not find log container #%s", log_id)
         except Exception as e:
             logger.error("Failed to display message: %s. Message: %s", e, new_content or message)
+
+    def _update_loading_animation(self) -> None:
+        frame = self.loading_frames[self.loading_frame_index]
+        for panel_tool_calls in self._pending_tool_calls.values():
+            for _, text_area, _ in panel_tool_calls.values():
+                text_area.load_text(f"In Progress {frame}")
+        self.loading_frame_index = (self.loading_frame_index + 1) % len(self.loading_frames)
 
     def write_tool_call(self, tool_results_id: str, call_id: str, message: str) -> None:
         pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
@@ -335,7 +346,7 @@ class TextualApp(App):
             collapsible.collapsed = True
 
         text_area = TextArea(
-            "In Progress ...",
+            f"In Progress {self.loading_frames[0]}",
             read_only=True,
             language="markdown",
             show_cursor=False,
@@ -352,6 +363,8 @@ class TextualApp(App):
         container.scroll_end(animate=False)
 
         pending_for_panel[call_id] = (message, text_area, collapsible)
+        if not self.loading_timer:
+            self.loading_timer = self.set_interval(0.1, self._update_loading_animation)
 
     def write_tool_result(self, tool_results_id: str, call_id: str, result: ToolResult) -> None:
         pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
@@ -369,6 +382,10 @@ class TextualApp(App):
                 call_id,
             )
             self._refresh_todos(tool_results_id)
+            if not any(self._pending_tool_calls.values()):
+                if self.loading_timer:
+                    self.loading_timer.stop()
+                    self.loading_timer = None
             return
         title_source, text_area, call_collapsible = pending_entry
         message = result.display_body if result.display_body else result.message
@@ -432,6 +449,10 @@ class TextualApp(App):
         container = self.query_one(f"#{tool_results_id}", VerticalScroll)
         container.scroll_end(animate=False)
         self._refresh_todos(tool_results_id)
+        if not any(self._pending_tool_calls.values()):
+            if self.loading_timer:
+                self.loading_timer.stop()
+                self.loading_timer = None
 
     def add_subagent_tab(self, agent_id: AgentId, tab_title: str) -> tuple[str, str]:
         tab_id, log_id, tool_results_id = self.panel_ids_for(agent_id)
@@ -493,6 +514,7 @@ class TextualApp(App):
         self.write_message(message.log_id, message.content)
 
     def on_assistant_says_message(self, message: AssistantSaysMessage) -> None:
+        logger.info(f"on_assistant_says_message: log_id={message.log_id}, content_length={len(message.content)}")
         self.write_message(message.log_id, message.content)
 
     def on_tool_call_message(self, message: ToolCallMessage) -> None:
