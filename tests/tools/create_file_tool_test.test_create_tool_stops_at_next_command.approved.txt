@@ -3,7 +3,7 @@ Command:
 Line1
 Line2
 🛠️[/end]
-🛠️[ls]
+🛠️[ls /]
 
 Result:
 Created file: test.txt with content

@@ -6,30 +6,30 @@ library = create_all_tools_for_test()
 
 
 def test_create_tool_single_character_name(tmp_path):
-    verify_create_tool(library, "🛠️[create-file a]", "a", tmp_path=tmp_path)
+    verify_create_tool(library, "🛠️[create-file a /]", "a", tmp_path=tmp_path)
 
 
 def test_create_tool_simple_name_with_extension(tmp_path):
-    verify_create_tool(library, "🛠️[create-file test.txt]", "test.txt", tmp_path=tmp_path)
+    verify_create_tool(library, "🛠️[create-file test.txt /]", "test.txt", tmp_path=tmp_path)
 
 
 def test_create_file_in_nonexistent_directory(tmp_path):
-    verify_create_tool(library, "🛠️[create-file src/utils/helper.py]", "src/utils/helper.py",
+    verify_create_tool(library, "🛠️[create-file src/utils/helper.py /]", "src/utils/helper.py",
                        tmp_path=tmp_path)
 
 
 def test_create_file_already_exists(tmp_path):
     with temp_directory(tmp_path):
-        tool = library.parse_message_and_tools("🛠️[create-file existing.txt]")
+        tool = library.parse_message_and_tools("🛠️[create-file existing.txt /]")
         library.execute_parsed_tool(tool.tools[0])
 
-        tool = library.parse_message_and_tools("🛠️[create-file existing.txt]")
+        tool = library.parse_message_and_tools("🛠️[create-file existing.txt /]")
         result = library.execute_parsed_tool(tool.tools[0])
         assert 'already exists' in result.message.lower() or 'exists' in result.message.lower()
 
 
 def test_create_tool_on_second_line(tmp_path):
-    verify_create_tool(library, "let me create a file\n🛠️[create-file a]", "a", tmp_path=tmp_path)
+    verify_create_tool(library, "let me create a file\n🛠️[create-file a /]", "a", tmp_path=tmp_path)
 
 
 def test_create_tool_on_second_line_with_multiline_content(tmp_path):
@@ -37,7 +37,7 @@ def test_create_tool_on_second_line_with_multiline_content(tmp_path):
 
 
 def test_create_tool_stops_at_next_command(tmp_path):
-    verify_create_tool(library, "🛠️[create-file test.txt]\nLine1\nLine2\n🛠️[/end]\n🛠️[ls]", "test.txt", tmp_path=tmp_path)
+    verify_create_tool(library, "🛠️[create-file test.txt]\nLine1\nLine2\n🛠️[/end]\n🛠️[ls /]", "test.txt", tmp_path=tmp_path)
 
 
 

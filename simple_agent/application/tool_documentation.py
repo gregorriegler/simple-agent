@@ -21,8 +21,7 @@ def generate_tools_documentation(tools, tool_syntax: ToolSyntax) -> str:
     tools_header = f"""# Tools
 
 To use a tool, answer in the described syntax.
-One tool execution per answer.
-The tool should always be the last thing in your answer.
+Tool calls should always be the last things in your answer.
 
 {syntax_examples}
 

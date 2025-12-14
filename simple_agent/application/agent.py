@@ -71,7 +71,7 @@ class Agent:
 
         try:
             while tool_result.do_continue():
-                message, tools  = self.llm_responds()
+                message, tools = self.llm_responds()
                 self.notify_about_message(message)
 
                 if self.user_input.escape_requested():
@@ -81,7 +81,22 @@ class Agent:
                         break
                 if not tools:
                     break
-                tool_result = self.execute_tool(tools[0])
+
+                tool_results = []
+                for tool in tools:
+                    tool_result = self.execute_tool(tool)
+                    tool_results.append((tool, tool_result))
+                    if not tool_result.do_continue():
+                        break
+
+                # Only add ContinueResult to context, not CompleteResult
+                continue_results = [(tool, result) for tool, result in tool_results if isinstance(result, ContinueResult)]
+                if continue_results:
+                    combined_result_message = "\n\n".join(
+                        f"Result of {tool}\n{result}" for tool, result in continue_results
+                    )
+                    self.context.user_says(combined_result_message)
+
         except KeyboardInterrupt:
             self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
             raise
@@ -136,8 +151,6 @@ class Agent:
         self.event_bus.publish(ToolCalledEvent(self.agent_id, call_id, tool))
         tool_result = self.tools.execute_parsed_tool(tool)
         self.event_bus.publish(ToolResultEvent(self.agent_id, call_id, tool_result))
-        if isinstance(tool_result, ContinueResult):
-            self.context.user_says(f"Result of {tool}\n{tool_result}")
         return tool_result
 
     def notify_session_ended(self):

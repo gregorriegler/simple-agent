@@ -13,8 +13,7 @@ This will improve the outputs, as subagents perform better on small changes.
 # Tools
 
 To use a tool, answer in the described syntax.
-One tool execution per answer.
-The tool should always be the last thing in your answer.
+Tool calls should always be the last things in your answer.
 
 Syntax Example (bodyless tool):
 🛠️[MOCK_TOOL_NAME REQUIRED_VALUE OPTIONAL_VALUE /]

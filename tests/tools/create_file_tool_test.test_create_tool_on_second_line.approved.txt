@@ -1,6 +1,6 @@
 Command:
 let me create a file
-🛠️[create-file a]
+🛠️[create-file a /]
 
 Result:
 Created empty file: a

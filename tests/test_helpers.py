@@ -116,10 +116,10 @@ def scrub_line_with_path(line):
         else:
             return '/tmp/test_path'
 
-    windows_pattern = r'[A-Za-z]:[/\\](?:[^<>:"|?*\n\r\[\]]+[/\\])*[^<>:"|?*\n\r\s\[\]]*(?:\.[A-Za-z0-9]+)?'
+    windows_pattern = r'[A-Za-z]:[/\\\\](?:[^]<>:"|?*\n\r\s\[/]+[/\\\\])*[^]<>:"|?*\n\r\s\[/]*(?:\.[A-Za-z0-9]+)?'
     result = re.sub(windows_pattern, replace_path, line)
 
-    unix_pattern = r"'(/(?:[^/\s<>:\"|?*\n\r\[\]]+/)*[^/\s<>:\"|?*\n\r\[\]]*)'|(/(?:[^/\s<>:\"|?*\n\r\[\]]+/)+[^/\s<>:\"|?*\n\r\[\]]*)|(/[^/\s<>:\"|?*\n\r\[\]]*\.[A-Za-z0-9]+)"
+    unix_pattern = r"'(/(?:[^]/\s<>:\"|?*\n\r\[]+/)*[^]/\s<>:\"|?*\n\r\[]*)'|(/(?:[^]/\s<>:\"|?*\n\r\[]+/)+[^]/\s<>:\"|?*\n\r\[]*)|(/[^]/\s<>:\"|?*\n\r\[]*\.[A-Za-z0-9]+)"
 
     def replace_unix_path(match):
         if match.group(1):

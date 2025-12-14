@@ -1,5 +1,5 @@
 Command:
-🛠️[ls /tmp/test_path]
+🛠️[ls /tmp/test_path /]
 
 Result:
 STDERR: ls: cannot access '/tmp/test_path': No such file or directory

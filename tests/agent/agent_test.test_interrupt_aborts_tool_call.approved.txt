@@ -1,7 +1,7 @@
 # Events
 Agent:       session_started: False
 Agent:         user_prompted: Hello
-Agent:   assistant_responded: 🛠️[cat hello.txt] stub-model 0 0
+Agent:   assistant_responded: 🛠️[cat hello.txt /] stub-model 0 0
 Agent:           tool_called: Agent::tool_call::1 🛠️ cat hello.txt
 Agent:   session_interrupted: 
 Agent:         session_ended: 
@@ -11,4 +11,4 @@ system: Test system prompt
 
 
 user: Hello
-assistant: 🛠️[cat hello.txt]
+assistant: 🛠️[cat hello.txt /]

@@ -1,4 +1,4 @@
 Command:
-🛠️[cat /tmp/test_path/test.txt 100-200]
+🛠️[cat /tmp/test_path/test.txt 100-200 /]
 
 Result:

@@ -1,9 +1,8 @@
 # NOW 
+- multiple tool calls
 
 # NEXT
-- doc/spec/self-closing-syntax.spec.md
-- newfile.txt keeps being created
-- tool call syntax without /end should have /] at the end of line i think
+- the syntax doesnt work when its nested
 - when you hit escape multiple times, and enter a new message, its escaping after submitting new user message even
 
 

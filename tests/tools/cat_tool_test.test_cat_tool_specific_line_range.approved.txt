@@ -1,5 +1,5 @@
 Command:
-🛠️[cat /tmp/test_path/range_test.txt 5-10]
+🛠️[cat /tmp/test_path/range_test.txt 5-10 /]
 
 Result:
      5	Line 5 content
