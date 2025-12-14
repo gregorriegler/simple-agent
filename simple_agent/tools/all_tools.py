@@ -8,7 +8,6 @@ from .bash_tool import BashTool
 from .cat_tool import CatTool
 from .complete_task_tool import CompleteTaskTool
 from .create_file_tool import CreateFileTool
-from .edit_file_tool import EditFileTool
 from .ls_tool import LsTool
 from .replace_file_content_tool import ReplaceFileContentTool
 from .subagent_tool import SubagentTool
@@ -40,7 +39,7 @@ class AllTools(ToolLibrary):
             'ls': lambda: LsTool(),
             'cat': lambda: CatTool(),
             'create_file': lambda: CreateFileTool(),
-            'edit_file': lambda: EditFileTool(),
+           # 'edit_file': lambda: EditFileTool(),
             'replace_file_content': lambda: ReplaceFileContentTool(),
             'complete_task': lambda: CompleteTaskTool(),
             'bash': lambda: BashTool(),
