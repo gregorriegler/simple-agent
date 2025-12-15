@@ -1,55 +1,38 @@
-from simple_agent.infrastructure.openai import openai_client
+import pytest
+
 from simple_agent.infrastructure.openai.openai_client import OpenAILLM
 
 
-def test_openai_client_respects_base_url_override(monkeypatch):
-    captured = {}
-    monkeypatch.setattr(openai_client.requests, "post", _create_successful_post(captured))
-    client = OpenAILLM(StubOpenAIConfig(base_url="https://openrouter.ai/api/v1"))
-    messages = [
-        {"role": "user", "content": "Hello"}
-    ]
-
-    result = client(messages)
-
-    assert result.content == "assistant response"
-    assert result.model == "test-openai-model"
-    assert captured["url"] == "https://openrouter.ai/api/v1/chat/completions"
-    assert captured["headers"] == {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer test-openai-api-key",
-    }
-    assert captured["timeout"] == 60
-
-
-def _create_successful_post(captured):
-    response = _ResponseStub({
+def test_openai_client_sends_correct_request(httpserver):
+    response_data = {
         "choices": [{"message": {"content": "assistant response"}}],
         "usage": {
             "prompt_tokens": 10,
             "completion_tokens": 20,
             "total_tokens": 30
         }
-    })
+    }
 
-    def post(url, headers, json, timeout=None):
-        captured["url"] = url
-        captured["headers"] = headers
-        captured["json"] = json
-        captured["timeout"] = timeout
-        return response
+    httpserver.expect_request(
+        "/chat/completions",
+        method="POST",
+        json={
+            "model": "test-openai-model",
+            "messages": [{"role": "user", "content": "Hello"}]
+        },
+        headers={"Authorization": "Bearer test-openai-api-key"}
+    ).respond_with_json(response_data)
 
-    return post
+    client = OpenAILLM(StubOpenAIConfig(base_url=httpserver.url_for("")))
+    messages = [{"role": "user", "content": "Hello"}]
 
-class _ResponseStub:
-    def __init__(self, data):
-        self._data = data
+    result = client(messages)
 
-    def json(self):
-        return self._data
-
-    def raise_for_status(self):
-        return None
+    assert result.content == "assistant response"
+    assert result.model == "test-openai-model"
+    assert result.usage.input_tokens == 10
+    assert result.usage.output_tokens == 20
+    assert result.usage.total_tokens == 30
 
 
 class StubOpenAIConfig:

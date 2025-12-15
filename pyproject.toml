@@ -28,6 +28,7 @@ dependencies = [
     "textual>=0.47.0",
     "pyyaml>=6.0.2",
     "treelib>=1.8.0",
+    "httpx",
 ]
 [project.urls]
 Homepage = "https://github.com/gregorriegler/simple-agent"
@@ -58,6 +59,8 @@ dev-dependencies = [
     "pyright>=1.1.406",
     "pytest-cov>=7.0.0",
     "pytest-rerunfailures>=16.1",
+    "respx",
+    "pytest-httpserver>=1.1.3",
 ]
 
 [tool.pytest.ini_options]

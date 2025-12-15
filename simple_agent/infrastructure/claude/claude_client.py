@@ -1,7 +1,7 @@
 import json
 import logging
 
-import requests
+import httpx
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
 from simple_agent.infrastructure.model_config import ModelConfig
@@ -23,7 +23,8 @@ class ClaudeLLM(LLM):
         return self._config.model
 
     def __call__(self, messages: ChatMessages) -> LLMResponse:
-        url = "https://api.anthropic.com/v1/messages"
+        base_url = self._config.base_url or "https://api.anthropic.com/v1"
+        url = f"{base_url}/messages"
         api_key = self._config.api_key
         model = self._config.model
         headers = {
@@ -48,12 +49,13 @@ class ClaudeLLM(LLM):
 
         try:
             logger.debug("Request:" + json.dumps(data, indent=4, ensure_ascii=False))
-            response = requests.post(url, headers=headers, json=data, timeout=timeout)
+            with httpx.Client(timeout=timeout) as client:
+                response = client.post(url, headers=headers, json=data)
             logger.debug(
                 "Response:" + json.dumps(response.json(), indent=4, ensure_ascii=False)
             )
             response.raise_for_status()
-        except requests.exceptions.RequestException as error:
+        except httpx.RequestError as error:
             raise ClaudeClientError(f"API request failed: {error}") from error
 
         response_data = response.json()

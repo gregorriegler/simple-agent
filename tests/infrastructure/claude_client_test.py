@@ -1,15 +1,34 @@
 import pytest
-import requests
 
-from simple_agent.infrastructure.claude import claude_client
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM, ClaudeClientError
 
 
-def test_claude_chat_returns_content_text(monkeypatch):
-    captured = {}
-    monkeypatch.setattr(claude_client.requests, "post", create_successful_post(captured))
-    chat = ClaudeLLM(StubClaudeConfig())
+def test_claude_chat_returns_content_text(httpserver):
+    response_data = {
+        "content": [{"text": "assistant response"}],
+        "usage": {
+            "input_tokens": 10,
+            "output_tokens": 20
+        }
+    }
     system_prompt = "system prompt"
+
+    httpserver.expect_request(
+        "/messages",
+        method="POST",
+        json={
+            "model": "test-model",
+            "max_tokens": 4000,
+            "system": system_prompt,
+            "messages": [{"role": "user", "content": "Hello"}]
+        },
+        headers={
+            "x-api-key": "test-api-key",
+            "anthropic-version": "2023-06-01",
+        }
+    ).respond_with_json(response_data)
+
+    chat = ClaudeLLM(StubClaudeConfig(base_url=httpserver.url_for("")))
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": "Hello"}
@@ -22,89 +41,33 @@ def test_claude_chat_returns_content_text(monkeypatch):
     assert result.usage.input_tokens == 10
     assert result.usage.output_tokens == 20
     assert result.usage.total_tokens == 30
-    assert captured["url"] == "https://api.anthropic.com/v1/messages"
-    assert captured["headers"] == {
-        "Content-Type": "application/json",
-        "x-api-key": "test-api-key",
-        "anthropic-version": "2023-06-01"
-    }
-    assert captured["json"] == {
-        "model": "test-model",
-        "max_tokens": 4000,
-        "system": system_prompt,
-        "messages": [
-            {"role": "user", "content": "Hello"}
-        ]
-    }
-    assert captured["timeout"] == 60
 
 
-def test_claude_chat_raises_error_when_content_missing(monkeypatch):
-    monkeypatch.setattr(claude_client.requests, "post", create_missing_content_post())
-    chat = ClaudeLLM(StubClaudeConfig())
+def test_claude_chat_raises_error_when_content_missing(httpserver):
+    httpserver.expect_request("/messages", method="POST").respond_with_json({})
+
+    chat = ClaudeLLM(StubClaudeConfig(base_url=httpserver.url_for("")))
 
     with pytest.raises(ClaudeClientError) as error:
-        chat([])
+        chat([{"role": "user", "content": "Hello"}])
 
     assert str(error.value) == "API response missing 'content' field"
 
 
-def test_claude_chat_raises_error_when_request_fails(monkeypatch):
-    monkeypatch.setattr(claude_client.requests, "post", create_failing_post())
-    chat = ClaudeLLM(StubClaudeConfig())
+def test_claude_chat_raises_error_when_request_fails(httpserver):
+    # Don't set up any handler - connection will fail
+    chat = ClaudeLLM(StubClaudeConfig(base_url="http://localhost:1"))
 
     with pytest.raises(ClaudeClientError) as error:
-        chat([])
+        chat([{"role": "user", "content": "Hello"}])
 
-    assert str(error.value) == "API request failed: network down"
-
-
-def create_successful_post(captured):
-    response = ResponseStub({
-        "content": [{"text": "assistant response"}],
-        "usage": {
-            "input_tokens": 10,
-            "output_tokens": 20
-        }
-    })
-
-    def post(url, headers, json, timeout=None):
-        captured["url"] = url
-        captured["headers"] = headers
-        captured["json"] = json
-        captured["timeout"] = timeout
-        return response
-
-    return post
-
-
-def create_missing_content_post():
-    response = ResponseStub({})
-
-    def post(url, headers, json, timeout=None):
-        return response
-
-    return post
-
-
-def create_failing_post():
-    def post(url, headers, json, timeout=None):
-        raise requests.exceptions.RequestException("network down")
-    return post
-
-
-class ResponseStub:
-    def __init__(self, data):
-        self._data = data
-
-    def json(self):
-        return self._data
-
-    def raise_for_status(self):
-        return None
+    assert "API request failed" in str(error.value)
 
 
 class StubClaudeConfig:
+    def __init__(self, base_url=None):
+        self._base_url = base_url
+
     @property
     def api_key(self):
         return "test-api-key"
@@ -116,6 +79,10 @@ class StubClaudeConfig:
     @property
     def adapter(self):
         return "claude"
+
+    @property
+    def base_url(self):
+        return self._base_url
 
     @property
     def request_timeout(self):

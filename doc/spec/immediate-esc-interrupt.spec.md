@@ -24,10 +24,10 @@ Each step keeps all existing tests passing. Async "bubbles up" naturally.
 
 #### NOW - Async LLM adapters
 
-1. **Refactor LLM adapter tests to use `respx`**
-   - Decouple tests from HTTP implementation (`requests` vs `httpx`)
-   - Tests verify correct HTTP calls and response handling
-   - After this, tests are implementation-agnostic
+1. ~~**Refactor LLM adapter tests to use `pytest-httpserver`**~~
+   - ~~Decouple tests from HTTP implementation (`requests` vs `httpx`)~~
+   - ~~Tests verify correct HTTP calls and response handling~~
+   - ~~After this, tests are implementation-agnostic~~
 
 2. **Add `httpx` dependency**
 
@@ -56,7 +56,7 @@ Details to be specified when we get here (test strategy for agent tests TBD).
 
 ### Components changed
 
-- `tests/infrastructure/*_client_test.py` - use respx
+- `tests/infrastructure/*_client_test.py` - use pytest-httpserver
 - `simple_agent/infrastructure/claude/claude_client.py`
 - `simple_agent/infrastructure/openai/openai_client.py`
 - `simple_agent/infrastructure/gemini/gemini_client.py`
