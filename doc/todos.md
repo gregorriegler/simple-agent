@@ -1,8 +1,8 @@
 # NOW 
+- escape immediately
 
 # NEXT
 - /clear
-- the syntax doesnt work when its nested
 - when you hit escape multiple times, and enter a new message, its escaping after submitting new user message even
 
 
