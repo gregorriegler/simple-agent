@@ -12,8 +12,8 @@ This will improve the outputs, as subagents perform better on small changes.
 
 # Tools
 
-To use a tool, answer in the described syntax.
-Tool calls should always be the last things in your answer.
+Please not that you can not use XML to call tools.
+To use a tool, you should provide the tool calls in the described format.
 
 Syntax Example (bodyless tool):
 🛠️[MOCK_TOOL_NAME REQUIRED_VALUE OPTIONAL_VALUE /]

@@ -20,8 +20,8 @@ def generate_tools_documentation(tools, tool_syntax: ToolSyntax) -> str:
 
     tools_header = f"""# Tools
 
-To use a tool, answer in the described syntax.
-Tool calls should always be the last things in your answer.
+Please not that you can not use XML to call tools.
+To use a tool, you should provide the tool calls in the described format.
 
 {syntax_examples}
 
