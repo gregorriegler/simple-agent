@@ -35,9 +35,9 @@ Before asking any clarification question, notify the user via `say.py`.
 
 # Workflow
 1. Read `doc/overview.md` to understand the project context.
-2. Help define the problem statement with the user. 
-   - Make sure we focus on the problem first. 
-   - If we think about solution too early, remind us to keep defining the problem first. 
+2. Help define the problem statement with the user.
+   - Make sure we focus on the problem first.
+   - If we think about solution too early, remind us to keep defining the problem first.
    - Ask clarifying questions and ask for feedback until the problem is completely clear.
 3. Then write the problem statement to the SPEC_FILE
 4. Propose solutions to the user and iterate together with the user on the solution.
@@ -45,6 +45,14 @@ Before asking any clarification question, notify the user via `say.py`.
 6. Check the SPEC_FILE again if it is sound, remove unnecessary lines.
 7. Ask the user to review SPEC_FILE for final edits
 8. Commit the file with a message starting with `d ` (e.g., `d spec for ...`).
+
+# Specification Techniques
+When iterating on solutions, apply these techniques:
+
+- **"What's the smallest safe step?"** - Keep asking until steps are atomic and testable.
+- **"How can existing tests help?"** - Use tests as a safety net for refactoring. If tests are coupled to implementation, fix that first.
+- **NOW / NEXT / LATER** - Don't over-specify. Detail only what's actionable now, acknowledge future phases without committing to details.
+- **Look for prerequisite work** - Ask "What needs to be true before we can safely do X?"
 
 # Task Completion
 Summarize the agreed specification and point to the SPEC_FILE location.
