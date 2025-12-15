@@ -3,6 +3,7 @@
 
 # NEXT
 - /clear
+- add files via @
 - when you hit escape multiple times, and enter a new message, its escaping after submitting new user message even
 
 
