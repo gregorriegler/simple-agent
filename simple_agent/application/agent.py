@@ -1,3 +1,4 @@
+import asyncio
 from simple_agent.logging_config import get_logger
 
 from .agent_id import AgentId
@@ -71,7 +72,7 @@ class Agent:
 
         try:
             while tool_result.do_continue():
-                message, tools = self.llm_responds()
+                message, tools = asyncio.run(self.llm_responds())
                 self.notify_about_message(message)
 
                 if self.user_input.escape_requested():
@@ -113,11 +114,10 @@ class Agent:
         if message:
             self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
 
-    def llm_responds(self) -> MessageAndParsedTools:
-        import asyncio
+    async def llm_responds(self) -> MessageAndParsedTools:
         from simple_agent.application.model_info import ModelInfo
 
-        response = asyncio.run(self.llm.call_async(self.context.to_list()))
+        response = await self.llm.call_async(self.context.to_list())
         answer = response.content
         model = response.model
         token_count = response.usage.total_tokens if response.usage else 0
