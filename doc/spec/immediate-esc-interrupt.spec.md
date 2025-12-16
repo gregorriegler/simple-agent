@@ -24,16 +24,16 @@ Each step keeps all existing tests passing. Async "bubbles up" naturally.
 
 #### NOW - Async LLM protocol and llm_responds
 
-7. **Fix async method naming in LLM clients**
+7. ✅ **Fix async method naming in LLM clients**
    - Rename `__call___async` → `call_async` (fix typo, make public)
    - All 4 clients: Claude, OpenAI, Gemini, Gemini v1
    - Tests pass (no behavior change)
 
-8. **Add `call_async` to LLM Protocol**
+8. ✅ **Add `call_async` to LLM Protocol**
    - Add `async def call_async(...)` to `LLM` Protocol in `llm.py`
    - Tests pass (protocol just gains a method)
 
-9. **Add `call_async` to LLM stubs used in tests**
+9. ✅ **Add `call_async` to LLM stubs used in tests**
    - Update `StubLLM` / `create_llm_stub` to have `call_async`
    - Tests pass
 

@@ -24,6 +24,9 @@ class StubLLM:
             self._index += 1
         return LLMResponse(content=content, model=self._model_name, usage=TokenUsage(0, 0, 0))
 
+    async def call_async(self, messages: ChatMessages) -> LLMResponse:
+        return self(messages)
+
 
 def create_llm_stub(responses: Sequence[str], *, default: str = "") -> LLM:
     return StubLLM(responses, default)
@@ -58,6 +61,9 @@ class StubLLMProvider:
 
             def __call__(self, messages):
                 return LLMResponse(content='', model="dummy", usage=TokenUsage())
+
+            async def call_async(self, messages):
+                return self(messages)
 
         return cls.for_testing(DummyLLM())
 

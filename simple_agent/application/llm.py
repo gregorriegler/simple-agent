@@ -28,6 +28,9 @@ class LLM(Protocol):
     def __call__(self, messages: ChatMessages) -> LLMResponse:
         ...
 
+    async def call_async(self, messages: ChatMessages) -> LLMResponse:
+        ...
+
 class LLMProvider(Protocol):
     def get(self, model_name: str | None = None) -> LLM:
         ...
