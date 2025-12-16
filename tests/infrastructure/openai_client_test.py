@@ -1,4 +1,3 @@
-import asyncio
 import pytest
 import respx
 import httpx
@@ -6,8 +5,9 @@ import httpx
 from simple_agent.infrastructure.openai.openai_client import OpenAILLM
 
 
+@pytest.mark.asyncio
 @respx.mock
-def test_openai_client_sends_correct_request():
+async def test_openai_client_sends_correct_request():
     response_data = {
         "choices": [{"message": {"content": "assistant response"}}],
         "usage": {
@@ -24,7 +24,7 @@ def test_openai_client_sends_correct_request():
     client = OpenAILLM(StubOpenAIConfig())
     messages = [{"role": "user", "content": "Hello"}]
 
-    result = asyncio.run(client.call_async(messages))
+    result = await client.call_async(messages)
 
     assert result.content == "assistant response"
     assert result.model == "test-openai-model"

@@ -1,4 +1,3 @@
-import asyncio
 import pytest
 import respx
 import httpx
@@ -6,8 +5,9 @@ import httpx
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM, ClaudeClientError
 
 
+@pytest.mark.asyncio
 @respx.mock
-def test_claude_chat_returns_content_text():
+async def test_claude_chat_returns_content_text():
     response_data = {
         "content": [{"text": "assistant response"}],
         "usage": {
@@ -27,7 +27,7 @@ def test_claude_chat_returns_content_text():
         {"role": "user", "content": "Hello"}
     ]
 
-    result = asyncio.run(chat.call_async(messages))
+    result = await chat.call_async(messages)
 
     assert result.content == "assistant response"
     assert result.model == "test-model"
@@ -36,8 +36,9 @@ def test_claude_chat_returns_content_text():
     assert result.usage.total_tokens == 30
 
 
+@pytest.mark.asyncio
 @respx.mock
-def test_claude_chat_raises_error_when_content_missing():
+async def test_claude_chat_raises_error_when_content_missing():
     respx.post("https://api.anthropic.com/v1/messages").mock(
         return_value=httpx.Response(200, json={})
     )
@@ -45,19 +46,20 @@ def test_claude_chat_raises_error_when_content_missing():
     chat = ClaudeLLM(StubClaudeConfig())
 
     with pytest.raises(ClaudeClientError) as error:
-        asyncio.run(chat.call_async([{"role": "user", "content": "Hello"}]))
+        await chat.call_async([{"role": "user", "content": "Hello"}])
 
     assert str(error.value) == "API response missing 'content' field"
 
 
+@pytest.mark.asyncio
 @respx.mock
-def test_claude_chat_raises_error_when_request_fails():
+async def test_claude_chat_raises_error_when_request_fails():
     respx.post("https://api.anthropic.com/v1/messages").mock(side_effect=httpx.ConnectError("Connection failed"))
 
     chat = ClaudeLLM(StubClaudeConfig())
 
     with pytest.raises(ClaudeClientError) as error:
-        asyncio.run(chat.call_async([{"role": "user", "content": "Hello"}]))
+        await chat.call_async([{"role": "user", "content": "Hello"}])
 
     assert "API request failed" in str(error.value)
 
