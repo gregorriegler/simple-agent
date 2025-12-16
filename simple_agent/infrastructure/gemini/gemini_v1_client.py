@@ -1,4 +1,5 @@
-import requests
+import asyncio
+import httpx
 from typing import Dict, List
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
@@ -18,7 +19,13 @@ class GeminiV1LLM(LLM):
     def model(self) -> str:
         return self._config.model
 
+    async def __call___async(self, messages: ChatMessages) -> LLMResponse:
+        return await self._call_async(messages)
+
     def __call__(self, messages: ChatMessages) -> LLMResponse:
+        return asyncio.run(self._call_async(messages))
+
+    async def _call_async(self, messages: ChatMessages) -> LLMResponse:
         api_key = self._config.api_key
         model = self._config.model
 
@@ -39,9 +46,10 @@ class GeminiV1LLM(LLM):
         timeout = self._config.request_timeout
 
         try:
-            response = requests.post(url, headers=headers, json=data, timeout=timeout)
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                response = await client.post(url, headers=headers, json=data)
             response.raise_for_status()
-        except requests.exceptions.RequestException as error:
+        except httpx.RequestError as error:
             raise GeminiV1ClientError(f"API request failed: {error}") from error
 
         response_data = response.json()

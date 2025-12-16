@@ -41,10 +41,10 @@ Each step keeps all existing tests passing. Async "bubbles up" naturally.
    - ~~Caller (`agent.llm_responds`) wraps with `asyncio.run()`~~
    - ~~Existing tests pass unchanged~~
 
-5. **Gemini adapter → async**
-   - Replace blocking HTTP calls with `await httpx.AsyncClient.post()`
-   - Caller (`agent.llm_responds`) wraps with `asyncio.run()`
-   - Existing tests pass unchanged
+5. ~~**Gemini adapter → async**~~
+   - ~~Replace blocking HTTP calls with `await httpx.AsyncClient.post()`~~
+   - ~~Caller (`agent.llm_responds`) wraps with `asyncio.run()`~~
+   - ~~Existing tests pass unchanged~~
 
 6. **Gemini v1 adapter → async**
    - Replace blocking HTTP calls with `await httpx.AsyncClient.post()`
