@@ -1,8 +1,9 @@
+import asyncio
 import json
 import logging
 from typing import Dict, List
 
-import requests
+import httpx
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
 from simple_agent.infrastructure.model_config import ModelConfig
@@ -23,7 +24,13 @@ class OpenAILLM(LLM):
     def model(self) -> str:
         return self._config.model
 
+    async def __call___async(self, messages: ChatMessages) -> LLMResponse:
+        return await self._call_async(messages)
+
     def __call__(self, messages: ChatMessages) -> LLMResponse:
+        return asyncio.run(self._call_async(messages))
+
+    async def _call_async(self, messages: ChatMessages) -> LLMResponse:
         base_url = self._config.base_url or "https://api.openai.com/v1"
         url = f"{base_url.rstrip('/')}/chat/completions"
         api_key = self._config.api_key
@@ -45,12 +52,13 @@ class OpenAILLM(LLM):
 
         try:
             logger.debug("Request:" + json.dumps(data, indent=4, ensure_ascii=False))
-            response = requests.post(url, headers=headers, json=data, timeout=timeout)
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                response = await client.post(url, headers=headers, json=data)
             logger.debug(
                 "Response:" + json.dumps(response.json(), indent=4, ensure_ascii=False)
             )
             response.raise_for_status()
-        except requests.exceptions.RequestException as error:
+        except httpx.RequestError as error:
             raise OpenAIClientError(f"API request failed: {error}") from error
 
         response_data = response.json()

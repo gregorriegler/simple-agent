@@ -36,10 +36,10 @@ Each step keeps all existing tests passing. Async "bubbles up" naturally.
    - ~~Caller (`agent.llm_responds`) wraps with `asyncio.run()`~~
    - ~~Existing tests pass unchanged (thanks to step 1)~~
 
-4. **OpenAI adapter → async**
-   - Replace blocking HTTP calls with `await httpx.AsyncClient.post()`
-   - Caller (`agent.llm_responds`) wraps with `asyncio.run()`
-   - Existing tests pass unchanged
+4. ~~**OpenAI adapter → async**~~
+   - ~~Replace blocking HTTP calls with `await httpx.AsyncClient.post()`~~
+   - ~~Caller (`agent.llm_responds`) wraps with `asyncio.run()`~~
+   - ~~Existing tests pass unchanged~~
 
 5. **Gemini adapter → async**
    - Replace blocking HTTP calls with `await httpx.AsyncClient.post()`
