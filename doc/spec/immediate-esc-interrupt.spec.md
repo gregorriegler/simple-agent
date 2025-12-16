@@ -29,12 +29,12 @@ Each step keeps all existing tests passing. Async "bubbles up" naturally.
    - ~~Tests verify correct HTTP calls and response handling~~
    - ~~After this, tests are implementation-agnostic~~
 
-2. **Add `httpx` dependency**
+2. ~~**Add `httpx` dependency**~~
 
-3. **Claude adapter → async with httpx**
-   - Replace `requests.post` with `await httpx.AsyncClient.post()`
-   - Caller (`agent.llm_responds`) wraps with `asyncio.run()`
-   - Existing tests pass unchanged (thanks to step 1)
+3. ~~**Claude adapter → async with httpx**~~
+   - ~~Replace `requests.post` with `await httpx.AsyncClient.post()`~~
+   - ~~Caller (`agent.llm_responds`) wraps with `asyncio.run()`~~
+   - ~~Existing tests pass unchanged (thanks to step 1)~~
 
 4. **Other LLM adapters → async**
    - OpenAI, Gemini, Gemini v1

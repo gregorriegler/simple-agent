@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 
@@ -22,7 +23,13 @@ class ClaudeLLM(LLM):
     def model(self) -> str:
         return self._config.model
 
+    async def __call___async(self, messages: ChatMessages) -> LLMResponse:
+        return await self._call_async(messages)
+
     def __call__(self, messages: ChatMessages) -> LLMResponse:
+        return asyncio.run(self._call_async(messages))
+
+    async def _call_async(self, messages: ChatMessages) -> LLMResponse:
         base_url = self._config.base_url or "https://api.anthropic.com/v1"
         url = f"{base_url}/messages"
         api_key = self._config.api_key
@@ -49,8 +56,8 @@ class ClaudeLLM(LLM):
 
         try:
             logger.debug("Request:" + json.dumps(data, indent=4, ensure_ascii=False))
-            with httpx.Client(timeout=timeout) as client:
-                response = client.post(url, headers=headers, json=data)
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                response = await client.post(url, headers=headers, json=data)
             logger.debug(
                 "Response:" + json.dumps(response.json(), indent=4, ensure_ascii=False)
             )
