@@ -22,9 +22,6 @@ class GeminiV1LLM(LLM):
     async def call_async(self, messages: ChatMessages) -> LLMResponse:
         return await self._call_async(messages)
 
-    def __call__(self, messages: ChatMessages) -> LLMResponse:
-        return asyncio.run(self._call_async(messages))
-
     async def _call_async(self, messages: ChatMessages) -> LLMResponse:
         api_key = self._config.api_key
         model = self._config.model

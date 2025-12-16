@@ -1,3 +1,4 @@
+import asyncio
 import pytest
 import respx
 import httpx
@@ -23,7 +24,7 @@ def test_openai_client_sends_correct_request():
     client = OpenAILLM(StubOpenAIConfig())
     messages = [{"role": "user", "content": "Hello"}]
 
-    result = client(messages)
+    result = asyncio.run(client.call_async(messages))
 
     assert result.content == "assistant response"
     assert result.model == "test-openai-model"

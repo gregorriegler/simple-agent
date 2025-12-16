@@ -27,9 +27,6 @@ class OpenAILLM(LLM):
     async def call_async(self, messages: ChatMessages) -> LLMResponse:
         return await self._call_async(messages)
 
-    def __call__(self, messages: ChatMessages) -> LLMResponse:
-        return asyncio.run(self._call_async(messages))
-
     async def _call_async(self, messages: ChatMessages) -> LLMResponse:
         base_url = self._config.base_url or "https://api.openai.com/v1"
         url = f"{base_url.rstrip('/')}/chat/completions"

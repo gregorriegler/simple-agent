@@ -1,3 +1,4 @@
+import asyncio
 import pytest
 import respx
 import httpx
@@ -26,7 +27,7 @@ def test_claude_chat_returns_content_text():
         {"role": "user", "content": "Hello"}
     ]
 
-    result = chat(messages)
+    result = asyncio.run(chat.call_async(messages))
 
     assert result.content == "assistant response"
     assert result.model == "test-model"
@@ -44,7 +45,7 @@ def test_claude_chat_raises_error_when_content_missing():
     chat = ClaudeLLM(StubClaudeConfig())
 
     with pytest.raises(ClaudeClientError) as error:
-        chat([{"role": "user", "content": "Hello"}])
+        asyncio.run(chat.call_async([{"role": "user", "content": "Hello"}]))
 
     assert str(error.value) == "API response missing 'content' field"
 
@@ -56,7 +57,7 @@ def test_claude_chat_raises_error_when_request_fails():
     chat = ClaudeLLM(StubClaudeConfig())
 
     with pytest.raises(ClaudeClientError) as error:
-        chat([{"role": "user", "content": "Hello"}])
+        asyncio.run(chat.call_async([{"role": "user", "content": "Hello"}]))
 
     assert "API request failed" in str(error.value)
 

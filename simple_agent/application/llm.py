@@ -25,9 +25,6 @@ class LLMResponse:
 
 
 class LLM(Protocol):
-    def __call__(self, messages: ChatMessages) -> LLMResponse:
-        ...
-
     async def call_async(self, messages: ChatMessages) -> LLMResponse:
         ...
 

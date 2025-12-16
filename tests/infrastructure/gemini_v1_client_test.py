@@ -1,3 +1,4 @@
+import asyncio
 import pytest
 import re
 import respx
@@ -23,7 +24,7 @@ def test_gemini_v1_chat_returns_text_from_parts():
     chat = GeminiV1LLM(StubGeminiV1Config())
     messages = [{"role": "user", "content": "Hello"}]
 
-    result = chat(messages)
+    result = asyncio.run(chat.call_async(messages))
 
     assert result.content == "assistant response"
     assert result.model == "test-model"
@@ -43,7 +44,7 @@ def test_gemini_v1_chat_handles_system_prompt():
         {"role": "user", "content": "Hello"}
     ]
 
-    result = chat(messages)
+    result = asyncio.run(chat.call_async(messages))
 
     assert result.content == "assistant response"
 
@@ -63,7 +64,7 @@ def test_gemini_v1_chat_converts_assistant_to_model_role():
         {"role": "user", "content": "How are you?"}
     ]
 
-    result = chat(messages)
+    result = asyncio.run(chat.call_async(messages))
 
     assert result.content == "assistant response"
 
@@ -80,7 +81,7 @@ def test_gemini_v1_chat_concatenates_multiple_text_parts():
     )
 
     chat = GeminiV1LLM(StubGeminiV1Config())
-    result = chat([{"role": "user", "content": "Hello"}])
+    result = asyncio.run(chat.call_async([{"role": "user", "content": "Hello"}]))
 
     assert result.content == "First part. Second part."
 
@@ -94,7 +95,7 @@ def test_gemini_v1_chat_raises_error_when_candidates_missing():
     chat = GeminiV1LLM(StubGeminiV1Config())
 
     with pytest.raises(GeminiV1ClientError) as error:
-        chat([{"role": "user", "content": "Hello"}])
+        asyncio.run(chat.call_async([{"role": "user", "content": "Hello"}]))
 
     assert str(error.value) == "API response missing 'candidates' field"
 
@@ -108,7 +109,7 @@ def test_gemini_v1_chat_raises_error_when_content_missing():
     chat = GeminiV1LLM(StubGeminiV1Config())
 
     with pytest.raises(GeminiV1ClientError) as error:
-        chat([{"role": "user", "content": "Hello"}])
+        asyncio.run(chat.call_async([{"role": "user", "content": "Hello"}]))
 
     assert str(error.value) == "API response missing 'content' field"
 
@@ -122,7 +123,7 @@ def test_gemini_v1_chat_raises_error_when_parts_missing():
     chat = GeminiV1LLM(StubGeminiV1Config())
 
     with pytest.raises(GeminiV1ClientError) as error:
-        chat([{"role": "user", "content": "Hello"}])
+        asyncio.run(chat.call_async([{"role": "user", "content": "Hello"}]))
 
     assert str(error.value) == "API response missing 'parts' field"
 
@@ -136,7 +137,7 @@ def test_gemini_v1_chat_raises_error_on_api_error_response():
     chat = GeminiV1LLM(StubGeminiV1Config())
 
     with pytest.raises(GeminiV1ClientError) as error:
-        chat([{"role": "user", "content": "Hello"}])
+        asyncio.run(chat.call_async([{"role": "user", "content": "Hello"}]))
 
     assert str(error.value) == "Gemini API error [400]: Invalid API key"
 
@@ -150,7 +151,7 @@ def test_gemini_v1_chat_raises_error_when_request_fails():
     chat = GeminiV1LLM(StubGeminiV1Config())
 
     with pytest.raises(GeminiV1ClientError) as error:
-        chat([{"role": "user", "content": "Hello"}])
+        asyncio.run(chat.call_async([{"role": "user", "content": "Hello"}]))
 
     assert "API request failed" in str(error.value)
 
