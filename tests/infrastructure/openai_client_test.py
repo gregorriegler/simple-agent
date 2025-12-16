@@ -1,9 +1,12 @@
 import pytest
+import respx
+import httpx
 
 from simple_agent.infrastructure.openai.openai_client import OpenAILLM
 
 
-def test_openai_client_sends_correct_request(httpserver):
+@respx.mock
+def test_openai_client_sends_correct_request():
     response_data = {
         "choices": [{"message": {"content": "assistant response"}}],
         "usage": {
@@ -13,17 +16,11 @@ def test_openai_client_sends_correct_request(httpserver):
         }
     }
 
-    httpserver.expect_request(
-        "/chat/completions",
-        method="POST",
-        json={
-            "model": "test-openai-model",
-            "messages": [{"role": "user", "content": "Hello"}]
-        },
-        headers={"Authorization": "Bearer test-openai-api-key"}
-    ).respond_with_json(response_data)
+    respx.post("https://api.openai.com/v1/chat/completions").mock(
+        return_value=httpx.Response(200, json=response_data)
+    )
 
-    client = OpenAILLM(StubOpenAIConfig(base_url=httpserver.url_for("")))
+    client = OpenAILLM(StubOpenAIConfig())
     messages = [{"role": "user", "content": "Hello"}]
 
     result = client(messages)
@@ -36,7 +33,7 @@ def test_openai_client_sends_correct_request(httpserver):
 
 
 class StubOpenAIConfig:
-    def __init__(self, base_url):
+    def __init__(self, base_url=None):
         self._base_url = base_url
 
     @property

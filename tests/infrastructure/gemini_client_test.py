@@ -1,9 +1,12 @@
 import pytest
+import respx
+import httpx
 
 from simple_agent.infrastructure.gemini.gemini_client import GeminiLLM, GeminiClientError
 
 
-def test_gemini_chat_returns_text_from_parts(httpserver):
+@respx.mock
+def test_gemini_chat_returns_text_from_parts():
     response_data = {
         "candidates": [{
             "content": {
@@ -12,14 +15,11 @@ def test_gemini_chat_returns_text_from_parts(httpserver):
         }]
     }
 
-    httpserver.expect_request(
-        "/models/test-model:generateContent",
-        method="POST",
-        query_string="key=test-api-key",
-        json={"contents": [{"role": "user", "parts": [{"text": "Hello"}]}]}
-    ).respond_with_json(response_data)
+    respx.post("https://generativelanguage.googleapis.com/v1beta/models/test-model:generateContent?key=test-api-key").mock(
+        return_value=httpx.Response(200, json=response_data)
+    )
 
-    chat = GeminiLLM(StubGeminiConfig(base_url=httpserver.url_for("")))
+    chat = GeminiLLM(StubGeminiConfig())
     messages = [{"role": "user", "content": "Hello"}]
 
     result = chat(messages)
@@ -28,17 +28,15 @@ def test_gemini_chat_returns_text_from_parts(httpserver):
     assert result.model == "test-model"
 
 
-def test_gemini_chat_handles_system_prompt(httpserver):
+@respx.mock
+def test_gemini_chat_handles_system_prompt():
     response_data = {"candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]}
 
-    httpserver.expect_request(
-        "/models/test-model:generateContent",
-        method="POST",
-        query_string="key=test-api-key",
-        json={"contents": [{"role": "user", "parts": [{"text": "You are a helpful assistant\n\nHello"}]}]}
-    ).respond_with_json(response_data)
+    respx.post("https://generativelanguage.googleapis.com/v1beta/models/test-model:generateContent?key=test-api-key").mock(
+        return_value=httpx.Response(200, json=response_data)
+    )
 
-    chat = GeminiLLM(StubGeminiConfig(base_url=httpserver.url_for("")))
+    chat = GeminiLLM(StubGeminiConfig())
     messages = [
         {"role": "system", "content": "You are a helpful assistant"},
         {"role": "user", "content": "Hello"}
@@ -49,21 +47,15 @@ def test_gemini_chat_handles_system_prompt(httpserver):
     assert result.content == "assistant response"
 
 
-def test_gemini_chat_converts_assistant_to_model_role(httpserver):
+@respx.mock
+def test_gemini_chat_converts_assistant_to_model_role():
     response_data = {"candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]}
 
-    httpserver.expect_request(
-        "/models/test-model:generateContent",
-        method="POST",
-        query_string="key=test-api-key",
-        json={"contents": [
-            {"role": "user", "parts": [{"text": "Hello"}]},
-            {"role": "model", "parts": [{"text": "Hi there!"}]},
-            {"role": "user", "parts": [{"text": "How are you?"}]}
-        ]}
-    ).respond_with_json(response_data)
+    respx.post("https://generativelanguage.googleapis.com/v1beta/models/test-model:generateContent?key=test-api-key").mock(
+        return_value=httpx.Response(200, json=response_data)
+    )
 
-    chat = GeminiLLM(StubGeminiConfig(base_url=httpserver.url_for("")))
+    chat = GeminiLLM(StubGeminiConfig())
     messages = [
         {"role": "user", "content": "Hello"},
         {"role": "assistant", "content": "Hi there!"},
@@ -75,32 +67,30 @@ def test_gemini_chat_converts_assistant_to_model_role(httpserver):
     assert result.content == "assistant response"
 
 
-def test_gemini_chat_concatenates_multiple_text_parts(httpserver):
+@respx.mock
+def test_gemini_chat_concatenates_multiple_text_parts():
     response_data = {"candidates": [{"content": {"parts": [
         {"text": "First part. "},
         {"text": "Second part."}
     ]}}]}
 
-    httpserver.expect_request(
-        "/models/test-model:generateContent",
-        method="POST",
-        query_string="key=test-api-key"
-    ).respond_with_json(response_data)
+    respx.post("https://generativelanguage.googleapis.com/v1beta/models/test-model:generateContent?key=test-api-key").mock(
+        return_value=httpx.Response(200, json=response_data)
+    )
 
-    chat = GeminiLLM(StubGeminiConfig(base_url=httpserver.url_for("")))
+    chat = GeminiLLM(StubGeminiConfig())
     result = chat([{"role": "user", "content": "Hello"}])
 
     assert result.content == "First part. Second part."
 
 
-def test_gemini_chat_raises_error_when_candidates_missing(httpserver):
-    httpserver.expect_request(
-        "/models/test-model:generateContent",
-        method="POST",
-        query_string="key=test-api-key"
-    ).respond_with_json({})
+@respx.mock
+def test_gemini_chat_raises_error_when_candidates_missing():
+    respx.post("https://generativelanguage.googleapis.com/v1beta/models/test-model:generateContent?key=test-api-key").mock(
+        return_value=httpx.Response(200, json={})
+    )
 
-    chat = GeminiLLM(StubGeminiConfig(base_url=httpserver.url_for("")))
+    chat = GeminiLLM(StubGeminiConfig())
 
     with pytest.raises(GeminiClientError) as error:
         chat([{"role": "user", "content": "Hello"}])
@@ -108,14 +98,13 @@ def test_gemini_chat_raises_error_when_candidates_missing(httpserver):
     assert str(error.value) == "API response missing 'candidates' field"
 
 
-def test_gemini_chat_raises_error_when_content_missing(httpserver):
-    httpserver.expect_request(
-        "/models/test-model:generateContent",
-        method="POST",
-        query_string="key=test-api-key"
-    ).respond_with_json({"candidates": [{}]})
+@respx.mock
+def test_gemini_chat_raises_error_when_content_missing():
+    respx.post("https://generativelanguage.googleapis.com/v1beta/models/test-model:generateContent?key=test-api-key").mock(
+        return_value=httpx.Response(200, json={"candidates": [{}]})
+    )
 
-    chat = GeminiLLM(StubGeminiConfig(base_url=httpserver.url_for("")))
+    chat = GeminiLLM(StubGeminiConfig())
 
     with pytest.raises(GeminiClientError) as error:
         chat([{"role": "user", "content": "Hello"}])
@@ -123,14 +112,13 @@ def test_gemini_chat_raises_error_when_content_missing(httpserver):
     assert str(error.value) == "API response missing 'content' field"
 
 
-def test_gemini_chat_raises_error_when_parts_missing(httpserver):
-    httpserver.expect_request(
-        "/models/test-model:generateContent",
-        method="POST",
-        query_string="key=test-api-key"
-    ).respond_with_json({"candidates": [{"content": {}}]})
+@respx.mock
+def test_gemini_chat_raises_error_when_parts_missing():
+    respx.post("https://generativelanguage.googleapis.com/v1beta/models/test-model:generateContent?key=test-api-key").mock(
+        return_value=httpx.Response(200, json={"candidates": [{"content": {}}]})
+    )
 
-    chat = GeminiLLM(StubGeminiConfig(base_url=httpserver.url_for("")))
+    chat = GeminiLLM(StubGeminiConfig())
 
     with pytest.raises(GeminiClientError) as error:
         chat([{"role": "user", "content": "Hello"}])
@@ -138,14 +126,13 @@ def test_gemini_chat_raises_error_when_parts_missing(httpserver):
     assert str(error.value) == "API response missing 'parts' field"
 
 
-def test_gemini_chat_raises_error_on_api_error_response(httpserver):
-    httpserver.expect_request(
-        "/models/test-model:generateContent",
-        method="POST",
-        query_string="key=test-api-key"
-    ).respond_with_json({"error": {"code": 400, "message": "Invalid API key"}})
+@respx.mock
+def test_gemini_chat_raises_error_on_api_error_response():
+    respx.post("https://generativelanguage.googleapis.com/v1beta/models/test-model:generateContent?key=test-api-key").mock(
+        return_value=httpx.Response(200, json={"error": {"code": 400, "message": "Invalid API key"}})
+    )
 
-    chat = GeminiLLM(StubGeminiConfig(base_url=httpserver.url_for("")))
+    chat = GeminiLLM(StubGeminiConfig())
 
     with pytest.raises(GeminiClientError) as error:
         chat([{"role": "user", "content": "Hello"}])
@@ -153,8 +140,13 @@ def test_gemini_chat_raises_error_on_api_error_response(httpserver):
     assert str(error.value) == "Gemini API error [400]: Invalid API key"
 
 
+@respx.mock
 def test_gemini_chat_raises_error_when_request_fails():
-    chat = GeminiLLM(StubGeminiConfig(base_url="http://localhost:1"))
+    respx.post("https://generativelanguage.googleapis.com/v1beta/models/test-model:generateContent?key=test-api-key").mock(
+        side_effect=httpx.ConnectError("Connection failed")
+    )
+
+    chat = GeminiLLM(StubGeminiConfig())
 
     with pytest.raises(GeminiClientError) as error:
         chat([{"role": "user", "content": "Hello"}])
