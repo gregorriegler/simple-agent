@@ -37,13 +37,13 @@ Each step keeps all existing tests passing. Async "bubbles up" naturally.
    - Update `StubLLM` / `create_llm_stub` to have `call_async`
    - Tests pass
 
-10. **Make `agent.llm_responds` async**
-    - Change `def llm_responds` → `async def llm_responds`
-    - Call `await self.llm.call_async(...)` instead of `self.llm(...)`
-    - Caller (`run_tool_loop`) wraps with `asyncio.run()`
-    - Tests pass
-
 #### NEXT - Async tool execution and run_tool_loop
+
+10. **Make `agent.llm_responds` async**
+  - Change `def llm_responds` → `async def llm_responds`
+  - Call `await self.llm.call_async(...)` instead of `self.llm(...)`
+  - Caller (`run_tool_loop`) wraps with `asyncio.run()`
+  - Tests pass
 
 11. Tool execution → async
 12. `agent.run_tool_loop` → async
