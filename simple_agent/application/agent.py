@@ -114,9 +114,10 @@ class Agent:
             self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
 
     def llm_responds(self) -> MessageAndParsedTools:
+        import asyncio
         from simple_agent.application.model_info import ModelInfo
 
-        response = self.llm(self.context.to_list())
+        response = asyncio.run(self.llm.call_async(self.context.to_list()))
         answer = response.content
         model = response.model
         token_count = response.usage.total_tokens if response.usage else 0

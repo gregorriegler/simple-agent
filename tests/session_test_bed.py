@@ -71,6 +71,9 @@ class SessionTestBed:
             
             def __call__(self, messages):
                 raise ClaudeClientError(error_message)
+            
+            async def call_async(self, messages):
+                raise ClaudeClientError(error_message)
         
         self._llm = FailingLLM()
         return self

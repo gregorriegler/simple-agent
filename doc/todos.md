@@ -7,6 +7,7 @@
 - the chat window should allow markdown
 - /clear
 - add files via @
+- [red]Error: cannot unpack non-iterable coroutine object[/red] whats this?
 
 
 # LATER
