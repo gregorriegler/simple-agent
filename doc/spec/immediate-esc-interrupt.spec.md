@@ -22,57 +22,47 @@ Convert blocking operations to async with cancellation support. Propagate async 
 
 Each step keeps all existing tests passing. Async "bubbles up" naturally.
 
-#### NOW - Async LLM adapters
+#### NOW - Async LLM protocol and llm_responds
 
-1. ~~**Refactor LLM adapter tests to use `pytest-httpserver`**~~
-   - ~~Decouple tests from HTTP implementation (`requests` vs `httpx`)~~
-   - ~~Tests verify correct HTTP calls and response handling~~
-   - ~~After this, tests are implementation-agnostic~~
+7. **Fix async method naming in LLM clients**
+   - Rename `__call___async` → `call_async` (fix typo, make public)
+   - All 4 clients: Claude, OpenAI, Gemini, Gemini v1
+   - Tests pass (no behavior change)
 
-2. ~~**Add `httpx` dependency**~~
+8. **Add `call_async` to LLM Protocol**
+   - Add `async def call_async(...)` to `LLM` Protocol in `llm.py`
+   - Tests pass (protocol just gains a method)
 
-3. ~~**Claude adapter → async with httpx**~~
-   - ~~Replace `requests.post` with `await httpx.AsyncClient.post()`~~
-   - ~~Caller (`agent.llm_responds`) wraps with `asyncio.run()`~~
-   - ~~Existing tests pass unchanged (thanks to step 1)~~
+9. **Add `call_async` to LLM stubs used in tests**
+   - Update `StubLLM` / `create_llm_stub` to have `call_async`
+   - Tests pass
 
-4. ~~**OpenAI adapter → async**~~
-   - ~~Replace blocking HTTP calls with `await httpx.AsyncClient.post()`~~
-   - ~~Caller (`agent.llm_responds`) wraps with `asyncio.run()`~~
-   - ~~Existing tests pass unchanged~~
+10. **Make `agent.llm_responds` async**
+    - Change `def llm_responds` → `async def llm_responds`
+    - Call `await self.llm.call_async(...)` instead of `self.llm(...)`
+    - Caller (`run_tool_loop`) wraps with `asyncio.run()`
+    - Tests pass
 
-5. ~~**Gemini adapter → async**~~
-   - ~~Replace blocking HTTP calls with `await httpx.AsyncClient.post()`~~
-   - ~~Caller (`agent.llm_responds`) wraps with `asyncio.run()`~~
-   - ~~Existing tests pass unchanged~~
+#### NEXT - Async tool execution and run_tool_loop
 
-6. ~~**Gemini v1 adapter → async**~~
-   - ~~Replace blocking HTTP calls with `await httpx.AsyncClient.post()`~~
-   - ~~Caller (`agent.llm_responds`) wraps with `asyncio.run()`~~
-   - ~~Existing tests pass unchanged~~
+11. Tool execution → async
+12. `agent.run_tool_loop` → async
 
-#### NEXT - Async agent internals
-
-7. `agent.llm_responds` → async
-8. Tool execution → async
-9. `agent.run_tool_loop` → async
-
-Details to be specified when we get here (test strategy for agent tests TBD).
+Details to be specified when we get here.
 
 #### LATER - Feature completion
 
-10. Write failing test for immediate interrupt (TDD)
-11. Wire up cancellation in `textual_app`
-12. Remove sync wrappers
+13. Write failing test for immediate interrupt (TDD)
+14. Wire up cancellation in `textual_app`
+15. Remove sync wrappers
 
-### Components changed
+### Components changed (NOW phase)
 
-- `tests/infrastructure/*_client_test.py` - use pytest-httpserver
-- `simple_agent/infrastructure/claude/claude_client.py`
-- `simple_agent/infrastructure/openai/openai_client.py`
-- `simple_agent/infrastructure/gemini/gemini_client.py`
-- `simple_agent/infrastructure/gemini/gemini_v1_client.py`
-- `simple_agent/application/agent.py`
-- `simple_agent/application/tool_library.py`
-- `simple_agent/infrastructure/textual/textual_app.py`
+- `simple_agent/infrastructure/claude/claude_client.py` - rename `__call___async` → `call_async`
+- `simple_agent/infrastructure/openai/openai_client.py` - rename `__call___async` → `call_async`
+- `simple_agent/infrastructure/gemini/gemini_client.py` - rename `__call___async` → `call_async`
+- `simple_agent/infrastructure/gemini/gemini_v1_client.py` - rename `__call___async` → `call_async`
+- `simple_agent/application/llm.py` - add `call_async` to Protocol
+- `simple_agent/application/llm_stub.py` - add `call_async` to stub
+- `simple_agent/application/agent.py` - make `llm_responds` async
 
