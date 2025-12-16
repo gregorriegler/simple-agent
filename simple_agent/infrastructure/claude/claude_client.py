@@ -23,7 +23,7 @@ class ClaudeLLM(LLM):
     def model(self) -> str:
         return self._config.model
 
-    async def __call___async(self, messages: ChatMessages) -> LLMResponse:
+    async def call_async(self, messages: ChatMessages) -> LLMResponse:
         return await self._call_async(messages)
 
     def __call__(self, messages: ChatMessages) -> LLMResponse:
