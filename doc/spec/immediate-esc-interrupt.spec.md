@@ -36,23 +36,34 @@ Each step keeps all existing tests passing. Async "bubbles up" naturally.
    - ~~Caller (`agent.llm_responds`) wraps with `asyncio.run()`~~
    - ~~Existing tests pass unchanged (thanks to step 1)~~
 
-4. **Other LLM adapters → async**
-   - OpenAI, Gemini, Gemini v1
-   - Same pattern: async internally, caller wraps
+4. **OpenAI adapter → async**
+   - Replace blocking HTTP calls with `await httpx.AsyncClient.post()`
+   - Caller (`agent.llm_responds`) wraps with `asyncio.run()`
+   - Existing tests pass unchanged
+
+5. **Gemini adapter → async**
+   - Replace blocking HTTP calls with `await httpx.AsyncClient.post()`
+   - Caller (`agent.llm_responds`) wraps with `asyncio.run()`
+   - Existing tests pass unchanged
+
+6. **Gemini v1 adapter → async**
+   - Replace blocking HTTP calls with `await httpx.AsyncClient.post()`
+   - Caller (`agent.llm_responds`) wraps with `asyncio.run()`
+   - Existing tests pass unchanged
 
 #### NEXT - Async agent internals
 
-5. `agent.llm_responds` → async
-6. Tool execution → async
-7. `agent.run_tool_loop` → async
+7. `agent.llm_responds` → async
+8. Tool execution → async
+9. `agent.run_tool_loop` → async
 
 Details to be specified when we get here (test strategy for agent tests TBD).
 
 #### LATER - Feature completion
 
-8. Write failing test for immediate interrupt (TDD)
-9. Wire up cancellation in `textual_app`
-10. Remove sync wrappers
+10. Write failing test for immediate interrupt (TDD)
+11. Wire up cancellation in `textual_app`
+12. Remove sync wrappers
 
 ### Components changed
 
