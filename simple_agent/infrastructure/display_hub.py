@@ -69,6 +69,11 @@ class AgentDisplayHub(Display):
         if agent:
             agent.tool_result(event.call_id, event.result)
 
+    def tool_cancelled(self, event) -> None:
+        agent = self._agent_for(event.agent_id)
+        if agent:
+            agent.tool_cancelled(event.call_id)
+
     def interrupted(self, event) -> None:
         agent = self._agent_for(event.agent_id)
         if agent:

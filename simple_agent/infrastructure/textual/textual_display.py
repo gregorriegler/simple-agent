@@ -12,6 +12,7 @@ from simple_agent.infrastructure.textual.textual_messages import (
     RemoveAgentTabMessage,
     SessionStatusMessage,
     ToolCallMessage,
+    ToolCancelledMessage,
     ToolResultMessage,
     UpdateTabTitleMessage,
     UserSaysMessage,
@@ -105,6 +106,10 @@ class TextualAgentDisplay(AgentDisplay):
             return
         if self._app and self._app.is_running:
             self._app.post_message(ToolResultMessage(self._tool_results_id, call_id, result))
+
+    def tool_cancelled(self, call_id):
+        if self._app and self._app.is_running:
+            self._app.post_message(ToolCancelledMessage(self._tool_results_id, call_id))
 
     def continue_session(self):
         if self._app and self._app.is_running:

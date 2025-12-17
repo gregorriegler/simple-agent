@@ -27,6 +27,7 @@ from simple_agent.infrastructure.textual.textual_messages import (
     RemoveAgentTabMessage,
     SessionStatusMessage,
     ToolCallMessage,
+    ToolCancelledMessage,
     ToolResultMessage,
     UpdateTabTitleMessage,
     UserSaysMessage,
@@ -453,6 +454,51 @@ class TextualApp(App):
                 self.loading_timer.stop()
                 self.loading_timer = None
 
+    def write_tool_cancelled(self, tool_results_id: str, call_id: str) -> None:
+        pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
+        if call_id in self._suppressed_tool_calls:
+            self._suppressed_tool_calls.discard(call_id)
+            pending_for_panel.pop(call_id, None)
+            self._refresh_todos(tool_results_id)
+            if not any(self._pending_tool_calls.values()):
+                if self.loading_timer:
+                    self.loading_timer.stop()
+                    self.loading_timer = None
+            return
+        pending_entry = pending_for_panel.pop(call_id, None)
+        if pending_entry is None:
+            logger.warning(
+                "Tool cancelled with no matching call. tool_results_id=%s call_id=%s",
+                tool_results_id,
+                call_id,
+            )
+            if not any(self._pending_tool_calls.values()):
+                if self.loading_timer:
+                    self.loading_timer.stop()
+                    self.loading_timer = None
+            return
+        title_source, text_area, call_collapsible = pending_entry
+
+        # Update to show cancelled state
+        text_area.load_text("Cancelled")
+        text_area.remove_class("tool-call")
+        text_area.add_class("tool-result")
+        text_area.add_class("tool-result-error")
+        text_area.styles.height = 3
+        text_area.styles.min_height = 3
+
+        lines = title_source.splitlines()
+        default_title = lines[0] if lines else "Tool Call"
+        call_collapsible.title = f"{default_title} (Cancelled)"
+
+        container = self.query_one(f"#{tool_results_id}", VerticalScroll)
+        container.scroll_end(animate=False)
+
+        if not any(self._pending_tool_calls.values()):
+            if self.loading_timer:
+                self.loading_timer.stop()
+                self.loading_timer = None
+
     def add_subagent_tab(self, agent_id: AgentId, tab_title: str) -> tuple[str, str]:
         tab_id, log_id, tool_results_id = self.panel_ids_for(agent_id)
 
@@ -520,6 +566,9 @@ class TextualApp(App):
 
     def on_tool_result_message(self, message: ToolResultMessage) -> None:
         self.write_tool_result(message.tool_results_id, message.call_id, message.result)
+
+    def on_tool_cancelled_message(self, message: ToolCancelledMessage) -> None:
+        self.write_tool_cancelled(message.tool_results_id, message.call_id)
 
     def on_session_status_message(self, message: SessionStatusMessage) -> None:
         self.write_message(message.log_id, message.status)

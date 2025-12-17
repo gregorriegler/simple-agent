@@ -11,7 +11,7 @@ from .event_bus_protocol import EventBus
 from .events import (
     AgentStartedEvent, AgentFinishedEvent,
     AssistantSaidEvent, AssistantRespondedEvent,
-    ToolCalledEvent, ToolResultEvent,
+    ToolCalledEvent, ToolResultEvent, ToolCancelledEvent,
     SessionEndedEvent, SessionInterruptedEvent,
     UserPromptRequestedEvent, UserPromptedEvent,
     ErrorEvent
@@ -78,6 +78,7 @@ class Agent:
 
     async def run_tool_loop(self):
         tool_result: ToolResult = ContinueResult()
+        current_tool: ParsedTool | None = None
 
         try:
             while tool_result.do_continue():
@@ -89,12 +90,13 @@ class Agent:
 
                 tool_results = []
                 for tool in tools:
+                    current_tool = tool
                     tool_result = await self.execute_tool(tool)
+                    current_tool = None
                     tool_results.append((tool, tool_result))
                     if not tool_result.do_continue():
                         break
 
-                # Only add ContinueResult to context, not CompleteResult
                 continue_results = [(tool, result) for tool, result in tool_results if isinstance(result, ContinueResult)]
                 if continue_results:
                     combined_result_message = "\n\n".join(
@@ -102,6 +104,10 @@ class Agent:
                     )
                     self.context.user_says(combined_result_message)
 
+        except asyncio.CancelledError:
+            if current_tool:
+                self.context.user_says(f"Result of {current_tool}\n[CANCELLED: Tool execution was interrupted by user]")
+            raise
         except KeyboardInterrupt:
             self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
             raise
@@ -150,11 +156,15 @@ class Agent:
         self._tool_call_counter += 1
         call_id = f"{self.agent_id}::tool_call::{self._tool_call_counter}"
         self.event_bus.publish(ToolCalledEvent(self.agent_id, call_id, tool))
-        tool_result = await asyncio.to_thread(self.tools.execute_parsed_tool, tool)
-        if inspect.isawaitable(tool_result):
-            tool_result = await tool_result
-        self.event_bus.publish(ToolResultEvent(self.agent_id, call_id, tool_result))
-        return tool_result
+        try:
+            tool_result = await asyncio.to_thread(self.tools.execute_parsed_tool, tool)
+            if inspect.isawaitable(tool_result):
+                tool_result = await tool_result
+            self.event_bus.publish(ToolResultEvent(self.agent_id, call_id, tool_result))
+            return tool_result
+        except asyncio.CancelledError:
+            self.event_bus.publish(ToolCancelledEvent(self.agent_id, call_id))
+            raise
 
     def notify_session_ended(self):
         self.event_bus.publish(SessionEndedEvent(self.agent_id))

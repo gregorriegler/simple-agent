@@ -57,6 +57,9 @@ class AgentDisplay(Protocol):
     def tool_result(self, call_id: str, result: ToolResult) -> None:
         ...
 
+    def tool_cancelled(self, call_id: str) -> None:
+        ...
+
     def continue_session(self) -> None:
         ...
 
@@ -86,6 +89,8 @@ class DummyDisplay(AgentDisplay):
     def tool_call(self, call_id: str, tool) -> None:
         pass
     def tool_result(self, call_id: str, result: ToolResult) -> None:
+        pass
+    def tool_cancelled(self, call_id: str) -> None:
         pass
     def continue_session(self) -> None:
         pass

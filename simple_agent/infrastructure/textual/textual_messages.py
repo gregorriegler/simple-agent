@@ -34,6 +34,13 @@ class ToolResultMessage(Message):
         self.result = result
 
 
+class ToolCancelledMessage(Message):
+    def __init__(self, tool_results_id: str, call_id: str) -> None:
+        super().__init__()
+        self.tool_results_id = tool_results_id
+        self.call_id = call_id
+
+
 class SessionStatusMessage(Message):
     def __init__(self, log_id: str, status: str) -> None:
         super().__init__()

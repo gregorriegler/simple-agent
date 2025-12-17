@@ -32,6 +32,12 @@ class ToolResultEvent(AgentEvent):
 
 
 @dataclass
+class ToolCancelledEvent(AgentEvent):
+    event_name: ClassVar[str] = "tool_cancelled"
+    call_id: str
+
+
+@dataclass
 class SessionStartedEvent(AgentEvent):
     event_name: ClassVar[str] = "session_started"
     is_continuation: bool
