@@ -76,6 +76,10 @@ class SessionTestBed:
         self._llm = FailingLLM()
         return self
 
+    def with_llm(self, llm) -> "SessionTestBed":
+        self._llm = llm
+        return self
+
     def with_user_inputs(self, start_message: str, *remaining) -> "SessionTestBed":
         self._start_message = start_message
         self._user_inputs = list(remaining) if remaining else ["\n"]
