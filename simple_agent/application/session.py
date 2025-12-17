@@ -51,7 +51,7 @@ class Session:
         self._todo_cleanup = todo_cleanup
         self._llm_provider = llm_provider
 
-    def run(
+    async def run_async(
         self,
         args: SessionArgs,
         starting_agent_id: AgentId,
@@ -65,7 +65,6 @@ class Session:
             self._user_input,
             self._llm_provider
         )
-
 
         self._event_bus.publish(SessionStartedEvent(starting_agent_id, args.continue_session))
 
@@ -84,4 +83,14 @@ class Session:
             persisted_messages
         )
 
-        asyncio.run(agent.start())
+        # Agent handles its own escape checking via _run_with_escape_check
+        await agent.start()
+
+    # TODO do we still need this sync variant?
+    def run(
+        self,
+        args: SessionArgs,
+        starting_agent_id: AgentId,
+        agent_definition: AgentDefinition
+    ):
+        asyncio.run(self.run_async(args, starting_agent_id, agent_definition))

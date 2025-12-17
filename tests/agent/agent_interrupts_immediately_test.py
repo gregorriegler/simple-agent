@@ -25,7 +25,6 @@ class InputWithStartMessage:
 
     def __init__(self):
         self._read_count = 0
-        self._escape_count = 0
 
     def has_stacked_messages(self) -> bool:
         return self._read_count == 0
@@ -36,9 +35,8 @@ class InputWithStartMessage:
             return "Hello"
         return ""
 
-    def escape_requested(self) -> bool:
-        self._escape_count += 1
-        return True
+    async def read_async(self) -> str:
+        return self.read()
 
 
 def _make_response(content: str):
@@ -56,7 +54,8 @@ def _make_tool_library():
 
 
 @pytest.mark.asyncio
-async def test_escape_interrupts_during_llm_call():
+async def test_cancel_interrupts_during_llm_call():
+    """Cancelling the agent task should immediately interrupt a slow LLM call."""
     event_bus = SimpleEventBus()
 
     agent = Agent(
@@ -71,12 +70,25 @@ async def test_escape_interrupts_during_llm_call():
     )
 
     start = time.monotonic()
-    await agent.start()
+
+    # Start agent as a task
+    task = asyncio.create_task(agent.start())
+
+    # Wait a bit then cancel
+    await asyncio.sleep(0.1)
+    task.cancel()
+
+    # Wait for cancellation to complete
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
+
     elapsed = time.monotonic() - start
 
-    assert elapsed < 2.0, (
-        f"Cancellation took {elapsed:.1f}s - expected < 2s. "
-        "ESC should cancel the LLM call immediately, not wait for it to complete."
+    assert elapsed < 1.0, (
+        f"Cancellation took {elapsed:.1f}s - expected < 1s. "
+        "task.cancel() should interrupt the LLM call immediately."
     )
 
 
@@ -131,12 +143,13 @@ class InputForToolTest:
             return "call the slow tool"
         return ""
 
-    def escape_requested(self) -> bool:
-        return True
+    async def read_async(self) -> str:
+        return self.read()
 
 
 @pytest.mark.asyncio
-async def test_escape_interrupts_during_tool_execution():
+async def test_cancel_interrupts_during_tool_execution():
+    """Cancelling the agent task should immediately interrupt a slow tool call."""
     event_bus = SimpleEventBus()
 
     slow_tool = SlowTool()
@@ -154,10 +167,23 @@ async def test_escape_interrupts_during_tool_execution():
     )
 
     start = time.monotonic()
-    await agent.start()
+
+    # Start agent as a task
+    task = asyncio.create_task(agent.start())
+
+    # Wait a bit then cancel
+    await asyncio.sleep(0.1)
+    task.cancel()
+
+    # Wait for cancellation to complete
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
+
     elapsed = time.monotonic() - start
 
-    assert elapsed < 2.0, (
-        f"Cancellation took {elapsed:.1f}s - expected < 2s. "
-        "ESC should cancel the tool execution immediately, not wait for it to complete."
+    assert elapsed < 1.0, (
+        f"Cancellation took {elapsed:.1f}s - expected < 1s. "
+        "task.cancel() should interrupt tool execution immediately."
     )

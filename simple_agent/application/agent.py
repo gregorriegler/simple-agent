@@ -47,8 +47,16 @@ class Agent:
         try:
             tool_result: ToolResult = ContinueResult()
 
-            while self.user_prompts():
-                tool_result = await self.run_tool_loop()
+            while True:
+                try:
+                    prompt = await self.user_prompts()
+                    if not prompt:
+                        break
+                    tool_result = await self.run_tool_loop()
+                except asyncio.CancelledError:
+                    # ESC pressed - interrupt current operation but continue session
+                    self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
+                    continue
 
             self.notify_session_ended()
             return tool_result
@@ -76,11 +84,6 @@ class Agent:
                 message, tools = await self.llm_responds()
                 self.notify_about_message(message)
 
-                if self.user_input.escape_requested():
-                    self.notify_about_interrupt()
-                    prompt = self.read_user_input_and_prompt_it()
-                    if prompt:
-                        break
                 if not tools:
                     break
 
@@ -107,10 +110,6 @@ class Agent:
 
         return tool_result
 
-    def notify_about_interrupt(self):
-        self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
-        self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
-
     def notify_about_message(self, message):
         if message:
             self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
@@ -134,14 +133,14 @@ class Agent:
         ))
         return self.tools.parse_message_and_tools(answer)
 
-    def user_prompts(self):
+    async def user_prompts(self):
         if not self.user_input.has_stacked_messages():
             self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
-        prompt = self.read_user_input_and_prompt_it()
+        prompt = await self.read_user_input_and_prompt_it()
         return prompt
 
-    def read_user_input_and_prompt_it(self):
-        prompt = self.user_input.read()
+    async def read_user_input_and_prompt_it(self):
+        prompt = await self.user_input.read_async()
         if prompt:
             self.context.user_says(prompt)
             self.event_bus.publish(UserPromptedEvent(self.agent_id, prompt))
@@ -151,11 +150,9 @@ class Agent:
         self._tool_call_counter += 1
         call_id = f"{self.agent_id}::tool_call::{self._tool_call_counter}"
         self.event_bus.publish(ToolCalledEvent(self.agent_id, call_id, tool))
-        result = self.tools.execute_parsed_tool(tool)
-        if inspect.isawaitable(result):
-            tool_result = await result
-        else:
-            tool_result = result
+        tool_result = await asyncio.to_thread(self.tools.execute_parsed_tool, tool)
+        if inspect.isawaitable(tool_result):
+            tool_result = await tool_result
         self.event_bus.publish(ToolResultEvent(self.agent_id, call_id, tool_result))
         return tool_result
 

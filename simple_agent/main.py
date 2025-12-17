@@ -61,10 +61,7 @@ def main(on_user_prompt_requested=None):
     if not args.continue_session:
         todo_cleanup.cleanup_all_todos()
 
-    if args.test_mode:
-        textual_app = TextualApp.create_and_start_test(textual_user_input, root_agent_id)
-    else:
-        textual_app = TextualApp.create_and_start(textual_user_input, root_agent_id)
+    textual_app = TextualApp(textual_user_input, root_agent_id)
     display = TextualDisplay(textual_app)
 
     session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
@@ -97,12 +94,19 @@ def main(on_user_prompt_requested=None):
         llm_provider=llm_provider
     )
 
-    session.run(args, root_agent_id, agent_definition)
-
     if args.test_mode:
+        # Test mode: use threaded approach for compatibility with test harness
+        textual_app = TextualApp.create_and_start_test(textual_user_input, root_agent_id)
+        display = TextualDisplay(textual_app)
+        subscribe_events(event_bus, event_logger, todo_cleanup, display)
+        session.run(args, root_agent_id, agent_definition)
         return textual_app
 
-    textual_app.shutdown()
+    # Normal mode: Textual owns the event loop, session runs as a task
+    async def run_session():
+        await session.run_async(args, root_agent_id, agent_definition)
+
+    textual_app.run_with_session(run_session)
     return None
 
 

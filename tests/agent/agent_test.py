@@ -70,14 +70,6 @@ def test_chat_with_task_completion():
     )
 
 
-def test_escape_reads_follow_up_message():
-    verify_chat(["Hello", "Follow-up message", "\n"], ["Assistant response"], [True, False])
-
-
-def test_escape_aborts_tool_call():
-    verify_chat(["Hello", "Follow-up message", "\n"], ["🛠️[cat hello.txt /]", "🛠️[complete-task summary /]"], [True, False])
-
-
 def test_interrupt_reads_follow_up_message():
     verify_chat(["Hello", "Follow-up message", "\n"], ["Assistant response"], [], [True, False])
 

@@ -61,15 +61,21 @@ Each step keeps all existing tests passing. Async "bubbles up" naturally.
     - Use `await run_tool_loop()` directly
     - Tests pass
 
-#### NOW - Feature completion
+#### DONE - Feature completion
 
 13. ✅ Write failing test for immediate interrupt (TDD)
-    - Test that ESC cancels a long-running LLM call immediately
-    - Test that ESC cancels a long-running tool immediately
+    - Test that task.cancel() interrupts a long-running LLM call immediately
+    - Test that task.cancel() interrupts a long-running tool immediately
 
-14. Wire up cancellation in `textual_app`
-    - On ESC, cancel the running async task
-    - Propagate `asyncio.CancelledError` appropriately
+14. ✅ Wire up cancellation in `textual_app`
+    - Textual now owns the event loop (removed threading)
+    - Session runs as an asyncio task inside Textual's event loop
+    - On ESC, `task.cancel()` is called directly - immediate cancellation
+    - `CancelledError` propagates naturally through async code
 
-15. Remove sync wrappers (if any remain)
+15. ✅ Simplify agent code
+    - Removed `_run_with_escape_check` polling mechanism
+    - Agent now uses plain `await` calls
+    - Cancellation is handled externally by the caller
+    - Removed old "soft interrupt" escape_requested() checks
 

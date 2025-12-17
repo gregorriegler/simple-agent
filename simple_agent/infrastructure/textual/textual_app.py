@@ -1,9 +1,11 @@
+import asyncio
 import logging
 import os
 import signal
 import threading
 import time
 from pathlib import Path
+from typing import Callable, Coroutine, Any
 
 logger = logging.getLogger(__name__)
 
@@ -48,26 +50,15 @@ class TextualApp(App):
     @staticmethod
     def create_and_start(user_input=None, root_agent_id: AgentId = AgentId("Agent")):
         app = TextualApp(user_input, root_agent_id)
-
-        def run_with_suppressed_shutdown_error():
-            try:
-                app.run()
-            except RuntimeError as e:
-                # Suppress "cannot schedule new futures after shutdown" which occurs
-                # when asyncio.run() cleans up the executor before Textual finishes
-                # stopping its timers. This is benign during app exit.
-                if "cannot schedule new futures after shutdown" not in str(e):
-                    raise
-
-        app._app_thread = threading.Thread(target=run_with_suppressed_shutdown_error, daemon=False)
-        app._app_thread.start()
-        time.sleep(0.5)
         return app
+
+    def run_with_session(self, session_runner: Callable[[], Coroutine[Any, Any, None]]):
+        self._session_runner = session_runner
+        self.run()
 
     @staticmethod
     def create_and_start_test(user_input=None, root_agent_id: AgentId = AgentId("Agent")):
         """Start the app in test mode using Textual's run_test() for headless testing."""
-        import asyncio
         import io
         import sys
 
@@ -99,15 +90,10 @@ class TextualApp(App):
     def shutdown(self):
         if hasattr(self, '_test_shutdown'):
             self._test_shutdown.set()
-            if self._app_thread and self._app_thread.is_alive():
+            if hasattr(self, '_app_thread') and self._app_thread and self._app_thread.is_alive():
                 self._app_thread.join(timeout=2.0)
         elif self.is_running:
-            self.call_from_thread(self.exit)
-            if self._app_thread and self._app_thread.is_alive():
-                self._app_thread.join(timeout=2.0)
-                if self._app_thread.is_alive():
-                    import sys
-                    print("Warning: TextualApp thread did not exit cleanly", file=sys.stderr)
+            self.exit()
     BINDINGS = [
         ("alt+left", "previous_tab", "Previous Tab"),
         ("alt+right", "next_tab", "Next Tab"),
@@ -188,6 +174,8 @@ class TextualApp(App):
         self.user_input = user_input
         self._root_agent_id = root_agent_id
         self._app_thread = None
+        self._session_runner: Callable[[], Coroutine[Any, Any, None]] | None = None
+        self._session_task: asyncio.Task | None = None
         self._pending_tool_calls: dict[str, dict[str, tuple[str, TextArea, Collapsible]]] = {}
         self._tool_result_collapsibles: dict[str, list[Collapsible]] = {}
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
@@ -241,8 +229,18 @@ class TextualApp(App):
         self._pending_tool_calls[tool_results_id] = {}
         return ResizableHorizontal(left_panel, right_panel, id="tab-content")
 
-    def on_mount(self) -> None:
+    async def on_mount(self) -> None:
         self.query_one("#user-input", TextArea).focus()
+        if self._session_runner:
+            self._session_task = asyncio.create_task(self._run_session())
+
+    async def _run_session(self) -> None:
+        """Run the session and exit the app when done."""
+        try:
+            await self._session_runner()
+        except Exception as e:
+            logger.error("Session error: %s", e)
+        self.exit()
 
     def on_unmount(self) -> None:
         if self.user_input:
@@ -259,8 +257,8 @@ class TextualApp(App):
 
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
-            if self.user_input:
-                self.user_input.request_escape()
+            if self._session_task and not self._session_task.done():
+                self._session_task.cancel()
             event.prevent_default()
             return
         if event.key == "ctrl+enter":
