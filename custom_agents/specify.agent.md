@@ -8,6 +8,7 @@ tools:
   - replace_file_content
   - write_todos
   - complete_task
+  - subagent
 model: claude-opus
 ---
 

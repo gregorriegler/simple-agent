@@ -47,7 +47,7 @@ class SessionTestBed:
             def model(self) -> str:
                 return "default-model"
             
-            def __call__(self, m):
+            async def call_async(self, m):
                 return ""
         
         self._llm = DefaultLLM()
@@ -69,8 +69,6 @@ class SessionTestBed:
             def model(self) -> str:
                 return "failing-model"
             
-            def __call__(self, messages):
-                raise ClaudeClientError(error_message)
             
             async def call_async(self, messages):
                 raise ClaudeClientError(error_message)
