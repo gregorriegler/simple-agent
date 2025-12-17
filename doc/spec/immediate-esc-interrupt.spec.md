@@ -63,7 +63,7 @@ Each step keeps all existing tests passing. Async "bubbles up" naturally.
 
 #### NOW - Feature completion
 
-13. Write failing test for immediate interrupt (TDD)
+13. ✅ Write failing test for immediate interrupt (TDD)
     - Test that ESC cancels a long-running LLM call immediately
     - Test that ESC cancels a long-running tool immediately
 
