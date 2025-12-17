@@ -96,10 +96,11 @@ def main(on_user_prompt_requested=None):
 
     if args.test_mode:
         # Test mode: use threaded approach for compatibility with test harness
+        import asyncio
         textual_app = TextualApp.create_and_start_test(textual_user_input, root_agent_id)
         display = TextualDisplay(textual_app)
         subscribe_events(event_bus, event_logger, todo_cleanup, display)
-        session.run(args, root_agent_id, agent_definition)
+        asyncio.run(session.run_async(args, root_agent_id, agent_definition))
         return textual_app
 
     # Normal mode: Textual owns the event loop, session runs as a task

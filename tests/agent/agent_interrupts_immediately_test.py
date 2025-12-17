@@ -29,14 +29,11 @@ class InputWithStartMessage:
     def has_stacked_messages(self) -> bool:
         return self._read_count == 0
 
-    def read(self) -> str:
+    async def read_async(self) -> str:
         self._read_count += 1
         if self._read_count == 1:
             return "Hello"
         return ""
-
-    async def read_async(self) -> str:
-        return self.read()
 
 
 def _make_response(content: str):
@@ -137,14 +134,11 @@ class InputForToolTest:
     def has_stacked_messages(self) -> bool:
         return self._read_count == 0
 
-    def read(self) -> str:
+    async def read_async(self) -> str:
         self._read_count += 1
         if self._read_count == 1:
             return "call the slow tool"
         return ""
-
-    async def read_async(self) -> str:
-        return self.read()
 
 
 @pytest.mark.asyncio

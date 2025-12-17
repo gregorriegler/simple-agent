@@ -11,15 +11,6 @@ class TextualUserInput(UserInput):
         self.escape_flag = False
         self.closing = False
 
-    # TODO do we still need this?
-    def read(self) -> str:
-        while not self.closing:
-            try:
-                return self.input_queue.get(timeout=0.1)
-            except Empty:
-                continue
-        return ""
-
     async def read_async(self) -> str:
         while not self.closing:
             try:

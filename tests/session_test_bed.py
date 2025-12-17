@@ -106,6 +106,8 @@ class SessionTestBed:
         return self
 
     def run(self) -> SessionTestResult:
+        import asyncio
+        
         event_bus = SimpleEventBus()
         display = FakeDisplay()
         io_spy = IOSpy(self._user_inputs, self._escape_hits)
@@ -161,11 +163,11 @@ class SessionTestBed:
             llm_provider=StubLLMProvider.for_testing(self._llm)
         )
 
-        session.run(
+        asyncio.run(session.run_async(
             create_session_args(self._continue_session, start_message=self._start_message),
             AgentId("Agent"),
             _create_test_agent_definition()
-        )
+        ))
 
         return SessionTestResult(event_spy, error_events, session_storage, display)
 

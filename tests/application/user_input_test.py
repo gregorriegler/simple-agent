@@ -1,10 +1,11 @@
+import asyncio
 from simple_agent.application.user_input import DummyUserInput
 
 
 def test_dummy_user_input_returns_empty_prompt_and_no_escape_request():
     user_input = DummyUserInput()
 
-    assert user_input.read() == ""
+    assert asyncio.run(user_input.read_async()) == ""
     assert user_input.escape_requested() is False
 
 

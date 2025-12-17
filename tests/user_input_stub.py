@@ -6,12 +6,8 @@ class UserInputStub(UserInput):
     def __init__(self, io: IO):
         self.io = io
 
-    #TODO do we still need this?
-    def read(self) -> str:
-        return self.io.input("").strip()
-
     async def read_async(self) -> str:
-        return self.read()
+        return self.io.input("").strip()
 
     def escape_requested(self) -> bool:
         return self.io.escape_requested()

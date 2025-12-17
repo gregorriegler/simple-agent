@@ -14,7 +14,6 @@ from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.todo_cleanup import TodoCleanup
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from simple_agent.application.user_input import UserInput
-import asyncio
 
 
 
@@ -85,12 +84,3 @@ class Session:
 
         # Agent handles its own escape checking via _run_with_escape_check
         await agent.start()
-
-    # TODO do we still need this sync variant?
-    def run(
-        self,
-        args: SessionArgs,
-        starting_agent_id: AgentId,
-        agent_definition: AgentDefinition
-    ):
-        asyncio.run(self.run_async(args, starting_agent_id, agent_definition))
