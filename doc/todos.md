@@ -1,5 +1,4 @@
 # NOW 
-- the chat window should allow markdown
 
 # NEXT
 - /clear

@@ -38,9 +38,16 @@ from simple_agent.infrastructure.textual.resizable_container import ResizableHor
 class SubmittableTextArea(TextArea):
 
     def _on_key(self, event: events.Key) -> None:
-        # ctrl+j is how Windows/mintty sends Ctrl+Enter
-        if event.key in ("ctrl+enter", "ctrl+j"):
+        # Let Enter submit the form
+        if event.key == "enter":
             self.app.action_submit_input()
+            event.stop()
+            event.prevent_default()
+            return
+        # ctrl+j is how Windows/mintty sends Ctrl+Enter - insert newline
+        if event.key in ("ctrl+enter", "ctrl+j"):
+            # Explicitly insert newline
+            self.insert("\n")
             event.stop()
             event.prevent_default()
             return
@@ -100,7 +107,7 @@ class TextualApp(App):
         ("alt+right", "next_tab", "Next Tab"),
         ("ctrl+c", "quit", "Quit"),
         ("ctrl+q", "quit", "Quit"),
-        ("ctrl+enter", "submit_input", "Submit"),
+        ("enter", "submit_input", "Submit"),
     ]
 
     CSS = """
@@ -206,7 +213,7 @@ class TextualApp(App):
             with TabbedContent(id="tabs"):
                 with TabPane(self._root_agent_id.raw, id=tab_id):
                     yield self.create_agent_container(log_id, tool_results_id, self._root_agent_id)
-            yield Static("Ctrl+Enter to submit", id="input-hint")
+            yield Static("Enter to submit, Ctrl+Enter for newline", id="input-hint")
             yield SubmittableTextArea(id="user-input")
     def create_agent_container(self, log_id, tool_results_id, agent_id):
         chat_scroll = VerticalScroll(id=f"{log_id}-scroll", classes="left-panel-top")
@@ -262,10 +269,7 @@ class TextualApp(App):
                 self._session_task.cancel()
             event.prevent_default()
             return
-        if event.key == "ctrl+enter":
-            self.action_submit_input()
-            event.prevent_default()
-            return
+        # Enter is now handled by SubmittableTextArea
         return
 
     def action_quit(self) -> None:
