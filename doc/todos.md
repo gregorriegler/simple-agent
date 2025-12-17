@@ -1,9 +1,7 @@
 # NOW 
-- escape immediately
+- have the agent test the test.sh script and add feature for testing whole paths and multiple tests
 
 # NEXT
-- after escaping, there are always two user prompt requests
-- have the agent test the test.sh script and add feature for testing whole paths and multiple tests
 - the chat window should allow markdown
 - /clear
 - add files via @

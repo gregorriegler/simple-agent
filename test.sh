@@ -96,12 +96,32 @@ else
 fi
 
 if [[ -n "${1:-}" ]]; then
-    if [[ -f "tests/$1" ]]; then
-        test_target="tests/$1"
-    elif [[ -f "tests/${1}.py" ]]; then
-        test_target="tests/${1}.py"
-    else
-        pytest_args+=(-k "$1")
+    # Collect all remaining arguments as patterns
+    patterns=()
+    file_provided=false
+    while [[ -n "${1:-}" ]]; do
+        if [[ -f "$1" ]]; then
+            # Full path provided
+            test_target="$1"
+            file_provided=true
+        elif [[ -f "tests/$1" ]]; then
+            test_target="tests/$1"
+            file_provided=true
+        elif [[ -f "tests/${1}.py" ]]; then
+            test_target="tests/${1}.py"
+            file_provided=true
+        else
+            # Treat as a pattern for -k flag
+            patterns+=("$1")
+        fi
+        shift
+    done
+    
+    # If we have patterns (and no file was provided), combine them with 'or'
+    # If a file was provided, ignore remaining patterns
+    if [[ ${#patterns[@]} -gt 0 ]] && [[ "$file_provided" == false ]]; then
+        pattern_expr=$(printf ' or %s' "${patterns[@]}" | sed 's/^ or //')
+        pytest_args+=(-k "$pattern_expr")
     fi
 fi
 
