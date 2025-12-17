@@ -234,6 +234,7 @@ Examples:
 │   ├── refine-scenarios.agent.md
 │   ├── review.agent.md
 │   ├── simple-task.agent.md
+│   ├── skills/
 │   ├── slicer.agent.md
 │   ├── sonnet.agent.md
 │   ├── specify.agent.md
