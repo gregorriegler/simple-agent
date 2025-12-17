@@ -22,7 +22,7 @@ Convert blocking operations to async with cancellation support. Propagate async 
 
 Each step keeps all existing tests passing. Async "bubbles up" naturally.
 
-#### DONE - Async LLM protocol and llm_responds
+#### DONE - Async foundation complete
 
 7. ✅ **Fix async method naming in LLM clients**
    - Rename `__call___async` → `call_async` (fix typo, make public)
@@ -40,37 +40,36 @@ Each step keeps all existing tests passing. Async "bubbles up" naturally.
 10. ✅ **Make `agent.llm_responds` async**
     - Change `def llm_responds` → `async def llm_responds`
     - Call `await self.llm.call_async(...)` instead of `self.llm(...)`
-    - Caller (`run_tool_loop`) wraps with `asyncio.run()`
     - Tests pass
 
-#### NOW - Async tool execution and run_tool_loop
-
-10a. **Cleanup: Remove dead sync `__call__` methods in test stubs**
-    - `tests/session_test_bed.py`: `DefaultLLM.__call__` (line 50) - unused, needs `call_async`
-    - `tests/session_test_bed.py`: `FailingLLM.__call__` (line 72) - redundant, `call_async` exists
+10a. ✅ **Cleanup: Remove dead sync `__call__` methods in test stubs**
+    - `tests/session_test_bed.py`: `DefaultLLM` and `FailingLLM` only have `call_async`
     - Tests pass
 
-11. **Make `agent.execute_tool` async**
+11. ✅ **Make `agent.execute_tool` async**
     - Change `def execute_tool` → `async def execute_tool`
-    - No internal async calls yet (just preparation for cancellation)
-    - Caller (`run_tool_loop`) wraps with `asyncio.run()` 
+    - Handles both sync and async tool results via `inspect.isawaitable()`
     - Tests pass
 
-12. **Make `agent.run_tool_loop` async**
+12. ✅ **Make `agent.run_tool_loop` async**
     - Change `def run_tool_loop` → `async def run_tool_loop`
     - Use `await llm_responds()` and `await execute_tool()` directly
-    - Remove internal `asyncio.run()` calls
-    - Caller (`start`) wraps with `asyncio.run()`
     - Tests pass
 
-#### LATER - Feature completion
+12a. ✅ **Make `agent.start` async**
+    - Change `def start` → `async def start`
+    - Use `await run_tool_loop()` directly
+    - Tests pass
+
+#### NOW - Feature completion
 
 13. Write failing test for immediate interrupt (TDD)
+    - Test that ESC cancels a long-running LLM call immediately
+    - Test that ESC cancels a long-running tool immediately
+
 14. Wire up cancellation in `textual_app`
-15. Remove sync wrappers
+    - On ESC, cancel the running async task
+    - Propagate `asyncio.CancelledError` appropriately
 
-### Components changed (NOW phase)
-
-- `tests/session_test_bed.py` - cleanup dead `__call__` methods, add `call_async` to `DefaultLLM`
-- `simple_agent/application/agent.py` - make `execute_tool` async, then `run_tool_loop` async
+15. Remove sync wrappers (if any remain)
 
