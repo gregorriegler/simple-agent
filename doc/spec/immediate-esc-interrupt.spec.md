@@ -22,7 +22,7 @@ Convert blocking operations to async with cancellation support. Propagate async 
 
 Each step keeps all existing tests passing. Async "bubbles up" naturally.
 
-#### NOW - Async LLM protocol and llm_responds
+#### DONE - Async LLM protocol and llm_responds
 
 7. ✅ **Fix async method naming in LLM clients**
    - Rename `__call___async` → `call_async` (fix typo, make public)
@@ -37,18 +37,31 @@ Each step keeps all existing tests passing. Async "bubbles up" naturally.
    - Update `StubLLM` / `create_llm_stub` to have `call_async`
    - Tests pass
 
-#### NEXT - Async tool execution and run_tool_loop
+10. ✅ **Make `agent.llm_responds` async**
+    - Change `def llm_responds` → `async def llm_responds`
+    - Call `await self.llm.call_async(...)` instead of `self.llm(...)`
+    - Caller (`run_tool_loop`) wraps with `asyncio.run()`
+    - Tests pass
 
-10. **Make `agent.llm_responds` async**
-  - Change `def llm_responds` → `async def llm_responds`
-  - Call `await self.llm.call_async(...)` instead of `self.llm(...)`
-  - Caller (`run_tool_loop`) wraps with `asyncio.run()`
-  - Tests pass
+#### NOW - Async tool execution and run_tool_loop
 
-11. Tool execution → async
-12. `agent.run_tool_loop` → async
+10a. **Cleanup: Remove dead sync `__call__` methods in test stubs**
+    - `tests/session_test_bed.py`: `DefaultLLM.__call__` (line 50) - unused, needs `call_async`
+    - `tests/session_test_bed.py`: `FailingLLM.__call__` (line 72) - redundant, `call_async` exists
+    - Tests pass
 
-Details to be specified when we get here.
+11. **Make `agent.execute_tool` async**
+    - Change `def execute_tool` → `async def execute_tool`
+    - No internal async calls yet (just preparation for cancellation)
+    - Caller (`run_tool_loop`) wraps with `asyncio.run()` 
+    - Tests pass
+
+12. **Make `agent.run_tool_loop` async**
+    - Change `def run_tool_loop` → `async def run_tool_loop`
+    - Use `await llm_responds()` and `await execute_tool()` directly
+    - Remove internal `asyncio.run()` calls
+    - Caller (`start`) wraps with `asyncio.run()`
+    - Tests pass
 
 #### LATER - Feature completion
 
@@ -58,11 +71,6 @@ Details to be specified when we get here.
 
 ### Components changed (NOW phase)
 
-- `simple_agent/infrastructure/claude/claude_client.py` - rename `__call___async` → `call_async`
-- `simple_agent/infrastructure/openai/openai_client.py` - rename `__call___async` → `call_async`
-- `simple_agent/infrastructure/gemini/gemini_client.py` - rename `__call___async` → `call_async`
-- `simple_agent/infrastructure/gemini/gemini_v1_client.py` - rename `__call___async` → `call_async`
-- `simple_agent/application/llm.py` - add `call_async` to Protocol
-- `simple_agent/application/llm_stub.py` - add `call_async` to stub
-- `simple_agent/application/agent.py` - make `llm_responds` async
+- `tests/session_test_bed.py` - cleanup dead `__call__` methods, add `call_async` to `DefaultLLM`
+- `simple_agent/application/agent.py` - make `execute_tool` async, then `run_tool_loop` async
 
