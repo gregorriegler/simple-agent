@@ -78,17 +78,14 @@ class TextualAgentDisplay(AgentDisplay):
 
     def user_says(self, message):
         if self._app and self._app.is_running:
-            self._app.post_message(UserSaysMessage(self._log_id, f"\nUser: {message}"))
+            self._app.post_message(UserSaysMessage(self._log_id, f"**User:** {message}"))
 
     def assistant_says(self, message):
-        lines = str(message).split("\n")
-        if not (lines and self._app and self._app.is_running):
+        if not (message and self._app and self._app.is_running):
             return
         self._app.post_message(
-            AssistantSaysMessage(self._log_id, f"\n{self._agent_name}: {lines[0]}", is_first_line=True)
+            AssistantSaysMessage(self._log_id, f"**{self._agent_name}:** {message}")
         )
-        for line in lines[1:]:
-            self._app.post_message(AssistantSaysMessage(self._log_id, line, is_first_line=False))
 
     def assistant_responded(self, model: str, token_count: int, max_tokens: int):
         if not (self._app and self._app.is_running):

@@ -11,11 +11,10 @@ class UserSaysMessage(Message):
 
 
 class AssistantSaysMessage(Message):
-    def __init__(self, log_id: str, content: str, is_first_line: bool = False) -> None:
+    def __init__(self, log_id: str, content: str) -> None:
         super().__init__()
         self.log_id = log_id
         self.content = content
-        self.is_first_line = is_first_line
 
 
 class ToolCallMessage(Message):

@@ -209,7 +209,7 @@ class TextualApp(App):
             yield Static("Ctrl+Enter to submit", id="input-hint")
             yield SubmittableTextArea(id="user-input")
     def create_agent_container(self, log_id, tool_results_id, agent_id):
-        chat_scroll = VerticalScroll(Static("", id=log_id), id=f"{log_id}-scroll", classes="left-panel-top")
+        chat_scroll = VerticalScroll(id=f"{log_id}-scroll", classes="left-panel-top")
         todo = Markdown(self._load_todos(agent_id), id=f"{log_id}-todos")
         secondary_scroll = VerticalScroll(todo, id=f"{log_id}-secondary", classes="left-panel-bottom")
 
@@ -300,27 +300,15 @@ class TextualApp(App):
         text_area.clear()
 
     def write_message(self, log_id: str, message: str) -> None:
-        new_content = ""
         try:
-            container = self.query_one(f"#{log_id}", Static)
-
-            # Get current content using render() like the old working code
-            current_text = str(container.render())
-
-            # Build new content
-            if current_text:
-                new_content = current_text + "\n" + message
-            else:
-                new_content = message
-
-            # Update with Text object (no markup interpretation)
-            log_text = Text(new_content)
-            container.update(log_text)
-            self.query_one(f"#{log_id}-scroll", VerticalScroll).scroll_end(animate=False)
+            scroll = self.query_one(f"#{log_id}-scroll", VerticalScroll)
+            msg_widget = Markdown(message)
+            scroll.mount(msg_widget)
+            scroll.scroll_end(animate=False)
         except NoMatches:
-            logger.warning("Could not find log container #%s", log_id)
+            logger.warning("Could not find scroll container #%s-scroll", log_id)
         except Exception as e:
-            logger.error("Failed to display message: %s. Message: %s", e, new_content or message)
+            logger.error("Failed to display message: %s. Message: %s", e, message)
 
     def _update_loading_animation(self) -> None:
         frame = self.loading_frames[self.loading_frame_index]

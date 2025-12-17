@@ -1,8 +1,7 @@
 # NOW 
-- have the agent test the test.sh script and add feature for testing whole paths and multiple tests
+- the chat window should allow markdown
 
 # NEXT
-- the chat window should allow markdown
 - /clear
 - add files via @
 - [red]Error: cannot unpack non-iterable coroutine object[/red] whats this?
