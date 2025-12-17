@@ -41,13 +41,13 @@ class Agent:
         self._tool_call_counter = 0
         self.context: Messages = context
 
-    def start(self):
+    async def start(self):
         self._notify_agent_started()
         try:
             tool_result: ToolResult = ContinueResult()
 
             while self.user_prompts():
-                tool_result = self.run_tool_loop()
+                tool_result = await self.run_tool_loop()
 
             self.notify_session_ended()
             return tool_result
@@ -67,12 +67,12 @@ class Agent:
             AgentFinishedEvent(self.agent_id)
         )
 
-    def run_tool_loop(self):
+    async def run_tool_loop(self):
         tool_result: ToolResult = ContinueResult()
 
         try:
             while tool_result.do_continue():
-                message, tools = asyncio.run(self.llm_responds())
+                message, tools = await self.llm_responds()
                 self.notify_about_message(message)
 
                 if self.user_input.escape_requested():
@@ -85,7 +85,7 @@ class Agent:
 
                 tool_results = []
                 for tool in tools:
-                    tool_result = self.execute_tool(tool)
+                    tool_result = await self.execute_tool(tool)
                     tool_results.append((tool, tool_result))
                     if not tool_result.do_continue():
                         break
@@ -146,7 +146,7 @@ class Agent:
             self.event_bus.publish(UserPromptedEvent(self.agent_id, prompt))
         return prompt
 
-    def execute_tool(self, tool: ParsedTool):
+    async def execute_tool(self, tool: ParsedTool):
         self._tool_call_counter += 1
         call_id = f"{self.agent_id}::tool_call::{self._tool_call_counter}"
         self.event_bus.publish(ToolCalledEvent(self.agent_id, call_id, tool))
