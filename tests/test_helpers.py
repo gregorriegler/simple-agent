@@ -1,3 +1,4 @@
+import asyncio
 import os
 from contextlib import contextmanager
 
@@ -173,6 +174,8 @@ def all_scrubbers():
 def verify_tool(library, command):
     tool = library.parse_message_and_tools(command)
     result = library.execute_parsed_tool(tool.tools[0])
+    if asyncio.iscoroutine(result):
+        result = asyncio.run(result)
     verify(f"Command:\n{command}\n\nResult:\n{result}", options=Options()
            .with_scrubber(all_scrubbers()))
 

@@ -1,4 +1,5 @@
 import asyncio
+import inspect
 from simple_agent.logging_config import get_logger
 
 from .agent_id import AgentId
@@ -146,11 +147,15 @@ class Agent:
             self.event_bus.publish(UserPromptedEvent(self.agent_id, prompt))
         return prompt
 
-    async def execute_tool(self, tool: ParsedTool):
+    async def execute_tool(self, tool: ParsedTool) -> ToolResult:
         self._tool_call_counter += 1
         call_id = f"{self.agent_id}::tool_call::{self._tool_call_counter}"
         self.event_bus.publish(ToolCalledEvent(self.agent_id, call_id, tool))
-        tool_result = self.tools.execute_parsed_tool(tool)
+        result = self.tools.execute_parsed_tool(tool)
+        if inspect.isawaitable(result):
+            tool_result = await result
+        else:
+            tool_result = result
         self.event_bus.publish(ToolResultEvent(self.agent_id, call_id, tool_result))
         return tool_result
 

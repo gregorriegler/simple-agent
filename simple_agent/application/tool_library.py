@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol, List, Dict, Any
+from typing import Coroutine, Protocol, List, Dict, Any, Union
 
 
 @dataclass
@@ -161,5 +161,5 @@ class ToolLibrary(Protocol):
     def parse_message_and_tools(self, text: str) -> MessageAndParsedTools:
         ...
 
-    def execute_parsed_tool(self, parsed_tool: ParsedTool) -> ToolResult:
+    def execute_parsed_tool(self, parsed_tool: ParsedTool) -> Union[ToolResult, Coroutine[Any, Any, ToolResult]]:
         ...

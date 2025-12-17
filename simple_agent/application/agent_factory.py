@@ -2,7 +2,6 @@ from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_types import AgentTypes
-from simple_agent.application.async_utils import run_async_safely
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLMProvider, Messages
@@ -48,7 +47,7 @@ class AgentFactory:
         return inp
 
     def create_spawner(self, parent_agent_id: AgentId) -> SubagentSpawner:
-        def spawn(agent_type, task_description):
+        async def spawn(agent_type, task_description):
             definition = self._agent_library.read_agent_definition(agent_type)
             agent_id = parent_agent_id.create_subagent_id(
                 definition.agent_name(), self._agent_suffixer
@@ -56,7 +55,7 @@ class AgentFactory:
             subagent = self.create_agent(
                 agent_id, definition, task_description, Messages()
             )
-            return run_async_safely(subagent.start())
+            return await subagent.start()
         return spawn
 
     def create_agent(

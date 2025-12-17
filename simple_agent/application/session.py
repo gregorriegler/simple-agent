@@ -14,7 +14,7 @@ from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.todo_cleanup import TodoCleanup
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from simple_agent.application.user_input import UserInput
-from simple_agent.application.async_utils import run_async_safely
+import asyncio
 
 
 
@@ -84,4 +84,4 @@ class Session:
             persisted_messages
         )
 
-        run_async_safely(agent.start())
+        asyncio.run(agent.start())
