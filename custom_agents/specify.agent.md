@@ -39,7 +39,6 @@ We really put focus on keeping the SPEC_FILE as simple as concise as possible.
 # Communication
 STARTER_SYMBOL=💡 
 Ask exactly one question at a time.
-Before asking any clarification question, notify the user via `say.py`.
 
 # Workflow
 1. Read `doc/overview.md` to understand the project context.
