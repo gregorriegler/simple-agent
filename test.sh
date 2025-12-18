@@ -23,13 +23,10 @@ filter_pytest_output() {
     local verbose="$2"
     
     if [[ "$verbose" == true ]]; then
-        # Verbose mode: show everything except deprecation warnings
-        echo "$output" | \
-            grep -v "PytestDeprecationWarning" | \
-            grep -v "asyncio_default_fixture_loop_scope" | \
-            grep -v "warnings.warn" || echo "$output"
+        # Verbose mode: show everything
+        echo "$output"
     else
-        # Quiet mode: hide noisy logs and summary line, only show failures
+        # Quiet mode: only hide pytest session header boilerplate, keep everything else
         local in_failure_section=false
         
         while IFS= read -r line; do
@@ -46,12 +43,10 @@ filter_pytest_output() {
             # Show lines that are:
             # 1. In the FAILURES/ERRORS section (or test summary)
             # 2. Empty lines between sections
+            # Keep all warnings and errors - only filter pytest session header info
             if [[ "$in_failure_section" == true ]] || [[ -z "$line" ]]; then
-                # Skip deprecation warnings and header lines
-                if [[ "$line" != *"PytestDeprecationWarning"* ]] && \
-                   [[ "$line" != *"asyncio_default_fixture_loop_scope"* ]] && \
-                   [[ "$line" != *"warnings.warn"* ]] && \
-                   [[ "$line" != *"test session starts"* ]] && \
+                # Only skip pytest session header lines
+                if [[ "$line" != *"test session starts"* ]] && \
                    [[ "$line" != "platform"* ]] && \
                    [[ "$line" != "rootdir:"* ]] && \
                    [[ "$line" != "configfile:"* ]] && \
