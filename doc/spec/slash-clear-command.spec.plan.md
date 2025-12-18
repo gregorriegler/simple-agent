@@ -29,42 +29,15 @@ The `/clear` command will be intercepted in `Agent.read_user_input_and_prompt_it
 - Session storage updated via `PersistedMessages.clear()`
 - Agent type and session remain active
 
-## Implementation Steps
+## Implementation Steps (Outside-In TDD)
 
-### Step 1: Add `clear()` method to `Messages` class
+### Step 1: Write failing test for `/clear` in Agent
 
-**File:** `simple_agent/application/llm.py`
+**File:** `tests/application/agent_test.py`
 
-Add method to clear messages while preserving the system prompt:
+Test the user-facing behavior: when user types `/clear`, conversation is cleared and confirmation event is published.
 
-```python
-def clear(self):
-    """Clear all messages except the system prompt."""
-    if self._messages and self._messages[0].get("role") == "system":
-        system_msg = self._messages[0]
-        self._messages.clear()
-        self._messages.append(system_msg)
-    else:
-        self._messages.clear()
-```
-
-**Test:** Verify `clear()` keeps system prompt, removes other messages.
-
-### Step 2: Override `clear()` in `PersistedMessages` class
-
-**File:** `simple_agent/application/persisted_messages.py`
-
-Override to also persist the cleared state:
-
-```python
-def clear(self):
-    super().clear()
-    self._session_storage.save(self)
-```
-
-**Test:** Verify `clear()` persists to storage.
-
-### Step 3: Handle `/clear` in Agent
+### Step 2: Implement Agent intercept (will fail - `clear()` doesn't exist yet)
 
 **File:** `simple_agent/application/agent.py`
 
@@ -89,11 +62,39 @@ def _handle_clear_command(self):
     ))
 ```
 
-**Test:** Verify `/clear` clears context and publishes event.
+### Step 3: Write failing test for `Messages.clear()`
 
-### Step 4: Write tests
+**File:** `tests/application/llm_test.py`
 
-**Files:**
-- `tests/application/llm_test.py` - Test `Messages.clear()`
-- `tests/application/persisted_messages_test.py` - Test `PersistedMessages.clear()`  
-- `tests/application/agent_test.py` - Test `/clear` handling in agent
+Test that `clear()` keeps system prompt, removes other messages.
+
+### Step 4: Implement `Messages.clear()`
+
+**File:** `simple_agent/application/llm.py`
+
+```python
+def clear(self):
+    """Clear all messages except the system prompt."""
+    if self._messages and self._messages[0].get("role") == "system":
+        system_msg = self._messages[0]
+        self._messages.clear()
+        self._messages.append(system_msg)
+    else:
+        self._messages.clear()
+```
+
+### Step 5: Write failing test for `PersistedMessages.clear()`
+
+**File:** `tests/application/persisted_messages_test.py`
+
+Test that `clear()` also persists to storage.
+
+### Step 6: Implement `PersistedMessages.clear()`
+
+**File:** `simple_agent/application/persisted_messages.py`
+
+```python
+def clear(self):
+    super().clear()
+    self._session_storage.save(self)
+```

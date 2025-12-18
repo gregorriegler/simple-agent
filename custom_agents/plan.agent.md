@@ -1,5 +1,5 @@
 ---
-name: Specify
+name: Planner
 tools:
   - bash
   - ls

@@ -1,5 +1,5 @@
 ---
-name: Specify
+name: Specifier
 tools:
   - bash
   - ls
