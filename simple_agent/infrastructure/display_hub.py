@@ -50,26 +50,6 @@ class AgentDisplayHub(Display):
         if agent:
             agent.assistant_responded(event.model, event.token_count, event.max_tokens)
 
-    def tool_call(self, event) -> None:
-        agent = self._agent_for(event.agent_id)
-        if agent:
-            agent.tool_call(event.call_id, event.tool)
-
-    def tool_result(self, event) -> None:
-        agent = self._agent_for(event.agent_id)
-        if agent:
-            agent.tool_result(event.call_id, event.result)
-
-    def tool_cancelled(self, event) -> None:
-        agent = self._agent_for(event.agent_id)
-        if agent:
-            agent.tool_cancelled(event.call_id)
-
-    def interrupted(self, event) -> None:
-        agent = self._agent_for(event.agent_id)
-        if agent:
-            agent.interrupted()
-
     def error_occurred(self, event) -> None:
         agent = self._agent_for(event.agent_id)
         if agent:

@@ -21,7 +21,15 @@ from textual.css.query import NoMatches
 from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible, Markdown
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.events import AssistantSaidEvent, SessionClearedEvent, UserPromptedEvent
+from simple_agent.application.events import (
+    AssistantSaidEvent,
+    SessionClearedEvent,
+    SessionInterruptedEvent,
+    ToolCalledEvent,
+    ToolCancelledEvent,
+    ToolResultEvent,
+    UserPromptedEvent,
+)
 from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
@@ -29,9 +37,6 @@ from simple_agent.infrastructure.textual.textual_messages import (
     RefreshTodosMessage,
     RemoveAgentTabMessage,
     SessionStatusMessage,
-    ToolCallMessage,
-    ToolCancelledMessage,
-    ToolResultMessage,
     UpdateTabTitleMessage,
 )
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
@@ -541,15 +546,6 @@ class TextualApp(App):
                 secondary_scroll.styles.display = "none"
                 splitter.styles.display = "none"
 
-    def on_tool_call_message(self, message: ToolCallMessage) -> None:
-        self.write_tool_call(message.tool_results_id, message.call_id, message.tool_str)
-
-    def on_tool_result_message(self, message: ToolResultMessage) -> None:
-        self.write_tool_result(message.tool_results_id, message.call_id, message.result)
-
-    def on_tool_cancelled_message(self, message: ToolCancelledMessage) -> None:
-        self.write_tool_cancelled(message.tool_results_id, message.call_id)
-
     def on_session_status_message(self, message: SessionStatusMessage) -> None:
         self.write_message(message.log_id, message.status)
 
@@ -584,6 +580,20 @@ class TextualApp(App):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
             agent_name = self._agent_names.get(event.agent_id, str(event.agent_id))
             self.write_message(log_id, f"**{agent_name}:** {event.message}")
+        elif isinstance(event, ToolCalledEvent):
+            _, _, tool_results_id = self.panel_ids_for(event.agent_id)
+            self.write_tool_call(tool_results_id, event.call_id, event.tool.header())
+        elif isinstance(event, ToolResultEvent):
+            if not event.result:
+                return
+            _, _, tool_results_id = self.panel_ids_for(event.agent_id)
+            self.write_tool_result(tool_results_id, event.call_id, event.result)
+        elif isinstance(event, ToolCancelledEvent):
+            _, _, tool_results_id = self.panel_ids_for(event.agent_id)
+            self.write_tool_cancelled(tool_results_id, event.call_id)
+        elif isinstance(event, SessionInterruptedEvent):
+            _, log_id, _ = self.panel_ids_for(event.agent_id)
+            self.write_message(log_id, "\n[Session interrupted by user]")
 
     def clear_agent_panels(self, log_id: str) -> None:
         # Clear chat scroll area

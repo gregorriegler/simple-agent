@@ -3,16 +3,12 @@ import logging
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.display import AgentDisplay
 from simple_agent.infrastructure.display_hub import AgentDisplayHub
-from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
     RefreshTodosMessage,
     RemoveAgentTabMessage,
     SessionStatusMessage,
-    ToolCallMessage,
-    ToolCancelledMessage,
-    ToolResultMessage,
     UpdateTabTitleMessage,
 )
 
@@ -81,20 +77,6 @@ class TextualAgentDisplay(AgentDisplay):
         new_title = self._get_tab_title(token_count, max_tokens)
         self._app.post_message(UpdateTabTitleMessage(self._agent_id, new_title))
 
-    def tool_call(self, call_id, tool):
-        if self._app and self._app.is_running:
-            self._app.post_message(ToolCallMessage(self._tool_results_id, call_id, tool.header()))
-
-    def tool_result(self, call_id, result: ToolResult):
-        if not result:
-            return
-        if self._app and self._app.is_running:
-            self._app.post_message(ToolResultMessage(self._tool_results_id, call_id, result))
-
-    def tool_cancelled(self, call_id):
-        if self._app and self._app.is_running:
-            self._app.post_message(ToolCancelledMessage(self._tool_results_id, call_id))
-
     def continue_session(self):
         if self._app and self._app.is_running:
             self._app.post_message(SessionStatusMessage(self._log_id, "Continuing session"))
@@ -110,10 +92,6 @@ class TextualAgentDisplay(AgentDisplay):
     def waiting_for_input(self):
         if self._app and self._app.is_running:
             self._app.post_message(SessionStatusMessage(self._log_id, "\nWaiting for user input..."))
-
-    def interrupted(self):
-        if self._app and self._app.is_running:
-            self._app.post_message(SessionStatusMessage(self._log_id, "\n[Session interrupted by user]"))
 
     def error_occurred(self, message):
         if self._app and self._app.is_running:
