@@ -21,11 +21,10 @@ from textual.css.query import NoMatches
 from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible, Markdown
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.events import SessionClearedEvent, UserPromptedEvent
+from simple_agent.application.events import AssistantSaidEvent, SessionClearedEvent, UserPromptedEvent
 from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
-    AssistantSaysMessage,
     DomainEventMessage,
     RefreshTodosMessage,
     RemoveAgentTabMessage,
@@ -177,6 +176,7 @@ class TextualApp(App):
         self._pending_tool_calls: dict[str, dict[str, tuple[str, TextArea, Collapsible]]] = {}
         self._tool_result_collapsibles: dict[str, list[Collapsible]] = {}
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
+        self._agent_names: dict[AgentId, str] = {root_agent_id: root_agent_id.raw}
         self._todo_widgets: dict[str, Markdown] = {}
         self._todo_containers: dict[str, tuple] = {}
         self._tool_results_to_agent: dict[str, AgentId] = {}
@@ -484,6 +484,9 @@ class TextualApp(App):
     def add_subagent_tab(self, agent_id: AgentId, tab_title: str) -> tuple[str, str]:
         tab_id, log_id, tool_results_id = self.panel_ids_for(agent_id)
 
+        agent_name = tab_title.split(" [")[0] if " [" in tab_title else tab_title
+        self._agent_names[agent_id] = agent_name
+
         new_tab = TabPane(tab_title, id=tab_id)
         new_tab.compose_add_child(self.create_agent_container(log_id, tool_results_id, agent_id))
 
@@ -504,6 +507,7 @@ class TextualApp(App):
             self._suppressed_tool_calls = {
                 call_id for call_id in self._suppressed_tool_calls if not call_id.startswith(prefix)
             }
+        self._agent_names.pop(agent_id, None)
         self._todo_widgets.pop(str(agent_id), None)
         self._todo_containers.pop(str(agent_id), None)
 
@@ -536,9 +540,6 @@ class TextualApp(App):
             else:
                 secondary_scroll.styles.display = "none"
                 splitter.styles.display = "none"
-
-    def on_assistant_says_message(self, message: AssistantSaysMessage) -> None:
-        self.write_message(message.log_id, message.content)
 
     def on_tool_call_message(self, message: ToolCallMessage) -> None:
         self.write_tool_call(message.tool_results_id, message.call_id, message.tool_str)
@@ -579,6 +580,10 @@ class TextualApp(App):
         elif isinstance(event, UserPromptedEvent):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
             self.write_message(log_id, f"**User:** {event.input_text}")
+        elif isinstance(event, AssistantSaidEvent):
+            _, log_id, _ = self.panel_ids_for(event.agent_id)
+            agent_name = self._agent_names.get(event.agent_id, str(event.agent_id))
+            self.write_message(log_id, f"**{agent_name}:** {event.message}")
 
     def clear_agent_panels(self, log_id: str) -> None:
         # Clear chat scroll area

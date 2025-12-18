@@ -7,7 +7,6 @@ from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
-    AssistantSaysMessage,
     RefreshTodosMessage,
     RemoveAgentTabMessage,
     SessionStatusMessage,
@@ -74,13 +73,6 @@ class TextualAgentDisplay(AgentDisplay):
 
         percentage = (token_count / max_tokens) * 100
         return f"{base_title} [{self._model}: {percentage:.1f}%]"
-
-    def assistant_says(self, message):
-        if not (message and self._app and self._app.is_running):
-            return
-        self._app.post_message(
-            AssistantSaysMessage(self._log_id, f"**{self._agent_name}:** {message}")
-        )
 
     def assistant_responded(self, model: str, token_count: int, max_tokens: int):
         if not (self._app and self._app.is_running):

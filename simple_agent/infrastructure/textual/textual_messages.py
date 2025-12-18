@@ -3,13 +3,6 @@ from textual.message import Message
 from simple_agent.application.agent_id import AgentId
 
 
-class AssistantSaysMessage(Message):
-    def __init__(self, log_id: str, content: str) -> None:
-        super().__init__()
-        self.log_id = log_id
-        self.content = content
-
-
 class ToolCallMessage(Message):
     def __init__(self, tool_results_id: str, call_id: str, tool_str: str) -> None:
         super().__init__()
