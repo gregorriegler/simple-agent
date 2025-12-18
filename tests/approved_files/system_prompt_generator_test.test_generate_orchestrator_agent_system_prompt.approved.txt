@@ -128,10 +128,11 @@ This will improve the outputs, as subagents perform better on small changes.
 └── uv.lock
 ```
 
-# Tool Call Format
-
-There is only one valid way to invoke tools!
+In this environment you have access to a set of tools you can use to answer the user's question.
+There is only one valid way to use those tools, and this is to provide the tools in the correct format.
 So it is important that you read the tool call format **carefully**!
+
+# Tool Call Format
 
 Example:
 🛠️[example_tool arg1 arg2 /]

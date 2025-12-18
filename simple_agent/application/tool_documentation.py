@@ -19,10 +19,11 @@ def generate_tools_documentation(tools, tool_syntax: ToolSyntax) -> str:
     syntax_examples = _generate_syntax_examples(tool_syntax)
 
     tools_header = f"""
-# Tool Call Format
-
-There is only one valid way to invoke tools!
+In this environment you have access to a set of tools you can use to answer the user's question.
+There is only one valid way to use those tools, and this is to provide the tools in the correct format.
 So it is important that you read the tool call format **carefully**!
+
+# Tool Call Format
 
 {syntax_examples}
 
