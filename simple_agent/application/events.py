@@ -49,6 +49,11 @@ class SessionInterruptedEvent(AgentEvent):
 
 
 @dataclass
+class SessionClearedEvent(AgentEvent):
+    event_name: ClassVar[str] = "session_cleared"
+
+
+@dataclass
 class SessionEndedEvent(AgentEvent):
     event_name: ClassVar[str] = "session_ended"
 

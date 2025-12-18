@@ -1,3 +1,4 @@
+import asyncio
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
@@ -6,6 +7,7 @@ from simple_agent.application.events import (
     AssistantSaidEvent,
     AgentStartedEvent,
     ErrorEvent,
+    SessionClearedEvent,
     SessionEndedEvent,
     SessionInterruptedEvent,
     SessionStartedEvent,
@@ -39,6 +41,15 @@ class SessionTestResult:
     def as_approval_string(self) -> str:
         return f"# Events\n{self.events.get_events_as_string()}\n\n# Saved messages:\n{self.saved_messages}"
 
+    def assert_display(self, event_name, times=1):
+        events = [event for event in self.display_events if event['event'] == event_name]
+        actual_times = len(events)
+        assert actual_times == times, "{0} was expected to have occured {1} times, but actually occured {2} times".format(
+            event_name,
+            times,
+            actual_times
+        )
+
 
 class SessionTestBed:
     def __init__(self):
@@ -46,10 +57,10 @@ class SessionTestBed:
             @property
             def model(self) -> str:
                 return "default-model"
-            
+
             async def call_async(self, m):
                 return ""
-        
+
         self._llm = DefaultLLM()
         self._user_inputs = ["\n"]
         self._start_message = "test message"
@@ -68,11 +79,11 @@ class SessionTestBed:
             @property
             def model(self) -> str:
                 return "failing-model"
-            
-            
+
+
             async def call_async(self, messages):
                 raise ClaudeClientError(error_message)
-        
+
         self._llm = FailingLLM()
         return self
 
@@ -106,8 +117,6 @@ class SessionTestBed:
         return self
 
     def run(self) -> SessionTestResult:
-        import asyncio
-        
         event_bus = SimpleEventBus()
         display = FakeDisplay()
         io_spy = IOSpy(self._user_inputs, self._escape_hits)
@@ -127,6 +136,7 @@ class SessionTestBed:
             AssistantRespondedEvent,
             ToolCalledEvent,
             ToolResultEvent,
+            SessionClearedEvent,
             SessionInterruptedEvent,
             SessionEndedEvent,
         ]
@@ -141,6 +151,7 @@ class SessionTestBed:
         event_bus.subscribe(SessionEndedEvent, display.exit)
         event_bus.subscribe(AgentStartedEvent, display.agent_created)
         event_bus.subscribe(ErrorEvent, display.error_occurred)
+        event_bus.subscribe(SessionClearedEvent, display.clear)
 
         for event_type, handler in self._custom_event_subscriptions:
             event_bus.subscribe(event_type, handler)

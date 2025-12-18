@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import asyncio
 
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
@@ -95,15 +96,12 @@ def main(on_user_prompt_requested=None):
     )
 
     if args.test_mode:
-        # Test mode: use threaded approach for compatibility with test harness
-        import asyncio
         textual_app = TextualApp.create_and_start_test(textual_user_input, root_agent_id)
         display = TextualDisplay(textual_app)
         subscribe_events(event_bus, event_logger, todo_cleanup, display)
         asyncio.run(session.run_async(args, root_agent_id, agent_definition))
         return textual_app
 
-    # Normal mode: Textual owns the event loop, session runs as a task
     async def run_session():
         await session.run_async(args, root_agent_id, agent_definition)
 

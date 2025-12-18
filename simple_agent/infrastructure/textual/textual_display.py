@@ -15,7 +15,7 @@ from simple_agent.infrastructure.textual.textual_messages import (
     ToolCancelledMessage,
     ToolResultMessage,
     UpdateTabTitleMessage,
-    UserSaysMessage,
+    UserSaysMessage, SessionClearedMessage,
 )
 
 logger = logging.getLogger(__name__)
@@ -123,6 +123,10 @@ class TextualAgentDisplay(AgentDisplay):
     def waiting_for_input(self):
         if self._app and self._app.is_running:
             self._app.post_message(SessionStatusMessage(self._log_id, "\nWaiting for user input..."))
+
+    def clear(self):
+        if self._app and self._app.is_running:
+            self._app.post_message(SessionClearedMessage(self._log_id))
 
     def interrupted(self):
         if self._app and self._app.is_running:

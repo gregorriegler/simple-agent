@@ -25,6 +25,7 @@ from simple_agent.infrastructure.textual.textual_messages import (
     AssistantSaysMessage,
     RefreshTodosMessage,
     RemoveAgentTabMessage,
+    SessionClearedMessage,
     SessionStatusMessage,
     ToolCallMessage,
     ToolCancelledMessage,
@@ -587,3 +588,25 @@ class TextualApp(App):
 
     def on_refresh_todos_message(self, message: RefreshTodosMessage) -> None:
         self._refresh_todos_for_agent(message.agent_id)
+
+    def on_session_cleared_message(self, message: SessionClearedMessage) -> None:
+        self.clear_agent_panels(message.log_id)
+
+    def clear_agent_panels(self, log_id: str) -> None:
+        # Clear chat scroll area
+        try:
+            chat_scroll = self.query_one(f"#{log_id}-scroll", VerticalScroll)
+            chat_scroll.remove_children()
+        except NoMatches:
+            logger.warning("Could not find chat scroll #%s-scroll to clear", log_id)
+
+        # Clear tool results panel
+        tool_results_id = log_id.replace("log-", "tool-results-")
+        try:
+            tool_results = self.query_one(f"#{tool_results_id}", VerticalScroll)
+            tool_results.remove_children()
+            # Clear tracking state for this panel
+            self._tool_result_collapsibles[tool_results_id] = []
+            self._pending_tool_calls[tool_results_id] = {}
+        except NoMatches:
+            logger.warning("Could not find tool results #%s to clear", tool_results_id)

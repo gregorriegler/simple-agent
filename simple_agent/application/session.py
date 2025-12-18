@@ -82,5 +82,4 @@ class Session:
             persisted_messages
         )
 
-        # Agent handles its own escape checking via _run_with_escape_check
         await agent.start()

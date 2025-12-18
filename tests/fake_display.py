@@ -34,6 +34,9 @@ class FakeDisplay(Display):
     def interrupted(self, event) -> None:
         self._record("interrupted", event.agent_id)
 
+    def clear(self, event) -> None:
+        self._record("clear", event.agent_id)
+
     def exit(self, event) -> None:
         self._record("exit", event.agent_id)
 

@@ -10,6 +10,17 @@ class EventSpy:
     def record_event(self, event: AgentEvent):
         self.events.append(event)
 
+    def assert_occured(self, event_type: Type[AgentEvent], times=1):
+        actual_times = len(self.get_events(event_type))
+        assert actual_times == times, "{0} was expected to have occured {1} times, but actually occured {2} times".format(
+            event_type.__name__,
+            times,
+            actual_times
+        )
+
+    def assert_never_occured(self, event_type: Type[AgentEvent]):
+        assert not self.get_events(event_type), event_type.__name__ + " should have never occured"
+
     def get_events(self, event_type: Type[AgentEvent]) -> List[AgentEvent]:
         return [event for event in self.events if isinstance(event, event_type)]
 

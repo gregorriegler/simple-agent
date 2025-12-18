@@ -41,6 +41,7 @@ This will improve the outputs, as subagents perform better on small changes.
 │   ├── modularity-review.agent.md
 │   ├── mutation-test.agent.md
 │   ├── plan-refactoring.agent.md
+│   ├── plan.agent.md
 │   ├── planning.agent.md
 │   ├── preparatory-refactoring.agent.md
 │   ├── refactor.agent.md
@@ -119,6 +120,7 @@ This will improve the outputs, as subagents perform better on small changes.
 │   ├── print_spy.py
 │   ├── session_storage_stub.py
 │   ├── session_test_bed.py
+│   ├── slash_clear_command_test.py
 │   ├── system_prompt_generator_test.py
 │   ├── test_helpers.py
 │   ├── todo_cleanup_test.py

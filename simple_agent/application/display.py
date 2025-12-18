@@ -29,6 +29,9 @@ class Display(Protocol):
     def tool_result(self, event) -> None:
         ...
 
+    def clear(self, event) -> None:
+        ...
+
     def interrupted(self, event) -> None:
         ...
 
@@ -69,6 +72,9 @@ class AgentDisplay(Protocol):
     def waiting_for_input(self) -> None:
         ...
 
+    def clear(self) -> None:
+        ...
+
     def interrupted(self) -> None:
         ...
 
@@ -97,6 +103,8 @@ class DummyDisplay(AgentDisplay):
     def start_new_session(self) -> None:
         pass
     def waiting_for_input(self) -> None:
+        pass
+    def clear(self) -> None:
         pass
     def interrupted(self) -> None:
         pass

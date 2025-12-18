@@ -25,3 +25,7 @@ class PersistedMessages(Messages):
         super().add(role, content)
         self._session_storage.save(self)
 
+    def clear(self):
+        super().clear()
+        self._session_storage.save(self)
+

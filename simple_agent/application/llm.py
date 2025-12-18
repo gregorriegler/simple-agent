@@ -67,6 +67,14 @@ class Messages:
     def to_list(self) -> ChatMessages:
         return list(self._messages)
 
+    def clear(self):
+        system_prompt = None
+        if self._messages and self._messages[0].get("role") == "system":
+            system_prompt = self._messages[0].get("content")
+        self._messages = []
+        if system_prompt:
+            self.seed_system_prompt(system_prompt)
+
     def __len__(self) -> int:
         return len(self._messages)
 

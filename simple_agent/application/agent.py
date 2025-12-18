@@ -14,7 +14,7 @@ from .events import (
     ToolCalledEvent, ToolResultEvent, ToolCancelledEvent,
     SessionEndedEvent, SessionInterruptedEvent,
     UserPromptRequestedEvent, UserPromptedEvent,
-    ErrorEvent
+    ErrorEvent, SessionClearedEvent
 )
 
 logger = get_logger(__name__)
@@ -66,16 +66,6 @@ class Agent:
         finally:
             self._notify_agent_finished()
 
-    def _notify_agent_started(self):
-        self.event_bus.publish(
-            AgentStartedEvent(self.agent_id, self.agent_name, self.llm.model)
-        )
-
-    def _notify_agent_finished(self):
-        self.event_bus.publish(
-            AgentFinishedEvent(self.agent_id)
-        )
-
     async def run_tool_loop(self):
         tool_result: ToolResult = ContinueResult()
         current_tool: ParsedTool | None = None
@@ -116,9 +106,37 @@ class Agent:
 
         return tool_result
 
+    def _notify_agent_started(self):
+        self.event_bus.publish(
+            AgentStartedEvent(self.agent_id, self.agent_name, self.llm.model)
+        )
+
+    def _notify_agent_finished(self):
+        self.event_bus.publish(
+            AgentFinishedEvent(self.agent_id)
+        )
+
     def notify_about_message(self, message):
         if message:
             self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
+
+    async def user_prompts(self):
+        if not self.user_input.has_stacked_messages():
+            self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
+        prompt = await self.read_user_input_and_prompt_it()
+        return prompt
+
+    async def read_user_input_and_prompt_it(self):
+        prompt = await self.user_input.read_async()
+        while prompt == "/clear":
+            self.context.clear()
+            self.event_bus.publish(SessionClearedEvent(self.agent_id))
+            self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
+            prompt = await self.user_input.read_async()
+        if prompt:
+            self.context.user_says(prompt)
+            self.event_bus.publish(UserPromptedEvent(self.agent_id, prompt))
+        return prompt
 
     async def llm_responds(self) -> MessageAndParsedTools:
         from simple_agent.application.model_info import ModelInfo
@@ -138,19 +156,6 @@ class Agent:
             max_tokens=max_tokens
         ))
         return self.tools.parse_message_and_tools(answer)
-
-    async def user_prompts(self):
-        if not self.user_input.has_stacked_messages():
-            self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
-        prompt = await self.read_user_input_and_prompt_it()
-        return prompt
-
-    async def read_user_input_and_prompt_it(self):
-        prompt = await self.user_input.read_async()
-        if prompt:
-            self.context.user_says(prompt)
-            self.event_bus.publish(UserPromptedEvent(self.agent_id, prompt))
-        return prompt
 
     async def execute_tool(self, tool: ParsedTool) -> ToolResult:
         self._tool_call_counter += 1
