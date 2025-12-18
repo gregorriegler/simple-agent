@@ -21,7 +21,11 @@ class CatTool(BaseTool):
         ),
     ])
     examples = [
-        {"filename": "myfile.txt"},
+        {
+            "reasoning": "I want to display a file to see its contents.",
+            "filename": "myfile.txt",
+            "result": "     1\tLine 1 of file\n     2\tLine 2 of file"
+        },
         {"filename": "script.py", "line_range": "1-20"},
     ]
 

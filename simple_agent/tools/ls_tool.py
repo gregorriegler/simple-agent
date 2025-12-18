@@ -14,7 +14,11 @@ class LsTool(BaseTool):
         )
     ])
     examples = [
-        {"path": ""},
+        {
+            "reasoning": "I'll list files in the current directory.",
+            "path": "",
+            "result": "total 48\ndrwxr-xr-x  5 user  staff   160 Dec 19 10:30 .\ndrwxr-xr-x 10 user  staff   320 Dec 19 10:25 ..\n-rw-r--r--  1 user  staff  1234 Dec 19 10:30 file.txt"
+        },
         {"path": "/home/user"},
     ]
 

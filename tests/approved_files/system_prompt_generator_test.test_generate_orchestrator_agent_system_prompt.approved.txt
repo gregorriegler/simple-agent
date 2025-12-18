@@ -10,159 +10,6 @@ So you have to provide the relevant information including analysis results to th
 When you delegate a coding task, consider decomposing the task into smaller steps and give each to another subagent.
 This will improve the outputs, as subagents perform better on small changes.
 
-# Tools
-
-Please not that you can not use XML to call tools.
-To use a tool, you should provide the tool calls in the described format.
-
-Syntax Example (bodyless tool):
-🛠️[MOCK_TOOL_NAME REQUIRED_VALUE OPTIONAL_VALUE /]
-
-Syntax Example (tool with body):
-🛠️[MOCK_TOOL_WITH_BODY HEADER_VALUE]
-EXAMPLE BODY CONTENT HERE
-🛠️[/end]
-
-## write-todos tool
-Organize your work in TODOs. Use this tool to create or update those TODOs
-
-Arguments:
- - content: string (required) - Markdown checklist to represent the todos. Use - [ ] for todo, - [ ] **doing** for in-progress, - [x] for done
-
-Usage:
-🛠️[write-todos]
-<content>
-🛠️[/end]
-
-Examples:
-🛠️[write-todos]
-- [ ] Item 1
-🛠️[/end]
-🛠️[write-todos]
-- [ ] Feature exploration
-- [ ] **Implementing tool**
-- [x] Initial setup
-🛠️[/end]
-
-## ls tool
-List directory contents with detailed information
-
-Arguments:
- - path: string (optional) - Directory path to list (defaults to current directory)
-
-Usage:
-🛠️[ls [path] /]
-
-Examples:
-🛠️[ls /]
-🛠️[ls /home/user /]
-
-## cat tool
-Display file contents with line numbers
-
-Arguments:
- - filename: string (required) - Path to the file to display
- - line_range: string (optional) - Optional line range in format 'start-end' (e.g., '1-10')
-
-Usage:
-🛠️[cat <filename> [line_range] /]
-
-Examples:
-🛠️[cat myfile.txt /]
-🛠️[cat script.py 1-20 /]
-
-## create-file tool
-Create new files with optional content
-
-Arguments:
- - filename: string (required) - Path to the file to create (directories will be created automatically)
- - content: string (optional) - Initial content for the file. Everything after the filename is content!
-
-Usage:
-🛠️[create-file <filename>]
-<content>
-🛠️[/end]
-
-Examples:
-🛠️[create-file newfile.txt /]
-🛠️[create-file script.py]
-print("Hello World")
-🛠️[/end]
-🛠️[create-file multi-line.py]
-Line 1
-Line 2
-🛠️[/end]
-
-## replace-file-content tool
-Replace exact string matches in files. Unlike edit-file, this tool uses string matching instead of line numbers, making it more reliable for replacing specific content.
-
-Arguments:
- - filename: string (required) - Path to the file to edit
- - replace_mode: string (required) - Replace mode: 'single', 'all'. 'single' replaces only the first occurence. 'all' replaces all occurences.
- - content: string (required) - Content with @@@ separator: text before @@@ is search string, text after is replacement string
-
-Usage:
-🛠️[replace-file-content <filename> <replace_mode>]
-<content>
-🛠️[/end]
-
-Examples:
-🛠️[replace-file-content test.txt single]
-search content
-@@@
-replacement content
-🛠️[/end]
-🛠️[replace-file-content test.txt all]
-foo
-@@@
-bar
-🛠️[/end]
-🛠️[replace-file-content test.txt nth:2]
-old_value = 1
-@@@
-new_value = 2
-🛠️[/end]
-
-## complete-task tool
-Signal task completion with a summary of what was accomplished
-
-Arguments:
- - summary: string (required) - Final summary of what was accomplished
-
-Usage:
-🛠️[complete-task <summary> /]
-
-Examples:
-🛠️[complete-task Successfully created the user registration system /]
-🛠️[complete-task Fixed the bug in the payment processing module /]
-
-## bash tool
-Execute bash commands
-
-Arguments:
- - command: string (required) - The bash command to execute
-
-Usage:
-🛠️[bash <command> /]
-
-Examples:
-🛠️[bash echo hello /]
-🛠️[bash ls -la /]
-🛠️[bash pwd /]
-
-## subagent tool
-Creates a new subagent that will handle a specific task/todo and report back the result.
-
-Arguments:
- - agenttype: string (required) - Type of agent to create. Available types: 'code-review', 'coding', 'orchestrator', 'question'
- - task_description: string (required) - Detailed description of the task for the subagent to perform
-
-Usage:
-🛠️[subagent <agenttype> <task_description> /]
-
-Examples:
-🛠️[subagent default Write a Python function to calculate fibonacci numbers /]
-🛠️[subagent default Create a simple HTML page with a form /]
 # Project Structure
 
 ```
@@ -280,6 +127,262 @@ Examples:
 ├── todo_tooling_wishlist.md
 └── uv.lock
 ```
+
+# Tool Call Format
+
+There is only one valid way to invoke tools!
+So it is important that you read the tool call format **carefully**!
+
+Example:
+🛠️[example_tool arg1 arg2 /]
+
+-
+
+Example (tool with body):
+🛠️[example_tool_with_body header]
+body
+🛠️[/end]
+
+-
+
+Tool calls may appear anywhere in an assistant message, mixed with normal text.
+When you call a tool, you'll receive back the result.
+
+# Your Tools
+
+## write-todos tool
+Organize your work in TODOs. Use this tool to create or update those TODOs
+
+### Usage:
+🛠️[write-todos]
+<content>
+🛠️[/end]
+
+### Arguments:
+ - content: string (required) - Markdown checklist to represent the todos. Use - [ ] for todo, - [ ] **doing** for in-progress, - [x] for done
+
+### Examples:
+
+🛠️[write-todos]
+- [ ] Item 1
+🛠️[/end]
+
+Then you will receive a result:
+Result of 🛠️ write-todos
+Updated TODOS
+
+-
+
+🛠️[write-todos]
+- [ ] Feature exploration
+- [ ] **Implementing tool**
+- [x] Initial setup
+🛠️[/end]
+
+-
+
+## ls tool
+List directory contents with detailed information
+
+### Usage:
+🛠️[ls [path] /]
+
+### Arguments:
+ - path: string (optional) - Directory path to list (defaults to current directory)
+
+### Examples:
+
+I'll list files in the current directory.
+🛠️[ls /]
+
+Then you will receive a result:
+Result of 🛠️ ls
+total 48
+drwxr-xr-x  5 user  staff   160 Dec 19 10:30 .
+drwxr-xr-x 10 user  staff   320 Dec 19 10:25 ..
+-rw-r--r--  1 user  staff  1234 Dec 19 10:30 file.txt
+
+-
+
+🛠️[ls /home/user /]
+
+-
+
+## cat tool
+Display file contents with line numbers
+
+### Usage:
+🛠️[cat <filename> [line_range] /]
+
+### Arguments:
+ - filename: string (required) - Path to the file to display
+ - line_range: string (optional) - Optional line range in format 'start-end' (e.g., '1-10')
+
+### Examples:
+
+I want to display a file to see its contents.
+🛠️[cat myfile.txt /]
+
+Then you will receive a result:
+Result of 🛠️ cat myfile.txt
+     1	Line 1 of file
+     2	Line 2 of file
+
+-
+
+🛠️[cat script.py 1-20 /]
+
+-
+
+## create-file tool
+Create new files with optional content
+
+### Usage:
+🛠️[create-file <filename>]
+<content>
+🛠️[/end]
+
+### Arguments:
+ - filename: string (required) - Path to the file to create (directories will be created automatically)
+ - content: string (optional) - Initial content for the file. Everything after the filename is content!
+
+### Examples:
+
+I need to create an empty file for later use.
+🛠️[create-file newfile.txt /]
+
+Then you will receive a result:
+Result of 🛠️ create-file newfile.txt
+Created empty file: newfile.txt
+
+-
+
+🛠️[create-file script.py]
+print("Hello World")
+🛠️[/end]
+
+-
+
+🛠️[create-file multi-line.py]
+Line 1
+Line 2
+🛠️[/end]
+
+-
+
+## replace-file-content tool
+Replace exact string matches in files. Unlike edit-file, this tool uses string matching instead of line numbers, making it more reliable for replacing specific content.
+
+### Usage:
+🛠️[replace-file-content <filename> <replace_mode>]
+<content>
+🛠️[/end]
+
+### Arguments:
+ - filename: string (required) - Path to the file to edit
+ - replace_mode: string (required) - Replace mode: 'single', 'all'. 'single' replaces only the first occurence. 'all' replaces all occurences.
+ - content: string (required) - Content with @@@ separator: text before @@@ is search string, text after is replacement string
+
+### Examples:
+
+I'll replace the first occurrence of text in a file.
+🛠️[replace-file-content test.txt single]
+search content
+@@@
+replacement content
+🛠️[/end]
+
+Then you will receive a result:
+Result of 🛠️ replace-file-content test.txt single
+Successfully replaced content in test.txt
+
+-
+
+🛠️[replace-file-content test.txt all]
+foo
+@@@
+bar
+🛠️[/end]
+
+🛠️[replace-file-content test.txt nth:2]
+old_value = 1
+@@@
+new_value = 2
+🛠️[/end]
+
+## complete-task tool
+Signal task completion with a summary of what was accomplished
+
+### Usage:
+🛠️[complete-task <summary> /]
+
+### Arguments:
+ - summary: string (required) - Final summary of what was accomplished
+
+### Examples:
+
+🛠️[complete-task Successfully created the user registration system /]
+
+-
+
+🛠️[complete-task Fixed the bug in the payment processing module /]
+
+-
+
+## bash tool
+Execute bash commands
+
+### Usage:
+🛠️[bash <command> /]
+
+### Arguments:
+ - command: string (required) - The bash command to execute
+
+### Examples:
+
+Let's say you need to echo a message. Then you should send:
+🛠️[bash echo hello world /]
+
+Then you will receive a result:
+Result of 🛠️ bash echo hello world
+✅ Exit code 0 (0.068s elapsed)
+
+hello world
+
+-
+
+Let me list the files in detail.
+🛠️[bash ls -la /]
+
+-
+
+## subagent tool
+Creates a new subagent that will handle a specific task/todo and report back the result.
+
+### Usage:
+🛠️[subagent <agenttype> <task_description> /]
+
+### Arguments:
+ - agenttype: string (required) - Type of agent to create. Available types: 'code-review', 'coding', 'orchestrator', 'question'
+ - task_description: string (required) - Detailed description of the task for the subagent to perform
+
+### Examples:
+
+Let's say you want to delegate a coding task to a subagent. Send the following:
+🛠️[subagent default Write a Python function to calculate fibonacci numbers /]
+
+Then you will receive a result:
+Result of 🛠️ subagent default Write a Python function to calculate fibonacci numbers
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+-
+
+🛠️[subagent default Create a simple HTML page with a form /]
+
+-
 
 
 # Your Workflow

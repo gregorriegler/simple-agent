@@ -15,9 +15,15 @@ class BashTool(BaseTool):
         )
     ])
     examples = [
-        {"command": "echo hello"},
-        {"command": "ls -la"},
-        {"command": "pwd"},
+        {
+            "reasoning": "Let's say you need to echo a message. Then you should send:",
+            "command": "echo hello world",
+            "result": "✅ Exit code 0 (0.068s elapsed)\n\nhello world"
+        },
+        {
+            "reasoning": "Let me list the files in detail.",
+            "command": "ls -la",
+        },
     ]
 
     def execute(self, raw_call):

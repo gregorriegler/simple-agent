@@ -12,9 +12,9 @@ class AgentPrompt:
 
     def render(self, tools_documentation: str) -> SystemPrompt:
         tree_output = generate_tree(max_depth=2)
-        project_structure = f"\n# Project Structure\n\n```\n{tree_output}```\n"
-        
-        result = self.template.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", tools_documentation + project_structure)
+        project_structure = f"# Project Structure\n\n```\n{tree_output}```\n"
+
+        result = self.template.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", project_structure + tools_documentation)
         if not self.agents_content:
             return result.replace("{{AGENTS.MD}}", "")
 

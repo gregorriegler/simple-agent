@@ -18,19 +18,25 @@ def generate_tools_documentation(tools, tool_syntax: ToolSyntax) -> str:
     # Generate syntax examples
     syntax_examples = _generate_syntax_examples(tool_syntax)
 
-    tools_header = f"""# Tools
+    tools_header = f"""
+# Tool Call Format
 
-Please not that you can not use XML to call tools.
-To use a tool, you should provide the tool calls in the described format.
+There is only one valid way to invoke tools!
+So it is important that you read the tool call format **carefully**!
 
 {syntax_examples}
+
+Tool calls may appear anywhere in an assistant message, mixed with normal text.
+When you call a tool, you'll receive back the result.
+
+# Your Tools
 
 """
     tools_lines = []
     for tool in tools:
         tool_doc = _generate_tool_documentation(tool, tool_syntax)
         tools_lines.append(tool_doc)
-    return tools_header + "\n\n".join(tools_lines)
+    return tools_header + "\n\n".join(tools_lines) + "\n"
 
 
 def _generate_syntax_examples(tool_syntax: ToolSyntax) -> str:
@@ -39,7 +45,7 @@ def _generate_syntax_examples(tool_syntax: ToolSyntax) -> str:
 
     # Example 1: Bodyless tool with required arguments
     example1_tool = _MockTool(
-        name="MOCK_TOOL_NAME",
+        name="example_tool",
         arguments=ToolArguments(
             header=[
                 ToolArgument(name="required_arg", description="", required=True),
@@ -48,24 +54,24 @@ def _generate_syntax_examples(tool_syntax: ToolSyntax) -> str:
         )
     )
     example1 = tool_syntax._format_example(
-        {"required_arg": "REQUIRED_VALUE", "optional_arg": "OPTIONAL_VALUE"},
+        {"required_arg": "arg1", "optional_arg": "arg2"},
         example1_tool
     )
-    examples.append(f"Syntax Example (bodyless tool):\n{example1}")
+    examples.append(f"Example:\n{example1}")
 
     # Example 2: Tool with body
     example2_tool = _MockTool(
-        name="MOCK_TOOL_WITH_BODY",
+        name="example_tool_with_body",
         arguments=ToolArguments(
             header=[ToolArgument(name="header_arg", description="", required=True)],
             body=ToolArgument(name="body_content", description="", required=True)
         )
     )
     example2 = tool_syntax._format_example(
-        {"header_arg": "HEADER_VALUE", "body_content": "EXAMPLE BODY CONTENT HERE"},
+        {"header_arg": "header", "body_content": "body"},
         example2_tool
     )
-    examples.append(f"Syntax Example (tool with body):\n{example2}")
+    examples.append(f"Example (tool with body):\n{example2}")
 
     return "\n\n".join(examples)
 

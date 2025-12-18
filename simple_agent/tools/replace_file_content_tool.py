@@ -107,7 +107,13 @@ class ReplaceFileContentTool(BaseTool):
     ))
 
     examples = [
-        "🛠️[replace-file-content test.txt single]\nsearch content\n@@@\nreplacement content\n🛠️[/end]",
+        {
+            "reasoning": "I'll replace the first occurrence of text in a file.",
+            "filename": "test.txt",
+            "replace_mode": "single",
+            "content": "search content\n@@@\nreplacement content",
+            "result": "Successfully replaced content in test.txt"
+        },
         "🛠️[replace-file-content test.txt all]\nfoo\n@@@\nbar\n🛠️[/end]",
         "🛠️[replace-file-content test.txt nth:2]\nold_value = 1\n@@@\nnew_value = 2\n🛠️[/end]",
     ]

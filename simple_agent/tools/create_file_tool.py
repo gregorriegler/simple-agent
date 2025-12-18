@@ -28,7 +28,12 @@ class CreateFileTool(BaseTool):
         description="Initial content for the file. Everything after the filename is content!",
     )
     examples = [
-        {"filename": "newfile.txt", "content": ""},
+        {
+            "reasoning": "I need to create an empty file for later use.",
+            "filename": "newfile.txt",
+            "content": "",
+            "result": "Created empty file: newfile.txt"
+        },
         {"filename": "script.py", "content": "print(\"Hello World\")"},
         {"filename": "multi-line.py", "content": "Line 1\nLine 2"},
     ]

@@ -1,5 +1,5 @@
 Tool: no_args
 Description: Tool without arguments
 
-Usage:
+### Usage:
 🛠️[no_args /]

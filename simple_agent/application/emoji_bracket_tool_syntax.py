@@ -17,13 +17,28 @@ class EmojiBracketToolSyntax(ToolSyntax):
         if hasattr(tool, 'description') and tool.description:
             lines.append(f"Description: {tool.description}")
 
+        lines.append("")
+        syntax = self.build_syntax(tool)
+        lines.append(f"### Usage:\n{syntax}")
+
         if tool.arguments:
             lines.append("")
-            lines.append("Arguments:")
+            lines.append("### Arguments:")
             for arg in tool.arguments.all:
                 lines.append(self._format_arg_doc(arg))
 
-        lines.append("")
+
+        if hasattr(tool, 'examples') and tool.examples:
+            lines.append("")
+            lines.append("### Examples:\n")
+            for i, example in enumerate(tool.examples):
+                if i > 0:
+                    lines.append("")  # Add blank line between examples
+                lines.append(self._format_example(example, tool))
+
+        return "\n".join(lines)
+
+    def build_syntax(self, tool):
         syntax_parts = []
         if tool.arguments:
             for arg in tool.arguments.header:
@@ -31,22 +46,12 @@ class EmojiBracketToolSyntax(ToolSyntax):
         syntax = f"🛠️[{tool.name}"
         if syntax_parts:
             syntax += " " + " ".join(syntax_parts)
-
         if tool.arguments.body:
             syntax += "]"
             syntax += "\n<content>\n🛠️[/end]"
         else:
             syntax += " /]"
-
-        lines.append(f"Usage:\n{syntax}")
-
-        if hasattr(tool, 'examples') and tool.examples:
-            lines.append("")
-            lines.append("Examples:")
-            for example in tool.examples:
-                lines.append(self._format_example(example, tool))
-
-        return "\n".join(lines)
+        return syntax
 
     def _format_arg_doc(self, arg: ToolArgument) -> str:
         """Format a single argument for documentation."""
@@ -57,24 +62,36 @@ class EmojiBracketToolSyntax(ToolSyntax):
         return type_str
 
     def _format_example(self, example: Any, tool: Tool) -> str:
-        """Format an example in emoji bracket syntax."""
+        """Format an example in emoji bracket syntax.
+
+        Supports optional fields in example dict:
+        - 'reasoning': Context/explanation before the tool call
+        - 'result': Result output to display after the tool call
+        - All other fields are treated as arguments
+        """
         if isinstance(example, str):
             return example
 
         if not isinstance(example, dict):
             return str(example)
 
+        # Extract optional fields
+        reasoning = example.get("reasoning")
+        result = example.get("result")
+        # Create a copy without special fields for formatting
+        example_without_special = {k: v for k, v in example.items() if k not in ("reasoning", "result")}
+
         # Collect inline argument values (header args)
         inline_values = []
         for arg in tool.arguments:
-            value = example.get(arg.name, "")
+            value = example_without_special.get(arg.name, "")
             if value:
                 inline_values.append(str(value))
 
         # Collect body value
         body_value = ""
         if tool.arguments.body:
-            value = example.get(tool.arguments.body.name, "")
+            value = example_without_special.get(tool.arguments.body.name, "")
             if value:
                 body_value = str(value)
 
@@ -90,7 +107,27 @@ class EmojiBracketToolSyntax(ToolSyntax):
             # Self-closing syntax for bodyless tools
             syntax += " /]"
 
-        return syntax
+        # Build complete conversation pattern
+        output_lines = []
+
+        # Add reasoning if present
+        if reasoning:
+            output_lines.append(reasoning)
+
+        # Add tool call
+        output_lines.append(syntax)
+
+        # Append result if present
+        if result:
+            result_header = f"\nThen you will receive a result:\nResult of 🛠️ {tool.name}"
+            if inline_values:
+                result_header += " " + " ".join(inline_values)
+            output_lines.append(result_header)
+            output_lines.append(result)
+
+        output_lines.append("\n-")
+
+        return "\n".join(output_lines)
 
     def parse(self, text: str) -> ParsedMessage:
         START_MARKER = "🛠️["

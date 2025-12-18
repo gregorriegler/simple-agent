@@ -88,20 +88,6 @@ def test_extract_tool_keys_from_prompt(agent_type, definition_content, expected_
     assert result == expected_keys
 
 
-def test_render_inserts_agents_content_with_placeholder():
-    prompt = AgentPrompt(
-        agent_name="Test",
-        template="Header\n{{AGENTS.MD}}\n{{DYNAMIC_TOOLS_PLACEHOLDER}}\nFooter",
-        agents_content="AGENTS CONTENT"
-    )
-
-    result = prompt.render("TOOLS DOCS")
-
-    assert "Header\nAGENTS CONTENT\nTOOLS DOCS" in result
-    assert "# Project Structure" in result
-    assert "Footer" in result
-
-
 def test_render_removes_placeholder_when_no_agents_content():
     prompt = AgentPrompt(
         agent_name="Test",

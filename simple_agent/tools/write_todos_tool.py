@@ -18,7 +18,10 @@ class WriteTodosTool(BaseTool):
         )
     )
     examples = [
-        {"content": "- [ ] Item 1"},
+        {
+            "content": "- [ ] Item 1",
+            "result": "Updated TODOS"
+        },
         {"content": "- [ ] Feature exploration\n- [ ] **Implementing tool**\n- [x] Initial setup"},
     ]
 

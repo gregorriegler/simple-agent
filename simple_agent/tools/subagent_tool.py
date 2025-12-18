@@ -24,8 +24,10 @@ class SubagentTool(BaseTool):
     ])
     examples = [
         {
+            "reasoning": "Let's say you want to delegate a coding task to a subagent. Send the following:",
             "agenttype": "default",
             "task_description": "Write a Python function to calculate fibonacci numbers",
+            "result": "def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)"
         },
         {
             "agenttype": "default",
