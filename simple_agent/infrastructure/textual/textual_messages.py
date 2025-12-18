@@ -71,3 +71,9 @@ class UpdateTabTitleMessage(Message):
         super().__init__()
         self.agent_id = agent_id
         self.title = title
+
+
+class DomainEventMessage(Message):
+    def __init__(self, event) -> None:
+        super().__init__()
+        self.event = event

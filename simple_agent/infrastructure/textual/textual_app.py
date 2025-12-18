@@ -26,6 +26,7 @@ from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
     AssistantSaysMessage,
+    DomainEventMessage,
     RefreshTodosMessage,
     RemoveAgentTabMessage,
     SessionStatusMessage,
@@ -574,9 +575,11 @@ class TextualApp(App):
     def on_refresh_todos_message(self, message: RefreshTodosMessage) -> None:
         self._refresh_todos_for_agent(message.agent_id)
 
-    def on_session_cleared_event(self, event: SessionClearedEvent) -> None:
-        _, log_id, _ = self.panel_ids_for(event.agent_id)
-        self.clear_agent_panels(log_id)
+    def on_domain_event_message(self, message: DomainEventMessage) -> None:
+        event = message.event
+        if isinstance(event, SessionClearedEvent):
+            _, log_id, _ = self.panel_ids_for(event.agent_id)
+            self.clear_agent_panels(log_id)
 
     def clear_agent_panels(self, log_id: str) -> None:
         # Clear chat scroll area

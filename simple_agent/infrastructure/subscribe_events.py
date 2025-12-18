@@ -19,6 +19,7 @@ from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
+from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 
 
 def subscribe_events(
@@ -51,7 +52,7 @@ def subscribe_events(
     event_bus.subscribe(ToolResultEvent, display.tool_result)
     event_bus.subscribe(ToolCancelledEvent, display.tool_cancelled)
     if app:
-        event_bus.subscribe(SessionClearedEvent, lambda e: app.post_message(e))
+        event_bus.subscribe(SessionClearedEvent, lambda e: app.post_message(DomainEventMessage(e)))
     event_bus.subscribe(SessionInterruptedEvent, display.interrupted)
     event_bus.subscribe(ErrorEvent, display.error_occurred)
     event_bus.subscribe(SessionEndedEvent, display.exit)
