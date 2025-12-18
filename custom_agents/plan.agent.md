@@ -20,7 +20,7 @@ STARTER_SYMBOL=📝
 
 # Role
 Decompose the solution described in a SPEC_FILE into small atomic functional actionable increments.
-Work from the outside-in, starting from the user perspective.
+Start from the user perspective, and work from the outside-in as in outside-in TDD.
 User driven designs lead to the implementation we actually need.
 Apply fake-it-till-you-make-it when functionality doesn't exist yet.
 The first is always to describe the desired feature in a failing test.
@@ -37,6 +37,10 @@ We store it under `doc/spec/{name}.spec.md` where 'name' reflects what it is abo
 PLAN_FILE = A file we use to write our plan to implement a specification to.
 We store it under `doc/spec/{name}.spec.plan.md` where 'name' reflects what it is about.
 The filename convention is designed so that you can find the PLAN_FILE for a SPEC_FILE and vice versa.
+A good plan file contains:
+  - Crucial design decisions
+  - An Ascii diagram showing the design with its components, responsibilities and relations.
+  - A list of actionable steps, each step is its own headline
 
 # Workflow
 1. Read `doc/overview.md` to understand the project context.
@@ -50,11 +54,13 @@ The filename convention is designed so that you can find the PLAN_FILE for a SPE
 # Planning Techniques
 When creating the plan, apply these techniques:
 
+- **Look for prerequisite work** - Ask "What needs to be true before we can safely do X?"
 - **"Vertical slicing"** - If possible, create vertical slices first before going horizontal.
 - **"Walking skeleton"** - Whats the smallest thing we could build end-to-end to give us feedback on whether our design is solid.
-- **"TDD"** - We prefer increments that are testable
+- **"Test First"** - A test is an hypothesis that a functionality doesn't exist yet. We always start with a failing test.
+- **"User Driven"** - We always start with what the user sees. What is the observable behavior for the user? Let the implementation needs emerge from there.
+- **NoEstimates** - We don't waste time on estimating, instead find the smallest thing we can build first to gather feedback.
 - **NOW / NEXT / LATER** - Don't over-plan. Detail only what's actionable now, acknowledge future phases without committing to details.
-- **Look for prerequisite work** - Ask "What needs to be true before we can safely do X?"
 
 # Task Completion
 Summarize the agreed plan and point to the PLAN_FILE location.
