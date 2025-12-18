@@ -157,6 +157,10 @@ class TextualApp(App):
         border: round $error;
     }
 
+    .tool-result-success {
+        border: round $success;
+    }
+
     Pretty {
         border: round $primary;
         margin-bottom: 1;
@@ -306,7 +310,7 @@ class TextualApp(App):
     def write_message(self, log_id: str, message: str) -> None:
         try:
             scroll = self.query_one(f"#{log_id}-scroll", VerticalScroll)
-            msg_widget = Markdown(message)
+            msg_widget = Markdown(message.rstrip())
             scroll.mount(msg_widget)
             scroll.scroll_end(animate=False)
         except NoMatches:
@@ -396,7 +400,7 @@ class TextualApp(App):
             existing.collapsed = True
         call_collapsible.collapsed = False
 
-        classes = "tool-result" if success else "tool-result tool-result-error"
+        classes = "tool-result tool-result-success" if success else "tool-result tool-result-error"
         language = result.display_language or "python"
 
         if language == "diff":
@@ -410,7 +414,7 @@ class TextualApp(App):
             diff_widget = Static(diff_renderable)
             for cls in classes.split():
                 diff_widget.add_class(cls)
-            height = min((len(message.splitlines()) or 1) * 2 + 1, 30)
+            height = min((len(message.splitlines()) or 1) + 2, 30)
             diff_widget.styles.height = height
             diff_widget.styles.min_height = height
             text_area.remove()
@@ -426,7 +430,7 @@ class TextualApp(App):
                 call_collapsible.mount(diff_widget)
         else:
             line_count = len(message.splitlines()) or 1
-            height = min(line_count * 2 + 1, 30)
+            height = min(line_count + 2, 30)
             text_area.load_text(message)
             text_area.language = language
             text_area.remove_class("tool-call")

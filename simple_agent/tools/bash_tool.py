@@ -26,4 +26,15 @@ class BashTool(BaseTool):
             return ContinueResult('STDERR: bash: missing command', success=False)
         _ = subprocess
         result = self.run_command("bash", ["-c", args])
-        return ContinueResult(result['output'], success=result['success'])
+
+        output = result['output']
+        elapsed_time = result.get('elapsed_time', 0)
+        exit_code = 0 if result['success'] else 1
+        status_icon = "✅" if result['success'] else "❌"
+
+        if output:
+            formatted_output = f"{status_icon} Exit code {exit_code} ({elapsed_time:.3f}s elapsed)\n\n{output}"
+        else:
+            formatted_output = f"{status_icon} Exit code {exit_code} ({elapsed_time:.3f}s elapsed)"
+
+        return ContinueResult(formatted_output, success=result['success'])

@@ -1,4 +1,5 @@
 import subprocess
+import time
 from typing import List, Dict
 
 from simple_agent.application.tool_library import ToolResult, Tool, ToolArgument, ToolArguments
@@ -23,6 +24,7 @@ class BaseTool(Tool):
                     args = [args]
                 command_line += args
 
+            start_time = time.time()
             result = subprocess.run(
                 command_line,
                 stdin=subprocess.DEVNULL,
@@ -34,6 +36,8 @@ class BaseTool(Tool):
                 timeout=30,
                 cwd=cwd
             )
+            elapsed_time = time.time() - start_time
+            
             output = result.stdout.rstrip('\n')
             if result.stderr:
                 if output:
@@ -41,12 +45,13 @@ class BaseTool(Tool):
                 output += f"STDERR: {result.stderr}"
             return {
                 'output': output,
-                'success': result.returncode == 0
+                'success': result.returncode == 0,
+                'elapsed_time': elapsed_time
             }
         except subprocess.TimeoutExpired:
-            return {'output': 'Command timed out (30s limit)', 'success': False}
+            return {'output': 'Command timed out (30s limit)', 'success': False, 'elapsed_time': 30.0}
         except Exception as e:
-            return {'output': f'Error: {str(e)}', 'success': False}
+            return {'output': f'Error: {str(e)}', 'success': False, 'elapsed_time': 0.0}
 
     def get_template_variables(self) -> Dict[str, str]:
         """Return variables to substitute in documentation templates.
