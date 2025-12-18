@@ -1,5 +1,7 @@
 import asyncio
 import logging
+import io
+import sys
 import os
 import signal
 import threading
@@ -66,42 +68,25 @@ class TextualApp(App):
         self.run()
 
     @staticmethod
-    def create_and_start_test(user_input=None, root_agent_id: AgentId = AgentId("Agent")):
-        """Start the app in test mode using Textual's run_test() for headless testing."""
-        import io
-        import sys
+    async def run_test_with_session(
+        session_runner: Callable[[], Coroutine[Any, Any, None]],
+        user_input=None,
+        root_agent_id: AgentId = AgentId("Agent")
+    ):
 
         app = TextualApp(user_input, root_agent_id)
-        app._test_ready = threading.Event()
-        app._test_shutdown = threading.Event()
-
-        async def run_test_wrapper():
-            async with app.run_test() as pilot:
-                # On Windows, Textual's headless mode tries to write to _original_stdout/_original_stderr
-                # which may have invalid handles. Replace them with valid streams.
-                if sys.platform == "win32":
-                    app._original_stdout = io.StringIO()
-                    app._original_stderr = io.StringIO()
-                app._pilot = pilot
-                await pilot.pause()  # Wait for app to fully mount
-                app._test_ready.set()
-                while not app._test_shutdown.is_set():
-                    await asyncio.sleep(0.1)
-
-        def thread_target():
-            asyncio.run(run_test_wrapper())
-
-        app._app_thread = threading.Thread(target=thread_target, daemon=False)
-        app._app_thread.start()
-        app._test_ready.wait()
+        async with app.run_test() as pilot:
+            if sys.platform == "win32":
+                app._original_stdout = io.StringIO()
+                app._original_stderr = io.StringIO()
+            app._pilot = pilot
+            await pilot.pause()  # Wait for app to fully mount
+            session_task = asyncio.create_task(session_runner())
+            await session_task
         return app
 
     def shutdown(self):
-        if hasattr(self, '_test_shutdown'):
-            self._test_shutdown.set()
-            if hasattr(self, '_app_thread') and self._app_thread and self._app_thread.is_alive():
-                self._app_thread.join(timeout=2.0)
-        elif self.is_running:
+        if self.is_running:
             self.exit()
     BINDINGS = [
         ("alt+left", "previous_tab", "Previous Tab"),

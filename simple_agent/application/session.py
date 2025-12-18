@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Any
+from typing import Callable, Any, Awaitable
 
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.llm import LLMProvider
@@ -28,7 +28,7 @@ class SessionArgs:
     non_interactive: bool = False
     agent: str | None = None
     test_mode: bool = False
-    on_user_prompt_requested: Callable[[Any], None] | None = None
+    on_user_prompt_requested: Callable[[Any], None] | Callable[[Any], Awaitable[None]] | None = None
 
 
 class Session:

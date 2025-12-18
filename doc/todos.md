@@ -1,12 +1,12 @@
 # NOW 
 - https://ai.google.dev/gemini-api/docs/models#gemini-3-flash
 - gemini-3-flash-preview
-# NEXT
-- ground haiku
+- The Tests are too slow!
 - /clear
-- add files via @
-- [red]Error: cannot unpack non-iterable coroutine object[/red] whats this?
 
+# NEXT
+- move doc to docs
+- add files via @
 
 # LATER
 - rag for code

@@ -1,8 +1,11 @@
 #!/usr/bin/env -S uv run --script
 
 import argparse
+import io
+import sys
 import os
 import asyncio
+from typing import Awaitable
 
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
@@ -95,18 +98,94 @@ def main(on_user_prompt_requested=None):
         llm_provider=llm_provider
     )
 
-    if args.test_mode:
-        textual_app = TextualApp.create_and_start_test(textual_user_input, root_agent_id)
-        display = TextualDisplay(textual_app)
-        subscribe_events(event_bus, event_logger, todo_cleanup, display)
-        asyncio.run(session.run_async(args, root_agent_id, agent_definition))
-        return textual_app
-
     async def run_session():
         await session.run_async(args, root_agent_id, agent_definition)
 
     textual_app.run_with_session(run_session)
     return None
+
+
+async def main_async(on_user_prompt_requested=None):
+    setup_logging()
+
+    args = parse_args()
+    if on_user_prompt_requested:
+        args.on_user_prompt_requested = on_user_prompt_requested
+    cwd = os.getcwd()
+    if args.stub_llm:
+        user_config = stub_user_config()
+    else:
+        user_config = load_user_configuration(cwd)
+
+    if args.show_system_prompt:
+        return print_system_prompt_command(user_config, cwd, args)
+
+    if args.non_interactive:
+        textual_user_input = NonInteractiveUserInput()
+    else:
+        textual_user_input = TextualUserInput()
+
+    agents_path = None if args.stub_llm else user_config.agents_path()
+    agent_library = create_agent_library(agents_path, cwd)
+    starting_agent_type = get_starting_agent(user_config, args)
+    agent_definition = agent_library.read_agent_definition(starting_agent_type)
+    root_agent_id = AgentId(agent_definition.agent_name())
+
+    todo_cleanup = FileSystemTodoCleanup()
+
+    if not args.continue_session:
+        todo_cleanup.cleanup_all_todos()
+
+    session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
+
+    event_logger = EventLogger()
+
+    event_bus = SimpleEventBus()
+
+    tool_syntax = EmojiBracketToolSyntax()
+    tool_library_factory = AllToolsFactory(tool_syntax)
+
+    if args.stub_llm:
+        llm_provider = StubLLMProvider()
+    else:
+        llm_provider = RemoteLLMProvider(user_config)
+
+    session = Session(
+        event_bus=event_bus,
+        session_storage=session_storage,
+        tool_library_factory=tool_library_factory,
+        agent_library=agent_library,
+        user_input=textual_user_input,
+        todo_cleanup=todo_cleanup,
+        llm_provider=llm_provider
+    )
+
+    textual_app = TextualApp(textual_user_input, root_agent_id)
+    display = TextualDisplay(textual_app)
+    subscribe_events(event_bus, event_logger, todo_cleanup, display)
+
+    if args.on_user_prompt_requested:
+        def on_prompt_wrapper(_):
+            callback = args.on_user_prompt_requested
+            result = callback(textual_app)
+            if isinstance(result, Awaitable):
+                asyncio.create_task(result)
+        event_bus.subscribe(UserPromptRequestedEvent, on_prompt_wrapper)
+
+    async def run_session():
+        await session.run_async(args, root_agent_id, agent_definition)
+
+
+    async with textual_app.run_test() as pilot:
+        if sys.platform == "win32":
+            textual_app._original_stdout = io.StringIO()
+            textual_app._original_stderr = io.StringIO()
+        textual_app._pilot = pilot
+        await pilot.pause()  # Wait for app to fully mount
+        session_task = asyncio.create_task(run_session())
+        await session_task
+
+    return textual_app
 
 
 def print_system_prompt_command(user_config, cwd, args):

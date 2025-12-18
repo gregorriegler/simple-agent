@@ -1,14 +1,13 @@
 import io
 import os
 import sys
-import threading
 from difflib import SequenceMatcher
 from pathlib import Path
 
 import pytest
 from rich.console import Console
 
-from simple_agent.main import main
+from simple_agent.main import main_async
 
 
 def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.5):
@@ -32,7 +31,8 @@ def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.5):
         )
 
 @pytest.mark.flaky(reruns=5, reruns_delay=2)
-def test_golden_master_agent_stub(monkeypatch):
+@pytest.mark.asyncio
+async def test_golden_master_agent_stub(monkeypatch):
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     os.chdir(project_root)
 
@@ -49,44 +49,35 @@ def test_golden_master_agent_stub(monkeypatch):
         return text.replace("▃", "").replace("╸", "").replace("▂", "").replace("▄", "")
 
     captured = []
-    capture_done = threading.Event()
 
-    def unblock_agent(app):
-        async def do_capture():
-            def get_screen_content():
-                console = Console(record=True, width=80, force_terminal=False, file=io.StringIO())
-                console.print(app.screen._compositor)
-                return normalize(console.export_text())
+    async def on_user_prompt_requested(app):
+        def get_screen_content():
+            console = Console(record=True, width=80, force_terminal=False, file=io.StringIO())
+            console.print(app.screen._compositor)
+            return normalize(console.export_text())
 
-            # Wait for screen to stabilize with substantial content
-            max_attempts = 60
-            last_content = None
-            stable_count = 0
+        # Wait for screen to stabilize with substantial content
+        max_attempts = 60
+        last_content = None
+        stable_count = 0
 
-            for _ in range(max_attempts):
-                await app._pilot.pause()
-                content = get_screen_content()
+        for _ in range(max_attempts):
+            await app._pilot.pause()
+            content = get_screen_content()
 
-                if content == last_content:
-                    stable_count += 1
-                    # Stable and has expected content - done
-                    if stable_count >= 3 and "complete-task" in content:
-                        break
-                else:
-                    stable_count = 0
-                    last_content = content
+            if content == last_content:
+                stable_count += 1
+                # Stable and has expected content - done
+                if stable_count >= 3 and "complete-task" in content:
+                    break
+            else:
+                stable_count = 0
+                last_content = content
 
-            captured.append(get_screen_content())
-            capture_done.set()
-
-        app.call_from_thread(do_capture)
-        if not capture_done.wait(timeout=10.0):
-            pytest.fail("Timed out waiting for screen capture")
+        captured.append(get_screen_content())
         app.user_input.submit_input("")
 
-    app = main(on_user_prompt_requested=unblock_agent)
-
-    app.shutdown()
+    app = await main_async(on_user_prompt_requested=on_user_prompt_requested)
 
     # Cleanup: Remove newfile.txt if it was created by the stub
     newfile_path = Path(project_root) / "newfile.txt"
