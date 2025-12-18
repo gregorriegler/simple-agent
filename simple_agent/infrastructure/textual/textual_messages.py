@@ -40,11 +40,6 @@ class ToolCancelledMessage(Message):
         self.call_id = call_id
 
 
-class SessionClearedMessage(Message):
-    def __init__(self, log_id: str) -> None:
-        super().__init__()
-        self.log_id = log_id
-
 class SessionStatusMessage(Message):
     def __init__(self, log_id: str, status: str) -> None:
         super().__init__()

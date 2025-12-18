@@ -73,7 +73,7 @@ def main(on_user_prompt_requested=None):
     event_logger = EventLogger()
 
     event_bus = SimpleEventBus()
-    subscribe_events(event_bus, event_logger, todo_cleanup, display)
+    subscribe_events(event_bus, event_logger, todo_cleanup, display, textual_app)
 
     if args.on_user_prompt_requested:
         def on_prompt_wrapper(_):
@@ -162,7 +162,7 @@ async def main_async(on_user_prompt_requested=None):
 
     textual_app = TextualApp(textual_user_input, root_agent_id)
     display = TextualDisplay(textual_app)
-    subscribe_events(event_bus, event_logger, todo_cleanup, display)
+    subscribe_events(event_bus, event_logger, todo_cleanup, display, textual_app)
 
     if args.on_user_prompt_requested:
         def on_prompt_wrapper(_):

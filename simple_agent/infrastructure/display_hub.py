@@ -74,11 +74,6 @@ class AgentDisplayHub(Display):
         if agent:
             agent.tool_cancelled(event.call_id)
 
-    def clear(self, event) -> None:
-        agent = self._agent_for(event.agent_id)
-        if agent:
-            agent.clear()
-
     def interrupted(self, event) -> None:
         agent = self._agent_for(event.agent_id)
         if agent:

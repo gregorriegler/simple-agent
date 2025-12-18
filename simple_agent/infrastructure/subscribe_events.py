@@ -17,6 +17,7 @@ from simple_agent.application.events import (
 )
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
+from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 
 
@@ -25,6 +26,7 @@ def subscribe_events(
     event_logger: EventLogger,
     todo_cleanup: FileSystemTodoCleanup,
     display: TextualDisplay,
+    app: TextualApp | None = None,
 ):
     event_bus.subscribe(SessionStartedEvent, event_logger.log_event)
     event_bus.subscribe(UserPromptRequestedEvent, event_logger.log_event)
@@ -48,7 +50,8 @@ def subscribe_events(
     event_bus.subscribe(ToolCalledEvent, display.tool_call)
     event_bus.subscribe(ToolResultEvent, display.tool_result)
     event_bus.subscribe(ToolCancelledEvent, display.tool_cancelled)
-    event_bus.subscribe(SessionClearedEvent, display.clear)
+    if app:
+        event_bus.subscribe(SessionClearedEvent, lambda e: app.post_message(e))
     event_bus.subscribe(SessionInterruptedEvent, display.interrupted)
     event_bus.subscribe(ErrorEvent, display.error_occurred)
     event_bus.subscribe(SessionEndedEvent, display.exit)
