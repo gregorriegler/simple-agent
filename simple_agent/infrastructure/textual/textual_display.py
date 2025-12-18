@@ -15,7 +15,6 @@ from simple_agent.infrastructure.textual.textual_messages import (
     ToolCancelledMessage,
     ToolResultMessage,
     UpdateTabTitleMessage,
-    UserSaysMessage,
 )
 
 logger = logging.getLogger(__name__)
@@ -75,10 +74,6 @@ class TextualAgentDisplay(AgentDisplay):
 
         percentage = (token_count / max_tokens) * 100
         return f"{base_title} [{self._model}: {percentage:.1f}%]"
-
-    def user_says(self, message):
-        if self._app and self._app.is_running:
-            self._app.post_message(UserSaysMessage(self._log_id, f"**User:** {message}"))
 
     def assistant_says(self, message):
         if not (message and self._app and self._app.is_running):

@@ -45,11 +45,6 @@ class AgentDisplayHub(Display):
         if agent:
             agent.waiting_for_input()
 
-    def user_says(self, event) -> None:
-        agent = self._agent_for(event.agent_id)
-        if agent:
-            agent.user_says(event.input_text)
-
     def assistant_says(self, event) -> None:
         agent = self._agent_for(event.agent_id)
         if agent:

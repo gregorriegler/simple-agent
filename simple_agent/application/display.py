@@ -14,9 +14,6 @@ class Display(Protocol):
     def wait_for_input(self, event) -> None:
         ...
 
-    def user_says(self, event) -> None:
-        ...
-
     def assistant_says(self, event) -> None:
         ...
 
@@ -46,9 +43,6 @@ class AgentDisplay(Protocol):
 
 
     def assistant_says(self, message) -> None:
-        ...
-
-    def user_says(self, message) -> None:
         ...
 
     def tool_call(self, call_id: str, tool) -> None:
@@ -83,8 +77,6 @@ class DummyDisplay(AgentDisplay):
     def assistant_says(self, message) -> None:
         pass
     def assistant_responded(self, model: str, token_count: int, max_tokens: int) -> None:
-        pass
-    def user_says(self, message) -> None:
         pass
     def tool_call(self, call_id: str, tool) -> None:
         pass

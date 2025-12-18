@@ -21,7 +21,7 @@ from textual.css.query import NoMatches
 from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible, Markdown
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.events import SessionClearedEvent
+from simple_agent.application.events import SessionClearedEvent, UserPromptedEvent
 from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
@@ -34,7 +34,6 @@ from simple_agent.infrastructure.textual.textual_messages import (
     ToolCancelledMessage,
     ToolResultMessage,
     UpdateTabTitleMessage,
-    UserSaysMessage,
 )
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
 
@@ -538,9 +537,6 @@ class TextualApp(App):
                 secondary_scroll.styles.display = "none"
                 splitter.styles.display = "none"
 
-    def on_user_says_message(self, message: UserSaysMessage) -> None:
-        self.write_message(message.log_id, message.content)
-
     def on_assistant_says_message(self, message: AssistantSaysMessage) -> None:
         self.write_message(message.log_id, message.content)
 
@@ -580,6 +576,9 @@ class TextualApp(App):
         if isinstance(event, SessionClearedEvent):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
             self.clear_agent_panels(log_id)
+        elif isinstance(event, UserPromptedEvent):
+            _, log_id, _ = self.panel_ids_for(event.agent_id)
+            self.write_message(log_id, f"**User:** {event.input_text}")
 
     def clear_agent_panels(self, log_id: str) -> None:
         # Clear chat scroll area

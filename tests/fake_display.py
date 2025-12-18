@@ -19,9 +19,6 @@ class FakeDisplay(Display):
     def wait_for_input(self, event) -> None:
         self._record("wait_for_input", event.agent_id)
 
-    def user_says(self, event) -> None:
-        self._record("user_says", event.agent_id, getattr(event, "input_text", None))
-
     def assistant_says(self, event) -> None:
         self._record("assistant_says", event.agent_id, getattr(event, "message", None))
 
