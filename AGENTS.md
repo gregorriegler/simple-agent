@@ -19,6 +19,8 @@ Apply empirical problem-solving and first come up with an hypothesis to then try
 
 # Environment
 - This is a bash environment, using uv.
+- For testing use pytest.
+- Avoid excessive code comments.
 - Always us the `./test.sh` script to run the tests
   - `./test.sh` - Runs all tests
   - `./test.sh test_foo.py` - Run a specific test file
