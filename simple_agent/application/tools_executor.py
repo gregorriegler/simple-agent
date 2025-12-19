@@ -1,0 +1,83 @@
+import asyncio
+from collections.abc import Callable
+
+from .agent_id import AgentId
+from .event_bus_protocol import EventBus
+from .events import ToolCalledEvent, ToolResultEvent, ToolCancelledEvent
+from .tool_library import ToolResult, ContinueResult, ToolLibrary, ParsedTool
+
+
+class ToolExecutionLog:
+    def __init__(self):
+        self._entries: list[tuple[ParsedTool, ToolResult]] = []
+        self._last_result: ToolResult = ContinueResult()
+
+    def reset(self) -> None:
+        self._entries.clear()
+        self._last_result = ContinueResult()
+
+    @property
+    def last_result(self) -> ToolResult:
+        return self._last_result
+
+    def add(self, tool: ParsedTool, result: ToolResult) -> None:
+        self._entries.append((tool, result))
+        self._last_result = result
+
+    def format_continue_message(self) -> str | None:
+        parts = [
+            f"Result of {tool}\n{result}"
+            for tool, result in self._entries
+            if isinstance(result, ContinueResult)
+        ]
+        return "\n\n".join(parts) if parts else None
+
+    def has_continue_results(self) -> bool:
+        return any(isinstance(result, ContinueResult) for _, result in self._entries)
+
+
+class ToolsExecutor:
+    def __init__(self, tools: ToolLibrary, event_bus: EventBus, agent_id: AgentId):
+        self._tools = tools
+        self._event_bus = event_bus
+        self._agent_id = agent_id
+        self._tool_call_counter = 0
+
+    async def execute_tools(
+        self,
+        tools: list[ParsedTool],
+        log: ToolExecutionLog,
+        on_cancelled: Callable[[ParsedTool], None],
+    ) -> ToolResult:
+        log.reset()
+        for tool in tools:
+            try:
+                result = await self.execute(tool)
+            except asyncio.CancelledError:
+                on_cancelled(tool)
+                raise
+            log.add(tool, result)
+            if not result.do_continue():
+                break
+        return log.last_result
+
+    async def execute(self, tool: ParsedTool) -> ToolResult:
+        self._tool_call_counter += 1
+        call_id = f"{self._agent_id}::tool_call::{self._tool_call_counter}"
+        await self._notify_tool_called(call_id, tool)
+        try:
+            tool_result = await self._tools.execute_parsed_tool(tool)
+            await self._notify_tool_finished(call_id, tool_result)
+            return tool_result
+        except asyncio.CancelledError:
+            await self._notify_tool_cancelled(call_id)
+            raise
+
+    async def _notify_tool_called(self, call_id, tool):
+        self._event_bus.publish(ToolCalledEvent(self._agent_id, call_id, tool))
+
+    async def _notify_tool_cancelled(self, call_id):
+        self._event_bus.publish(ToolCancelledEvent(self._agent_id, call_id))
+
+    async def _notify_tool_finished(self, call_id, tool_result):
+        self._event_bus.publish(ToolResultEvent(self._agent_id, call_id, tool_result))

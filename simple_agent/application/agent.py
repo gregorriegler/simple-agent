@@ -6,45 +6,16 @@ from .event_bus_protocol import EventBus
 from .events import (
     AgentStartedEvent, AgentFinishedEvent,
     AssistantSaidEvent, AssistantRespondedEvent,
-    ToolCalledEvent, ToolResultEvent, ToolCancelledEvent,
     SessionEndedEvent, SessionInterruptedEvent,
     UserPromptRequestedEvent, UserPromptedEvent,
     ErrorEvent, SessionClearedEvent
 )
 from .input import Input
 from .llm import LLM, Messages
-from .tool_library import ToolResult, ContinueResult, ToolLibrary, MessageAndParsedTools, ParsedTool
+from .tool_library import ToolResult, ContinueResult, ToolLibrary, MessageAndParsedTools
+from .tools_executor import ToolExecutionLog, ToolsExecutor
 
 logger = get_logger(__name__)
-
-
-class ToolExecutionLog:
-    def __init__(self):
-        self._entries: list[tuple[ParsedTool, ToolResult]] = []
-        self._last_result: ToolResult = ContinueResult()
-
-    def reset(self) -> None:
-        self._entries.clear()
-        self._last_result = ContinueResult()
-
-    @property
-    def last_result(self) -> ToolResult:
-        return self._last_result
-
-    def add(self, tool: ParsedTool, result: ToolResult) -> None:
-        self._entries.append((tool, result))
-        self._last_result = result
-
-    def format_continue_message(self) -> str | None:
-        parts = [
-            f"Result of {tool}\n{result}"
-            for tool, result in self._entries
-            if isinstance(result, ContinueResult)
-        ]
-        return "\n\n".join(parts) if parts else None
-
-    def has_continue_results(self) -> bool:
-        return any(isinstance(result, ContinueResult) for _, result in self._entries)
 
 
 class Agent:
@@ -64,7 +35,7 @@ class Agent:
         self.tools = tools
         self.user_input = user_input
         self.event_bus = event_bus
-        self._tool_call_counter = 0
+        self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
         self.context: Messages = context
 
     async def start(self):
@@ -118,16 +89,11 @@ class Agent:
                 if not tools:
                     break
 
-                log.reset()
-                for tool in tools:
-                    try:
-                        tool_result = await self.execute_tool(tool)
-                        log.add(tool, tool_result)
-                        if not tool_result.do_continue():
-                            break
-                    except asyncio.CancelledError:
-                        self.context.user_says(tool.cancelled_message())
-                        raise
+                tool_result = await self.tools_executor.execute_tools(
+                    tools,
+                    log,
+                    lambda tool: self.context.user_says(tool.cancelled_message()),
+                )
 
                 if log.has_continue_results():
                     self.context.user_says(log.format_continue_message())
@@ -161,18 +127,6 @@ class Agent:
         ))
         return self.tools.parse_message_and_tools(answer)
 
-    async def execute_tool(self, tool: ParsedTool) -> ToolResult:
-        self._tool_call_counter += 1
-        call_id = f"{self.agent_id}::tool_call::{self._tool_call_counter}"
-        await self._notify_tool_called(call_id, tool)
-        try:
-            tool_result = await self.tools.execute_parsed_tool(tool)
-            await self._notify_tool_completed(call_id, tool_result)
-            return tool_result
-        except asyncio.CancelledError:
-            await self._notify_tool_cancelled(call_id)
-            raise
-
     def _notify_agent_started(self):
         self.event_bus.publish(AgentStartedEvent(self.agent_id, self.agent_name, self.llm.model))
 
@@ -184,15 +138,6 @@ class Agent:
 
     async def _notify_assistant_said(self, message):
         self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
-
-    async def _notify_tool_cancelled(self, call_id):
-        self.event_bus.publish(ToolCancelledEvent(self.agent_id, call_id))
-
-    async def _notify_tool_completed(self, call_id, tool_result):
-        self.event_bus.publish(ToolResultEvent(self.agent_id, call_id, tool_result))
-
-    async def _notify_tool_called(self, call_id, tool):
-        self.event_bus.publish(ToolCalledEvent(self.agent_id, call_id, tool))
 
     def _notify_agent_finished(self):
         self.event_bus.publish(AgentFinishedEvent(self.agent_id))
