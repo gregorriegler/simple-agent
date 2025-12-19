@@ -44,7 +44,7 @@ async def test_golden_master_agent_stub(monkeypatch):
         "Hello, world!"
     ])
 
-    approved_path = Path(__file__).parent / "approved_files" / "end_to_end_test.test_golden_master_agent_stub.approved.txt"
+    approved_path = Path(__file__).parent / "approved_files" / "e2e_smoke_test.test_golden_master_agent_stub.approved.txt"
 
     def normalize(text):
         return text.replace("▃", "").replace("╸", "").replace("▂", "").replace("▄", "")
