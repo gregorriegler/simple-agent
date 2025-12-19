@@ -57,7 +57,7 @@ class ToolsExecutor:
         log = ToolExecutionLog()
         for tool in tools:
             try:
-                result = await self.execute(tool)
+                result = await self._execute(tool)
                 log.add(tool, result)
             except asyncio.CancelledError:
                 log.mark_cancelled(tool)
@@ -65,7 +65,7 @@ class ToolsExecutor:
 
         return log
 
-    async def execute(self, tool: ParsedTool) -> ToolResult:
+    async def _execute(self, tool: ParsedTool) -> ToolResult:
         self._tool_call_counter += 1
         call_id = f"{self._agent_id}::tool_call::{self._tool_call_counter}"
         await self._notify_tool_called(call_id, tool)
