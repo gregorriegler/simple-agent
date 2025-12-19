@@ -1,12 +1,11 @@
+import json
 import pytest
-import respx
 import httpx
 
 from simple_agent.infrastructure.openai.openai_client import OpenAILLM
 
 
 @pytest.mark.asyncio
-@respx.mock
 async def test_openai_client_sends_correct_request():
     response_data = {
         "choices": [{"message": {"content": "assistant response"}}],
@@ -16,12 +15,16 @@ async def test_openai_client_sends_correct_request():
             "total_tokens": 30
         }
     }
+    captured = {}
 
-    respx.post("https://api.openai.com/v1/chat/completions").mock(
-        return_value=httpx.Response(200, json=response_data)
-    )
+    def handler(request):
+        captured["url"] = str(request.url)
+        captured["json"] = json.loads(request.content.decode("utf-8"))
+        return httpx.Response(200, json=response_data)
 
-    client = OpenAILLM(StubOpenAIConfig())
+    transport = httpx.MockTransport(handler)
+
+    client = OpenAILLM(StubOpenAIConfig(), transport=transport)
     messages = [{"role": "user", "content": "Hello"}]
 
     result = await client.call_async(messages)
@@ -31,6 +34,9 @@ async def test_openai_client_sends_correct_request():
     assert result.usage.input_tokens == 10
     assert result.usage.output_tokens == 20
     assert result.usage.total_tokens == 30
+    assert captured["url"] == "https://api.openai.com/v1/chat/completions"
+    assert captured["json"]["model"] == "test-openai-model"
+    assert captured["json"]["messages"] == messages
 
 
 class StubOpenAIConfig:

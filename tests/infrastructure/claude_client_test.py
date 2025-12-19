@@ -1,12 +1,10 @@
 import pytest
-import respx
 import httpx
 
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM, ClaudeClientError
 
 
 @pytest.mark.asyncio
-@respx.mock
 async def test_claude_chat_returns_content_text():
     response_data = {
         "content": [{"text": "assistant response"}],
@@ -17,11 +15,11 @@ async def test_claude_chat_returns_content_text():
     }
     system_prompt = "system prompt"
 
-    respx.post("https://api.anthropic.com/v1/messages").mock(
-        return_value=httpx.Response(200, json=response_data)
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(200, json=response_data)
     )
 
-    chat = ClaudeLLM(StubClaudeConfig())
+    chat = ClaudeLLM(StubClaudeConfig(), transport=transport)
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": "Hello"}
@@ -37,13 +35,10 @@ async def test_claude_chat_returns_content_text():
 
 
 @pytest.mark.asyncio
-@respx.mock
 async def test_claude_chat_raises_error_when_content_missing():
-    respx.post("https://api.anthropic.com/v1/messages").mock(
-        return_value=httpx.Response(200, json={})
-    )
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json={}))
 
-    chat = ClaudeLLM(StubClaudeConfig())
+    chat = ClaudeLLM(StubClaudeConfig(), transport=transport)
 
     with pytest.raises(ClaudeClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -52,11 +47,12 @@ async def test_claude_chat_raises_error_when_content_missing():
 
 
 @pytest.mark.asyncio
-@respx.mock
 async def test_claude_chat_raises_error_when_request_fails():
-    respx.post("https://api.anthropic.com/v1/messages").mock(side_effect=httpx.ConnectError("Connection failed"))
+    def handler(request):
+        raise httpx.ConnectError("Connection failed", request=request)
 
-    chat = ClaudeLLM(StubClaudeConfig())
+    transport = httpx.MockTransport(handler)
+    chat = ClaudeLLM(StubClaudeConfig(), transport=transport)
 
     with pytest.raises(ClaudeClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])

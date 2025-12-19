@@ -1,13 +1,10 @@
 import pytest
-import re
-import respx
 import httpx
 
 from simple_agent.infrastructure.gemini.gemini_v1_client import GeminiV1LLM, GeminiV1ClientError
 
 
 @pytest.mark.asyncio
-@respx.mock
 async def test_gemini_v1_chat_returns_text_from_parts():
     response_data = {
         "candidates": [{
@@ -17,11 +14,9 @@ async def test_gemini_v1_chat_returns_text_from_parts():
         }]
     }
 
-    respx.post(re.compile(r"https://generativelanguage\.googleapis\.com/v1/models/test-model:generateContent.*")).mock(
-        return_value=httpx.Response(200, json=response_data)
-    )
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json=response_data))
 
-    chat = GeminiV1LLM(StubGeminiV1Config())
+    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
     messages = [{"role": "user", "content": "Hello"}]
 
     result = await chat.call_async(messages)
@@ -31,15 +26,12 @@ async def test_gemini_v1_chat_returns_text_from_parts():
 
 
 @pytest.mark.asyncio
-@respx.mock
 async def test_gemini_v1_chat_handles_system_prompt():
     response_data = {"candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]}
 
-    respx.post(re.compile(r"https://generativelanguage.googleapis.com/v1/models/test-model:generateContent.*")).mock(
-        return_value=httpx.Response(200, json=response_data)
-    )
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json=response_data))
 
-    chat = GeminiV1LLM(StubGeminiV1Config())
+    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
     messages = [
         {"role": "system", "content": "You are a helpful assistant"},
         {"role": "user", "content": "Hello"}
@@ -51,15 +43,12 @@ async def test_gemini_v1_chat_handles_system_prompt():
 
 
 @pytest.mark.asyncio
-@respx.mock
 async def test_gemini_v1_chat_converts_assistant_to_model_role():
     response_data = {"candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]}
 
-    respx.post(re.compile(r"https://generativelanguage.googleapis.com/v1/models/test-model:generateContent.*")).mock(
-        return_value=httpx.Response(200, json=response_data)
-    )
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json=response_data))
 
-    chat = GeminiV1LLM(StubGeminiV1Config())
+    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
     messages = [
         {"role": "user", "content": "Hello"},
         {"role": "assistant", "content": "Hi there!"},
@@ -72,31 +61,25 @@ async def test_gemini_v1_chat_converts_assistant_to_model_role():
 
 
 @pytest.mark.asyncio
-@respx.mock
 async def test_gemini_v1_chat_concatenates_multiple_text_parts():
     response_data = {"candidates": [{"content": {"parts": [
         {"text": "First part. "},
         {"text": "Second part."}
     ]}}]}
 
-    respx.post(re.compile(r"https://generativelanguage.googleapis.com/v1/models/test-model:generateContent.*")).mock(
-        return_value=httpx.Response(200, json=response_data)
-    )
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json=response_data))
 
-    chat = GeminiV1LLM(StubGeminiV1Config())
+    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
     assert result.content == "First part. Second part."
 
 
 @pytest.mark.asyncio
-@respx.mock
 async def test_gemini_v1_chat_raises_error_when_candidates_missing():
-    respx.post(re.compile(r"https://generativelanguage.googleapis.com/v1/models/test-model:generateContent.*")).mock(
-        return_value=httpx.Response(200, json={})
-    )
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json={}))
 
-    chat = GeminiV1LLM(StubGeminiV1Config())
+    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
 
     with pytest.raises(GeminiV1ClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -105,13 +88,10 @@ async def test_gemini_v1_chat_raises_error_when_candidates_missing():
 
 
 @pytest.mark.asyncio
-@respx.mock
 async def test_gemini_v1_chat_raises_error_when_content_missing():
-    respx.post(re.compile(r"https://generativelanguage.googleapis.com/v1/models/test-model:generateContent.*")).mock(
-        return_value=httpx.Response(200, json={"candidates": [{}]})
-    )
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json={"candidates": [{}]}))
 
-    chat = GeminiV1LLM(StubGeminiV1Config())
+    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
 
     with pytest.raises(GeminiV1ClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -120,13 +100,12 @@ async def test_gemini_v1_chat_raises_error_when_content_missing():
 
 
 @pytest.mark.asyncio
-@respx.mock
 async def test_gemini_v1_chat_raises_error_when_parts_missing():
-    respx.post(re.compile(r"https://generativelanguage.googleapis.com/v1/models/test-model:generateContent.*")).mock(
-        return_value=httpx.Response(200, json={"candidates": [{"content": {}}]})
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(200, json={"candidates": [{"content": {}}]})
     )
 
-    chat = GeminiV1LLM(StubGeminiV1Config())
+    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
 
     with pytest.raises(GeminiV1ClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -135,13 +114,12 @@ async def test_gemini_v1_chat_raises_error_when_parts_missing():
 
 
 @pytest.mark.asyncio
-@respx.mock
 async def test_gemini_v1_chat_raises_error_on_api_error_response():
-    respx.post(re.compile(r"https://generativelanguage.googleapis.com/v1/models/test-model:generateContent.*")).mock(
-        return_value=httpx.Response(200, json={"error": {"code": 400, "message": "Invalid API key"}})
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(200, json={"error": {"code": 400, "message": "Invalid API key"}})
     )
 
-    chat = GeminiV1LLM(StubGeminiV1Config())
+    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
 
     with pytest.raises(GeminiV1ClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -150,13 +128,12 @@ async def test_gemini_v1_chat_raises_error_on_api_error_response():
 
 
 @pytest.mark.asyncio
-@respx.mock
 async def test_gemini_v1_chat_raises_error_when_request_fails():
-    respx.post(re.compile(r"https://generativelanguage.googleapis.com/v1/models/test-model:generateContent.*")).mock(
-        side_effect=httpx.ConnectError("Connection failed")
-    )
+    def handler(request):
+        raise httpx.ConnectError("Connection failed", request=request)
 
-    chat = GeminiV1LLM(StubGeminiV1Config())
+    transport = httpx.MockTransport(handler)
+    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
 
     with pytest.raises(GeminiV1ClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])

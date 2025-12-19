@@ -15,8 +15,9 @@ class ClaudeClientError(RuntimeError):
 
 
 class ClaudeLLM(LLM):
-    def __init__(self, config: ModelConfig):
+    def __init__(self, config: ModelConfig, transport: httpx.AsyncBaseTransport | None = None):
         self._config = config
+        self._transport = transport
         self._ensure_claude_adapter()
 
     @property
@@ -53,7 +54,7 @@ class ClaudeLLM(LLM):
 
         try:
             logger.debug("Request:" + json.dumps(data, indent=4, ensure_ascii=False))
-            async with httpx.AsyncClient(timeout=timeout) as client:
+            async with httpx.AsyncClient(timeout=timeout, transport=self._transport) as client:
                 response = await client.post(url, headers=headers, json=data)
             logger.debug(
                 "Response:" + json.dumps(response.json(), indent=4, ensure_ascii=False)
