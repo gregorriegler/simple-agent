@@ -25,6 +25,6 @@ class LsTool(BaseTool):
 
     async def execute(self, raw_call):
         path = raw_call.arguments if raw_call.arguments else "."
-        result = self.run_command("ls", ["-a", path] if path else ["-a"])
+        result = await self.run_command_async("ls", ["-a", path] if path else ["-a"])
         status = ToolResultStatus.SUCCESS if result['success'] else ToolResultStatus.FAILURE
         return SingleToolResult(result['output'], status=status)

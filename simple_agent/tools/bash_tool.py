@@ -32,7 +32,7 @@ class BashTool(BaseTool):
         if not args:
             return SingleToolResult('STDERR: bash: missing command', status=ToolResultStatus.FAILURE)
         _ = subprocess
-        result = self.run_command("bash", ["-c", args])
+        result = await self.run_command_async("bash", ["-c", args])
 
         output = result['output']
         elapsed_time = result.get('elapsed_time', 0)

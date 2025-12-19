@@ -64,7 +64,7 @@ class CatTool(BaseTool):
         if error:
             return SingleToolResult(error, status=ToolResultStatus.FAILURE)
         if line_range is None:
-            result = self.run_command('cat', ['-n', filename])
+            result = await self.run_command_async('cat', ['-n', filename])
             status = ToolResultStatus.SUCCESS if result['success'] else ToolResultStatus.FAILURE
             return SingleToolResult(result['output'], status=status)
         start_line, end_line, error = self._validate_range(line_range)

@@ -1,3 +1,4 @@
+import asyncio
 import subprocess
 import time
 from typing import List, Dict
@@ -53,6 +54,10 @@ class BaseTool(Tool):
             return {'output': 'Command timed out (30s limit)', 'success': False, 'elapsed_time': 30.0}
         except Exception as e:
             return {'output': f'Error: {str(e)}', 'success': False, 'elapsed_time': 0.0}
+
+    @staticmethod
+    async def run_command_async(command, args=None, cwd=None):
+        return await asyncio.to_thread(BaseTool.run_command, command, args, cwd)
 
     def get_template_variables(self) -> Dict[str, str]:
         """Return variables to substitute in documentation templates.
