@@ -58,6 +58,7 @@ This will improve the outputs, as subagents perform better on small changes.
 │   └── write-bash-scripts.agent.md
 ├── doc/
 │   ├── coverage.svg
+│   ├── event-to-display-simplification.md
 │   ├── loc.svg
 │   ├── magic-prompts.md
 │   ├── overview.md
