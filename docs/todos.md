@@ -1,11 +1,7 @@
 # NOW 
-- https://ai.google.dev/gemini-api/docs/models#gemini-3-flash
-- gemini-3-flash-preview
-- The Tests are too slow!
 - /clear
 
 # NEXT
-- move doc to docs
 - add files via @
 
 # LATER
@@ -18,13 +14,9 @@ TextualApp.shutdown, yet run_session invokes display.exit() again (application/s
 description onto that shared stack (tools/subagent_tool.py:47-49), so nested agents can steal each other’s queued prompts and are unnecessarily coupled.
 - ModelConfig does validation and ModelConfig, belongs to application
 - --version
-- do we need all those ifs in TextualDisplay?
-- deadlocks
-- agent definitions folder configurable
 - better feedback that we are still waiting for a http response
 - tdd loop
 - api key via env var
 - Login with Claude Max subscription (We need to ask for a OAuth ClientId)
-- Caret placement
 - Refactoring opportunity in edit_file_tool.py
 - Simpler switching between models
