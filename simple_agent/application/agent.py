@@ -36,6 +36,10 @@ class ToolExecutionLog:
     def set_active_tool(self, tool: ParsedTool | None) -> None:
         self._active_tool = tool
 
+    @property
+    def active_tool(self) -> ParsedTool | None:
+        return self._active_tool
+
     def add(self, tool: ParsedTool, result: ToolResult) -> None:
         self._entries.append((tool, result))
         self._last_result = result
@@ -47,11 +51,6 @@ class ToolExecutionLog:
             if isinstance(result, ContinueResult)
         ]
         return "\n\n".join(parts) if parts else None
-
-    def format_cancelled_message(self) -> str | None:
-        if not self._active_tool:
-            return None
-        return self._active_tool.cancelled_message()
 
 
 class Agent:
@@ -138,8 +137,8 @@ class Agent:
                     self.context.user_says(message)
 
         except asyncio.CancelledError:
-            if message := log.format_cancelled_message():
-                self.context.user_says(message)
+            if log.active_tool:
+                self.context.user_says(log.active_tool.cancelled_message())
             raise
         except KeyboardInterrupt:
             await self._notify_session_interrupted()
