@@ -13,8 +13,3 @@ class AgentDisplay(Protocol):
 
     def exit(self) -> None:
         ...
-
-
-class DummyDisplay(AgentDisplay):
-    def exit(self) -> None:
-        pass
