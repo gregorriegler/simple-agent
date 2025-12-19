@@ -1,4 +1,4 @@
-import asyncio
+import pytest
 import textwrap
 from pathlib import Path
 
@@ -6,9 +6,10 @@ from approvaltests import Options, verify
 from tests.test_helpers import all_scrubbers, temp_directory, create_all_tools_for_test
 
 library = create_all_tools_for_test()
+pytestmark = pytest.mark.asyncio
 
 
-def test_write_todos_creates_markdown_file(tmp_path):
+async def test_write_todos_creates_markdown_file(tmp_path):
     command = textwrap.dedent("""
     🛠️[write-todos]
     - [ ] Item 1
@@ -19,7 +20,7 @@ def test_write_todos_creates_markdown_file(tmp_path):
 
     with temp_directory(tmp_path):
         tool = library.parse_message_and_tools(command)
-        result = asyncio.run(library.execute_parsed_tool(tool.tools[0]))
+        result = await library.execute_parsed_tool(tool.tools[0])
 
         content = Path(".Agent.todos.md").read_text(encoding="utf-8")
         verify(

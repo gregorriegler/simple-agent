@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from approvaltests import verify, Options
 
 from simple_agent.application.agent_id import AgentId
@@ -8,8 +10,10 @@ from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoC
 from .session_test_bed import SessionTestBed
 from .test_helpers import all_scrubbers
 
+pytestmark = pytest.mark.asyncio
 
-def test_continued_session_keeps_todo_files(tmp_path, monkeypatch):
+
+async def test_continued_session_keeps_todo_files(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
     todo_files = [
@@ -20,7 +24,7 @@ def test_continued_session_keeps_todo_files(tmp_path, monkeypatch):
         Path(filename).write_text(f"content of {filename}")
 
     cleanup = FileSystemTodoCleanup()
-    SessionTestBed() \
+    await SessionTestBed() \
         .continuing_session() \
         .with_todo_cleanup(cleanup) \
         .on_event(AgentFinishedEvent, lambda e: cleanup.cleanup_todos_for_agent(e.agent_id) if e.agent_id.has_parent() else None) \
@@ -32,7 +36,7 @@ def test_continued_session_keeps_todo_files(tmp_path, monkeypatch):
     verify(result, options=Options().with_scrubber(all_scrubbers()))
 
 
-def test_subagent_cleanup_deletes_subagent_todo(tmp_path, monkeypatch):
+async def test_subagent_cleanup_deletes_subagent_todo(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
     created_files = set()
@@ -46,7 +50,7 @@ def test_subagent_cleanup_deletes_subagent_todo(tmp_path, monkeypatch):
 
     todo_cleanup = SpyFileSystemTodoCleanup()
 
-    SessionTestBed() \
+    await SessionTestBed() \
         .with_llm_responses([
             "🛠️[subagent coding handle-task]",
             "🛠️[write-todos]\n- [ ] Coding task\n🛠️[/end]",

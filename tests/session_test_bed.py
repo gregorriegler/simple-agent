@@ -1,4 +1,3 @@
-import asyncio
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
@@ -103,7 +102,7 @@ class SessionTestBed:
         self._custom_event_subscriptions.append((event_type, handler))
         return self
 
-    def run(self) -> SessionTestResult:
+    async def run(self) -> SessionTestResult:
         event_bus = SimpleEventBus()
         io_spy = IOSpy(self._user_inputs, self._escape_hits)
         user_input = UserInputStub(io=io_spy)
@@ -148,11 +147,11 @@ class SessionTestBed:
             project_tree=DummyProjectTree(),
         )
 
-        asyncio.run(session.run_async(
+        await session.run_async(
             create_session_args(self._continue_session, start_message=self._start_message),
             AgentId("Agent"),
             _create_test_agent_definition()
-        ))
+        )
 
         return SessionTestResult(event_spy, session_storage)
 

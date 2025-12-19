@@ -1,15 +1,17 @@
-import asyncio
+import pytest
+pytestmark = pytest.mark.asyncio
+
 from simple_agent.application.user_input import DummyUserInput
 
 
-def test_dummy_user_input_returns_empty_prompt_and_no_escape_request():
+async def test_dummy_user_input_returns_empty_prompt_and_no_escape_request():
     user_input = DummyUserInput()
 
-    assert asyncio.run(user_input.read_async()) == ""
+    assert await user_input.read_async() == ""
     assert user_input.escape_requested() is False
 
 
-def test_dummy_user_input_close_is_noop():
+async def test_dummy_user_input_close_is_noop():
     user_input = DummyUserInput()
 
     user_input.close()

@@ -1,12 +1,15 @@
+import pytest
 from approvaltests import verify, Options
 
 from simple_agent.application.events import ErrorEvent
 from tests.session_test_bed import SessionTestBed
 from tests.test_helpers import create_temp_file, create_temp_directory_structure, all_scrubbers
 
+pytestmark = pytest.mark.asyncio
 
-def test_llm_error_emits_error_event():
-    result = SessionTestBed() \
+
+async def test_llm_error_emits_error_event():
+    result = await SessionTestBed() \
         .with_failing_llm("429 Too Many Requests") \
         .with_user_inputs("Hello") \
         .run()
@@ -16,8 +19,8 @@ def test_llm_error_emits_error_event():
     assert "429" in str(error_events[0])
 
 
-def test_llm_error_displayed_to_user():
-    result = SessionTestBed() \
+async def test_llm_error_displayed_to_user():
+    result = await SessionTestBed() \
         .with_failing_llm("429 Too Many Requests") \
         .with_user_inputs("Hello") \
         .run()
@@ -27,44 +30,44 @@ def test_llm_error_displayed_to_user():
     assert "429" in error_events[0].message
 
 
-def test_chat_with_regular_response():
-    verify_chat(["Hello", "\n"], ["Hello! How can I help you?"])
+async def test_chat_with_regular_response():
+    await verify_chat(["Hello", "\n"], ["Hello! How can I help you?"])
 
 
-def test_chat_with_two_regular_responses():
-    verify_chat(["Hello", "User Answer", "\n"], ["Answer 1", "Answer 2"])
+async def test_chat_with_two_regular_responses():
+    await verify_chat(["Hello", "User Answer", "\n"], ["Answer 1", "Answer 2"])
 
 
-def test_chat_with_empty_answer():
-    verify_chat(["Hello", ""], ["Test answer"])
+async def test_chat_with_empty_answer():
+    await verify_chat(["Hello", ""], ["Test answer"])
 
 
-def test_abort():
-    verify_chat(["Test message", keyboard_interrupt], ["Test answer"])
+async def test_abort():
+    await verify_chat(["Test message", keyboard_interrupt], ["Test answer"])
 
 
-def test_tool_cat(tmp_path):
+async def test_tool_cat(tmp_path):
     temp_file = create_temp_file(tmp_path, "testfile.txt", "Hello world")
-    verify_chat(["Test message", "\n"], [f"🛠️[cat {temp_file} /]", "🛠️[complete-task summary /]"])
+    await verify_chat(["Test message", "\n"], [f"🛠️[cat {temp_file} /]", "🛠️[complete-task summary /]"])
 
 
-def test_tool_cat_integration(tmp_path):
+async def test_tool_cat_integration(tmp_path):
     temp_file = create_temp_file(tmp_path, "integration_test.txt", "Integration test content\nLine 2")
-    verify_chat(["Test message", "\n"], [f"🛠️[cat {temp_file} /]", "🛠️[complete-task summary /]"])
+    await verify_chat(["Test message", "\n"], [f"🛠️[cat {temp_file} /]", "🛠️[complete-task summary /]"])
 
 
-def test_tool_ls_integration(tmp_path):
+async def test_tool_ls_integration(tmp_path):
     directory_path, _, _, _, _ = create_temp_directory_structure(tmp_path)
-    verify_chat(["Test message", "\n"], [f"🛠️[ls {directory_path}]", "🛠️[complete-task summary]"])
+    await verify_chat(["Test message", "\n"], [f"🛠️[ls {directory_path}]", "🛠️[complete-task summary]"])
 
 
-def test_multiple_tool_calls_in_one_response(tmp_path):
+async def test_multiple_tool_calls_in_one_response(tmp_path):
     directory_path, _, temp_file, _, _ = create_temp_directory_structure(tmp_path)
-    verify_chat(["Test message", "\n"], [f"I will list the files and then read one.\n🛠️[ls {directory_path} /]🛠️[cat {temp_file} /]", "🛠️[complete-task summary /]"])
+    await verify_chat(["Test message", "\n"], [f"I will list the files and then read one.\n🛠️[ls {directory_path} /]🛠️[cat {temp_file} /]", "🛠️[complete-task summary /]"])
 
 
-def test_chat_with_task_completion():
-    verify_chat(
+async def test_chat_with_task_completion():
+    await verify_chat(
         ["Say Hello", "\n"], [
             "Hello!\n🛠️[complete-task I successfully said hello /]",
             "ignored"
@@ -72,17 +75,17 @@ def test_chat_with_task_completion():
     )
 
 
-def test_interrupt_reads_follow_up_message():
-    verify_chat(["Hello", "Follow-up message", "\n"], ["Assistant response"], [], [True, False])
+async def test_interrupt_reads_follow_up_message():
+    await verify_chat(["Hello", "Follow-up message", "\n"], ["Assistant response"], [], [True, False])
 
 
-def test_interrupt_aborts_tool_call():
-    verify_chat(
+async def test_interrupt_aborts_tool_call():
+    await verify_chat(
         ["Hello", "Follow-up message", "\n"], ["🛠️[cat hello.txt /]", "🛠️[complete-task summary /]"], [], [True, False]
     )
 
 
-def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
+async def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     message, *remaining_inputs = inputs
 
     test_bed = SessionTestBed() \
@@ -94,7 +97,7 @@ def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
     if ctrl_c_hits:
         test_bed.with_ctrl_c_hits(ctrl_c_hits)
 
-    result = test_bed.run()
+    result = await test_bed.run()
     verify(result.as_approval_string(), options=Options().with_scrubber(all_scrubbers()))
 
 

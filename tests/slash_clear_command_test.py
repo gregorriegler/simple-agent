@@ -1,15 +1,19 @@
+import pytest
+
+pytestmark = pytest.mark.asyncio
+
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.events import SessionClearedEvent, UserPromptRequestedEvent
 from tests.session_storage_stub import SessionStorageStub
 from tests.session_test_bed import SessionTestBed
 
 
-def test_slash_clear_command_in_full_session():
+async def test_slash_clear_command_in_full_session():
     session = SessionTestBed() \
         .with_llm_responses(["Response", "Response after clear"]) \
         .with_user_inputs("Initial message", "/clear", "After clear")
 
-    result = session.run()
+    result = await session.run()
 
     result.events.assert_occured(UserPromptRequestedEvent, times = 3)
     assert "user: After clear" in result.saved_messages
@@ -18,12 +22,12 @@ def test_slash_clear_command_in_full_session():
     result.events.assert_occured(SessionClearedEvent, times=1)
 
 
-def test_consecutive_clear_commands():
+async def test_consecutive_clear_commands():
     session = SessionTestBed() \
         .with_llm_responses(["Response after clears"]) \
         .with_user_inputs("Initial message", "/clear", "/clear", "After clears")
 
-    result = session.run()
+    result = await session.run()
 
     result.events.assert_occured(UserPromptRequestedEvent, times=4)
     result.events.assert_occured(SessionClearedEvent, times=2)
@@ -31,7 +35,7 @@ def test_consecutive_clear_commands():
     assert "After clears" in result.saved_messages
 
 
-def test_agent_handles_slash_clear_command():
+async def test_agent_handles_slash_clear_command():
     session_storage = SessionStorageStub()
     messages = PersistedMessages(session_storage, system_prompt="You are a helpful assistant.")
     messages.user_says("Hello agent")
