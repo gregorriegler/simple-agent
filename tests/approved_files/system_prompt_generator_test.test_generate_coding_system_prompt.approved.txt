@@ -91,6 +91,7 @@ Example: r rename userId to id in User classs
 │   └── write-bash-scripts.agent.md
 ├── doc/
 │   ├── coverage.svg
+│   ├── event-to-display-simplification.md
 │   ├── loc.svg
 │   ├── magic-prompts.md
 │   ├── overview.md
