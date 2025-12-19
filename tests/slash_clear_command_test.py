@@ -1,5 +1,5 @@
 from simple_agent.application.persisted_messages import PersistedMessages
-from simple_agent.application.events import UserPromptedEvent, SessionEndedEvent, UserPromptRequestedEvent
+from simple_agent.application.events import SessionClearedEvent, UserPromptRequestedEvent
 from tests.session_storage_stub import SessionStorageStub
 from tests.session_test_bed import SessionTestBed
 
@@ -15,7 +15,7 @@ def test_slash_clear_command_in_full_session():
     assert "user: After clear" in result.saved_messages
     assert "assistant: Response after clear" in result.saved_messages
     assert "Initial message" not in result.saved_messages, "Messages before /clear should be cleared"
-    result.assert_display("clear", times=1)
+    result.events.assert_occured(SessionClearedEvent, times=1)
 
 
 def test_consecutive_clear_commands():
@@ -26,7 +26,7 @@ def test_consecutive_clear_commands():
     result = session.run()
 
     result.events.assert_occured(UserPromptRequestedEvent, times=4)
-    result.assert_display("clear", times=2)
+    result.events.assert_occured(SessionClearedEvent, times=2)
     assert "/clear" not in result.saved_messages, "/clear should not be sent to LLM"
     assert "After clears" in result.saved_messages
 

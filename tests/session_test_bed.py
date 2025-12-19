@@ -5,7 +5,6 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
     AssistantRespondedEvent,
     AssistantSaidEvent,
-    AgentStartedEvent,
     ErrorEvent,
     SessionClearedEvent,
     SessionEndedEvent,
@@ -22,7 +21,6 @@ from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from tests.event_spy import EventSpy
-from tests.fake_display import FakeDisplay
 from tests.print_spy import IOSpy
 from tests.session_storage_stub import SessionStorageStub
 from tests.system_prompt_generator_test import GroundRulesStub
@@ -32,23 +30,12 @@ from tests.user_input_stub import UserInputStub
 
 
 class SessionTestResult:
-    def __init__(self, event_spy: EventSpy, error_events: list, session_storage: SessionStorageStub, display: FakeDisplay):
+    def __init__(self, event_spy: EventSpy, session_storage: SessionStorageStub):
         self.events = event_spy
-        self.error_events = error_events
         self.saved_messages = session_storage.saved
-        self.display_events = display.events
 
     def as_approval_string(self) -> str:
         return f"# Events\n{self.events.get_events_as_string()}\n\n# Saved messages:\n{self.saved_messages}"
-
-    def assert_display(self, event_name, times=1):
-        events = [event for event in self.display_events if event['event'] == event_name]
-        actual_times = len(events)
-        assert actual_times == times, "{0} was expected to have occured {1} times, but actually occured {2} times".format(
-            event_name,
-            times,
-            actual_times
-        )
 
 
 class SessionTestBed:
@@ -118,14 +105,10 @@ class SessionTestBed:
 
     def run(self) -> SessionTestResult:
         event_bus = SimpleEventBus()
-        display = FakeDisplay()
         io_spy = IOSpy(self._user_inputs, self._escape_hits)
         user_input = UserInputStub(io=io_spy)
         session_storage = SessionStorageStub()
         todo_cleanup = self._todo_cleanup if self._todo_cleanup is not None else NoOpTodoCleanup()
-
-        error_events = []
-        event_bus.subscribe(ErrorEvent, lambda e: error_events.append(e))
 
         event_spy = EventSpy()
         tracked_events = [
@@ -139,19 +122,10 @@ class SessionTestBed:
             SessionClearedEvent,
             SessionInterruptedEvent,
             SessionEndedEvent,
+            ErrorEvent,
         ]
         for event_type in tracked_events:
             event_bus.subscribe(event_type, event_spy.record_event)
-
-        event_bus.subscribe(AssistantSaidEvent, display.assistant_says)
-        event_bus.subscribe(ToolCalledEvent, display.tool_call)
-        event_bus.subscribe(ToolResultEvent, display.tool_result)
-        event_bus.subscribe(SessionStartedEvent, display.start_session)
-        event_bus.subscribe(SessionInterruptedEvent, display.interrupted)
-        event_bus.subscribe(SessionEndedEvent, display.exit)
-        event_bus.subscribe(AgentStartedEvent, display.agent_created)
-        event_bus.subscribe(ErrorEvent, display.error_occurred)
-        event_bus.subscribe(SessionClearedEvent, display.clear)
 
         for event_type, handler in self._custom_event_subscriptions:
             event_bus.subscribe(event_type, handler)
@@ -160,8 +134,7 @@ class SessionTestBed:
             self._llm,
             io=io_spy,
             interrupts=[self._ctrl_c_hits],
-            event_bus=event_bus,
-            all_displays=display
+            event_bus=event_bus
         )
 
         session = Session(
@@ -180,7 +153,7 @@ class SessionTestBed:
             _create_test_agent_definition()
         ))
 
-        return SessionTestResult(event_spy, error_events, session_storage, display)
+        return SessionTestResult(event_spy, session_storage)
 
 
 def _create_test_agent_definition():

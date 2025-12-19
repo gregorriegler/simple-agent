@@ -114,7 +114,6 @@ This will improve the outputs, as subagents perform better on small changes.
 │   ├── end_to_end_test.py
 │   ├── event_bus_test.py
 │   ├── event_spy.py
-│   ├── fake_display.py
 │   ├── infrastructure/
 │   ├── input_test.py
 │   ├── main_test.py

@@ -1,5 +1,6 @@
 from approvaltests import verify, Options
 
+from simple_agent.application.events import ErrorEvent
 from tests.session_test_bed import SessionTestBed
 from tests.test_helpers import create_temp_file, create_temp_directory_structure, all_scrubbers
 
@@ -10,8 +11,9 @@ def test_llm_error_emits_error_event():
         .with_user_inputs("Hello") \
         .run()
 
-    assert len(result.error_events) == 1
-    assert "429" in str(result.error_events[0])
+    error_events = result.events.get_events(ErrorEvent)
+    assert len(error_events) == 1
+    assert "429" in str(error_events[0])
 
 
 def test_llm_error_displayed_to_user():
@@ -20,9 +22,9 @@ def test_llm_error_displayed_to_user():
         .with_user_inputs("Hello") \
         .run()
 
-    error_display_events = [e for e in result.display_events if e["event"] == "error_occurred"]
-    assert len(error_display_events) == 1
-    assert "429" in error_display_events[0]["payload"]
+    error_events = result.events.get_events(ErrorEvent)
+    assert len(error_events) == 1
+    assert "429" in error_events[0].message
 
 
 def test_chat_with_regular_response():

@@ -147,7 +147,6 @@ Example: r rename userId to id in User classs
 │   ├── end_to_end_test.py
 │   ├── event_bus_test.py
 │   ├── event_spy.py
-│   ├── fake_display.py
 │   ├── infrastructure/
 │   ├── input_test.py
 │   ├── main_test.py
