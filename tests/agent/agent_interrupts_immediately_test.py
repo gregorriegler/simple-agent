@@ -62,7 +62,6 @@ async def test_cancel_interrupts_during_llm_call():
         llm=SlowLLM(),
         user_input=InputWithStartMessage(),
         event_bus=event_bus,
-        session_storage=Mock(),
         context=Messages("system prompt"),
     )
 
@@ -156,7 +155,6 @@ async def test_cancel_interrupts_during_tool_execution():
         llm=ToolCallingLLM(),
         user_input=InputForToolTest(),
         event_bus=event_bus,
-        session_storage=Mock(),
         context=Messages("system prompt"),
     )
 

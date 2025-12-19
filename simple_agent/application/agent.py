@@ -28,7 +28,6 @@ class Agent:
         llm: LLM,
         user_input: Input,
         event_bus: EventBus,
-        session_storage: SessionStorage,
         context: Messages,
     ):
         self.agent_id = agent_id
@@ -37,7 +36,6 @@ class Agent:
         self.tools = tools
         self.user_input = user_input
         self.event_bus = event_bus
-        self.session_storage = session_storage
         self._tool_call_counter = 0
         self.context: Messages = context
 

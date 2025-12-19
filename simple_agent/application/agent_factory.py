@@ -89,6 +89,5 @@ class AgentFactory:
             llm,
             self.create_input(initial_message),
             self._event_bus,
-            self._session_storage,
             messages
         )
