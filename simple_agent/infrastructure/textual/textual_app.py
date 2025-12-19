@@ -21,10 +21,12 @@ from textual.widgets import Static, TabbedContent, TabPane, TextArea, Collapsibl
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
+    AgentStartedEvent,
     AssistantRespondedEvent,
     AssistantSaidEvent,
     ErrorEvent,
     SessionClearedEvent,
+    SessionEndedEvent,
     SessionInterruptedEvent,
     SessionStartedEvent,
     ToolCalledEvent,
@@ -563,9 +565,24 @@ class TextualApp(App):
         except (NoMatches, Exception):
             pass
 
+    def _ensure_agent_tab_exists(self, agent_id: AgentId, agent_name: str | None, model: str) -> None:
+        if not self.is_running:
+            return
+        if agent_name:
+            self._agent_names[agent_id] = agent_name
+        if self.has_agent_tab(agent_id):
+            if model:
+                title = self._tab_title_for(agent_id, model, 0, 0)
+                self.update_tab_title(agent_id, title)
+            return
+        tab_title = self._tab_title_for(agent_id, model, 0, 0)
+        self.add_subagent_tab(agent_id, tab_title)
+
     def on_domain_event_message(self, message: DomainEventMessage) -> None:
         event = message.event
-        if isinstance(event, SessionClearedEvent):
+        if isinstance(event, AgentStartedEvent):
+            self._ensure_agent_tab_exists(event.agent_id, event.agent_name, event.model)
+        elif isinstance(event, SessionClearedEvent):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
             self.clear_agent_panels(log_id)
         elif isinstance(event, UserPromptedEvent):
@@ -595,6 +612,9 @@ class TextualApp(App):
                 self.write_message(log_id, "Continuing session")
             else:
                 self.write_message(log_id, "Starting new session")
+        elif isinstance(event, SessionEndedEvent):
+            if self.is_running and self.has_agent_tab(event.agent_id):
+                self.remove_subagent_tab(event.agent_id)
         elif isinstance(event, UserPromptRequestedEvent):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
             self.write_message(log_id, "\nWaiting for user input...")

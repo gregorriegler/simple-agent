@@ -28,7 +28,6 @@ from simple_agent.infrastructure.llm import RemoteLLMProvider
 from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.textual_display import TextualDisplay
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
 from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.logging_config import setup_logging
@@ -66,14 +65,12 @@ def main(on_user_prompt_requested=None):
         todo_cleanup.cleanup_all_todos()
 
     textual_app = TextualApp(textual_user_input, root_agent_id)
-    display = TextualDisplay(textual_app)
-
     session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
 
     event_logger = EventLogger()
 
     event_bus = SimpleEventBus()
-    subscribe_events(event_bus, event_logger, todo_cleanup, display, textual_app)
+    subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
 
     if args.on_user_prompt_requested:
         def on_prompt_wrapper(_):
@@ -161,8 +158,7 @@ async def main_async(on_user_prompt_requested=None):
     )
 
     textual_app = TextualApp(textual_user_input, root_agent_id)
-    display = TextualDisplay(textual_app)
-    subscribe_events(event_bus, event_logger, todo_cleanup, display, textual_app)
+    subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
 
     if args.on_user_prompt_requested:
         def on_prompt_wrapper(_):
