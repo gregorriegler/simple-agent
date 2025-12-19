@@ -30,16 +30,6 @@ jobs:
     - name: Install Python dependencies
       run: uv sync --dev
 
-    - name: Run tests with coverage
+    - name: Run tests
       shell: bash
-      run: |
-        uv run coverage run -m pytest tests/
-        uv run coverage xml
-
-    - name: Upload coverage to Codecov
-      if: matrix.os == 'ubuntu-latest'
-      uses: codecov/codecov-action@v4
-      with:
-        files: ./coverage.xml
-        flags: unittests
-        verbose: true
+      run: ./test.sh
