@@ -88,8 +88,7 @@ class Agent:
                     break
 
                 tool_result = await self.tools_executor.execute_tools(tools)
-
-                self.context.user_says(tool_result.format_continue_message())
+                self.context.user_says(tool_result.message)
 
             return tool_result
         except asyncio.CancelledError:

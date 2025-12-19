@@ -112,7 +112,12 @@ class ManyToolsResult(ToolResult):
 
     @property
     def message(self) -> str:
-        return self._last_result.message
+        parts = [
+            f"Result of {tool}\n{result}"
+            for tool, result in self._entries
+            if result.do_continue()
+        ]
+        return "\n\n".join(parts)
 
     @property
     def success(self) -> bool:
@@ -145,14 +150,6 @@ class ManyToolsResult(ToolResult):
     def add(self, tool: ParsedTool, result: ToolResult) -> None:
         self._entries.append((tool, result))
         self._last_result = result
-
-    def format_continue_message(self) -> str:
-        parts = [
-            f"Result of {tool}\n{result}"
-            for tool, result in self._entries
-            if result.do_continue()
-        ]
-        return "\n\n".join(parts)
 
     def mark_cancelled(self, tool: ParsedTool) -> None:
         self._cancelled_tool = tool
