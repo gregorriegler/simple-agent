@@ -1,11 +1,7 @@
 import asyncio
 import io
 import logging
-import os
-import signal
 import sys
-import threading
-import time
 from pathlib import Path
 from typing import Callable, Coroutine, Any
 
@@ -184,7 +180,6 @@ class TextualApp(App):
         self._todo_containers: dict[str, tuple] = {}
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._suppressed_tool_calls: set[str] = set()
-        self._signal_on_unmount = False
         self.loading_timer: Timer | None = None
         self.loading_frames = ["⠇", "⠏", "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧"]
         self.loading_frame_index = 0
@@ -247,15 +242,6 @@ class TextualApp(App):
     def on_unmount(self) -> None:
         if self.user_input:
             self.user_input.close()
-        if self._signal_on_unmount:
-            def _raise_sigint() -> None:
-                try:
-                    time.sleep(0.05)
-                    os.kill(os.getpid(), signal.SIGINT)
-                except BaseException:
-                    pass
-
-            threading.Thread(target=_raise_sigint, daemon=True).start()
 
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
@@ -270,7 +256,8 @@ class TextualApp(App):
         """Ensure Ctrl+C / Ctrl+Q stop the agent, not just the UI."""
         if self.user_input:
             self.user_input.close()
-        self._signal_on_unmount = True
+        if self._session_task and not self._session_task.done():
+            self._session_task.cancel()
         self.exit()
 
     def action_previous_tab(self) -> None:
