@@ -5,7 +5,6 @@ from simple_agent.application.display import AgentDisplay, Display
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
-    RefreshTodosMessage,
     RemoveAgentTabMessage,
 )
 

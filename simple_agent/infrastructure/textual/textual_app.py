@@ -37,7 +37,6 @@ from simple_agent.application.tool_library import ToolResult
 from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
     DomainEventMessage,
-    RefreshTodosMessage,
     RemoveAgentTabMessage,
 )
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
@@ -563,9 +562,6 @@ class TextualApp(App):
                 tab.label = title
         except (NoMatches, Exception):
             pass
-
-    def on_refresh_todos_message(self, message: RefreshTodosMessage) -> None:
-        self._refresh_todos_for_agent(message.agent_id)
 
     def on_domain_event_message(self, message: DomainEventMessage) -> None:
         event = message.event

@@ -16,12 +16,6 @@ class RemoveAgentTabMessage(Message):
         self.agent_id = agent_id
 
 
-class RefreshTodosMessage(Message):
-    def __init__(self, agent_id: AgentId) -> None:
-        super().__init__()
-        self.agent_id = agent_id
-
-
 class DomainEventMessage(Message):
     def __init__(self, event) -> None:
         super().__init__()
