@@ -1,7 +1,4 @@
-from simple_agent.application.display import Display
-
-
-class FakeDisplay(Display):
+class FakeDisplay:
 
     def __init__(self):
         self.events: list[dict] = []
