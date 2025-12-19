@@ -168,12 +168,12 @@ class ManyToolsResult(ToolResult):
         parts = [
             f"Result of {tool}\n{result}"
             for tool, result in self._entries
-            if isinstance(result, ContinueResult)
+            if result.do_continue()
         ]
         return "\n\n".join(parts) if parts else None
 
     def has_continue_results(self) -> bool:
-        return any(isinstance(result, ContinueResult) for _, result in self._entries)
+        return any(result.do_continue() for _, result in self._entries)
 
     def mark_cancelled(self, tool: ParsedTool) -> None:
         self._cancelled_tool = tool
