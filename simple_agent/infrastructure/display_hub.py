@@ -31,30 +31,6 @@ class AgentDisplayHub(Display):
     def agent_created(self, event) -> None:
         self._ensure_agent(event.agent_id, getattr(event, "agent_name", None), getattr(event, "model", ""))
 
-    def start_session(self, event) -> None:
-        agent = self._agent_for(event.agent_id)
-        if not agent:
-            return
-        if getattr(event, "is_continuation", False):
-            agent.continue_session()
-        else:
-            agent.start_new_session()
-
-    def wait_for_input(self, event) -> None:
-        agent = self._agent_for(event.agent_id)
-        if agent:
-            agent.waiting_for_input()
-
-    def assistant_responded(self, event) -> None:
-        agent = self._agent_for(event.agent_id)
-        if agent:
-            agent.assistant_responded(event.model, event.token_count, event.max_tokens)
-
-    def error_occurred(self, event) -> None:
-        agent = self._agent_for(event.agent_id)
-        if agent:
-            agent.error_occurred(event.message)
-
     def exit(self, event) -> None:
         agent = self._agent_for(event.agent_id)
         if not agent:

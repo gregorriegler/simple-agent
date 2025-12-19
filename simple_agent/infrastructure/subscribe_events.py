@@ -43,19 +43,19 @@ def subscribe_events(
         AgentFinishedEvent,
         lambda event: todo_cleanup.cleanup_todos_for_agent(event.agent_id) if event.agent_id.has_parent() else None,
     )
-    event_bus.subscribe(SessionStartedEvent, display.start_session)
-    event_bus.subscribe(UserPromptRequestedEvent, display.wait_for_input)
-    event_bus.subscribe(AssistantRespondedEvent, display.assistant_responded)
     if app:
         def _post_domain_event(event):
             app.post_message(DomainEventMessage(event))
+        event_bus.subscribe(SessionStartedEvent, _post_domain_event)
+        event_bus.subscribe(UserPromptRequestedEvent, _post_domain_event)
         event_bus.subscribe(SessionClearedEvent, _post_domain_event)
         event_bus.subscribe(UserPromptedEvent, _post_domain_event)
         event_bus.subscribe(AssistantSaidEvent, _post_domain_event)
+        event_bus.subscribe(AssistantRespondedEvent, _post_domain_event)
         event_bus.subscribe(ToolCalledEvent, _post_domain_event)
         event_bus.subscribe(ToolResultEvent, _post_domain_event)
         event_bus.subscribe(ToolCancelledEvent, _post_domain_event)
         event_bus.subscribe(SessionInterruptedEvent, _post_domain_event)
-    event_bus.subscribe(ErrorEvent, display.error_occurred)
+        event_bus.subscribe(ErrorEvent, _post_domain_event)
     event_bus.subscribe(SessionEndedEvent, display.exit)
     event_bus.subscribe(AgentStartedEvent, display.agent_created)

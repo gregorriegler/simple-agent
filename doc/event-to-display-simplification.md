@@ -6,7 +6,7 @@ Adding the `/clear` command required touching 7 files and creating parallel even
 
 ## Current Architecture
 
-### The Flow (7 hops for `/clear`)
+### Legacy Flow (7 hops for `/clear`)
 
 ```
 Agent.read_user_input_and_prompt_it()
@@ -209,6 +209,8 @@ TextualApp.on_session_cleared_event() → clear_agent_panels()
 
 Since both normal and test modes now run in the same async context, the implementation is straightforward.
 
+**Current state:** the code already uses this pattern for the eleven migrated domain events—`subscribe_events.py` posts `DomainEventMessage` for each, and `TextualApp.on_domain_event_message()` renders them directly without per-event `TextualMessage` classes. Tab add/remove still uses Textual messages posted by `TextualDisplay`.
+
 **Important:** Domain events are dataclasses, not Textual `Message` subclasses. To preserve hexagonal architecture (domain doesn't depend on infrastructure), we use a `DomainEventMessage` wrapper:
 
 ```python
@@ -242,7 +244,11 @@ This keeps domain events pure (no Textual dependency) while still eliminating th
 | `ToolCalledEvent` | `ToolCallMessage` | Yes |
 | `ToolResultEvent` | `ToolResultMessage` | Yes |
 | `ToolCancelledEvent` | `ToolCancelledMessage` | Yes |
-| `SessionInterruptedEvent` | `SessionStatusMessage` | Yes |
+| `SessionInterruptedEvent` | `DomainEventMessage` | Yes (already migrated) |
+| `SessionStartedEvent` | `DomainEventMessage` | Yes (already migrated) |
+| `UserPromptRequestedEvent` | `DomainEventMessage` | Yes (already migrated) |
+| `ErrorEvent` | `DomainEventMessage` | Yes (already migrated) |
+| `AssistantRespondedEvent` | `DomainEventMessage` | Yes (already migrated) |
 | `AgentStartedEvent` | `AddSubagentTabMessage` | Maybe (different data) |
 | `AgentFinishedEvent` | `RemoveAgentTabMessage` | Maybe |
 
@@ -337,15 +343,19 @@ Apply the same pattern to each event:
 |-------|-------|---------|--------|
 | 1 | `SessionClearedEvent` | `SessionClearedMessage`, `clear()` methods | DONE |
 | 2 | `UserPromptedEvent` | `UserSaysMessage`, `user_says()` methods | DONE |
-| 3 | `AssistantSaidEvent` | `AssistantSaysMessage`, `assistant_says()` methods | |
-| 4 | `ToolCalledEvent` | `ToolCallMessage`, `tool_call()` methods | |
-| 5 | `ToolResultEvent` | `ToolResultMessage`, `tool_result()` methods | |
-| 6 | `ToolCancelledEvent` | `ToolCancelledMessage`, `tool_cancelled()` methods | |
-| 7 | `SessionInterruptedEvent` | `SessionStatusMessage`, `interrupted()` methods | |
+| 3 | `AssistantSaidEvent` | `AssistantSaysMessage`, `assistant_says()` methods | DONE |
+| 4 | `ToolCalledEvent` | `ToolCallMessage`, `tool_call()` methods | DONE |
+| 5 | `ToolResultEvent` | `ToolResultMessage`, `tool_result()` methods | DONE |
+| 6 | `ToolCancelledEvent` | `ToolCancelledMessage`, `tool_cancelled()` methods | DONE |
+| 7 | `SessionInterruptedEvent` | n/a (already direct) | DONE |
+| 8 | `SessionStartedEvent` | `SessionStatusMessage`, `start_session()` methods | DONE |
+| 9 | `UserPromptRequestedEvent` | `SessionStatusMessage`, `wait_for_input()` methods | DONE |
+| 10 | `ErrorEvent` | `SessionStatusMessage`, `error_occurred()` methods | DONE |
+| 11 | `AssistantRespondedEvent` | `UpdateTabTitleMessage`, `assistant_responded()` methods | DONE |
 
 ### After All Migrations
 
-Once all events are migrated:
+Once all events are migrated, including tab updates:
 
 - `textual_messages.py` can be deleted entirely (or nearly)
 - `display.py` protocols become minimal or removable

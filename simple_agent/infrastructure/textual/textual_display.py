@@ -8,8 +8,6 @@ from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
     RefreshTodosMessage,
     RemoveAgentTabMessage,
-    SessionStatusMessage,
-    UpdateTabTitleMessage,
 )
 
 logger = logging.getLogger(__name__)
@@ -42,7 +40,6 @@ class TextualAgentDisplay(AgentDisplay):
         self._agent_name = agent_name or str(agent_id)
         self._model = model
         self._exited = False
-        _, self._log_id, self._tool_results_id = TextualApp.panel_ids_for(agent_id)
         self._ensure_tab_exists()
 
     def _ensure_tab_exists(self) -> None:
@@ -53,7 +50,7 @@ class TextualAgentDisplay(AgentDisplay):
             # Tab already exists, but update title if we have model info
             if self._model:
                 tab_title = self._get_tab_title(0, 0)
-                self._app.post_message(UpdateTabTitleMessage(self._agent_id, tab_title))
+                self._app.update_tab_title(self._agent_id, tab_title)
             return
         tab_title = self._get_tab_title(0, 0)
         self._app.post_message(AddSubagentTabMessage(self._agent_id, tab_title))
@@ -70,32 +67,9 @@ class TextualAgentDisplay(AgentDisplay):
         percentage = (token_count / max_tokens) * 100
         return f"{base_title} [{self._model}: {percentage:.1f}%]"
 
-    def assistant_responded(self, model: str, token_count: int, max_tokens: int):
-        if not (self._app and self._app.is_running):
-            return
-
-        new_title = self._get_tab_title(token_count, max_tokens)
-        self._app.post_message(UpdateTabTitleMessage(self._agent_id, new_title))
-
-    def continue_session(self):
-        if self._app and self._app.is_running:
-            self._app.post_message(SessionStatusMessage(self._log_id, "Continuing session"))
-
-    def start_new_session(self):
-        if self._app and self._app.is_running:
-            self._app.post_message(SessionStatusMessage(self._log_id, "Starting new session"))
-
     def refresh_todos(self):
         if self._app and self._app.is_running:
             self._app.post_message(RefreshTodosMessage(self._agent_id))
-
-    def waiting_for_input(self):
-        if self._app and self._app.is_running:
-            self._app.post_message(SessionStatusMessage(self._log_id, "\nWaiting for user input..."))
-
-    def error_occurred(self, message):
-        if self._app and self._app.is_running:
-            self._app.post_message(SessionStatusMessage(self._log_id, f"\n**❌ Error: {message}**"))
 
     def exit(self):
         self._hub.remove_tab(self._agent_id)

@@ -22,12 +22,16 @@ from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Col
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
+    AssistantRespondedEvent,
     AssistantSaidEvent,
+    ErrorEvent,
     SessionClearedEvent,
     SessionInterruptedEvent,
+    SessionStartedEvent,
     ToolCalledEvent,
     ToolCancelledEvent,
     ToolResultEvent,
+    UserPromptRequestedEvent,
     UserPromptedEvent,
 )
 from simple_agent.application.tool_library import ToolResult
@@ -36,8 +40,6 @@ from simple_agent.infrastructure.textual.textual_messages import (
     DomainEventMessage,
     RefreshTodosMessage,
     RemoveAgentTabMessage,
-    SessionStatusMessage,
-    UpdateTabTitleMessage,
 )
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
 
@@ -546,22 +548,19 @@ class TextualApp(App):
                 secondary_scroll.styles.display = "none"
                 splitter.styles.display = "none"
 
-    def on_session_status_message(self, message: SessionStatusMessage) -> None:
-        self.write_message(message.log_id, message.status)
-
     def on_add_subagent_tab_message(self, message: AddSubagentTabMessage) -> None:
         self.add_subagent_tab(message.agent_id, message.tab_title)
 
     def on_remove_agent_tab_message(self, message: RemoveAgentTabMessage) -> None:
         self.remove_subagent_tab(message.agent_id)
 
-    def on_update_tab_title_message(self, message: UpdateTabTitleMessage) -> None:
-        tab_id, _, _ = self.panel_ids_for(message.agent_id)
+    def update_tab_title(self, agent_id: AgentId, title: str) -> None:
+        tab_id, _, _ = self.panel_ids_for(agent_id)
         try:
             tabs = self.query_one("#tabs", TabbedContent)
             tab = tabs.get_tab(tab_id)
             if tab:
-                tab.label = message.title
+                tab.label = title
         except (NoMatches, Exception):
             pass
 
@@ -594,6 +593,33 @@ class TextualApp(App):
         elif isinstance(event, SessionInterruptedEvent):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
             self.write_message(log_id, "\n[Session interrupted by user]")
+        elif isinstance(event, SessionStartedEvent):
+            _, log_id, _ = self.panel_ids_for(event.agent_id)
+            if event.is_continuation:
+                self.write_message(log_id, "Continuing session")
+            else:
+                self.write_message(log_id, "Starting new session")
+        elif isinstance(event, UserPromptRequestedEvent):
+            _, log_id, _ = self.panel_ids_for(event.agent_id)
+            self.write_message(log_id, "\nWaiting for user input...")
+        elif isinstance(event, ErrorEvent):
+            _, log_id, _ = self.panel_ids_for(event.agent_id)
+            self.write_message(log_id, f"\n**❌ Error: {event.message}**")
+        elif isinstance(event, AssistantRespondedEvent):
+            title = self._tab_title_for(event.agent_id, event.model, event.token_count, event.max_tokens)
+            self.update_tab_title(event.agent_id, title)
+
+    def _tab_title_for(self, agent_id: AgentId, model: str, token_count: int, max_tokens: int) -> str:
+        base_title = self._agent_names.get(agent_id, str(agent_id))
+
+        if not model:
+            return base_title
+
+        if max_tokens == 0:
+            return f"{base_title} [{model}: 0.0%]"
+
+        percentage = (token_count / max_tokens) * 100
+        return f"{base_title} [{model}: {percentage:.1f}%]"
 
     def clear_agent_panels(self, log_id: str) -> None:
         # Clear chat scroll area
