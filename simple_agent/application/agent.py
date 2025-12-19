@@ -77,9 +77,8 @@ class Agent:
         return prompt
 
     async def run_tool_loop(self):
-        tool_result: ToolResult = ContinueResult()
-
         try:
+            tool_result: ToolResult = ContinueResult()
             while tool_result.do_continue():
                 message, tools = await self.llm_responds()
                 if message:
@@ -98,6 +97,7 @@ class Agent:
                 if log.has_continue_results():
                     self.context.user_says(log.format_continue_message())
 
+            return tool_result
         except asyncio.CancelledError:
             raise
         except KeyboardInterrupt:
@@ -105,8 +105,10 @@ class Agent:
             raise
         except Exception as e:
             await self._notify_error_occured(e)
+            return None
 
-        return tool_result
+
+
 
     async def llm_responds(self) -> MessageAndParsedTools:
         from simple_agent.application.model_info import ModelInfo
