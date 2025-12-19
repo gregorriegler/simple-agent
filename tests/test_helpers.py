@@ -7,6 +7,7 @@ from approvaltests.scrubbers.scrubbers import create_regex_scrubber, combine_scr
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_types import AgentTypes
+from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.session import SessionArgs
 from simple_agent.application.system_prompt import AgentPrompt
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
@@ -37,7 +38,8 @@ def create_all_tools_for_test():
         tool_library_factory,
         agent_library,
         UserInputStub(io),
-        StubLLMProvider.dummy()
+        StubLLMProvider.dummy(),
+        DummyProjectTree(),
     )
 
     agent_id = AgentId("Agent")
@@ -189,3 +191,15 @@ def create_session_args(continue_session: bool, start_message: str | None = None
 
 def create_test_prompt(agent_name: str = "Agent") -> AgentPrompt:
     return AgentPrompt(agent_name, "Test system prompt", "")
+
+
+class DummyProjectTree(ProjectTree):
+
+    def render(self, max_depth: int = 2) -> str:
+        return (
+            "./\n"
+            "|-- simple_agent/\n"
+            "|   |-- application/\n"
+            "|   `-- infrastructure/\n"
+            "`-- tests/\n"
+        )

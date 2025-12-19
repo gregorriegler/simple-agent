@@ -24,7 +24,7 @@ from tests.event_spy import EventSpy
 from tests.print_spy import IOSpy
 from tests.session_storage_stub import SessionStorageStub
 from tests.system_prompt_generator_test import GroundRulesStub
-from tests.test_helpers import create_session_args
+from tests.test_helpers import create_session_args, DummyProjectTree
 from tests.test_tool_library import ToolLibraryFactoryStub
 from tests.user_input_stub import UserInputStub
 
@@ -144,7 +144,8 @@ class SessionTestBed:
             agent_library=BuiltinAgentLibrary(),
             user_input=user_input,
             todo_cleanup=todo_cleanup,
-            llm_provider=StubLLMProvider.for_testing(self._llm)
+            llm_provider=StubLLMProvider.for_testing(self._llm),
+            project_tree=DummyProjectTree(),
         )
 
         asyncio.run(session.run_async(

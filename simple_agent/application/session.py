@@ -10,6 +10,7 @@ from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.events import SessionStartedEvent
 from simple_agent.application.persisted_messages import PersistedMessages
+from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.todo_cleanup import TodoCleanup
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
@@ -41,6 +42,7 @@ class Session:
         user_input: UserInput,
         todo_cleanup: TodoCleanup,
         llm_provider: LLMProvider,
+        project_tree: ProjectTree,
     ):
         self._event_bus = event_bus
         self._session_storage = session_storage
@@ -49,6 +51,7 @@ class Session:
         self._user_input = user_input
         self._todo_cleanup = todo_cleanup
         self._llm_provider = llm_provider
+        self._project_tree = project_tree
 
     async def run_async(
         self,
@@ -62,7 +65,8 @@ class Session:
             self._tool_library_factory,
             self._agent_library,
             self._user_input,
-            self._llm_provider
+            self._llm_provider,
+            self._project_tree,
         )
 
         self._event_bus.publish(SessionStartedEvent(starting_agent_id, args.continue_session))

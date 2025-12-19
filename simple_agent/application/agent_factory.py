@@ -5,6 +5,7 @@ from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.event_bus_protocol import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLMProvider, Messages
+from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_documentation import generate_tools_documentation
@@ -22,7 +23,8 @@ class AgentFactory:
         tool_library_factory: ToolLibraryFactory,
         agent_library: AgentLibrary,
         user_input: UserInput,
-        llm_provider: LLMProvider
+        llm_provider: LLMProvider,
+        project_tree: ProjectTree,
     ):
         self._event_bus = event_bus
         self._session_storage = session_storage
@@ -31,6 +33,7 @@ class AgentFactory:
         self._user_input = user_input
         self._agent_suffixer = AgentIdSuffixer()
         self._llm_provider = llm_provider
+        self._project_tree = project_tree
 
     @property
     def event_bus(self) -> EventBus:
@@ -74,7 +77,7 @@ class AgentFactory:
             tool_context, spawner, AgentTypes(self._agent_library.list_agent_types())
         )
         tools_documentation = generate_tools_documentation(tools.tools, tools.tool_syntax)
-        system_prompt = definition.prompt().render(tools_documentation)
+        system_prompt = definition.prompt().render(tools_documentation, self._project_tree)
         messages.seed_system_prompt(system_prompt)
 
         llm = self._llm_provider.get(definition.model())

@@ -12,7 +12,7 @@ from simple_agent.infrastructure.agent_library import (
     BuiltinAgentLibrary,
     FileSystemAgentLibrary,
 )
-from tests.test_helpers import create_all_tools_for_test
+from tests.test_helpers import create_all_tools_for_test, DummyProjectTree
 
 
 def test_generate_orchestrator_agent_system_prompt():
@@ -29,7 +29,7 @@ def verify_system_prompt(agent_type, tool_library):
     agent_library = BuiltinAgentLibrary(GroundRulesStub())
     tools_documentation = generate_tools_documentation(tool_library.tools, tool_library.tool_syntax)
     prompt = agent_library.read_agent_definition(AgentType(agent_type)).prompt()
-    system_prompt = prompt.render(tools_documentation)
+    system_prompt = prompt.render(tools_documentation, DummyProjectTree())
     verify(system_prompt)
 
 
@@ -95,7 +95,7 @@ def test_render_removes_placeholder_when_no_agents_content():
         agents_content=""
     )
 
-    result = prompt.render("TOOLS DOCS")
+    result = prompt.render("TOOLS DOCS", DummyProjectTree())
 
     assert result == "Header\n\nFooter"
 

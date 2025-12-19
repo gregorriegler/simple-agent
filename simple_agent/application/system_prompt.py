@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from simple_agent.application.tree_display import generate_tree
+
+from simple_agent.application.project_tree import ProjectTree
 
 SystemPrompt = str
 
@@ -10,8 +11,8 @@ class AgentPrompt:
     template: str
     agents_content: str
 
-    def render(self, tools_documentation: str) -> SystemPrompt:
-        tree_output = generate_tree(max_depth=2)
+    def render(self, tools_documentation: str, project_tree: ProjectTree) -> SystemPrompt:
+        tree_output = project_tree.render(max_depth=2)
         project_structure = f"# Project Structure\n\n```\n{tree_output}```\n"
 
         result = self.template.replace("{{DYNAMIC_TOOLS_PLACEHOLDER}}", project_structure + tools_documentation)

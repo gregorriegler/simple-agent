@@ -5,6 +5,7 @@ import io
 import sys
 import os
 import asyncio
+from pathlib import Path
 from typing import Awaitable
 
 from simple_agent.application.agent_factory import AgentFactory
@@ -26,6 +27,7 @@ from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoC
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.infrastructure.llm import RemoteLLMProvider
 from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
+from simple_agent.infrastructure.project_tree import FileSystemProjectTree
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
@@ -85,6 +87,8 @@ def main(on_user_prompt_requested=None):
     else:
         llm_provider = RemoteLLMProvider(user_config)
 
+    project_tree = FileSystemProjectTree(Path(cwd))
+
     session = Session(
         event_bus=event_bus,
         session_storage=session_storage,
@@ -92,7 +96,8 @@ def main(on_user_prompt_requested=None):
         agent_library=agent_library,
         user_input=textual_user_input,
         todo_cleanup=todo_cleanup,
-        llm_provider=llm_provider
+        llm_provider=llm_provider,
+        project_tree=project_tree,
     )
 
     async def run_session():
@@ -147,6 +152,8 @@ async def main_async(on_user_prompt_requested=None):
     else:
         llm_provider = RemoteLLMProvider(user_config)
 
+    project_tree = FileSystemProjectTree(Path(cwd))
+
     session = Session(
         event_bus=event_bus,
         session_storage=session_storage,
@@ -154,7 +161,8 @@ async def main_async(on_user_prompt_requested=None):
         agent_library=agent_library,
         user_input=textual_user_input,
         todo_cleanup=todo_cleanup,
-        llm_provider=llm_provider
+        llm_provider=llm_provider,
+        project_tree=project_tree,
     )
 
     textual_app = TextualApp(textual_user_input, root_agent_id)
@@ -200,7 +208,8 @@ def print_system_prompt_command(user_config, cwd, args):
         tool_library_factory,
         agent_library,
         DummyUserInput(),
-        StubLLMProvider.dummy()
+        StubLLMProvider.dummy(),
+        FileSystemProjectTree(Path(cwd)),
     )
     agent_definition = agent_library.read_agent_definition(starting_agent_type)
     agent_id = AgentId("Agent")
@@ -211,7 +220,7 @@ def print_system_prompt_command(user_config, cwd, args):
     spawner = agent_factory.create_spawner(agent_id)
     tool_library = tool_library_factory.create(tool_context, spawner, AgentTypes(agent_library.list_agent_types()))
     tools_documentation = generate_tools_documentation(tool_library.tools, tool_syntax)
-    system_prompt = agent_definition.prompt().render(tools_documentation)
+    system_prompt = agent_definition.prompt().render(tools_documentation, FileSystemProjectTree(Path(cwd)))
     print(system_prompt)
     return
 
