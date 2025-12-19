@@ -54,13 +54,13 @@ class Agent:
                     tool_result = await self.run_tool_loop()
                 except asyncio.CancelledError:
                     # ESC pressed - interrupt current operation but continue session
-                    self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
+                    await self._notify_session_interrupted()
                     continue
 
-            self.notify_session_ended()
+            self._notify_session_ended()
             return tool_result
         except (EOFError, KeyboardInterrupt):
-            self.notify_session_ended()
+            self._notify_session_ended()
             return ContinueResult()
         finally:
             self._notify_agent_finished()
@@ -72,7 +72,8 @@ class Agent:
         try:
             while tool_result.do_continue():
                 message, tools = await self.llm_responds()
-                self.notify_about_message(message)
+                if message:
+                    await self._notify_assistant_said(message)
 
                 if not tools:
                     break
@@ -98,39 +99,25 @@ class Agent:
                 self.context.user_says(f"Result of {current_tool}\n[CANCELLED: Tool execution was interrupted by user]")
             raise
         except KeyboardInterrupt:
-            self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
+            await self._notify_session_interrupted()
             raise
         except Exception as e:
-            self.event_bus.publish(ErrorEvent(self.agent_id, str(e)))
+            await self._notify_error_occured(e)
 
         return tool_result
 
-    def _notify_agent_started(self):
-        self.event_bus.publish(
-            AgentStartedEvent(self.agent_id, self.agent_name, self.llm.model)
-        )
-
-    def _notify_agent_finished(self):
-        self.event_bus.publish(
-            AgentFinishedEvent(self.agent_id)
-        )
-
-    def notify_about_message(self, message):
-        if message:
-            self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
-
     async def user_prompts(self):
         if not self.user_input.has_stacked_messages():
-            self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
+            await self._notify_user_prompt_requested()
         prompt = await self.user_input.read_async()
         while prompt == "/clear":
             self.context.clear()
             self.event_bus.publish(SessionClearedEvent(self.agent_id))
-            self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
+            await self._notify_user_prompt_requested()
             prompt = await self.user_input.read_async()
         if prompt:
             self.context.user_says(prompt)
-            self.event_bus.publish(UserPromptedEvent(self.agent_id, prompt))
+            await self._notify_user_prompted(prompt)
         return prompt
 
     async def llm_responds(self) -> MessageAndParsedTools:
@@ -155,14 +142,44 @@ class Agent:
     async def execute_tool(self, tool: ParsedTool) -> ToolResult:
         self._tool_call_counter += 1
         call_id = f"{self.agent_id}::tool_call::{self._tool_call_counter}"
-        self.event_bus.publish(ToolCalledEvent(self.agent_id, call_id, tool))
+        await self._notify_tool_called(call_id, tool)
         try:
             tool_result = await self.tools.execute_parsed_tool(tool)
-            self.event_bus.publish(ToolResultEvent(self.agent_id, call_id, tool_result))
+            await self._notify_tool_completed(call_id, tool_result)
             return tool_result
         except asyncio.CancelledError:
-            self.event_bus.publish(ToolCancelledEvent(self.agent_id, call_id))
+            await self._notify_tool_cancelled(call_id)
             raise
 
-    def notify_session_ended(self):
+    def _notify_agent_started(self):
+        self.event_bus.publish(AgentStartedEvent(self.agent_id, self.agent_name, self.llm.model))
+
+    async def _notify_user_prompt_requested(self):
+        self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
+
+    async def _notify_user_prompted(self, prompt):
+        self.event_bus.publish(UserPromptedEvent(self.agent_id, prompt))
+
+    async def _notify_assistant_said(self, message):
+        self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
+
+    async def _notify_tool_cancelled(self, call_id):
+        self.event_bus.publish(ToolCancelledEvent(self.agent_id, call_id))
+
+    async def _notify_tool_completed(self, call_id, tool_result):
+        self.event_bus.publish(ToolResultEvent(self.agent_id, call_id, tool_result))
+
+    async def _notify_tool_called(self, call_id, tool):
+        self.event_bus.publish(ToolCalledEvent(self.agent_id, call_id, tool))
+
+    def _notify_agent_finished(self):
+        self.event_bus.publish(AgentFinishedEvent(self.agent_id))
+
+    def _notify_session_ended(self):
         self.event_bus.publish(SessionEndedEvent(self.agent_id))
+
+    async def _notify_error_occured(self, e):
+        self.event_bus.publish(ErrorEvent(self.agent_id, str(e)))
+
+    async def _notify_session_interrupted(self):
+        self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
