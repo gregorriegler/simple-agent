@@ -62,8 +62,8 @@ class SingleToolResult(ToolResult):
         display_body: str = "",
         display_language: str = "",
     ):
-        if status == ToolResultStatus.CANCELLED and continue_:
-            raise ValueError("Cancelled ToolResult cannot continue")
+        if status == ToolResultStatus.CANCELLED:
+            continue_ = False
         self._message = message
         self._display_title = display_title
         self._display_body = display_body
