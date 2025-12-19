@@ -3,70 +3,8 @@ import asyncio
 from .agent_id import AgentId
 from .event_bus_protocol import EventBus
 from .events import ToolCalledEvent, ToolResultEvent, ToolCancelledEvent
-from .tool_library import ToolResult, ContinueResult, ToolLibrary, ParsedTool
-
-
-class ManyToolsResult:
-    def __init__(self):
-        self._entries: list[tuple[ParsedTool, ToolResult]] = []
-        self._last_result: ToolResult = ContinueResult()
-        self._cancelled_tool: ParsedTool | None = None
-
-    @property
-    def last_result(self) -> ToolResult:
-        return self._last_result
-
-    @property
-    def message(self) -> str:
-        return self._last_result.message
-
-    @property
-    def success(self) -> bool:
-        return self._last_result.success
-
-    @property
-    def display_title(self) -> str:
-        return self._last_result.display_title
-
-    @property
-    def display_body(self) -> str:
-        return self._last_result.display_body
-
-    @property
-    def display_language(self) -> str:
-        return self._last_result.display_language
-
-    def do_continue(self) -> bool:
-        return self._last_result.do_continue()
-
-    def __str__(self) -> str:
-        return str(self._last_result)
-
-    def add(self, tool: ParsedTool, result: ToolResult) -> None:
-        self._entries.append((tool, result))
-        self._last_result = result
-
-    def format_continue_message(self) -> str | None:
-        parts = [
-            f"Result of {tool}\n{result}"
-            for tool, result in self._entries
-            if isinstance(result, ContinueResult)
-        ]
-        return "\n\n".join(parts) if parts else None
-
-    def has_continue_results(self) -> bool:
-        return any(isinstance(result, ContinueResult) for _, result in self._entries)
-
-    def mark_cancelled(self, tool: ParsedTool) -> None:
-        self._cancelled_tool = tool
-
-    def was_cancelled(self) -> bool:
-        return self._cancelled_tool is not None
-
-    def cancelled_message(self) -> str:
-        if not self._cancelled_tool:
-            raise ValueError("cancelled_message called without a cancelled tool")
-        return self._cancelled_tool.cancelled_message()
+from .tool_library import ToolLibrary, ParsedTool
+from .tool_results import ToolResult, ManyToolsResult
 
 
 class ToolsExecutor:

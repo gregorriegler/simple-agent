@@ -31,7 +31,7 @@ from simple_agent.application.events import (
     UserPromptRequestedEvent,
     UserPromptedEvent,
 )
-from simple_agent.application.tool_library import ToolResult
+from simple_agent.application.tool_results import ToolResult
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
 

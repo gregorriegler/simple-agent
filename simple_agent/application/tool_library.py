@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Protocol, List, Dict, Any
 
+from .tool_results import ToolResult
+
 
 @dataclass
 class RawToolCall:
@@ -21,45 +23,6 @@ class RawToolCall:
         return f"🛠️ {self.name}"
 
 
-class ToolResult(Protocol):
-    message: str
-    success: bool
-    display_title: str
-    display_body: str
-    display_language: str
-
-    def __str__(self) -> str:
-        ...
-
-    def do_continue(self) -> bool:
-        ...
-
-
-@dataclass
-class SingleToolResult:
-    message: str = ""
-    success: bool = True
-    display_title: str = ""
-    display_body: str = ""
-    display_language: str = ""
-
-    def __str__(self) -> str:
-        return self.message
-
-    def do_continue(self) -> bool:
-        raise NotImplementedError
-
-
-@dataclass
-class ContinueResult(SingleToolResult):
-    def do_continue(self) -> bool:
-        return True
-
-
-@dataclass
-class CompleteResult(SingleToolResult):
-    def do_continue(self) -> bool:
-        return False
 
 
 class ParsedTool:

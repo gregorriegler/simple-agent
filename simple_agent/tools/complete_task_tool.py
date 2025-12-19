@@ -1,4 +1,5 @@
-from ..application.tool_library import CompleteResult, ToolArgument, ToolArguments
+from ..application.tool_library import ToolArgument, ToolArguments
+from ..application.tool_results import CompleteResult
 from .base_tool import BaseTool
 
 

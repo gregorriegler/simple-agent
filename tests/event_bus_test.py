@@ -1,6 +1,6 @@
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AssistantSaidEvent, ToolResultEvent
-from simple_agent.application.tool_library import ContinueResult
+from simple_agent.application.tool_results import ContinueResult
 
 
 class TestSimpleEventBus:

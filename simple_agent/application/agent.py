@@ -12,7 +12,8 @@ from .events import (
 )
 from .input import Input
 from .llm import LLM, Messages
-from .tool_library import ToolResult, ContinueResult, ToolLibrary, MessageAndParsedTools
+from .tool_library import ToolLibrary, MessageAndParsedTools
+from .tool_results import ToolResult, ContinueResult
 from .tools_executor import ToolsExecutor
 
 logger = get_logger(__name__)

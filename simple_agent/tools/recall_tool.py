@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from ..application.tool_library import ContinueResult, ToolArguments
+from ..application.tool_library import ToolArguments
+from ..application.tool_results import ContinueResult
 
 from .base_tool import BaseTool
 

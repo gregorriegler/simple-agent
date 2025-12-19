@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any, ClassVar
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.tool_library import ToolResult
+from simple_agent.application.tool_results import ToolResult
 
 
 @dataclass

@@ -2,7 +2,8 @@ import subprocess
 import time
 from typing import List, Dict
 
-from simple_agent.application.tool_library import ToolResult, Tool, ToolArgument, ToolArguments
+from simple_agent.application.tool_library import Tool, ToolArgument, ToolArguments
+from simple_agent.application.tool_results import ToolResult
 from simple_agent.application.tool_syntax import RawToolCall
 
 

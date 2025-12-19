@@ -1,7 +1,7 @@
 from typing import Awaitable, Protocol
 
 from simple_agent.application.agent_type import AgentType
-from simple_agent.application.tool_library import ToolResult
+from simple_agent.application.tool_results import ToolResult
 
 
 class SubagentSpawner(Protocol):
