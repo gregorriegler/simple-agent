@@ -36,11 +36,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
 )
 from simple_agent.application.tool_library import ToolResult
-from simple_agent.infrastructure.textual.textual_messages import (
-    AddSubagentTabMessage,
-    DomainEventMessage,
-    RemoveAgentTabMessage,
-)
+from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
 
 
@@ -548,12 +544,6 @@ class TextualApp(App):
             else:
                 secondary_scroll.styles.display = "none"
                 splitter.styles.display = "none"
-
-    def on_add_subagent_tab_message(self, message: AddSubagentTabMessage) -> None:
-        self.add_subagent_tab(message.agent_id, message.tab_title)
-
-    def on_remove_agent_tab_message(self, message: RemoveAgentTabMessage) -> None:
-        self.remove_subagent_tab(message.agent_id)
 
     def update_tab_title(self, agent_id: AgentId, title: str) -> None:
         tab_id, _, _ = self.panel_ids_for(agent_id)

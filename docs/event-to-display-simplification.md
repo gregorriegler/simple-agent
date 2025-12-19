@@ -249,8 +249,8 @@ This keeps domain events pure (no Textual dependency) while still eliminating th
 | `UserPromptRequestedEvent` | `DomainEventMessage` | Yes (already migrated) |
 | `ErrorEvent` | `DomainEventMessage` | Yes (already migrated) |
 | `AssistantRespondedEvent` | `DomainEventMessage` | Yes (already migrated) |
-| `AgentStartedEvent` | `AddSubagentTabMessage` | Maybe (different data) |
-| `AgentFinishedEvent` | `RemoveAgentTabMessage` | Maybe |
+| `AgentStartedEvent` | `DomainEventMessage` | Yes |
+| `AgentFinishedEvent` | `DomainEventMessage` | Yes |
 
 ## Trade-offs
 
