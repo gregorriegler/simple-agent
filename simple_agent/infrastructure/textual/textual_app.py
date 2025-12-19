@@ -169,7 +169,6 @@ class TextualApp(App):
         super().__init__()
         self.user_input = user_input
         self._root_agent_id = root_agent_id
-        self._app_thread = None
         self._session_runner: Callable[[], Coroutine[Any, Any, None]] | None = None
         self._session_task: asyncio.Task | None = None
         self._pending_tool_calls: dict[str, dict[str, tuple[str, TextArea, Collapsible]]] = {}

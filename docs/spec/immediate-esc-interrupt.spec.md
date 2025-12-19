@@ -48,7 +48,7 @@ Each step keeps all existing tests passing. Async "bubbles up" naturally.
 
 11. ✅ **Make `agent.execute_tool` async**
     - Change `def execute_tool` → `async def execute_tool`
-    - Handles both sync and async tool results via `inspect.isawaitable()`
+    - Await tool execution directly
     - Tests pass
 
 12. ✅ **Make `agent.run_tool_loop` async**
@@ -78,4 +78,3 @@ Each step keeps all existing tests passing. Async "bubbles up" naturally.
     - Agent now uses plain `await` calls
     - Cancellation is handled externally by the caller
     - Removed old "soft interrupt" escape_requested() checks
-
