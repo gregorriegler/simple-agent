@@ -160,9 +160,6 @@ class ManyToolsResult(ToolResult):
     def mark_cancelled(self, tool: ParsedTool) -> None:
         self._cancelled_tool = tool
 
-    def was_cancelled(self) -> bool:
-        return self._cancelled_tool is not None
-
     def cancelled_message(self) -> str:
         if not self._cancelled_tool:
             raise ValueError("cancelled_message called without a cancelled tool")
