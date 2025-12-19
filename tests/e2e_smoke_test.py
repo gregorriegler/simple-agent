@@ -31,7 +31,7 @@ def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.5):
             f"Approved: {approved_path}"
         )
 
-@pytest.mark.flaky(reruns=5, reruns_delay=2)
+@pytest.mark.flaky(reruns=2, reruns_delay=0.5)
 @pytest.mark.asyncio
 async def test_golden_master_agent_stub(monkeypatch):
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -57,25 +57,17 @@ async def test_golden_master_agent_stub(monkeypatch):
             console.print(app.screen._compositor)
             return normalize(console.export_text())
 
-        # Wait for screen to stabilize with substantial content
-        last_content = None
-        stable_count = 0
-        max_wait_seconds = 2.0
-        poll_interval = 0.05
+        # Wait briefly for the main content to appear.
+        max_wait_seconds = 0.5
+        poll_interval = 0.02
         start_time = time.monotonic()
 
         while time.monotonic() - start_time < max_wait_seconds:
             await app._pilot.pause(poll_interval)
             content = get_screen_content()
 
-            if content == last_content:
-                stable_count += 1
-                # Stable and has expected content - done
-                if stable_count >= 2 and "complete-task" in content:
-                    break
-            else:
-                stable_count = 0
-                last_content = content
+            if "complete-task" in content:
+                break
 
         captured.append(get_screen_content())
         app.user_input.submit_input("")
