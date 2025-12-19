@@ -25,7 +25,7 @@ Your goal is to take a detailed specification (SPEC_FILE) and identify the first
 
 # What's a SPEC_FILE
 SPEC_FILE = A file we use to write our specification to.
-We store it under `doc/{name}.spec.md` where 'name' reflects what it is about.
+We store it under `docs/{name}.spec.md` where 'name' reflects what it is about.
 A SPEC_FILE must contain a headline with its name, then the problem description, and then the proposed solution.
 It may contain links to relevant code files.
 For complex changes, a design diagram of the implementation is helpful.

@@ -15,7 +15,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--output",
-        default="doc/loc.svg",
+        default="docs/loc.svg",
         help="Output badge path",
     )
     return parser.parse_args()

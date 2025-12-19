@@ -56,7 +56,7 @@ This will improve the outputs, as subagents perform better on small changes.
 │   ├── test-writer.agent.md
 │   ├── write-a-failing-test.agent.deactivated.md
 │   └── write-bash-scripts.agent.md
-├── doc/
+├── docs/
 │   ├── coverage.svg
 │   ├── event-to-display-simplification.md
 │   ├── loc.svg

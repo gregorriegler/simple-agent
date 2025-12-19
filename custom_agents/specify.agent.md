@@ -28,7 +28,7 @@ A specification is "done" when nothing else can be removed without losing its pu
 
 # What's a SPEC_FILE
 SPEC_FILE = A file we use to write our specification to.
-We store it under `doc/spec/{name}.spec.md` where 'name' reflects what it is about.
+We store it under `docs/spec/{name}.spec.md` where 'name' reflects what it is about.
 A SPEC_FILE must contain a headline with its name, then the problem description, and then the proposed solution.
 It must contain links to relevant code files, if those already exist.
 E.g. An existing implementation that already exist.
@@ -41,7 +41,7 @@ STARTER_SYMBOL=💡
 Ask exactly one question at a time.
 
 # Workflow
-1. Read `doc/overview.md` to understand the project context.
+1. Read `docs/overview.md` to understand the project context.
 2. Help define the problem statement with the user.
    - Make sure we focus on the problem first.
    - If we think about solution too early, remind us to keep defining the problem first.

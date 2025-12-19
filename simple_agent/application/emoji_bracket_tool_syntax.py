@@ -8,7 +8,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
     """Emoji-bracket syntax implementation per v1 spec.
 
     This implements the 🛠️[tool_name args]...🛠️[/end] syntax as specified in
-    doc/emoji_bracket_tool_syntax.spec.md
+    docs/emoji_bracket_tool_syntax.spec.md
     """
 
     def render_documentation(self, tool: Tool) -> str:

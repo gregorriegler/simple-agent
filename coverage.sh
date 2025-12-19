@@ -8,7 +8,7 @@ badge_output=""
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --badge)
-            badge_output="doc/coverage.svg"
+            badge_output="docs/coverage.svg"
             shift
             ;;
         --badge=*)
@@ -19,7 +19,7 @@ while [ "$#" -gt 0 ]; do
             printf "Usage: ./coverage.sh [--badge[=OUTPUT]] [target...]\n"
             printf "Without targets prints files below 100%% coverage.\n"
             printf "With targets shows detailed coverage and missing lines.\n"
-            printf "Use --badge to generate a local coverage badge (default doc/coverage.svg).\n"
+            printf "Use --badge to generate a local coverage badge (default docs/coverage.svg).\n"
             exit 0
             ;;
         *)
