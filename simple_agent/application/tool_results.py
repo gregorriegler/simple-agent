@@ -51,24 +51,22 @@ class SingleToolResult(ToolResult):
     _display_body: str
     _display_language: str
     _status: ToolResultStatus
-    _continue: bool
+    _completes: bool
 
     def __init__(
         self,
         message: str = "",
         status: ToolResultStatus = ToolResultStatus.SUCCESS,
-        continue_: bool = True,
+        completes: bool = False,
         display_title: str = "",
         display_body: str = "",
         display_language: str = "",
     ):
-        if status == ToolResultStatus.CANCELLED:
-            continue_ = False
         self._message = message
         self._display_title = display_title
         self._display_body = display_body
         self._display_language = display_language
-        self._continue = continue_
+        self._completes = completes
         self._status = status
 
     def __str__(self) -> str:
@@ -99,7 +97,7 @@ class SingleToolResult(ToolResult):
         return self._display_language
 
     def do_continue(self) -> bool:
-        return self._continue
+        return not self._completes
 
 
 class ManyToolsResult(ToolResult):
