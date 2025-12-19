@@ -77,7 +77,6 @@ class Agent:
         return prompt
 
     async def run_tool_loop(self):
-        log = ToolExecutionLog()
         tool_result: ToolResult = ContinueResult()
 
         try:
@@ -89,11 +88,11 @@ class Agent:
                 if not tools:
                     break
 
-                tool_result = await self.tools_executor.execute_tools(
+                log = await self.tools_executor.execute_tools(
                     tools,
-                    log,
                     lambda tool: self.context.user_says(tool.cancelled_message()),
                 )
+                tool_result = log.last_result
 
                 if log.has_continue_results():
                     self.context.user_says(log.format_continue_message())

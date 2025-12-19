@@ -12,10 +12,6 @@ class ToolExecutionLog:
         self._entries: list[tuple[ParsedTool, ToolResult]] = []
         self._last_result: ToolResult = ContinueResult()
 
-    def reset(self) -> None:
-        self._entries.clear()
-        self._last_result = ContinueResult()
-
     @property
     def last_result(self) -> ToolResult:
         return self._last_result
@@ -46,10 +42,9 @@ class ToolsExecutor:
     async def execute_tools(
         self,
         tools: list[ParsedTool],
-        log: ToolExecutionLog,
         on_cancelled: Callable[[ParsedTool], None],
-    ) -> ToolResult:
-        log.reset()
+    ) -> ToolExecutionLog:
+        log = ToolExecutionLog()
         for tool in tools:
             try:
                 result = await self.execute(tool)
@@ -59,7 +54,7 @@ class ToolsExecutor:
             log.add(tool, result)
             if not result.do_continue():
                 break
-        return log.last_result
+        return log
 
     async def execute(self, tool: ParsedTool) -> ToolResult:
         self._tool_call_counter += 1
