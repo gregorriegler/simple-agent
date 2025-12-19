@@ -49,8 +49,6 @@ class ToolsExecutor:
             try:
                 result = await self.execute(tool)
                 log.add(tool, result)
-                if not result.do_continue():
-                    break
             except asyncio.CancelledError:
                 on_cancelled(tool)
                 raise
