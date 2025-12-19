@@ -26,7 +26,6 @@ class ToolsExecutor:
             except asyncio.CancelledError:
                 result.mark_cancelled(tool)
                 raise
-
         return result
 
     async def _execute(self, tool: ParsedTool) -> ToolResult:
