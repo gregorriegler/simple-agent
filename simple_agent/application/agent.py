@@ -122,10 +122,6 @@ class Agent:
     async def user_prompts(self):
         if not self.user_input.has_stacked_messages():
             self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
-        prompt = await self.read_user_input_and_prompt_it()
-        return prompt
-
-    async def read_user_input_and_prompt_it(self):
         prompt = await self.user_input.read_async()
         while prompt == "/clear":
             self.context.clear()
