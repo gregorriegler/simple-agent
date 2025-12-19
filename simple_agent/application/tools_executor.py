@@ -6,7 +6,7 @@ from .events import ToolCalledEvent, ToolResultEvent, ToolCancelledEvent
 from .tool_library import ToolResult, ContinueResult, ToolLibrary, ParsedTool
 
 
-class ToolExecutionLog:
+class ManyToolsResult:
     def __init__(self):
         self._entries: list[tuple[ParsedTool, ToolResult]] = []
         self._last_result: ToolResult = ContinueResult()
@@ -15,6 +15,32 @@ class ToolExecutionLog:
     @property
     def last_result(self) -> ToolResult:
         return self._last_result
+
+    @property
+    def message(self) -> str:
+        return self._last_result.message
+
+    @property
+    def success(self) -> bool:
+        return self._last_result.success
+
+    @property
+    def display_title(self) -> str:
+        return self._last_result.display_title
+
+    @property
+    def display_body(self) -> str:
+        return self._last_result.display_body
+
+    @property
+    def display_language(self) -> str:
+        return self._last_result.display_language
+
+    def do_continue(self) -> bool:
+        return self._last_result.do_continue()
+
+    def __str__(self) -> str:
+        return str(self._last_result)
 
     def add(self, tool: ParsedTool, result: ToolResult) -> None:
         self._entries.append((tool, result))
@@ -53,8 +79,8 @@ class ToolsExecutor:
     async def execute_tools(
         self,
         tools: list[ParsedTool],
-    ) -> ToolExecutionLog:
-        log = ToolExecutionLog()
+    ) -> ManyToolsResult:
+        log = ManyToolsResult()
         for tool in tools:
             try:
                 result = await self._execute(tool)

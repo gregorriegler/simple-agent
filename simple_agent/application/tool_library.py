@@ -21,8 +21,22 @@ class RawToolCall:
         return f"🛠️ {self.name}"
 
 
+class ToolResult(Protocol):
+    message: str
+    success: bool
+    display_title: str
+    display_body: str
+    display_language: str
+
+    def __str__(self) -> str:
+        ...
+
+    def do_continue(self) -> bool:
+        ...
+
+
 @dataclass
-class ToolResult:
+class SingleToolResult:
     message: str = ""
     success: bool = True
     display_title: str = ""
@@ -37,13 +51,13 @@ class ToolResult:
 
 
 @dataclass
-class ContinueResult(ToolResult):
+class ContinueResult(SingleToolResult):
     def do_continue(self) -> bool:
         return True
 
 
 @dataclass
-class CompleteResult(ToolResult):
+class CompleteResult(SingleToolResult):
     def do_continue(self) -> bool:
         return False
 

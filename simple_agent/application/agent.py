@@ -13,10 +13,9 @@ from .events import (
 from .input import Input
 from .llm import LLM, Messages
 from .tool_library import ToolResult, ContinueResult, ToolLibrary, MessageAndParsedTools
-from .tools_executor import ToolExecutionLog, ToolsExecutor
+from .tools_executor import ToolsExecutor
 
 logger = get_logger(__name__)
-
 
 class Agent:
     def __init__(
@@ -88,7 +87,7 @@ class Agent:
                     break
 
                 log = await self.tools_executor.execute_tools(tools)
-                tool_result = log.last_result
+                tool_result = log
 
                 if log.was_cancelled():
                     self.context.user_says(log.cancelled_message())
@@ -106,8 +105,6 @@ class Agent:
         except Exception as e:
             await self._notify_error_occured(e)
             return None
-
-
 
 
     async def llm_responds(self) -> MessageAndParsedTools:
