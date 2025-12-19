@@ -87,15 +87,14 @@ class Agent:
                 if not tools:
                     break
 
-                log = await self.tools_executor.execute_tools(tools)
-                tool_result = log
+                tool_result = await self.tools_executor.execute_tools(tools)
 
-                if log.was_cancelled():
-                    self.context.user_says(log.cancelled_message())
+                if tool_result.was_cancelled():
+                    self.context.user_says(tool_result.cancelled_message())
                     raise asyncio.CancelledError()
 
-                if log.has_continue_results():
-                    self.context.user_says(log.format_continue_message())
+                if tool_result.has_continue_results():
+                    self.context.user_says(tool_result.format_continue_message())
 
             return tool_result
         except asyncio.CancelledError:
