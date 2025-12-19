@@ -46,13 +46,12 @@ class ToolResult(Protocol):
         ...
 
 
-@dataclass(init=False)
 class SingleToolResult(ToolResult):
-    message: str = field(default="")
-    display_title: str = field(default="")
-    display_body: str = field(default="")
-    display_language: str = field(default="")
-    _status: ToolResultStatus = field(init=False, repr=False)
+    _message: str
+    _display_title: str
+    _display_body: str
+    _display_language: str
+    _status: ToolResultStatus
 
     def __init__(
         self,
@@ -65,10 +64,10 @@ class SingleToolResult(ToolResult):
     ):
         if cancelled and success:
             raise ValueError("ToolResult cannot be both success and cancelled")
-        self.message = message
-        self.display_title = display_title
-        self.display_body = display_body
-        self.display_language = display_language
+        self._message = message
+        self._display_title = display_title
+        self._display_body = display_body
+        self._display_language = display_language
         if cancelled:
             self._status = ToolResultStatus.CANCELLED
         elif success:
@@ -80,12 +79,28 @@ class SingleToolResult(ToolResult):
         return self.message
 
     @property
+    def message(self) -> str:
+        return self._message
+
+    @property
     def success(self) -> bool:
         return self._status == ToolResultStatus.SUCCESS
 
     @property
     def cancelled(self) -> bool:
         return self._status == ToolResultStatus.CANCELLED
+
+    @property
+    def display_title(self) -> str:
+        return self._display_title
+
+    @property
+    def display_body(self) -> str:
+        return self._display_body
+
+    @property
+    def display_language(self) -> str:
+        return self._display_language
 
     def do_continue(self) -> bool:
         raise NotImplementedError
