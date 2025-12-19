@@ -71,6 +71,9 @@ class ParsedTool:
     def __str__(self):
         return self.raw_call.__str__()
 
+    def cancelled_message(self) -> str:
+        return f"Result of {self}\n[CANCELLED: Tool execution was interrupted by user]"
+
 
 @dataclass
 class MessageAndParsedTools:

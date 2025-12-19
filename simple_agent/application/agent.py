@@ -18,6 +18,42 @@ from .tool_library import ToolResult, ContinueResult, ToolLibrary, MessageAndPar
 logger = get_logger(__name__)
 
 
+class ToolExecutionLog:
+    def __init__(self):
+        self._entries: list[tuple[ParsedTool, ToolResult]] = []
+        self._last_result: ToolResult = ContinueResult()
+        self._active_tool: ParsedTool | None = None
+
+    def reset(self) -> None:
+        self._entries.clear()
+        self._last_result = ContinueResult()
+        self._active_tool = None
+
+    @property
+    def last_result(self) -> ToolResult:
+        return self._last_result
+
+    def set_active_tool(self, tool: ParsedTool | None) -> None:
+        self._active_tool = tool
+
+    def add(self, tool: ParsedTool, result: ToolResult) -> None:
+        self._entries.append((tool, result))
+        self._last_result = result
+
+    def format_continue_message(self) -> str | None:
+        parts = [
+            f"Result of {tool}\n{result}"
+            for tool, result in self._entries
+            if isinstance(result, ContinueResult)
+        ]
+        return "\n\n".join(parts) if parts else None
+
+    def format_cancelled_message(self) -> str | None:
+        if not self._active_tool:
+            return None
+        return self._active_tool.cancelled_message()
+
+
 class Agent:
     def __init__(
         self,
@@ -77,8 +113,8 @@ class Agent:
         return prompt
 
     async def run_tool_loop(self):
+        log = ToolExecutionLog()
         tool_result: ToolResult = ContinueResult()
-        current_tool: ParsedTool | None = None
 
         try:
             while tool_result.do_continue():
@@ -89,25 +125,21 @@ class Agent:
                 if not tools:
                     break
 
-                tool_results = []
+                log.reset()
                 for tool in tools:
-                    current_tool = tool
+                    log.set_active_tool(tool)
                     tool_result = await self.execute_tool(tool)
-                    current_tool = None
-                    tool_results.append((tool, tool_result))
+                    log.set_active_tool(None)
+                    log.add(tool, tool_result)
                     if not tool_result.do_continue():
                         break
 
-                continue_results = [(tool, result) for tool, result in tool_results if isinstance(result, ContinueResult)]
-                if continue_results:
-                    combined_result_message = "\n\n".join(
-                        f"Result of {tool}\n{result}" for tool, result in continue_results
-                    )
-                    self.context.user_says(combined_result_message)
+                if message := log.format_continue_message():
+                    self.context.user_says(message)
 
         except asyncio.CancelledError:
-            if current_tool:
-                self.context.user_says(f"Result of {current_tool}\n[CANCELLED: Tool execution was interrupted by user]")
+            if message := log.format_cancelled_message():
+                self.context.user_says(message)
             raise
         except KeyboardInterrupt:
             await self._notify_session_interrupted()
