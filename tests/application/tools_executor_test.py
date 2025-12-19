@@ -1,32 +1,53 @@
 import asyncio
-import threading
-import time
-
 import pytest
 
-from simple_agent.tools.base_tool import BaseTool
+from simple_agent.application.agent_id import AgentId
+from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.events import ToolCalledEvent, ToolResultEvent
+from simple_agent.application.tool_library import ParsedTool, RawToolCall, ToolLibrary
+from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
+from simple_agent.application.tools_executor import ToolsExecutor
+
+
+class ToolLibraryStub(ToolLibrary):
+    async def execute_parsed_tool(self, parsed_tool):
+        return await parsed_tool.tool_instance.execute(parsed_tool.raw_call)
+
+
+class BlockingSlowTool:
+    def __init__(self, release_event: asyncio.Event):
+        self._release_event = release_event
+
+    async def execute(self, raw_call):
+        await self._release_event.wait()
+        return SingleToolResult("done", status=ToolResultStatus.SUCCESS)
 
 
 @pytest.mark.asyncio
-async def test_run_command_async_does_not_block_event_loop(monkeypatch):
-    other_ran = threading.Event()
+async def test_tool_called_event_published_before_tool_completes():
+    event_bus = SimpleEventBus()
+    called_event = asyncio.Event()
+    release_event = asyncio.Event()
+    result_event = asyncio.Event()
 
-    def blocking_run_command(command, args=None, cwd=None):
-        time.sleep(0.05)
-        return {
-            "output": str(other_ran.is_set()),
-            "success": True,
-            "elapsed_time": 0.05,
-        }
+    event_bus.subscribe(ToolCalledEvent, lambda event: called_event.set())
+    event_bus.subscribe(ToolResultEvent, lambda event: result_event.set())
 
-    monkeypatch.setattr(BaseTool, "run_command", staticmethod(blocking_run_command))
+    tool = BlockingSlowTool(release_event)
+    parsed_tool = ParsedTool(RawToolCall(name="blocking", arguments=""), tool)
 
-    async def set_event_next_tick() -> None:
-        await asyncio.sleep(0)
-        other_ran.set()
+    executor = ToolsExecutor(
+        library=ToolLibraryStub(),
+        event_bus=event_bus,
+        agent_id=AgentId("test"),
+    )
 
-    other_task = asyncio.create_task(set_event_next_tick())
-    result = await BaseTool.run_command_async("noop")
-    await other_task
+    task = asyncio.create_task(executor.execute_tools([parsed_tool]))
+    await asyncio.wait_for(called_event.wait(), timeout=0.1)
 
-    assert result["output"] == "True"
+    assert task.done() is False
+    assert result_event.is_set() is False
+
+    release_event.set()
+    await task
+    assert result_event.is_set() is True
