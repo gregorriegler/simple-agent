@@ -28,7 +28,7 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
-if ! uv run coverage run -m pytest tests/ -q > /dev/null 2>&1; then
+if ! uv run coverage run --source simple_agent -m pytest tests/ -q -n 0 > /dev/null 2>&1; then
     echo "❌ Tests failed"
     uv run pytest tests/ -q
     exit 1
