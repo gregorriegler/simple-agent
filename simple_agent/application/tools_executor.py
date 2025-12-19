@@ -18,16 +18,16 @@ class ToolsExecutor:
         self,
         tools: list[ParsedTool],
     ) -> ManyToolsResult:
-        log = ManyToolsResult()
+        result = ManyToolsResult()
         for tool in tools:
             try:
-                result = await self._execute(tool)
-                log.add(tool, result)
+                single_result = await self._execute(tool)
+                result.add(tool, single_result)
             except asyncio.CancelledError:
-                log.mark_cancelled(tool)
+                result.mark_cancelled(tool)
                 raise
 
-        return log
+        return result
 
     async def _execute(self, tool: ParsedTool) -> ToolResult:
         self._tool_call_counter += 1
