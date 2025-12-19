@@ -14,7 +14,6 @@ The codebase follows a minimal **Ports and Adapters** (Hexagonal) architecture:
     - `tool_library.py`: Defines protocols and logic for tool parsing and execution.
     - `session_storage.py`: Protocol for saving and loading conversation history.
 - **`simple_agent/infrastructure/`**: Implementation of ports (e.g., file system, LLM clients, user interface).
-    - `display_hub.py`: Central hub that subscribes to events and delegates rendering to specific display implementations (e.g., Textual).
     - `textual/`: The Textual-based TUI implementation.
     - `claude/`, `openai/`, `gemini/`: LLM client adapters.
     - `system_prompt/`: System prompt generation logic.

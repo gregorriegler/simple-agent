@@ -1,8 +1,7 @@
 import logging
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.display import AgentDisplay
-from simple_agent.infrastructure.display_hub import AgentDisplayHub
+from simple_agent.application.display import AgentDisplay, Display
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import (
     AddSubagentTabMessage,
@@ -13,17 +12,39 @@ from simple_agent.infrastructure.textual.textual_messages import (
 logger = logging.getLogger(__name__)
 
 
-class TextualDisplay(AgentDisplayHub):
+class TextualDisplay(Display):
 
     def __init__(self, app):
-        super().__init__()
+        self._agents: dict[AgentId, AgentDisplay] = {}
         self._app = app
 
     def _create_display(self, agent_id: AgentId, agent_name: str | None, model: str = "") -> 'TextualAgentDisplay':
         return TextualAgentDisplay(self, self._app, agent_id, agent_name, model)
 
     def _on_agent_removed(self, agent_id: AgentId, agent: AgentDisplay) -> None:
-        self.remove_tab(agent_id)
+        self._agents.pop(agent_id, None)
+
+    def _agent_for(self, agent_id: AgentId) -> AgentDisplay | None:
+        return self._agents.get(agent_id)
+
+    def _register_agent(self, agent_id: AgentId, display: AgentDisplay) -> None:
+        self._agents[agent_id] = display
+
+    def agent_created(self, event) -> None:
+        name = getattr(event, "agent_name", None)
+        model = getattr(event, "model", "")
+        existing = self._agent_for(event.agent_id)
+        if not existing:
+            created = self._create_display(event.agent_id, name, model)
+            if created:
+                self._register_agent(event.agent_id, created)
+
+    def exit(self, event) -> None:
+        agent = self._agent_for(event.agent_id)
+        if not agent:
+            return
+        agent.exit()
+        self._on_agent_removed(event.agent_id, agent)
 
     def remove_tab(self, agent_id: AgentId) -> None:
         agent = self._agents.pop(agent_id, None)
