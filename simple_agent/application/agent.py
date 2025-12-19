@@ -22,23 +22,14 @@ class ToolExecutionLog:
     def __init__(self):
         self._entries: list[tuple[ParsedTool, ToolResult]] = []
         self._last_result: ToolResult = ContinueResult()
-        self._active_tool: ParsedTool | None = None
 
     def reset(self) -> None:
         self._entries.clear()
         self._last_result = ContinueResult()
-        self._active_tool = None
 
     @property
     def last_result(self) -> ToolResult:
         return self._last_result
-
-    def set_active_tool(self, tool: ParsedTool | None) -> None:
-        self._active_tool = tool
-
-    @property
-    def active_tool(self) -> ParsedTool | None:
-        return self._active_tool
 
     def add(self, tool: ParsedTool, result: ToolResult) -> None:
         self._entries.append((tool, result))
@@ -51,6 +42,9 @@ class ToolExecutionLog:
             if isinstance(result, ContinueResult)
         ]
         return "\n\n".join(parts) if parts else None
+
+    def has_continue_results(self) -> bool:
+        return any(isinstance(result, ContinueResult) for _, result in self._entries)
 
 
 class Agent:
@@ -126,19 +120,19 @@ class Agent:
 
                 log.reset()
                 for tool in tools:
-                    log.set_active_tool(tool)
-                    tool_result = await self.execute_tool(tool)
-                    log.set_active_tool(None)
+                    try:
+                        tool_result = await self.execute_tool(tool)
+                    except asyncio.CancelledError:
+                        self.context.user_says(tool.cancelled_message())
+                        raise
                     log.add(tool, tool_result)
                     if not tool_result.do_continue():
                         break
 
-                if message := log.format_continue_message():
-                    self.context.user_says(message)
+                if log.has_continue_results():
+                    self.context.user_says(log.format_continue_message())
 
         except asyncio.CancelledError:
-            if log.active_tool:
-                self.context.user_says(log.active_tool.cancelled_message())
             raise
         except KeyboardInterrupt:
             await self._notify_session_interrupted()
