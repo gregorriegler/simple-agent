@@ -88,10 +88,6 @@ class TextualAgentDisplay(AgentDisplay):
         percentage = (token_count / max_tokens) * 100
         return f"{base_title} [{self._model}: {percentage:.1f}%]"
 
-    def refresh_todos(self):
-        if self._app and self._app.is_running:
-            self._app.post_message(RefreshTodosMessage(self._agent_id))
-
     def exit(self):
         self._hub.remove_tab(self._agent_id)
 

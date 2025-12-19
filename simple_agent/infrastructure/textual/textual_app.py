@@ -211,6 +211,7 @@ class TextualApp(App):
                     yield self.create_agent_container(log_id, tool_results_id, self._root_agent_id)
             yield Static("Enter to submit, Ctrl+Enter for newline", id="input-hint")
             yield SubmittableTextArea(id="user-input")
+
     def create_agent_container(self, log_id, tool_results_id, agent_id):
         chat_scroll = VerticalScroll(id=f"{log_id}-scroll", classes="left-panel-top")
         todo = Markdown(self._load_todos(agent_id), id=f"{log_id}-todos")
