@@ -123,11 +123,11 @@ class Agent:
                     try:
                         tool_result = await self.execute_tool(tool)
                         log.add(tool, tool_result)
+                        if not tool_result.do_continue():
+                            break
                     except asyncio.CancelledError:
                         self.context.user_says(tool.cancelled_message())
                         raise
-                    if not tool_result.do_continue():
-                        break
 
                 if log.has_continue_results():
                     self.context.user_says(log.format_continue_message())
