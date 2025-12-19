@@ -12,7 +12,7 @@ class BaseTool(Tool):
     arguments: ToolArguments = ToolArguments(header=[], body=None)
     examples = []
 
-    def execute(self, raw_call: RawToolCall) -> ToolResult:
+    async def execute(self, raw_call: RawToolCall) -> ToolResult:
         raise NotImplementedError("Subclasses must implement execute()")
 
     @staticmethod

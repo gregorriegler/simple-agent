@@ -57,7 +57,7 @@ class CatTool(BaseTool):
 
         return start_line, end_line, None
 
-    def execute(self, raw_call):
+    async def execute(self, raw_call):
         args = raw_call.arguments
         filename, line_range, error = self._parse_arguments(args)
         if error:

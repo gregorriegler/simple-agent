@@ -38,7 +38,7 @@ class CreateFileTool(BaseTool):
         {"filename": "multi-line.py", "content": "Line 1\nLine 2"},
     ]
 
-    def execute(self, raw_call):
+    async def execute(self, raw_call):
         args = raw_call.arguments
         body = raw_call.body
 

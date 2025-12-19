@@ -62,11 +62,11 @@ class ToolLibraryStub(AllTools):
         self.interrupts = interrupts or []
         self.counter = 0
 
-    def execute_parsed_tool(self, parsed_tool):
+    async def execute_parsed_tool(self, parsed_tool):
         if self.interrupts and self.counter < len(self.interrupts) and self.interrupts[self.counter]:
             self.counter += 1
             raise KeyboardInterrupt()
-        result = parsed_tool.tool_instance.execute(parsed_tool.raw_call)
+        result = await parsed_tool.tool_instance.execute(parsed_tool.raw_call)
         self.counter += 1
         return result
 

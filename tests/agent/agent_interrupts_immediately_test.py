@@ -122,8 +122,8 @@ class ToolCallingToolLibrary:
             return ("", [Mock(name="slow_tool")])
         return (message, [])
 
-    def execute_parsed_tool(self, tool):
-        return self._slow_tool()
+    async def execute_parsed_tool(self, tool):
+        return await self._slow_tool()
 
 
 class InputForToolTest:

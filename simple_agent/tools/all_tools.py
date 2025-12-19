@@ -70,8 +70,8 @@ class AllTools(ToolLibrary):
 
         return MessageAndParsedTools(message=parsed.message, tools=tools)
 
-    def execute_parsed_tool(self, parsed_tool):
-        return parsed_tool.tool_instance.execute(parsed_tool.raw_call)
+    async def execute_parsed_tool(self, parsed_tool):
+        return await parsed_tool.tool_instance.execute(parsed_tool.raw_call)
 
     def _discover_dynamic_tools(self):
         return []

@@ -29,7 +29,7 @@ class WriteTodosTool(BaseTool):
         super().__init__()
         self.filename = filename
 
-    def execute(self, raw_call):
+    async def execute(self, raw_call):
         body = raw_call.body
         if not body or not body.strip():
             return ContinueResult("No todo content provided", success=False)

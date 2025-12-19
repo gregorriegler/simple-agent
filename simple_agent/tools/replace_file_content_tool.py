@@ -118,7 +118,7 @@ class ReplaceFileContentTool(BaseTool):
         "🛠️[replace-file-content test.txt nth:2]\nold_value = 1\n@@@\nnew_value = 2\n🛠️[/end]",
     ]
 
-    def execute(self, raw_call):
+    async def execute(self, raw_call):
         replace_args, error = self.parse_arguments(raw_call)
         if error or replace_args is None:
             return ContinueResult(error or "Failed to parse arguments", success=False)

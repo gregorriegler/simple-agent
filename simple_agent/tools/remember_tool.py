@@ -25,7 +25,7 @@ class RememberTool(BaseTool):
         super().__init__()
         self.runcommand = runcommand
 
-    def execute(self, raw_call):
+    async def execute(self, raw_call):
         args = raw_call.arguments
         if not args or not args.strip():
             return ContinueResult("No memory content provided", success=False)

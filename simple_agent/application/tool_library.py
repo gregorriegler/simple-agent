@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Coroutine, Protocol, List, Dict, Any, Union
+from typing import Protocol, List, Dict, Any
 
 
 @dataclass
@@ -148,7 +148,7 @@ class Tool(Protocol):
     def examples(self) -> List[Dict[str, Any]]:
         ...
 
-    def execute(self, raw_call: RawToolCall) -> ToolResult:
+    async def execute(self, raw_call: RawToolCall) -> ToolResult:
         ...
 
     def get_template_variables(self) -> Dict[str, str]:
@@ -161,5 +161,5 @@ class ToolLibrary(Protocol):
     def parse_message_and_tools(self, text: str) -> MessageAndParsedTools:
         ...
 
-    def execute_parsed_tool(self, parsed_tool: ParsedTool) -> Union[ToolResult, Coroutine[Any, Any, ToolResult]]:
+    async def execute_parsed_tool(self, parsed_tool: ParsedTool) -> ToolResult:
         ...

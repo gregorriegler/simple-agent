@@ -1,3 +1,4 @@
+import asyncio
 import textwrap
 from pathlib import Path
 
@@ -18,7 +19,7 @@ def test_write_todos_creates_markdown_file(tmp_path):
 
     with temp_directory(tmp_path):
         tool = library.parse_message_and_tools(command)
-        result = library.execute_parsed_tool(tool.tools[0])
+        result = asyncio.run(library.execute_parsed_tool(tool.tools[0]))
 
         content = Path(".Agent.todos.md").read_text(encoding="utf-8")
         verify(

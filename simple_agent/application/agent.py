@@ -1,5 +1,4 @@
 import asyncio
-import inspect
 from simple_agent.logging_config import get_logger
 
 from .agent_id import AgentId
@@ -162,9 +161,7 @@ class Agent:
         call_id = f"{self.agent_id}::tool_call::{self._tool_call_counter}"
         self.event_bus.publish(ToolCalledEvent(self.agent_id, call_id, tool))
         try:
-            tool_result = await asyncio.to_thread(self.tools.execute_parsed_tool, tool)
-            if inspect.isawaitable(tool_result):
-                tool_result = await tool_result
+            tool_result = await self.tools.execute_parsed_tool(tool)
             self.event_bus.publish(ToolResultEvent(self.agent_id, call_id, tool_result))
             return tool_result
         except asyncio.CancelledError:
