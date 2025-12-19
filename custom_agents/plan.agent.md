@@ -31,11 +31,11 @@ When something is not clear, or hard to decide, ask the user a clarifying questi
 
 # What's a SPEC_FILE
 SPEC_FILE = A file we use to write our specification to.
-We store it under `doc/spec/{name}.spec.md` where 'name' reflects what it is about.
+We store it under `docs/spec/{name}.spec.md` where 'name' reflects what it is about.
 
 # What's a PLAN_FILE
 PLAN_FILE = A file we use to write our plan to implement a specification to.
-We store it under `doc/spec/{name}.spec.plan.md` where 'name' reflects what it is about.
+We store it under `docs/spec/{name}.spec.plan.md` where 'name' reflects what it is about.
 The filename convention is designed so that you can find the PLAN_FILE for a SPEC_FILE and vice versa.
 A good plan file contains:
   - Crucial design decisions
@@ -43,7 +43,7 @@ A good plan file contains:
   - A list of actionable steps, each step is its own headline
 
 # Workflow
-1. Read `doc/overview.md` to understand the project context.
+1. Read `docs/overview.md` to understand the project context.
 2. Read the defined SPEC_FILE.
 3. Come up with a solution and decompose the solution into implementation increments. Ask the user for clarifying questions if needed.
 4. When you are confident with a plan, write it down to a PLAN_FILE

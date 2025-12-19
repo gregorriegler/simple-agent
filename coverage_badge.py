@@ -16,7 +16,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--output",
-        default="doc/coverage.svg",
+        default="docs/coverage.svg",
         help="Output badge path",
     )
     return parser.parse_args()

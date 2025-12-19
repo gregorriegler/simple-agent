@@ -41,6 +41,6 @@ The project follows a strict TDD and process-driven workflow.
 - `tests/`: Test suite.
 - `process/`: Documentation of the development processes.
 - `custom_agents/`: Example or custom agent definitions.
-- `doc/`: Documentation and diagrams.
+- `docs/`: Documentation and diagrams.
 
 For more details on usage and configuration, see the [README](../README.md).

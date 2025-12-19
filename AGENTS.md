@@ -12,7 +12,7 @@ The problem is that there is a missing semicolon. Confidence: [10/10]
 The problem is that ... [3/10]
 
 # Architecture
-To get an overview of the Architecture read `doc/overview.md`
+To get an overview of the Architecture read `docs/overview.md`
 
 # Software Engineering 
 Apply empirical problem-solving and first come up with an hypothesis to then try and prove it. When adding a new feature, a test can serve as a hypothesis that the feature doesn't exist yet. When fixing a bug, write a test as an hypothesis to indicate the problem.
