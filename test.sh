@@ -61,6 +61,8 @@ filter_pytest_output() {
 }
 
 verbose=false
+file_provided=false
+patterns=()
 while [[ "${1:-}" == -* ]]; do
     case "$1" in
         -h|--help)
@@ -92,8 +94,6 @@ fi
 
 if [[ -n "${1:-}" ]]; then
     # Collect all remaining arguments as patterns
-    patterns=()
-    file_provided=false
     while [[ -n "${1:-}" ]]; do
         if [[ -f "$1" ]]; then
             # Full path provided
