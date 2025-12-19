@@ -21,7 +21,7 @@ class TextualDisplay(Display):
     def _create_display(self, agent_id: AgentId, agent_name: str | None, model: str = "") -> 'TextualAgentDisplay':
         return TextualAgentDisplay(self, self._app, agent_id, agent_name, model)
 
-    def _on_agent_removed(self, agent_id: AgentId, agent: AgentDisplay) -> None:
+    def _on_agent_removed(self, agent_id: AgentId) -> None:
         self._agents.pop(agent_id, None)
 
     def _agent_for(self, agent_id: AgentId) -> AgentDisplay | None:
@@ -44,7 +44,7 @@ class TextualDisplay(Display):
         if not agent:
             return
         agent.exit()
-        self._on_agent_removed(event.agent_id, agent)
+        self._on_agent_removed(event.agent_id)
 
     def remove_tab(self, agent_id: AgentId) -> None:
         agent = self._agents.pop(agent_id, None)
