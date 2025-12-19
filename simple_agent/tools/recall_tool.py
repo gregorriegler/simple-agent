@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from ..application.tool_library import ToolArguments
-from ..application.tool_results import SingleToolResult
+from ..application.tool_results import SingleToolResult, ToolResultStatus
 
 from .base_tool import BaseTool
 

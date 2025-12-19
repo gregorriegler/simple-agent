@@ -1,7 +1,7 @@
 import os
 
 from ..application.tool_library import ToolArgument, ToolArguments
-from ..application.tool_results import SingleToolResult
+from ..application.tool_results import SingleToolResult, ToolResultStatus
 
 from .base_tool import BaseTool
 
@@ -44,13 +44,13 @@ class CreateFileTool(BaseTool):
         body = raw_call.body
 
         if not args:
-            return SingleToolResult('No filename specified', success=False)
+            return SingleToolResult('No filename specified', status=ToolResultStatus.FAILURE)
 
         # Simple string splitting - first word is filename
         parts = args.strip().split(None, 1)
 
         if not parts:
-            return SingleToolResult('No filename specified', success=False)
+            return SingleToolResult('No filename specified', status=ToolResultStatus.FAILURE)
 
         filename = parts[0]
         content = body if body else None
@@ -58,7 +58,7 @@ class CreateFileTool(BaseTool):
         try:
             # Check if file already exists
             if os.path.exists(filename):
-                return SingleToolResult(f"Error creating file '{filename}': File already exists", success=False)
+                return SingleToolResult(f"Error creating file '{filename}': File already exists", status=ToolResultStatus.FAILURE)
 
             # Create parent directories if they don't exist
             os.makedirs(os.path.dirname(filename) or '.', exist_ok=True)
@@ -72,6 +72,6 @@ class CreateFileTool(BaseTool):
             else:
                 return SingleToolResult(f"Created empty file: {filename}")
         except OSError as e:
-            return SingleToolResult(f"Error creating file '{filename}': {str(e)}", success=False)
+            return SingleToolResult(f"Error creating file '{filename}': {str(e)}", status=ToolResultStatus.FAILURE)
         except Exception as e:
-            return SingleToolResult(f"Unexpected error creating file '{filename}': {str(e)}", success=False)
+            return SingleToolResult(f"Unexpected error creating file '{filename}': {str(e)}", status=ToolResultStatus.FAILURE)

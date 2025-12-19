@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from .argument_parser import split_arguments
 from .base_tool import BaseTool
 from ..application.tool_library import ToolArgument, ToolArguments
-from ..application.tool_results import SingleToolResult
+from ..application.tool_results import SingleToolResult, ToolResultStatus
 
 
 @dataclass
@@ -122,7 +122,7 @@ class ReplaceFileContentTool(BaseTool):
     async def execute(self, raw_call):
         replace_args, error = self.parse_arguments(raw_call)
         if error or replace_args is None:
-            return SingleToolResult(error or "Failed to parse arguments", success=False)
+            return SingleToolResult(error or "Failed to parse arguments", status=ToolResultStatus.FAILURE)
 
         try:
             replacer = FileReplacer(replace_args.filename)
@@ -155,13 +155,13 @@ class ReplaceFileContentTool(BaseTool):
             )
 
         except FileNotFoundError as e:
-            return SingleToolResult(str(e), success=False)
+            return SingleToolResult(str(e), status=ToolResultStatus.FAILURE)
         except ValueError as e:
-            return SingleToolResult(str(e), success=False)
+            return SingleToolResult(str(e), status=ToolResultStatus.FAILURE)
         except OSError as e:
-            return SingleToolResult(f'Error replacing content in "{replace_args.filename}": {str(e)}', success=False)
+            return SingleToolResult(f'Error replacing content in "{replace_args.filename}": {str(e)}', status=ToolResultStatus.FAILURE)
         except Exception as e:
-            return SingleToolResult(f'Unexpected error replacing content in "{replace_args.filename}": {str(e)}', success=False)
+            return SingleToolResult(f'Unexpected error replacing content in "{replace_args.filename}": {str(e)}', status=ToolResultStatus.FAILURE)
 
     def _parse_replace_body(self, body: str) -> tuple[tuple[str, str], None] | tuple[None, str]:
         """Parse body with @@@ separator (text before @@@ is search string, text after is replacement)."""

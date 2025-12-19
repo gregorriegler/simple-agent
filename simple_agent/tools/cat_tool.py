@@ -1,5 +1,5 @@
 from ..application.tool_library import ToolArgument, ToolArguments
-from ..application.tool_results import SingleToolResult
+from ..application.tool_results import SingleToolResult, ToolResultStatus
 from .base_tool import BaseTool
 from .argument_parser import split_arguments
 
@@ -62,15 +62,17 @@ class CatTool(BaseTool):
         args = raw_call.arguments
         filename, line_range, error = self._parse_arguments(args)
         if error:
-            return SingleToolResult(error, success=False)
+            return SingleToolResult(error, status=ToolResultStatus.FAILURE)
         if line_range is None:
             result = self.run_command('cat', ['-n', filename])
-            return SingleToolResult(result['output'], success=result['success'])
+            status = ToolResultStatus.SUCCESS if result['success'] else ToolResultStatus.FAILURE
+            return SingleToolResult(result['output'], status=status)
         start_line, end_line, error = self._validate_range(line_range)
         if error:
-            return SingleToolResult(error, success=False)
+            return SingleToolResult(error, status=ToolResultStatus.FAILURE)
         output, success = self._read_file_range(filename, start_line, end_line)
-        return SingleToolResult(output, success=success)
+        status = ToolResultStatus.SUCCESS if success else ToolResultStatus.FAILURE
+        return SingleToolResult(output, status=status)
 
     def _read_file_range(self, filename, start_line, end_line):
         try:

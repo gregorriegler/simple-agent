@@ -1,5 +1,5 @@
 from ..application.tool_library import ToolArgument, ToolArguments
-from ..application.tool_results import SingleToolResult
+from ..application.tool_results import SingleToolResult, ToolResultStatus
 from .base_tool import BaseTool
 
 
@@ -22,6 +22,6 @@ class CompleteTaskTool(BaseTool):
     async def execute(self, raw_call):
         args = raw_call.arguments
         if not args or not args.strip():
-            return SingleToolResult('STDERR: complete-task: missing summary', success=False, continue_=False)
+            return SingleToolResult('STDERR: complete-task: missing summary', status=ToolResultStatus.FAILURE, continue_=False)
         summary = args.strip()
         return SingleToolResult(summary, continue_=False)

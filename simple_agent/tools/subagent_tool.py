@@ -1,7 +1,7 @@
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library import ToolArgument, ToolArguments
-from simple_agent.application.tool_results import SingleToolResult
+from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
 from .base_tool import BaseTool
 from ..application.agent_type import AgentType
 
@@ -44,12 +44,12 @@ class SubagentTool(BaseTool):
     async def execute(self, raw_call):
         args = raw_call.arguments
         if not args or not args.strip():
-            return SingleToolResult('STDERR: subagent: missing arguments', success=False)
+            return SingleToolResult('STDERR: subagent: missing arguments', status=ToolResultStatus.FAILURE)
 
         parts = args.strip().split(None, 1)
 
         if len(parts) < 2:
-            return SingleToolResult('STDERR: subagent: missing agenttype or task description', success=False)
+            return SingleToolResult('STDERR: subagent: missing agenttype or task description', status=ToolResultStatus.FAILURE)
 
         agent_type_str = parts[0]
         task_description = parts[1]
@@ -59,9 +59,10 @@ class SubagentTool(BaseTool):
                 AgentType(agent_type_str),
                 task_description
             )
-            return SingleToolResult(str(result), success=result.success)
+            status = ToolResultStatus.SUCCESS if result.success else ToolResultStatus.FAILURE
+            return SingleToolResult(str(result), status=status)
         except Exception as e:
-            return SingleToolResult(f'STDERR: subagent error: {str(e)}', success=False)
+            return SingleToolResult(f'STDERR: subagent error: {str(e)}', status=ToolResultStatus.FAILURE)
 
     def get_template_variables(self) -> dict:
         if not self._agent_types:  # Empty AgentTypes

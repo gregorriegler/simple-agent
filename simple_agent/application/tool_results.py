@@ -56,28 +56,20 @@ class SingleToolResult(ToolResult):
     def __init__(
         self,
         message: str = "",
-        success: bool = True,
-        cancelled: bool = False,
+        status: ToolResultStatus = ToolResultStatus.SUCCESS,
         continue_: bool = True,
         display_title: str = "",
         display_body: str = "",
         display_language: str = "",
     ):
-        if cancelled and success:
-            raise ValueError("ToolResult cannot be both success and cancelled")
-        if cancelled and continue_:
+        if status == ToolResultStatus.CANCELLED and continue_:
             raise ValueError("Cancelled ToolResult cannot continue")
         self._message = message
         self._display_title = display_title
         self._display_body = display_body
         self._display_language = display_language
         self._continue = continue_
-        if cancelled:
-            self._status = ToolResultStatus.CANCELLED
-        elif success:
-            self._status = ToolResultStatus.SUCCESS
-        else:
-            self._status = ToolResultStatus.FAILURE
+        self._status = status
 
     def __str__(self) -> str:
         return self.message

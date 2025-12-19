@@ -1,5 +1,5 @@
 from ..application.tool_library import ToolArgument, ToolArguments
-from ..application.tool_results import SingleToolResult
+from ..application.tool_results import SingleToolResult, ToolResultStatus
 from .base_tool import BaseTool
 
 
@@ -26,4 +26,5 @@ class LsTool(BaseTool):
     async def execute(self, raw_call):
         path = raw_call.arguments if raw_call.arguments else "."
         result = self.run_command("ls", ["-a", path] if path else ["-a"])
-        return SingleToolResult(result['output'], success=result['success'])
+        status = ToolResultStatus.SUCCESS if result['success'] else ToolResultStatus.FAILURE
+        return SingleToolResult(result['output'], status=status)
