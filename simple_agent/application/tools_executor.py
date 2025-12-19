@@ -33,8 +33,8 @@ class ToolExecutionLog:
 
 
 class ToolsExecutor:
-    def __init__(self, tools: ToolLibrary, event_bus: EventBus, agent_id: AgentId):
-        self._tools = tools
+    def __init__(self, library: ToolLibrary, event_bus: EventBus, agent_id: AgentId):
+        self._library = library
         self._event_bus = event_bus
         self._agent_id = agent_id
         self._tool_call_counter = 0
@@ -48,12 +48,12 @@ class ToolsExecutor:
         for tool in tools:
             try:
                 result = await self.execute(tool)
+                log.add(tool, result)
+                if not result.do_continue():
+                    break
             except asyncio.CancelledError:
                 on_cancelled(tool)
                 raise
-            log.add(tool, result)
-            if not result.do_continue():
-                break
         return log
 
     async def execute(self, tool: ParsedTool) -> ToolResult:
@@ -61,7 +61,7 @@ class ToolsExecutor:
         call_id = f"{self._agent_id}::tool_call::{self._tool_call_counter}"
         await self._notify_tool_called(call_id, tool)
         try:
-            tool_result = await self._tools.execute_parsed_tool(tool)
+            tool_result = await self._library.execute_parsed_tool(tool)
             await self._notify_tool_finished(call_id, tool_result)
             return tool_result
         except asyncio.CancelledError:
