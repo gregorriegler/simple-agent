@@ -1,6 +1,7 @@
 import io
 import os
 import sys
+import time
 from difflib import SequenceMatcher
 from pathlib import Path
 
@@ -57,18 +58,20 @@ async def test_golden_master_agent_stub(monkeypatch):
             return normalize(console.export_text())
 
         # Wait for screen to stabilize with substantial content
-        max_attempts = 60
         last_content = None
         stable_count = 0
+        max_wait_seconds = 2.0
+        poll_interval = 0.05
+        start_time = time.monotonic()
 
-        for _ in range(max_attempts):
-            await app._pilot.pause()
+        while time.monotonic() - start_time < max_wait_seconds:
+            await app._pilot.pause(poll_interval)
             content = get_screen_content()
 
             if content == last_content:
                 stable_count += 1
                 # Stable and has expected content - done
-                if stable_count >= 3 and "complete-task" in content:
+                if stable_count >= 2 and "complete-task" in content:
                     break
             else:
                 stable_count = 0
