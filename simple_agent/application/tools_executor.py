@@ -25,7 +25,7 @@ class ToolsExecutor:
                 log.add(tool, result)
             except asyncio.CancelledError:
                 log.mark_cancelled(tool)
-                break
+                raise
 
         return log
 
