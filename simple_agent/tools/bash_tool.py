@@ -1,6 +1,6 @@
 import subprocess
 from ..application.tool_library import ToolArgument, ToolArguments
-from ..application.tool_results import ContinueResult
+from ..application.tool_results import SingleToolResult
 from .base_tool import BaseTool
 
 
@@ -30,7 +30,7 @@ class BashTool(BaseTool):
     async def execute(self, raw_call):
         args = raw_call.arguments
         if not args:
-            return ContinueResult('STDERR: bash: missing command', success=False)
+            return SingleToolResult('STDERR: bash: missing command', success=False)
         _ = subprocess
         result = self.run_command("bash", ["-c", args])
 
@@ -44,4 +44,4 @@ class BashTool(BaseTool):
         else:
             formatted_output = f"{status_icon} Exit code {exit_code} ({elapsed_time:.3f}s elapsed)"
 
-        return ContinueResult(formatted_output, success=result['success'])
+        return SingleToolResult(formatted_output, success=result['success'])

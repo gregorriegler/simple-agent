@@ -13,7 +13,7 @@ from .events import (
 from .input import Input
 from .llm import LLM, Messages
 from .tool_library import ToolLibrary, MessageAndParsedTools
-from .tool_results import ToolResult, ContinueResult
+from .tool_results import ToolResult, SingleToolResult
 from .tools_executor import ToolsExecutor
 
 logger = get_logger(__name__)
@@ -41,7 +41,7 @@ class Agent:
     async def start(self):
         self._notify_agent_started()
         try:
-            tool_result: ToolResult = ContinueResult()
+            tool_result: ToolResult = SingleToolResult()
 
             while True:
                 try:
@@ -58,7 +58,7 @@ class Agent:
             return tool_result
         except (EOFError, KeyboardInterrupt):
             self._notify_session_ended()
-            return ContinueResult()
+            return SingleToolResult()
         finally:
             self._notify_agent_finished()
 
@@ -78,7 +78,7 @@ class Agent:
 
     async def run_tool_loop(self):
         try:
-            tool_result: ToolResult = ContinueResult()
+            tool_result: ToolResult = SingleToolResult()
             while tool_result.do_continue():
                 message, tools = await self.llm_responds()
                 if message:

@@ -1,6 +1,6 @@
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AssistantSaidEvent, ToolResultEvent
-from simple_agent.application.tool_results import ContinueResult
+from simple_agent.application.tool_results import SingleToolResult
 
 
 class TestSimpleEventBus:
@@ -94,7 +94,7 @@ class TestSimpleEventBus:
     def test_publish_nonexistent_event_type_does_nothing(self):
         event_bus = SimpleEventBus()
 
-        event_bus.publish(ToolResultEvent("agent", "call-1", ContinueResult("data")))
+        event_bus.publish(ToolResultEvent("agent", "call-1", SingleToolResult("data")))
 
         assert len(event_bus._handlers) == 0
 

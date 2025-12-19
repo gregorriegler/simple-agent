@@ -1,7 +1,7 @@
 import os
 
 from ..application.tool_library import ToolArgument, ToolArguments
-from ..application.tool_results import ContinueResult
+from ..application.tool_results import SingleToolResult
 
 from .base_tool import BaseTool
 
@@ -44,13 +44,13 @@ class CreateFileTool(BaseTool):
         body = raw_call.body
 
         if not args:
-            return ContinueResult('No filename specified', success=False)
+            return SingleToolResult('No filename specified', success=False)
 
         # Simple string splitting - first word is filename
         parts = args.strip().split(None, 1)
 
         if not parts:
-            return ContinueResult('No filename specified', success=False)
+            return SingleToolResult('No filename specified', success=False)
 
         filename = parts[0]
         content = body if body else None
@@ -58,7 +58,7 @@ class CreateFileTool(BaseTool):
         try:
             # Check if file already exists
             if os.path.exists(filename):
-                return ContinueResult(f"Error creating file '{filename}': File already exists", success=False)
+                return SingleToolResult(f"Error creating file '{filename}': File already exists", success=False)
 
             # Create parent directories if they don't exist
             os.makedirs(os.path.dirname(filename) or '.', exist_ok=True)
@@ -68,10 +68,10 @@ class CreateFileTool(BaseTool):
                     # Write content as-is, no processing
                     f.write(content)
             if content is not None:
-                return ContinueResult(f"Created file: {filename} with content", display_body=content)
+                return SingleToolResult(f"Created file: {filename} with content", display_body=content)
             else:
-                return ContinueResult(f"Created empty file: {filename}")
+                return SingleToolResult(f"Created empty file: {filename}")
         except OSError as e:
-            return ContinueResult(f"Error creating file '{filename}': {str(e)}", success=False)
+            return SingleToolResult(f"Error creating file '{filename}': {str(e)}", success=False)
         except Exception as e:
-            return ContinueResult(f"Unexpected error creating file '{filename}': {str(e)}", success=False)
+            return SingleToolResult(f"Unexpected error creating file '{filename}': {str(e)}", success=False)

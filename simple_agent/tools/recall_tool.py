@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from ..application.tool_library import ToolArguments
-from ..application.tool_results import ContinueResult
+from ..application.tool_results import SingleToolResult
 
 from .base_tool import BaseTool
 
@@ -22,7 +22,7 @@ class RecallTool(BaseTool):
         path = Path(".memory.md")
 
         if not path.exists():
-            return ContinueResult("No memories stored yet")
+            return SingleToolResult("No memories stored yet")
 
         content = path.read_text(encoding="utf-8")
-        return ContinueResult(f"Memories:\n{content}")
+        return SingleToolResult(f"Memories:\n{content}")

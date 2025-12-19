@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from .argument_parser import split_arguments
 from .base_tool import BaseTool
 from ..application.tool_library import ToolArgument, ToolArguments
-from ..application.tool_results import ContinueResult
+from ..application.tool_results import SingleToolResult
 
 
 @dataclass
@@ -122,7 +122,7 @@ class ReplaceFileContentTool(BaseTool):
     async def execute(self, raw_call):
         replace_args, error = self.parse_arguments(raw_call)
         if error or replace_args is None:
-            return ContinueResult(error or "Failed to parse arguments", success=False)
+            return SingleToolResult(error or "Failed to parse arguments", success=False)
 
         try:
             replacer = FileReplacer(replace_args.filename)
@@ -142,26 +142,26 @@ class ReplaceFileContentTool(BaseTool):
                 diff_message = self._format_diff(diff_lines)
                 summary = f"Successfully replaced content in {replace_args.filename}"
                 message = f"{summary}\n\n{diff_message}"
-                return ContinueResult(
+                return SingleToolResult(
                     message,
                     display_body=diff_message,
                     display_language="diff",
                 )
 
             summary = f"No changes made to {replace_args.filename}"
-            return ContinueResult(
+            return SingleToolResult(
                 summary,
                 display_body=summary,
             )
 
         except FileNotFoundError as e:
-            return ContinueResult(str(e), success=False)
+            return SingleToolResult(str(e), success=False)
         except ValueError as e:
-            return ContinueResult(str(e), success=False)
+            return SingleToolResult(str(e), success=False)
         except OSError as e:
-            return ContinueResult(f'Error replacing content in "{replace_args.filename}": {str(e)}', success=False)
+            return SingleToolResult(f'Error replacing content in "{replace_args.filename}": {str(e)}', success=False)
         except Exception as e:
-            return ContinueResult(f'Unexpected error replacing content in "{replace_args.filename}": {str(e)}', success=False)
+            return SingleToolResult(f'Unexpected error replacing content in "{replace_args.filename}": {str(e)}', success=False)
 
     def _parse_replace_body(self, body: str) -> tuple[tuple[str, str], None] | tuple[None, str]:
         """Parse body with @@@ separator (text before @@@ is search string, text after is replacement)."""

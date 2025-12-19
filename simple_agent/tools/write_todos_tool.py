@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from simple_agent.application.tool_library import ToolArgument, ToolArguments
-from simple_agent.application.tool_results import ContinueResult
+from simple_agent.application.tool_results import SingleToolResult
 
 from .base_tool import BaseTool
 
@@ -33,10 +33,10 @@ class WriteTodosTool(BaseTool):
     async def execute(self, raw_call):
         body = raw_call.body
         if not body or not body.strip():
-            return ContinueResult("No todo content provided", success=False)
+            return SingleToolResult("No todo content provided", success=False)
 
         content = body
 
         path = Path(self.filename)
         path.write_text(content, encoding="utf-8")
-        return ContinueResult("Updated TODOS")
+        return SingleToolResult("Updated TODOS")

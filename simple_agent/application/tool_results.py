@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from enum import Enum
 from typing import Protocol, TYPE_CHECKING
 
@@ -52,22 +51,27 @@ class SingleToolResult(ToolResult):
     _display_body: str
     _display_language: str
     _status: ToolResultStatus
+    _continue: bool
 
     def __init__(
         self,
         message: str = "",
         success: bool = True,
         cancelled: bool = False,
+        continue_: bool = True,
         display_title: str = "",
         display_body: str = "",
         display_language: str = "",
     ):
         if cancelled and success:
             raise ValueError("ToolResult cannot be both success and cancelled")
+        if cancelled and continue_:
+            raise ValueError("Cancelled ToolResult cannot continue")
         self._message = message
         self._display_title = display_title
         self._display_body = display_body
         self._display_language = display_language
+        self._continue = continue_
         if cancelled:
             self._status = ToolResultStatus.CANCELLED
         elif success:
@@ -103,25 +107,13 @@ class SingleToolResult(ToolResult):
         return self._display_language
 
     def do_continue(self) -> bool:
-        raise NotImplementedError
-
-
-@dataclass(init=False)
-class ContinueResult(SingleToolResult):
-    def do_continue(self) -> bool:
-        return True
-
-
-@dataclass(init=False)
-class CompleteResult(SingleToolResult):
-    def do_continue(self) -> bool:
-        return False
+        return self._continue
 
 
 class ManyToolsResult(ToolResult):
     def __init__(self):
         self._entries: list[tuple[ParsedTool, ToolResult]] = []
-        self._last_result: ToolResult = ContinueResult()
+        self._last_result: ToolResult = SingleToolResult()
         self._cancelled_tool: ParsedTool | None = None
 
     @property

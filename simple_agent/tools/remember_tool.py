@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from ..application.tool_library import ToolArgument, ToolArguments
-from ..application.tool_results import ContinueResult
+from ..application.tool_results import SingleToolResult
 
 from .base_tool import BaseTool
 
@@ -29,7 +29,7 @@ class RememberTool(BaseTool):
     async def execute(self, raw_call):
         args = raw_call.arguments
         if not args or not args.strip():
-            return ContinueResult("No memory content provided", success=False)
+            return SingleToolResult("No memory content provided", success=False)
 
         content = args.strip()
         path = Path(".memory.md")
@@ -41,4 +41,4 @@ class RememberTool(BaseTool):
             new_content = f"# Memories\n\n- {content}\n"
 
         path.write_text(new_content, encoding="utf-8")
-        return ContinueResult(f"Remembered: {content}")
+        return SingleToolResult(f"Remembered: {content}")

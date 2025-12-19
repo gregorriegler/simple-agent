@@ -8,7 +8,7 @@ from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.llm import Messages
-from simple_agent.application.tool_results import ContinueResult
+from simple_agent.application.tool_results import SingleToolResult
 
 
 class SlowLLM:
@@ -92,7 +92,7 @@ class SlowTool:
 
     async def __call__(self, **kwargs):
         await asyncio.sleep(10)
-        return ContinueResult("This should not be reached")
+        return SingleToolResult("This should not be reached")
 
 
 class ToolCallingLLM:
