@@ -89,10 +89,6 @@ class Agent:
 
                 tool_result = await self.tools_executor.execute_tools(tools)
 
-                if tool_result.was_cancelled():
-                    self.context.user_says(tool_result.cancelled_message())
-                    raise asyncio.CancelledError()
-
                 if tool_result.has_continue_results():
                     self.context.user_says(tool_result.format_continue_message())
 
