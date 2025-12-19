@@ -19,17 +19,14 @@ class AgentDisplayHub(Display):
     def _register_agent(self, agent_id: AgentId, display: AgentDisplay) -> None:
         self._agents[agent_id] = display
 
-    def _ensure_agent(self, agent_id: AgentId, agent_name: str | None = None, model: str = "") -> AgentDisplay | None:
-        existing = self._agent_for(agent_id)
-        if existing:
-            return existing
-        created = self._create_display(agent_id, agent_name, model)
-        if created:
-            self._register_agent(agent_id, created)
-        return created
-
     def agent_created(self, event) -> None:
-        self._ensure_agent(event.agent_id, getattr(event, "agent_name", None), getattr(event, "model", ""))
+        name = getattr(event, "agent_name", None)
+        model = getattr(event, "model", "")
+        existing = self._agent_for(event.agent_id)
+        if not existing:
+            created = self._create_display(event.agent_id, name, model)
+            if created:
+                self._register_agent(event.agent_id, created)
 
     def exit(self, event) -> None:
         agent = self._agent_for(event.agent_id)

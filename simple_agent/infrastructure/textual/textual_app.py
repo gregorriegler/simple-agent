@@ -1,9 +1,9 @@
 import asyncio
-import logging
 import io
-import sys
+import logging
 import os
 import signal
+import sys
 import threading
 import time
 from pathlib import Path
@@ -12,13 +12,12 @@ from typing import Callable, Coroutine, Any
 logger = logging.getLogger(__name__)
 
 from rich.syntax import Syntax
-from rich.text import Text
 from textual import events
 from textual.app import App, ComposeResult
 from textual.timer import Timer
 from textual.containers import Vertical, VerticalScroll
 from textual.css.query import NoMatches
-from textual.widgets import Static, Input, TabbedContent, TabPane, TextArea, Collapsible, Markdown
+from textual.widgets import Static, TabbedContent, TabPane, TextArea, Collapsible, Markdown
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
