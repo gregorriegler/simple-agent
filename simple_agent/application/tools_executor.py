@@ -1,5 +1,4 @@
 import asyncio
-from collections.abc import Callable
 
 from .agent_id import AgentId
 from .event_bus_protocol import EventBus
@@ -11,6 +10,7 @@ class ToolExecutionLog:
     def __init__(self):
         self._entries: list[tuple[ParsedTool, ToolResult]] = []
         self._last_result: ToolResult = ContinueResult()
+        self._cancelled_tool: ParsedTool | None = None
 
     @property
     def last_result(self) -> ToolResult:
@@ -31,6 +31,17 @@ class ToolExecutionLog:
     def has_continue_results(self) -> bool:
         return any(isinstance(result, ContinueResult) for _, result in self._entries)
 
+    def mark_cancelled(self, tool: ParsedTool) -> None:
+        self._cancelled_tool = tool
+
+    def was_cancelled(self) -> bool:
+        return self._cancelled_tool is not None
+
+    def cancelled_message(self) -> str:
+        if not self._cancelled_tool:
+            raise ValueError("cancelled_message called without a cancelled tool")
+        return self._cancelled_tool.cancelled_message()
+
 
 class ToolsExecutor:
     def __init__(self, library: ToolLibrary, event_bus: EventBus, agent_id: AgentId):
@@ -42,7 +53,6 @@ class ToolsExecutor:
     async def execute_tools(
         self,
         tools: list[ParsedTool],
-        on_cancelled: Callable[[ParsedTool], None],
     ) -> ToolExecutionLog:
         log = ToolExecutionLog()
         for tool in tools:
@@ -50,8 +60,9 @@ class ToolsExecutor:
                 result = await self.execute(tool)
                 log.add(tool, result)
             except asyncio.CancelledError:
-                on_cancelled(tool)
-                raise
+                log.mark_cancelled(tool)
+                break
+
         return log
 
     async def execute(self, tool: ParsedTool) -> ToolResult:
