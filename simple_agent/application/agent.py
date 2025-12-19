@@ -1,11 +1,7 @@
 import asyncio
-from simple_agent.logging_config import get_logger
 
+from simple_agent.logging_config import get_logger
 from .agent_id import AgentId
-from .input import Input
-from .llm import LLM, Messages
-from .session_storage import SessionStorage
-from .tool_library import ToolResult, ContinueResult, ToolLibrary, MessageAndParsedTools, ParsedTool
 from .event_bus_protocol import EventBus
 from .events import (
     AgentStartedEvent, AgentFinishedEvent,
@@ -15,6 +11,9 @@ from .events import (
     UserPromptRequestedEvent, UserPromptedEvent,
     ErrorEvent, SessionClearedEvent
 )
+from .input import Input
+from .llm import LLM, Messages
+from .tool_library import ToolResult, ContinueResult, ToolLibrary, MessageAndParsedTools, ParsedTool
 
 logger = get_logger(__name__)
 
