@@ -65,6 +65,20 @@ class Agent:
         finally:
             self._notify_agent_finished()
 
+    async def user_prompts(self):
+        if not self.user_input.has_stacked_messages():
+            await self._notify_user_prompt_requested()
+        prompt = await self.user_input.read_async()
+        while prompt == "/clear":
+            self.context.clear()
+            self.event_bus.publish(SessionClearedEvent(self.agent_id))
+            await self._notify_user_prompt_requested()
+            prompt = await self.user_input.read_async()
+        if prompt:
+            self.context.user_says(prompt)
+            await self._notify_user_prompted(prompt)
+        return prompt
+
     async def run_tool_loop(self):
         tool_result: ToolResult = ContinueResult()
         current_tool: ParsedTool | None = None
@@ -105,20 +119,6 @@ class Agent:
             await self._notify_error_occured(e)
 
         return tool_result
-
-    async def user_prompts(self):
-        if not self.user_input.has_stacked_messages():
-            await self._notify_user_prompt_requested()
-        prompt = await self.user_input.read_async()
-        while prompt == "/clear":
-            self.context.clear()
-            self.event_bus.publish(SessionClearedEvent(self.agent_id))
-            await self._notify_user_prompt_requested()
-            prompt = await self.user_input.read_async()
-        if prompt:
-            self.context.user_says(prompt)
-            await self._notify_user_prompted(prompt)
-        return prompt
 
     async def llm_responds(self) -> MessageAndParsedTools:
         from simple_agent.application.model_info import ModelInfo
