@@ -20,7 +20,6 @@ from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from tests.event_spy import EventSpy
-from tests.print_spy import IOSpy
 from tests.session_storage_stub import SessionStorageStub
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import create_session_args, DummyProjectTree
@@ -104,8 +103,7 @@ class SessionTestBed:
 
     async def run(self) -> SessionTestResult:
         event_bus = SimpleEventBus()
-        io_spy = IOSpy(self._user_inputs, self._escape_hits)
-        user_input = UserInputStub(io=io_spy)
+        user_input = UserInputStub(inputs=self._user_inputs, escapes=self._escape_hits)
         session_storage = SessionStorageStub()
         todo_cleanup = self._todo_cleanup if self._todo_cleanup is not None else NoOpTodoCleanup()
 
@@ -131,7 +129,8 @@ class SessionTestBed:
 
         tool_library_factory = ToolLibraryFactoryStub(
             self._llm,
-            io=io_spy,
+            inputs=self._user_inputs,
+            escapes=self._escape_hits,
             interrupts=[self._ctrl_c_hits],
             event_bus=event_bus
         )

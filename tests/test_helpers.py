@@ -10,7 +10,6 @@ from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.session import SessionArgs
 from simple_agent.application.system_prompt import AgentPrompt
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
-from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.tools.all_tools import AllTools
 from tests.user_input_stub import UserInputStub
 
@@ -23,8 +22,6 @@ def create_all_tools_for_test():
     from simple_agent.application.llm_stub import StubLLMProvider
     from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 
-    io = StdIO()
-
     from simple_agent.application.session_storage import NoOpSessionStorage
     event_bus = SimpleEventBus()
     session_storage = NoOpSessionStorage()
@@ -36,7 +33,7 @@ def create_all_tools_for_test():
         session_storage,
         tool_library_factory,
         agent_library,
-        UserInputStub(io),
+        UserInputStub(),
         StubLLMProvider.dummy(),
         DummyProjectTree(),
     )

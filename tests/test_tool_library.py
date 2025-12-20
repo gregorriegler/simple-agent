@@ -6,7 +6,6 @@ from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.tool_library_factory import ToolContext
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.tools import AllTools
-from simple_agent.infrastructure.stdio import StdIO
 from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
@@ -18,7 +17,8 @@ class ToolLibraryStub(AllTools):
     def __init__(
         self,
         llm,
-        io=None,
+        inputs=None,
+        escapes=None,
         interrupts=None,
         event_bus=None,
         tool_context: ToolContext | None = None,
@@ -26,8 +26,6 @@ class ToolLibraryStub(AllTools):
         tool_keys: list[str] | None = None,
         agent_types: AgentTypes = None
     ):
-        actual_io = io if io else StdIO()
-
         from simple_agent.application.session_storage import NoOpSessionStorage
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
         actual_tool_context = tool_context
@@ -42,7 +40,7 @@ class ToolLibraryStub(AllTools):
                 session_storage=session_storage,
                 tool_library_factory=tool_library_factory,
                 agent_library=agent_library,
-                user_input=UserInputStub(actual_io),
+                user_input=UserInputStub(inputs=inputs, escapes=escapes),
                 llm_provider=StubLLMProvider.for_testing(llm),
                 project_tree=DummyProjectTree(),
             )
@@ -75,13 +73,15 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
     def __init__(
         self,
         llm,
-        io=None,
+        inputs=None,
+        escapes=None,
         interrupts=None,
         event_bus=None,
         all_displays=None
     ):
         self._llm = llm
-        self._io = io
+        self._inputs = inputs
+        self._escapes = escapes
         self._interrupts = interrupts
         self._event_bus = event_bus
         self._all_displays = all_displays
@@ -94,7 +94,8 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
     ) -> AllTools:
         return ToolLibraryStub(
             self._llm,
-            io=self._io,
+            inputs=self._inputs,
+            escapes=self._escapes,
             interrupts=self._interrupts,
             event_bus=self._event_bus,
             tool_context=tool_context,
