@@ -90,10 +90,18 @@ model: gpt-4
 ---
 You are a helper.
 """
+
     agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
 
-    model = agent_definition.model()
+    assert agent_definition.model() == "gpt-4"
+    assert agent_definition.prompt().agent_name == "helper"
+
+
+def test_empty_content():
+    content = ""
+    agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
+
     prompt = agent_definition.prompt()
 
-    assert model == "gpt-4"
-    assert prompt.agent_name == "helper"
+    assert agent_definition.model() is None
+    assert prompt.agent_name == "Assistant"

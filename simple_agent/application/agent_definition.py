@@ -35,16 +35,16 @@ class AgentDefinition:
             self._prompt = self._build_prompt()
         return self._prompt
 
-    def _load(self) -> tuple[dict[str, Any], str]:
-        if self._metadata is None:
-            self._metadata, self._template = self._parse_front_matter(self._content)
-        return self._metadata, self._template
-
     def _build_prompt(self) -> AgentPrompt:
         metadata, template = self._load()
         name = metadata.get('name', str(self._agent_type).capitalize())
         ground_rules = self.ground_rules.read()
         return AgentPrompt(name, template, ground_rules)
+
+    def _load(self) -> tuple[dict[str, Any], str]:
+        if self._metadata is None:
+            self._metadata, self._template = self._parse_front_matter(self._content)
+        return self._metadata, self._template
 
     def _parse_front_matter(self, content: str) -> tuple[dict[str, Any], str]:
         if not content:
