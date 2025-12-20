@@ -20,8 +20,8 @@ api_key = "${ANTHROPIC_API_KEY}"
 [log]
 level = "INFO" # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-# Optional: Set log levels for specific packages
-[log.packages]
+# Optional: Set log levels for specific loggers
+[log.loggers]
 # "simple_agent" = "DEBUG"
 # "simple_agent.tools" = "WARNING"
 # "urllib3" = "ERROR"
