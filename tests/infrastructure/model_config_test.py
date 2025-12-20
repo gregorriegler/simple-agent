@@ -21,7 +21,7 @@ def test_get_falls_back_to_default_model_when_unknown_model_requested():
 
 
 
-def test_get_prints_warning_to_stderr_when_falling_back(capsys):
+def test_get_does_not_emit_warning_when_falling_back(capsys):
     default_model = ModelConfig(
         name="claude",
         model="claude-sonnet-4",
@@ -36,9 +36,8 @@ def test_get_prints_warning_to_stderr_when_falling_back(capsys):
     registry.get("unknown-model")
 
     captured = capsys.readouterr()
-    assert "Warning: Unknown model configuration: 'unknown-model'" in captured.err
-    assert "Falling back to default: 'claude'" in captured.err
-    assert "Available models: claude" in captured.err
+    assert captured.err == ""
+    assert captured.out == ""
 
 
 def test_get_returns_requested_model_when_it_exists():

@@ -1,18 +1,5 @@
-import os
-import sys
 from dataclasses import dataclass
 from typing import Mapping, Any
-
-
-def resolve_api_key(value: str) -> str:
-    if value.startswith("${") and value.endswith("}"):
-        var_name = value[2:-1]
-        result = os.environ.get(var_name)
-        if not result:
-            print(f"Error: Environment variable {var_name} not set", file=sys.stderr)
-            sys.exit(1)
-        return result
-    return value
 
 
 @dataclass
@@ -28,21 +15,18 @@ class ModelConfig:
     def from_dict(name: str, config: Mapping[str, Any]) -> 'ModelConfig':
         model = config.get("model") or config.get("name")
         if not model:
-            print(f"Error: model.model not found in configuration '{name}'", file=sys.stderr)
-            sys.exit(1)
+            raise ValueError(f"model '{name}' is missing required field 'model'")
 
         adapter = config.get("adapter")
         if not adapter:
-            print(f"Error: model.adapter not found in configuration '{name}'", file=sys.stderr)
-            sys.exit(1)
+            raise ValueError(f"model '{name}' is missing required field 'adapter'")
 
         normalized_adapter = str(adapter).strip().lower()
 
         api_key_raw = config.get("api_key")
         if not api_key_raw:
-            print(f"Error: model.api_key not found in configuration '{name}'", file=sys.stderr)
-            sys.exit(1)
-        api_key = resolve_api_key(str(api_key_raw))
+            raise ValueError(f"model '{name}' is missing required field 'api_key'")
+        api_key = str(api_key_raw)
 
         base_url = config.get("base_url")
         if base_url is not None:
@@ -52,8 +36,9 @@ class ModelConfig:
         try:
             request_timeout = int(timeout)
         except (TypeError, ValueError):
-            print(f"Error: model.request_timeout must be an integer in configuration '{name}'", file=sys.stderr)
-            sys.exit(1)
+            raise ValueError(
+                f"model '{name}' has non-integer 'request_timeout': {timeout!r}"
+            )
 
         return ModelConfig(
             name=name,
@@ -74,8 +59,6 @@ class ModelsRegistry:
     def get(self, name: str | None) -> ModelConfig:
         key = name or self.default
         if key not in self.models:
-            available = ", ".join(self.models.keys())
-            print(f"Warning: Unknown model configuration: '{key}'. Falling back to default: '{self.default}'. Available models: {available}", file=sys.stderr)
             return self.models[self.default]
         return self.models[key]
 
@@ -83,19 +66,16 @@ class ModelsRegistry:
     def from_config(config: Mapping[str, Any]) -> 'ModelsRegistry':
         model_section = config.get("model")
         if not isinstance(model_section, Mapping):
-            print("Error: [model] section not found in .simple-agent.toml", file=sys.stderr)
-            sys.exit(1)
+            raise ValueError("missing required 'model' section in configuration")
 
         default_name = model_section.get("default")
         if not default_name:
-            print("Error: [model].default must be set to specify the default model", file=sys.stderr)
-            sys.exit(1)
+            raise ValueError("missing required 'model.default' value in configuration")
         default_name = str(default_name)
 
         models_section = config.get("models")
         if not isinstance(models_section, Mapping) or not models_section:
-            print("Error: [models.*] sections are required in .simple-agent.toml", file=sys.stderr)
-            sys.exit(1)
+            raise ValueError("missing required 'models' section in configuration")
 
         models_dict = {}
         for model_name, model_config in models_section.items():
@@ -104,7 +84,8 @@ class ModelsRegistry:
 
         if default_name not in models_dict:
             available = ", ".join(models_dict.keys())
-            print(f"Error: Default model '{default_name}' not found in available models: {available}", file=sys.stderr)
-            sys.exit(1)
+            raise ValueError(
+                f"default model '{default_name}' not found in available models: {available}"
+            )
 
         return ModelsRegistry(models=models_dict, default=default_name)

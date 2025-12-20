@@ -1,5 +1,4 @@
-# NOW 
-- are we sending proper tool result responses to the llms?
+# NOW
 - coverage
 - token usage % counter not going up
 - haiku still not zeroed in

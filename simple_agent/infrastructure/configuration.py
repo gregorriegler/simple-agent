@@ -1,5 +1,4 @@
 import os
-import sys
 import tomllib
 from typing import Any, Mapping, Tuple
 
@@ -12,16 +11,10 @@ def load_user_configuration(cwd: str) -> UserConfiguration:
     config, found = _load_configuration_sources(cwd=cwd)
 
     if not found:
-        print(
-            "Error: .simple-agent.toml not found in home directory (~) or current directory"
-            f" ({cwd})",
-            file=sys.stderr,
+        raise FileNotFoundError(
+            ".simple-agent.toml not found in home directory (~) or current directory "
+            f"({cwd})"
         )
-        print(
-            "Please create a .simple-agent.toml file with your LLM configuration",
-            file=sys.stderr,
-        )
-        sys.exit(1)
 
     return UserConfiguration(config)
 
@@ -48,8 +41,7 @@ def _read_config(path: str) -> Mapping[str, Any]:
         with open(path, "rb") as handle:
             return tomllib.load(handle)
     except Exception as error:  # pragma: no cover - configuration errors exit early
-        print(f"Error reading {path}: {error}", file=sys.stderr)
-        sys.exit(1)
+        raise ValueError(f"error reading {path}: {error}") from error
 
 
 def _load_configuration_sources(cwd: str) -> Tuple[Mapping[str, Any], bool]:
@@ -68,7 +60,38 @@ def _load_configuration_sources(cwd: str) -> Tuple[Mapping[str, Any], bool]:
         config = _merge_dicts(config, cwd_config)
         found = True
 
-    return config, found
+    return _resolve_api_keys(config), found
+
+
+def resolve_api_key(value: str) -> str:
+    if value.startswith("${") and value.endswith("}"):
+        var_name = value[2:-1]
+        result = os.environ.get(var_name)
+        if not result:
+            raise ValueError(f"environment variable '{var_name}' is not set")
+        return result
+    return value
+
+
+def _resolve_api_keys(config: Mapping[str, Any]) -> Mapping[str, Any]:
+    return _resolve_value(config)
+
+
+def _resolve_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {
+            key: _resolve_api_key_value(key, child)
+            for key, child in value.items()
+        }
+    if isinstance(value, list):
+        return [_resolve_value(child) for child in value]
+    return value
+
+
+def _resolve_api_key_value(key: str, value: Any) -> Any:
+    if key == "api_key" and isinstance(value, str):
+        return resolve_api_key(value)
+    return _resolve_value(value)
 
 
 def _merge_dicts(base: Mapping[str, Any], override: Mapping[str, Any]) -> dict[str, Any]:
