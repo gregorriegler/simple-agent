@@ -43,3 +43,14 @@ class UserConfiguration:
             if value:
                 return str(value).upper()
         return "INFO"
+
+    def package_log_levels(self) -> dict[str, str]:
+        log_section = self._config.get("log")
+        if isinstance(log_section, Mapping):
+            packages = log_section.get("packages")
+            if isinstance(packages, Mapping):
+                return {
+                    package: str(level).upper()
+                    for package, level in packages.items()
+                }
+        return {}

@@ -1,4 +1,10 @@
 # NOW 
+- fix logs. nicely human readable request and response log
+- other markdown debug logs add noise
+- are we sending proper tool result responses to the llms?
+- coverage
+- token usage % counter not going up
+- haiku still not zeroed in
 - /clear
 
 # NEXT

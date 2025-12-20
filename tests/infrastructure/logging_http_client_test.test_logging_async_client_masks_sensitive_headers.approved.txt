@@ -1,0 +1,24 @@
+
+POST /test HTTP/1.1
+Host: api.example.com
+Accept: */*
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+User-Agent: python-httpx/0.28.1
+Authorization: ****
+X-Api-Key: ****
+X-Test-Header: test-value
+Content-Length: 15
+Content-Type: application/json
+
+{
+  "key": "value"
+}
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 20
+
+{
+  "result": "success"
+}

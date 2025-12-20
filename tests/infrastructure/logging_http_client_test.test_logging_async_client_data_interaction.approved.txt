@@ -1,0 +1,16 @@
+
+POST /test HTTP/1.1
+Host: api.example.com
+Accept: */*
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+User-Agent: python-httpx/0.28.1
+Content-Length: 15
+
+plain text body
+
+HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Length: 19
+
+plain text response

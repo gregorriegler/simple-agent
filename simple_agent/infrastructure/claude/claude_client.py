@@ -1,10 +1,9 @@
-import asyncio
-import json
 import logging
 
 import httpx
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
+from simple_agent.infrastructure.logging_http_client import LoggingAsyncClient
 from simple_agent.infrastructure.model_config import ModelConfig
 
 logger = logging.getLogger(__name__)
@@ -53,12 +52,8 @@ class ClaudeLLM(LLM):
         timeout = self._config.request_timeout
 
         try:
-            logger.debug("Request:" + json.dumps(data, indent=4, ensure_ascii=False))
-            async with httpx.AsyncClient(timeout=timeout, transport=self._transport) as client:
+            async with LoggingAsyncClient(timeout=timeout, transport=self._transport) as client:
                 response = await client.post(url, headers=headers, json=data)
-            logger.debug(
-                "Response:" + json.dumps(response.json(), indent=4, ensure_ascii=False)
-            )
             response.raise_for_status()
         except httpx.RequestError as error:
             raise ClaudeClientError(f"API request failed: {error}") from error

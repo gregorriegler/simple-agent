@@ -20,6 +20,12 @@ api_key = "${ANTHROPIC_API_KEY}"
 [log]
 level = "INFO" # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+# Optional: Set log levels for specific packages
+[log.packages]
+# "simple_agent" = "DEBUG"
+# "simple_agent.tools" = "WARNING"
+# "urllib3" = "ERROR"
+
 [paths]
 refactoring_tools_path = "C:\\Users\\riegl\\code\\csharp-refactoring-tools"
 agent_definitions_dir = "C:\\Users\\riegl\\code\\simple-agent-definitions" # Optional: override agent definition search path

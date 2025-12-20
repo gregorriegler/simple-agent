@@ -128,7 +128,7 @@ Result of 🛠️ cat myfile.txt
 -
 
 ## create-file tool
-Create new files with optional content
+Create new files with optional content. You cannot overwrite an existing file. In that case you have to first remove it.
 
 ### Usage:
 🛠️[create-file <filename>]

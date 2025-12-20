@@ -8,7 +8,7 @@ from .base_tool import BaseTool
 
 class CreateFileTool(BaseTool):
     name = "create-file"
-    description = "Create new files with optional content"
+    description = "Create new files with optional content. You cannot overwrite an existing file. In that case you have to first remove it."
     arguments = ToolArguments(header=[
         ToolArgument(
             name="filename",
