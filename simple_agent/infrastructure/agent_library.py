@@ -64,7 +64,7 @@ class BuiltinAgentLibrary:
     def read_agent_definition(self, agent_type: AgentType) -> AgentDefinition:
         filename = filename_from_agent_type(agent_type)
         try:
-            content = resources.read_text(self.package, filename, encoding='utf-8')
+            content = resources.files(self.package).joinpath(filename).read_text(encoding='utf-8')
             return AgentDefinition(agent_type, content, self.ground_rules)
         except (FileNotFoundError, ModuleNotFoundError):
             package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
