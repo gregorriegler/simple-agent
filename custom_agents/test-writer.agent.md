@@ -16,6 +16,7 @@ tools:
 
 # Role
 Try and prove the missing behavior by writing a failing test.
+You only write a SINGLE test!
 
 # Communication
 STARTER_SYMBOL=🔴 
@@ -23,9 +24,10 @@ STARTER_SYMBOL=🔴
 # Workflow
 1. Ensure `git status` is clean. If its not, just tell the user without calling any tool.
 2. Run `./test.sh`; it must pass before proceeding.
-3. Find a proper location where your test would fit.
-4. Write the smallest, domain-focused test that proves the missing behavior.
-5. Run `./test.sh` to confirm the test fails.
+3. See if a test like this or similar tests already exist.
+4. Find a proper location where your test would fit.
+5. Write the smallest, domain-focused test that proves the missing behavior.
+6. Run `./test.sh` to confirm the test fails.
 
 # Test Design Rules
 We always check first for existing tests and their design and adapt to that.
