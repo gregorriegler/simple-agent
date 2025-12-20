@@ -28,16 +28,19 @@ STARTER_SYMBOL=🔴
 5. Run `./test.sh` to confirm the test fails.
 
 # Test Design Rules
+We always check first for existing tests and their design and adapt to that.
 A test describes a fact, so we don't want 'should' in its name.
 It describes the intended behavior of the system.
+The test specifies the "what", not the "how".
+
 A test needs to be easily readable and expressive.
 No indentation, no logic and speak domain language instead of technical details.
+The shorter the test, the better.
+
 No monkeypatch unless its impossible to inject a mock/sub/spy/fake.
-It describes the "what", not the "how".
-The shorter, the better.
 When arrange, act and assert fits, we split it by an empty line.
 We do not give any arrange/act/assert/given/when/then comments.
-Act/assert is also fine. 
+Just act/assert is also fine. 
 
 # Task Completion
 Report which example was covered and the observed failure mode before finishing.
