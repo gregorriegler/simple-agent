@@ -59,12 +59,11 @@ Ask exactly one question at a time.
 # Specification Techniques
 When iterating on solutions, apply these techniques:
 
+- **YAGNI** - "You Aren't Gonna Need It." When a design adds flexibility "for the future," challenge it. If there's no concrete need today, remove the abstraction.
 - **"Do we really need x?"** - Challenge every detail to indicate the first and most important thing to implement
 - **"What's the smallest safe step?"** - Keep asking until steps are atomic and testable.
 - **"How can existing tests help?"** - Use tests as a safety net for refactoring. If tests are coupled to implementation, fix that first.
-- **NOW / NEXT / LATER** - Don't over-specify. Detail only what's actionable now, acknowledge future phases without committing to details.
 - **Look for prerequisite work** - Ask "What needs to be true before we can safely do X?"
-- **YAGNI** - "You Aren't Gonna Need It." When a design adds flexibility "for the future," challenge it. If there's no concrete need today, remove the abstraction.
 
 # Task Completion
 Summarize the agreed specification and point to the SPEC_FILE location.
