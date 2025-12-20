@@ -16,3 +16,7 @@ async def test_bash_tool_stderr_output():
 
 async def test_bash_tool_nonzero_exit():
     await verify_tool(library, "🛠️[bash exit 2 /]")
+
+
+async def test_bash_tool_fail_with_stdout_and_stderr():
+    await verify_tool(library, "🛠️[bash echo 'standard output' && echo 'error output' >&2 && exit 1 /]")

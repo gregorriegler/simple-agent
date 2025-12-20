@@ -1,0 +1,8 @@
+Command:
+🛠️[bash echo 'standard output' && echo 'error output' >&2 && exit 1 /]
+
+Result:
+❌ Exit code 1 [ELAPSED]
+
+standard output
+STDERR: error output
