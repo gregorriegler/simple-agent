@@ -18,9 +18,6 @@ class AgentDefinition:
         self._template: str | None = None
         self._prompt: AgentPrompt | None = None
 
-    def agent_type(self) -> AgentType:
-        return self._agent_type
-
     def agent_name(self):
         return self.prompt().agent_name
 
