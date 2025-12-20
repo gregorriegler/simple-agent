@@ -302,6 +302,12 @@ class TextualApp(App):
                 text_area.refresh()
         self.loading_frame_index = (self.loading_frame_index + 1) % len(self.loading_frames)
 
+    def _stop_loading_if_idle(self) -> None:
+        if not any(self._pending_tool_calls.values()):
+            if self.loading_timer:
+                self.loading_timer.stop()
+                self.loading_timer = None
+
     def write_tool_call(self, tool_results_id: str, call_id: str, message: str) -> None:
         pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
         if "write-todos" in message:
@@ -354,10 +360,7 @@ class TextualApp(App):
                 call_id,
             )
             self._refresh_todos(tool_results_id)
-            if not any(self._pending_tool_calls.values()):
-                if self.loading_timer:
-                    self.loading_timer.stop()
-                    self.loading_timer = None
+            self._stop_loading_if_idle()
             return
         title_source, text_area, call_collapsible = pending_entry
         message = result.display_body if result.display_body else result.message
@@ -421,10 +424,7 @@ class TextualApp(App):
         container = self.query_one(f"#{tool_results_id}", VerticalScroll)
         container.scroll_end(animate=False)
         self._refresh_todos(tool_results_id)
-        if not any(self._pending_tool_calls.values()):
-            if self.loading_timer:
-                self.loading_timer.stop()
-                self.loading_timer = None
+        self._stop_loading_if_idle()
 
     def write_tool_cancelled(self, tool_results_id: str, call_id: str) -> None:
         pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
@@ -432,10 +432,7 @@ class TextualApp(App):
             self._suppressed_tool_calls.discard(call_id)
             pending_for_panel.pop(call_id, None)
             self._refresh_todos(tool_results_id)
-            if not any(self._pending_tool_calls.values()):
-                if self.loading_timer:
-                    self.loading_timer.stop()
-                    self.loading_timer = None
+            self._stop_loading_if_idle()
             return
         pending_entry = pending_for_panel.pop(call_id, None)
         if pending_entry is None:
@@ -444,10 +441,7 @@ class TextualApp(App):
                 tool_results_id,
                 call_id,
             )
-            if not any(self._pending_tool_calls.values()):
-                if self.loading_timer:
-                    self.loading_timer.stop()
-                    self.loading_timer = None
+            self._stop_loading_if_idle()
             return
         title_source, text_area, call_collapsible = pending_entry
 
@@ -466,10 +460,7 @@ class TextualApp(App):
         container = self.query_one(f"#{tool_results_id}", VerticalScroll)
         container.scroll_end(animate=False)
 
-        if not any(self._pending_tool_calls.values()):
-            if self.loading_timer:
-                self.loading_timer.stop()
-                self.loading_timer = None
+        self._stop_loading_if_idle()
 
     def add_subagent_tab(self, agent_id: AgentId, tab_title: str) -> tuple[str, str]:
         tab_id, log_id, tool_results_id = self.panel_ids_for(agent_id)
