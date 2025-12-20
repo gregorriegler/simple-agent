@@ -308,6 +308,19 @@ class TextualApp(App):
                 self.loading_timer.stop()
                 self.loading_timer = None
 
+    def _pop_pending_tool_call(
+        self,
+        tool_results_id: str,
+        call_id: str,
+    ) -> tuple[tuple[str, TextArea, Collapsible] | None, bool]:
+        pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
+        if call_id in self._suppressed_tool_calls:
+            self._suppressed_tool_calls.discard(call_id)
+            pending_for_panel.pop(call_id, None)
+            self._refresh_todos(tool_results_id)
+            return None, True
+        return pending_for_panel.pop(call_id, None), False
+
     def write_tool_call(self, tool_results_id: str, call_id: str, message: str) -> None:
         pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
         if "write-todos" in message:
@@ -345,14 +358,10 @@ class TextualApp(App):
             self.loading_timer = self.set_interval(0.1, self._update_loading_animation)
 
     def write_tool_result(self, tool_results_id: str, call_id: str, result: ToolResult) -> None:
-        pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
         success = result.success
-        if call_id in self._suppressed_tool_calls:
-            self._suppressed_tool_calls.discard(call_id)
-            pending_for_panel.pop(call_id, None)
-            self._refresh_todos(tool_results_id)
+        pending_entry, suppressed = self._pop_pending_tool_call(tool_results_id, call_id)
+        if suppressed:
             return
-        pending_entry = pending_for_panel.pop(call_id, None)
         if pending_entry is None:
             logger.warning(
                 "Tool result received with no matching call. tool_results_id=%s call_id=%s",
@@ -427,14 +436,10 @@ class TextualApp(App):
         self._stop_loading_if_idle()
 
     def write_tool_cancelled(self, tool_results_id: str, call_id: str) -> None:
-        pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
-        if call_id in self._suppressed_tool_calls:
-            self._suppressed_tool_calls.discard(call_id)
-            pending_for_panel.pop(call_id, None)
-            self._refresh_todos(tool_results_id)
+        pending_entry, suppressed = self._pop_pending_tool_call(tool_results_id, call_id)
+        if suppressed:
             self._stop_loading_if_idle()
             return
-        pending_entry = pending_for_panel.pop(call_id, None)
         if pending_entry is None:
             logger.warning(
                 "Tool cancelled with no matching call. tool_results_id=%s call_id=%s",
