@@ -4,9 +4,12 @@ from pathlib import Path
 from typing import Optional
 
 
-def setup_logging(level: Optional[str] = None) -> None:
+def setup_logging(level: Optional[str] = None, user_config = None) -> None:
     if level is None:
-        level = os.environ.get('SIMPLE_AGENT_LOG_LEVEL', 'INFO').upper()
+        if user_config:
+            level = user_config.log_level()
+        else:
+            level = os.environ.get('SIMPLE_AGENT_LOG_LEVEL', 'INFO').upper()
 
     numeric_level = getattr(logging, level, logging.INFO)
 

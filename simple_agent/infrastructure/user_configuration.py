@@ -35,3 +35,11 @@ class UserConfiguration:
 
     def models_registry(self) -> ModelsRegistry:
         return ModelsRegistry.from_config(self._config)
+
+    def log_level(self) -> str:
+        log_section = self._config.get("log")
+        if isinstance(log_section, Mapping):
+            value = log_section.get("level")
+            if value:
+                return str(value).upper()
+        return "INFO"

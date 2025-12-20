@@ -36,8 +36,6 @@ from simple_agent.logging_config import setup_logging
 
 
 def main(on_user_prompt_requested=None):
-    setup_logging()
-
     args = parse_args()
     if on_user_prompt_requested:
         args.on_user_prompt_requested = on_user_prompt_requested
@@ -46,6 +44,8 @@ def main(on_user_prompt_requested=None):
         user_config = stub_user_config()
     else:
         user_config = load_user_configuration(cwd)
+
+    setup_logging(user_config=user_config)
 
     if args.show_system_prompt:
         return print_system_prompt_command(user_config, cwd, args)
@@ -108,8 +108,6 @@ def main(on_user_prompt_requested=None):
 
 
 async def main_async(on_user_prompt_requested=None):
-    setup_logging()
-
     args = parse_args()
     if on_user_prompt_requested:
         args.on_user_prompt_requested = on_user_prompt_requested
@@ -118,6 +116,8 @@ async def main_async(on_user_prompt_requested=None):
         user_config = stub_user_config()
     else:
         user_config = load_user_configuration(cwd)
+
+    setup_logging(user_config=user_config)
 
     if args.show_system_prompt:
         return print_system_prompt_command(user_config, cwd, args)
