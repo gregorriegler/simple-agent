@@ -1,5 +1,7 @@
 # Implementation Plan: Slash Command Autocomplete
 
+Plans out the spec in `docs/spec/slash-command-autocomplete.spec.md`
+
 ## Design Overview
 
 ```
