@@ -36,7 +36,9 @@ fi
 
 if [ ${#@} -eq 0 ]; then
     echo "Coverage: Files < 100%"
-    echo "----------------------"
+    echo "-------------------------------------------------------------------------------------"
+    printf "%-60s %6s %6s %7s\n" "Name" "Stmts" "Miss" "Cover"
+    echo "-------------------------------------------------------------------------------------"
     uv run coverage report --skip-empty --skip-covered | grep "^simple_agent" | awk '{printf "%-60s %6s %6s %7s\n", $1, $2, $3, $4}'
     echo ""
     uv run coverage report --skip-empty --skip-covered | grep "^TOTAL"
