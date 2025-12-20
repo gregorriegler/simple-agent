@@ -114,15 +114,6 @@ path = "/path/to/custom/agents"
 start = "orchestrator"
 ```
 
-## Direct tool usage
-
-You can execute a single tool call without starting a full session:
-
-```bash
-uv run --project . --script simple_agent/run_tool.py bash "echo hello"
-uv run --project . --script simple_agent/run_tool.py cat README.md
-```
-
 ## Development
 
 ```bash
