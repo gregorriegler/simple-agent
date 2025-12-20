@@ -41,6 +41,7 @@ A good plan file contains:
   - Crucial design decisions
   - An Ascii diagram showing the design with its components, responsibilities and relations.
   - A list of actionable steps, each step is its own headline
+  - A link to the underlying SPEC_FILE
 
 # Workflow
 1. Read `docs/overview.md` to understand the project context.
