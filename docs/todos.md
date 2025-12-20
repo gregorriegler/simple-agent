@@ -2,7 +2,8 @@
 - coverage
 - token usage % counter not going up
 - haiku still not zeroed in
-- /clear
+- /clear does not reset token usage %
+- /clear with drop down
 
 # NEXT
 - add files via @
