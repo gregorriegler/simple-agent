@@ -49,26 +49,10 @@ class FileReplacer:
             self.new_content = content.replace(old_string, new_string, 1)
         elif replace_mode == "all":
             self.new_content = content.replace(old_string, new_string)
-        elif replace_mode.startswith("nth:"):
-            try:
-                n = int(replace_mode.split(":")[1])
-                if n <= 0:
-                    raise ValueError("Nth occurrence must be a positive integer.")
-
-                start_index = -1
-                for i in range(n):
-                    start_index = content.find(old_string, start_index + 1)
-                    if start_index == -1:
-                        raise ValueError(f"Could not find the {n}th occurrence of the string.")
-
-                self.new_content = content[:start_index] + new_string + content[start_index + len(old_string):]
-            except (ValueError, IndexError):
-                raise ValueError("Invalid format for nth. Expected 'nth:positive_integer'.")
         else:
             raise ValueError(f"Invalid replace_mode: {replace_mode}")
 
     def build_diff(self):
-        """Build a unified diff between original and new content."""
         original_lines = self.original_content.splitlines(keepends=True)
         new_lines = self.new_content.splitlines(keepends=True)
 
