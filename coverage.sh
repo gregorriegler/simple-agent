@@ -65,7 +65,61 @@ else
         echo "----------------------"
         if ! uv run coverage report -m --skip-empty --include="$include"; then
             echo "No coverage data"
+            echo ""
+            continue
         fi
+
+        if [ -f "$target" ]; then
+            coverage_json=$(mktemp)
+            if uv run coverage json -o "$coverage_json" --include="$include" > /dev/null 2>&1; then
+                uv run python - "$target" "$coverage_json" <<'PY'
+import json
+import os
+import sys
+
+target = sys.argv[1]
+coverage_json_path = sys.argv[2]
+
+with open(coverage_json_path, "r", encoding="utf-8") as handle:
+    data = json.load(handle)
+
+files = data.get("files", {})
+target_norm = os.path.normcase(os.path.abspath(target))
+match_key = None
+for key in files:
+    key_norm = os.path.normcase(os.path.abspath(key))
+    if key_norm == target_norm:
+        match_key = key
+        break
+
+if match_key is None:
+    for key in files:
+        if os.path.basename(key) == os.path.basename(target):
+            match_key = key
+            break
+
+if match_key is None:
+    print("")
+    print("File view unavailable: coverage data for this file was not found.")
+    sys.exit(0)
+
+missing = set(files.get(match_key, {}).get("missing_lines", []))
+
+print("")
+print("File view (missing lines marked with !!)")
+print("-------------------------------------------------------------------------------------")
+with open(target, "r", encoding="utf-8") as handle:
+    for line_number, line in enumerate(handle, start=1):
+        marker = "!!" if line_number in missing else "  "
+        print(f"{line_number:6d} {marker} {line.rstrip(chr(10))}")
+PY
+            else
+                echo ""
+                echo "File view unavailable: could not generate coverage json."
+            fi
+            rm -f "$coverage_json"
+        fi
+
         echo ""
     done
 fi
