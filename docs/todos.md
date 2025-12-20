@@ -1,15 +1,15 @@
 # NOW
-- coverage
-- token usage % counter not going up
-- haiku still not zeroed in
-- /clear does not reset token usage %
-- /clear with drop down
-- the subagent tool description need to allow for a subscription per agent, so we can explain that a test-writer will only ever write a single test
+- slash command registry does not include the handler
+- slash command autocomplete is not as nice
 
 # NEXT
+- /clear does not reset token usage %
 - add files via @
+- coverage drilldown slow because redoing the whole thing
+- the subagent tool description need to allow for a subscription per agent, so we can explain that a test-writer will only ever write a single test
 
 # LATER
+- token usage % counter not going up for gemini
 - rag for code
 - say as a tool (too much noise in root)
 - add review agent
