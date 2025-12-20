@@ -2,8 +2,8 @@ Tool: multiline_tool
 Description: Tool with multiline input
 
 ### Usage:
-🛠️[multiline_tool <inline_arg>]
-<content>
+🛠️[multiline_tool {inline_arg}]
+{content}
 🛠️[/end]
 
 ### Arguments:

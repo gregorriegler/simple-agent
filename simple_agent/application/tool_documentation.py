@@ -19,16 +19,20 @@ def generate_tools_documentation(tools, tool_syntax: ToolSyntax) -> str:
     syntax_examples = _generate_syntax_examples(tool_syntax)
 
     tools_header = f"""
-In this environment you have access to a set of tools you can use to answer the user's question.
-There is only one valid way to use those tools, and this is to provide the tools in the correct format.
-So it is important that you read the tool call format **carefully**!
+In this environment you have access to a set of tools you can use to solve the provided problem.
+There is only one valid way to use those tools, so it is important that you read the tool call format **carefully**!
+Tool calls may appear anywhere in an assistant message, mixed with normal text.
+When you call a tool, you'll receive back the result.
+You have to provide the tools in the correct format using the emoji and the brackets.
+Structure: 🛠️[toolname arg1 arg2 /]
+
+CRITICAL RULES:
+1. Never wrap tool calls in any tags including: <function_calls>, <invoke>, <tool_calls>, or any container element
+2. Never put tool calls inside code blocks or markdown formatting
 
 # Tool Call Format
 
 {syntax_examples}
-
-Tool calls may appear anywhere in an assistant message, mixed with normal text.
-When you call a tool, you'll receive back the result.
 
 # Your Tools
 

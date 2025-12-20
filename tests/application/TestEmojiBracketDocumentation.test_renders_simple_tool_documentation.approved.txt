@@ -2,7 +2,7 @@ Tool: test_tool
 Description: A test tool
 
 ### Usage:
-🛠️[test_tool <arg1> [arg2] /]
+🛠️[test_tool {arg1} [arg2] /]
 
 ### Arguments:
  - arg1: string (required) - First argument

@@ -53,9 +53,16 @@ Example: r rename userId to id in User classs
 `-- tests/
 ```
 
-In this environment you have access to a set of tools you can use to answer the user's question.
-There is only one valid way to use those tools, and this is to provide the tools in the correct format.
-So it is important that you read the tool call format **carefully**!
+In this environment you have access to a set of tools you can use to solve the provided problem.
+There is only one valid way to use those tools, so it is important that you read the tool call format **carefully**!
+Tool calls may appear anywhere in an assistant message, mixed with normal text.
+When you call a tool, you'll receive back the result.
+You have to provide the tools in the correct format using the emoji and the brackets.
+Structure: 🛠️[toolname arg1 arg2 /]
+
+CRITICAL RULES:
+1. Never wrap tool calls in any tags including: <function_calls>, <invoke>, <tool_calls>, or any container element
+2. Never put tool calls inside code blocks or markdown formatting
 
 # Tool Call Format
 
@@ -71,9 +78,6 @@ body
 
 -
 
-Tool calls may appear anywhere in an assistant message, mixed with normal text.
-When you call a tool, you'll receive back the result.
-
 # Your Tools
 
 ## write-todos tool
@@ -81,7 +85,7 @@ Organize your work in TODOs. Use this tool to create or update those TODOs
 
 ### Usage:
 🛠️[write-todos]
-<content>
+{content}
 🛠️[/end]
 
 ### Arguments:
@@ -138,7 +142,7 @@ drwxr-xr-x 10 user  staff   320 Dec 19 10:25 ..
 Display file contents with line numbers
 
 ### Usage:
-🛠️[cat <filename> [line_range] /]
+🛠️[cat {filename} [line_range] /]
 
 ### Arguments:
  - filename: string (required) - Path to the file to display
@@ -164,8 +168,8 @@ Result of 🛠️ cat myfile.txt
 Create new files with optional content. You cannot overwrite an existing file. In that case you have to first remove it.
 
 ### Usage:
-🛠️[create-file <filename>]
-<content>
+🛠️[create-file {filename}]
+{content}
 🛠️[/end]
 
 ### Arguments:
@@ -200,8 +204,8 @@ Line 2
 Replace exact string matches in files. Unlike edit-file, this tool uses string matching instead of line numbers, making it more reliable for replacing specific content.
 
 ### Usage:
-🛠️[replace-file-content <filename> <replace_mode>]
-<content>
+🛠️[replace-file-content {filename} {replace_mode}]
+{content}
 🛠️[/end]
 
 ### Arguments:
@@ -240,7 +244,7 @@ new_value = 2
 Signal task completion with a summary of what was accomplished
 
 ### Usage:
-🛠️[complete-task <summary> /]
+🛠️[complete-task {summary} /]
 
 ### Arguments:
  - summary: string (required) - Final summary of what was accomplished
@@ -259,7 +263,7 @@ Signal task completion with a summary of what was accomplished
 Execute bash commands
 
 ### Usage:
-🛠️[bash <command> /]
+🛠️[bash {command} /]
 
 ### Arguments:
  - command: string (required) - The bash command to execute
@@ -286,7 +290,7 @@ Let me list the files in detail.
 Creates a new subagent that will handle a specific task/todo and report back the result.
 
 ### Usage:
-🛠️[subagent <agenttype> <task_description> /]
+🛠️[subagent {agenttype} {task_description} /]
 
 ### Arguments:
  - agenttype: string (required) - Type of agent to create. Available types: 'code-review', 'coding', 'orchestrator', 'question'
