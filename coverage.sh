@@ -3,7 +3,11 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
+# Clean up old coverage data
+uv run coverage erase
+
 badge_output=""
+html_output=false
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -15,11 +19,16 @@ while [ "$#" -gt 0 ]; do
             badge_output="${1#--badge=}"
             shift
             ;;
+        --html)
+            html_output=true
+            shift
+            ;;
         -h|--help)
-            printf "Usage: ./coverage.sh [--badge[=OUTPUT]] [target...]\n"
+            printf "Usage: ./coverage.sh [--badge[=OUTPUT]] [--html] [target...]\n"
             printf "Without targets prints files below 100%% coverage.\n"
             printf "With targets shows detailed coverage and missing lines.\n"
             printf "Use --badge to generate a local coverage badge (default docs/coverage.svg).\n"
+            printf "Use --html to generate an HTML report.\n"
             exit 0
             ;;
         *)
@@ -68,4 +77,10 @@ if [ -n "$badge_output" ]; then
     mkdir -p "$(dirname "$badge_output")"
     uv run python coverage_badge.py --coverage-xml "$coverage_xml" --output "$badge_output"
     echo "Generated badge at $badge_output"
+fi
+
+if [ "$html_output" = true ]; then
+    # Generate HTML report
+    uv run coverage html
+    echo "HTML report generated in htmlcov/index.html"
 fi
