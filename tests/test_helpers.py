@@ -147,6 +147,13 @@ def create_date_scrubber():
     )
 
 
+def create_elapsed_time_scrubber():
+    return create_regex_scrubber(
+        r'\(\d+\.\d{3}s elapsed\)',
+        '[ELAPSED]'
+    )
+
+
 def create_ls_error_scrubber():
     """Normalize ls error messages between Mac and Linux"""
 
@@ -165,6 +172,7 @@ def all_scrubbers():
     return combine_scrubbers(
         create_path_scrubber(),
         create_date_scrubber(),
+        create_elapsed_time_scrubber(),
         create_ls_error_scrubber()
     )
 

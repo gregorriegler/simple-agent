@@ -1,0 +1,5 @@
+Command:
+🛠️[bash exit 2 /]
+
+Result:
+❌ Exit code 1 [ELAPSED]

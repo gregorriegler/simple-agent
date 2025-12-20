@@ -1,0 +1,7 @@
+Command:
+🛠️[bash printf 'warning' 1>&2 /]
+
+Result:
+✅ Exit code 0 [ELAPSED]
+
+STDERR: warning
