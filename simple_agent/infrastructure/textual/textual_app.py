@@ -13,9 +13,11 @@ from textual.app import App, ComposeResult
 from textual.timer import Timer
 from textual.containers import Vertical, VerticalScroll
 from textual.css.query import NoMatches
-from textual.widgets import Static, TabbedContent, TabPane, TextArea, Collapsible, Markdown
+from textual.widgets import Static, TabbedContent, TabPane, TextArea, Collapsible, Markdown, OptionList
+from textual.widgets.option_list import Option
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.events import (
     AgentStartedEvent,
     AssistantRespondedEvent,
@@ -37,8 +39,35 @@ from simple_agent.infrastructure.textual.resizable_container import ResizableHor
 
 
 class SubmittableTextArea(TextArea):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.slash_command_registry = None
+        self._autocomplete_visible = False
+        self._current_suggestions = []
+        self._selected_index = 0
 
     def _on_key(self, event: events.Key) -> None:
+        # Handle Tab for autocomplete
+        if event.key == "tab" and self._autocomplete_visible:
+            self._complete_selected_command()
+            event.stop()
+            event.prevent_default()
+            return
+            
+        # Handle arrow keys for autocomplete navigation
+        if event.key in ("down", "up") and self._autocomplete_visible:
+            self._navigate_autocomplete(event.key)
+            event.stop()
+            event.prevent_default()
+            return
+            
+        # Handle escape to close autocomplete
+        if event.key == "escape" and self._autocomplete_visible:
+            self._hide_autocomplete()
+            event.stop()
+            event.prevent_default()
+            return
+        
         # Let Enter submit the form
         if event.key == "enter":
             self.app.action_submit_input()
@@ -52,7 +81,99 @@ class SubmittableTextArea(TextArea):
             event.stop()
             event.prevent_default()
             return
+        
+        # IMPORTANT: Call super()._on_key() first to let the character be inserted
         super()._on_key(event)
+        
+        # THEN check for autocomplete (now self.text will include the new character)
+        self.call_after_refresh(self._check_autocomplete)
+    
+    def _check_autocomplete(self) -> None:
+        """Check if we should show autocomplete based on current text."""
+        if not self.slash_command_registry:
+            return
+            
+        text = self.text
+        # Debug: show what we're checking
+        try:
+            hint_widget = self.app.query_one("#input-hint", Static)
+            hint_widget.update(f"DEBUG: text={repr(text)}, starts_with_slash={text.startswith('/')}")
+        except (NoMatches, AttributeError):
+            pass
+            
+        if text.startswith("/"):
+            self._show_autocomplete(text)
+        else:
+            self._hide_autocomplete()
+    
+    def _show_autocomplete(self, text: str) -> None:
+        """Show autocomplete suggestions."""
+        # Extract the command part (first word)
+        command = text.split()[0] if text else text
+        suggestions = self.slash_command_registry.get_matching_commands(command)
+        
+        logger.debug(f"Autocomplete for '{text}' (command: '{command}'): {len(suggestions)} suggestions")
+        
+        if suggestions:
+            self._autocomplete_visible = True
+            self._current_suggestions = suggestions
+            self._selected_index = 0
+            self._update_autocomplete_display()
+        else:
+            self._hide_autocomplete()
+    
+    def _hide_autocomplete(self) -> None:
+        """Hide autocomplete suggestions."""
+        self._autocomplete_visible = False
+        self._current_suggestions = []
+        self._selected_index = 0
+        self._update_autocomplete_display()
+    
+    def _navigate_autocomplete(self, direction: str) -> None:
+        """Navigate autocomplete suggestions with arrow keys."""
+        if not self._current_suggestions:
+            return
+            
+        if direction == "down":
+            self._selected_index = (self._selected_index + 1) % len(self._current_suggestions)
+        elif direction == "up":
+            self._selected_index = (self._selected_index - 1) % len(self._current_suggestions)
+        
+        self._update_autocomplete_display()
+    
+    def _complete_selected_command(self) -> None:
+        """Complete the selected command."""
+        if not self._current_suggestions or self._selected_index >= len(self._current_suggestions):
+            return
+        
+        selected = self._current_suggestions[self._selected_index]
+        # Replace the current text with the selected command
+        self.text = selected.name + " "
+        self.move_cursor_relative(columns=len(selected.name) + 1)
+        self._hide_autocomplete()
+    
+    def _update_autocomplete_display(self) -> None:
+        """Update the autocomplete display in the hint area."""
+        if self._autocomplete_visible and self._current_suggestions:
+            # Build hint text showing available commands
+            hints = []
+            for i, cmd in enumerate(self._current_suggestions):
+                prefix = "→ " if i == self._selected_index else "  "
+                hints.append(f"{prefix}{cmd.name}: {cmd.description}")
+            hint_text = " | ".join(hints)
+            
+            try:
+                hint_widget = self.app.query_one("#input-hint", Static)
+                hint_widget.update(hint_text)
+            except (NoMatches, AttributeError):
+                pass
+        else:
+            # Restore default hint
+            try:
+                hint_widget = self.app.query_one("#input-hint", Static)
+                hint_widget.update("Enter to submit, Ctrl+Enter for newline")
+            except (NoMatches, AttributeError):
+                pass
 
 
 class TextualApp(App):
@@ -178,6 +299,7 @@ class TextualApp(App):
         self._todo_widgets: dict[str, Markdown] = {}
         self._todo_containers: dict[str, tuple] = {}
         self._tool_results_to_agent: dict[str, AgentId] = {}
+        self._slash_command_registry = SlashCommandRegistry()
         self._suppressed_tool_calls: set[str] = set()
         self.loading_timer: Timer | None = None
         self.loading_frames = ["⠇", "⠏", "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧"]
@@ -226,7 +348,9 @@ class TextualApp(App):
         return ResizableHorizontal(left_panel, right_panel, id="tab-content")
 
     async def on_mount(self) -> None:
-        self.query_one("#user-input", TextArea).focus()
+        text_area = self.query_one("#user-input", SubmittableTextArea)
+        text_area.slash_command_registry = self._slash_command_registry
+        text_area.focus()
         if self._session_runner:
             self._session_task = asyncio.create_task(self._run_session())
 

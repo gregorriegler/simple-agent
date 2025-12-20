@@ -12,6 +12,7 @@ from .events import (
 )
 from .input import Input
 from .llm import LLM, Messages, LLMProvider
+from .slash_command_registry import SlashCommandRegistry
 from .tool_library import ToolLibrary, MessageAndParsedTools
 from .tool_results import ToolResult, SingleToolResult, ToolResultStatus
 from .tools_executor import ToolsExecutor
@@ -39,6 +40,7 @@ class Agent:
         self.event_bus = event_bus
         self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
         self.context: Messages = context
+        self.slash_command_registry = SlashCommandRegistry()
 
     async def start(self):
         self._notify_agent_started()
@@ -68,23 +70,9 @@ class Agent:
         if not self.user_input.has_stacked_messages():
             await self._notify_user_prompt_requested()
         prompt = await self.user_input.read_async()
-        while prompt and (prompt == "/clear" or prompt.startswith("/model")):
-            if prompt == "/clear":
-                self.context.clear()
-                self.event_bus.publish(SessionClearedEvent(self.agent_id))
-            elif prompt.startswith("/model"):
-                parts = prompt.split()
-                if len(parts) < 2:
-                    await self._notify_error_occured("Usage: /model <model-name>")
-                else:
-                    new_model = parts[1]
-                    old_model = self.llm.model
-                    try:
-                        self.llm = self.llm_provider.get(new_model)
-                        self.event_bus.publish(ModelChangedEvent(self.agent_id, old_model, new_model))
-                    except Exception as e:
-                        await self._notify_error_occured(str(e))
-            
+        
+        while prompt and self._is_slash_command(prompt):
+            await self._handle_slash_command(prompt)
             await self._notify_user_prompt_requested()
             prompt = await self.user_input.read_async()
 
@@ -92,6 +80,33 @@ class Agent:
             self.context.user_says(prompt)
             await self._notify_user_prompted(prompt)
         return prompt
+    
+    def _is_slash_command(self, prompt: str) -> bool:
+        """Check if the prompt is a registered slash command."""
+        if not prompt.startswith("/"):
+            return False
+        
+        command_name = prompt.split()[0]
+        all_commands = self.slash_command_registry.get_all_commands()
+        return command_name in all_commands
+    
+    async def _handle_slash_command(self, prompt: str):
+        """Handle slash commands using the registry."""
+        if prompt == "/clear":
+            self.context.clear()
+            self.event_bus.publish(SessionClearedEvent(self.agent_id))
+        elif prompt.startswith("/model"):
+            parts = prompt.split()
+            if len(parts) < 2:
+                await self._notify_error_occured("Usage: /model <model-name>")
+            else:
+                new_model = parts[1]
+                old_model = self.llm.model
+                try:
+                    self.llm = self.llm_provider.get(new_model)
+                    self.event_bus.publish(ModelChangedEvent(self.agent_id, old_model, new_model))
+                except Exception as e:
+                    await self._notify_error_occured(str(e))
 
     async def run_tool_loop(self):
         try:
