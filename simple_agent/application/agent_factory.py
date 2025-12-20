@@ -80,13 +80,12 @@ class AgentFactory:
         system_prompt = definition.prompt().render(tools_documentation, self._project_tree)
         messages.seed_system_prompt(system_prompt)
 
-        llm = self._llm_provider.get(definition.model())
-
         return Agent(
             agent_id,
             definition.agent_name(),
             tools,
-            llm,
+            self._llm_provider,
+            definition.model(),
             self.create_input(initial_message),
             self._event_bus,
             messages

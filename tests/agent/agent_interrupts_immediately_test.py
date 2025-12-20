@@ -55,11 +55,16 @@ async def test_cancel_interrupts_during_llm_call():
     """Cancelling the agent task should immediately interrupt a slow LLM call."""
     event_bus = SimpleEventBus()
 
+    llm = SlowLLM()
+    llm_provider = Mock()
+    llm_provider.get.return_value = llm
+
     agent = Agent(
         agent_id=AgentId("test"),
         agent_name="Test Agent",
         tools=_make_tool_library(),
-        llm=SlowLLM(),
+        llm_provider=llm_provider,
+        model_name="slow-model",
         user_input=InputWithStartMessage(),
         event_bus=event_bus,
         context=Messages("system prompt"),
@@ -148,11 +153,16 @@ async def test_cancel_interrupts_during_tool_execution():
     slow_tool = SlowTool()
     tool_library = ToolCallingToolLibrary(slow_tool)
 
+    llm = ToolCallingLLM()
+    llm_provider = Mock()
+    llm_provider.get.return_value = llm
+
     agent = Agent(
         agent_id=AgentId("test"),
         agent_name="Test Agent",
         tools=tool_library,
-        llm=ToolCallingLLM(),
+        llm_provider=llm_provider,
+        model_name="tool-calling-model",
         user_input=InputForToolTest(),
         event_bus=event_bus,
         context=Messages("system prompt"),

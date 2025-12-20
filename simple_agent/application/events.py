@@ -7,40 +7,40 @@ from simple_agent.application.tool_results import ToolResult
 
 @dataclass
 class AgentEvent:
-    agent_id: AgentId
+    agent_id: AgentId = None
     event_name: ClassVar[str] = "agent_event"
 
 
 @dataclass
 class AssistantSaidEvent(AgentEvent):
     event_name: ClassVar[str] = "assistant_said"
-    message: str
+    message: str = ""
 
 
 @dataclass
 class ToolCalledEvent(AgentEvent):
     event_name: ClassVar[str] = "tool_called"
-    call_id: str
-    tool: Any
+    call_id: str = ""
+    tool: Any = None
 
 
 @dataclass
 class ToolResultEvent(AgentEvent):
     event_name: ClassVar[str] = "tool_result"
-    call_id: str
-    result: ToolResult
+    call_id: str = ""
+    result: ToolResult = None
 
 
 @dataclass
 class ToolCancelledEvent(AgentEvent):
     event_name: ClassVar[str] = "tool_cancelled"
-    call_id: str
+    call_id: str = ""
 
 
 @dataclass
 class SessionStartedEvent(AgentEvent):
     event_name: ClassVar[str] = "session_started"
-    is_continuation: bool
+    is_continuation: bool = False
 
 
 @dataclass
@@ -66,13 +66,13 @@ class UserPromptRequestedEvent(AgentEvent):
 @dataclass
 class UserPromptedEvent(AgentEvent):
     event_name: ClassVar[str] = "user_prompted"
-    input_text: str
+    input_text: str = ""
 
 
 @dataclass
 class AssistantRespondedEvent(AgentEvent):
     event_name: ClassVar[str] = "assistant_responded"
-    response: str
+    response: str = ""
     model: str = ""
     token_count: int = 0
     max_tokens: int = 0
@@ -86,11 +86,18 @@ class AgentFinishedEvent(AgentEvent):
 @dataclass
 class AgentStartedEvent(AgentEvent):
     event_name: ClassVar[str] = "agent_started"
-    agent_name: str
+    agent_name: str = ""
     model: str = ""
 
 
 @dataclass
 class ErrorEvent(AgentEvent):
     event_name: ClassVar[str] = "error"
-    message: str
+    message: str = ""
+
+
+@dataclass
+class ModelChangedEvent(AgentEvent):
+    event_name: ClassVar[str] = "model_changed"
+    old_model: str = ""
+    new_model: str = ""

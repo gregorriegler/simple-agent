@@ -21,6 +21,22 @@ class EventSpy:
     def assert_never_occured(self, event_type: Type[AgentEvent]):
         assert not self.get_events(event_type), event_type.__name__ + " should have never occured"
 
+    def assert_event_occured(self, expected_event: AgentEvent, times: int = 1):
+        def matches(actual: AgentEvent) -> bool:
+            if type(actual) is not type(expected_event):
+                return False
+            for field in fields(expected_event):
+                expected_val = getattr(expected_event, field.name)
+                if expected_val is None or expected_val == "":
+                    # Treat None or empty string as "don't care" for testing convenience
+                    continue
+                if expected_val != getattr(actual, field.name):
+                    return False
+            return True
+
+        actual_times = len([e for e in self.events if matches(e)])
+        assert actual_times == times, f"Expected {expected_event} to occur {times} times, but found {actual_times} matches"
+
     def get_events(self, event_type: Type[AgentEvent]) -> List[AgentEvent]:
         return [event for event in self.events if isinstance(event, event_type)]
 

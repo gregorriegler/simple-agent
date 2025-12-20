@@ -8,10 +8,10 @@ from .events import (
     AssistantSaidEvent, AssistantRespondedEvent,
     SessionEndedEvent, SessionInterruptedEvent,
     UserPromptRequestedEvent, UserPromptedEvent,
-    ErrorEvent, SessionClearedEvent
+    ErrorEvent, SessionClearedEvent, ModelChangedEvent
 )
 from .input import Input
-from .llm import LLM, Messages
+from .llm import LLM, Messages, LLMProvider
 from .tool_library import ToolLibrary, MessageAndParsedTools
 from .tool_results import ToolResult, SingleToolResult, ToolResultStatus
 from .tools_executor import ToolsExecutor
@@ -24,14 +24,16 @@ class Agent:
         agent_id: AgentId,
         agent_name: str,
         tools: ToolLibrary,
-        llm: LLM,
+        llm_provider: LLMProvider,
+        model_name: str,
         user_input: Input,
         event_bus: EventBus,
         context: Messages,
     ):
         self.agent_id = agent_id
         self.agent_name = agent_name
-        self.llm: LLM = llm
+        self.llm_provider = llm_provider
+        self.llm: LLM = llm_provider.get(model_name)
         self.tools = tools
         self.user_input = user_input
         self.event_bus = event_bus
@@ -66,11 +68,26 @@ class Agent:
         if not self.user_input.has_stacked_messages():
             await self._notify_user_prompt_requested()
         prompt = await self.user_input.read_async()
-        while prompt == "/clear":
-            self.context.clear()
-            self.event_bus.publish(SessionClearedEvent(self.agent_id))
+        while prompt and (prompt == "/clear" or prompt.startswith("/model")):
+            if prompt == "/clear":
+                self.context.clear()
+                self.event_bus.publish(SessionClearedEvent(self.agent_id))
+            elif prompt.startswith("/model"):
+                parts = prompt.split()
+                if len(parts) < 2:
+                    await self._notify_error_occured("Usage: /model <model-name>")
+                else:
+                    new_model = parts[1]
+                    old_model = self.llm.model
+                    try:
+                        self.llm = self.llm_provider.get(new_model)
+                        self.event_bus.publish(ModelChangedEvent(self.agent_id, old_model, new_model))
+                    except Exception as e:
+                        await self._notify_error_occured(str(e))
+            
             await self._notify_user_prompt_requested()
             prompt = await self.user_input.read_async()
+
         if prompt:
             self.context.user_says(prompt)
             await self._notify_user_prompted(prompt)

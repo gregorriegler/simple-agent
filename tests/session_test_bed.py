@@ -2,6 +2,7 @@ from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
+    AgentEvent,
     AssistantRespondedEvent,
     AssistantSaidEvent,
     ErrorEvent,
@@ -13,6 +14,7 @@ from simple_agent.application.events import (
     ToolResultEvent,
     UserPromptRequestedEvent,
     UserPromptedEvent,
+    ModelChangedEvent,
 )
 from simple_agent.application.llm_stub import create_llm_stub, StubLLMProvider
 from simple_agent.application.session import Session
@@ -31,6 +33,9 @@ class SessionTestResult:
     def __init__(self, event_spy: EventSpy, session_storage: SessionStorageStub):
         self.events = event_spy
         self.saved_messages = session_storage.saved
+
+    def assert_event_occured(self, expected_event: AgentEvent, times: int = 1):
+        self.events.assert_event_occured(expected_event, times)
 
     def as_approval_string(self) -> str:
         return f"# Events\n{self.events.get_events_as_string()}\n\n# Saved messages:\n{self.saved_messages}"
@@ -120,6 +125,7 @@ class SessionTestBed:
             SessionInterruptedEvent,
             SessionEndedEvent,
             ErrorEvent,
+            ModelChangedEvent,
         ]
         for event_type in tracked_events:
             event_bus.subscribe(event_type, event_spy.record_event)
