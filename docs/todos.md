@@ -4,6 +4,7 @@
 - haiku still not zeroed in
 - /clear does not reset token usage %
 - /clear with drop down
+- the subagent tool description need to allow for a subscription per agent, so we can explain that a test-writer will only ever write a single test
 
 # NEXT
 - add files via @

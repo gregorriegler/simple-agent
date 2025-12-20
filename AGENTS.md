@@ -16,6 +16,7 @@ To get an overview of the Architecture read `docs/overview.md`
 
 # Software Engineering 
 Apply empirical problem-solving and first come up with an hypothesis to then try and prove it. When adding a new feature, a test can serve as a hypothesis that the feature doesn't exist yet. When fixing a bug, write a test as an hypothesis to indicate the problem.
+In this project we apply strict Test Driven Development.
 
 # Environment
 - This is a bash environment, using uv.
