@@ -25,8 +25,8 @@ while [ "$#" -gt 0 ]; do
             ;;
         -h|--help)
             printf "Usage: ./coverage.sh [--badge[=OUTPUT]] [--html] [target...]\n"
-            printf "Without targets prints files below 100%% coverage.\n"
-            printf "With targets shows detailed coverage and missing lines.\n"
+            printf "Without arguments, prints all files with less than 100%% coverage.\n"
+            printf "Provide files or directories as targets to see detailed coverage and missing lines.\n"
             printf "Use --badge to generate a local coverage badge (default docs/coverage.svg).\n"
             printf "Use --html to generate an HTML report.\n"
             exit 0
