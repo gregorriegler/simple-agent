@@ -57,6 +57,8 @@ for path in python_files:
                 definitions.append((path, "variable", target.id, node.lineno))
         elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
             references.add(node.id)
+        elif isinstance(node, ast.Attribute) and isinstance(node.ctx, ast.Load):
+            references.add(node.attr)
 
 unused = []
 for path, kind, name, line in definitions:
