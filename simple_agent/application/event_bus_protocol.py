@@ -4,10 +4,6 @@ from .events import AgentEvent
 
 T = TypeVar('T', bound=AgentEvent)
 
-EventHandler = Callable[[AgentEvent], None]
-EventType = Type[AgentEvent]
-
-
 class EventBus(Protocol):
 
     @abstractmethod
