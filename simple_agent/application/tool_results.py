@@ -107,10 +107,6 @@ class ManyToolsResult(ToolResult):
         self._cancelled_tool: ParsedTool | None = None
 
     @property
-    def last_result(self) -> ToolResult:
-        return self._last_result
-
-    @property
     def message(self) -> str:
         parts = [
             f"Result of {tool}\n{result}"

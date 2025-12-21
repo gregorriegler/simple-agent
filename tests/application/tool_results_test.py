@@ -28,7 +28,6 @@ def test_many_tools_result_exposes_last_result_display_fields():
 
     results.add(tool, inner_result)
 
-    assert results.last_result is inner_result
     assert results.display_title == "Title"
     assert results.display_body == "Body"
     assert results.display_language == "text"
