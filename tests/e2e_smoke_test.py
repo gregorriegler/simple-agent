@@ -39,7 +39,6 @@ async def test_golden_master_agent_stub(monkeypatch):
 
     monkeypatch.setattr(sys, "argv", [
         "main.py",
-        "--test",
         "--stub",
         "Hello, world!"
     ])
