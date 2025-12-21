@@ -1,7 +1,5 @@
 import asyncio
-import io
 import logging
-import sys
 from pathlib import Path
 from typing import Callable, Coroutine, Any
 
@@ -177,32 +175,9 @@ class SubmittableTextArea(TextArea):
 
 
 class TextualApp(App):
-    @staticmethod
-    def create_and_start(user_input=None, root_agent_id: AgentId = AgentId("Agent")):
-        app = TextualApp(user_input, root_agent_id)
-        return app
-
     def run_with_session(self, session_runner: Callable[[], Coroutine[Any, Any, None]]):
         self._session_runner = session_runner
         self.run()
-
-    @staticmethod
-    async def run_test_with_session(
-        session_runner: Callable[[], Coroutine[Any, Any, None]],
-        user_input=None,
-        root_agent_id: AgentId = AgentId("Agent")
-    ):
-
-        app = TextualApp(user_input, root_agent_id)
-        async with app.run_test() as pilot:
-            if sys.platform == "win32":
-                app._original_stdout = io.StringIO()
-                app._original_stderr = io.StringIO()
-            app._pilot = pilot
-            await pilot.pause()  # Wait for app to fully mount
-            session_task = asyncio.create_task(session_runner())
-            await session_task
-        return app
 
     def shutdown(self):
         if self.is_running:
