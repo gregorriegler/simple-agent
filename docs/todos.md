@@ -3,6 +3,7 @@
 - warnings in tests
 - slash command registry does not include the handler
 - slash command autocomplete is not as nice
+- plan agent vs slicer agent
 
 # NEXT
 - /clear does not reset token usage %
