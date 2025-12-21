@@ -9,6 +9,7 @@ tools:
   - write_todos
   - complete_task
   - subagent
+model: gemini-3-flash-preview
 ---
 
 {{AGENTS.MD}}
