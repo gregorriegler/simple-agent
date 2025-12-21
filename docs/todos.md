@@ -1,5 +1,5 @@
 # NOW
-- failing test in pipeline
+- bash grep -r empty
 - warnings in tests
 - slash command registry does not include the handler
 - slash command autocomplete is not as nice
