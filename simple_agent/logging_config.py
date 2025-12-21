@@ -60,8 +60,3 @@ def _build_logging_config(
         "loggers": loggers,
     }
 
-
-def set_log_level(level: str) -> None:
-    numeric_level = getattr(logging, level.upper(), logging.INFO)
-
-    logging.getLogger().setLevel(numeric_level)

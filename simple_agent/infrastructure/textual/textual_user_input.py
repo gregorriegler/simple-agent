@@ -26,8 +26,5 @@ class TextualUserInput(UserInput):
     def escape_requested(self) -> bool:
         return self.escape_flag
 
-    def request_escape(self):
-        self.escape_flag = True
-
     def close(self):
         self.closing = True
