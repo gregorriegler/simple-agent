@@ -128,8 +128,9 @@ start = "orchestrator"
 ./approve.sh
 
 # Generate coverage locally and refresh the badges
-./coverage.sh --badge
-uv run python loc_badge.py --output docs/loc.svg
+./coverage.sh               # generate code coverage report
+./coverage.sh foo.py        # show coverage of a specific file
+./coverage.sh --badge       # update the coverage badge
 ```
 
 Running the coverage script with `--badge` creates `docs/coverage.svg`, and `loc_badge.py` generates `docs/loc.svg`, keeping the badges self-hosted.
