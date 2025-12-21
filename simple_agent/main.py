@@ -46,7 +46,7 @@ class ProductionTextualRunStrategy:
     allow_async = False
 
     async def run(self, textual_app: TextualApp, run_session):
-        textual_app.run_with_session(run_session)
+        await textual_app.run_with_session_async(run_session)
         return None
 
 

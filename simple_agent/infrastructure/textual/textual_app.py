@@ -179,6 +179,10 @@ class TextualApp(App):
         self._session_runner = session_runner
         self.run()
 
+    async def run_with_session_async(self, session_runner: Callable[[], Coroutine[Any, Any, None]]):
+        self._session_runner = session_runner
+        return await self.run_async()
+
     def shutdown(self):
         if self.is_running:
             self.exit()
