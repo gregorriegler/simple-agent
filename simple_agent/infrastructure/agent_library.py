@@ -14,7 +14,6 @@ from simple_agent.infrastructure.agent_file_conventions import (
     get_project_local_agents_dir,
 )
 from simple_agent.infrastructure.agents_md_ground_rules import AgentsMdGroundRules
-from simple_agent.infrastructure.configuration import load_user_configuration
 from simple_agent.application.agent_definition import AgentDefinition
 
 
@@ -88,13 +87,6 @@ class BuiltinAgentLibrary:
         pattern = os.path.join(package_root, '*.agent.md')
         names = [os.path.basename(path) for path in glob.glob(pattern)]
         return sorted(agent_type_from_filename(name) for name in names)
-
-
-def build_runtime_agent_definitions() -> AgentLibrary:
-    cwd = os.getcwd()
-    user_config = load_user_configuration(cwd=cwd)
-    agents_path = user_config.agents_path()
-    return create_agent_library(agents_path, cwd)
 
 
 def create_agent_library(agents_path: str | None, cwd: str) -> AgentLibrary:

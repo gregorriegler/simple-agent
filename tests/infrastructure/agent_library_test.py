@@ -3,7 +3,6 @@ import pytest
 
 from simple_agent.infrastructure.agent_library import (
     BuiltinAgentLibrary,
-    build_runtime_agent_definitions,
     FileSystemAgentLibrary,
     create_agent_library,
 )
@@ -61,28 +60,4 @@ def test_builtin_agent_library_discovers_agents_from_fallback():
     agent_types = library.list_agent_types()
 
     assert "coding" in agent_types
-
-
-def test_build_runtime_agent_definitions_uses_configured_cwd(tmp_path, monkeypatch):
-    config_path = tmp_path / ".simple-agent.toml"
-    config_path.write_text(
-        "\n".join(
-            [
-                "[model]",
-                'default = "claude"',
-                "",
-                "[models.claude]",
-                'model = "claude-sonnet-4"',
-                'adapter = "claude"',
-                'api_key = "key"',
-                "",
-            ]
-        ),
-        encoding="utf-8",
-    )
-    monkeypatch.chdir(tmp_path)
-
-    library = build_runtime_agent_definitions()
-
-    assert isinstance(library, BuiltinAgentLibrary)
 
