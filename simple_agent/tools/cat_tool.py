@@ -21,7 +21,7 @@ class CatTool(BaseTool):
             description="Optional line range in format 'start-end' (e.g., '1-10')",
         ),
         ToolArgument(
-            name="line_numbers",
+            name="with_line_numbers",
             type="string",
             required=False,
             description="Optional parameter to show line numbers, e.g. 'with_line_numbers'",
@@ -34,7 +34,7 @@ class CatTool(BaseTool):
             "result": "     1\tLine 1 of file\n     2\tLine 2 of file"
         },
         {"filename": "script.py", "line_range": "1-20"},
-        {"filename": "script.py", "line_numbers": "with_line_numbers"},
+        {"filename": "script.py", "with_line_numbers": "with_line_numbers"},
     ]
 
     def _parse_arguments(self, args):
