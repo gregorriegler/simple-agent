@@ -6,7 +6,7 @@ import sys
 import os
 import asyncio
 from pathlib import Path
-from typing import Awaitable
+from typing import Awaitable, Protocol
 
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
@@ -35,89 +35,53 @@ from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.logging_config import setup_logging
 
 
-def main(on_user_prompt_requested=None):
-    args = parse_args()
-    if on_user_prompt_requested:
-        args.on_user_prompt_requested = on_user_prompt_requested
-    cwd = os.getcwd()
+class TextualRunStrategy(Protocol):
+    allow_async: bool
+
+    def run(self, textual_app: TextualApp, run_session):
+        ...
+
+
+class ProductionTextualRunStrategy:
+    allow_async = False
+
+    async def run(self, textual_app: TextualApp, run_session):
+        textual_app.run_with_session(run_session)
+        return None
+
+
+class TestTextualRunStrategy:
+    allow_async = True
+
+    async def run(self, textual_app: TextualApp, run_session):
+        async with textual_app.run_test() as pilot:
+            if sys.platform == "win32":
+                textual_app._original_stdout = io.StringIO()
+                textual_app._original_stderr = io.StringIO()
+            textual_app._pilot = pilot
+            await pilot.pause()  # Wait for app to fully mount
+            session_task = asyncio.create_task(run_session())
+            await session_task
+
+        return textual_app
+
+
+def load_user_config_and_setup_logging(args: SessionArgs, cwd: str):
     if args.stub_llm:
         user_config = stub_user_config()
     else:
         user_config = load_user_configuration(cwd)
 
     setup_logging(user_config=user_config)
-
-    if args.show_system_prompt:
-        return print_system_prompt_command(user_config, cwd, args)
-
-    if args.non_interactive:
-        textual_user_input = NonInteractiveUserInput()
-    else:
-        textual_user_input = TextualUserInput()
-
-    agents_path = None if args.stub_llm else user_config.agents_path()
-    agent_library = create_agent_library(agents_path, cwd)
-    starting_agent_type = get_starting_agent(user_config, args)
-    agent_definition = agent_library.read_agent_definition(starting_agent_type)
-    root_agent_id = AgentId(agent_definition.agent_name())
-
-    todo_cleanup = FileSystemTodoCleanup()
-
-    if not args.continue_session:
-        todo_cleanup.cleanup_all_todos()
-
-    textual_app = TextualApp(textual_user_input, root_agent_id)
-    session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
-
-    event_logger = EventLogger()
-
-    event_bus = SimpleEventBus()
-    subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
-
-    if args.on_user_prompt_requested:
-        def on_prompt_wrapper(_):
-            args.on_user_prompt_requested(textual_app)
-        event_bus.subscribe(UserPromptRequestedEvent, on_prompt_wrapper)
-
-    tool_syntax = EmojiBracketToolSyntax()
-    tool_library_factory = AllToolsFactory(tool_syntax)
-
-    if args.stub_llm:
-        llm_provider = StubLLMProvider()
-    else:
-        llm_provider = RemoteLLMProvider(user_config)
-
-    project_tree = FileSystemProjectTree(Path(cwd))
-
-    session = Session(
-        event_bus=event_bus,
-        session_storage=session_storage,
-        tool_library_factory=tool_library_factory,
-        agent_library=agent_library,
-        user_input=textual_user_input,
-        todo_cleanup=todo_cleanup,
-        llm_provider=llm_provider,
-        project_tree=project_tree,
-    )
-
-    async def run_session():
-        await session.run_async(args, root_agent_id, agent_definition)
-
-    textual_app.run_with_session(run_session)
-    return None
+    return user_config
 
 
-async def main_async(on_user_prompt_requested=None):
+async def run_main(run_strategy: TextualRunStrategy, on_user_prompt_requested=None):
     args = parse_args()
     if on_user_prompt_requested:
         args.on_user_prompt_requested = on_user_prompt_requested
     cwd = os.getcwd()
-    if args.stub_llm:
-        user_config = stub_user_config()
-    else:
-        user_config = load_user_configuration(cwd)
-
-    setup_logging(user_config=user_config)
+    user_config = load_user_config_and_setup_logging(args, cwd)
 
     if args.show_system_prompt:
         return print_system_prompt_command(user_config, cwd, args)
@@ -141,7 +105,6 @@ async def main_async(on_user_prompt_requested=None):
     session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
 
     event_logger = EventLogger()
-
     event_bus = SimpleEventBus()
 
     tool_syntax = EmojiBracketToolSyntax()
@@ -167,29 +130,25 @@ async def main_async(on_user_prompt_requested=None):
 
     textual_app = TextualApp(textual_user_input, root_agent_id)
     subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
-
     if args.on_user_prompt_requested:
         def on_prompt_wrapper(_):
-            callback = args.on_user_prompt_requested
-            result = callback(textual_app)
-            if isinstance(result, Awaitable):
+            result = args.on_user_prompt_requested(textual_app)
+            if run_strategy.allow_async and isinstance(result, Awaitable):
                 asyncio.create_task(result)
         event_bus.subscribe(UserPromptRequestedEvent, on_prompt_wrapper)
 
     async def run_session():
         await session.run_async(args, root_agent_id, agent_definition)
 
+    return await run_strategy.run(textual_app, run_session)
 
-    async with textual_app.run_test() as pilot:
-        if sys.platform == "win32":
-            textual_app._original_stdout = io.StringIO()
-            textual_app._original_stderr = io.StringIO()
-        textual_app._pilot = pilot
-        await pilot.pause()  # Wait for app to fully mount
-        session_task = asyncio.create_task(run_session())
-        await session_task
 
-    return textual_app
+def main(on_user_prompt_requested=None):
+    return asyncio.run(run_main(ProductionTextualRunStrategy(), on_user_prompt_requested))
+
+
+async def main_async(on_user_prompt_requested=None):
+    return await run_main(TestTextualRunStrategy(), on_user_prompt_requested)
 
 
 def print_system_prompt_command(user_config, cwd, args):
