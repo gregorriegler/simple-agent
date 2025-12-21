@@ -99,5 +99,6 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
             interrupts=self._interrupts,
             event_bus=self._event_bus,
             tool_context=tool_context,
-            spawner=spawner
+            spawner=spawner,
+            agent_types=agent_types
         )
