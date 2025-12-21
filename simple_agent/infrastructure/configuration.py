@@ -19,11 +19,6 @@ def load_user_configuration(cwd: str) -> UserConfiguration:
     return UserConfiguration(config)
 
 
-def load_optional_user_configuration(cwd: str) -> UserConfiguration:
-    config, _ = _load_configuration_sources(cwd=cwd)
-    return UserConfiguration(config)
-
-
 def stub_user_config() -> UserConfiguration:
     return UserConfiguration({})
 
