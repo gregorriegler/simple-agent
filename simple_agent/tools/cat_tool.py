@@ -20,6 +20,12 @@ class CatTool(BaseTool):
             required=False,
             description="Optional line range in format 'start-end' (e.g., '1-10')",
         ),
+        ToolArgument(
+            name="line_numbers",
+            type="string",
+            required=False,
+            description="Optional parameter to show line numbers, e.g. 'with_line_numbers'",
+        ),
     ])
     examples = [
         {
@@ -28,24 +34,34 @@ class CatTool(BaseTool):
             "result": "     1\tLine 1 of file\n     2\tLine 2 of file"
         },
         {"filename": "script.py", "line_range": "1-20"},
+        {"filename": "script.py", "line_numbers": "with_line_numbers"},
     ]
 
     def _parse_arguments(self, args):
         if not args:
-            return None, None, 'STDERR: cat: missing file operand'
+            return None, None, False, 'STDERR: cat: missing file operand'
 
         try:
             parts = split_arguments(args)
         except ValueError as exc:
-            return None, None, f"STDERR: cat: {exc}"
+            return None, None, False, f"STDERR: cat: {exc}"
 
         if not parts:
-            return None, None, 'STDERR: cat: missing file operand'
+            return None, None, False, 'STDERR: cat: missing file operand'
 
         filename = parts[0]
-        line_range = parts[1] if len(parts) > 1 else None
+        line_range = None
+        with_line_numbers = False
 
-        return filename, line_range, None
+        for part in parts[1:]:
+            if part == 'with_line_numbers':
+                with_line_numbers = True
+            elif '-' in part:
+                line_range = part
+            else:
+                return None, None, False, f"STDERR: cat: invalid argument '{part}'"
+
+        return filename, line_range, with_line_numbers, None
 
     def _validate_range(self, line_range):
         try:
@@ -60,21 +76,27 @@ class CatTool(BaseTool):
 
     async def execute(self, raw_call):
         args = raw_call.arguments
-        filename, line_range, error = self._parse_arguments(args)
+        filename, line_range, with_line_numbers, error = self._parse_arguments(args)
         if error:
             return SingleToolResult(error, status=ToolResultStatus.FAILURE)
-        if line_range is None:
+
+        if line_range:
+            start_line, end_line, error = self._validate_range(line_range)
+            if error:
+                return SingleToolResult(error, status=ToolResultStatus.FAILURE)
+            output, success = self._read_file_range(filename, start_line, end_line, with_line_numbers)
+            status = ToolResultStatus.SUCCESS if success else ToolResultStatus.FAILURE
+            return SingleToolResult(output, status=status)
+        elif with_line_numbers:
+            result = await self.run_command_async('cat', ['-n', filename])
+            status = ToolResultStatus.SUCCESS if result['success'] else ToolResultStatus.FAILURE
+            return SingleToolResult(result['output'], status=status)
+        else:
             result = await self.run_command_async('cat', [filename])
             status = ToolResultStatus.SUCCESS if result['success'] else ToolResultStatus.FAILURE
             return SingleToolResult(result['output'], status=status)
-        start_line, end_line, error = self._validate_range(line_range)
-        if error:
-            return SingleToolResult(error, status=ToolResultStatus.FAILURE)
-        output, success = self._read_file_range(filename, start_line, end_line)
-        status = ToolResultStatus.SUCCESS if success else ToolResultStatus.FAILURE
-        return SingleToolResult(output, status=status)
 
-    def _read_file_range(self, filename, start_line, end_line):
+    def _read_file_range(self, filename, start_line, end_line, with_line_numbers):
         try:
             with open(filename, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
@@ -88,16 +110,20 @@ class CatTool(BaseTool):
             if start_idx >= len(lines):
                 return "", True
 
-            return self._format_output(lines, start_idx, end_idx), True
+            return self._format_output(lines, start_idx, end_idx, with_line_numbers), True
 
         except FileNotFoundError:
             return f"STDERR: cat: '{filename}': No such file or directory", False
         except Exception as e:
             return f"STDERR: cat: '{filename}': {str(e)}", False
 
-    def _format_output(self, lines, start_idx, end_idx):
+    def _format_output(self, lines, start_idx, end_idx, with_line_numbers):
         result_lines = []
         for i in range(start_idx, end_idx):
-            result_lines.append(f"{i + 1:6}\t{lines[i]}")
+            line = lines[i]
+            if with_line_numbers:
+                result_lines.append(f"{i + 1:6}\t{line}")
+            else:
+                result_lines.append(line)
 
         return "".join(result_lines).rstrip('\n')

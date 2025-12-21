@@ -1,0 +1,6 @@
+Command:
+🛠️[cat /tmp/test_path/test.txt 1-2 /]
+
+Result:
+Hello world
+Second line
