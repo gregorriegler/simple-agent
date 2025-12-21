@@ -4,6 +4,7 @@ from typing import Dict, List
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
 from simple_agent.infrastructure.model_config import ModelConfig
+from simple_agent.infrastructure.logging_http_client import LoggingAsyncClient
 
 
 class GeminiV1ClientError(Exception):
@@ -44,7 +45,7 @@ class GeminiV1LLM(LLM):
         timeout = self._config.request_timeout
 
         try:
-            async with httpx.AsyncClient(timeout=timeout, transport=self._transport) as client:
+            async with LoggingAsyncClient(timeout=timeout, transport=self._transport) as client:
                 response = await client.post(url, headers=headers, json=data)
             response.raise_for_status()
         except httpx.RequestError as error:
