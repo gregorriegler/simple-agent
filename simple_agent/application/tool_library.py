@@ -68,6 +68,7 @@ class ToolArgument:
     description: str
     required: bool = True
     type: str = "string"
+    default: Any = None
 
 
 class ToolArguments:

@@ -2,5 +2,5 @@ Command:
 🛠️[cat '/tmp/test_path spaces.txt' '1 - 2' /]
 
 Result:
-     1	first
-     2	second
+first
+second

@@ -1,0 +1,6 @@
+Command:
+🛠️[cat /tmp/test_path/line_numbers.txt -n /]
+
+Result:
+     1	First line
+     2	Second line
