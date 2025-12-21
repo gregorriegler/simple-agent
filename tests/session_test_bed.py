@@ -18,7 +18,6 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.llm_stub import create_llm_stub, StubLLMProvider
 from simple_agent.application.session import Session
-from simple_agent.application.todo_cleanup import NoOpTodoCleanup
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from tests.event_spy import EventSpy
@@ -110,7 +109,7 @@ class SessionTestBed:
         event_bus = SimpleEventBus()
         user_input = UserInputStub(inputs=self._user_inputs, escapes=self._escape_hits)
         session_storage = SessionStorageStub()
-        todo_cleanup = self._todo_cleanup if self._todo_cleanup is not None else NoOpTodoCleanup()
+        todo_cleanup = self._todo_cleanup if self._todo_cleanup is not None else _NoOpTodoCleanup()
 
         event_spy = EventSpy()
         tracked_events = [
@@ -169,3 +168,12 @@ name: Agent
 ---""",
         GroundRulesStub("Test system prompt")
     )
+
+
+class _NoOpTodoCleanup:
+
+    def cleanup_all_todos(self) -> None:
+        return None
+
+    def cleanup_todos_for_agent(self, agent_id: AgentId) -> None:
+        return None
