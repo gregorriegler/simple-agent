@@ -10,12 +10,3 @@ class TodoCleanup(Protocol):
 
     def cleanup_todos_for_agent(self, agent_id: AgentId) -> None:
         ...
-
-
-class NoOpTodoCleanup(TodoCleanup):
-
-    def cleanup_all_todos(self) -> None:
-        pass
-
-    def cleanup_todos_for_agent(self, agent_id: AgentId) -> None:
-        pass
