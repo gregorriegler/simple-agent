@@ -39,7 +39,6 @@ class AllTools(ToolLibrary):
             'ls': lambda: LsTool(),
             'cat': lambda: CatTool(),
             'create_file': lambda: CreateFileTool(),
-           # 'edit_file': lambda: EditFileTool(),
             'replace_file_content': lambda: ReplaceFileContentTool(),
             'complete_task': lambda: CompleteTaskTool(),
             'bash': lambda: BashTool(),
