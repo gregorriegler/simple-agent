@@ -15,9 +15,5 @@ class EventBus(Protocol):
         pass
 
     @abstractmethod
-    def unsubscribe(self, event_type: Type[T], handler: Callable[[T], None]) -> None:
-        pass
-
-    @abstractmethod
     def publish(self, event: AgentEvent) -> None:
         pass
