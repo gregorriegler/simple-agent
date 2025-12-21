@@ -1,6 +1,10 @@
 import pytest
 
-from simple_agent.infrastructure.configuration import load_optional_user_configuration, resolve_api_key
+from simple_agent.infrastructure.configuration import (
+    load_optional_user_configuration,
+    load_user_configuration,
+    resolve_api_key,
+)
 
 
 def test_resolve_api_key_replaces_env_placeholder(monkeypatch):
@@ -46,3 +50,15 @@ def test_load_optional_user_configuration_resolves_api_key(monkeypatch, tmp_path
     registry = user_config.models_registry()
 
     assert registry.get("claude").api_key == "nested-secret"
+
+
+def test_load_user_configuration_raises_when_missing(monkeypatch, tmp_path):
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    monkeypatch.setenv("HOME", str(tmp_path))
+
+    with pytest.raises(FileNotFoundError, match=".simple-agent.toml not found"):
+        load_user_configuration(str(tmp_path))
+
+
+def test_resolve_api_key_returns_literal_when_not_placeholder():
+    assert resolve_api_key("plain-key") == "plain-key"
