@@ -16,18 +16,29 @@ def _bash_available() -> bool:
     bash_path = shutil.which("bash")
     if not bash_path:
         return False
-    if sys.platform != "win32":
-        return True
-    normalized = os.path.normcase(os.path.normpath(bash_path))
-    if normalized.endswith(os.path.normcase(r"\system32\bash.exe")):
+    if sys.platform == "win32":
+        normalized = os.path.normcase(os.path.normpath(bash_path))
+        if normalized.endswith(os.path.normcase(r"\system32\bash.exe")):
+            result = subprocess.run(
+                ["wsl.exe", "-l", "-q"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if result.returncode == 0 and not result.stdout.strip():
+                return False
+    try:
         result = subprocess.run(
-            ["wsl.exe", "-l", "-q"],
+            ["bash", "-c", "printf 'ok'"],
             capture_output=True,
             text=True,
             check=False,
         )
-        return result.returncode == 0 and bool(result.stdout.strip())
-    return True
+    except OSError:
+        return False
+    if result.returncode != 0:
+        return False
+    return result.stdout == "ok"
 
 
 bash_available = _bash_available()
