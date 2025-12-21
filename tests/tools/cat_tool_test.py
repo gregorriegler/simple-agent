@@ -71,3 +71,21 @@ async def test_cat_tool_range_with_spaces(tmp_path):
 
 async def test_cat_tool_nonexistent_file_with_range():
     await verify_tool(library, "🛠️[cat /nonexistent/file.txt 1-5 /]")
+
+
+async def test_cat_tool_with_line_numbers(tmp_path):
+    temp_file = create_temp_file(tmp_path, "test.txt", "Hello world\nSecond line\nThird line")
+
+    await verify_tool(library, f"🛠️[cat {temp_file} with_line_numbers /]")
+
+
+async def test_cat_tool_with_line_numbers_and_range(tmp_path):
+    temp_file = create_temp_file(tmp_path, "test.txt", "Hello world\nSecond line\nThird line")
+
+    await verify_tool(library, f"🛠️[cat {temp_file} 1-2 with_line_numbers /]")
+
+
+async def test_cat_tool_with_range_no_line_numbers(tmp_path):
+    temp_file = create_temp_file(tmp_path, "test.txt", "Hello world\nSecond line\nThird line")
+
+    await verify_tool(library, f"🛠️[cat {temp_file} 1-2 /]")

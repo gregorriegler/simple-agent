@@ -142,11 +142,12 @@ drwxr-xr-x 10 user  staff   320 Dec 19 10:25 ..
 Display file contents with line numbers
 
 ### Usage:
-🛠️[cat {filename} [line_range] /]
+🛠️[cat {filename} [line_range] [line_numbers] /]
 
 ### Arguments:
  - filename: string (required) - Path to the file to display
  - line_range: string (optional) - Optional line range in format 'start-end' (e.g., '1-10')
+ - line_numbers: string (optional) - Optional parameter to show line numbers, e.g. 'with_line_numbers'
 
 ### Examples:
 
@@ -161,6 +162,10 @@ Result of 🛠️ cat myfile.txt
 -
 
 🛠️[cat script.py 1-20 /]
+
+-
+
+🛠️[cat script.py with_line_numbers /]
 
 -
 
