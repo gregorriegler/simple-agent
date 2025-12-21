@@ -61,6 +61,20 @@ class TestEmojiBracketDocumentation:
 
         verify(doc)
 
+    def test_renders_non_dict_example_values(self):
+        class WeirdExampleTool(BaseTool):
+            name = 'weird_example'
+            description = 'Tool with unusual examples'
+            arguments = ToolArguments()
+            examples = [123]
+
+        syntax = EmojiBracketToolSyntax()
+        tool = WeirdExampleTool()
+
+        doc = syntax.render_documentation(tool)
+
+        assert "123" in doc
+
 
 class TestEmojiBracketBasicParsing:
 
@@ -288,6 +302,15 @@ class TestEmojiBracketErrorHandling:
         assert len(result.tool_calls) == 0
         assert text in result.message or result.message == text
 
+    def test_ignores_incomplete_header_after_valid_tool_call(self):
+        syntax = EmojiBracketToolSyntax()
+        text = "🛠️[ls dir]\n🛠️[/end]\n🛠️[broken"
+
+        result = syntax.parse(text)
+
+        assert len(result.tool_calls) == 1
+        assert result.tool_calls[0].name == "ls"
+
     def test_handles_missing_end_marker(self):
         syntax = EmojiBracketToolSyntax()
         text = "🛠️[create-file script.py]\nprint('hello')\nmore text"
@@ -345,6 +368,31 @@ line2
 
         # Should parse successfully, body handling is implementation choice
         assert len(result.tool_calls) == 1
+
+    def test_ignores_empty_header_and_parses_next_tool(self):
+        syntax = EmojiBracketToolSyntax()
+        text = "🛠️[]\n🛠️[ls dir]"
+
+        result = syntax.parse(text)
+
+        assert len(result.tool_calls) == 1
+        assert result.tool_calls[0].name == "ls"
+
+    def test_strips_crlf_prefix_when_body_has_end_marker(self):
+        syntax = EmojiBracketToolSyntax()
+        text = "🛠️[tool]\r\nline1\r\n🛠️[/end]"
+
+        result = syntax.parse(text)
+
+        assert result.tool_calls[0].body == "line1"
+
+    def test_strips_crlf_prefix_when_end_marker_missing(self):
+        syntax = EmojiBracketToolSyntax()
+        text = "🛠️[tool]\r\nline1"
+
+        result = syntax.parse(text)
+
+        assert result.tool_calls[0].body == "line1"
 
 
 class TestEmojiBracketBodylessTools:
