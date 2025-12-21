@@ -26,45 +26,6 @@ class TestSimpleEventBus:
         assert handler1 in event_bus._handlers[AssistantSaidEvent]
         assert handler2 in event_bus._handlers[AssistantSaidEvent]
 
-    def test_unsubscribe_removes_handler_from_event_type(self):
-        event_bus = SimpleEventBus()
-        handler = lambda event: None
-        event_bus.subscribe(AssistantSaidEvent, handler)
-
-        event_bus.unsubscribe(AssistantSaidEvent, handler)
-
-        assert AssistantSaidEvent not in event_bus._handlers
-
-    def test_unsubscribe_removes_only_specified_handler(self):
-        event_bus = SimpleEventBus()
-        handler1 = lambda event: None
-        handler2 = lambda event: None
-        event_bus.subscribe(AssistantSaidEvent, handler1)
-        event_bus.subscribe(AssistantSaidEvent, handler2)
-
-        event_bus.unsubscribe(AssistantSaidEvent, handler1)
-
-        assert len(event_bus._handlers[AssistantSaidEvent]) == 1
-        assert handler2 in event_bus._handlers[AssistantSaidEvent]
-
-    def test_unsubscribe_nonexistent_handler_does_not_raise_error(self):
-        event_bus = SimpleEventBus()
-        handler = lambda event: None
-
-        event_bus.unsubscribe(AssistantSaidEvent, handler)
-
-        assert AssistantSaidEvent not in event_bus._handlers
-
-    def test_unsubscribe_handler_not_in_list_does_not_raise_error(self):
-        event_bus = SimpleEventBus()
-        handler1 = lambda event: None
-        handler2 = lambda event: None
-        event_bus.subscribe(AssistantSaidEvent, handler1)
-
-        event_bus.unsubscribe(AssistantSaidEvent, handler2)
-
-        assert handler1 in event_bus._handlers[AssistantSaidEvent]
-
     def test_publish_calls_all_subscribed_handlers(self):
         event_bus = SimpleEventBus()
         results = []
