@@ -238,7 +238,6 @@ def parse_args(argv=None) -> SessionArgs:
         help="Run in non-interactive mode (no user input prompts)"
     )
     parser.add_argument("--stub", action="store_true", help="Use LLM stub for testing")
-    parser.add_argument("--test", action="store_true", help="Run in test mode using Textual's run_test()")
     parser.add_argument("message", nargs="*", help="Message to send to the agent")
     parsed = parser.parse_args(argv)
     return SessionArgs(
@@ -249,7 +248,6 @@ def parse_args(argv=None) -> SessionArgs:
         bool(getattr(parsed, "stub")),
         bool(getattr(parsed, "non_interactive")),
         getattr(parsed, "agent"),
-        bool(getattr(parsed, "test")),
     )
 
 
