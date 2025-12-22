@@ -102,7 +102,10 @@ def create_agent_library_from_candidate_directories(candidate_directories):
 
 def _candidate_directories(agents_path: str | None, cwd: str) -> list[str]:
     if agents_path:
-        agents_dir = _normalize_agents_dir(agents_path, cwd)
+        expanded = os.path.expanduser(agents_path)
+        if not os.path.isabs(expanded):
+            expanded = os.path.abspath(os.path.join(cwd, expanded))
+        agents_dir = expanded
         return [agents_dir]
 
     return [os.path.join(cwd, ".simple-agent", "agents")]
