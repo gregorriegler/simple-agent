@@ -89,7 +89,7 @@ class BuiltinAgentLibrary:
 
 def create_agent_library_old(agents_path: str | None, cwd: str) -> AgentLibrary:
     candidate_directories = _candidate_directories(agents_path, cwd)
-    return create_agent_library_from_candidate_directories(candidate_directories)
+    return create_agent_library(candidate_directories)
 
 
 def _candidate_directories(agents_path: str | None, cwd: str) -> list[str]:
@@ -102,7 +102,7 @@ def _candidate_directories(agents_path: str | None, cwd: str) -> list[str]:
     return [result]
 
 
-def create_agent_library_from_candidate_directories(candidate_directories):
+def create_agent_library(candidate_directories):
     for directory in candidate_directories:
         filesystem_definitions = FileSystemAgentLibrary(directory)
         if filesystem_definitions.has_any():
