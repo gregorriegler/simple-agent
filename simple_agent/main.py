@@ -1,10 +1,10 @@
 #!/usr/bin/env -S uv run --script
 
 import argparse
-import io
-import sys
-import os
 import asyncio
+import io
+import os
+import sys
 from pathlib import Path
 from typing import Awaitable, Protocol
 
@@ -20,7 +20,7 @@ from simple_agent.application.session import Session, SessionArgs
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
-from simple_agent.infrastructure.agent_library import create_agent_library, create_agent_library_new
+from simple_agent.infrastructure.agent_library import create_agent_library_new
 from simple_agent.infrastructure.configuration import get_starting_agent
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
@@ -32,8 +32,8 @@ from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
 from simple_agent.infrastructure.user_configuration import UserConfiguration
-from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.logging_config import setup_logging
+from simple_agent.tools.all_tools import AllToolsFactory
 
 
 class TextualRunStrategy(Protocol):
