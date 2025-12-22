@@ -4,7 +4,7 @@ from simple_agent.infrastructure.agent_library import (
     create_agent_library_old, create_agent_library,
 )
 
-def test_local_agents_given(tmp_path):
+def test_create_agent_library(tmp_path):
     project_agents_dir = tmp_path / '.simple-agent' / 'agents'
     project_agents_dir.mkdir(parents=True, exist_ok=True)
 
