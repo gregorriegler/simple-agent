@@ -28,7 +28,6 @@ class SessionArgs:
     stub_llm: bool = False
     non_interactive: bool = False
     agent: str | None = None
-    on_user_prompt_requested: Callable[[Any], None] | Callable[[Any], Awaitable[None]] | None = None
 
 
 class Session:

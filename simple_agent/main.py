@@ -38,11 +38,11 @@ from simple_agent.logging_config import setup_logging
 class TextualRunStrategy(Protocol):
     allow_async: bool
 
-    def run(self, textual_app: TextualApp, run_session):
+    async def run(self, textual_app: TextualApp, run_session):
         ...
 
 
-class ProductionTextualRunStrategy:
+class ProductionTextualRunStrategy(TextualRunStrategy):
     allow_async = False
 
     async def run(self, textual_app: TextualApp, run_session):
@@ -50,7 +50,7 @@ class ProductionTextualRunStrategy:
         return None
 
 
-class TestTextualRunStrategy:
+class TestTextualRunStrategy(TextualRunStrategy):
     allow_async = True
 
     async def run(self, textual_app: TextualApp, run_session):
@@ -66,22 +66,19 @@ class TestTextualRunStrategy:
         return textual_app
 
 
-def load_user_config_and_setup_logging(args: SessionArgs, cwd: str):
+def load_user_config(args: SessionArgs, cwd: str):
     if args.stub_llm:
         user_config = stub_user_config()
     else:
         user_config = load_user_configuration(cwd)
-
-    setup_logging(user_config=user_config)
     return user_config
 
 
 async def run_main(run_strategy: TextualRunStrategy, on_user_prompt_requested=None):
     args = parse_args()
-    if on_user_prompt_requested:
-        args.on_user_prompt_requested = on_user_prompt_requested
     cwd = os.getcwd()
-    user_config = load_user_config_and_setup_logging(args, cwd)
+    user_config = load_user_config(args, cwd)
+    setup_logging(user_config=user_config)
 
     if args.show_system_prompt:
         return print_system_prompt_command(user_config, cwd, args)
@@ -130,9 +127,9 @@ async def run_main(run_strategy: TextualRunStrategy, on_user_prompt_requested=No
 
     textual_app = TextualApp(textual_user_input, root_agent_id)
     subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
-    if args.on_user_prompt_requested:
+    if on_user_prompt_requested:
         def on_prompt_wrapper(_):
-            result = args.on_user_prompt_requested(textual_app)
+            result = on_user_prompt_requested(textual_app)
             if run_strategy.allow_async and isinstance(result, Awaitable):
                 asyncio.create_task(result)
         event_bus.subscribe(UserPromptRequestedEvent, on_prompt_wrapper)
@@ -143,8 +140,8 @@ async def run_main(run_strategy: TextualRunStrategy, on_user_prompt_requested=No
     return await run_strategy.run(textual_app, run_session)
 
 
-def main(on_user_prompt_requested=None):
-    return asyncio.run(run_main(ProductionTextualRunStrategy(), on_user_prompt_requested))
+def main():
+    return asyncio.run(run_main(ProductionTextualRunStrategy()))
 
 
 async def main_async(on_user_prompt_requested=None):

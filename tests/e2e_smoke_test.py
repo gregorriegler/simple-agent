@@ -71,7 +71,7 @@ async def test_golden_master_agent_stub(monkeypatch):
         captured.append(get_screen_content())
         app.user_input.submit_input("")
 
-    app = await main_async(on_user_prompt_requested=on_user_prompt_requested)
+    await main_async(on_user_prompt_requested=on_user_prompt_requested)
 
     # Cleanup: Remove newfile.txt if it was created by the stub
     newfile_path = Path(project_root) / "newfile.txt"
