@@ -19,7 +19,7 @@ class UserConfiguration:
 
     @classmethod
     def create_stub(cls) -> Self:
-        return cls({})
+        return cls({}, "/tmp")
 
     @classmethod
     def load_from_config_file(cls, cwd: str) -> Self:
@@ -31,10 +31,11 @@ class UserConfiguration:
                 f"({cwd})"
             )
 
-        return cls(config)
+        return cls(config, cwd)
 
-    def __init__(self, config: Mapping[str, Any]):
+    def __init__(self, config: Mapping[str, Any], cwd: str = "/tmp"):
         self._config = config
+        self._cwd = cwd
 
     def agents_path(self) -> str | None:
         agents_section = self._config.get("agents")
@@ -43,6 +44,17 @@ class UserConfiguration:
             if value:
                 return str(value)
         return None
+
+    def agents_candidate_directories(self) -> list[str]:
+        agents_path = self.agents_path()
+        if not agents_path:
+            return [os.path.join(self._cwd, ".simple-agent", "agents")]
+
+        result = os.path.expanduser(agents_path)
+        if not os.path.isabs(result):
+            result = os.path.abspath(os.path.join(self._cwd, result))
+        return [result]
+
 
     def starting_agent_type(self) -> AgentType:
         agents_section = self._config.get("agents")
