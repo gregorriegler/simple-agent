@@ -6,7 +6,7 @@ replacement
 🛠️[/end]
 
 Result:
-String not found in file. Make sure the old_string matches exactly (including whitespace).
+Action Failed: File not modified. The provided text to be replaced was not found in the file. Please use 'cat' to verify the exact content before retrying.
 
 Initial file: test.txt
 Initial content:

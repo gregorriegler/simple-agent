@@ -43,7 +43,7 @@ class FileReplacer:
         count = content.count(old_string)
         if count == 0:
             raise ValueError(
-                "String not found in file. Make sure the old_string matches exactly (including whitespace).")
+                "Action Failed: File not modified. The provided text to be replaced was not found in the file. Please use 'cat' to verify the exact content before retrying.")
 
         if replace_mode == "single":
             self.new_content = content.replace(old_string, new_string, 1)
