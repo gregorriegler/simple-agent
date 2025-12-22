@@ -21,7 +21,7 @@ from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
-from simple_agent.infrastructure.configuration import get_starting_agent, load_user_configuration, stub_user_config
+from simple_agent.infrastructure.configuration import get_starting_agent, load_user_config
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
@@ -64,14 +64,6 @@ class TestTextualRunStrategy(TextualRunStrategy):
             await session_task
 
         return textual_app
-
-
-def load_user_config(args: SessionArgs, cwd: str):
-    if args.stub_llm:
-        user_config = stub_user_config()
-    else:
-        user_config = load_user_configuration(cwd)
-    return user_config
 
 
 async def run_main(run_strategy: TextualRunStrategy, on_user_prompt_requested=None):

@@ -19,10 +19,6 @@ def load_user_configuration(cwd: str) -> UserConfiguration:
     return UserConfiguration(config)
 
 
-def stub_user_config() -> UserConfiguration:
-    return UserConfiguration({})
-
-
 def get_starting_agent(user_config: UserConfiguration, args: SessionArgs | None = None) -> AgentType:
     if args and args.stub_llm:
         return UserConfiguration.default_starting_agent_type()
@@ -55,10 +51,10 @@ def _load_configuration_sources(cwd: str) -> Tuple[Mapping[str, Any], bool]:
         config = _merge_dicts(config, cwd_config)
         found = True
 
-    return _resolve_api_keys(config), found
+    return _resolve_value(config), found
 
 
-def resolve_api_key(value: str) -> str:
+def _resolve_api_key(value: str) -> str:
     if value.startswith("${") and value.endswith("}"):
         var_name = value[2:-1]
         result = os.environ.get(var_name)
@@ -66,10 +62,6 @@ def resolve_api_key(value: str) -> str:
             raise ValueError(f"environment variable '{var_name}' is not set")
         return result
     return value
-
-
-def _resolve_api_keys(config: Mapping[str, Any]) -> Mapping[str, Any]:
-    return _resolve_value(config)
 
 
 def _resolve_value(value: Any) -> Any:
@@ -85,7 +77,7 @@ def _resolve_value(value: Any) -> Any:
 
 def _resolve_api_key_value(key: str, value: Any) -> Any:
     if key == "api_key" and isinstance(value, str):
-        return resolve_api_key(value)
+        return _resolve_api_key(value)
     return _resolve_value(value)
 
 
@@ -101,3 +93,11 @@ def _merge_dicts(base: Mapping[str, Any], override: Mapping[str, Any]) -> dict[s
         else:
             result[key] = value
     return result
+
+
+def load_user_config(args: SessionArgs, cwd: str):
+    if args.stub_llm:
+        user_config = UserConfiguration.create_stub()
+    else:
+        user_config = load_user_configuration(cwd)
+    return user_config

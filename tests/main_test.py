@@ -1,5 +1,5 @@
 from simple_agent.application.session import SessionArgs
-from simple_agent.infrastructure.configuration import stub_user_config
+from simple_agent.infrastructure.user_configuration import UserConfiguration
 from simple_agent.main import parse_args, print_system_prompt_command
 
 
@@ -19,7 +19,7 @@ def test_parse_args_sets_continue_flag_without_message():
 
 def test_print_system_prompt_command_outputs_prompt(capsys, tmp_path):
     args = SessionArgs()
-    user_config = stub_user_config()
+    user_config = UserConfiguration.create_stub()
 
     result = print_system_prompt_command(user_config, str(tmp_path), args)
 

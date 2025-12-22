@@ -1,13 +1,17 @@
-from typing import Mapping, Any
+from typing import Mapping, Any, Self
 
 from simple_agent.application.agent_type import AgentType
 from simple_agent.infrastructure.model_config import ModelsRegistry
-
 
 DEFAULT_STARTING_AGENT_TYPE = "orchestrator"
 
 
 class UserConfiguration:
+
+    @classmethod
+    def create_stub(cls) -> Self:
+        return cls({})
+
     def __init__(self, config: Mapping[str, Any]):
         self._config = config
 
