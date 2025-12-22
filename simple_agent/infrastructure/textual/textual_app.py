@@ -279,6 +279,8 @@ class TextualApp(App):
         self._todo_containers: dict[str, tuple] = {}
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._slash_command_registry = SlashCommandRegistry()
+        self._agent_models: dict[AgentId, str] = {root_agent_id: ""}
+        self._agent_max_tokens: dict[AgentId, int] = {root_agent_id: 0}
         self._suppressed_tool_calls: set[str] = set()
         self.loading_timer: Timer | None = None
         self.loading_frames = ["⠇", "⠏", "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧"]
@@ -645,9 +647,11 @@ class TextualApp(App):
             return
         if agent_name:
             self._agent_names[agent_id] = agent_name
+        if model is not None:
+            self._agent_models[agent_id] = model
         if self.has_agent_tab(agent_id):
             if model:
-                title = self._tab_title_for(agent_id, model, 0, 0)
+                title = self._tab_title_for(agent_id, model, 0, self._agent_max_tokens.get(agent_id, 0))
                 self.update_tab_title(agent_id, title)
             return
         tab_title = self._tab_title_for(agent_id, model, 0, 0)
@@ -660,6 +664,8 @@ class TextualApp(App):
         elif isinstance(event, SessionClearedEvent):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
             self.clear_agent_panels(log_id)
+            self._clear_todo_panel(event.agent_id)
+            self._reset_agent_token_usage(event.agent_id)
         elif isinstance(event, UserPromptedEvent):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
             self.write_message(log_id, f"**User:** {event.input_text}")
@@ -697,6 +703,8 @@ class TextualApp(App):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
             self.write_message(log_id, f"\n**❌ Error: {event.message}**")
         elif isinstance(event, AssistantRespondedEvent):
+            self._agent_models[event.agent_id] = event.model
+            self._agent_max_tokens[event.agent_id] = event.max_tokens
             title = self._tab_title_for(event.agent_id, event.model, event.token_count, event.max_tokens)
             self.update_tab_title(event.agent_id, title)
 
@@ -730,3 +738,20 @@ class TextualApp(App):
             self._pending_tool_calls[tool_results_id] = {}
         except NoMatches:
             logger.warning("Could not find tool results #%s to clear", tool_results_id)
+
+    def _clear_todo_panel(self, agent_id: AgentId) -> None:
+        todo_widget = self._todo_widgets.get(str(agent_id))
+        if todo_widget:
+            todo_widget.update("")
+
+        container_tuple = self._todo_containers.get(str(agent_id))
+        if container_tuple:
+            secondary_scroll, splitter = container_tuple
+            secondary_scroll.styles.display = "none"
+            splitter.styles.display = "none"
+
+    def _reset_agent_token_usage(self, agent_id: AgentId) -> None:
+        model = self._agent_models.get(agent_id, "")
+        max_tokens = self._agent_max_tokens.get(agent_id, 0)
+        title = self._tab_title_for(agent_id, model, 0, max_tokens)
+        self.update_tab_title(agent_id, title)

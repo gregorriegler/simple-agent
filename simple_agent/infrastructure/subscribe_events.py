@@ -41,6 +41,10 @@ def subscribe_events(
         AgentFinishedEvent,
         lambda event: todo_cleanup.cleanup_todos_for_agent(event.agent_id) if event.agent_id.has_parent() else None,
     )
+    event_bus.subscribe(
+        SessionClearedEvent,
+        lambda event: todo_cleanup.cleanup_todos_for_agent(event.agent_id),
+    )
     if app:
         def _post_domain_event(event):
             app.post_message(DomainEventMessage(event))
