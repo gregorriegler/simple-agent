@@ -45,7 +45,7 @@ async def test_logging_async_client_data_interaction(caplog):
         async with LoggingAsyncClient(transport=transport) as client:
             await client.post(
                 "https://api.example.com/test",
-                data="plain text body"
+                content="plain text body"
             )
 
     verify(LogContent(caplog))

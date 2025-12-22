@@ -1,11 +1,5 @@
-import pytest
-from textual.widgets import TextArea
-
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.textual.textual_app import SubmittableTextArea
-
-
-pytestmark = pytest.mark.asyncio
 
 
 def test_slash_command_registry_available_in_textarea():
