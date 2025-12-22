@@ -87,21 +87,6 @@ class BuiltinAgentLibrary:
         return sorted(agent_type_from_filename(name) for name in names)
 
 
-def create_agent_library_old(agents_path: str | None, cwd: str) -> AgentLibrary:
-    candidate_directories = _candidate_directories(agents_path, cwd)
-    return create_agent_library(candidate_directories)
-
-
-def _candidate_directories(agents_path: str | None, cwd: str) -> list[str]:
-    if not agents_path:
-        return [os.path.join(cwd, ".simple-agent", "agents")]
-
-    result = os.path.expanduser(agents_path)
-    if not os.path.isabs(result):
-        result = os.path.abspath(os.path.join(cwd, result))
-    return [result]
-
-
 def create_agent_library(candidate_directories):
     for directory in candidate_directories:
         filesystem_definitions = FileSystemAgentLibrary(directory)
