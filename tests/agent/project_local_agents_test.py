@@ -1,7 +1,7 @@
 from simple_agent.application.agent_type import AgentType
 from simple_agent.infrastructure.agent_library import (
     FileSystemAgentLibrary,
-    create_agent_library,
+    create_agent_library_old,
 )
 
 def test_local_agents_given(tmp_path):
@@ -14,14 +14,14 @@ tools: bash
 ---
 This is a project-local agent.""", encoding='utf-8')
 
-    agents = create_agent_library(agents_path=None, cwd=str(tmp_path))
+    agents = create_agent_library_old(agents_path=None, cwd=str(tmp_path))
     prompt = agents.read_agent_definition(AgentType('test')).prompt()
     assert prompt.agent_name == 'ProjectLocal'
     assert 'project-local agent' in prompt.template
 
 
 def test_default_directory_falls_back_to_builtin_when_empty(tmp_path):
-    agents = create_agent_library(agents_path=None, cwd=str(tmp_path))
+    agents = create_agent_library_old(agents_path=None, cwd=str(tmp_path))
     definition = agents.read_agent_definition(AgentType('coding'))
     prompt = definition.prompt()
     assert prompt.agent_name == 'Coding'
@@ -29,7 +29,7 @@ def test_default_directory_falls_back_to_builtin_when_empty(tmp_path):
 
 
 def test_load_agent_prompt_handles_missing_custom_definition_by_using_builtin(tmp_path):
-    agents = create_agent_library(agents_path=None, cwd=str(tmp_path))
+    agents = create_agent_library_old(agents_path=None, cwd=str(tmp_path))
     prompt = agents.read_agent_definition(AgentType('orchestrator')).prompt()
     assert prompt.agent_name == 'Orchestrator'
 
@@ -43,7 +43,7 @@ tools: bash
 ---
 Configured definitions.""", encoding='utf-8')
 
-    agents = create_agent_library(
+    agents = create_agent_library_old(
         agents_path=str(configured_dir),
         cwd=str(tmp_path),
     )
@@ -71,6 +71,6 @@ tools: bash
 ---
 Config driven definition.""", encoding='utf-8')
 
-    agents = create_agent_library(agents_path="custom_agents", cwd=str(tmp_path))
+    agents = create_agent_library_old(agents_path="custom_agents", cwd=str(tmp_path))
     prompt = agents.read_agent_definition(AgentType('via_config')).prompt()
     assert prompt.agent_name == 'ConfigFile'

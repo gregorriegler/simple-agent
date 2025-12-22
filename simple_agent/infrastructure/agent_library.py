@@ -87,17 +87,9 @@ class BuiltinAgentLibrary:
         return sorted(agent_type_from_filename(name) for name in names)
 
 
-def create_agent_library(agents_path: str | None, cwd: str) -> AgentLibrary:
+def create_agent_library_old(agents_path: str | None, cwd: str) -> AgentLibrary:
     candidate_directories = _candidate_directories(agents_path, cwd)
     return create_agent_library_from_candidate_directories(candidate_directories)
-
-
-def create_agent_library_from_candidate_directories(candidate_directories):
-    for directory in candidate_directories:
-        filesystem_definitions = FileSystemAgentLibrary(directory)
-        if filesystem_definitions.has_any():
-            return filesystem_definitions
-    return BuiltinAgentLibrary()
 
 
 def _candidate_directories(agents_path: str | None, cwd: str) -> list[str]:
@@ -110,8 +102,9 @@ def _candidate_directories(agents_path: str | None, cwd: str) -> list[str]:
     return [result]
 
 
-def _normalize_agents_dir(path: str, cwd: str) -> str:
-    expanded = os.path.expanduser(path)
-    if not os.path.isabs(expanded):
-        expanded = os.path.abspath(os.path.join(cwd, expanded))
-    return expanded
+def create_agent_library_from_candidate_directories(candidate_directories):
+    for directory in candidate_directories:
+        filesystem_definitions = FileSystemAgentLibrary(directory)
+        if filesystem_definitions.has_any():
+            return filesystem_definitions
+    return BuiltinAgentLibrary()

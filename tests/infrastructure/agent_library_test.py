@@ -4,7 +4,7 @@ import pytest
 from simple_agent.infrastructure.agent_library import (
     BuiltinAgentLibrary,
     FileSystemAgentLibrary,
-    create_agent_library,
+    create_agent_library_old,
 )
 
 
@@ -39,7 +39,7 @@ def test_create_agent_library_prefers_filesystem_agents(tmp_path):
     agents_dir.mkdir()
     (agents_dir / "coding.agent.md").write_text("# Agent\n", encoding="utf-8")
 
-    library = create_agent_library("agents", str(tmp_path))
+    library = create_agent_library_old("agents", str(tmp_path))
 
     assert isinstance(library, FileSystemAgentLibrary)
 
