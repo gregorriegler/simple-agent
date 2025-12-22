@@ -18,7 +18,7 @@ class BashTool(BaseTool):
     examples = [
         {
             "reasoning": "The user asks you to change something in the main function and you need to find it:",
-            "command": "rg 'main\(' -g '*.py'",
+            "command": r"rg 'main\(' -g '*.py'",
             "result": "✅ Exit code 0 (0.068s elapsed)\n\nfoo.py\n82:def main() -> None:\n97:    main()"
         },
         {
