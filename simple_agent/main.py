@@ -21,7 +21,7 @@ from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
-from simple_agent.infrastructure.configuration import get_starting_agent, load_user_config
+from simple_agent.infrastructure.configuration import get_starting_agent
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
@@ -31,6 +31,7 @@ from simple_agent.infrastructure.project_tree import FileSystemProjectTree
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
+from simple_agent.infrastructure.user_configuration import UserConfiguration
 from simple_agent.tools.all_tools import AllToolsFactory
 from simple_agent.logging_config import setup_logging
 
@@ -69,7 +70,7 @@ class TestTextualRunStrategy(TextualRunStrategy):
 async def run_main(run_strategy: TextualRunStrategy, on_user_prompt_requested=None):
     args = parse_args()
     cwd = os.getcwd()
-    user_config = load_user_config(args, cwd)
+    user_config = UserConfiguration.create_from_args(args, cwd)
     setup_logging(user_config=user_config)
 
     if args.show_system_prompt:

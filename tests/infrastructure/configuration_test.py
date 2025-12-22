@@ -1,6 +1,6 @@
 import pytest
 
-from simple_agent.infrastructure.configuration import load_user_configuration
+from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 
 def test_resolve_api_key_replaces_env_placeholder(monkeypatch, tmp_path):
@@ -20,7 +20,7 @@ api_key = "${TEST_API_KEY}"
 """.lstrip()
     )
 
-    user_config = load_user_configuration(str(tmp_path))
+    user_config = UserConfiguration.load_from_config_file(str(tmp_path))
 
     assert user_config.models_registry().get(None).api_key == "secret-value"
 
@@ -42,7 +42,7 @@ api_key = "${MISSING_KEY}"
     )
 
     with pytest.raises(ValueError, match="environment variable 'MISSING_KEY' is not set"):
-        load_user_configuration(str(tmp_path))
+        UserConfiguration.load_from_config_file(str(tmp_path))
 
 
 def test_load_user_configuration_raises_when_missing(monkeypatch, tmp_path):
@@ -50,7 +50,7 @@ def test_load_user_configuration_raises_when_missing(monkeypatch, tmp_path):
     monkeypatch.setenv("HOME", str(tmp_path))
 
     with pytest.raises(FileNotFoundError, match=".simple-agent.toml not found"):
-        load_user_configuration(str(tmp_path))
+        UserConfiguration.load_from_config_file(str(tmp_path))
 
 
 def test_resolve_api_key_returns_literal_when_not_placeholder(monkeypatch, tmp_path):
@@ -69,6 +69,6 @@ api_key = "plain-key"
 """.lstrip()
     )
 
-    user_config = load_user_configuration(str(tmp_path))
+    user_config = UserConfiguration.load_from_config_file(str(tmp_path))
 
     assert user_config.models_registry().get(None).api_key == "plain-key"

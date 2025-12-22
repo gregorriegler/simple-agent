@@ -1,3 +1,4 @@
+from simple_agent.application.session import SessionArgs
 from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 
