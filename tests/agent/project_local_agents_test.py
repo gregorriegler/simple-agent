@@ -1,7 +1,7 @@
 from simple_agent.application.agent_type import AgentType
 from simple_agent.infrastructure.agent_library import (
     FileSystemAgentLibrary,
-    create_agent_library_old,
+    create_agent_library_old, create_agent_library,
 )
 
 def test_local_agents_given(tmp_path):
@@ -14,7 +14,7 @@ tools: bash
 ---
 This is a project-local agent.""", encoding='utf-8')
 
-    agents = create_agent_library_old(agents_path=None, cwd=str(tmp_path))
+    agents = create_agent_library([project_agents_dir])
     prompt = agents.read_agent_definition(AgentType('test')).prompt()
     assert prompt.agent_name == 'ProjectLocal'
     assert 'project-local agent' in prompt.template
