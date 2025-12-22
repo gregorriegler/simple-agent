@@ -3,7 +3,6 @@ from __future__ import annotations
 import glob
 import os
 from importlib import resources
-from typing import Any, Mapping
 
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.agent_library import AgentLibrary
@@ -11,7 +10,6 @@ from simple_agent.application.ground_rules import GroundRules
 from simple_agent.infrastructure.agent_file_conventions import (
     agent_type_from_filename,
     filename_from_agent_type,
-    get_project_local_agents_dir,
 )
 from simple_agent.infrastructure.agents_md_ground_rules import AgentsMdGroundRules
 from simple_agent.application.agent_definition import AgentDefinition
@@ -106,7 +104,7 @@ def _candidate_directories(agents_path: str | None, cwd: str) -> list[str]:
     if agents_path:
         return [_normalize_agents_dir(agents_path, cwd)]
 
-    return [get_project_local_agents_dir(base_dir=cwd)]
+    return [os.path.join(cwd, ".simple-agent", "agents")]
 
 
 def _normalize_agents_dir(path: str, cwd: str) -> str:
