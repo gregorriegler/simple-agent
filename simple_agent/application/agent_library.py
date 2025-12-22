@@ -12,3 +12,6 @@ class AgentLibrary(Protocol):
 
     def read_agent_definition(self, agent_type: AgentType) -> AgentDefinition:
         ...
+
+    def _starting_agent_definition(self) -> AgentDefinition:
+        ...
