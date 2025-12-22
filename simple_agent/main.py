@@ -85,7 +85,6 @@ async def run_main(run_strategy: TextualRunStrategy, on_user_prompt_requested=No
     agent_library = create_agent_library(agents_path, cwd)
     starting_agent_type = get_starting_agent(user_config, args)
     agent_definition = agent_library.read_agent_definition(starting_agent_type)
-    root_agent_id = AgentId(agent_definition.agent_name())
 
     todo_cleanup = FileSystemTodoCleanup()
 
@@ -118,6 +117,7 @@ async def run_main(run_strategy: TextualRunStrategy, on_user_prompt_requested=No
         project_tree=project_tree,
     )
 
+    root_agent_id = AgentId(agent_definition.agent_name())
     textual_app = TextualApp(textual_user_input, root_agent_id)
     subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
     if on_user_prompt_requested:
