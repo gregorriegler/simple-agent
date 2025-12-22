@@ -6,7 +6,7 @@ from .base_tool import BaseTool
 
 class BashTool(BaseTool):
     name = 'bash'
-    description = "Execute bash commands"
+    description = "Execute bash commands. Tip: Avoid grep, but use ripgrep (the rg command) for search."
     arguments = ToolArguments(header=[
         ToolArgument(
             name="command",
@@ -16,6 +16,11 @@ class BashTool(BaseTool):
         )
     ])
     examples = [
+        {
+            "reasoning": "The user asks you to change something in the main function and you need to find it:",
+            "command": "rg 'main\(' -g '*.py'",
+            "result": "✅ Exit code 0 (0.068s elapsed)\n\nfoo.py\n82:def main() -> None:\n97:    main()"
+        },
         {
             "reasoning": "Let's say you need to echo a message. Then you should send:",
             "command": "echo hello world",

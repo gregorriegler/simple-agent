@@ -1,5 +1,4 @@
 # NOW
-- bash grep -r empty -> use rg instead 
 - warnings in tests
 - slash command registry does not include the handler
 - slash command autocomplete is not as nice
