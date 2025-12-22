@@ -110,3 +110,12 @@ def _normalize_agents_dir(path: str, cwd: str) -> str:
     if not os.path.isabs(expanded):
         expanded = os.path.abspath(os.path.join(cwd, expanded))
     return expanded
+
+
+def create_agent_library_new(args, cwd, user_config):
+    if args.stub_llm:
+        agents_path = None
+    else:
+        agents_path = user_config.agents_path()
+    agent_library = create_agent_library(agents_path, cwd)
+    return agent_library
