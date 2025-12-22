@@ -20,7 +20,8 @@ from simple_agent.application.session import Session, SessionArgs
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
-from simple_agent.infrastructure.agent_library import create_agent_library_new
+from simple_agent.infrastructure.agent_library import create_agent_library_new, \
+    create_agent_library_from_candidate_directories
 from simple_agent.infrastructure.configuration import get_starting_agent
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
@@ -81,7 +82,7 @@ async def run_main(run_strategy: TextualRunStrategy, on_user_prompt_requested=No
     else:
         textual_user_input = TextualUserInput()
 
-    agent_library = create_agent_library_new(args, cwd, user_config)
+    agent_library = create_agent_library_from_candidate_directories(user_config.agents_candidate_directories())
     starting_agent_type = get_starting_agent(user_config, args)
     agent_definition = agent_library.read_agent_definition(starting_agent_type)
 
