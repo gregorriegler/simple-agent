@@ -1,4 +1,3 @@
-from simple_agent.application.session import SessionArgs
 from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 
@@ -52,16 +51,20 @@ def test_logger_levels_uppercases_level_names():
     }
 
 
-def test_agents_path_returns_none_without_agents_section():
-    user_config = UserConfiguration({})
+def test_agents_path_returns_none_without_agents_section(tmp_path):
+    user_config = UserConfiguration({}, tmp_path)
 
-    assert user_config.agents_path() is None
+    assert user_config.agents_candidate_directories() == [
+        str(tmp_path / ".simple-agent" / "agents")
+    ]
 
 
-def test_agents_path_returns_value_from_config():
-    user_config = UserConfiguration({"agents": {"path": "./agents"}})
+def test_agents_path_returns_value_from_config(tmp_path):
+    user_config = UserConfiguration({"agents": {"path": "./agents"}}, tmp_path)
 
-    assert user_config.agents_path() == "./agents"
+    assert user_config.agents_candidate_directories() == [
+        str(tmp_path / "agents")
+    ]
 
 
 def test_log_level_defaults_to_info():
