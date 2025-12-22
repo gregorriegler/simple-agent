@@ -20,8 +20,7 @@ from simple_agent.application.session import Session, SessionArgs
 from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
-from simple_agent.infrastructure.agent_library import create_agent_library_new, \
-    create_agent_library_from_candidate_directories
+from simple_agent.infrastructure.agent_library import create_agent_library_from_candidate_directories
 from simple_agent.infrastructure.configuration import get_starting_agent
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
