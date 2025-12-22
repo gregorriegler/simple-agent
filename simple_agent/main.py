@@ -147,8 +147,7 @@ def print_system_prompt_command(user_config, cwd, args):
     tool_syntax = EmojiBracketToolSyntax()
     tool_library_factory = AllToolsFactory(tool_syntax)
     dummy_event_bus = SimpleEventBus()
-    agents_path = user_config.agents_path()
-    agent_library = create_agent_library(agents_path, cwd)
+    agent_library = create_agent_library_new(args, cwd, user_config)
     session_storage = NoOpSessionStorage()
     agent_factory = AgentFactory(
         dummy_event_bus,
