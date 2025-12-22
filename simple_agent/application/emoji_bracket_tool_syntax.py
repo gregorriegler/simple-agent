@@ -130,9 +130,22 @@ class EmojiBracketToolSyntax(ToolSyntax):
         return "\n".join(output_lines)
 
     def parse(self, text: str) -> ParsedMessage:
-        START_MARKER = "🛠️["
-        END_MARKER = "🛠️[/end]"
+        # Markers can appear with or without variation selector (U+FE0F)
+        # 🛠️ is U+1F6E0 U+FE0F
+        # 🛠 is U+1F6E0
+        START_MARKERS = ["🛠️[", "🛠["]
+        END_MARKERS = ["🛠️[/end]", "🛠[/end]"]
         SELF_CLOSING_SUFFIX = " /]"
+
+        def find_any(markers, start_pos):
+            earliest = -1
+            found_marker = None
+            for marker in markers:
+                idx = text.find(marker, start_pos)
+                if idx != -1 and (earliest == -1 or idx < earliest):
+                    earliest = idx
+                    found_marker = marker
+            return earliest, found_marker
 
         tool_calls = []
         message = ""
@@ -141,7 +154,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
         pos = 0
         while pos < len(text):
             # Look for start marker
-            start_idx = text.find(START_MARKER, pos)
+            start_idx, current_start_marker = find_any(START_MARKERS, pos)
 
             if start_idx == -1:
                 # No more tool calls found
@@ -155,7 +168,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
                 first_tool_found = True
 
             # Find closing bracket for header - check for self-closing first
-            header_start = start_idx + len(START_MARKER)
+            header_start = start_idx + len(current_start_marker)
             self_closing_idx = text.find(SELF_CLOSING_SUFFIX, header_start)
             regular_close_idx = text.find("]", header_start)
 
@@ -175,7 +188,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
                     if not tool_calls:
                         message = text
                         break
-                    pos = start_idx + len(START_MARKER)
+                    pos = start_idx + len(current_start_marker)
                     continue
                 header_end = regular_close_idx
 
@@ -204,10 +217,10 @@ class EmojiBracketToolSyntax(ToolSyntax):
                 end_idx = -1
 
                 while True:
-                    next_start = text.find(START_MARKER, search_pos)
-                    next_end = text.find(END_MARKER, search_pos)
+                    next_start_idx, next_start_marker = find_any(START_MARKERS, search_pos)
+                    next_end_idx, next_end_marker = find_any(END_MARKERS, search_pos)
 
-                    if next_end == -1:
+                    if next_end_idx == -1:
                         # Missing end marker - best effort: treat rest as body
                         body = text[after_header:].rstrip()
                         if body.startswith('\n'):
@@ -218,18 +231,19 @@ class EmojiBracketToolSyntax(ToolSyntax):
                         pos = len(text)
                         break
 
-                    if next_start != -1 and next_start < next_end:
+                    if next_start_idx != -1 and next_start_idx < next_end_idx:
                         # Nested start marker - increase depth and continue searching
                         depth += 1
-                        search_pos = next_start + len(START_MARKER)
+                        search_pos = next_start_idx + len(next_start_marker)
                         continue
 
                     depth -= 1
                     if depth == 0:
-                        end_idx = next_end
+                        end_idx = next_end_idx
+                        current_end_marker = next_end_marker
                         break
 
-                    search_pos = next_end + len(END_MARKER)
+                    search_pos = next_end_idx + len(next_end_marker)
 
                 if end_idx != -1:
                     # Extract body (skip leading newline if present)
@@ -243,7 +257,6 @@ class EmojiBracketToolSyntax(ToolSyntax):
                     tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=body))
 
                     # Continue after end marker
-                    pos = end_idx + len(END_MARKER)
-
+                    pos = end_idx + len(current_end_marker)
 
         return ParsedMessage(message=message, tool_calls=tool_calls)

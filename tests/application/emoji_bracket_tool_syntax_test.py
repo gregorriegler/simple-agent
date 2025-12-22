@@ -115,6 +115,35 @@ line3
         assert result.tool_calls[0].arguments == "script.py"
         assert result.tool_calls[0].body == "line1\nline2\nline3"
 
+    def test_parses_simple_tool_call_without_variation_selector(self):
+        syntax = EmojiBracketToolSyntax()
+        text = "🛠[create-file]"
+
+        result = syntax.parse(text)
+
+        assert len(result.tool_calls) == 1
+        assert result.tool_calls[0].name == "create-file"
+
+    def test_parses_tool_call_with_mixed_variation_selectors(self):
+        syntax = EmojiBracketToolSyntax()
+        text = "🛠[create-file test.txt]\ncontent\n🛠️[/end]"
+
+        result = syntax.parse(text)
+
+        assert len(result.tool_calls) == 1
+        assert result.tool_calls[0].name == "create-file"
+        assert result.tool_calls[0].body == "content"
+
+    def test_parses_tool_call_with_missing_variation_selector_in_end(self):
+        syntax = EmojiBracketToolSyntax()
+        text = "🛠️[create-file test.txt]\ncontent\n🛠[/end]"
+
+        result = syntax.parse(text)
+
+        assert len(result.tool_calls) == 1
+        assert result.tool_calls[0].name == "create-file"
+        assert result.tool_calls[0].body == "content"
+
 
 class TestEmojiBracketHeaderParsing:
 
