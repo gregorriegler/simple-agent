@@ -7,18 +7,22 @@ from importlib import resources
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.ground_rules import GroundRules
+from simple_agent.application.session import SessionArgs
 from simple_agent.infrastructure.agent_file_conventions import (
     agent_type_from_filename,
     filename_from_agent_type,
 )
 from simple_agent.infrastructure.agents_md_ground_rules import AgentsMdGroundRules
 from simple_agent.application.agent_definition import AgentDefinition
+from simple_agent.infrastructure.configuration import get_starting_agent
+from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 
 class FileSystemAgentLibrary(AgentLibrary):
-    def __init__(self, directory: str):
+    def __init__(self, directory: str, starting_agent_type: AgentType | None = None):
         self.directory = directory
         self.ground_rules = AgentsMdGroundRules()
+        self._starting_agent_type = starting_agent_type
 
     def list_agent_types(self) -> list[str]:
         if not os.path.isdir(self.directory):
@@ -46,14 +50,24 @@ class FileSystemAgentLibrary(AgentLibrary):
     def has_any(self) -> bool:
         return bool(self.list_agent_types())
 
+    def _starting_agent_definition(self) -> AgentDefinition:
+        if self._starting_agent_type is None:
+            raise ValueError("starting agent type not configured")
+        return self.read_agent_definition(self._starting_agent_type)
+
 
 class BuiltinAgentLibrary:
-    def __init__(self, ground_rules: GroundRules = None):
+    def __init__(
+        self,
+        ground_rules: GroundRules = None,
+        starting_agent_type: AgentType | None = None
+    ):
         self.package = 'simple_agent'
         if ground_rules is not None:
             self.ground_rules = ground_rules
         else:
             self.ground_rules = AgentsMdGroundRules()
+        self._starting_agent_type = starting_agent_type
 
     def list_agent_types(self) -> list[str]:
         return self._discover_agent_types()
@@ -69,6 +83,11 @@ class BuiltinAgentLibrary:
             with open(path, 'r', encoding='utf-8') as handle:
                 content = handle.read()
                 return AgentDefinition(agent_type, content, self.ground_rules)
+
+    def _starting_agent_definition(self) -> AgentDefinition:
+        if self._starting_agent_type is None:
+            raise ValueError("starting agent type not configured")
+        return self.read_agent_definition(self._starting_agent_type)
 
 
     def _discover_agent_types(self) -> list[str]:
@@ -87,9 +106,14 @@ class BuiltinAgentLibrary:
         return sorted(agent_type_from_filename(name) for name in names)
 
 
-def create_agent_library(candidate_directories):
+def create_agent_library(
+    user_config: UserConfiguration,
+    args: SessionArgs | None = None
+) -> AgentLibrary:
+    starting_agent_type = get_starting_agent(user_config, args)
+    candidate_directories = user_config.agents_candidate_directories()
     for directory in candidate_directories:
-        filesystem_definitions = FileSystemAgentLibrary(directory)
+        filesystem_definitions = FileSystemAgentLibrary(directory, starting_agent_type)
         if filesystem_definitions.has_any():
             return filesystem_definitions
-    return BuiltinAgentLibrary()
+    return BuiltinAgentLibrary(starting_agent_type=starting_agent_type)

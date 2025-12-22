@@ -6,6 +6,7 @@ from simple_agent.infrastructure.agent_library import (
     FileSystemAgentLibrary,
     create_agent_library,
 )
+from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 
 def test_create_agent_library(tmp_path):
@@ -21,14 +22,18 @@ def test_create_agent_library(tmp_path):
         encoding='utf-8'
     )
 
-    agents = create_agent_library([str(project_agents_dir)])
-    prompt = agents.read_agent_definition(AgentType('test')).prompt()
+    user_config = UserConfiguration({"agents": {"start": "test"}}, str(tmp_path))
+
+    agents = create_agent_library(user_config)
+    prompt = agents._starting_agent_definition().prompt()
     assert prompt.agent_name == 'ProjectLocal'
     assert 'project-local agent' in prompt.template
 
 
 def test_falls_back_to_builtin_when_no_filesystem_agents(tmp_path):
-    agents = create_agent_library([str(tmp_path)])
+    user_config = UserConfiguration({}, str(tmp_path))
+
+    agents = create_agent_library(user_config)
     definition = agents.read_agent_definition(AgentType('coding'))
     prompt = definition.prompt()
     assert prompt.agent_name == 'Coding'
@@ -36,7 +41,9 @@ def test_falls_back_to_builtin_when_no_filesystem_agents(tmp_path):
 
 
 def test_load_agent_prompt_handles_missing_custom_definition_by_using_builtin(tmp_path):
-    agents = create_agent_library([str(tmp_path)])
+    user_config = UserConfiguration({}, str(tmp_path))
+
+    agents = create_agent_library(user_config)
     prompt = agents.read_agent_definition(AgentType('orchestrator')).prompt()
     assert prompt.agent_name == 'Orchestrator'
 
@@ -53,7 +60,12 @@ def test_load_agent_prompt_prefers_filesystem_directory(tmp_path):
         encoding='utf-8'
     )
 
-    agents = create_agent_library([str(configured_dir)])
+    user_config = UserConfiguration(
+        {"agents": {"path": str(configured_dir), "start": "custom"}},
+        str(tmp_path)
+    )
+
+    agents = create_agent_library(user_config)
     prompt = agents.read_agent_definition(AgentType('custom')).prompt()
     assert prompt.agent_name == 'Configured'
     assert 'Configured definitions' in prompt.template

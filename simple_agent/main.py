@@ -21,7 +21,6 @@ from simple_agent.application.session_storage import NoOpSessionStorage
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
-from simple_agent.infrastructure.configuration import get_starting_agent
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
@@ -81,9 +80,8 @@ async def run_main(run_strategy: TextualRunStrategy, on_user_prompt_requested=No
     else:
         textual_user_input = TextualUserInput()
 
-    agent_library = create_agent_library(user_config.agents_candidate_directories())
-    starting_agent_type = get_starting_agent(user_config, args)
-    agent_definition = agent_library.read_agent_definition(starting_agent_type)
+    agent_library = create_agent_library(user_config, args)
+    agent_definition = agent_library._starting_agent_definition()
 
     todo_cleanup = FileSystemTodoCleanup()
 
@@ -143,11 +141,10 @@ async def main_async(on_user_prompt_requested=None):
 def print_system_prompt_command(user_config, cwd, args):
     from simple_agent.application.tool_library_factory import ToolContext
 
-    starting_agent_type = get_starting_agent(user_config, args)
     tool_syntax = EmojiBracketToolSyntax()
     tool_library_factory = AllToolsFactory(tool_syntax)
     dummy_event_bus = SimpleEventBus()
-    agent_library = create_agent_library(user_config.agents_candidate_directories())
+    agent_library = create_agent_library(user_config, args)
     session_storage = NoOpSessionStorage()
     agent_factory = AgentFactory(
         dummy_event_bus,
@@ -158,7 +155,7 @@ def print_system_prompt_command(user_config, cwd, args):
         StubLLMProvider.dummy(),
         FileSystemProjectTree(Path(cwd)),
     )
-    agent_definition = agent_library.read_agent_definition(starting_agent_type)
+    agent_definition = agent_library._starting_agent_definition()
     agent_id = AgentId("Agent")
     tool_context = ToolContext(
         agent_definition.tool_keys(),
