@@ -161,25 +161,41 @@ class SessionTestBed:
 
 class TestAgentLibrary:
     def __init__(self):
-        self._definition = AgentDefinition(
-            AgentType("agent"),
-            """---
+        self._definitions = {
+            "agent": AgentDefinition(
+                AgentType("agent"),
+                """---
 name: Agent
 ---""",
-            GroundRulesStub("Test system prompt")
-        )
+                GroundRulesStub("Test system prompt")
+            ),
+            "coding": AgentDefinition(
+                AgentType("coding"),
+                """---
+name: Coding
+---""",
+                GroundRulesStub("Test system prompt")
+            ),
+            "orchestrator": AgentDefinition(
+                AgentType("orchestrator"),
+                """---
+name: Orchestrator
+---""",
+                GroundRulesStub("Test system prompt")
+            ),
+        }
 
     def list_agent_types(self) -> list[str]:
-        return ["agent"]
+        return list(self._definitions.keys())
 
     def read_agent_definition(self, agent_type: AgentType) -> AgentDefinition:
-        return self._definition
+        return self._definitions[agent_type.raw]
 
     def starting_agent_id(self) -> AgentId:
-        return AgentId(self._definition.agent_name())
+        return AgentId(self._starting_agent_definition().agent_name())
 
     def _starting_agent_definition(self) -> AgentDefinition:
-        return self._definition
+        return self._definitions["agent"]
 
 
 class _NoOpTodoCleanup:
