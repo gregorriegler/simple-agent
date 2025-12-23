@@ -1,13 +1,8 @@
 # NOW
-- warnings in tests
 - slash command registry does not include the handler
-- slash command autocomplete is not as nice
 - plan agent vs slicer agent
 
 # NEXT
-- /clear does not reset token usage %
-- /clear does not clear todos
-- add files via @
 - coverage drilldown slow because redoing the whole thing
 - the subagent tool description need to allow for a subscription per agent, so we can explain that a test-writer will only ever write a single test
 
