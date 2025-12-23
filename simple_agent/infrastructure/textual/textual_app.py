@@ -161,6 +161,12 @@ class SubmittableTextArea(TextArea):
 
         # Let Enter submit the form
         if event.key == "enter":
+            if self._autocomplete_visible:
+                self._complete_selection()
+                event.stop()
+                event.prevent_default()
+                return
+
             self.app.action_submit_input()
             event.stop()
             event.prevent_default()

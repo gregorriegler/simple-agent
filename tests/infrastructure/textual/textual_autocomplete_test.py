@@ -135,3 +135,54 @@ async def test_autocomplete_popup_keeps_initial_x_position():
         await pilot.pause()
 
         assert popup.absolute_offset.x == initial_x
+
+
+@pytest.mark.asyncio
+async def test_enter_key_selects_autocomplete_when_visible():
+    user_input = StubUserInput()
+    app = TextualApp(user_input)
+
+    async with app.run_test() as pilot:
+        text_area = app.query_one("#user-input", SubmittableTextArea)
+        
+        # Trigger autocomplete
+        text_area.text = "/c"
+        # Manually trigger the check/show because typing simulation might be async/complex
+        text_area._active_trigger = "/"
+        text_area._show_autocomplete("/c")
+        
+        assert text_area._autocomplete_visible is True
+        
+        # Press Enter
+        await pilot.press("enter")
+        
+        # Expectation:
+        # 1. Autocomplete should complete the text to "/clear "
+        # 2. Input should NOT be submitted yet
+        # 3. Autocomplete should be hidden
+        
+        assert text_area.text.startswith("/clear")
+        assert len(user_input.inputs) == 0
+        assert text_area._autocomplete_visible is False
+
+
+@pytest.mark.asyncio
+async def test_enter_key_submits_when_autocomplete_not_visible():
+    user_input = StubUserInput()
+    app = TextualApp(user_input)
+
+    async with app.run_test() as pilot:
+        text_area = app.query_one("#user-input", SubmittableTextArea)
+        
+        # Type something
+        text_area.text = "hello"
+        assert text_area._autocomplete_visible is False
+        
+        # Press Enter
+        await pilot.press("enter")
+        
+        # Expectation:
+        # 1. Input should be submitted
+        
+        assert len(user_input.inputs) == 1
+        assert user_input.inputs[0] == "hello"
