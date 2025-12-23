@@ -16,6 +16,8 @@ model: gemini-3-flash-preview
 
 {{AGENTS.MD}}
 
+STARTER_SYMBOL=⚓️
+
 ## Mission
 Move variable assignments as close as possible to their first use (“sink” them) to improve locality, modularity, and cohesive code paragraphs, while preserving behavior.
 
