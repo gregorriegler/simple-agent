@@ -6,11 +6,13 @@ from typing import Callable, Coroutine, Any
 logger = logging.getLogger(__name__)
 
 from rich.syntax import Syntax
+from rich.text import Text
 from textual import events
 from textual.app import App, ComposeResult
 from textual.timer import Timer
 from textual.containers import Vertical, VerticalScroll
 from textual.css.query import NoMatches
+from textual.geometry import Offset, Size
 from textual.widgets import Static, TabbedContent, TabPane, TextArea, Collapsible, Markdown
 
 from simple_agent.application.agent_id import AgentId
@@ -35,6 +37,85 @@ from simple_agent.infrastructure.textual.textual_messages import DomainEventMess
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
 
 
+def calculate_autocomplete_position(
+    cursor_offset: Offset,
+    screen_size: Size,
+    popup_height: int,
+    popup_width: int,
+) -> Offset:
+    if popup_height < 1:
+        popup_height = 1
+    if popup_width < 1:
+        popup_width = 1
+
+    below_y = cursor_offset.y + 1
+    above_y = cursor_offset.y - popup_height
+
+    if below_y + popup_height <= screen_size.height:
+        y = below_y
+    elif above_y >= 0:
+        y = above_y
+    else:
+        y = max(0, min(below_y, screen_size.height - popup_height))
+
+    anchor_x = cursor_offset.x - 2
+    max_x = max(0, screen_size.width - popup_width)
+    x = min(max(anchor_x, 0), max_x)
+    return Offset(x, y)
+
+
+class AutocompletePopup(Static):
+    DEFAULT_CSS = """
+    AutocompletePopup {
+        background: $surface;
+        color: $text;
+        padding: 0 1;
+        overlay: screen;
+        layer: overlay;
+        display: none;
+    }
+    """
+
+    def show_suggestions(
+        self,
+        lines: list[str],
+        selected_index: int,
+        cursor_offset: Offset,
+        screen_size: Size,
+    ) -> None:
+        if not lines:
+            self.hide()
+            return
+
+        max_line_length = max(len(line) for line in lines)
+        popup_width = min(max_line_length + 2, screen_size.width)
+        available_width = max(1, popup_width - 2)
+        trimmed_lines = [line[:available_width] for line in lines]
+        popup_height = len(trimmed_lines)
+
+        self.styles.width = popup_width
+        self.styles.height = popup_height
+        self.absolute_offset = calculate_autocomplete_position(
+            cursor_offset=cursor_offset,
+            screen_size=screen_size,
+            popup_height=popup_height,
+            popup_width=popup_width,
+        )
+
+        rendered = Text()
+        for index, line in enumerate(trimmed_lines):
+            if index:
+                rendered.append("\n")
+            style = "reverse" if index == selected_index else ""
+            rendered.append(line, style=style)
+
+        self.update(rendered)
+        self.display = True
+
+    def hide(self) -> None:
+        self.display = False
+
+
 class SubmittableTextArea(TextArea):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -42,6 +123,7 @@ class SubmittableTextArea(TextArea):
         self._autocomplete_visible = False
         self._current_suggestions = []
         self._selected_index = 0
+        self._autocomplete_anchor_x = None
 
     def _on_key(self, event: events.Key) -> None:
         # Handle Tab for autocomplete
@@ -91,12 +173,6 @@ class SubmittableTextArea(TextArea):
             return
 
         text = self.text
-        # Debug: show what we're checking
-        try:
-            hint_widget = self.app.query_one("#input-hint", Static)
-            hint_widget.update(f"DEBUG: text={repr(text)}, starts_with_slash={text.startswith('/')}")
-        except (NoMatches, AttributeError):
-            pass
 
         if text.startswith("/"):
             self._show_autocomplete(text)
@@ -112,9 +188,12 @@ class SubmittableTextArea(TextArea):
         logger.debug(f"Autocomplete for '{text}' (command: '{command}'): {len(suggestions)} suggestions")
 
         if suggestions:
+            was_visible = self._autocomplete_visible
             self._autocomplete_visible = True
             self._current_suggestions = suggestions
             self._selected_index = 0
+            if not was_visible:
+                self._autocomplete_anchor_x = self.cursor_screen_offset.x
             self._update_autocomplete_display()
         else:
             self._hide_autocomplete()
@@ -124,6 +203,7 @@ class SubmittableTextArea(TextArea):
         self._autocomplete_visible = False
         self._current_suggestions = []
         self._selected_index = 0
+        self._autocomplete_anchor_x = None
         self._update_autocomplete_display()
 
     def _navigate_autocomplete(self, direction: str) -> None:
@@ -150,27 +230,37 @@ class SubmittableTextArea(TextArea):
         self._hide_autocomplete()
 
     def _update_autocomplete_display(self) -> None:
-        """Update the autocomplete display in the hint area."""
-        if self._autocomplete_visible and self._current_suggestions:
-            # Build hint text showing available commands
-            hints = []
-            for i, cmd in enumerate(self._current_suggestions):
-                prefix = "→ " if i == self._selected_index else "  "
-                hints.append(f"{prefix}{cmd.name}: {cmd.description}")
-            hint_text = " | ".join(hints)
+        """Update the autocomplete display in the popup."""
+        try:
+            popup = self.app.query_one("#autocomplete-popup", AutocompletePopup)
+        except (NoMatches, AttributeError):
+            popup = None
 
-            try:
-                hint_widget = self.app.query_one("#input-hint", Static)
-                hint_widget.update(hint_text)
-            except (NoMatches, AttributeError):
-                pass
-        else:
-            # Restore default hint
-            try:
-                hint_widget = self.app.query_one("#input-hint", Static)
-                hint_widget.update("Enter to submit, Ctrl+Enter for newline")
-            except (NoMatches, AttributeError):
-                pass
+        if self._autocomplete_visible and self._current_suggestions:
+            lines = [
+                f"{cmd.name} - {cmd.description}"
+                for cmd in self._current_suggestions
+            ]
+            if popup:
+                anchor_x = self._autocomplete_anchor_x
+                cursor_offset = self.cursor_screen_offset
+                if anchor_x is not None:
+                    cursor_offset = Offset(anchor_x, cursor_offset.y)
+                popup.show_suggestions(
+                    lines=lines,
+                    selected_index=self._selected_index,
+                    cursor_offset=cursor_offset,
+                    screen_size=self.app.screen.size,
+                )
+        elif popup:
+            popup.hide()
+
+        try:
+            hint_widget = self.app.query_one("#input-hint", Static)
+            hint_widget.update("Enter to submit, Ctrl+Enter for newline")
+        except (NoMatches, AttributeError):
+            pass
+
 
 
 class TextualApp(App):
@@ -301,6 +391,7 @@ class TextualApp(App):
                     yield self.create_agent_container(log_id, tool_results_id, self._root_agent_id)
             yield Static("Enter to submit, Ctrl+Enter for newline", id="input-hint")
             yield SubmittableTextArea(id="user-input")
+            yield AutocompletePopup(id="autocomplete-popup")
 
     def create_agent_container(self, log_id, tool_results_id, agent_id):
         chat_scroll = VerticalScroll(id=f"{log_id}-scroll", classes="left-panel-top")
@@ -378,11 +469,12 @@ class TextualApp(App):
             tabs.active = new_tab_id
 
     def action_submit_input(self) -> None:
-        text_area = self.query_one("#user-input", TextArea)
+        text_area = self.query_one("#user-input", SubmittableTextArea)
         content = text_area.text.strip()
         if self.user_input:
             self.user_input.submit_input(content)
         text_area.clear()
+        text_area._hide_autocomplete()
 
     def write_message(self, log_id: str, message: str) -> None:
         try:
