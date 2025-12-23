@@ -1,5 +1,6 @@
 import io
 import os
+import subprocess
 import sys
 import time
 from difflib import SequenceMatcher
@@ -33,9 +34,10 @@ def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.5):
 
 @pytest.mark.flaky(reruns=2, reruns_delay=0.5)
 @pytest.mark.asyncio
-async def test_golden_master_agent_stub(monkeypatch):
+async def test_golden_master_agent_stub(monkeypatch, tmp_path):
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    os.chdir(project_root)
+    os.chdir(tmp_path)
+    monkeypatch.setenv("PYTHONPATH", project_root)
 
     monkeypatch.setattr(sys, "argv", [
         "main.py",
@@ -79,3 +81,27 @@ async def test_golden_master_agent_stub(monkeypatch):
         newfile_path.unlink()
 
     fuzzy_verify(captured[0].replace("▃", "").replace("╸", ""), approved_path)
+
+
+def test_non_interactive_stub_exits_successfully():
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    env = os.environ.copy()
+    env["PYTHONPATH"] = project_root
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "simple_agent.main",
+            "--stub",
+            "--non-interactive",
+            "Hello, world!",
+        ],
+        cwd=project_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
