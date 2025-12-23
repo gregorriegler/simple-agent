@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Callable, Any, Awaitable
 
-from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.llm import LLMProvider
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
@@ -55,8 +54,8 @@ class Session:
         self,
         args: SessionArgs,
         starting_agent_id: AgentId,
-        agent_definition: AgentDefinition
     ):
+        agent_definition = self._agent_library._starting_agent_definition()
         agent_factory = AgentFactory(
             self._event_bus,
             self._session_storage,
