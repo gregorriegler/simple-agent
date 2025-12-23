@@ -55,7 +55,6 @@ class Session:
         args: SessionArgs,
         starting_agent_id: AgentId,
     ):
-        agent_definition = self._agent_library._starting_agent_definition()
         agent_factory = AgentFactory(
             self._event_bus,
             self._session_storage,
@@ -76,6 +75,7 @@ class Session:
         else:
             persisted_messages = PersistedMessages(self._session_storage)
 
+        agent_definition = self._agent_library._starting_agent_definition()
         agent = agent_factory.create_agent(
             starting_agent_id,
             agent_definition,
