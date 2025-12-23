@@ -1,6 +1,7 @@
-from simple_agent.application.agent_type import AgentType
 import pytest
 
+from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.infrastructure.agent_library import (
     BuiltinAgentLibrary,
     FileSystemAgentLibrary,
@@ -25,8 +26,9 @@ def test_create_agent_library(tmp_path):
     user_config = UserConfiguration({"agents": {"start": "test"}}, str(tmp_path))
 
     agents = create_agent_library(user_config)
-    prompt = agents._starting_agent_definition().prompt()
-    assert prompt.agent_name == 'ProjectLocal'
+    starting_agent_id = agents.starting_agent_id()
+    prompt = agents.read_agent_definition(AgentType("test")).prompt()
+    assert starting_agent_id == AgentId("ProjectLocal")
     assert 'project-local agent' in prompt.template
 
 
@@ -88,6 +90,16 @@ def test_filesystem_agent_library_reads_definition(tmp_path):
     definition = library.read_agent_definition(AgentType("coding"))
 
     assert definition.agent_name() == "Coding"
+
+
+def test_filesystem_agent_library_returns_starting_agent_id(tmp_path):
+    path = tmp_path / "custom.agent.md"
+    path.write_text("---\nname: Custom\n---\n", encoding="utf-8")
+    library = FileSystemAgentLibrary(str(tmp_path), AgentType("custom"))
+
+    starting_agent_id = library.starting_agent_id()
+
+    assert starting_agent_id == AgentId("Custom")
 
 
 def test_filesystem_agent_library_reports_missing_definition(tmp_path):

@@ -14,6 +14,7 @@ from simple_agent.infrastructure.agent_file_conventions import (
 )
 from simple_agent.infrastructure.agents_md_ground_rules import AgentsMdGroundRules
 from simple_agent.application.agent_definition import AgentDefinition
+from simple_agent.application.agent_id import AgentId
 from simple_agent.infrastructure.configuration import get_starting_agent
 from simple_agent.infrastructure.user_configuration import UserConfiguration
 
@@ -50,6 +51,9 @@ class FileSystemAgentLibrary(AgentLibrary):
     def has_any(self) -> bool:
         return bool(self.list_agent_types())
 
+    def starting_agent_id(self) -> AgentId:
+        return AgentId(self._starting_agent_definition().agent_name())
+
     def _starting_agent_definition(self) -> AgentDefinition:
         if self._starting_agent_type is None:
             raise ValueError("starting agent type not configured")
@@ -83,6 +87,9 @@ class BuiltinAgentLibrary:
             with open(path, 'r', encoding='utf-8') as handle:
                 content = handle.read()
                 return AgentDefinition(agent_type, content, self.ground_rules)
+
+    def starting_agent_id(self) -> AgentId:
+        return AgentId(self._starting_agent_definition().agent_name())
 
     def _starting_agent_definition(self) -> AgentDefinition:
         if self._starting_agent_type is None:

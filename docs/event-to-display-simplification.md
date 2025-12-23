@@ -137,7 +137,7 @@ def clear_agent_panels(self, log_id: str) -> None:
 ### Normal Mode (main.py)
 ```python
 async def run_session():
-    await session.run_async(args, root_agent_id, agent_definition)
+    await session.run_async(args, root_agent_id)
 
 textual_app.run_with_session(run_session)
 ```

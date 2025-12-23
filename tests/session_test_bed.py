@@ -1,5 +1,6 @@
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
     AgentEvent,
@@ -18,7 +19,6 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.llm_stub import create_llm_stub, StubLLMProvider
 from simple_agent.application.session import Session
-from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from tests.event_spy import EventSpy
 from tests.session_storage_stub import SessionStorageStub
@@ -144,7 +144,7 @@ class SessionTestBed:
             event_bus=event_bus,
             session_storage=session_storage,
             tool_library_factory=tool_library_factory,
-            agent_library=BuiltinAgentLibrary(),
+            agent_library=TestAgentLibrary(),
             user_input=user_input,
             todo_cleanup=todo_cleanup,
             llm_provider=StubLLMProvider.for_testing(self._llm),
@@ -154,20 +154,32 @@ class SessionTestBed:
         await session.run_async(
             create_session_args(self._continue_session, start_message=self._start_message),
             AgentId("Agent"),
-            _create_test_agent_definition()
         )
 
         return SessionTestResult(event_spy, session_storage)
 
 
-def _create_test_agent_definition():
-    return AgentDefinition(
-        AgentId("Agent"),
-        """---
+class TestAgentLibrary:
+    def __init__(self):
+        self._definition = AgentDefinition(
+            AgentType("agent"),
+            """---
 name: Agent
 ---""",
-        GroundRulesStub("Test system prompt")
-    )
+            GroundRulesStub("Test system prompt")
+        )
+
+    def list_agent_types(self) -> list[str]:
+        return ["agent"]
+
+    def read_agent_definition(self, agent_type: AgentType) -> AgentDefinition:
+        return self._definition
+
+    def starting_agent_id(self) -> AgentId:
+        return AgentId(self._definition.agent_name())
+
+    def _starting_agent_definition(self) -> AgentDefinition:
+        return self._definition
 
 
 class _NoOpTodoCleanup:
