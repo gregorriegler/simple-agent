@@ -6,7 +6,7 @@ import io
 import os
 import sys
 from pathlib import Path
-from typing import Awaitable, Protocol
+from typing import Protocol
 
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
@@ -66,7 +66,7 @@ class TestTextualRunStrategy(TextualRunStrategy):
         return textual_app
 
 
-async def run_main(run_strategy: TextualRunStrategy, on_user_prompt_requested=None):
+async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
     args = parse_args()
     cwd = os.getcwd()
     user_config = UserConfiguration.create_from_args(args, cwd)
@@ -113,28 +113,34 @@ async def run_main(run_strategy: TextualRunStrategy, on_user_prompt_requested=No
         project_tree=project_tree,
     )
 
-    root_agent_id = agent_library.starting_agent_id()
-    textual_app = TextualApp(textual_user_input, root_agent_id)
+    starting_agent_id = agent_library.starting_agent_id()
+    textual_app = TextualApp(textual_user_input, starting_agent_id)
     subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
-    if on_user_prompt_requested:
-        def on_prompt_wrapper(_):
-            result = on_user_prompt_requested(textual_app)
-            if run_strategy.allow_async and isinstance(result, Awaitable):
-                asyncio.create_task(result)
-        event_bus.subscribe(UserPromptRequestedEvent, on_prompt_wrapper)
+    if event_subscriber:
+        event_subscriber(event_bus, textual_app)
 
     async def run_session():
-        await session.run_async(args, root_agent_id)
+        await session.run_async(args, starting_agent_id)
 
     return await run_strategy.run(textual_app, run_session)
 
 
 def main():
-    return asyncio.run(run_main(ProductionTextualRunStrategy()))
+    return asyncio.run(_run_main(ProductionTextualRunStrategy()))
 
 
 async def main_async(on_user_prompt_requested=None):
-    return await run_main(TestTextualRunStrategy(), on_user_prompt_requested)
+    def subscribe_prompt(event_bus, textual_app):
+        if not on_user_prompt_requested:
+            return
+
+        def on_prompt_wrapper(_):
+            result = on_user_prompt_requested(textual_app)
+            asyncio.create_task(result)
+
+        event_bus.subscribe(UserPromptRequestedEvent, on_prompt_wrapper)
+
+    return await _run_main(TestTextualRunStrategy(), subscribe_prompt)
 
 
 def print_system_prompt_command(user_config, cwd, args):
