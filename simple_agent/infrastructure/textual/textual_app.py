@@ -35,6 +35,8 @@ from simple_agent.application.events import (
 from simple_agent.application.tool_results import ToolResult
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
+from simple_agent.application.file_search import FileSearcher
+from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 
 
 def calculate_autocomplete_position(
@@ -120,15 +122,18 @@ class SubmittableTextArea(TextArea):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.slash_command_registry = None
+        self.file_searcher: FileSearcher | None = None
         self._autocomplete_visible = False
         self._current_suggestions = []
         self._selected_index = 0
         self._autocomplete_anchor_x = None
+        self._active_trigger = None  # "/" or "@"
+        self._trigger_word_start_index = None
 
     def _on_key(self, event: events.Key) -> None:
         # Handle Tab for autocomplete
         if event.key == "tab" and self._autocomplete_visible:
-            self._complete_selected_command()
+            self._complete_selection()
             event.stop()
             event.prevent_default()
             return
@@ -169,34 +174,112 @@ class SubmittableTextArea(TextArea):
 
     def _check_autocomplete(self) -> None:
         """Check if we should show autocomplete based on current text."""
+        # Get text up to cursor
+        cursor_location = self.cursor_location
+        # For simplicity, we only autocomplete on the last line where the cursor is
+        # or properly handle multiline content.
+        # TextArea.text is the whole text.
+        
+        # Get the line content and cursor column
+        row, col = cursor_location
+        try:
+            line = self.document.get_line(row)
+        except IndexError:
+            self._hide_autocomplete()
+            return
+
+        # Check for slash command at start of text (simplest case)
+        # Note: Slash commands are usually only at the very beginning of the prompt
+        if row == 0 and col > 0 and line.startswith("/") and " " not in line[:col]:
+            self._active_trigger = "/"
+            self._trigger_word_start_index = 0
+            self._show_autocomplete(line[:col])
+            return
+
+        # Check for file search (@)
+        # We look for the word ending at cursor.
+        # Find the start of the word before cursor
+        text_before_cursor = line[:col]
+        
+        # Simple tokenization by space to find the current word being typed
+        last_space_index = text_before_cursor.rfind(" ")
+        word_start_index = last_space_index + 1
+        current_word = text_before_cursor[word_start_index:]
+        
+        if current_word.startswith("@"):
+            self._active_trigger = "@"
+            self._trigger_word_start_index = word_start_index
+            asyncio.create_task(self._show_file_autocomplete(current_word))
+            return
+            
+        self._hide_autocomplete()
+
+    def _show_autocomplete(self, text: str) -> None:
+        """Show autocomplete suggestions for slash commands."""
         if not self.slash_command_registry:
             return
 
-        text = self.text
-
-        if text.startswith("/"):
-            self._show_autocomplete(text)
-        else:
-            self._hide_autocomplete()
-
-    def _show_autocomplete(self, text: str) -> None:
-        """Show autocomplete suggestions."""
-        # Extract the command part (first word)
-        command = text.split()[0] if text else text
+        # Extract the command part
+        command = text
         suggestions = self.slash_command_registry.get_matching_commands(command)
 
-        logger.debug(f"Autocomplete for '{text}' (command: '{command}'): {len(suggestions)} suggestions")
-
         if suggestions:
-            was_visible = self._autocomplete_visible
-            self._autocomplete_visible = True
-            self._current_suggestions = suggestions
-            self._selected_index = 0
-            if not was_visible:
-                self._autocomplete_anchor_x = self.cursor_screen_offset.x
-            self._update_autocomplete_display()
+            self._display_suggestions(suggestions)
         else:
             self._hide_autocomplete()
+
+    async def _show_file_autocomplete(self, text: str) -> None:
+        """Show autocomplete suggestions for files."""
+        if not self.file_searcher:
+            return
+            
+        # Remove '@' prefix for search
+        query = text[1:]
+        
+        # Avoid searching for empty string if desired, or allow it to show all files
+        # showing all files might be too much, so maybe wait for 1 char?
+        # let's allow it for now.
+        
+        try:
+            paths = await self.file_searcher.search(query)
+            # Wrap strings in simple objects to match structure expected by _display_suggestions if needed
+            # or adapt _display_suggestions.
+            # Slash commands are objects with .name and .description.
+            # Let's make a simple wrapper or adapt the display logic.
+            
+            # Adapting display logic is better.
+            self._display_suggestions(paths, is_files=True)
+        except Exception as e:
+            logger.error(f"File search failed: {e}")
+            self._hide_autocomplete()
+
+    def _display_suggestions(self, suggestions: list, is_files: bool = False) -> None:
+        was_visible = self._autocomplete_visible
+        self._autocomplete_visible = True
+        self._current_suggestions = suggestions
+        self._selected_index = 0
+        self._suggestions_are_files = is_files
+        
+        if not was_visible:
+            # Calculate anchor X based on trigger word start
+            # self.cursor_screen_offset is the absolute screen position of cursor
+            # We want the popup to align with the start of the word.
+            
+            # Note: cursor_screen_offset calculation might be tricky with scrolling.
+            # For now, let's try to approximate or just use cursor position.
+            # Using cursor position matches the previous behavior for slash commands.
+            # For @ files, it might be better to align with @.
+            
+            # Let's align with the cursor for now, simpler.
+            self._autocomplete_anchor_x = self.cursor_screen_offset.x
+            
+            # Refinement: align with word start if possible.
+            # This requires calculating the width of the text before cursor on this line.
+            # Textual doesn't expose text measurement easily here without accessing internals.
+            # We'll stick to cursor-aligned or left-aligned for now.
+            pass
+
+        self._update_autocomplete_display()
 
     def _hide_autocomplete(self) -> None:
         """Hide autocomplete suggestions."""
@@ -204,6 +287,7 @@ class SubmittableTextArea(TextArea):
         self._current_suggestions = []
         self._selected_index = 0
         self._autocomplete_anchor_x = None
+        self._active_trigger = None
         self._update_autocomplete_display()
 
     def _navigate_autocomplete(self, direction: str) -> None:
@@ -218,15 +302,66 @@ class SubmittableTextArea(TextArea):
 
         self._update_autocomplete_display()
 
-    def _complete_selected_command(self) -> None:
-        """Complete the selected command."""
+    def _complete_selection(self) -> None:
+        """Complete the selected item."""
         if not self._current_suggestions or self._selected_index >= len(self._current_suggestions):
             return
 
         selected = self._current_suggestions[self._selected_index]
-        # Replace the current text with the selected command
-        self.text = selected.name + " "
-        self.move_cursor_relative(columns=len(selected.name) + 1)
+        
+        if self._active_trigger == "/":
+            # Slash command completion: replace the command
+            # For slash commands, we assume it's at the start of the line (row 0)
+            # We replace from 0 to cursor.
+            
+            # But wait, self.text is everything. 
+            # We need to be careful.
+            
+            # Simplification: Just replace the whole text if it's a slash command line
+            # since slash commands are single-line prompts usually.
+            
+            cmd_name = selected.name
+            self.text = cmd_name + " "
+            self.move_cursor_relative(columns=len(cmd_name) + 1)
+            
+        elif self._active_trigger == "@":
+            # File completion: replace the word under cursor
+            # We know _trigger_word_start_index
+            
+            row, col = self.cursor_location
+            file_path = selected # selected is str
+            
+            # Delete the current word (@...)
+            # We are at `col`. The word started at `self._trigger_word_start_index`
+            
+            # Calculate length to delete
+            # word length = col - self._trigger_word_start_index
+            
+            # Move cursor to start of word
+            # But textual API for editing is: delete(start, end), insert(text, location)
+            # Or use selection.
+            
+            # Easier approach with Textual TextArea:
+            # Select the range then insert.
+            
+            start_col = self._trigger_word_start_index
+            # We want to keep the @? Usually no, "Check @file" -> "Check file.txt" or "Check @file.txt"?
+            # User said "file-adder using the @ character". 
+            # If I type "@mai", I expect "main.py" or "@main.py"?
+            # Usually in chat apps: "@User" -> "@User " (linkified).
+            # Here it's a file path. "main.py" is better for the agent to read.
+            # So we replace the "@" as well.
+            
+            self.replace(
+                file_path + " ",
+                start=(row, start_col),
+                end=(row, col),
+                maintain_selection_offset=False,
+            )
+            
+            # Restore cursor is handled by replace somewhat, but let's ensure.
+            # The replace puts cursor at the end of insertion usually.
+            
         self._hide_autocomplete()
 
     def _update_autocomplete_display(self) -> None:
@@ -237,19 +372,24 @@ class SubmittableTextArea(TextArea):
             popup = None
 
         if self._autocomplete_visible and self._current_suggestions:
-            lines = [
-                f"{cmd.name} - {cmd.description}"
-                for cmd in self._current_suggestions
-            ]
+            if self._suggestions_are_files:
+                 lines = [
+                    f"{path}"  # Just the path for files
+                    for path in self._current_suggestions
+                ]
+            else:
+                lines = [
+                    f"{cmd.name} - {cmd.description}"
+                    for cmd in self._current_suggestions
+                ]
+                
             if popup:
-                anchor_x = self._autocomplete_anchor_x
-                cursor_offset = self.cursor_screen_offset
-                if anchor_x is not None:
-                    cursor_offset = Offset(anchor_x, cursor_offset.y)
+                # We try to position near cursor.
+                # Ideally calculate X based on word start, but cursor X is okay proxy.
                 popup.show_suggestions(
                     lines=lines,
                     selected_index=self._selected_index,
-                    cursor_offset=cursor_offset,
+                    cursor_offset=self.cursor_screen_offset,
                     screen_size=self.app.screen.size,
                 )
         elif popup:
@@ -365,6 +505,7 @@ class TextualApp(App):
         self._todo_containers: dict[str, tuple] = {}
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._slash_command_registry = SlashCommandRegistry()
+        self._file_searcher = NativeFileSearcher()
         self._agent_models: dict[AgentId, str] = {root_agent_id: ""}
         self._agent_max_tokens: dict[AgentId, int] = {root_agent_id: 0}
         self._suppressed_tool_calls: set[str] = set()
@@ -418,6 +559,7 @@ class TextualApp(App):
     async def on_mount(self) -> None:
         text_area = self.query_one("#user-input", SubmittableTextArea)
         text_area.slash_command_registry = self._slash_command_registry
+        text_area.file_searcher = self._file_searcher
         text_area.focus()
         if self._session_runner:
             self._session_task = asyncio.create_task(self._run_session())
