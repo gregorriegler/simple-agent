@@ -75,15 +75,10 @@ async def test_golden_master_agent_stub(monkeypatch, tmp_path):
 
     await main_async(on_user_prompt_requested=on_user_prompt_requested)
 
-    # Cleanup: Remove newfile.txt if it was created by the stub
-    newfile_path = Path(project_root) / "newfile.txt"
-    if newfile_path.exists():
-        newfile_path.unlink()
-
     fuzzy_verify(captured[0].replace("▃", "").replace("╸", ""), approved_path)
 
 
-def test_non_interactive_stub_exits_successfully():
+def test_non_interactive_stub_exits_successfully(tmp_path):
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     env = os.environ.copy()
     env["PYTHONPATH"] = project_root
@@ -97,7 +92,7 @@ def test_non_interactive_stub_exits_successfully():
             "--non-interactive",
             "Hello, world!",
         ],
-        cwd=project_root,
+        cwd=tmp_path,
         env=env,
         capture_output=True,
         text=True,
