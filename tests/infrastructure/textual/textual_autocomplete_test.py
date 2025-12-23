@@ -85,6 +85,15 @@ class StubUserInput:
     def submit_input(self, content: str) -> None:
         self.inputs.append(content)
 
+    def close(self) -> None:
+        pass
+
+    async def read_async(self) -> str:
+        return ""
+
+    def escape_requested(self) -> bool:
+        return False
+
 
 @pytest.mark.asyncio
 async def test_submit_hides_autocomplete_popup():

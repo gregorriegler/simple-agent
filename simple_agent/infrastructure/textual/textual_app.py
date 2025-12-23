@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import re
 from pathlib import Path
 from typing import Callable, Coroutine, Any
 
@@ -121,7 +122,7 @@ class AutocompletePopup(Static):
 class SubmittableTextArea(TextArea):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.slash_command_registry = None
+        self.slash_command_registry: SlashCommandRegistry | None = None
         self.file_searcher: FileSearcher | None = None
         self._autocomplete_visible = False
         self._current_suggestions = []
@@ -129,6 +130,12 @@ class SubmittableTextArea(TextArea):
         self._autocomplete_anchor_x = None
         self._active_trigger = None  # "/" or "@"
         self._trigger_word_start_index = None
+        self._referenced_files: set[str] = set()
+
+    def get_referenced_files(self) -> set[str]:
+        """Return the set of files that were selected via autocomplete and are still in the text."""
+        current_text = self.text
+        return {f for f in self._referenced_files if f"[📦{f}]" in current_text}
 
     def _on_key(self, event: events.Key) -> None:
         # Handle Tab for autocomplete
@@ -330,6 +337,7 @@ class SubmittableTextArea(TextArea):
             
             row, col = self.cursor_location
             file_path = selected # selected is str
+            self._referenced_files.add(file_path)
             
             # Delete the current word (@...)
             # We are at `col`. The word started at `self._trigger_word_start_index`
@@ -345,15 +353,11 @@ class SubmittableTextArea(TextArea):
             # Select the range then insert.
             
             start_col = self._trigger_word_start_index
-            # We want to keep the @? Usually no, "Check @file" -> "Check file.txt" or "Check @file.txt"?
-            # User said "file-adder using the @ character". 
-            # If I type "@mai", I expect "main.py" or "@main.py"?
-            # Usually in chat apps: "@User" -> "@User " (linkified).
-            # Here it's a file path. "main.py" is better for the agent to read.
-            # So we replace the "@" as well.
+            # We insert a visual marker [📦filename] for user feedback.
+            display_marker = f"[📦{file_path}]"
             
             self.replace(
-                file_path + " ",
+                display_marker + " ",
                 start=(row, start_col),
                 end=(row, col),
                 maintain_selection_offset=False,
@@ -385,11 +389,18 @@ class SubmittableTextArea(TextArea):
                 
             if popup:
                 # We try to position near cursor.
-                # Ideally calculate X based on word start, but cursor X is okay proxy.
+                # Use fixed anchor X if available to prevent popup from moving while typing.
+                if self._autocomplete_anchor_x is not None:
+                    target_x = self._autocomplete_anchor_x
+                else:
+                    target_x = self.cursor_screen_offset.x
+                
+                target_offset = Offset(target_x, self.cursor_screen_offset.y)
+
                 popup.show_suggestions(
                     lines=lines,
                     selected_index=self._selected_index,
-                    cursor_offset=self.cursor_screen_offset,
+                    cursor_offset=target_offset,
                     screen_size=self.app.screen.size,
                 )
         elif popup:
@@ -613,6 +624,24 @@ class TextualApp(App):
     def action_submit_input(self) -> None:
         text_area = self.query_one("#user-input", SubmittableTextArea)
         content = text_area.text.strip()
+        
+        referenced_files = text_area.get_referenced_files()
+        if referenced_files:
+            file_contents = []
+            for file_path_str in referenced_files:
+                try:
+                    path = Path(file_path_str)
+                    if path.exists() and path.is_file():
+                        file_text = path.read_text(encoding="utf-8")
+                        file_contents.append(f'<file_context path="{file_path_str}">\n{file_text}\n</file_context>')
+                except Exception as e:
+                    logger.error(f"Failed to read referenced file {file_path_str}: {e}")
+            
+            if file_contents:
+                content += "\n" + "\n".join(file_contents)
+                # Clear references after consuming them
+                text_area._referenced_files.clear()
+
         if self.user_input:
             self.user_input.submit_input(content)
         text_area.clear()
@@ -898,7 +927,40 @@ class TextualApp(App):
             self._reset_agent_token_usage(event.agent_id)
         elif isinstance(event, UserPromptedEvent):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
-            self.write_message(log_id, f"**User:** {event.input_text}")
+            
+            # Compact file context for display
+            display_text = event.input_text
+            
+            # Find all context blocks
+            pattern = r'<file_context path="([^"]+)">.*?</file_context>'
+            matches = list(re.finditer(pattern, display_text, flags=re.DOTALL))
+            
+            if matches:
+                # Remove all blocks from the text first to get the core message
+                core_text = re.sub(pattern, "", display_text, flags=re.DOTALL).strip()
+                
+                attachments = []
+                for match in matches:
+                    path = match.group(1)
+                    marker = f"[📦{path}]"
+                    
+                    # If the marker is already in core_text, we don't need to do anything else for this file
+                    if marker in core_text:
+                        continue
+                        
+                    # Fallback for manually typed paths or older logic
+                    escaped_path = re.escape(path)
+                    if re.search(escaped_path, core_text):
+                        # Replace the first occurrence of the path with the marker
+                        core_text = re.sub(escaped_path, marker, core_text, count=1)
+                    else:
+                        attachments.append(marker)
+                
+                display_text = core_text
+                if attachments:
+                    display_text += "\n" + "\n".join(attachments)
+            
+            self.write_message(log_id, f"**User:** {display_text}")
         elif isinstance(event, AssistantSaidEvent):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
             agent_name = self._agent_names.get(event.agent_id, str(event.agent_id))
