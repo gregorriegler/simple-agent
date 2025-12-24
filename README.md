@@ -106,6 +106,25 @@ api_key = "${GOOGLE_API_KEY}"
 
 Agent definition files (`*.agent.md`) are discovered from the built-in `simple_agent` package and from `.simple-agent/agents` in your project directory. To point the agent at a different directory, add `agent_definitions_dir = "/path/to/agents"` under the `[paths]` section of `.simple-agent.toml`. When configured, only the files from that directory are used for type discovery and prompt loading.
 
+Example custom agent definition (save as `marketing.agent.md` in your configured agents directory):
+
+```markdown
+---
+name: Marketing
+tools:
+  - bash
+  - cat
+  - edit_file
+model: gemini-3-flash-preview
+---
+
+You are a marketing-focused assistant who writes short, punchy summaries.
+
+{{DYNAMIC_TOOLS_PLACEHOLDER}}
+
+{{AGENTS.MD}}
+```
+
 To change which agent starts first, set it via the `[agents]` section:
 
 ```toml
