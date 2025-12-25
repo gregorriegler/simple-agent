@@ -137,7 +137,7 @@ class SubmittableTextArea(TextArea):
         current_text = self.text
         return {f for f in self._referenced_files if f"[📦{f}]" in current_text}
 
-    def _on_key(self, event: events.Key) -> None:
+    async def _on_key(self, event: events.Key) -> None:
         # Handle Tab for autocomplete
         if event.key == "tab" and self._autocomplete_visible:
             self._complete_selection()
@@ -180,7 +180,7 @@ class SubmittableTextArea(TextArea):
             return
 
         # IMPORTANT: Call super()._on_key() first to let the character be inserted
-        super()._on_key(event)
+        await super()._on_key(event)
 
         # THEN check for autocomplete (now self.text will include the new character)
         self.call_after_refresh(self._check_autocomplete)
