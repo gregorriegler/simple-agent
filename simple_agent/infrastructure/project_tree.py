@@ -78,7 +78,7 @@ def _build_tree(
         return
 
     try:
-        items = sorted(root_path.iterdir(), key=lambda x: (not x.is_dir(), x.name))
+        items = root_path.iterdir()
     except PermissionError:
         return
 
