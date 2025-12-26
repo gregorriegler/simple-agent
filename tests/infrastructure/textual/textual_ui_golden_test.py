@@ -67,7 +67,9 @@ def dump_ascii_screen(app: TextualApp) -> str:
         height=app.size.height,
         force_terminal=False,
         file=io.StringIO(),
-        color_system=None # Force plain text for consistent golden master
+        color_system=None,  # Force plain text for consistent golden master
+        legacy_windows=False,
+        safe_box=False,
     )
     # compositor print method prints the screen to the console
     console.print(app.screen._compositor)
