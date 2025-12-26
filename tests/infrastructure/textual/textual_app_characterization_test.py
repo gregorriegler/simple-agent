@@ -25,24 +25,11 @@ from simple_agent.application.events import (
 )
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from unittest.mock import MagicMock, patch
-
-class FakeUserInput:
-    async def read_async(self) -> str:
-        return ""
-
-    def escape_requested(self) -> bool:
-        return False
-
-    def submit_input(self, content: str) -> None:
-        return None
-
-    def close(self) -> None:
-        return None
-
+from tests.infrastructure.textual.test_utils import MockUserInput
 
 @pytest.fixture
 def app():
-    return TextualApp(FakeUserInput(), AgentId("Agent"))
+    return TextualApp(MockUserInput(), AgentId("Agent"))
 
 
 @pytest.mark.asyncio

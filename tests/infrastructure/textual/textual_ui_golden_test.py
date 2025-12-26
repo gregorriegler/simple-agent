@@ -17,65 +17,7 @@ from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from approvaltests import verify, Options
 from approvaltests.reporters import GenericDiffReporterFactory
-
-
-# Helper to dump UI state
-def dump_ui_state(app: TextualApp) -> str:
-    lines = []
-
-    # Dump Tabs
-    tabs = app.query("TabPane")
-    lines.append(f"Tabs: {[t.id for t in tabs]}")
-    lines.append(f"Active Tab: {app.query_one('TabbedContent').active}")
-
-    # Dump Visible Widgets in Main Content
-    # We walk the tree and print relevant info
-    for widget in app.screen.walk_children():
-        # Skip some containers if they are just layout
-        indent = "  " * len(list(widget.ancestors))
-        classes = sorted(list(widget.classes))
-        info = f"{indent}{widget.__class__.__name__} id='{widget.id}' classes='{' '.join(classes)}'"
-
-        # Add specific state
-        if isinstance(widget, Markdown):
-             # Markdown content isn't easily accessible as raw text directly from widget.source
-             # but we can try accessing the source if available
-             # In Textual, Markdown.source is the source text
-             info += f" source={repr(widget.source[:50])}..."
-
-        if isinstance(widget, TextArea):
-            info += f" text={repr(widget.text)}"
-
-        if isinstance(widget, Collapsible):
-            info += f" title={repr(widget.title)} collapsed={widget.collapsed}"
-
-        if isinstance(widget, Static) and not isinstance(widget, (Markdown, TextArea)):
-             # Try to get text from renderable if it's simple
-             if hasattr(widget, "renderable") and hasattr(widget.renderable, "plain"):
-                 info += f" content={repr(widget.renderable.plain)}"
-
-        lines.append(info)
-
-    return "\n".join(lines)
-
-def dump_ascii_screen(app: TextualApp) -> str:
-    """Capture the ASCII representation of the current screen."""
-    # Use a separate console to capture the output of the compositor
-    console = Console(
-        record=True,
-        width=app.size.width,
-        height=app.size.height,
-        force_terminal=False,
-        file=io.StringIO(),
-        color_system=None,  # Force plain text for consistent golden master
-        legacy_windows=False,
-        safe_box=False,
-    )
-    # compositor print method prints the screen to the console
-    console.print(app.screen._compositor)
-    output = console.export_text()
-    # Strip trailing whitespace from each line to reduce noise in golden master
-    return "\n".join(line.rstrip() for line in output.splitlines())
+from tests.infrastructure.textual.test_utils import dump_ui_state, dump_ascii_screen
 
 @pytest.mark.asyncio
 async def test_golden_happy_path_flow():
