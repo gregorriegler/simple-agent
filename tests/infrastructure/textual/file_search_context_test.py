@@ -1,6 +1,7 @@
 import pytest
 from pathlib import Path
-from simple_agent.infrastructure.textual.textual_app import TextualApp, SubmittableTextArea
+from simple_agent.infrastructure.textual.textual_app import TextualApp
+from simple_agent.infrastructure.textual.widgets.smart_input import SubmittableTextArea
 from simple_agent.application.events import UserPromptedEvent
 from simple_agent.application.agent_id import AgentId
 import re
