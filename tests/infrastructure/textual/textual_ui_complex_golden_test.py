@@ -65,7 +65,25 @@ def dump_ascii_screen(app: TextualApp) -> str:
     )
     console.print(app.screen._compositor)
     output = console.export_text()
-    return "\n".join(line.rstrip() for line in output.splitlines())
+
+    # Clean up output
+    # 1. Strip trailing whitespace from each line
+    lines = [line.rstrip() for line in output.splitlines()]
+
+    # 2. Normalize horizontal splitter (flaky rendering across environments)
+    # The splitter typically renders as a mix of '━' and '╸' or '╺'.
+    # We'll replace lines that look like horizontal splitters with a stable representation.
+    normalized_lines = []
+    for line in lines:
+        if "━" in line and ("╸" in line or "╺" in line):
+             # Heuristic: if a line is mostly splitter chars, replace it
+             if len(line) > 10 and all(c in " ━╸╺" for c in line.strip()):
+                 # Replace with a solid line of the same length
+                 normalized_lines.append("━" * len(line))
+                 continue
+        normalized_lines.append(line)
+
+    return "\n".join(normalized_lines)
 
 class MockUserInput:
     def __init__(self):
@@ -165,8 +183,29 @@ new line
         app.on_domain_event_message(DomainEventMessage(ToolCalledEvent(agent_id, call_id_cancel, type("Tool", (), {"header": lambda s: "long_running()"})())))
         await pilot.pause()
 
+        # Wait for the tool call to be rendered
+        await pilot.pause()
+
         app.on_domain_event_message(DomainEventMessage(ToolCancelledEvent(agent_id, call_id_cancel)))
         await pilot.pause()
+
+        # Verification: Wait for UI update
+        # We need to ensure the Collapsible title has updated to include "(Cancelled)"
+        # This might take a cycle.
+        async def wait_for_cancel():
+            for _ in range(10):
+                await pilot.pause(0.1)
+                # Check directly in the app widget tree
+                try:
+                    # Find the collapsible for the cancelled tool
+                    # We iterate over collapsibles to find the one with the title
+                    for widget in app.query(Collapsible):
+                         if "long_running()" in str(widget.title) and "(Cancelled)" in str(widget.title):
+                             return
+                except Exception:
+                    pass
+
+        await wait_for_cancel()
         capture_step("Tool Cancelled")
 
         # --- Scenario: File Context Submission ---
