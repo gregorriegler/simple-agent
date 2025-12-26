@@ -54,7 +54,14 @@ async def test_golden_master_agent_stub(monkeypatch, tmp_path):
 
     async def on_user_prompt_requested(app):
         def get_screen_content():
-            console = Console(record=True, width=80, force_terminal=False, file=io.StringIO())
+            console = Console(
+                record=True,
+                width=80,
+                force_terminal=False,
+                file=io.StringIO(),
+                legacy_windows=False,
+                safe_box=False,
+            )
             console.print(app.screen._compositor)
             return normalize(console.export_text())
 
