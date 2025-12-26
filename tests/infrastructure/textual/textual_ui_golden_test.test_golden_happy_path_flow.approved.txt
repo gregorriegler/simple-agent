@@ -25,7 +25,6 @@ Active Tab: tab-Agent
       SubmittableTextArea id='user-input' classes='' text=''
       AutocompletePopup id='autocomplete-popup' classes=''
 
-
 --- Step: Session Started (ASCII UI) ---
  Agent
 ╸━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -51,8 +50,6 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
-
-
 
 --- Step: User Prompt Requested (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -83,7 +80,6 @@ Active Tab: tab-Agent
       SubmittableTextArea id='user-input' classes='' text=''
       AutocompletePopup id='autocomplete-popup' classes=''
 
-
 --- Step: User Prompt Requested (ASCII UI) ---
  Agent
 ╸━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -109,8 +105,6 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
-
-
 
 --- Step: User Input Submitted (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -141,7 +135,6 @@ Active Tab: tab-Agent
       SubmittableTextArea id='user-input' classes='' text=''
       AutocompletePopup id='autocomplete-popup' classes=''
 
-
 --- Step: User Input Submitted (ASCII UI) ---
  Agent
 ╸━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -167,8 +160,6 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
-
-
 
 --- Step: Assistant Reply (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -203,7 +194,6 @@ Active Tab: tab-Agent
       SubmittableTextArea id='user-input' classes='' text=''
       AutocompletePopup id='autocomplete-popup' classes=''
 
-
 --- Step: Assistant Reply (ASCII UI) ---
  Agent
 ╸━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -229,8 +219,6 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
-
-
 
 --- Step: Tool Called (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -269,7 +257,6 @@ Active Tab: tab-Agent
       SubmittableTextArea id='user-input' classes='' text=''
       AutocompletePopup id='autocomplete-popup' classes=''
 
-
 --- Step: Tool Called (ASCII UI) ---
  Agent
 ╸━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -295,8 +282,6 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
-
-
 
 --- Step: Tool Result (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -334,7 +319,6 @@ Active Tab: tab-Agent
       Static id='input-hint' classes=''
       SubmittableTextArea id='user-input' classes='' text=''
       AutocompletePopup id='autocomplete-popup' classes=''
-
 
 --- Step: Tool Result (ASCII UI) ---
  Agent

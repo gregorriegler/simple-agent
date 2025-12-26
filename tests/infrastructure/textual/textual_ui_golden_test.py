@@ -73,7 +73,7 @@ def dump_ascii_screen(app: TextualApp) -> str:
     console.print(app.screen._compositor)
     output = console.export_text()
     # Strip trailing whitespace from each line to reduce noise in golden master
-    return "\n".join(line.rstrip() for line in output.splitlines()) + "\n"
+    return "\n".join(line.rstrip() for line in output.splitlines())
 
 @pytest.mark.asyncio
 async def test_golden_happy_path_flow():
@@ -102,12 +102,12 @@ async def test_golden_happy_path_flow():
         # Dump Widget Tree
         timeline.append(f"--- Step: {step_name} (Widget Tree) ---")
         timeline.append(dump_ui_state(app))
-        timeline.append("\n")
+        timeline.append("")
 
         # Dump ASCII Screen
         timeline.append(f"--- Step: {step_name} (ASCII UI) ---")
         timeline.append(dump_ascii_screen(app))
-        timeline.append("\n")
+        timeline.append("")
 
     async with app.run_test(size=(80, 24)) as pilot:
         # 1. Session Start (Initial state)
