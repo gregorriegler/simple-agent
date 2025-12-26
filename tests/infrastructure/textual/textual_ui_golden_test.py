@@ -1,5 +1,7 @@
 import pytest
 import asyncio
+import io
+from rich.console import Console
 from textual.widgets import TextArea, Static, Collapsible, Markdown
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.application.agent_id import AgentId
@@ -56,6 +58,21 @@ def dump_ui_state(app: TextualApp) -> str:
 
     return "\n".join(lines)
 
+def dump_ascii_screen(app: TextualApp) -> str:
+    """Capture the ASCII representation of the current screen."""
+    # Use a separate console to capture the output of the compositor
+    console = Console(
+        record=True,
+        width=app.size.width,
+        height=app.size.height,
+        force_terminal=False,
+        file=io.StringIO(),
+        color_system=None # Force plain text for consistent golden master
+    )
+    # compositor print method prints the screen to the console
+    console.print(app.screen._compositor)
+    return console.export_text()
+
 @pytest.mark.asyncio
 async def test_golden_happy_path_flow():
     """
@@ -80,9 +97,14 @@ async def test_golden_happy_path_flow():
     timeline = []
 
     def capture_step(step_name: str):
-        dump = dump_ui_state(app)
-        timeline.append(f"--- Step: {step_name} ---")
-        timeline.append(dump)
+        # Dump Widget Tree
+        timeline.append(f"--- Step: {step_name} (Widget Tree) ---")
+        timeline.append(dump_ui_state(app))
+        timeline.append("\n")
+
+        # Dump ASCII Screen
+        timeline.append(f"--- Step: {step_name} (ASCII UI) ---")
+        timeline.append(dump_ascii_screen(app))
         timeline.append("\n")
 
     async with app.run_test(size=(80, 24)) as pilot:

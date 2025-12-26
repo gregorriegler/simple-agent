@@ -1,4 +1,4 @@
---- Step: Session Started ---
+--- Step: Session Started (Widget Tree) ---
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
@@ -26,7 +26,35 @@ Active Tab: tab-Agent
       AutocompletePopup id='autocomplete-popup' classes=''
 
 
---- Step: User Prompt Requested ---
+--- Step: Session Started (ASCII UI) ---
+ Agent
+╸━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   Starting new
+   session
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        Enter to submit, Ctrl+Enter for newline
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+
+--- Step: User Prompt Requested (Widget Tree) ---
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
@@ -56,7 +84,35 @@ Active Tab: tab-Agent
       AutocompletePopup id='autocomplete-popup' classes=''
 
 
---- Step: User Input Submitted ---
+--- Step: User Prompt Requested (ASCII UI) ---
+ Agent
+╸━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   Starting new
+   session
+
+   Waiting for
+   user input...
+
+
+
+
+
+
+
+
+
+
+                                        Enter to submit, Ctrl+Enter for newline
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+
+--- Step: User Input Submitted (Widget Tree) ---
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
@@ -86,7 +142,35 @@ Active Tab: tab-Agent
       AutocompletePopup id='autocomplete-popup' classes=''
 
 
---- Step: Assistant Reply ---
+--- Step: User Input Submitted (ASCII UI) ---
+ Agent
+╸━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   Starting new
+   session
+
+   Waiting for
+   user input...
+
+
+
+
+
+
+
+
+
+
+                                        Enter to submit, Ctrl+Enter for newline
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+
+--- Step: Assistant Reply (Widget Tree) ---
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
@@ -120,7 +204,35 @@ Active Tab: tab-Agent
       AutocompletePopup id='autocomplete-popup' classes=''
 
 
---- Step: Tool Called ---
+--- Step: Assistant Reply (ASCII UI) ---
+ Agent
+╸━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   Starting new
+   session
+
+   Waiting for
+   user input...
+
+   User: Hello
+
+   Agent: Hi
+   there!
+
+
+
+
+
+                                        Enter to submit, Ctrl+Enter for newline
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+
+--- Step: Tool Called (Widget Tree) ---
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
@@ -158,7 +270,35 @@ Active Tab: tab-Agent
       AutocompletePopup id='autocomplete-popup' classes=''
 
 
---- Step: Tool Result ---
+--- Step: Tool Called (ASCII UI) ---
+ Agent
+╸━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+   Starting new        ▼ search_files(query='test')
+   session
+                         ▊▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎
+   Waiting for           ▊ In Progress ⠇                                       ▎
+   user input...         ▊▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎
+
+   User: Hello
+
+   Agent: Hi
+   there!
+
+
+
+
+
+                                        Enter to submit, Ctrl+Enter for newline
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+
+--- Step: Tool Result (Widget Tree) ---
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
@@ -194,3 +334,30 @@ Active Tab: tab-Agent
       Static id='input-hint' classes=''
       SubmittableTextArea id='user-input' classes='' text=''
       AutocompletePopup id='autocomplete-popup' classes=''
+
+
+--- Step: Tool Result (ASCII UI) ---
+ Agent
+╸━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+   Starting new        ▼ Search Results
+   session
+                         ╭─────────────────────────────────────────────────────╮
+   Waiting for           │ Found 1 file.                                       │
+   user input...         ╰─────────────────────────────────────────────────────╯
+
+   User: Hello
+
+   Agent: Hi
+   there!
+
+
+
+
+
+                                        Enter to submit, Ctrl+Enter for newline
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
