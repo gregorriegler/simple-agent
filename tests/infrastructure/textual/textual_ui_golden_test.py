@@ -59,7 +59,8 @@ def dump_ui_state(app: TextualApp) -> str:
 @pytest.mark.asyncio
 async def test_golden_happy_path_flow():
     """
-    Run a full happy path flow and verify the UI state at the end.
+    Run a full happy path flow and verify the UI state at every step.
+    This creates a visual timeline of the user session.
     Flow:
     1. Session Start
     2. User Prompt Requested
@@ -76,38 +77,59 @@ async def test_golden_happy_path_flow():
     # But better to prevent it from updating state asynchronously
     app.set_interval = lambda *args, **kwargs: None
 
+    timeline = []
+
+    def capture_step(step_name: str):
+        dump = dump_ui_state(app)
+        timeline.append(f"--- Step: {step_name} ---")
+        timeline.append(dump)
+        timeline.append("\n")
+
     async with app.run_test(size=(80, 24)) as pilot:
-        # 1. Session Start
+        # 1. Session Start (Initial state)
+        # Note: In a real run, the session might start automatically or via an event.
+        # We inject the event to simulate the backend starting the session.
         app.on_domain_event_message(DomainEventMessage(SessionStartedEvent(agent_id, False)))
         await pilot.pause()
+        capture_step("Session Started")
 
         # 2. User Prompt Requested
         app.on_domain_event_message(DomainEventMessage(UserPromptRequestedEvent(agent_id)))
         await pilot.pause()
+        capture_step("User Prompt Requested")
 
         # 3. User prompts "Hello"
-        # In real app, user types in TextArea and hits enter.
-        # We can simulate typing or just send the event that results from it
-        app.on_domain_event_message(DomainEventMessage(UserPromptedEvent(agent_id, "Hello")))
+        # Drive the UI properly: Focus input, Type "Hello", Press Enter
+        await pilot.click("#user-input")
+        await pilot.press(*list("Hello"))
+        await pilot.press("enter")
         await pilot.pause()
+        capture_step("User Input Submitted")
 
-        # 4. Assistant Says "Hi"
+        # 4. Assistant Reply
+        # We still need to inject the backend events as we don't have a real backend connected in this unit test.
+        # But for the User Input part, we now verified the Input -> Event flow (partially, if we had a listener).
+        # Wait, if we use pilot.press, the TextualApp will trigger `submit_input`.
+        # We need to verify that `submit_input` was called or that the UI reacted (cleared input).
+
+        # Inject response to move flow forward
+        app.on_domain_event_message(DomainEventMessage(UserPromptedEvent(agent_id, "Hello")))
         app.on_domain_event_message(DomainEventMessage(AssistantSaidEvent(agent_id, "Hi there!")))
         await pilot.pause()
+        capture_step("Assistant Reply")
 
         # 5. Assistant Calls Tool
         call_id = "call-1"
         tool_header = "search_files(query='test')"
         app.on_domain_event_message(DomainEventMessage(ToolCalledEvent(agent_id, call_id, type("Tool", (), {"header": lambda s: tool_header})())))
         await pilot.pause()
+        capture_step("Tool Called")
 
         # 6. Tool Returns Result
         result = SingleToolResult(message="Found 1 file.", display_title="Search Results")
         app.on_domain_event_message(DomainEventMessage(ToolResultEvent(agent_id, call_id, result)))
         await pilot.pause()
+        capture_step("Tool Result")
 
-        # Capture State
-        ui_dump = dump_ui_state(app)
-
-        # Verify
-        verify(ui_dump)
+        # Verify Timeline
+        verify("\n".join(timeline))
