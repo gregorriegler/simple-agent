@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch, AsyncMock
 
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.textual_app import (
+from simple_agent.infrastructure.textual.widgets.smart_input import (
     SubmittableTextArea,
     calculate_autocomplete_position,
     AutocompletePopup,
