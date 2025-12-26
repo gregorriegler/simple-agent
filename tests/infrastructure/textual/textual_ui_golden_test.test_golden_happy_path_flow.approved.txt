@@ -1,3 +1,164 @@
+--- Step: Session Started ---
+Tabs: ['tab-Agent']
+Active Tab: tab-Agent
+    Vertical id='None' classes=''
+      TabbedContent id='tabs' classes=''
+        ContentTabs id='None' classes=''
+          Container id='tabs-scroll' classes=''
+            Vertical id='tabs-list-bar' classes=''
+              Horizontal id='tabs-list' classes=''
+                ContentTab id='--content-tab-tab-Agent' classes='-active'
+              Underline id='None' classes=''
+        ContentSwitcher id='None' classes=''
+          TabPane id='tab-Agent' classes=''
+            ResizableHorizontal id='tab-content' classes=''
+              ResizableVertical id='left-panel' classes=''
+                VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Markdown id='None' classes='' source='Starting new session'...
+                    MarkdownParagraph id='None' classes='level-0'
+                Splitter id='None' classes='horizontal'
+                VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                  Markdown id='log-Agent-todos' classes='' source=''...
+              Splitter id='None' classes=''
+              VerticalScroll id='tool-results-Agent' classes=''
+      Static id='input-hint' classes=''
+      SubmittableTextArea id='user-input' classes='' text=''
+      AutocompletePopup id='autocomplete-popup' classes=''
+
+
+--- Step: User Prompt Requested ---
+Tabs: ['tab-Agent']
+Active Tab: tab-Agent
+    Vertical id='None' classes=''
+      TabbedContent id='tabs' classes=''
+        ContentTabs id='None' classes=''
+          Container id='tabs-scroll' classes=''
+            Vertical id='tabs-list-bar' classes=''
+              Horizontal id='tabs-list' classes=''
+                ContentTab id='--content-tab-tab-Agent' classes='-active'
+              Underline id='None' classes=''
+        ContentSwitcher id='None' classes=''
+          TabPane id='tab-Agent' classes=''
+            ResizableHorizontal id='tab-content' classes=''
+              ResizableVertical id='left-panel' classes=''
+                VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Markdown id='None' classes='' source='Starting new session'...
+                    MarkdownParagraph id='None' classes='level-0'
+                  Markdown id='None' classes='' source='\nWaiting for user input...'...
+                    MarkdownParagraph id='None' classes='level-0'
+                Splitter id='None' classes='horizontal'
+                VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                  Markdown id='log-Agent-todos' classes='' source=''...
+              Splitter id='None' classes=''
+              VerticalScroll id='tool-results-Agent' classes=''
+      Static id='input-hint' classes=''
+      SubmittableTextArea id='user-input' classes='' text=''
+      AutocompletePopup id='autocomplete-popup' classes=''
+
+
+--- Step: User Input Submitted ---
+Tabs: ['tab-Agent']
+Active Tab: tab-Agent
+    Vertical id='None' classes=''
+      TabbedContent id='tabs' classes=''
+        ContentTabs id='None' classes=''
+          Container id='tabs-scroll' classes=''
+            Vertical id='tabs-list-bar' classes=''
+              Horizontal id='tabs-list' classes=''
+                ContentTab id='--content-tab-tab-Agent' classes='-active'
+              Underline id='None' classes=''
+        ContentSwitcher id='None' classes=''
+          TabPane id='tab-Agent' classes=''
+            ResizableHorizontal id='tab-content' classes=''
+              ResizableVertical id='left-panel' classes=''
+                VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Markdown id='None' classes='' source='Starting new session'...
+                    MarkdownParagraph id='None' classes='level-0'
+                  Markdown id='None' classes='' source='\nWaiting for user input...'...
+                    MarkdownParagraph id='None' classes='level-0'
+                Splitter id='None' classes='horizontal'
+                VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                  Markdown id='log-Agent-todos' classes='' source=''...
+              Splitter id='None' classes=''
+              VerticalScroll id='tool-results-Agent' classes=''
+      Static id='input-hint' classes=''
+      SubmittableTextArea id='user-input' classes='' text=''
+      AutocompletePopup id='autocomplete-popup' classes=''
+
+
+--- Step: Assistant Reply ---
+Tabs: ['tab-Agent']
+Active Tab: tab-Agent
+    Vertical id='None' classes=''
+      TabbedContent id='tabs' classes=''
+        ContentTabs id='None' classes=''
+          Container id='tabs-scroll' classes=''
+            Vertical id='tabs-list-bar' classes=''
+              Horizontal id='tabs-list' classes=''
+                ContentTab id='--content-tab-tab-Agent' classes='-active'
+              Underline id='None' classes=''
+        ContentSwitcher id='None' classes=''
+          TabPane id='tab-Agent' classes=''
+            ResizableHorizontal id='tab-content' classes=''
+              ResizableVertical id='left-panel' classes=''
+                VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Markdown id='None' classes='' source='Starting new session'...
+                    MarkdownParagraph id='None' classes='level-0'
+                  Markdown id='None' classes='' source='\nWaiting for user input...'...
+                    MarkdownParagraph id='None' classes='level-0'
+                  Markdown id='None' classes='' source='**User:** Hello'...
+                    MarkdownParagraph id='None' classes='level-0'
+                  Markdown id='None' classes='' source='**Agent:** Hi there!'...
+                    MarkdownParagraph id='None' classes='level-0'
+                Splitter id='None' classes='horizontal'
+                VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                  Markdown id='log-Agent-todos' classes='' source=''...
+              Splitter id='None' classes=''
+              VerticalScroll id='tool-results-Agent' classes=''
+      Static id='input-hint' classes=''
+      SubmittableTextArea id='user-input' classes='' text=''
+      AutocompletePopup id='autocomplete-popup' classes=''
+
+
+--- Step: Tool Called ---
+Tabs: ['tab-Agent']
+Active Tab: tab-Agent
+    Vertical id='None' classes=''
+      TabbedContent id='tabs' classes=''
+        ContentTabs id='None' classes=''
+          Container id='tabs-scroll' classes=''
+            Vertical id='tabs-list-bar' classes=''
+              Horizontal id='tabs-list' classes=''
+                ContentTab id='--content-tab-tab-Agent' classes='-active'
+              Underline id='None' classes=''
+        ContentSwitcher id='None' classes=''
+          TabPane id='tab-Agent' classes=''
+            ResizableHorizontal id='tab-content' classes=''
+              ResizableVertical id='left-panel' classes=''
+                VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Markdown id='None' classes='' source='Starting new session'...
+                    MarkdownParagraph id='None' classes='level-0'
+                  Markdown id='None' classes='' source='\nWaiting for user input...'...
+                    MarkdownParagraph id='None' classes='level-0'
+                  Markdown id='None' classes='' source='**User:** Hello'...
+                    MarkdownParagraph id='None' classes='level-0'
+                  Markdown id='None' classes='' source='**Agent:** Hi there!'...
+                    MarkdownParagraph id='None' classes='level-0'
+                Splitter id='None' classes='horizontal'
+                VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                  Markdown id='log-Agent-todos' classes='' source=''...
+              Splitter id='None' classes=''
+              VerticalScroll id='tool-results-Agent' classes=''
+                Collapsible id='None' classes='' title="search_files(query='test')" collapsed=False
+                  CollapsibleTitle id='None' classes=''
+                  Contents id='None' classes=''
+                    TextArea id='None' classes='tool-call' text='In Progress ⠇'
+      Static id='input-hint' classes=''
+      SubmittableTextArea id='user-input' classes='' text=''
+      AutocompletePopup id='autocomplete-popup' classes=''
+
+
+--- Step: Tool Result ---
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
