@@ -73,7 +73,7 @@ def dump_ascii_screen(app: TextualApp) -> str:
     console.print(app.screen._compositor)
     output = console.export_text()
     # Strip trailing whitespace from each line to reduce noise in golden master
-    return "\n".join(line.rstrip() for line in output.splitlines())
+    return "\n".join(line.rstrip() for line in output.splitlines()) + "\n"
 
 @pytest.mark.asyncio
 async def test_golden_happy_path_flow():
