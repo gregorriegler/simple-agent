@@ -1,0 +1,113 @@
+import pytest
+import asyncio
+from textual.widgets import TextArea, Static, Collapsible, Markdown
+from simple_agent.infrastructure.textual.textual_app import TextualApp
+from simple_agent.application.agent_id import AgentId
+from simple_agent.application.events import (
+    SessionStartedEvent,
+    UserPromptRequestedEvent,
+    UserPromptedEvent,
+    AssistantSaidEvent,
+    ToolCalledEvent,
+    ToolResultEvent,
+)
+from simple_agent.application.tool_results import SingleToolResult
+from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
+from approvaltests import verify, Options
+from approvaltests.reporters import GenericDiffReporterFactory
+
+
+# Helper to dump UI state
+def dump_ui_state(app: TextualApp) -> str:
+    lines = []
+
+    # Dump Tabs
+    tabs = app.query("TabPane")
+    lines.append(f"Tabs: {[t.id for t in tabs]}")
+    lines.append(f"Active Tab: {app.query_one('TabbedContent').active}")
+
+    # Dump Visible Widgets in Main Content
+    # We walk the tree and print relevant info
+    for widget in app.screen.walk_children():
+        # Skip some containers if they are just layout
+        indent = "  " * len(list(widget.ancestors))
+        classes = sorted(list(widget.classes))
+        info = f"{indent}{widget.__class__.__name__} id='{widget.id}' classes='{' '.join(classes)}'"
+
+        # Add specific state
+        if isinstance(widget, Markdown):
+             # Markdown content isn't easily accessible as raw text directly from widget.source
+             # but we can try accessing the source if available
+             # In Textual, Markdown.source is the source text
+             info += f" source={repr(widget.source[:50])}..."
+
+        if isinstance(widget, TextArea):
+            info += f" text={repr(widget.text)}"
+
+        if isinstance(widget, Collapsible):
+            info += f" title={repr(widget.title)} collapsed={widget.collapsed}"
+
+        if isinstance(widget, Static) and not isinstance(widget, (Markdown, TextArea)):
+             # Try to get text from renderable if it's simple
+             if hasattr(widget, "renderable") and hasattr(widget.renderable, "plain"):
+                 info += f" content={repr(widget.renderable.plain)}"
+
+        lines.append(info)
+
+    return "\n".join(lines)
+
+@pytest.mark.asyncio
+async def test_golden_happy_path_flow():
+    """
+    Run a full happy path flow and verify the UI state at the end.
+    Flow:
+    1. Session Start
+    2. User Prompt Requested
+    3. User Types "Hello"
+    4. Assistant Says "Hi"
+    5. Assistant Calls Tool
+    6. Tool Returns Result
+    """
+    agent_id = AgentId("Agent")
+    app = TextualApp(user_input=None, root_agent_id=agent_id)
+
+    # Disable loading timer to avoid non-determinism
+    # We can mock set_interval on the app or just ensure we don't wait for it
+    # But better to prevent it from updating state asynchronously
+    app.set_interval = lambda *args, **kwargs: None
+
+    async with app.run_test(size=(80, 24)) as pilot:
+        # 1. Session Start
+        app.on_domain_event_message(DomainEventMessage(SessionStartedEvent(agent_id, False)))
+        await pilot.pause()
+
+        # 2. User Prompt Requested
+        app.on_domain_event_message(DomainEventMessage(UserPromptRequestedEvent(agent_id)))
+        await pilot.pause()
+
+        # 3. User prompts "Hello"
+        # In real app, user types in TextArea and hits enter.
+        # We can simulate typing or just send the event that results from it
+        app.on_domain_event_message(DomainEventMessage(UserPromptedEvent(agent_id, "Hello")))
+        await pilot.pause()
+
+        # 4. Assistant Says "Hi"
+        app.on_domain_event_message(DomainEventMessage(AssistantSaidEvent(agent_id, "Hi there!")))
+        await pilot.pause()
+
+        # 5. Assistant Calls Tool
+        call_id = "call-1"
+        tool_header = "search_files(query='test')"
+        app.on_domain_event_message(DomainEventMessage(ToolCalledEvent(agent_id, call_id, type("Tool", (), {"header": lambda s: tool_header})())))
+        await pilot.pause()
+
+        # 6. Tool Returns Result
+        result = SingleToolResult(message="Found 1 file.", display_title="Search Results")
+        app.on_domain_event_message(DomainEventMessage(ToolResultEvent(agent_id, call_id, result)))
+        await pilot.pause()
+
+        # Capture State
+        ui_dump = dump_ui_state(app)
+
+        # Verify
+        verify(ui_dump)
