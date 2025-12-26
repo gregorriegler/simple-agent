@@ -53,6 +53,7 @@ Active Tab: tab-Agent
 └──────────────────────────────────────────────────────────────────────────────┘
 
 
+
 --- Step: User Prompt Requested (Widget Tree) ---
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
@@ -110,6 +111,7 @@ Active Tab: tab-Agent
 └──────────────────────────────────────────────────────────────────────────────┘
 
 
+
 --- Step: User Input Submitted (Widget Tree) ---
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
@@ -165,6 +167,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
+
 
 
 --- Step: Assistant Reply (Widget Tree) ---
@@ -226,6 +229,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
+
 
 
 --- Step: Tool Called (Widget Tree) ---
@@ -291,6 +295,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
+
 
 
 --- Step: Tool Result (Widget Tree) ---
