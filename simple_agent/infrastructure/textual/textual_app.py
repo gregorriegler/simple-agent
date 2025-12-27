@@ -39,6 +39,7 @@ from simple_agent.infrastructure.textual.resizable_container import ResizableHor
 from simple_agent.application.file_search import FileSearcher
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.widgets.smart_input import SubmittableTextArea, AutocompletePopup
+from simple_agent.infrastructure.textual.widgets.todo_view import TodoView
 
 class TextualApp(App):
 
@@ -173,23 +174,22 @@ class TextualApp(App):
 
     def create_agent_container(self, log_id, tool_results_id, agent_id):
         chat_scroll = VerticalScroll(id=f"{log_id}-scroll", classes="left-panel-top")
-        todo = Markdown(self._load_todos(agent_id), id=f"{log_id}-todos")
-        secondary_scroll = VerticalScroll(todo, id=f"{log_id}-secondary", classes="left-panel-bottom")
-
-        left_panel = ResizableVertical(chat_scroll, secondary_scroll, id="left-panel")
-
         todo_content = self._load_todos(agent_id)
+        todo_view = TodoView(todo_content, markdown_id=f"{log_id}-todos", id=f"{log_id}-secondary", classes="left-panel-bottom")
+
+        left_panel = ResizableVertical(chat_scroll, todo_view, id="left-panel")
+
         if not todo_content:
-            secondary_scroll.styles.display = "none"
+            todo_view.styles.display = "none"
             left_panel.splitter.styles.display = "none"
 
-        self._todo_containers[str(agent_id)] = (secondary_scroll, left_panel.splitter)
+        self._todo_containers[str(agent_id)] = (todo_view, left_panel.splitter)
 
         right_panel = VerticalScroll(id=tool_results_id)
         self._tool_result_collapsibles[tool_results_id] = []
         self._agent_panel_ids[agent_id] = (log_id, tool_results_id)
         self._tool_results_to_agent[tool_results_id] = agent_id
-        self._todo_widgets[str(agent_id)] = todo
+        self._todo_widgets[str(agent_id)] = todo_view
         self._pending_tool_calls[tool_results_id] = {}
         return ResizableHorizontal(left_panel, right_panel, id="tab-content")
 
