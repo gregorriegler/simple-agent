@@ -2,7 +2,6 @@ import io
 from rich.console import Console
 from textual.widgets import TextArea, Static, Collapsible, Markdown
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.widgets.todo_view import TodoView
 
 class MockUserInput:
     def __init__(self):
@@ -33,8 +32,11 @@ def dump_ui_state(app: TextualApp) -> str:
         indent = "  " * len(list(widget.ancestors))
         classes = sorted(list(widget.classes))
         class_name = widget.__class__.__name__
-        if isinstance(widget, TodoView):
+
+        # Alias refactored widgets back to their base classes for golden master stability
+        if class_name in ("TodoView", "ChatLog"):
             class_name = "VerticalScroll"
+
         info = f"{indent}{class_name} id='{widget.id}' classes='{' '.join(classes)}'"
 
         if isinstance(widget, Markdown):
