@@ -40,6 +40,7 @@ from simple_agent.application.file_search import FileSearcher
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.widgets.smart_input import SubmittableTextArea, AutocompletePopup
 from simple_agent.infrastructure.textual.widgets.todo_view import TodoView
+from simple_agent.infrastructure.textual.widgets.chat_log import ChatLog
 
 class TextualApp(App):
 
@@ -173,7 +174,7 @@ class TextualApp(App):
             yield AutocompletePopup(id="autocomplete-popup")
 
     def create_agent_container(self, log_id, tool_results_id, agent_id):
-        chat_scroll = VerticalScroll(id=f"{log_id}-scroll", classes="left-panel-top")
+        chat_scroll = ChatLog(id=f"{log_id}-scroll", classes="left-panel-top")
         todo_view = TodoView(agent_id, markdown_id=f"{log_id}-todos", id=f"{log_id}-secondary", classes="left-panel-bottom")
 
         left_panel = ResizableVertical(chat_scroll, todo_view, id="left-panel")
@@ -271,10 +272,8 @@ class TextualApp(App):
 
     def write_message(self, log_id: str, message: str) -> None:
         try:
-            scroll = self.query_one(f"#{log_id}-scroll", VerticalScroll)
-            msg_widget = Markdown(message.rstrip())
-            scroll.mount(msg_widget)
-            scroll.scroll_end(animate=False)
+            chat_log = self.query_one(f"#{log_id}-scroll", ChatLog)
+            chat_log.write(message)
         except NoMatches:
             logger.warning("Could not find scroll container #%s-scroll", log_id)
         except Exception as e:
@@ -625,7 +624,7 @@ class TextualApp(App):
     def clear_agent_panels(self, log_id: str) -> None:
         # Clear chat scroll area
         try:
-            chat_scroll = self.query_one(f"#{log_id}-scroll", VerticalScroll)
+            chat_scroll = self.query_one(f"#{log_id}-scroll", ChatLog)
             chat_scroll.remove_children()
         except NoMatches:
             logger.warning("Could not find chat scroll #%s-scroll to clear", log_id)
