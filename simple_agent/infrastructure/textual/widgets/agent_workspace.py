@@ -35,3 +35,7 @@ class AgentWorkspace(ResizableHorizontal):
         self.tool_log = ToolLog(id=tool_results_id, on_refresh_todos=on_refresh_todos)
 
         super().__init__(self.left_panel, self.tool_log, **kwargs)
+
+    def refresh_todos(self) -> None:
+        self.todo_view.refresh_content()
+        self.left_panel.set_bottom_visibility(self.todo_view.has_content)
