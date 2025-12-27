@@ -109,3 +109,8 @@ class ResizableVertical(Vertical):
 
         self.top_widget.styles.height = f"{top_percent}%"
         self.bottom_widget.styles.height = f"{bottom_percent}%"
+
+    def set_bottom_visibility(self, visible: bool) -> None:
+        display = "block" if visible else "none"
+        self.bottom_widget.styles.display = display
+        self.splitter.styles.display = display

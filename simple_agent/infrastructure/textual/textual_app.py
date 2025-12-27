@@ -174,16 +174,12 @@ class TextualApp(App):
 
     def create_agent_container(self, log_id, tool_results_id, agent_id):
         chat_scroll = VerticalScroll(id=f"{log_id}-scroll", classes="left-panel-top")
-        todo_content = self._load_todos(agent_id)
-        todo_view = TodoView(todo_content, markdown_id=f"{log_id}-todos", id=f"{log_id}-secondary", classes="left-panel-bottom")
+        todo_view = TodoView(agent_id, markdown_id=f"{log_id}-todos", id=f"{log_id}-secondary", classes="left-panel-bottom")
 
         left_panel = ResizableVertical(chat_scroll, todo_view, id="left-panel")
+        left_panel.set_bottom_visibility(todo_view.has_content)
 
-        if not todo_content:
-            todo_view.styles.display = "none"
-            left_panel.splitter.styles.display = "none"
-
-        self._todo_containers[str(agent_id)] = (todo_view, left_panel.splitter)
+        self._todo_containers[str(agent_id)] = left_panel
 
         right_panel = VerticalScroll(id=tool_results_id)
         self._tool_result_collapsibles[tool_results_id] = []
@@ -487,13 +483,6 @@ class TextualApp(App):
         self._todo_widgets.pop(str(agent_id), None)
         self._todo_containers.pop(str(agent_id), None)
 
-    def _load_todos(self, agent_id: AgentId) -> str:
-        path = Path(agent_id.todo_filename())
-        if not path.exists():
-            return ""
-        content = path.read_text(encoding="utf-8").strip()
-        return content if content else ""
-
     def _refresh_todos(self, tool_results_id: str) -> None:
         agent_id = self._tool_results_to_agent.get(tool_results_id)
         if not agent_id:
@@ -502,20 +491,15 @@ class TextualApp(App):
 
     def _refresh_todos_for_agent(self, agent_id: AgentId) -> None:
         todo_widget = self._todo_widgets.get(str(agent_id))
-        if not todo_widget:
+        if isinstance(todo_widget, TodoView):
+            todo_widget.refresh_content()
+            has_content = todo_widget.has_content
+        else:
             return
-        todo_content = self._load_todos(agent_id)
-        todo_widget.update(todo_content)
 
-        container_tuple = self._todo_containers.get(str(agent_id))
-        if container_tuple:
-            secondary_scroll, splitter = container_tuple
-            if todo_content:
-                secondary_scroll.styles.display = "block"
-                splitter.styles.display = "block"
-            else:
-                secondary_scroll.styles.display = "none"
-                splitter.styles.display = "none"
+        left_panel = self._todo_containers.get(str(agent_id))
+        if left_panel and isinstance(left_panel, ResizableVertical):
+            left_panel.set_bottom_visibility(has_content)
 
     def update_tab_title(self, agent_id: AgentId, title: str) -> None:
         tab_id, _, _ = self.panel_ids_for(agent_id)
@@ -659,14 +643,19 @@ class TextualApp(App):
 
     def _clear_todo_panel(self, agent_id: AgentId) -> None:
         todo_widget = self._todo_widgets.get(str(agent_id))
-        if todo_widget:
+        if isinstance(todo_widget, TodoView):
+            # We can't easily clear the file, but we can clear the view representation
+            # Actually, `SessionClearedEvent` implies we want to clear the session state.
+            # But todo files are persistent. The original code just updated the widget to empty.
+            # However, if TodoView reads from file on refresh, we might have an inconsistency
+            # if we just update the widget but not the file.
+            # The original code: `todo_widget.update("")` and hidden it.
+            # Let's replicate that behavior by forcing it to hide.
             todo_widget.update("")
-
-        container_tuple = self._todo_containers.get(str(agent_id))
-        if container_tuple:
-            secondary_scroll, splitter = container_tuple
-            secondary_scroll.styles.display = "none"
-            splitter.styles.display = "none"
+            # Also, we might want to manually set visibility to hidden
+            left_panel = self._todo_containers.get(str(agent_id))
+            if left_panel and isinstance(left_panel, ResizableVertical):
+                left_panel.set_bottom_visibility(False)
 
     def _reset_agent_token_usage(self, agent_id: AgentId) -> None:
         model = self._agent_models.get(agent_id, "")
