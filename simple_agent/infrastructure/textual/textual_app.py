@@ -23,6 +23,7 @@ from simple_agent.application.events import (
     AssistantRespondedEvent,
     AssistantSaidEvent,
     ErrorEvent,
+    ModelChangedEvent,
     SessionClearedEvent,
     SessionEndedEvent,
     SessionInterruptedEvent,
@@ -403,6 +404,25 @@ class TextualApp(App):
             self._agent_models[event.agent_id] = event.model
             self._agent_max_tokens[event.agent_id] = event.max_tokens
             title = self._tab_title_for(event.agent_id, event.model, event.token_count, event.max_tokens)
+            self.update_tab_title(event.agent_id, title)
+        elif isinstance(event, ModelChangedEvent):
+            self._agent_models[event.agent_id] = event.new_model
+            # Reset max tokens if needed, but we might not know it yet for the new model.
+            # We keep the old token usage display until the first response from the new model comes in?
+            # Or we reset the counter since it's a new model context?
+            # Usually switching models means continuing conversation, so previous tokens still count towards context?
+            # But "usage" in terms of "percentage of context window" depends on the new model's context window.
+            # We don't have the new model's max tokens here yet (it comes in AssistantRespondedEvent).
+            # So for now, we just update the name in the title.
+            # We use 0 for max_tokens to indicate we don't know yet or to reset the percentage view.
+            # But if we reset max_tokens to 0, it will show [model: 0.0%].
+            # Let's try to keep the token count but update the model name.
+            # We don't have the current token count stored, only implicit in the last AssistantRespondedEvent.
+            # But _tab_title_for calculates percentage based on passed token_count.
+            # We don't store the last token_count in TextualApp.
+            # So let's just display the new model name with 0% or unknown.
+            # Re-using 0 token count and 0 max tokens will render "Agent [new-model: 0.0%]"
+            title = self._tab_title_for(event.agent_id, event.new_model, 0, 0)
             self.update_tab_title(event.agent_id, title)
 
     def _tab_title_for(self, agent_id: AgentId, model: str, token_count: int, max_tokens: int) -> str:
