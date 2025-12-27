@@ -42,6 +42,7 @@ from simple_agent.infrastructure.textual.widgets.smart_input import SubmittableT
 from simple_agent.infrastructure.textual.widgets.todo_view import TodoView
 from simple_agent.infrastructure.textual.widgets.chat_log import ChatLog
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
+from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 
 class TextualApp(App):
 
@@ -169,22 +170,22 @@ class TextualApp(App):
             yield AutocompletePopup(id="autocomplete-popup")
 
     def create_agent_container(self, log_id, tool_results_id, agent_id):
-        chat_scroll = ChatLog(id=f"{log_id}-scroll", classes="left-panel-top")
-        todo_view = TodoView(agent_id, markdown_id=f"{log_id}-todos", id=f"{log_id}-secondary", classes="left-panel-bottom")
-
-        left_panel = ResizableVertical(chat_scroll, todo_view, id="left-panel")
-        left_panel.set_bottom_visibility(todo_view.has_content)
-
-        self._todo_containers[str(agent_id)] = left_panel
-
         def refresh_todos_callback():
             self._refresh_todos(tool_results_id)
 
-        right_panel = ToolLog(id=tool_results_id, on_refresh_todos=refresh_todos_callback)
+        workspace = AgentWorkspace(
+            agent_id=agent_id,
+            log_id=log_id,
+            tool_results_id=tool_results_id,
+            on_refresh_todos=refresh_todos_callback,
+            id="tab-content"
+        )
+
+        self._todo_containers[str(agent_id)] = workspace.left_panel
         self._agent_panel_ids[agent_id] = (log_id, tool_results_id)
         self._tool_results_to_agent[tool_results_id] = agent_id
-        self._todo_widgets[str(agent_id)] = todo_view
-        return ResizableHorizontal(left_panel, right_panel, id="tab-content")
+        self._todo_widgets[str(agent_id)] = workspace.todo_view
+        return workspace
 
     async def on_mount(self) -> None:
         text_area = self.query_one("#user-input", SubmittableTextArea)
