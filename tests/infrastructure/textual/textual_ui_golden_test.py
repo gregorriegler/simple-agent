@@ -15,12 +15,13 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
+from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 from approvaltests import verify, Options
 from approvaltests.reporters import GenericDiffReporterFactory
 from tests.infrastructure.textual.test_utils import dump_ui_state, dump_ascii_screen
 
 @pytest.mark.asyncio
-async def test_golden_happy_path_flow():
+async def test_golden_happy_path_flow(monkeypatch):
     """
     Run a full happy path flow and verify the UI state at every step.
     This creates a visual timeline of the user session.
@@ -32,6 +33,9 @@ async def test_golden_happy_path_flow():
     5. Assistant Calls Tool
     6. Tool Returns Result
     """
+    # Disable timers on ToolLog to prevent non-deterministic loading animations
+    monkeypatch.setattr(ToolLog, "set_interval", lambda *args, **kwargs: None)
+
     agent_id = AgentId("Agent")
     app = TextualApp(user_input=None, root_agent_id=agent_id)
 
