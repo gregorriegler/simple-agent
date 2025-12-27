@@ -365,16 +365,22 @@ class TextualApp(App):
             workspace = self._agent_workspaces.get(str(event.agent_id))
             if workspace:
                 workspace.on_tool_call(event.call_id, event.tool.header())
+            else:
+                logger.warning("Could not find workspace for agent %s to write tool call", event.agent_id)
         elif isinstance(event, ToolResultEvent):
             if not event.result:
                 return
             workspace = self._agent_workspaces.get(str(event.agent_id))
             if workspace:
                 workspace.on_tool_result(event.call_id, event.result)
+            else:
+                logger.warning("Could not find workspace for agent %s to write tool result", event.agent_id)
         elif isinstance(event, ToolCancelledEvent):
             workspace = self._agent_workspaces.get(str(event.agent_id))
             if workspace:
                 workspace.on_tool_cancelled(event.call_id)
+            else:
+                logger.warning("Could not find workspace for agent %s to write tool cancelled", event.agent_id)
         elif isinstance(event, SessionInterruptedEvent):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
             self.write_message(log_id, "\n[Session interrupted by user]")
