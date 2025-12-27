@@ -117,14 +117,7 @@ async def test_user_prompted_event_display_compaction():
     user_input = StubUserInput()
     app = TextualApp(user_input)
     
-    # We need to spy on write_message. 
-    # Since TextualApp.write_message is a method, we can mock it on the instance.
-    written_messages = []
-    def mock_write_message(log_id, message):
-        written_messages.append(message)
-    app.write_message = mock_write_message
-
-    async with app.run_test():
+    async with app.run_test() as pilot:
         # Simulate UserPromptedEvent with context
         agent_id = AgentId("Agent")
         # This simulates "Check this [📦main.py]" followed by the appended context
@@ -133,9 +126,20 @@ async def test_user_prompted_event_display_compaction():
         
         # Trigger event handler
         app.on_domain_event_message(type("Message", (), {"event": event})())
+        await pilot.pause()
+
+        # Verify side effect on ChatLog
+        # We need to find the chat log for this agent
+        _, log_id, _ = app.panel_ids_for(agent_id)
+        chat_log = app.query_one(f"#{log_id}-scroll")
+
+        # Get the last markdown widget added
+        from textual.widgets import Markdown
+        markdowns = list(chat_log.query(Markdown))
+        assert len(markdowns) > 0
         
-        assert len(written_messages) == 1
-        display_text = written_messages[0]
+        # Inspect the source text of the last message
+        display_text = markdowns[-1]._markdown
         
         # We expect the appended block removed, and core text preserved (since it already has the marker)
         assert "**User:** Check this [📦main.py]" in display_text
