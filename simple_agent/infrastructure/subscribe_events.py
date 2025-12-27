@@ -5,6 +5,7 @@ from simple_agent.application.events import (
     AssistantSaidEvent,
     AssistantRespondedEvent,
     ErrorEvent,
+    ModelChangedEvent,
     SessionClearedEvent,
     SessionEndedEvent,
     SessionInterruptedEvent,
@@ -55,6 +56,7 @@ def subscribe_events(
         event_bus.subscribe(UserPromptedEvent, _post_domain_event)
         event_bus.subscribe(AssistantSaidEvent, _post_domain_event)
         event_bus.subscribe(AssistantRespondedEvent, _post_domain_event)
+        event_bus.subscribe(ModelChangedEvent, _post_domain_event)
         event_bus.subscribe(ToolCalledEvent, _post_domain_event)
         event_bus.subscribe(ToolResultEvent, _post_domain_event)
         event_bus.subscribe(ToolCancelledEvent, _post_domain_event)
