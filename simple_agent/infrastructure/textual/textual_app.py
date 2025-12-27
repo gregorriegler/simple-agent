@@ -41,6 +41,7 @@ from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.widgets.smart_input import SubmittableTextArea, AutocompletePopup
 from simple_agent.infrastructure.textual.widgets.todo_view import TodoView
 from simple_agent.infrastructure.textual.widgets.chat_log import ChatLog
+from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 
 class TextualApp(App):
 
@@ -136,8 +137,6 @@ class TextualApp(App):
         self._root_agent_id = root_agent_id
         self._session_runner: Callable[[], Coroutine[Any, Any, None]] | None = None
         self._session_task: asyncio.Task | None = None
-        self._pending_tool_calls: dict[str, dict[str, tuple[str, TextArea, Collapsible]]] = {}
-        self._tool_result_collapsibles: dict[str, list[Collapsible]] = {}
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
         self._agent_names: dict[AgentId, str] = {root_agent_id: root_agent_id.raw}
         self._todo_widgets: dict[str, Markdown] = {}
@@ -147,10 +146,6 @@ class TextualApp(App):
         self._file_searcher = NativeFileSearcher()
         self._agent_models: dict[AgentId, str] = {root_agent_id: ""}
         self._agent_max_tokens: dict[AgentId, int] = {root_agent_id: 0}
-        self._suppressed_tool_calls: set[str] = set()
-        self.loading_timer: Timer | None = None
-        self.loading_frames = ["⠇", "⠏", "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧"]
-        self.loading_frame_index = 0
 
     def has_agent_tab(self, agent_id: AgentId) -> bool:
         return agent_id in self._agent_panel_ids
@@ -182,12 +177,13 @@ class TextualApp(App):
 
         self._todo_containers[str(agent_id)] = left_panel
 
-        right_panel = VerticalScroll(id=tool_results_id)
-        self._tool_result_collapsibles[tool_results_id] = []
+        def refresh_todos_callback():
+            self._refresh_todos(tool_results_id)
+
+        right_panel = ToolLog(id=tool_results_id, on_refresh_todos=refresh_todos_callback)
         self._agent_panel_ids[agent_id] = (log_id, tool_results_id)
         self._tool_results_to_agent[tool_results_id] = agent_id
         self._todo_widgets[str(agent_id)] = todo_view
-        self._pending_tool_calls[tool_results_id] = {}
         return ResizableHorizontal(left_panel, right_panel, id="tab-content")
 
     async def on_mount(self) -> None:
@@ -279,178 +275,27 @@ class TextualApp(App):
         except Exception as e:
             logger.error("Failed to display message: %s. Message: %s", e, message)
 
-    def _update_loading_animation(self) -> None:
-        frame = self.loading_frames[self.loading_frame_index]
-        for panel_tool_calls in self._pending_tool_calls.values():
-            for _, text_area, _ in panel_tool_calls.values():
-                text_area.load_text(f"In Progress {frame}")
-                text_area.refresh()
-        self.loading_frame_index = (self.loading_frame_index + 1) % len(self.loading_frames)
-
-    def _stop_loading_if_idle(self) -> None:
-        if not any(self._pending_tool_calls.values()):
-            if self.loading_timer:
-                self.loading_timer.stop()
-                self.loading_timer = None
-
-    def _pop_pending_tool_call(
-        self,
-        tool_results_id: str,
-        call_id: str,
-    ) -> tuple[tuple[str, TextArea, Collapsible] | None, bool]:
-        pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
-        if call_id in self._suppressed_tool_calls:
-            self._suppressed_tool_calls.discard(call_id)
-            pending_for_panel.pop(call_id, None)
-            self._refresh_todos(tool_results_id)
-            return None, True
-        return pending_for_panel.pop(call_id, None), False
 
     def write_tool_call(self, tool_results_id: str, call_id: str, message: str) -> None:
-        pending_for_panel = self._pending_tool_calls.setdefault(tool_results_id, {})
-        if "write-todos" in message:
-            pending_for_panel.pop(call_id, None)
-            self._suppressed_tool_calls.add(call_id)
-            return
         try:
-            container = self.query_one(f"#{tool_results_id}", VerticalScroll)
+            tool_log = self.query_one(f"#{tool_results_id}", ToolLog)
+            tool_log.add_tool_call(call_id, message)
         except NoMatches:
             logger.warning("Could not find tool results container #%s", tool_results_id)
-            return
-        collapsibles = self._tool_result_collapsibles.setdefault(tool_results_id, [])
-        for collapsible in collapsibles:
-            collapsible.collapsed = True
-
-        text_area = TextArea(
-            f"In Progress {self.loading_frames[0]}",
-            read_only=True,
-            language="markdown",
-            show_cursor=False,
-            classes="tool-call",
-        )
-        text_area.styles.height = 3
-        text_area.styles.min_height = 3
-
-        lines = message.splitlines()
-        default_title = lines[0] if lines else "Tool Call"
-        collapsible = Collapsible(text_area, title=default_title, collapsed=False)
-        collapsibles.append(collapsible)
-        container.mount(collapsible)
-        container.scroll_end(animate=False)
-
-        pending_for_panel[call_id] = (message, text_area, collapsible)
-        if not self.loading_timer:
-            self.loading_timer = self.set_interval(0.1, self._update_loading_animation)
 
     def write_tool_result(self, tool_results_id: str, call_id: str, result: ToolResult) -> None:
-        success = result.success
-        pending_entry, suppressed = self._pop_pending_tool_call(tool_results_id, call_id)
-        if suppressed:
-            return
-        if pending_entry is None:
-            logger.warning(
-                "Tool result received with no matching call. tool_results_id=%s call_id=%s",
-                tool_results_id,
-                call_id,
-            )
-            self._refresh_todos(tool_results_id)
-            self._stop_loading_if_idle()
-            return
-        title_source, text_area, call_collapsible = pending_entry
-        message = result.display_body if result.display_body else result.message
-        message = message or ""
-        title_text = result.display_title if result.display_title else None
-        lines = title_source.splitlines()
-        default_title = lines[0] if lines else "Tool Result"
-        other_lines = lines[1:]
-        if title_text is None:
-            title_text = default_title
-        if success and other_lines and not result.display_body and not message.strip():
-            message = "\n".join(other_lines)
-
-        collapsibles = self._tool_result_collapsibles.setdefault(tool_results_id, [])
-        for existing in collapsibles:
-            existing.collapsed = True
-        call_collapsible.collapsed = False
-
-        classes = "tool-result tool-result-success" if success else "tool-result tool-result-error"
-        language = result.display_language or "python"
-
-        if language == "diff":
-            diff_renderable = Syntax(
-                message,
-                "diff",
-                theme="ansi_dark",
-                line_numbers=False,
-                word_wrap=True,
-            )
-            diff_widget = Static(diff_renderable)
-            for cls in classes.split():
-                diff_widget.add_class(cls)
-            height = min((len(message.splitlines()) or 1) + 2, 30)
-            diff_widget.styles.height = height
-            diff_widget.styles.min_height = height
-            text_area.remove()
-            try:
-                contents = call_collapsible.query_one(Collapsible.Contents)
-                contents.mount(diff_widget)
-            except NoMatches:
-                logger.warning(
-                    "Missing collapsible contents for tool result. tool_results_id=%s call_id=%s",
-                    tool_results_id,
-                    call_id,
-                )
-                call_collapsible.mount(diff_widget)
-        else:
-            line_count = len(message.splitlines()) or 1
-            height = min(line_count + 2, 30)
-            text_area.load_text(message)
-            text_area.language = language
-            text_area.remove_class("tool-call")
-            for cls in ("tool-result", "tool-result-error"):
-                text_area.remove_class(cls)
-            for cls in classes.split():
-                text_area.add_class(cls)
-            text_area.styles.height = height
-            text_area.styles.min_height = height
-
-        call_collapsible.title = title_text
-        container = self.query_one(f"#{tool_results_id}", VerticalScroll)
-        container.scroll_end(animate=False)
-        self._refresh_todos(tool_results_id)
-        self._stop_loading_if_idle()
+        try:
+            tool_log = self.query_one(f"#{tool_results_id}", ToolLog)
+            tool_log.add_tool_result(call_id, result)
+        except NoMatches:
+            logger.warning("Could not find tool results container #%s", tool_results_id)
 
     def write_tool_cancelled(self, tool_results_id: str, call_id: str) -> None:
-        pending_entry, suppressed = self._pop_pending_tool_call(tool_results_id, call_id)
-        if suppressed:
-            self._stop_loading_if_idle()
-            return
-        if pending_entry is None:
-            logger.warning(
-                "Tool cancelled with no matching call. tool_results_id=%s call_id=%s",
-                tool_results_id,
-                call_id,
-            )
-            self._stop_loading_if_idle()
-            return
-        title_source, text_area, call_collapsible = pending_entry
-
-        # Update to show cancelled state
-        text_area.load_text("Cancelled")
-        text_area.remove_class("tool-call")
-        text_area.add_class("tool-result")
-        text_area.add_class("tool-result-error")
-        text_area.styles.height = 3
-        text_area.styles.min_height = 3
-
-        lines = title_source.splitlines()
-        default_title = lines[0] if lines else "Tool Call"
-        call_collapsible.title = f"{default_title} (Cancelled)"
-
-        container = self.query_one(f"#{tool_results_id}", VerticalScroll)
-        container.scroll_end(animate=False)
-
-        self._stop_loading_if_idle()
+        try:
+            tool_log = self.query_one(f"#{tool_results_id}", ToolLog)
+            tool_log.add_tool_cancelled(call_id)
+        except NoMatches:
+            logger.warning("Could not find tool results container #%s", tool_results_id)
 
     def add_subagent_tab(self, agent_id: AgentId, tab_title: str) -> tuple[str, str]:
         tab_id, log_id, tool_results_id = self.panel_ids_for(agent_id)
@@ -471,13 +316,7 @@ class TextualApp(App):
         self.query_one("#tabs", TabbedContent).remove_pane(tab_id)
         panel_ids = self._agent_panel_ids.pop(agent_id, None)
         if panel_ids:
-            self._tool_result_collapsibles.pop(tool_results_id, None)
-            self._pending_tool_calls.pop(tool_results_id, None)
             self._tool_results_to_agent.pop(tool_results_id, None)
-            prefix = f"{agent_id}::tool_call::"
-            self._suppressed_tool_calls = {
-                call_id for call_id in self._suppressed_tool_calls if not call_id.startswith(prefix)
-            }
         self._agent_names.pop(agent_id, None)
         self._todo_widgets.pop(str(agent_id), None)
         self._todo_containers.pop(str(agent_id), None)
@@ -632,11 +471,8 @@ class TextualApp(App):
         # Clear tool results panel
         tool_results_id = log_id.replace("log-", "tool-results-")
         try:
-            tool_results = self.query_one(f"#{tool_results_id}", VerticalScroll)
-            tool_results.remove_children()
-            # Clear tracking state for this panel
-            self._tool_result_collapsibles[tool_results_id] = []
-            self._pending_tool_calls[tool_results_id] = {}
+            tool_results = self.query_one(f"#{tool_results_id}", ToolLog)
+            tool_results.clear()
         except NoMatches:
             logger.warning("Could not find tool results #%s to clear", tool_results_id)
 

@@ -15,6 +15,7 @@ from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
+from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 
 
 class FakeEventBus:
@@ -98,7 +99,8 @@ def _last_markdown_text(app: TextualApp, agent_id: AgentId) -> str:
 
 def _latest_tool_text_area(app: TextualApp, agent_id: AgentId) -> TextArea:
     _, _, tool_results_id = app.panel_ids_for(agent_id)
-    collapsible = app._tool_result_collapsibles[tool_results_id][-1]
+    tool_log = app.query_one(f"#{tool_results_id}", ToolLog)
+    collapsible = tool_log._collapsibles[-1]
     return collapsible.query_one(TextArea)
 
 
@@ -185,12 +187,13 @@ async def test_tool_call_and_result_are_tracked(textual_harness):
         await pilot.pause()
 
         _, _, tool_results_id = app.panel_ids_for(agent_id)
-        assert call_id in app._pending_tool_calls[tool_results_id]
+        tool_log = app.query_one(f"#{tool_results_id}", ToolLog)
+        assert call_id in tool_log._pending_tool_calls
 
         event_bus.publish(ToolResultEvent(agent_id, call_id, SingleToolResult(message="Done")))
         await pilot.pause()
 
-        assert call_id not in app._pending_tool_calls[tool_results_id]
+        assert call_id not in tool_log._pending_tool_calls
         assert _latest_tool_text_area(app, agent_id).text == "Done"
 
 

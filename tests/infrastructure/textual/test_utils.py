@@ -34,7 +34,7 @@ def dump_ui_state(app: TextualApp) -> str:
         class_name = widget.__class__.__name__
 
         # Alias refactored widgets back to their base classes for golden master stability
-        if class_name in ("TodoView", "ChatLog"):
+        if class_name in ("TodoView", "ChatLog", "ToolLog"):
             class_name = "VerticalScroll"
 
         info = f"{indent}{class_name} id='{widget.id}' classes='{' '.join(classes)}'"
