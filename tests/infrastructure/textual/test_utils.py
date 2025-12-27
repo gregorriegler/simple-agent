@@ -2,6 +2,7 @@ import io
 from rich.console import Console
 from textual.widgets import TextArea, Static, Collapsible, Markdown
 from simple_agent.infrastructure.textual.textual_app import TextualApp
+from simple_agent.infrastructure.textual.widgets.todo_view import TodoView
 
 class MockUserInput:
     def __init__(self):
@@ -31,7 +32,10 @@ def dump_ui_state(app: TextualApp) -> str:
     for widget in app.screen.walk_children():
         indent = "  " * len(list(widget.ancestors))
         classes = sorted(list(widget.classes))
-        info = f"{indent}{widget.__class__.__name__} id='{widget.id}' classes='{' '.join(classes)}'"
+        class_name = widget.__class__.__name__
+        if isinstance(widget, TodoView):
+            class_name = "VerticalScroll"
+        info = f"{indent}{class_name} id='{widget.id}' classes='{' '.join(classes)}'"
 
         if isinstance(widget, Markdown):
              # Markdown content isn't easily accessible as raw text directly from widget.source
