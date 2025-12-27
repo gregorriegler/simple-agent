@@ -140,8 +140,7 @@ class TextualApp(App):
         self._session_task: asyncio.Task | None = None
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
         self._agent_names: dict[AgentId, str] = {root_agent_id: root_agent_id.raw}
-        self._todo_widgets: dict[str, Markdown] = {}
-        self._todo_containers: dict[str, tuple] = {}
+        self._agent_workspaces: dict[str, AgentWorkspace] = {}
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._slash_command_registry = SlashCommandRegistry()
         self._file_searcher = NativeFileSearcher()
@@ -181,10 +180,9 @@ class TextualApp(App):
             id="tab-content"
         )
 
-        self._todo_containers[str(agent_id)] = workspace.left_panel
+        self._agent_workspaces[str(agent_id)] = workspace
         self._agent_panel_ids[agent_id] = (log_id, tool_results_id)
         self._tool_results_to_agent[tool_results_id] = agent_id
-        self._todo_widgets[str(agent_id)] = workspace.todo_view
         return workspace
 
     async def on_mount(self) -> None:
@@ -319,8 +317,7 @@ class TextualApp(App):
         if panel_ids:
             self._tool_results_to_agent.pop(tool_results_id, None)
         self._agent_names.pop(agent_id, None)
-        self._todo_widgets.pop(str(agent_id), None)
-        self._todo_containers.pop(str(agent_id), None)
+        self._agent_workspaces.pop(str(agent_id), None)
 
     def _refresh_todos(self, tool_results_id: str) -> None:
         agent_id = self._tool_results_to_agent.get(tool_results_id)
@@ -329,16 +326,9 @@ class TextualApp(App):
         self._refresh_todos_for_agent(agent_id)
 
     def _refresh_todos_for_agent(self, agent_id: AgentId) -> None:
-        todo_widget = self._todo_widgets.get(str(agent_id))
-        if isinstance(todo_widget, TodoView):
-            todo_widget.refresh_content()
-            has_content = todo_widget.has_content
-        else:
-            return
-
-        left_panel = self._todo_containers.get(str(agent_id))
-        if left_panel and isinstance(left_panel, ResizableVertical):
-            left_panel.set_bottom_visibility(has_content)
+        workspace = self._agent_workspaces.get(str(agent_id))
+        if workspace:
+            workspace.refresh_todos()
 
     def update_tab_title(self, agent_id: AgentId, title: str) -> None:
         tab_id, _, _ = self.panel_ids_for(agent_id)
@@ -478,8 +468,8 @@ class TextualApp(App):
             logger.warning("Could not find tool results #%s to clear", tool_results_id)
 
     def _clear_todo_panel(self, agent_id: AgentId) -> None:
-        todo_widget = self._todo_widgets.get(str(agent_id))
-        if isinstance(todo_widget, TodoView):
+        workspace = self._agent_workspaces.get(str(agent_id))
+        if workspace:
             # We can't easily clear the file, but we can clear the view representation
             # Actually, `SessionClearedEvent` implies we want to clear the session state.
             # But todo files are persistent. The original code just updated the widget to empty.
@@ -487,11 +477,9 @@ class TextualApp(App):
             # if we just update the widget but not the file.
             # The original code: `todo_widget.update("")` and hidden it.
             # Let's replicate that behavior by forcing it to hide.
-            todo_widget.update("")
+            workspace.todo_view.update("")
             # Also, we might want to manually set visibility to hidden
-            left_panel = self._todo_containers.get(str(agent_id))
-            if left_panel and isinstance(left_panel, ResizableVertical):
-                left_panel.set_bottom_visibility(False)
+            workspace.left_panel.set_bottom_visibility(False)
 
     def _reset_agent_token_usage(self, agent_id: AgentId) -> None:
         model = self._agent_models.get(agent_id, "")
