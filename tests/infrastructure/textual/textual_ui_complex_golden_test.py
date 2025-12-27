@@ -20,9 +20,10 @@ from simple_agent.application.tool_results import SingleToolResult, ToolResultSt
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from approvaltests import verify
 from tests.infrastructure.textual.test_utils import dump_ui_state, dump_ascii_screen, MockUserInput
+from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 
 @pytest.mark.asyncio
-async def test_golden_complex_scenarios(tmp_path):
+async def test_golden_complex_scenarios(tmp_path, monkeypatch):
     """
     Test complex UI scenarios:
     1. Subagents (tabs)
@@ -30,6 +31,9 @@ async def test_golden_complex_scenarios(tmp_path):
     3. Tool Call Variants (Cancelled, Diff, Suppressed)
     4. File Context Submission
     """
+    # Disable timers on ToolLog to prevent non-deterministic loading animations
+    monkeypatch.setattr(ToolLog, "set_interval", lambda *args, **kwargs: None)
+
     agent_id = AgentId("Agent")
     mock_user_input = MockUserInput()
     app = TextualApp(user_input=mock_user_input, root_agent_id=agent_id)
