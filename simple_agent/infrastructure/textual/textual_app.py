@@ -366,44 +366,23 @@ class TextualApp(App):
             self._reset_agent_token_usage(event.agent_id)
         elif isinstance(event, UserPromptedEvent):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
-
-            # Compact file context for display
-            display_text = event.input_text
-
-            # Find all context blocks
-            pattern = r'<file_context path="([^"]+)">.*?</file_context>'
-            matches = list(re.finditer(pattern, display_text, flags=re.DOTALL))
-
-            if matches:
-                # Remove all blocks from the text first to get the core message
-                core_text = re.sub(pattern, "", display_text, flags=re.DOTALL).strip()
-
-                attachments = []
-                for match in matches:
-                    path = match.group(1)
-                    marker = f"[📦{path}]"
-
-                    # If the marker is already in core_text, we don't need to do anything else for this file
-                    if marker in core_text:
-                        continue
-
-                    # Fallback for manually typed paths or older logic
-                    escaped_path = re.escape(path)
-                    if re.search(escaped_path, core_text):
-                        # Replace the first occurrence of the path with the marker
-                        core_text = re.sub(escaped_path, marker, core_text, count=1)
-                    else:
-                        attachments.append(marker)
-
-                display_text = core_text
-                if attachments:
-                    display_text += "\n" + "\n".join(attachments)
-
-            self.write_message(log_id, f"**User:** {display_text}")
+            try:
+                chat_log = self.query_one(f"#{log_id}-scroll", ChatLog)
+                chat_log.add_user_message(event.input_text)
+            except NoMatches:
+                logger.warning("Could not find scroll container #%s-scroll", log_id)
+            except Exception as e:
+                logger.error("Failed to display message: %s. Message: %s", e, event.input_text)
         elif isinstance(event, AssistantSaidEvent):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
             agent_name = self._agent_names.get(event.agent_id, str(event.agent_id))
-            self.write_message(log_id, f"**{agent_name}:** {event.message}")
+            try:
+                chat_log = self.query_one(f"#{log_id}-scroll", ChatLog)
+                chat_log.add_assistant_message(event.message, agent_name)
+            except NoMatches:
+                logger.warning("Could not find scroll container #%s-scroll", log_id)
+            except Exception as e:
+                logger.error("Failed to display message: %s. Message: %s", e, event.message)
         elif isinstance(event, ToolCalledEvent):
             _, _, tool_results_id = self.panel_ids_for(event.agent_id)
             self.write_tool_call(tool_results_id, event.call_id, event.tool.header())
