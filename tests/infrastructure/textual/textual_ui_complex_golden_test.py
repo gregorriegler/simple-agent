@@ -51,9 +51,24 @@ async def test_golden_complex_scenarios(tmp_path, monkeypatch):
         timeline.append(dump_ascii_screen(app))
         timeline.append("")
 
-    # Create a dummy file for file context test
-    dummy_file = tmp_path / "test_context.txt"
-    dummy_file.write_text("This is file content.", encoding="utf-8")
+    # Mock Path to ensure deterministic file paths in output
+    class MockPath:
+        def __init__(self, path_str):
+            self.path_str = str(path_str)
+
+        def exists(self):
+            return True
+
+        def is_file(self):
+            return True
+
+        def read_text(self, encoding="utf-8"):
+            return "This is file content."
+
+        def __str__(self):
+            return self.path_str
+
+    monkeypatch.setattr("simple_agent.infrastructure.textual.textual_app.Path", MockPath)
 
     async with app.run_test(size=(80, 24)) as pilot:
         capture_step("Initial State")
@@ -139,10 +154,10 @@ new line
         capture_step("Tool Cancelled")
 
         # --- Scenario: File Context Submission ---
-        # We simulate typing a file reference.
+        # We simulate typing a file reference using a fixed path
         text_area = app.query_one("#user-input", TextArea)
 
-        file_path_str = str(dummy_file.absolute())
+        file_path_str = "/mock/context.txt"
         marker = f"[📦{file_path_str}]"
         text_area.text = f"Look at this file: {marker}"
         text_area._referenced_files.add(file_path_str)
