@@ -274,28 +274,6 @@ class TextualApp(App):
         except Exception as e:
             logger.error("Failed to display message: %s. Message: %s", e, message)
 
-
-    def write_tool_call(self, tool_results_id: str, call_id: str, message: str) -> None:
-        try:
-            tool_log = self.query_one(f"#{tool_results_id}", ToolLog)
-            tool_log.add_tool_call(call_id, message)
-        except NoMatches:
-            logger.warning("Could not find tool results container #%s", tool_results_id)
-
-    def write_tool_result(self, tool_results_id: str, call_id: str, result: ToolResult) -> None:
-        try:
-            tool_log = self.query_one(f"#{tool_results_id}", ToolLog)
-            tool_log.add_tool_result(call_id, result)
-        except NoMatches:
-            logger.warning("Could not find tool results container #%s", tool_results_id)
-
-    def write_tool_cancelled(self, tool_results_id: str, call_id: str) -> None:
-        try:
-            tool_log = self.query_one(f"#{tool_results_id}", ToolLog)
-            tool_log.add_tool_cancelled(call_id)
-        except NoMatches:
-            logger.warning("Could not find tool results container #%s", tool_results_id)
-
     def add_subagent_tab(self, agent_id: AgentId, tab_title: str) -> tuple[str, str]:
         tab_id, log_id, tool_results_id = self.panel_ids_for(agent_id)
 
@@ -384,16 +362,19 @@ class TextualApp(App):
             except Exception as e:
                 logger.error("Failed to display message: %s. Message: %s", e, event.message)
         elif isinstance(event, ToolCalledEvent):
-            _, _, tool_results_id = self.panel_ids_for(event.agent_id)
-            self.write_tool_call(tool_results_id, event.call_id, event.tool.header())
+            workspace = self._agent_workspaces.get(str(event.agent_id))
+            if workspace:
+                workspace.on_tool_call(event.call_id, event.tool.header())
         elif isinstance(event, ToolResultEvent):
             if not event.result:
                 return
-            _, _, tool_results_id = self.panel_ids_for(event.agent_id)
-            self.write_tool_result(tool_results_id, event.call_id, event.result)
+            workspace = self._agent_workspaces.get(str(event.agent_id))
+            if workspace:
+                workspace.on_tool_result(event.call_id, event.result)
         elif isinstance(event, ToolCancelledEvent):
-            _, _, tool_results_id = self.panel_ids_for(event.agent_id)
-            self.write_tool_cancelled(tool_results_id, event.call_id)
+            workspace = self._agent_workspaces.get(str(event.agent_id))
+            if workspace:
+                workspace.on_tool_cancelled(event.call_id)
         elif isinstance(event, SessionInterruptedEvent):
             _, log_id, _ = self.panel_ids_for(event.agent_id)
             self.write_message(log_id, "\n[Session interrupted by user]")

@@ -1,6 +1,7 @@
 from typing import Callable
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.tool_results import ToolResult
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
 from simple_agent.infrastructure.textual.widgets.chat_log import ChatLog
 from simple_agent.infrastructure.textual.widgets.todo_view import TodoView
@@ -39,3 +40,12 @@ class AgentWorkspace(ResizableHorizontal):
     def refresh_todos(self) -> None:
         self.todo_view.refresh_content()
         self.left_panel.set_bottom_visibility(self.todo_view.has_content)
+
+    def on_tool_call(self, call_id: str, message: str) -> None:
+        self.tool_log.add_tool_call(call_id, message)
+
+    def on_tool_result(self, call_id: str, result: ToolResult) -> None:
+        self.tool_log.add_tool_result(call_id, result)
+
+    def on_tool_cancelled(self, call_id: str) -> None:
+        self.tool_log.add_tool_cancelled(call_id)
