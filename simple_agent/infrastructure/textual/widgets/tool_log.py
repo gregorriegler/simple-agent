@@ -62,11 +62,19 @@ class ToolLog(VerticalScroll):
         default_title = lines[0] if lines else "Tool Call"
         collapsible = Collapsible(text_area, title=default_title, collapsed=False)
         self._collapsibles.append(collapsible)
-        self.mount(collapsible)
-        self.scroll_end(animate=False)
 
         self._pending_tool_calls[call_id] = (message, text_area, collapsible)
-        if not self.loading_timer:
+        if self.is_mounted:
+            self.mount(collapsible)
+            self.scroll_end(animate=False)
+            if not self.loading_timer:
+                self.loading_timer = self.set_interval(0.1, self._update_loading_animation)
+
+    def compose(self):
+        yield from self._collapsibles
+
+    def on_mount(self) -> None:
+        if self._pending_tool_calls and not self.loading_timer:
             self.loading_timer = self.set_interval(0.1, self._update_loading_animation)
 
     def _pop_pending_tool_call(self, call_id: str) -> tuple[tuple[str, TextArea, Collapsible] | None, bool]:
