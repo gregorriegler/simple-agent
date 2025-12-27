@@ -90,7 +90,7 @@ async def test_textual_app_write_tool_result_no_pending(app: TextualApp):
 
         # Write result with no call
         result = SingleToolResult(message="Done")
-        app.write_tool_result(tool_results_id, "unknown-call", result)
+        app.on_domain_event_message(DomainEventMessage(ToolResultEvent(agent_id, "unknown-call", result)))
         # Should just log warning and not crash
 
 @pytest.mark.asyncio
