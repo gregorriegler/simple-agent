@@ -14,8 +14,7 @@ def test_refresh_todos_updates_content_from_file(tmp_path):
     workspace = AgentWorkspace(
         agent_id=agent_id,
         log_id="log-id",
-        tool_results_id="tool-id",
-        on_refresh_todos=lambda: None
+        tool_results_id="tool-id"
     )
 
     assert workspace.todo_view.content == "Initial content"
@@ -34,8 +33,7 @@ def test_refresh_todos_hides_view_when_empty(tmp_path):
     workspace = AgentWorkspace(
         agent_id=agent_id,
         log_id="log-id",
-        tool_results_id="tool-id",
-        on_refresh_todos=lambda: None
+        tool_results_id="tool-id"
     )
 
     todo_file.write_text("", encoding="utf-8")
@@ -44,15 +42,13 @@ def test_refresh_todos_hides_view_when_empty(tmp_path):
     assert workspace.todo_view.content == ""
     assert workspace.todo_view.styles.display == "none"
 
-def test_tool_log_receives_provided_callback():
+def test_tool_log_receives_internal_callback():
     agent_id = AgentId("test_agent")
-    def my_callback(): pass
 
     workspace = AgentWorkspace(
         agent_id=agent_id,
         log_id="log-id",
-        tool_results_id="tool-id",
-        on_refresh_todos=my_callback
+        tool_results_id="tool-id"
     )
 
-    assert workspace.tool_log.on_refresh_todos == my_callback
+    assert workspace.tool_log.on_refresh_todos == workspace.refresh_todos

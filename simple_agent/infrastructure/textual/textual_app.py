@@ -168,14 +168,10 @@ class TextualApp(App):
             yield SmartInput(id="smart-input")
 
     def create_agent_container(self, log_id, tool_results_id, agent_id):
-        def refresh_todos_callback():
-            self._refresh_todos(tool_results_id)
-
         workspace = AgentWorkspace(
             agent_id=agent_id,
             log_id=log_id,
             tool_results_id=tool_results_id,
-            on_refresh_todos=refresh_todos_callback,
             id="tab-content"
         )
 
@@ -267,17 +263,6 @@ class TextualApp(App):
             self._tool_results_to_agent.pop(tool_results_id, None)
         self._agent_names.pop(agent_id, None)
         self._agent_workspaces.pop(str(agent_id), None)
-
-    def _refresh_todos(self, tool_results_id: str) -> None:
-        agent_id = self._tool_results_to_agent.get(tool_results_id)
-        if not agent_id:
-            return
-        self._refresh_todos_for_agent(agent_id)
-
-    def _refresh_todos_for_agent(self, agent_id: AgentId) -> None:
-        workspace = self._agent_workspaces.get(str(agent_id))
-        if workspace:
-            workspace.refresh_todos()
 
     def update_tab_title(self, agent_id: AgentId, title: str) -> None:
         tab_id, _, _ = self.panel_ids_for(agent_id)
