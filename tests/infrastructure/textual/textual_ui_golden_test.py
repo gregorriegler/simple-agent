@@ -21,7 +21,7 @@ from approvaltests.reporters import GenericDiffReporterFactory
 from tests.infrastructure.textual.test_utils import dump_ui_state, dump_ascii_screen
 
 @pytest.mark.asyncio
-async def test_golden_happy_path_flow(monkeypatch):
+async def test_golden_happy_path_flow(tmp_path, monkeypatch):
     """
     Run a full happy path flow and verify the UI state at every step.
     This creates a visual timeline of the user session.
@@ -36,7 +36,7 @@ async def test_golden_happy_path_flow(monkeypatch):
     # Disable timers on ToolLog to prevent non-deterministic loading animations
     monkeypatch.setattr(ToolLog, "set_interval", lambda *args, **kwargs: None)
 
-    agent_id = AgentId("Agent")
+    agent_id = AgentId("Agent", root=tmp_path)
     app = TextualApp(user_input=None, root_agent_id=agent_id)
 
     # Disable loading timer to avoid non-determinism
