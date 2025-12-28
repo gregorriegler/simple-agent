@@ -30,6 +30,10 @@ class SubmittableTextArea(TextArea):
         self._active_trigger = None  # "/" or "@"
         self._trigger_word_start_index = None
         self._referenced_files: set[str] = set()
+        self._autocomplete_popup: AutocompletePopup | None = None
+
+    def set_autocomplete_popup(self, popup: AutocompletePopup) -> None:
+        self._autocomplete_popup = popup
 
     def get_referenced_files(self) -> set[str]:
         """Return the set of files that were selected via autocomplete and are still in the text."""
@@ -220,10 +224,7 @@ class SubmittableTextArea(TextArea):
 
     def _update_autocomplete_display(self) -> None:
         """Update the autocomplete display in the popup."""
-        try:
-            popup = self.app.query_one("#autocomplete-popup", AutocompletePopup)
-        except (NoMatches, AttributeError):
-            popup = None
+        popup = self._autocomplete_popup
 
         if self._autocomplete_visible and self._current_suggestions:
             if self._suggestions_are_files:
@@ -305,6 +306,9 @@ class SmartInput(Widget):
     def on_mount(self) -> None:
         try:
             text_area = self.query_one("#user-input", SubmittableTextArea)
+            popup = self.query_one("#autocomplete-popup", AutocompletePopup)
+            text_area.set_autocomplete_popup(popup)
+
             if self._slash_command_registry:
                 text_area.slash_command_registry = self._slash_command_registry
             if self._file_searcher:
