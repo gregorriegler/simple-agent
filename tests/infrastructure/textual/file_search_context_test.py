@@ -41,6 +41,7 @@ async def test_submit_includes_referenced_file_content(tmp_path):
         
         # Action
         app.action_submit_input()
+        await pilot.pause()
         
         # Assert
         assert len(user_input.inputs) == 1
@@ -73,6 +74,7 @@ async def test_submit_ignores_removed_file_references(tmp_path):
         
         # Action
         app.action_submit_input()
+        await pilot.pause()
         
         # Assert
         assert len(user_input.inputs) == 1
@@ -101,6 +103,7 @@ async def test_submit_ignores_corrupted_marker(tmp_path):
         
         # Action
         app.action_submit_input()
+        await pilot.pause()
         
         # Assert
         assert len(user_input.inputs) == 1

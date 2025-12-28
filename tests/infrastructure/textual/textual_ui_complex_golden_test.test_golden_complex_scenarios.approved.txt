@@ -19,9 +19,10 @@ Active Tab: tab-Agent
                   Markdown id='log-Agent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
-      Static id='input-hint' classes=''
-      SubmittableTextArea id='user-input' classes='' text=''
-      AutocompletePopup id='autocomplete-popup' classes=''
+      SmartInput id='smart-input' classes=''
+        Static id='input-hint' classes=''
+        SubmittableTextArea id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Initial State (ASCII UI) ---
  Agent
@@ -80,9 +81,10 @@ Active Tab: tab-SubAgent
                   Markdown id='log-SubAgent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-SubAgent' classes=''
-      Static id='input-hint' classes=''
-      SubmittableTextArea id='user-input' classes='' text=''
-      AutocompletePopup id='autocomplete-popup' classes=''
+      SmartInput id='smart-input' classes=''
+        Static id='input-hint' classes=''
+        SubmittableTextArea id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: SubAgent Started (ASCII UI) ---
  Agent  SubAgent [gpt-4: 0.0%]
@@ -143,9 +145,10 @@ Active Tab: tab-SubAgent
                   Markdown id='log-SubAgent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-SubAgent' classes=''
-      Static id='input-hint' classes=''
-      SubmittableTextArea id='user-input' classes='' text=''
-      AutocompletePopup id='autocomplete-popup' classes=''
+      SmartInput id='smart-input' classes=''
+        Static id='input-hint' classes=''
+        SubmittableTextArea id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: SubAgent Spoke (ASCII UI) ---
  Agent  SubAgent [gpt-4: 0.0%]
@@ -194,9 +197,10 @@ Active Tab: tab-Agent
                   Markdown id='log-Agent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
-      Static id='input-hint' classes=''
-      SubmittableTextArea id='user-input' classes='' text=''
-      AutocompletePopup id='autocomplete-popup' classes=''
+      SmartInput id='smart-input' classes=''
+        Static id='input-hint' classes=''
+        SubmittableTextArea id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: SubAgent Ended (ASCII UI) ---
  Agent
@@ -247,9 +251,10 @@ Active Tab: tab-Agent
                   Markdown id='log-Agent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
-      Static id='input-hint' classes=''
-      SubmittableTextArea id='user-input' classes='' text=''
-      AutocompletePopup id='autocomplete-popup' classes=''
+      SmartInput id='smart-input' classes=''
+        Static id='input-hint' classes=''
+        SubmittableTextArea id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Error Event (ASCII UI) ---
  Agent
@@ -302,9 +307,10 @@ Active Tab: tab-Agent
                   Markdown id='log-Agent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
-      Static id='input-hint' classes=''
-      SubmittableTextArea id='user-input' classes='' text=''
-      AutocompletePopup id='autocomplete-popup' classes=''
+      SmartInput id='smart-input' classes=''
+        Static id='input-hint' classes=''
+        SubmittableTextArea id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Session Interrupted (ASCII UI) ---
  Agent
@@ -361,9 +367,10 @@ Active Tab: tab-Agent
                   CollapsibleTitle id='None' classes=''
                   Contents id='None' classes=''
                     TextArea id='None' classes='tool-call' text='In Progress ⠇'
-      Static id='input-hint' classes=''
-      SubmittableTextArea id='user-input' classes='' text=''
-      AutocompletePopup id='autocomplete-popup' classes=''
+      SmartInput id='smart-input' classes=''
+        Static id='input-hint' classes=''
+        SubmittableTextArea id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Tool Call (Suppressed) (ASCII UI) ---
  Agent
@@ -424,9 +431,10 @@ Active Tab: tab-Agent
                   CollapsibleTitle id='None' classes=''
                   Contents id='None' classes=''
                     Static id='None' classes='tool-result tool-result-success'
-      Static id='input-hint' classes=''
-      SubmittableTextArea id='user-input' classes='' text=''
-      AutocompletePopup id='autocomplete-popup' classes=''
+      SmartInput id='smart-input' classes=''
+        Static id='input-hint' classes=''
+        SubmittableTextArea id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Tool Result (Diff) (ASCII UI) ---
  Agent
@@ -491,9 +499,10 @@ Active Tab: tab-Agent
                   CollapsibleTitle id='None' classes=''
                   Contents id='None' classes=''
                     TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
-      Static id='input-hint' classes=''
-      SubmittableTextArea id='user-input' classes='' text=''
-      AutocompletePopup id='autocomplete-popup' classes=''
+      SmartInput id='smart-input' classes=''
+        Static id='input-hint' classes=''
+        SubmittableTextArea id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Tool Cancelled (ASCII UI) ---
  Agent
@@ -558,9 +567,10 @@ Active Tab: tab-Agent
                   CollapsibleTitle id='None' classes=''
                   Contents id='None' classes=''
                     TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
-      Static id='input-hint' classes=''
-      SubmittableTextArea id='user-input' classes='' text=''
-      AutocompletePopup id='autocomplete-popup' classes=''
+      SmartInput id='smart-input' classes=''
+        Static id='input-hint' classes=''
+        SubmittableTextArea id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: File Context Submitted (ASCII UI) ---
  Agent
