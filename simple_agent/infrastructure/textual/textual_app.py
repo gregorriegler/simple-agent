@@ -133,20 +133,20 @@ class TextualApp(App):
     }
     """
 
-    def __init__(self, user_input=None, root_agent_id: AgentId = AgentId("Agent")):
+    def __init__(self, user_input=None, root_agent_id: AgentId | None = None):
         super().__init__()
         self.user_input = user_input
-        self._root_agent_id = root_agent_id
+        self._root_agent_id = root_agent_id or AgentId("Agent")
         self._session_runner: Callable[[], Coroutine[Any, Any, None]] | None = None
         self._session_task: asyncio.Task | None = None
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
-        self._agent_names: dict[AgentId, str] = {root_agent_id: root_agent_id.raw}
+        self._agent_names: dict[AgentId, str] = {self._root_agent_id: self._root_agent_id.raw}
         self._agent_workspaces: dict[str, AgentWorkspace] = {}
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._slash_command_registry = SlashCommandRegistry()
         self._file_searcher = NativeFileSearcher()
-        self._agent_models: dict[AgentId, str] = {root_agent_id: ""}
-        self._agent_max_tokens: dict[AgentId, int] = {root_agent_id: 0}
+        self._agent_models: dict[AgentId, str] = {self._root_agent_id: ""}
+        self._agent_max_tokens: dict[AgentId, int] = {self._root_agent_id: 0}
 
     def has_agent_tab(self, agent_id: AgentId) -> bool:
         return agent_id in self._agent_panel_ids

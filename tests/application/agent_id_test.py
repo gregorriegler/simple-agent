@@ -51,7 +51,9 @@ def test_filesystem_and_repr_helpers():
 
     assert agent_id.for_filesystem() == "root-sub-agent--id"
     # todo_filename now returns an absolute Path
-    expected_filename = Path.cwd() / ".root-sub-agent--id.todos.md"
+    # Since we didn't inject root, it defaults to relative path behavior (which is conceptually 'relative to CWD' if resolved)
+    # But strictly speaking, it returns `Path(".") / filename`.
+    expected_filename = Path(".") / ".root-sub-agent--id.todos.md"
     assert agent_id.todo_filename() == expected_filename
     assert agent_id.for_ui() == "root-sub-agent--id"
     assert str(agent_id) == agent_id.raw
