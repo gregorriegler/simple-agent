@@ -16,7 +16,20 @@ Active Tab: tab-Agent
                 VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='smart-input' classes=''
@@ -35,12 +48,12 @@ Active Tab: tab-Agent
 
 
 
-
-
-
-
-
-
+    • [ ] Item 1
+    • [ ] Work
+      in
+      progress
+    • [x]
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline
@@ -69,7 +82,20 @@ Active Tab: tab-SubAgent
                 VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
           TabPane id='tab-SubAgent' classes=''
@@ -131,7 +157,20 @@ Active Tab: tab-SubAgent
                 VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
           TabPane id='tab-SubAgent' classes=''
@@ -194,7 +233,20 @@ Active Tab: tab-Agent
                 VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='smart-input' classes=''
@@ -213,12 +265,12 @@ Active Tab: tab-Agent
 
 
 
-
-
-
-
-
-
+    • [ ] Item 1
+    • [ ] Work
+      in
+      progress
+    • [x]
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline
@@ -248,7 +300,20 @@ Active Tab: tab-Agent
                     MarkdownParagraph id='None' classes='level-0'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='smart-input' classes=''
@@ -267,12 +332,12 @@ Active Tab: tab-Agent
 
 
 
-
-
-
-
-
-
+    • [ ] Item 1
+    • [ ] Work
+      in
+      progress
+    • [x]
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline
@@ -304,7 +369,20 @@ Active Tab: tab-Agent
                     MarkdownParagraph id='None' classes='level-0'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='smart-input' classes=''
@@ -316,19 +394,19 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-   ❌ Error:
-   Something went
-   wrong
 
-   [Session
-   interrupted by
-   user]
+   [Session      ▁▁
+   interrupted
+   by user]
 
 
 
-
-
-
+    • [ ] Item 1
+    • [ ] Work
+      in
+      progress
+    • [x]
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline
@@ -360,7 +438,20 @@ Active Tab: tab-Agent
                     MarkdownParagraph id='None' classes='level-0'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
                 Collapsible id='None' classes='' title='write_todos()' collapsed=False
@@ -376,19 +467,19 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-   ❌ Error:           ▼ write_todos()
-   Something went
-   wrong                 ▊▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎
-                         ▊ In Progress ⠇                                       ▎
-   [Session              ▊▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎
-   interrupted by
-   user]
+                       ▼ write_todos()
+   [Session      ▁▁
+   interrupted           ▊▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎
+   by user]              ▊ In Progress ⠇                                       ▎
+                         ▊▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎
 
 
-
-
-
-
+    • [ ] Item 1
+    • [ ] Work
+      in
+      progress
+    • [x]
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline
@@ -420,7 +511,20 @@ Active Tab: tab-Agent
                     MarkdownParagraph id='None' classes='level-0'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
                 Collapsible id='None' classes='-collapsed' title='write_todos()' collapsed=True
@@ -440,19 +544,19 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-   ❌ Error:           ▶ write_todos()
-   Something went
-   wrong             ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-                       ▼ apply_diff()
-   [Session
-   interrupted by        ╭─────────────────────────────────────────────────────╮
-   user]                 │<<<<<<< SEARCH                                       │
-                         │old line                                             │
-                         │=======                                              │
-                         │new line                                             │
-                         │>>>>>>> REPLACE                                      │
-                         ╰─────────────────────────────────────────────────────╯
+                       ▶ write_todos()
+   [Session      ▁▁
+   interrupted       ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+   by user]            ▼ apply_diff()
 
+                         ╭─────────────────────────────────────────────────────╮
+                         │<<<<<<< SEARCH                                       │
+    • [ ] Item 1         │old line                                             │
+    • [ ] Work           │=======                                              │
+      in                 │new line                                             │
+      progress           │>>>>>>> REPLACE                                      │
+    • [x]                ╰─────────────────────────────────────────────────────╯
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline
@@ -484,7 +588,20 @@ Active Tab: tab-Agent
                     MarkdownParagraph id='None' classes='level-0'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
                 Collapsible id='None' classes='-collapsed' title='write_todos()' collapsed=True
@@ -508,19 +625,19 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-   ❌ Error:           ▶ write_todos()
-   Something went
-   wrong             ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-                       ▶ apply_diff()
-   [Session
-   interrupted by    ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-   user]               ▼ long_running() (Cancelled)
+                       ▶ write_todos()
+   [Session      ▁▁
+   interrupted       ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+   by user]            ▶ apply_diff()
 
-                         ╭─────────────────────────────────────────────────────╮
-                         │ Cancelled                                           │
-                         ╰─────────────────────────────────────────────────────╯
-
-
+                     ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+                       ▼ long_running() (Cancelled)
+    • [ ] Item 1
+    • [ ] Work           ╭─────────────────────────────────────────────────────╮
+      in                 │ Cancelled                                           │
+      progress           ╰─────────────────────────────────────────────────────╯
+    • [x]
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline
@@ -552,7 +669,20 @@ Active Tab: tab-Agent
                     MarkdownParagraph id='None' classes='level-0'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
                 Collapsible id='None' classes='-collapsed' title='write_todos()' collapsed=True
@@ -576,19 +706,19 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-   ❌ Error:           ▶ write_todos()
-   Something went
-   wrong             ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-                       ▶ apply_diff()
-   [Session
-   interrupted by    ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-   user]               ▼ long_running() (Cancelled)
+                       ▶ write_todos()
+   [Session      ▁▁
+   interrupted       ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+   by user]            ▶ apply_diff()
 
-                         ╭─────────────────────────────────────────────────────╮
-                         │ Cancelled                                           │
-                         ╰─────────────────────────────────────────────────────╯
-
-
+                     ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+                       ▼ long_running() (Cancelled)
+    • [ ] Item 1
+    • [ ] Work           ╭─────────────────────────────────────────────────────╮
+      in                 │ Cancelled                                           │
+      progress           ╰─────────────────────────────────────────────────────╯
+    • [x]
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline

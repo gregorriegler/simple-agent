@@ -1,16 +1,19 @@
+from pathlib import Path
+
 class AgentId:
-    def __init__(self, raw_id: str):
+    def __init__(self, raw_id: str, root: Path | None = None):
         if not raw_id or not raw_id.strip():
             raise ValueError("Agent ID cannot be empty")
         self._raw_id = raw_id
+        self._root = root or Path.cwd()
 
     def with_suffix(self, suffix: str) -> 'AgentId':
         if suffix:
-            return AgentId(f"{self._raw_id}{suffix}")
+            return AgentId(f"{self._raw_id}{suffix}", root=self._root)
         return self
 
     def create_subagent_id(self, agent_name: str, suffixer: 'AgentIdSuffixer') -> 'AgentId':
-        base_id = AgentId(f"{self._raw_id}/{agent_name}")
+        base_id = AgentId(f"{self._raw_id}/{agent_name}", root=self._root)
         suffix = suffixer.suffix(base_id)
         return base_id.with_suffix(suffix)
 
@@ -21,7 +24,7 @@ class AgentId:
         if "/" not in self._raw_id:
             return None
         parent_raw = self._raw_id.rsplit("/", 1)[0]
-        return AgentId(parent_raw)
+        return AgentId(parent_raw, root=self._root)
 
     def depth(self) -> int:
         return self._raw_id.count("/")
@@ -33,8 +36,8 @@ class AgentId:
     def for_filesystem(self) -> str:
         return self._raw_id.replace("/", "-").replace("\\", "-").replace(" ", "-")
 
-    def todo_filename(self) -> str:
-        return f".{self.for_filesystem()}.todos.md"
+    def todo_filename(self) -> Path:
+        return self._root / f".{self.for_filesystem()}.todos.md"
 
     def for_ui(self) -> str:
         return self.for_filesystem()

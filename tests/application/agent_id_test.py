@@ -44,11 +44,15 @@ def test_parent_and_depth_navigation():
     assert nested.depth() == 2
 
 
+from pathlib import Path
+
 def test_filesystem_and_repr_helpers():
     agent_id = AgentId(r"root/sub agent\\id")
 
     assert agent_id.for_filesystem() == "root-sub-agent--id"
-    assert agent_id.todo_filename() == ".root-sub-agent--id.todos.md"
+    # todo_filename now returns an absolute Path
+    expected_filename = Path.cwd() / ".root-sub-agent--id.todos.md"
+    assert agent_id.todo_filename() == expected_filename
     assert agent_id.for_ui() == "root-sub-agent--id"
     assert str(agent_id) == agent_id.raw
     assert repr(agent_id) == f"AgentId('{agent_id.raw}')"

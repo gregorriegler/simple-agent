@@ -18,7 +18,20 @@ Active Tab: tab-Agent
                     MarkdownParagraph id='None' classes='level-0'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='smart-input' classes=''
@@ -37,12 +50,12 @@ Active Tab: tab-Agent
 
 
 
-
-
-
-
-
-
+    • [ ] Item 1
+    • [ ] Work
+      in
+      progress
+    • [x]
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline
@@ -74,7 +87,20 @@ Active Tab: tab-Agent
                     MarkdownParagraph id='None' classes='level-0'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='smart-input' classes=''
@@ -86,19 +112,19 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-   Starting new
-   session
+   session       ▃▃
 
    Waiting for
-   user input...
+   user
+   input...      ▆▆
 
 
-
-
-
-
-
-
+    • [ ] Item 1
+    • [ ] Work
+      in
+      progress
+    • [x]
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline
@@ -130,7 +156,20 @@ Active Tab: tab-Agent
                     MarkdownParagraph id='None' classes='level-0'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='smart-input' classes=''
@@ -142,19 +181,19 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-   Starting new
-   session
+   session       ▃▃
 
    Waiting for
-   user input...
+   user
+   input...      ▆▆
 
 
-
-
-
-
-
-
+    • [ ] Item 1
+    • [ ] Work
+      in
+      progress
+    • [x]
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline
@@ -190,7 +229,20 @@ Active Tab: tab-Agent
                     MarkdownParagraph id='None' classes='level-0'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='smart-input' classes=''
@@ -202,19 +254,19 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-   Starting new
-   session
-
-   Waiting for
-   user input...
-
    User: Hello
 
-   Agent: Hi
+   Agent: Hi     ▁▁
    there!
 
 
 
+    • [ ] Item 1
+    • [ ] Work
+      in
+      progress
+    • [x]
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline
@@ -250,7 +302,20 @@ Active Tab: tab-Agent
                     MarkdownParagraph id='None' classes='level-0'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
                 Collapsible id='None' classes='' title="search_files(query='test')" collapsed=False
@@ -266,19 +331,19 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-   Starting new        ▼ search_files(query='test')
-   session
-                         ▊▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎
-   Waiting for           ▊ In Progress ⠇                                       ▎
-   user input...         ▊▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎
+   User: Hello         ▼ search_files(query='test')
 
-   User: Hello
-
-   Agent: Hi
-   there!
+   Agent: Hi     ▁▁      ▊▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎
+   there!                ▊ In Progress ⠇                                       ▎
+                         ▊▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎
 
 
-
+    • [ ] Item 1
+    • [ ] Work
+      in
+      progress
+    • [x]
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline
@@ -314,7 +379,20 @@ Active Tab: tab-Agent
                     MarkdownParagraph id='None' classes='level-0'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                  Markdown id='log-Agent-todos' classes='' source=''...
+                  Markdown id='log-Agent-todos' classes='' source='- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Comp'...
+                    MarkdownBulletList id='None' classes='level-0'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
+                      Horizontal id='None' classes=''
+                        MarkdownBullet id='None' classes=''
+                        Vertical id='None' classes=''
+                          MarkdownParagraph id='None' classes='level-2'
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
                 Collapsible id='None' classes='' title='Search Results' collapsed=False
@@ -330,19 +408,19 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-   Starting new        ▼ Search Results
-   session
-                         ╭─────────────────────────────────────────────────────╮
-   Waiting for           │ Found 1 file.                                       │
-   user input...         ╰─────────────────────────────────────────────────────╯
+   User: Hello         ▼ Search Results
 
-   User: Hello
-
-   Agent: Hi
-   there!
+   Agent: Hi     ▁▁      ╭─────────────────────────────────────────────────────╮
+   there!                │ Found 1 file.                                       │
+                         ╰─────────────────────────────────────────────────────╯
 
 
-
+    • [ ] Item 1
+    • [ ] Work
+      in
+      progress
+    • [x]
+      Completed
 
 
                                         Enter to submit, Ctrl+Enter for newline
