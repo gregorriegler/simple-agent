@@ -14,6 +14,12 @@ from textual.widget import Widget
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.file_search import FileSearcher
 from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup, calculate_autocomplete_position
+from simple_agent.infrastructure.textual.autocomplete_strategies import (
+    AutocompleteStrategy,
+    SlashCommandStrategy,
+    FileSearchStrategy,
+    CompletionContext
+)
 
 logger = logging.getLogger(__name__)
 
@@ -21,15 +27,44 @@ logger = logging.getLogger(__name__)
 class SubmittableTextArea(TextArea):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.slash_command_registry: SlashCommandRegistry | None = None
-        self.file_searcher: FileSearcher | None = None
+        self._slash_command_registry: SlashCommandRegistry | None = None
+        self._file_searcher: FileSearcher | None = None
         self._autocomplete_visible = False
         self._current_suggestions = []
         self._selected_index = 0
         self._autocomplete_anchor_x = None
-        self._active_trigger = None  # "/" or "@"
-        self._trigger_word_start_index = None
+
+        # New strategy state
+        self.strategies: list[AutocompleteStrategy] = []
+        self._active_strategy: AutocompleteStrategy | None = None
+        self._active_context: CompletionContext | None = None
+
         self._referenced_files: set[str] = set()
+
+    @property
+    def slash_command_registry(self):
+        return self._slash_command_registry
+
+    @slash_command_registry.setter
+    def slash_command_registry(self, value):
+        self._slash_command_registry = value
+        self._update_strategies()
+
+    @property
+    def file_searcher(self):
+        return self._file_searcher
+
+    @file_searcher.setter
+    def file_searcher(self, value):
+        self._file_searcher = value
+        self._update_strategies()
+
+    def _update_strategies(self):
+        self.strategies = []
+        if self._slash_command_registry:
+            self.strategies.append(SlashCommandStrategy(self._slash_command_registry))
+        if self._file_searcher:
+            self.strategies.append(FileSearchStrategy(self._file_searcher))
 
     def get_referenced_files(self) -> set[str]:
         """Return the set of files that were selected via autocomplete and are still in the text."""
@@ -86,13 +121,7 @@ class SubmittableTextArea(TextArea):
 
     def _check_autocomplete(self) -> None:
         """Check if we should show autocomplete based on current text."""
-        # Get text up to cursor
         cursor_location = self.cursor_location
-        # For simplicity, we only autocomplete on the last line where the cursor is
-        # or properly handle multiline content.
-        # TextArea.text is the whole text.
-
-        # Get the line content and cursor column
         row, col = cursor_location
         try:
             line = self.document.get_line(row)
@@ -100,71 +129,38 @@ class SubmittableTextArea(TextArea):
             self._hide_autocomplete()
             return
 
-        # Check for slash command at start of text (simplest case)
-        # Note: Slash commands are usually only at the very beginning of the prompt
-        if row == 0 and col > 0 and line.startswith("/") and " " not in line[:col]:
-            self._active_trigger = "/"
-            self._trigger_word_start_index = 0
-            self._show_autocomplete(line[:col])
-            return
-
-        # Check for file search (@)
-        # We look for the word ending at cursor.
-        # Find the start of the word before cursor
-        text_before_cursor = line[:col]
-
-        # Simple tokenization by space to find the current word being typed
-        last_space_index = text_before_cursor.rfind(" ")
-        word_start_index = last_space_index + 1
-        current_word = text_before_cursor[word_start_index:]
-
-        if current_word.startswith("@"):
-            self._active_trigger = "@"
-            self._trigger_word_start_index = word_start_index
-            asyncio.create_task(self._show_file_autocomplete(current_word))
-            return
+        for strategy in self.strategies:
+            context = strategy.check(self, row, col, line)
+            if context:
+                self._active_strategy = strategy
+                self._active_context = context
+                asyncio.create_task(self._fetch_suggestions(strategy, context))
+                return
 
         self._hide_autocomplete()
 
-    def _show_autocomplete(self, text: str) -> None:
-        """Show autocomplete suggestions for slash commands."""
-        if not self.slash_command_registry:
+    async def _fetch_suggestions(self, strategy: AutocompleteStrategy, context: CompletionContext):
+        # Double check if we are still on the same context (async race condition)
+        if self._active_strategy != strategy or self._active_context != context:
             return
 
-        # Extract the command part
-        command = text
-        suggestions = self.slash_command_registry.get_matching_commands(command)
+        suggestions = await strategy.get_suggestions(context)
 
-        if suggestions:
-            self._display_suggestions(suggestions)
-        else:
-            self._hide_autocomplete()
+        # Verify again before displaying
+        if self._active_strategy == strategy and self._active_context == context:
+            if suggestions:
+                self._display_suggestions(suggestions)
+            else:
+                self._hide_autocomplete()
 
-    async def _show_file_autocomplete(self, text: str) -> None:
-        """Show autocomplete suggestions for files."""
-        if not self.file_searcher:
-            return
-
-        # Remove '@' prefix for search
-        query = text[1:]
-
-        try:
-            paths = await self.file_searcher.search(query)
-            self._display_suggestions(paths, is_files=True)
-        except Exception as e:
-            logger.error(f"File search failed: {e}")
-            self._hide_autocomplete()
-
-    def _display_suggestions(self, suggestions: list, is_files: bool = False) -> None:
+    def _display_suggestions(self, suggestions: list) -> None:
         was_visible = self._autocomplete_visible
         self._autocomplete_visible = True
         self._current_suggestions = suggestions
         self._selected_index = 0
-        self._suggestions_are_files = is_files
 
         if not was_visible:
             self._autocomplete_anchor_x = self.cursor_screen_offset.x
-            pass
 
         self._update_autocomplete_display()
 
@@ -174,7 +170,8 @@ class SubmittableTextArea(TextArea):
         self._current_suggestions = []
         self._selected_index = 0
         self._autocomplete_anchor_x = None
-        self._active_trigger = None
+        self._active_strategy = None
+        self._active_context = None
         self._update_autocomplete_display()
 
     def _navigate_autocomplete(self, direction: str) -> None:
@@ -194,27 +191,13 @@ class SubmittableTextArea(TextArea):
         if not self._current_suggestions or self._selected_index >= len(self._current_suggestions):
             return
 
+        if not self._active_strategy or not self._active_context:
+            return
+
         selected = self._current_suggestions[self._selected_index]
+        row, col = self.cursor_location
 
-        if self._active_trigger == "/":
-            cmd_name = selected.name
-            self.text = cmd_name + " "
-            self.move_cursor_relative(columns=len(cmd_name) + 1)
-
-        elif self._active_trigger == "@":
-            row, col = self.cursor_location
-            file_path = selected # selected is str
-            self._referenced_files.add(file_path)
-
-            start_col = self._trigger_word_start_index
-            display_marker = f"[📦{file_path}]"
-
-            self.replace(
-                display_marker + " ",
-                start=(row, start_col),
-                end=(row, col),
-                maintain_selection_offset=False,
-            )
+        self._active_strategy.apply_completion(self, selected, self._active_context, row, col)
 
         self._hide_autocomplete()
 
@@ -225,17 +208,11 @@ class SubmittableTextArea(TextArea):
         except (NoMatches, AttributeError):
             popup = None
 
-        if self._autocomplete_visible and self._current_suggestions:
-            if self._suggestions_are_files:
-                 lines = [
-                    f"{path}"  # Just the path for files
-                    for path in self._current_suggestions
-                ]
-            else:
-                lines = [
-                    f"{cmd.name} - {cmd.description}"
-                    for cmd in self._current_suggestions
-                ]
+        if self._autocomplete_visible and self._current_suggestions and self._active_strategy:
+            lines = [
+                self._active_strategy.format_suggestion(item)
+                for item in self._current_suggestions
+            ]
 
             if popup:
                 if self._autocomplete_anchor_x is not None:

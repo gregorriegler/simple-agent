@@ -11,6 +11,7 @@ from simple_agent.infrastructure.textual.widgets.autocomplete_popup import (
     AutocompletePopup,
 )
 from simple_agent.application.agent_id import AgentId
+from simple_agent.infrastructure.textual.autocomplete_strategies import CompletionContext, SlashCommandStrategy
 
 class StubUserInput:
     def __init__(self) -> None:
@@ -41,6 +42,7 @@ def test_slash_command_registry_available_in_textarea():
     # For now, just verify we can set it
     textarea.slash_command_registry = registry
     assert textarea.slash_command_registry is not None
+    assert any(isinstance(s, SlashCommandStrategy) for s in textarea.strategies)
 
 
 def test_get_autocomplete_suggestions_for_slash():
@@ -143,9 +145,19 @@ async def test_submit_hides_autocomplete_popup():
         text_area = app.query_one("#user-input", SubmittableTextArea)
         popup = app.query_one("#autocomplete-popup")
 
+        # Inject registry
+        text_area.slash_command_registry = SlashCommandRegistry()
+
+        # Simulate typing properly so cursor moves
         text_area.text = "/clear"
-        text_area._show_autocomplete(text_area.text)
-        assert popup.display
+        text_area.move_cursor((0, len("/clear")))
+
+        # Manually verify it triggers
+        text_area._check_autocomplete()
+        await pilot.pause()
+
+        # Since we use strategies now, check if correct strategy picked it up
+        assert text_area._active_strategy is not None
 
         app.action_submit_input()
         await pilot.pause()
@@ -163,13 +175,21 @@ async def test_autocomplete_popup_keeps_initial_x_position():
         text_area = app.query_one("#user-input", SubmittableTextArea)
         popup = app.query_one("#autocomplete-popup")
 
+        # Inject registry
+        text_area.slash_command_registry = SlashCommandRegistry()
+
         text_area.text = "/c"
-        text_area._show_autocomplete(text_area.text)
+        text_area.move_cursor((0, len("/c")))
+        text_area._check_autocomplete()
         await pilot.pause()
+
+        # Ensure it is visible
+        assert text_area._autocomplete_visible
         initial_x = popup.absolute_offset.x
 
         text_area.text = "/clear"
-        text_area._show_autocomplete(text_area.text)
+        text_area.move_cursor((0, len("/clear")))
+        text_area._check_autocomplete()
         await pilot.pause()
 
         assert popup.absolute_offset.x == initial_x
@@ -183,11 +203,15 @@ async def test_enter_key_selects_autocomplete_when_visible():
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SubmittableTextArea)
         
+        # Inject registry
+        text_area.slash_command_registry = SlashCommandRegistry()
+
         # Trigger autocomplete
         text_area.text = "/c"
+        text_area.move_cursor((0, len("/c")))
         # Manually trigger the check/show because typing simulation might be async/complex
-        text_area._active_trigger = "/"
-        text_area._show_autocomplete("/c")
+        text_area._check_autocomplete()
+        await pilot.pause()
         
         assert text_area._autocomplete_visible is True
         
@@ -271,7 +295,7 @@ async def test_submittable_text_area_slash_commands(app: TextualApp):
         # It should trigger autocomplete
         assert text_area._autocomplete_visible is True
         assert popup.display is True
-        assert text_area._active_trigger == "/"
+        assert text_area._active_context.trigger_char == "/"
 
         # Test completion with slash command
         assert len(text_area._current_suggestions) > 0
@@ -310,7 +334,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
         await pilot.pause()
 
         assert text_area._autocomplete_visible is True
-        assert text_area._active_trigger == "@"
+        assert text_area._active_context.trigger_char == "@"
         assert len(text_area._current_suggestions) > 0
         assert "my_file.py" in text_area._current_suggestions
 
@@ -336,7 +360,12 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         text_area.focus()
 
         # Open autocomplete manually for test
-        text_area._active_trigger = "/"
+        # We need a strategy to be active for _format_suggestion and _complete_selection to work
+        strategy = SlashCommandStrategy(SlashCommandRegistry())
+        context = CompletionContext(query="/", start_index=0, trigger_char="/")
+        text_area._active_strategy = strategy
+        text_area._active_context = context
+
         # Use SimpleNamespace for object with attributes
         cmd = SimpleNamespace(name="/cmd", description="desc")
         text_area._display_suggestions([cmd])
@@ -347,7 +376,8 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         assert text_area._autocomplete_visible is False
 
         # Re-open
-        text_area._active_trigger = "/" # Reset trigger
+        text_area._active_strategy = strategy # Reset strategy as it is cleared on hide
+        text_area._active_context = context
         text_area._display_suggestions([cmd])
 
         # Test Tab
