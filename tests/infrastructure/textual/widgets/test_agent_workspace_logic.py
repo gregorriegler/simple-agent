@@ -11,13 +11,12 @@ def test_refresh_todos_updates_content_from_file(tmp_path):
     todo_file = tmp_path / filename
     todo_file.write_text("Initial content", encoding="utf-8")
 
-    agent_id.todo_filename = lambda: str(todo_file)
-
     workspace = AgentWorkspace(
         agent_id=agent_id,
         log_id="log-id",
         tool_results_id="tool-id",
-        on_refresh_todos=lambda: None
+        on_refresh_todos=lambda: None,
+        root_path=tmp_path
     )
 
     assert workspace.todo_view.content == "Initial content"
@@ -34,13 +33,12 @@ def test_refresh_todos_hides_view_when_empty(tmp_path):
     todo_file = tmp_path / filename
     todo_file.write_text("Initial content", encoding="utf-8")
 
-    agent_id.todo_filename = lambda: str(todo_file)
-
     workspace = AgentWorkspace(
         agent_id=agent_id,
         log_id="log-id",
         tool_results_id="tool-id",
-        on_refresh_todos=lambda: None
+        on_refresh_todos=lambda: None,
+        root_path=tmp_path
     )
 
     todo_file.write_text("", encoding="utf-8")
