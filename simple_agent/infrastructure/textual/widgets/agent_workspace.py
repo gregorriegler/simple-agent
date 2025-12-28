@@ -57,3 +57,9 @@ class AgentWorkspace(ResizableHorizontal):
 
     def add_assistant_message(self, message: str, agent_name: str) -> None:
         self.chat_log.add_assistant_message(message, agent_name)
+
+    def clear(self) -> None:
+        self.chat_log.remove_children()
+        self.tool_log.clear()
+        self.todo_view.update("")
+        self.left_panel.set_bottom_visibility(False)
