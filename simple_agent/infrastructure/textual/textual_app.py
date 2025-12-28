@@ -294,9 +294,11 @@ class TextualApp(App):
         if isinstance(event, AgentStartedEvent):
             self._ensure_agent_tab_exists(event.agent_id, event.agent_name, event.model)
         elif isinstance(event, SessionClearedEvent):
-            _, log_id, _ = self.panel_ids_for(event.agent_id)
-            self.clear_agent_panels(log_id)
-            self._clear_todo_panel(event.agent_id)
+            workspace = self._agent_workspaces.get(str(event.agent_id))
+            if workspace:
+                workspace.clear()
+            else:
+                logger.warning("Could not find workspace for agent %s to clear", event.agent_id)
             self._reset_agent_token_usage(event.agent_id)
         elif isinstance(event, UserPromptedEvent):
             workspace = self._agent_workspaces.get(str(event.agent_id))
@@ -374,36 +376,6 @@ class TextualApp(App):
 
         percentage = (token_count / max_tokens) * 100
         return f"{base_title} [{model}: {percentage:.1f}%]"
-
-    def clear_agent_panels(self, log_id: str) -> None:
-        # Clear chat scroll area
-        try:
-            chat_scroll = self.query_one(f"#{log_id}-scroll", ChatLog)
-            chat_scroll.remove_children()
-        except NoMatches:
-            logger.warning("Could not find chat scroll #%s-scroll to clear", log_id)
-
-        # Clear tool results panel
-        tool_results_id = log_id.replace("log-", "tool-results-")
-        try:
-            tool_results = self.query_one(f"#{tool_results_id}", ToolLog)
-            tool_results.clear()
-        except NoMatches:
-            logger.warning("Could not find tool results #%s to clear", tool_results_id)
-
-    def _clear_todo_panel(self, agent_id: AgentId) -> None:
-        workspace = self._agent_workspaces.get(str(agent_id))
-        if workspace:
-            # We can't easily clear the file, but we can clear the view representation
-            # Actually, `SessionClearedEvent` implies we want to clear the session state.
-            # But todo files are persistent. The original code just updated the widget to empty.
-            # However, if TodoView reads from file on refresh, we might have an inconsistency
-            # if we just update the widget but not the file.
-            # The original code: `todo_widget.update("")` and hidden it.
-            # Let's replicate that behavior by forcing it to hide.
-            workspace.todo_view.update("")
-            # Also, we might want to manually set visibility to hidden
-            workspace.left_panel.set_bottom_visibility(False)
 
     def _reset_agent_token_usage(self, agent_id: AgentId) -> None:
         model = self._agent_models.get(agent_id, "")
