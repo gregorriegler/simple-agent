@@ -113,7 +113,6 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
         project_tree=project_tree,
     )
 
-    # Explicitly inject CWD for the root agent to ensure absolute todo paths
     starting_agent_id = agent_library.starting_agent_id().with_root(Path(cwd))
     textual_app = TextualApp(textual_user_input, starting_agent_id)
     subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
@@ -162,7 +161,6 @@ def print_system_prompt_command(user_config, cwd, args):
         FileSystemProjectTree(Path(cwd)),
     )
     agent_definition = agent_library._starting_agent_definition()
-    # Explicitly inject CWD for the root agent
     agent_id = AgentId("Agent", root=Path(cwd))
     tool_context = ToolContext(
         agent_definition.tool_keys(),
