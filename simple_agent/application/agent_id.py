@@ -5,7 +5,10 @@ class AgentId:
         if not raw_id or not raw_id.strip():
             raise ValueError("Agent ID cannot be empty")
         self._raw_id = raw_id
-        self._root = root or Path.cwd()
+        self._root = root
+
+    def with_root(self, root: Path) -> 'AgentId':
+        return AgentId(self._raw_id, root=root)
 
     def with_suffix(self, suffix: str) -> 'AgentId':
         if suffix:
@@ -37,7 +40,8 @@ class AgentId:
         return self._raw_id.replace("/", "-").replace("\\", "-").replace(" ", "-")
 
     def todo_filename(self) -> Path:
-        return self._root / f".{self.for_filesystem()}.todos.md"
+        root = self._root or Path(".")
+        return root / f".{self.for_filesystem()}.todos.md"
 
     def for_ui(self) -> str:
         return self.for_filesystem()
