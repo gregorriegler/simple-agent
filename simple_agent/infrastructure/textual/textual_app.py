@@ -39,7 +39,7 @@ from simple_agent.infrastructure.textual.textual_messages import DomainEventMess
 from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
 from simple_agent.application.file_search import FileSearcher
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
-from simple_agent.infrastructure.textual.widgets.smart_input import SubmittableTextArea, AutocompletePopup
+from simple_agent.infrastructure.textual.widgets.smart_input import SubmittableTextArea, SmartInput
 from simple_agent.infrastructure.textual.widgets.todo_view import TodoView
 from simple_agent.infrastructure.textual.widgets.chat_log import ChatLog
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
@@ -165,9 +165,7 @@ class TextualApp(App):
             with TabbedContent(id="tabs"):
                 with TabPane(self._root_agent_id.raw, id=tab_id):
                     yield self.create_agent_container(log_id, tool_results_id, self._root_agent_id)
-            yield Static("Enter to submit, Ctrl+Enter for newline", id="input-hint")
-            yield SubmittableTextArea(id="user-input")
-            yield AutocompletePopup(id="autocomplete-popup")
+            yield SmartInput(id="smart-input")
 
     def create_agent_container(self, log_id, tool_results_id, agent_id):
         def refresh_todos_callback():
@@ -187,10 +185,10 @@ class TextualApp(App):
         return workspace
 
     async def on_mount(self) -> None:
-        text_area = self.query_one("#user-input", SubmittableTextArea)
-        text_area.slash_command_registry = self._slash_command_registry
-        text_area.file_searcher = self._file_searcher
-        text_area.focus()
+        smart_input = self.query_one(SmartInput)
+        smart_input.slash_command_registry = self._slash_command_registry
+        smart_input.file_searcher = self._file_searcher
+        self.query_one("#user-input", SubmittableTextArea).focus()
         if self._session_runner:
             self._session_task = asyncio.create_task(self._run_session())
 
@@ -241,30 +239,11 @@ class TextualApp(App):
             tabs.active = new_tab_id
 
     def action_submit_input(self) -> None:
-        text_area = self.query_one("#user-input", SubmittableTextArea)
-        content = text_area.text.strip()
-        
-        referenced_files = text_area.get_referenced_files()
-        if referenced_files:
-            file_contents = []
-            for file_path_str in referenced_files:
-                try:
-                    path = Path(file_path_str)
-                    if path.exists() and path.is_file():
-                        file_text = path.read_text(encoding="utf-8")
-                        file_contents.append(f'<file_context path="{file_path_str}">\n{file_text}\n</file_context>')
-                except Exception as e:
-                    logger.error(f"Failed to read referenced file {file_path_str}: {e}")
-            
-            if file_contents:
-                content += "\n" + "\n".join(file_contents)
-                # Clear references after consuming them
-                text_area._referenced_files.clear()
+        self.query_one(SmartInput).submit()
 
+    def on_smart_input_submitted(self, event: SmartInput.Submitted) -> None:
         if self.user_input:
-            self.user_input.submit_input(content)
-        text_area.clear()
-        text_area._hide_autocomplete()
+            self.user_input.submit_input(event.value)
 
     def write_message(self, log_id: str, message: str) -> None:
         try:
