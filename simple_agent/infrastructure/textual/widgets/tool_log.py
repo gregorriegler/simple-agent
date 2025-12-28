@@ -1,5 +1,3 @@
-from typing import Callable, Optional
-
 from rich.syntax import Syntax
 from textual.containers import VerticalScroll
 from textual.widgets import TextArea, Collapsible, Static
@@ -12,9 +10,8 @@ from simple_agent.application.tool_results import ToolResult
 logger = logging.getLogger(__name__)
 
 class ToolLog(VerticalScroll):
-    def __init__(self, on_refresh_todos: Optional[Callable[[], None]] = None, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.on_refresh_todos = on_refresh_todos
         # call_id -> (message, text_area, collapsible)
         self._pending_tool_calls: dict[str, tuple[str, TextArea, Collapsible]] = {}
         self._suppressed_tool_calls: set[str] = set()
@@ -80,8 +77,6 @@ class ToolLog(VerticalScroll):
     def _pop_pending_tool_call(self, call_id: str) -> tuple[tuple[str, TextArea, Collapsible] | None, bool]:
         if call_id in self._suppressed_tool_calls:
             self._suppressed_tool_calls.discard(call_id)
-            if self.on_refresh_todos:
-                self.on_refresh_todos()
             return None, True
         return self._pending_tool_calls.pop(call_id, None), False
 
@@ -96,8 +91,6 @@ class ToolLog(VerticalScroll):
                 "Tool result received with no matching call. call_id=%s",
                 call_id,
             )
-            if self.on_refresh_todos:
-                self.on_refresh_todos()
             self._stop_loading_if_idle()
             return
 
@@ -159,8 +152,6 @@ class ToolLog(VerticalScroll):
 
         call_collapsible.title = title_text
         self.scroll_end(animate=False)
-        if self.on_refresh_todos:
-            self.on_refresh_todos()
         self._stop_loading_if_idle()
 
     def add_tool_cancelled(self, call_id: str) -> None:

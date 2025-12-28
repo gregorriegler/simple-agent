@@ -30,7 +30,7 @@ class AgentWorkspace(ResizableHorizontal):
         self.left_panel = ResizableVertical(self.chat_log, self.todo_view, id="left-panel")
         self.left_panel.set_bottom_visibility(self.todo_view.has_content)
 
-        self.tool_log = ToolLog(id=tool_results_id, on_refresh_todos=self.refresh_todos)
+        self.tool_log = ToolLog(id=tool_results_id)
 
         super().__init__(self.left_panel, self.tool_log, **kwargs)
 
@@ -43,9 +43,11 @@ class AgentWorkspace(ResizableHorizontal):
 
     def on_tool_result(self, call_id: str, result: ToolResult) -> None:
         self.tool_log.add_tool_result(call_id, result)
+        self.refresh_todos()
 
     def on_tool_cancelled(self, call_id: str) -> None:
         self.tool_log.add_tool_cancelled(call_id)
+        self.refresh_todos()
 
     def write_message(self, message: str) -> None:
         self.chat_log.write(message)
