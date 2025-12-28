@@ -34,7 +34,7 @@ async def test_golden_complex_scenarios(tmp_path, monkeypatch):
     # Disable timers on ToolLog to prevent non-deterministic loading animations
     monkeypatch.setattr(ToolLog, "set_interval", lambda *args, **kwargs: None)
 
-    agent_id = AgentId("Agent")
+    agent_id = AgentId("Agent", root=tmp_path)
     mock_user_input = MockUserInput()
     app = TextualApp(user_input=mock_user_input, root_agent_id=agent_id)
 
@@ -59,7 +59,7 @@ async def test_golden_complex_scenarios(tmp_path, monkeypatch):
         capture_step("Initial State")
 
         # --- Scenario: Subagents ---
-        sub_agent_id = AgentId("SubAgent")
+        sub_agent_id = AgentId("SubAgent", root=tmp_path)
         app.on_domain_event_message(DomainEventMessage(AgentStartedEvent(sub_agent_id, "SubAgent", "gpt-4")))
         await pilot.pause()
         capture_step("SubAgent Started")
