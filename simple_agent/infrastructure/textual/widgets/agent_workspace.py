@@ -49,3 +49,12 @@ class AgentWorkspace(ResizableHorizontal):
 
     def on_tool_cancelled(self, call_id: str) -> None:
         self.tool_log.add_tool_cancelled(call_id)
+
+    def write_message(self, message: str) -> None:
+        self.chat_log.write(message)
+
+    def add_user_message(self, message: str) -> None:
+        self.chat_log.add_user_message(message)
+
+    def add_assistant_message(self, message: str, agent_name: str) -> None:
+        self.chat_log.add_assistant_message(message, agent_name)
