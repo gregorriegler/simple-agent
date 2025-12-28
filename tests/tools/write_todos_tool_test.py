@@ -25,24 +25,13 @@ async def test_write_todos_creates_markdown_file(tmp_path):
 
     agent_id = AgentId("Agent", root=tmp_path)
 
-    # We need a library that uses this agent_id.
-    # The helper create_all_tools_for_test allows passing a tool_context?
-    # Let's check test_helpers.py
-    # If not, we might need to manually construct it like before but correctly.
-
-    # Based on ToolContext definition: __init__(self, tool_keys: list[str], agent_id: AgentId)
     tool_context = ToolContext(tool_keys=[], agent_id=agent_id)
 
-    # We need the real factory that creates WriteTodosTool.
-    # create_all_tools_for_test likely uses a factory.
-
-    # Let's try to use the helper if possible, or replicate what it does but inject our context.
     from simple_agent.tools.all_tools import AllToolsFactory
     from simple_agent.application.agent_types import AgentTypes
     from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 
     factory = AllToolsFactory(tool_syntax=EmojiBracketToolSyntax())
-    # We need to mock spawner or pass dummy
     async def dummy_spawner(*args): pass
 
     library = factory.create(tool_context, dummy_spawner, AgentTypes([]))
