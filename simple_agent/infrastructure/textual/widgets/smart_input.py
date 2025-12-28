@@ -4,9 +4,12 @@ from pathlib import Path
 
 from rich.text import Text
 from textual import events
+from textual.app import ComposeResult
 from textual.css.query import NoMatches
 from textual.geometry import Offset, Size
+from textual.message import Message
 from textual.widgets import Static, TextArea
+from textual.widget import Widget
 
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.file_search import FileSearcher
@@ -222,18 +225,8 @@ class SubmittableTextArea(TextArea):
         # Remove '@' prefix for search
         query = text[1:]
 
-        # Avoid searching for empty string if desired, or allow it to show all files
-        # showing all files might be too much, so maybe wait for 1 char?
-        # let's allow it for now.
-
         try:
             paths = await self.file_searcher.search(query)
-            # Wrap strings in simple objects to match structure expected by _display_suggestions if needed
-            # or adapt _display_suggestions.
-            # Slash commands are objects with .name and .description.
-            # Let's make a simple wrapper or adapt the display logic.
-
-            # Adapting display logic is better.
             self._display_suggestions(paths, is_files=True)
         except Exception as e:
             logger.error(f"File search failed: {e}")
@@ -247,22 +240,7 @@ class SubmittableTextArea(TextArea):
         self._suggestions_are_files = is_files
 
         if not was_visible:
-            # Calculate anchor X based on trigger word start
-            # self.cursor_screen_offset is the absolute screen position of cursor
-            # We want the popup to align with the start of the word.
-
-            # Note: cursor_screen_offset calculation might be tricky with scrolling.
-            # For now, let's try to approximate or just use cursor position.
-            # Using cursor position matches the previous behavior for slash commands.
-            # For @ files, it might be better to align with @.
-
-            # Let's align with the cursor for now, simpler.
             self._autocomplete_anchor_x = self.cursor_screen_offset.x
-
-            # Refinement: align with word start if possible.
-            # This requires calculating the width of the text before cursor on this line.
-            # Textual doesn't expose text measurement easily here without accessing internals.
-            # We'll stick to cursor-aligned or left-aligned for now.
             pass
 
         self._update_autocomplete_display()
@@ -296,43 +274,16 @@ class SubmittableTextArea(TextArea):
         selected = self._current_suggestions[self._selected_index]
 
         if self._active_trigger == "/":
-            # Slash command completion: replace the command
-            # For slash commands, we assume it's at the start of the line (row 0)
-            # We replace from 0 to cursor.
-
-            # But wait, self.text is everything.
-            # We need to be careful.
-
-            # Simplification: Just replace the whole text if it's a slash command line
-            # since slash commands are single-line prompts usually.
-
             cmd_name = selected.name
             self.text = cmd_name + " "
             self.move_cursor_relative(columns=len(cmd_name) + 1)
 
         elif self._active_trigger == "@":
-            # File completion: replace the word under cursor
-            # We know _trigger_word_start_index
-
             row, col = self.cursor_location
             file_path = selected # selected is str
             self._referenced_files.add(file_path)
 
-            # Delete the current word (@...)
-            # We are at `col`. The word started at `self._trigger_word_start_index`
-
-            # Calculate length to delete
-            # word length = col - self._trigger_word_start_index
-
-            # Move cursor to start of word
-            # But textual API for editing is: delete(start, end), insert(text, location)
-            # Or use selection.
-
-            # Easier approach with Textual TextArea:
-            # Select the range then insert.
-
             start_col = self._trigger_word_start_index
-            # We insert a visual marker [📦filename] for user feedback.
             display_marker = f"[📦{file_path}]"
 
             self.replace(
@@ -341,9 +292,6 @@ class SubmittableTextArea(TextArea):
                 end=(row, col),
                 maintain_selection_offset=False,
             )
-
-            # Restore cursor is handled by replace somewhat, but let's ensure.
-            # The replace puts cursor at the end of insertion usually.
 
         self._hide_autocomplete()
 
@@ -367,8 +315,6 @@ class SubmittableTextArea(TextArea):
                 ]
 
             if popup:
-                # We try to position near cursor.
-                # Use fixed anchor X if available to prevent popup from moving while typing.
                 if self._autocomplete_anchor_x is not None:
                     target_x = self._autocomplete_anchor_x
                 else:
@@ -390,3 +336,90 @@ class SubmittableTextArea(TextArea):
             hint_widget.update("Enter to submit, Ctrl+Enter for newline")
         except (NoMatches, AttributeError):
             pass
+
+class SmartInput(Widget):
+    class Submitted(Message):
+        def __init__(self, value: str):
+            self.value = value
+            super().__init__()
+
+    DEFAULT_CSS = """
+    SmartInput {
+        height: auto;
+        dock: bottom;
+    }
+    """
+
+    def __init__(self, id: str | None = None):
+        super().__init__(id=id)
+        self._slash_command_registry = None
+        self._file_searcher = None
+
+    @property
+    def slash_command_registry(self):
+        return self._slash_command_registry
+
+    @slash_command_registry.setter
+    def slash_command_registry(self, value):
+        self._slash_command_registry = value
+        try:
+            self.query_one("#user-input", SubmittableTextArea).slash_command_registry = value
+        except NoMatches:
+            pass
+
+    @property
+    def file_searcher(self):
+        return self._file_searcher
+
+    @file_searcher.setter
+    def file_searcher(self, value):
+        self._file_searcher = value
+        try:
+            self.query_one("#user-input", SubmittableTextArea).file_searcher = value
+        except NoMatches:
+            pass
+
+    def on_mount(self) -> None:
+        try:
+            text_area = self.query_one("#user-input", SubmittableTextArea)
+            if self._slash_command_registry:
+                text_area.slash_command_registry = self._slash_command_registry
+            if self._file_searcher:
+                text_area.file_searcher = self._file_searcher
+        except NoMatches:
+            pass
+
+    def compose(self) -> ComposeResult:
+        yield Static("Enter to submit, Ctrl+Enter for newline", id="input-hint")
+        yield SubmittableTextArea(id="user-input")
+        yield AutocompletePopup(id="autocomplete-popup")
+
+    def submit(self) -> None:
+        try:
+            text_area = self.query_one("#user-input", SubmittableTextArea)
+        except NoMatches:
+            return
+
+        content = text_area.text.strip()
+
+        referenced_files = text_area.get_referenced_files()
+        if referenced_files:
+            file_contents = []
+            for file_path_str in referenced_files:
+                try:
+                    path = Path(file_path_str)
+                    if path.exists() and path.is_file():
+                        file_text = path.read_text(encoding="utf-8")
+                        file_contents.append(f'<file_context path="{file_path_str}">\n{file_text}\n</file_context>')
+                except Exception as e:
+                    logger.error(f"Failed to read referenced file {file_path_str}: {e}")
+
+            if file_contents:
+                content += "\n" + "\n".join(file_contents)
+                # Clear references after consuming them
+                text_area._referenced_files.clear()
+
+        self.post_message(self.Submitted(content))
+
+        text_area.clear()
+        text_area._hide_autocomplete()
