@@ -18,12 +18,12 @@ class TestAgentWorkspace:
         # This allows us to use tmp_path without changing the process working directory
         agent_id.todo_filename = lambda: str(todo_file)
 
-        mock_callback = MagicMock()
+        # Pass a dummy callback as it is required by __init__ but not used in this test
         workspace = AgentWorkspace(
             agent_id=agent_id,
             log_id="log-id",
             tool_results_id="tool-id",
-            on_refresh_todos=mock_callback
+            on_refresh_todos=lambda: None
         )
 
         assert workspace.todo_view.content == "Initial content"
@@ -41,12 +41,14 @@ class TestAgentWorkspace:
 
     def test_tool_log_receives_provided_callback(self):
         agent_id = AgentId("test_agent")
-        mock_callback = MagicMock()
+        # Define a specific callback to verify it is passed correctly
+        def my_callback(): pass
+
         workspace = AgentWorkspace(
             agent_id=agent_id,
             log_id="log-id",
             tool_results_id="tool-id",
-            on_refresh_todos=mock_callback
+            on_refresh_todos=my_callback
         )
 
-        assert workspace.tool_log.on_refresh_todos == mock_callback
+        assert workspace.tool_log.on_refresh_todos == my_callback
