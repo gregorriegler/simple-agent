@@ -5,11 +5,10 @@ from simple_agent.application.agent_id import AgentId
 from pathlib import Path
 
 class TodoView(VerticalScroll):
-    def __init__(self, agent_id: AgentId, markdown_id: str, root_path: Path | None = None, **kwargs):
+    def __init__(self, agent_id: AgentId, markdown_id: str, **kwargs):
         super().__init__(**kwargs)
         self.agent_id = agent_id
         self.markdown_id = markdown_id
-        self.root_path = root_path
         self.content = ""
         self.load_content()
 
@@ -17,8 +16,7 @@ class TodoView(VerticalScroll):
         yield Markdown(self.content, id=self.markdown_id)
 
     def load_content(self) -> str:
-        filename = self.agent_id.todo_filename()
-        path = self.root_path / filename if self.root_path else Path(filename)
+        path = Path(self.agent_id.todo_filename())
         if not path.exists():
             self.content = ""
         else:

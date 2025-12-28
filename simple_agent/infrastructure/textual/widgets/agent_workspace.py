@@ -1,5 +1,4 @@
 from typing import Callable
-from pathlib import Path
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_results import ToolResult
@@ -21,7 +20,6 @@ class AgentWorkspace(ResizableHorizontal):
         log_id: str,
         tool_results_id: str,
         on_refresh_todos: Callable[[], None],
-        root_path: Path | None = None,
         **kwargs
     ):
         self.chat_log = ChatLog(id=f"{log_id}-scroll", classes="left-panel-top")
@@ -29,8 +27,7 @@ class AgentWorkspace(ResizableHorizontal):
             agent_id,
             markdown_id=f"{log_id}-todos",
             id=f"{log_id}-secondary",
-            classes="left-panel-bottom",
-            root_path=root_path
+            classes="left-panel-bottom"
         )
 
         self.left_panel = ResizableVertical(self.chat_log, self.todo_view, id="left-panel")
