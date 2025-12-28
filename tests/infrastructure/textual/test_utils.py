@@ -36,6 +36,8 @@ def dump_ui_state(app: TextualApp) -> str:
         # Alias refactored widgets back to their base classes for golden master stability
         if class_name == "AgentWorkspace":
             class_name = "ResizableHorizontal"
+        elif class_name == "AgentTabs":
+            class_name = "TabbedContent"
         elif class_name in ("TodoView", "ChatLog", "ToolLog"):
             class_name = "VerticalScroll"
 
