@@ -13,7 +13,8 @@ from simple_agent.application.agent_id import AgentId
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
-from simple_agent.infrastructure.textual.widgets.smart_input import SubmittableTextArea, SmartInput
+from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
+from simple_agent.infrastructure.textual.widgets.submittable_text_area import SubmittableTextArea
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
 
 class TextualApp(App):
