@@ -1,8 +1,6 @@
 from typing import Protocol, List, Any, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import logging
-
-from textual.widgets import TextArea
 
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.file_search import FileSearcher
@@ -15,8 +13,13 @@ class CompletionContext:
     start_index: int
     trigger_char: str
 
-class AutocompleteStrategy(Protocol):
-    def check(self, text_area: TextArea, row: int, col: int, line: str) -> Optional[CompletionContext]:
+@dataclass
+class CompletionResult:
+    text: str
+    attachments: set[str] = field(default_factory=set)
+
+class Autocompleter(Protocol):
+    def check(self, row: int, col: int, line: str) -> Optional[CompletionContext]:
         """
         Check if autocomplete should be triggered.
         Returns context if triggered, None otherwise.
@@ -35,18 +38,18 @@ class AutocompleteStrategy(Protocol):
         """
         ...
 
-    def apply_completion(self, text_area: TextArea, suggestion: Any, context: CompletionContext, row: int, col: int) -> None:
+    def get_completion(self, suggestion: Any) -> CompletionResult:
         """
-        Apply the selected suggestion to the text area.
+        Get the completion result (text to insert and attachments) for a selected suggestion.
         """
         ...
 
 
-class SlashCommandStrategy:
+class SlashCommandAutocompleter:
     def __init__(self, registry: SlashCommandRegistry):
         self.registry = registry
 
-    def check(self, text_area: TextArea, row: int, col: int, line: str) -> Optional[CompletionContext]:
+    def check(self, row: int, col: int, line: str) -> Optional[CompletionContext]:
         if row == 0 and col > 0 and line.startswith("/") and " " not in line[:col]:
             return CompletionContext(query=line[:col], start_index=0, trigger_char="/")
         return None
@@ -57,17 +60,16 @@ class SlashCommandStrategy:
     def format_suggestion(self, suggestion: Any) -> str:
         return f"{suggestion.name} - {suggestion.description}"
 
-    def apply_completion(self, text_area: TextArea, suggestion: Any, context: CompletionContext, row: int, col: int) -> None:
+    def get_completion(self, suggestion: Any) -> CompletionResult:
         cmd_name = suggestion.name
-        text_area.text = cmd_name + " "
-        text_area.move_cursor_relative(columns=len(cmd_name) + 1)
+        return CompletionResult(text=cmd_name + " ")
 
 
-class FileSearchStrategy:
+class FileSearchAutocompleter:
     def __init__(self, searcher: FileSearcher):
         self.searcher = searcher
 
-    def check(self, text_area: TextArea, row: int, col: int, line: str) -> Optional[CompletionContext]:
+    def check(self, row: int, col: int, line: str) -> Optional[CompletionContext]:
         # Check for file search (@)
         text_before_cursor = line[:col]
 
@@ -90,21 +92,7 @@ class FileSearchStrategy:
     def format_suggestion(self, suggestion: Any) -> str:
         return str(suggestion)
 
-    def apply_completion(self, text_area: TextArea, suggestion: Any, context: CompletionContext, row: int, col: int) -> None:
+    def get_completion(self, suggestion: Any) -> CompletionResult:
         file_path = str(suggestion)
-
-        # Add to referenced files if the text area supports it
-        if hasattr(text_area, "_referenced_files"):
-             text_area._referenced_files.add(file_path)
-
-        display_marker = f"[📦{file_path}]"
-
-        # Replace the @query with the marker
-        start_col = context.start_index
-
-        text_area.replace(
-            display_marker + " ",
-            start=(row, start_col),
-            end=(row, col),
-            maintain_selection_offset=False,
-        )
+        display_marker = f"[📦{file_path}] "
+        return CompletionResult(text=display_marker, attachments={file_path})
