@@ -67,20 +67,6 @@ async def test_textual_app_lifecycle(app: TextualApp):
             app.shutdown()
             mock_exit.assert_called_once()
 
-@pytest.mark.asyncio
-async def test_textual_app_write_message_error(app: TextualApp):
-    async with app.run_test() as pilot:
-        agent_id = AgentId("Agent")
-        _, log_id, _ = app.panel_ids_for(agent_id)
-
-        # Test write_message with valid log_id
-        app.write_message(log_id, "Hello")
-        await pilot.pause()
-        scroll = app.query_one(f"#{log_id}-scroll", VerticalScroll).query_one(Markdown)
-        assert scroll is not None
-
-        # Test write_message with invalid log_id (should not raise)
-        app.write_message("invalid-id", "Hello")
 
 @pytest.mark.asyncio
 async def test_textual_app_write_tool_result_no_pending(app: TextualApp):
@@ -93,17 +79,19 @@ async def test_textual_app_write_tool_result_no_pending(app: TextualApp):
         app.on_domain_event_message(DomainEventMessage(ToolResultEvent(agent_id, "unknown-call", result)))
         # Should just log warning and not crash
 
+
 @pytest.mark.asyncio
 async def test_textual_app_clear_panels(app: TextualApp):
     async with app.run_test() as pilot:
         agent_id = AgentId("Agent")
         _, log_id, _ = app.panel_ids_for(agent_id)
 
-        # Add content
-        app.write_message(log_id, "Message")
+        # Add content via event
+        app.on_domain_event_message(DomainEventMessage(AssistantSaidEvent(agent_id, "Message")))
+        await pilot.pause()
 
-        # Clear
-        app.clear_agent_panels(log_id)
+        # Clear via event
+        app.on_domain_event_message(DomainEventMessage(SessionClearedEvent(agent_id)))
         await pilot.pause()
 
         # Verify cleared
