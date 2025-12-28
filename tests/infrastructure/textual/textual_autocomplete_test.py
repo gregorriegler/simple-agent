@@ -11,7 +11,7 @@ from simple_agent.infrastructure.textual.widgets.autocomplete_popup import (
     AutocompletePopup,
 )
 from simple_agent.application.agent_id import AgentId
-from simple_agent.infrastructure.textual.autocompletion import CompletionContext, SlashCommandAutocompleter
+from simple_agent.infrastructure.textual.autocompletion import AutocompleteRequest, SlashCommandAutocompleter
 
 class StubUserInput:
     def __init__(self) -> None:
@@ -37,10 +37,9 @@ def app():
 def test_slash_command_registry_available_in_textarea():
     """Test that we can attach a registry to the textarea."""
     registry = SlashCommandRegistry()
-    textarea = SubmittableTextArea()
+    autocompleter = SlashCommandAutocompleter(registry)
+    textarea = SubmittableTextArea(autocompleters=[autocompleter])
     
-    # For now, just verify we can set it
-    textarea.set_slash_command_registry(registry)
     assert any(isinstance(s, SlashCommandAutocompleter) for s in textarea.autocompleters)
 
 
@@ -144,8 +143,17 @@ async def test_submit_hides_autocomplete_popup():
         text_area = app.query_one("#user-input", SubmittableTextArea)
         popup = app.query_one("#autocomplete-popup")
 
-        # Inject registry
-        text_area.set_slash_command_registry(SlashCommandRegistry())
+        # Manually inject autocompleter since StubUserInput doesn't trigger app mounting logic effectively
+        # or we want to be explicit. But TextualApp sets them in on_mount.
+        # Actually, TextualApp sets properties on SmartInput, which now sets them on textarea.
+        # So it should already be wired up if TextualApp.on_mount runs.
+        # However, we can also inject manually for testing if needed.
+        # Let's rely on TextualApp wiring but if we were testing just the widget we'd inject.
+        # The test relies on app.run_test() which mounts the app.
+
+        # In TextualApp.on_mount:
+        # smart_input.slash_command_registry = self._slash_command_registry
+        # This triggers the setter in SmartInput, which updates SubmittableTextArea.
 
         # Simulate typing properly so cursor moves
         text_area.text = "/clear"
@@ -174,8 +182,7 @@ async def test_autocomplete_popup_keeps_initial_x_position():
         text_area = app.query_one("#user-input", SubmittableTextArea)
         popup = app.query_one("#autocomplete-popup")
 
-        # Inject registry
-        text_area.set_slash_command_registry(SlashCommandRegistry())
+        # Wired by app
 
         text_area.text = "/c"
         text_area.move_cursor((0, len("/c")))
@@ -202,8 +209,7 @@ async def test_enter_key_selects_autocomplete_when_visible():
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SubmittableTextArea)
         
-        # Inject registry
-        text_area.set_slash_command_registry(SlashCommandRegistry())
+        # Wired by app
 
         # Trigger autocomplete
         text_area.text = "/c"
@@ -294,7 +300,7 @@ async def test_submittable_text_area_slash_commands(app: TextualApp):
         # It should trigger autocomplete
         assert text_area._autocomplete_visible is True
         assert popup.display is True
-        assert text_area._active_context.trigger_char == "/"
+        assert text_area._active_request.trigger_char == "/"
 
         # Test completion with slash command
         assert len(text_area._current_suggestions) > 0
@@ -318,10 +324,13 @@ async def test_submittable_text_area_file_search(app: TextualApp):
         text_area = app.query_one(SubmittableTextArea)
         text_area.focus()
 
-        # Mock file searcher
+        # Mock file searcher (needs to be injected into SmartInput which propagates to textarea)
         mock_searcher = AsyncMock()
         mock_searcher.search.return_value = ["my_file.py", "other_file.txt"]
-        text_area.set_file_searcher(mock_searcher)
+
+        # Use SmartInput to set it
+        smart_input = app.query_one("SmartInput")
+        smart_input.file_searcher = mock_searcher
 
         # Type "some text @my"
         text_area.insert("some text ")
@@ -333,7 +342,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
         await pilot.pause()
 
         assert text_area._autocomplete_visible is True
-        assert text_area._active_context.trigger_char == "@"
+        assert text_area._active_request.trigger_char == "@"
         assert len(text_area._current_suggestions) > 0
         assert "my_file.py" in text_area._current_suggestions
 
@@ -361,9 +370,9 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         # Open autocomplete manually for test
         # We need a strategy to be active for _format_suggestion and _complete_selection to work
         strategy = SlashCommandAutocompleter(SlashCommandRegistry())
-        context = CompletionContext(query="/", start_index=0, trigger_char="/")
+        request = AutocompleteRequest(query="/", start_index=0, trigger_char="/")
         text_area._active_autocompleter = strategy
-        text_area._active_context = context
+        text_area._active_request = request
 
         # Use SimpleNamespace for object with attributes
         cmd = SimpleNamespace(name="/cmd", description="desc")
@@ -376,7 +385,7 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
 
         # Re-open
         text_area._active_autocompleter = strategy # Reset strategy as it is cleared on hide
-        text_area._active_context = context
+        text_area._active_request = request
         text_area._display_suggestions([cmd])
 
         # Test Tab

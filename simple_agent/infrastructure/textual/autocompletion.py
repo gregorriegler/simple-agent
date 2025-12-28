@@ -8,7 +8,7 @@ from simple_agent.application.file_search import FileSearcher
 logger = logging.getLogger(__name__)
 
 @dataclass
-class CompletionContext:
+class AutocompleteRequest:
     query: str
     start_index: int
     trigger_char: str
@@ -19,16 +19,16 @@ class CompletionResult:
     attachments: set[str] = field(default_factory=set)
 
 class Autocompleter(Protocol):
-    def check(self, row: int, col: int, line: str) -> Optional[CompletionContext]:
+    def check(self, row: int, col: int, line: str) -> Optional[AutocompleteRequest]:
         """
         Check if autocomplete should be triggered.
-        Returns context if triggered, None otherwise.
+        Returns request if triggered, None otherwise.
         """
         ...
 
-    async def get_suggestions(self, context: CompletionContext) -> List[Any]:
+    async def get_suggestions(self, request: AutocompleteRequest) -> List[Any]:
         """
-        Get list of suggestions based on context.
+        Get list of suggestions based on request.
         """
         ...
 
@@ -49,13 +49,13 @@ class SlashCommandAutocompleter:
     def __init__(self, registry: SlashCommandRegistry):
         self.registry = registry
 
-    def check(self, row: int, col: int, line: str) -> Optional[CompletionContext]:
+    def check(self, row: int, col: int, line: str) -> Optional[AutocompleteRequest]:
         if row == 0 and col > 0 and line.startswith("/") and " " not in line[:col]:
-            return CompletionContext(query=line[:col], start_index=0, trigger_char="/")
+            return AutocompleteRequest(query=line[:col], start_index=0, trigger_char="/")
         return None
 
-    async def get_suggestions(self, context: CompletionContext) -> List[Any]:
-        return self.registry.get_matching_commands(context.query)
+    async def get_suggestions(self, request: AutocompleteRequest) -> List[Any]:
+        return self.registry.get_matching_commands(request.query)
 
     def format_suggestion(self, suggestion: Any) -> str:
         return f"{suggestion.name} - {suggestion.description}"
@@ -69,7 +69,7 @@ class FileSearchAutocompleter:
     def __init__(self, searcher: FileSearcher):
         self.searcher = searcher
 
-    def check(self, row: int, col: int, line: str) -> Optional[CompletionContext]:
+    def check(self, row: int, col: int, line: str) -> Optional[AutocompleteRequest]:
         # Check for file search (@)
         text_before_cursor = line[:col]
 
@@ -79,12 +79,12 @@ class FileSearchAutocompleter:
         current_word = text_before_cursor[word_start_index:]
 
         if current_word.startswith("@"):
-             return CompletionContext(query=current_word[1:], start_index=word_start_index, trigger_char="@")
+             return AutocompleteRequest(query=current_word[1:], start_index=word_start_index, trigger_char="@")
         return None
 
-    async def get_suggestions(self, context: CompletionContext) -> List[Any]:
+    async def get_suggestions(self, request: AutocompleteRequest) -> List[Any]:
         try:
-            return await self.searcher.search(context.query)
+            return await self.searcher.search(request.query)
         except Exception as e:
             logger.error(f"File search failed: {e}")
             return []
