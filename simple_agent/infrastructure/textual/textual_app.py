@@ -245,15 +245,6 @@ class TextualApp(App):
         if self.user_input:
             self.user_input.submit_input(event.value)
 
-    def write_message(self, log_id: str, message: str) -> None:
-        try:
-            chat_log = self.query_one(f"#{log_id}-scroll", ChatLog)
-            chat_log.write(message)
-        except NoMatches:
-            logger.warning("Could not find scroll container #%s-scroll", log_id)
-        except Exception as e:
-            logger.error("Failed to display message: %s. Message: %s", e, message)
-
     def add_subagent_tab(self, agent_id: AgentId, tab_title: str) -> tuple[str, str]:
         tab_id, log_id, tool_results_id = self.panel_ids_for(agent_id)
 
@@ -323,24 +314,18 @@ class TextualApp(App):
             self._clear_todo_panel(event.agent_id)
             self._reset_agent_token_usage(event.agent_id)
         elif isinstance(event, UserPromptedEvent):
-            _, log_id, _ = self.panel_ids_for(event.agent_id)
-            try:
-                chat_log = self.query_one(f"#{log_id}-scroll", ChatLog)
-                chat_log.add_user_message(event.input_text)
-            except NoMatches:
-                logger.warning("Could not find scroll container #%s-scroll", log_id)
-            except Exception as e:
-                logger.error("Failed to display message: %s. Message: %s", e, event.input_text)
+            workspace = self._agent_workspaces.get(str(event.agent_id))
+            if workspace:
+                workspace.add_user_message(event.input_text)
+            else:
+                logger.warning("Could not find workspace for agent %s to add user message", event.agent_id)
         elif isinstance(event, AssistantSaidEvent):
-            _, log_id, _ = self.panel_ids_for(event.agent_id)
-            agent_name = self._agent_names.get(event.agent_id, str(event.agent_id))
-            try:
-                chat_log = self.query_one(f"#{log_id}-scroll", ChatLog)
-                chat_log.add_assistant_message(event.message, agent_name)
-            except NoMatches:
-                logger.warning("Could not find scroll container #%s-scroll", log_id)
-            except Exception as e:
-                logger.error("Failed to display message: %s. Message: %s", e, event.message)
+            workspace = self._agent_workspaces.get(str(event.agent_id))
+            if workspace:
+                agent_name = self._agent_names.get(event.agent_id, str(event.agent_id))
+                workspace.add_assistant_message(event.message, agent_name)
+            else:
+                logger.warning("Could not find workspace for agent %s to add assistant message", event.agent_id)
         elif isinstance(event, ToolCalledEvent):
             workspace = self._agent_workspaces.get(str(event.agent_id))
             if workspace:
@@ -362,23 +347,27 @@ class TextualApp(App):
             else:
                 logger.warning("Could not find workspace for agent %s to write tool cancelled", event.agent_id)
         elif isinstance(event, SessionInterruptedEvent):
-            _, log_id, _ = self.panel_ids_for(event.agent_id)
-            self.write_message(log_id, "\n[Session interrupted by user]")
+            workspace = self._agent_workspaces.get(str(event.agent_id))
+            if workspace:
+                workspace.write_message("\n[Session interrupted by user]")
         elif isinstance(event, SessionStartedEvent):
-            _, log_id, _ = self.panel_ids_for(event.agent_id)
-            if event.is_continuation:
-                self.write_message(log_id, "Continuing session")
-            else:
-                self.write_message(log_id, "Starting new session")
+            workspace = self._agent_workspaces.get(str(event.agent_id))
+            if workspace:
+                if event.is_continuation:
+                    workspace.write_message("Continuing session")
+                else:
+                    workspace.write_message("Starting new session")
         elif isinstance(event, SessionEndedEvent):
             if self.is_running and self.has_agent_tab(event.agent_id):
                 self.remove_subagent_tab(event.agent_id)
         elif isinstance(event, UserPromptRequestedEvent):
-            _, log_id, _ = self.panel_ids_for(event.agent_id)
-            self.write_message(log_id, "\nWaiting for user input...")
+            workspace = self._agent_workspaces.get(str(event.agent_id))
+            if workspace:
+                workspace.write_message("\nWaiting for user input...")
         elif isinstance(event, ErrorEvent):
-            _, log_id, _ = self.panel_ids_for(event.agent_id)
-            self.write_message(log_id, f"\n**❌ Error: {event.message}**")
+            workspace = self._agent_workspaces.get(str(event.agent_id))
+            if workspace:
+                workspace.write_message(f"\n**❌ Error: {event.message}**")
         elif isinstance(event, AssistantRespondedEvent):
             self._agent_models[event.agent_id] = event.model
             self._agent_max_tokens[event.agent_id] = event.max_tokens
