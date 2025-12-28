@@ -14,10 +14,10 @@ from textual.widget import Widget
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.file_search import FileSearcher
 from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup, calculate_autocomplete_position
-from simple_agent.infrastructure.textual.autocomplete_strategies import (
-    AutocompleteStrategy,
-    SlashCommandStrategy,
-    FileSearchStrategy,
+from simple_agent.infrastructure.textual.autocompletion import (
+    Autocompleter,
+    SlashCommandAutocompleter,
+    FileSearchAutocompleter,
     CompletionContext
 )
 
@@ -27,44 +27,41 @@ logger = logging.getLogger(__name__)
 class SubmittableTextArea(TextArea):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._slash_command_registry: SlashCommandRegistry | None = None
-        self._file_searcher: FileSearcher | None = None
         self._autocomplete_visible = False
         self._current_suggestions = []
         self._selected_index = 0
         self._autocomplete_anchor_x = None
 
         # New strategy state
-        self.strategies: list[AutocompleteStrategy] = []
-        self._active_strategy: AutocompleteStrategy | None = None
+        self.autocompleters: list[Autocompleter] = []
+        self._active_autocompleter: Autocompleter | None = None
         self._active_context: CompletionContext | None = None
 
         self._referenced_files: set[str] = set()
 
-    @property
-    def slash_command_registry(self):
-        return self._slash_command_registry
+    def set_slash_command_registry(self, registry: SlashCommandRegistry) -> None:
+        """Register the slash command registry and update autocompleters."""
+        self._update_autocompleters(registry=registry)
 
-    @slash_command_registry.setter
-    def slash_command_registry(self, value):
-        self._slash_command_registry = value
-        self._update_strategies()
+    def set_file_searcher(self, searcher: FileSearcher) -> None:
+        """Register the file searcher and update autocompleters."""
+        self._update_autocompleters(searcher=searcher)
 
-    @property
-    def file_searcher(self):
-        return self._file_searcher
+    def _update_autocompleters(self, registry: SlashCommandRegistry = None, searcher: FileSearcher = None):
+        # This is a bit simplistic, it rebuilds the list.
+        # Ideally we would just add/remove, but for now this works given usage patterns.
+        # We need to preserve existing ones if not provided, but currently it's hard to extract them back.
+        # So we'll rely on stored attributes.
+        if registry:
+            self._slash_command_registry = registry
+        if searcher:
+            self._file_searcher = searcher
 
-    @file_searcher.setter
-    def file_searcher(self, value):
-        self._file_searcher = value
-        self._update_strategies()
-
-    def _update_strategies(self):
-        self.strategies = []
-        if self._slash_command_registry:
-            self.strategies.append(SlashCommandStrategy(self._slash_command_registry))
-        if self._file_searcher:
-            self.strategies.append(FileSearchStrategy(self._file_searcher))
+        self.autocompleters = []
+        if getattr(self, "_slash_command_registry", None):
+            self.autocompleters.append(SlashCommandAutocompleter(self._slash_command_registry))
+        if getattr(self, "_file_searcher", None):
+            self.autocompleters.append(FileSearchAutocompleter(self._file_searcher))
 
     def get_referenced_files(self) -> set[str]:
         """Return the set of files that were selected via autocomplete and are still in the text."""
@@ -129,25 +126,25 @@ class SubmittableTextArea(TextArea):
             self._hide_autocomplete()
             return
 
-        for strategy in self.strategies:
-            context = strategy.check(self, row, col, line)
+        for autocompleter in self.autocompleters:
+            context = autocompleter.check(row, col, line)
             if context:
-                self._active_strategy = strategy
+                self._active_autocompleter = autocompleter
                 self._active_context = context
-                asyncio.create_task(self._fetch_suggestions(strategy, context))
+                asyncio.create_task(self._fetch_suggestions(autocompleter, context))
                 return
 
         self._hide_autocomplete()
 
-    async def _fetch_suggestions(self, strategy: AutocompleteStrategy, context: CompletionContext):
+    async def _fetch_suggestions(self, autocompleter: Autocompleter, context: CompletionContext):
         # Double check if we are still on the same context (async race condition)
-        if self._active_strategy != strategy or self._active_context != context:
+        if self._active_autocompleter != autocompleter or self._active_context != context:
             return
 
-        suggestions = await strategy.get_suggestions(context)
+        suggestions = await autocompleter.get_suggestions(context)
 
         # Verify again before displaying
-        if self._active_strategy == strategy and self._active_context == context:
+        if self._active_autocompleter == autocompleter and self._active_context == context:
             if suggestions:
                 self._display_suggestions(suggestions)
             else:
@@ -170,7 +167,7 @@ class SubmittableTextArea(TextArea):
         self._current_suggestions = []
         self._selected_index = 0
         self._autocomplete_anchor_x = None
-        self._active_strategy = None
+        self._active_autocompleter = None
         self._active_context = None
         self._update_autocomplete_display()
 
@@ -191,13 +188,27 @@ class SubmittableTextArea(TextArea):
         if not self._current_suggestions or self._selected_index >= len(self._current_suggestions):
             return
 
-        if not self._active_strategy or not self._active_context:
+        if not self._active_autocompleter or not self._active_context:
             return
 
         selected = self._current_suggestions[self._selected_index]
         row, col = self.cursor_location
 
-        self._active_strategy.apply_completion(self, selected, self._active_context, row, col)
+        completion_result = self._active_autocompleter.get_completion(selected)
+
+        # Apply the completion
+        start_col = self._active_context.start_index
+        # Replace from start of trigger/word to current cursor position
+        self.replace(
+            completion_result.text,
+            start=(row, start_col),
+            end=(row, col),
+            maintain_selection_offset=False,
+        )
+
+        # Add attachments
+        if completion_result.attachments:
+            self._referenced_files.update(completion_result.attachments)
 
         self._hide_autocomplete()
 
@@ -208,9 +219,9 @@ class SubmittableTextArea(TextArea):
         except (NoMatches, AttributeError):
             popup = None
 
-        if self._autocomplete_visible and self._current_suggestions and self._active_strategy:
+        if self._autocomplete_visible and self._current_suggestions and self._active_autocompleter:
             lines = [
-                self._active_strategy.format_suggestion(item)
+                self._active_autocompleter.format_suggestion(item)
                 for item in self._current_suggestions
             ]
 
@@ -263,7 +274,7 @@ class SmartInput(Widget):
     def slash_command_registry(self, value):
         self._slash_command_registry = value
         try:
-            self.query_one("#user-input", SubmittableTextArea).slash_command_registry = value
+            self.query_one("#user-input", SubmittableTextArea).set_slash_command_registry(value)
         except NoMatches:
             pass
 
@@ -275,7 +286,7 @@ class SmartInput(Widget):
     def file_searcher(self, value):
         self._file_searcher = value
         try:
-            self.query_one("#user-input", SubmittableTextArea).file_searcher = value
+            self.query_one("#user-input", SubmittableTextArea).set_file_searcher(value)
         except NoMatches:
             pass
 
@@ -283,9 +294,9 @@ class SmartInput(Widget):
         try:
             text_area = self.query_one("#user-input", SubmittableTextArea)
             if self._slash_command_registry:
-                text_area.slash_command_registry = self._slash_command_registry
+                text_area.set_slash_command_registry(self._slash_command_registry)
             if self._file_searcher:
-                text_area.file_searcher = self._file_searcher
+                text_area.set_file_searcher(self._file_searcher)
         except NoMatches:
             pass
 
