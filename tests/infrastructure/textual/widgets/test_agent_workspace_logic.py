@@ -9,10 +9,13 @@ from textual.widgets import Markdown
 class TestAgentWorkspace:
     def test_refresh_todos_updates_content_from_file(self, tmp_path):
         agent_id = AgentId("test_agent")
-        todo_file = tmp_path / "todos.md"
+        # Use the production logic to determine the filename
+        filename = agent_id.todo_filename()
+        todo_file = tmp_path / filename
         todo_file.write_text("Initial content", encoding="utf-8")
 
         # Override todo_filename to return the absolute path to our temp file
+        # This allows us to use tmp_path without changing the process working directory
         agent_id.todo_filename = lambda: str(todo_file)
 
         mock_callback = MagicMock()
