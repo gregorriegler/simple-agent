@@ -18,7 +18,6 @@ async def test_write_todos_creates_markdown_file(tmp_path):
     🛠️[/end]
     """).strip()
 
-    # Create tools with an agent_id anchored to tmp_path
     from simple_agent.application.agent_id import AgentId
     from simple_agent.application.tool_library_factory import ToolContext
     from tests.test_helpers import create_all_tools_for_test
