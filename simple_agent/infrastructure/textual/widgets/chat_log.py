@@ -3,7 +3,21 @@ from textual.widgets import Markdown
 import re
 
 class ChatLog(VerticalScroll):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._pending_messages = []
+
+    def on_mount(self) -> None:
+        if self._pending_messages:
+            for message in self._pending_messages:
+                self.mount(Markdown(message.rstrip()))
+            self._pending_messages.clear()
+            self.scroll_end(animate=False)
+
     def write(self, message: str) -> None:
+        if not self.is_mounted:
+            self._pending_messages.append(message)
+            return
         self.mount(Markdown(message.rstrip()))
         self.scroll_end(animate=False)
 
