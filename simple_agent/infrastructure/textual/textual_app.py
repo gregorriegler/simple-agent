@@ -170,7 +170,10 @@ class TextualApp(App):
         self.query_one(AgentTabs).switch_tab(1)
 
     def action_submit_input(self) -> None:
-        self.query_one(SmartInput).submit()
+        try:
+            self.query_one(SubmittableTextArea).submit()
+        except Exception:
+            self.query_one(SmartInput).submit()
 
     def on_smart_input_submitted(self, event: SmartInput.Submitted) -> None:
         if self.user_input:

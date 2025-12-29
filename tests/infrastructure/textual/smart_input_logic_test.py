@@ -72,6 +72,5 @@ async def test_submit_input_ignores_unreferenced_files(textual_harness, tmp_path
         assert "Just text without file" in submission
         assert "<file_context" not in submission
 
-        # As observed previously, if files are not used, the set is not explicitly cleared in the same block,
-        # but since no files were processed, it remains.
-        assert test_file_path in text_area._referenced_files
+        # References should be cleared on submit
+        assert len(text_area._referenced_files) == 0

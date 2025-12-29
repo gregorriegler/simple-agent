@@ -83,14 +83,16 @@ class SmartInput(Widget):
         yield popup
 
     def submit(self) -> None:
+        """Manual submit trigger for compatibility/testing."""
         try:
-            text_area = self.query_one("#user-input", SubmittableTextArea)
+            self.query_one("#user-input", SubmittableTextArea).submit()
         except NoMatches:
-            return
+            pass
 
-        content = text_area.text.strip()
+    def on_submittable_text_area_submitted(self, event: SubmittableTextArea.Submitted) -> None:
+        content = event.value
+        referenced_files = event.referenced_files
 
-        referenced_files = text_area.get_referenced_files()
         if referenced_files:
             file_contents = []
             for file_path_str in referenced_files:
@@ -104,10 +106,5 @@ class SmartInput(Widget):
 
             if file_contents:
                 content += "\n" + "\n".join(file_contents)
-                # Clear references after consuming them
-                text_area._referenced_files.clear()
 
         self.post_message(self.Submitted(content))
-
-        text_area.clear()
-        text_area._hide_autocomplete()
