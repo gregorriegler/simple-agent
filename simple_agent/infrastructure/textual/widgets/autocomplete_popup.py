@@ -6,7 +6,7 @@ from rich.text import Text
 
 from simple_agent.infrastructure.textual.autocompletion import (
     Autocompleter,
-    AutocompleteRequest,
+    AutocompleteContext,
     CompletionResult,
     Suggestion
 )
@@ -57,8 +57,7 @@ class AutocompletePopup(Static):
 
         self._current_suggestions: list[Suggestion] = []
         self._selected_index: int = 0
-        self._active_autocompleter: Autocompleter | None = None
-        self._active_request: AutocompleteRequest | None = None
+        self._active_context: AutocompleteContext | None = None
         self._anchor_x: int | None = None
 
     async def handle_key(self, key: str) -> bool | CompletionResult:
@@ -80,11 +79,10 @@ class AutocompletePopup(Static):
 
     def check(self, row: int, col: int, line: str, cursor_screen_offset: Offset, screen_size: Size) -> None:
         for autocompleter in self.autocompleters:
-            request = autocompleter.check(row, col, line)
-            if request:
-                self._active_autocompleter = autocompleter
-                self._active_request = request
-                asyncio.create_task(self._fetch_suggestions(autocompleter, request, cursor_screen_offset, screen_size))
+            context = autocompleter.check(row, col, line)
+            if context:
+                self._active_context = context
+                asyncio.create_task(self._fetch_suggestions(context, cursor_screen_offset, screen_size))
                 return
 
         self.hide()
@@ -94,22 +92,22 @@ class AutocompletePopup(Static):
         self._current_suggestions = []
         self._selected_index = 0
         self._anchor_x = None
-        self._active_autocompleter = None
-        self._active_request = None
+        self._active_context = None
 
     async def _fetch_suggestions(
         self,
-        autocompleter: Autocompleter,
-        request: AutocompleteRequest,
+        context: AutocompleteContext,
         cursor_screen_offset: Offset,
         screen_size: Size
     ) -> None:
-        if self._active_autocompleter != autocompleter or self._active_request != request:
+        # Check if the context is still active (identity check)
+        if self._active_context is not context:
             return
 
-        suggestions = await autocompleter.get_suggestions(request)
+        suggestions = await context.get_suggestions()
 
-        if self._active_autocompleter == autocompleter and self._active_request == request:
+        # Check again after await
+        if self._active_context is context:
             if suggestions:
                 self._show_suggestions(suggestions, cursor_screen_offset, screen_size)
             else:
@@ -146,17 +144,17 @@ class AutocompletePopup(Static):
         if not self._current_suggestions or self._selected_index >= len(self._current_suggestions):
             return None
 
-        if not self._active_request:
+        # No need to check _active_context strictly here if we trust the display state,
+        # but it's good practice.
+        if not self._active_context:
             return None
 
         selected = self._current_suggestions[self._selected_index]
-        start_offset = self._active_request.start_index
-
         self.hide()
 
-        result = selected.to_completion_result()
-        result.start_offset = start_offset
-        return result
+        # The Suggestion now encapsulates the logic to create a full CompletionResult,
+        # including the start_offset which was injected when the Suggestion was created.
+        return selected.to_completion_result()
 
     def _update_display(self, cursor_offset: Offset, screen_size: Size) -> None:
         lines = [item.display_text for item in self._current_suggestions]
