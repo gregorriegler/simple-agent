@@ -19,6 +19,12 @@ class CompletionResult:
     attachments: set[str] = field(default_factory=set)
     start_offset: Optional[int] = None
 
+class Suggestion(Protocol):
+    @property
+    def display_text(self) -> str: ...
+
+    def to_completion_result(self) -> CompletionResult: ...
+
 class Autocompleter(Protocol):
     def check(self, row: int, col: int, line: str) -> Optional[AutocompleteRequest]:
         """
@@ -27,23 +33,34 @@ class Autocompleter(Protocol):
         """
         ...
 
-    async def get_suggestions(self, request: AutocompleteRequest) -> List[Any]:
+    async def get_suggestions(self, request: AutocompleteRequest) -> List[Suggestion]:
         """
         Get list of suggestions based on request.
         """
         ...
 
-    def format_suggestion(self, suggestion: Any) -> str:
-        """
-        Format a suggestion for display in the popup.
-        """
-        ...
+@dataclass
+class SlashCommandSuggestion:
+    command: Any # SlashCommand
 
-    def get_completion(self, suggestion: Any) -> CompletionResult:
-        """
-        Get the completion result (text to insert and attachments) for a selected suggestion.
-        """
-        ...
+    @property
+    def display_text(self) -> str:
+        return f"{self.command.name} - {self.command.description}"
+
+    def to_completion_result(self) -> CompletionResult:
+        return CompletionResult(text=self.command.name + " ")
+
+@dataclass
+class FileSuggestion:
+    file_path: str
+
+    @property
+    def display_text(self) -> str:
+        return self.file_path
+
+    def to_completion_result(self) -> CompletionResult:
+         display_marker = f"[📦{self.file_path}] "
+         return CompletionResult(text=display_marker, attachments={self.file_path})
 
 
 class SlashCommandAutocompleter:
@@ -55,15 +72,9 @@ class SlashCommandAutocompleter:
             return AutocompleteRequest(query=line[:col], start_index=0, trigger_char="/")
         return None
 
-    async def get_suggestions(self, request: AutocompleteRequest) -> List[Any]:
-        return self.registry.get_matching_commands(request.query)
-
-    def format_suggestion(self, suggestion: Any) -> str:
-        return f"{suggestion.name} - {suggestion.description}"
-
-    def get_completion(self, suggestion: Any) -> CompletionResult:
-        cmd_name = suggestion.name
-        return CompletionResult(text=cmd_name + " ")
+    async def get_suggestions(self, request: AutocompleteRequest) -> List[Suggestion]:
+        commands = self.registry.get_matching_commands(request.query)
+        return [SlashCommandSuggestion(cmd) for cmd in commands]
 
 
 class FileSearchAutocompleter:
@@ -83,17 +94,10 @@ class FileSearchAutocompleter:
              return AutocompleteRequest(query=current_word[1:], start_index=word_start_index, trigger_char="@")
         return None
 
-    async def get_suggestions(self, request: AutocompleteRequest) -> List[Any]:
+    async def get_suggestions(self, request: AutocompleteRequest) -> List[Suggestion]:
         try:
-            return await self.searcher.search(request.query)
+            results = await self.searcher.search(request.query)
+            return [FileSuggestion(str(res)) for res in results]
         except Exception as e:
             logger.error(f"File search failed: {e}")
             return []
-
-    def format_suggestion(self, suggestion: Any) -> str:
-        return str(suggestion)
-
-    def get_completion(self, suggestion: Any) -> CompletionResult:
-        file_path = str(suggestion)
-        display_marker = f"[📦{file_path}] "
-        return CompletionResult(text=display_marker, attachments={file_path})
