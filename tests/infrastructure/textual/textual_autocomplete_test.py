@@ -6,16 +6,15 @@ from unittest.mock import MagicMock, AsyncMock
 from simple_agent.application.slash_command_registry import SlashCommandRegistry, SlashCommand
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
-from simple_agent.infrastructure.textual.widgets.autocomplete_popup import (
-    calculate_autocomplete_position,
-    AutocompletePopup,
-)
+from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup
 from simple_agent.application.agent_id import AgentId
 from simple_agent.infrastructure.textual.autocompletion import (
     SlashCommandAutocompleter,
+    FileSearchAutocompleter,
     CompletionResult,
     SlashCommandSuggestion,
-    FileSuggestion
+    FileSuggestion,
+    InputContext
 )
 
 class StubUserInput:
@@ -44,7 +43,7 @@ def test_slash_command_registry_available_in_textarea():
     autocompleter = SlashCommandAutocompleter(registry)
     textarea = SmartInput(autocompleters=[autocompleter])
     
-    assert any(isinstance(s, SlashCommandAutocompleter) for s in textarea._initial_autocompleters)
+    assert any(isinstance(s, SlashCommandAutocompleter) for s in textarea._autocompleters)
 
 
 def test_get_autocomplete_suggestions_for_slash():
@@ -78,7 +77,7 @@ def test_autocomplete_position_prefers_below_cursor():
     screen_size = Size(80, 24)
     cursor_offset = Offset(10, 10)
 
-    position = calculate_autocomplete_position(
+    position = AutocompletePopup._calculate_position(
         cursor_offset=cursor_offset,
         screen_size=screen_size,
         popup_height=3,
@@ -93,7 +92,7 @@ def test_autocomplete_position_uses_above_when_no_room_below():
     screen_size = Size(80, 10)
     cursor_offset = Offset(10, 8)
 
-    position = calculate_autocomplete_position(
+    position = AutocompletePopup._calculate_position(
         cursor_offset=cursor_offset,
         screen_size=screen_size,
         popup_height=3,
@@ -108,25 +107,25 @@ def test_calculate_autocomplete_position_edge_cases():
     popup_width = 20
 
     cursor_offset = Offset(10, 5)
-    pos = calculate_autocomplete_position(cursor_offset, screen_size, popup_height, popup_width)
+    pos = AutocompletePopup._calculate_position(cursor_offset, screen_size, popup_height, popup_width)
     assert pos.y == 6
     assert pos.x == 8
 
     cursor_offset = Offset(10, 20)
-    pos = calculate_autocomplete_position(cursor_offset, screen_size, popup_height, popup_width)
+    pos = AutocompletePopup._calculate_position(cursor_offset, screen_size, popup_height, popup_width)
     assert pos.y == 15
 
     cursor_offset = Offset(75, 5)
-    pos = calculate_autocomplete_position(cursor_offset, screen_size, popup_height, popup_width)
+    pos = AutocompletePopup._calculate_position(cursor_offset, screen_size, popup_height, popup_width)
     assert pos.x == 60
 
     cursor_offset = Offset(1, 5)
-    pos = calculate_autocomplete_position(cursor_offset, screen_size, popup_height, popup_width)
+    pos = AutocompletePopup._calculate_position(cursor_offset, screen_size, popup_height, popup_width)
     assert pos.x == 0
 
     small_screen = Size(80, 10)
     cursor_offset = Offset(10, 8)
-    pos = calculate_autocomplete_position(cursor_offset, small_screen, popup_height, popup_width)
+    pos = AutocompletePopup._calculate_position(cursor_offset, small_screen, popup_height, popup_width)
     assert pos.y == 3
 
 @pytest.mark.asyncio
@@ -240,7 +239,8 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         popup.autocompleters = [completer]
 
         # Call public check method with input triggering the completer
-        popup.check(0, 1, "/", Offset(10, 10), screen_size)
+        context = InputContext(0, 1, "/")
+        popup.check(context, Offset(10, 10), screen_size)
         await pilot.pause()
 
         assert popup.display is True
@@ -262,7 +262,8 @@ async def test_autocomplete_popup_hide(app: TextualApp):
         popup.autocompleters = [completer]
 
         # Trigger display
-        popup.check(0, 1, "/", Offset(0, 0), Size(80, 24))
+        context = InputContext(0, 1, "/")
+        popup.check(context, Offset(0, 0), Size(80, 24))
         await pilot.pause()
 
         assert popup.display is True
@@ -301,14 +302,44 @@ async def test_submittable_text_area_slash_commands(app: TextualApp):
 
 @pytest.mark.asyncio
 async def test_submittable_text_area_file_search(app: TextualApp):
-    async with app.run_test() as pilot:
-        text_area = app.query_one(SmartInput)
+    # This test previously relied on property setters for dependency injection.
+    # We now need to reconstruct the SmartInput or app with the mock dependency.
+
+    # Create app, mount it, but before interacting, we can't easily swap the dependency deep inside.
+    # However, since we are testing integration via UI, we can just use the real app which has NativeFileSearcher.
+    # But we want to mock the file system results.
+    # Or, we can construct a test-specific App or SmartInput.
+
+    # Option 1: Mock NativeFileSearcher.search on the instance used by the app.
+    # But the app creates a new NativeFileSearcher in __init__.
+    # We can monkeypatch NativeFileSearcher class or pass a mock app.
+
+    mock_searcher = AsyncMock()
+    mock_searcher.search.return_value = ["my_file.py", "other_file.txt"]
+
+    autocompleters = [
+        FileSearchAutocompleter(mock_searcher)
+    ]
+
+    # We need to inject this into the SmartInput widget in the app.
+    # Since TextualApp composes SmartInput in compose(), we can't easily intercept it unless we subclass TextualApp
+    # or modify it after mount (which is what we did before, but now we removed setters).
+
+    # Let's subclass TextualApp for testing purposes to inject dependencies.
+    class TestApp(TextualApp):
+        def compose(self):
+            from textual.containers import Vertical
+            from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+            with Vertical():
+                yield AgentTabs(self._root_agent_id, id="tabs")
+                # Inject our custom autocompleters
+                yield SmartInput(autocompleters=autocompleters, id="user-input")
+
+    test_app = TestApp(StubUserInput(), AgentId("Agent"))
+
+    async with test_app.run_test() as pilot:
+        text_area = test_app.query_one(SmartInput)
         text_area.focus()
-
-        mock_searcher = AsyncMock()
-        mock_searcher.search.return_value = ["my_file.py", "other_file.txt"]
-
-        text_area.file_searcher = mock_searcher
 
         await pilot.press("s")
         await pilot.press(" ")
@@ -378,3 +409,12 @@ async def test_submittable_text_area_ctrl_enter(app: TextualApp):
         await pilot.pause()
 
         assert text_area.text == "line1\n"
+
+def test_autocomplete_popup_init_with_autocompleters():
+    """Verify that AutocompletePopup accepts autocompleters argument."""
+    registry = SlashCommandRegistry()
+    autocompleter = SlashCommandAutocompleter(registry)
+    popup = AutocompletePopup(autocompleters=[autocompleter])
+
+    assert len(popup.autocompleters) == 1
+    assert popup.autocompleters[0] is autocompleter
