@@ -9,7 +9,7 @@ from simple_agent.infrastructure.textual.autocompletion import (
     CompletionSearch,
     CompletionResult,
     Suggestion,
-    InputContext
+    CursorAndLine
 )
 
 
@@ -58,9 +58,9 @@ class AutocompletePopup(Static):
 
         return False
 
-    def check(self, context: InputContext, cursor_screen_offset: Offset, screen_size: Size) -> None:
+    def check(self, cursor_and_line: CursorAndLine, cursor_screen_offset: Offset, screen_size: Size) -> None:
         for autocompleter in self.autocompleters:
-            search = autocompleter.check(context)
+            search = autocompleter.check(cursor_and_line)
             if search:
                 self._active_search = search
                 asyncio.create_task(self._fetch_suggestions(search, cursor_screen_offset, screen_size))

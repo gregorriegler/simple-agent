@@ -13,7 +13,7 @@ from simple_agent.infrastructure.textual.autocompletion import (
     SlashCommandAutocompleter,
     FileSearchAutocompleter,
     CompletionResult,
-    InputContext
+    CursorAndLine
 )
 from simple_agent.infrastructure.textual.widgets.file_context_expander import FileContextExpander
 
@@ -120,9 +120,9 @@ class SmartInput(TextArea):
             self.popup.hide()
             return
 
-        context = InputContext(row, col, line)
+        cursor_and_line = CursorAndLine(row, col, line)
 
-        self.popup.check(context, self.cursor_screen_offset, self.app.screen.size)
+        self.popup.check(cursor_and_line, self.cursor_screen_offset, self.app.screen.size)
 
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location

@@ -14,7 +14,7 @@ from simple_agent.infrastructure.textual.autocompletion import (
     CompletionResult,
     SlashCommandSuggestion,
     FileSuggestion,
-    InputContext
+    CursorAndLine
 )
 
 class StubUserInput:
@@ -239,8 +239,8 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         popup.autocompleters = [completer]
 
         # Call public check method with input triggering the completer
-        context = InputContext(0, 1, "/")
-        popup.check(context, Offset(10, 10), screen_size)
+        cursor_and_line = CursorAndLine(0, 1, "/")
+        popup.check(cursor_and_line, Offset(10, 10), screen_size)
         await pilot.pause()
 
         assert popup.display is True
@@ -262,8 +262,8 @@ async def test_autocomplete_popup_hide(app: TextualApp):
         popup.autocompleters = [completer]
 
         # Trigger display
-        context = InputContext(0, 1, "/")
-        popup.check(context, Offset(0, 0), Size(80, 24))
+        cursor_and_line = CursorAndLine(0, 1, "/")
+        popup.check(cursor_and_line, Offset(0, 0), Size(80, 24))
         await pilot.pause()
 
         assert popup.display is True
