@@ -17,6 +17,7 @@ class AutocompleteRequest:
 class CompletionResult:
     text: str
     attachments: set[str] = field(default_factory=set)
+    start_offset: Optional[int] = None
 
 class Autocompleter(Protocol):
     def check(self, row: int, col: int, line: str) -> Optional[AutocompleteRequest]:
