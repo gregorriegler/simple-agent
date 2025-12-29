@@ -230,19 +230,18 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         popup = app.query_one(AutocompletePopup)
         screen_size = Size(80, 24)
 
-        # Test rendering by injecting a Mock autocompleter that returns real Suggestions
-        mock_completer = MagicMock()
-        mock_completer.check.return_value = AutocompleteRequest("q", 0, "q")
+        # Setup real registry with custom commands for rendering test
+        registry = SlashCommandRegistry()
+        registry._commands = {
+            "/short": SlashCommand("/short", "desc"),
+            "/looooooong": SlashCommand("/looooooong", "description")
+        }
+        completer = SlashCommandAutocompleter(registry)
 
-        suggestion1 = SlashCommandSuggestion(SlashCommand("/short", "desc"))
-        suggestion2 = SlashCommandSuggestion(SlashCommand("/looooooong", "description"))
+        popup.autocompleters = [completer]
 
-        mock_completer.get_suggestions = AsyncMock(return_value=[suggestion1, suggestion2])
-
-        popup.autocompleters = [mock_completer]
-
-        # Call public check method
-        popup.check(0, 1, "q", Offset(10, 10), screen_size)
+        # Call public check method with input triggering the completer
+        popup.check(0, 1, "/", Offset(10, 10), screen_size)
         await pilot.pause()
 
         assert popup.display is True
@@ -257,13 +256,14 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
 async def test_autocomplete_popup_hide(app: TextualApp):
     async with app.run_test() as pilot:
         popup = app.query_one(AutocompletePopup)
-        # Force display via public check
-        mock_completer = MagicMock()
-        mock_completer.check.return_value = AutocompleteRequest("x", 0, "x")
-        mock_completer.get_suggestions = AsyncMock(return_value=[SlashCommandSuggestion(SlashCommand("/a", "b"))])
-        popup.autocompleters = [mock_completer]
 
-        popup.check(0, 1, "x", Offset(0, 0), Size(80, 24))
+        # Use real completer
+        registry = SlashCommandRegistry()
+        completer = SlashCommandAutocompleter(registry)
+        popup.autocompleters = [completer]
+
+        # Trigger display
+        popup.check(0, 1, "/", Offset(0, 0), Size(80, 24))
         await pilot.pause()
 
         assert popup.display is True
