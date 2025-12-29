@@ -1,7 +1,8 @@
 import pytest
 from textual.geometry import Offset, Size
+from dataclasses import dataclass
 from types import SimpleNamespace
-from unittest.mock import MagicMock, patch, AsyncMock
+from unittest.mock import MagicMock, AsyncMock
 
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.textual.textual_app import TextualApp
@@ -29,32 +30,30 @@ class StubUserInput:
     def escape_requested(self) -> bool:
         return False
 
+@dataclass
+class TestSuggestion:
+    display_text: str
+    result_text: str = ""
+
+    def to_completion_result(self) -> CompletionResult:
+        return CompletionResult(text=self.result_text)
+
 @pytest.fixture
 def app():
     return TextualApp(StubUserInput(), AgentId("Agent"))
 
 
 def test_slash_command_registry_available_in_textarea():
-    """Test that we can attach a registry to the textarea."""
     registry = SlashCommandRegistry()
     autocompleter = SlashCommandAutocompleter(registry)
-    # Autocompleters are passed to _initial_autocompleters
     textarea = SmartInput(autocompleters=[autocompleter])
     
     assert any(isinstance(s, SlashCommandAutocompleter) for s in textarea._initial_autocompleters)
 
 
 def test_get_autocomplete_suggestions_for_slash():
-    """Test getting suggestions when user types '/'."""
     registry = SlashCommandRegistry()
-    request = AutocompleteRequest(query="/", start_index=0, trigger_char="/")
     
-    # We test the autocompleter logic directly
-    completer = SlashCommandAutocompleter(registry)
-    # This is async now
-    # We can't easily test async methods in sync test without event loop,
-    # but the test was checking registry.get_matching_commands before.
-    # Let's keep checking registry directly as the test name implies
     suggestions = registry.get_matching_commands("/")
     
     assert len(suggestions) == 2
@@ -63,7 +62,6 @@ def test_get_autocomplete_suggestions_for_slash():
 
 
 def test_get_autocomplete_suggestions_for_partial():
-    """Test getting suggestions when user types '/m'."""
     registry = SlashCommandRegistry()
     
     suggestions = registry.get_matching_commands("/m")
@@ -73,7 +71,6 @@ def test_get_autocomplete_suggestions_for_partial():
 
 
 def test_no_suggestions_for_regular_text():
-    """Test that regular text doesn't trigger suggestions."""
     registry = SlashCommandRegistry()
     
     suggestions = registry.get_matching_commands("hello")
@@ -114,30 +111,25 @@ def test_calculate_autocomplete_position_edge_cases():
     popup_height = 5
     popup_width = 20
 
-    # Normal case: place below
     cursor_offset = Offset(10, 5)
     pos = calculate_autocomplete_position(cursor_offset, screen_size, popup_height, popup_width)
-    assert pos.y == 6 # 5 + 1
-    assert pos.x == 8 # 10 - 2
+    assert pos.y == 6
+    assert pos.x == 8
 
-    # Edge case: near bottom, should flip above
     cursor_offset = Offset(10, 20)
     pos = calculate_autocomplete_position(cursor_offset, screen_size, popup_height, popup_width)
-    assert pos.y == 15 # 20 - 5 (above)
+    assert pos.y == 15
 
-    # Edge case: near right edge, should shift left
     cursor_offset = Offset(75, 5)
     pos = calculate_autocomplete_position(cursor_offset, screen_size, popup_height, popup_width)
-    assert pos.x == 60 # 80 - 20 (max_x)
+    assert pos.x == 60
 
-    # Edge case: near left edge, should align left (min 0)
     cursor_offset = Offset(1, 5)
     pos = calculate_autocomplete_position(cursor_offset, screen_size, popup_height, popup_width)
-    assert pos.x == 0 # max(1-2, 0) -> 0
+    assert pos.x == 0
 
-    # Edge case: small screen, clamp y
     small_screen = Size(80, 10)
-    cursor_offset = Offset(10, 8) # Below would be 9+5=14 (offscreen), Above would be 8-5=3
+    cursor_offset = Offset(10, 8)
     pos = calculate_autocomplete_position(cursor_offset, small_screen, popup_height, popup_width)
     assert pos.y == 3
 
@@ -151,15 +143,12 @@ async def test_submit_hides_autocomplete_popup():
         text_area = app.query_one("#user-input", SmartInput)
         popup = app.query_one("#autocomplete-popup")
 
-        # Simulate typing properly so cursor moves
         text_area.text = "/clear"
         text_area.move_cursor((0, len("/clear")))
 
-        # Manually verify it triggers
         text_area._trigger_autocomplete_check()
         await pilot.pause()
 
-        # Check popup state
         assert text_area.popup._active_autocompleter is not None
 
         app.action_submit_input()
@@ -178,14 +167,11 @@ async def test_autocomplete_popup_keeps_initial_x_position():
         text_area = app.query_one("#user-input", SmartInput)
         popup = app.query_one("#autocomplete-popup")
 
-        # Wired by app
-
         text_area.text = "/c"
         text_area.move_cursor((0, len("/c")))
         text_area._trigger_autocomplete_check()
         await pilot.pause()
 
-        # Ensure it is visible
         assert text_area.popup.display
         initial_x = popup.absolute_offset.x
 
@@ -205,24 +191,14 @@ async def test_enter_key_selects_autocomplete_when_visible():
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
         
-        # Wired by app
-
-        # Trigger autocomplete
         text_area.text = "/c"
         text_area.move_cursor((0, len("/c")))
-        # Manually trigger the check/show because typing simulation might be async/complex
         text_area._trigger_autocomplete_check()
         await pilot.pause()
         
         assert text_area.popup.display is True
         
-        # Press Enter
         await pilot.press("enter")
-        
-        # Expectation:
-        # 1. Autocomplete should complete the text to "/clear "
-        # 2. Input should NOT be submitted yet
-        # 3. Autocomplete should be hidden
         
         assert text_area.text.startswith("/clear")
         assert len(user_input.inputs) == 0
@@ -237,16 +213,11 @@ async def test_enter_key_submits_when_autocomplete_not_visible():
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
         
-        # Type something
         text_area.text = "hello"
         if text_area.popup:
             assert text_area.popup.display is False
         
-        # Press Enter
         await pilot.press("enter")
-        
-        # Expectation:
-        # 1. Input should be submitted
         
         assert len(user_input.inputs) == 1
         assert user_input.inputs[0] == "hello"
@@ -257,23 +228,15 @@ async def test_autocomplete_popup_show_suggestions(app: TextualApp):
         popup = app.query_one(AutocompletePopup)
         screen_size = Size(80, 24)
 
-        # Test empty lines hides popup
         popup._show_suggestions([], Offset(0, 0), screen_size)
         assert popup.display is False
 
-        # Test normal lines
-        # Mock suggestions
-        mock_suggestion1 = MagicMock()
-        mock_suggestion1.display_text = "option1"
-        mock_suggestion2 = MagicMock()
-        mock_suggestion2.display_text = "option2 long"
+        suggestion1 = TestSuggestion(display_text="option1")
+        suggestion2 = TestSuggestion(display_text="option2 long")
 
-        lines = [mock_suggestion1, mock_suggestion2]
+        lines = [suggestion1, suggestion2]
 
         cursor_offset = Offset(10, 10)
-        # We don't need active autocompleter for formatting anymore
-        # popup._active_autocompleter = mock_completer
-
         popup._show_suggestions(lines, cursor_offset, screen_size)
 
         assert popup.display is True
@@ -281,7 +244,6 @@ async def test_autocomplete_popup_show_suggestions(app: TextualApp):
         assert popup.styles.width.value == 14
         assert popup.styles.height.value == 2
 
-        # Verify content rendering (roughly)
         assert "option1" in str(popup.render())
 
 @pytest.mark.asyncio
@@ -298,30 +260,24 @@ async def test_submittable_text_area_slash_commands(app: TextualApp):
         text_area = app.query_one(SmartInput)
         popup = app.query_one(AutocompletePopup)
 
-        # Test "/" trigger
         text_area.focus()
         await pilot.press("/")
-        # Reduced pause
         await pilot.pause()
 
-        # It should trigger autocomplete
         assert text_area.popup.display is True
         assert popup.display is True
         assert text_area.popup._active_request.trigger_char == "/"
 
-        # Test completion with slash command
         assert len(text_area.popup._current_suggestions) > 0
 
         await pilot.press("c")
         await pilot.press("l")
         await pilot.pause()
 
-        # Select first one
         text_area.popup._selected_index = 0
         result = text_area.popup._get_selection()
         text_area._apply_completion(result)
 
-        # Text should be replaced
         assert text_area.text.startswith("/clear")
         assert text_area.popup.display is False
         assert popup.display is False
@@ -332,15 +288,11 @@ async def test_submittable_text_area_file_search(app: TextualApp):
         text_area = app.query_one(SmartInput)
         text_area.focus()
 
-        # Mock file searcher (needs to be injected into SmartInput which propagates to textarea)
         mock_searcher = AsyncMock()
         mock_searcher.search.return_value = ["my_file.py", "other_file.txt"]
 
-        # Use SmartInput to set it
-        # smart_input IS the text area now
         text_area.file_searcher = mock_searcher
 
-        # Type "some text @my"
         text_area.insert("some text ")
 
         await pilot.press("@")
@@ -352,20 +304,16 @@ async def test_submittable_text_area_file_search(app: TextualApp):
         assert text_area.popup.display is True
         assert text_area.popup._active_request.trigger_char == "@"
         assert len(text_area.popup._current_suggestions) > 0
-        # Check display text of the suggestion
         assert "my_file.py" in text_area.popup._current_suggestions[0].display_text
 
-        # Test navigation
         await pilot.press("down")
         assert text_area.popup._selected_index == 1
 
         await pilot.press("up")
         assert text_area.popup._selected_index == 0
 
-        # Test selection
         await pilot.press("enter")
 
-        # Text should have marker
         assert "[📦my_file.py]" in text_area.text
         assert "some text" in text_area.text
         assert text_area.popup.display is False
@@ -376,34 +324,25 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         text_area = app.query_one(SmartInput)
         text_area.focus()
 
-        # Open autocomplete manually for test
-        # We need a strategy to be active for _get_selection to work (it checks active request)
         strategy = SlashCommandAutocompleter(SlashCommandRegistry())
         request = AutocompleteRequest(query="/", start_index=0, trigger_char="/")
         text_area.popup._active_autocompleter = strategy
         text_area.popup._active_request = request
 
-        # Use Mock or SimpleNamespace that acts like Suggestion
-        mock_suggestion = MagicMock()
-        mock_suggestion.display_text = "Display Text"
-        mock_suggestion.to_completion_result.return_value = CompletionResult(text="/cmd ")
+        suggestion = TestSuggestion(display_text="Display Text", result_text="/cmd ")
 
-        # Need cursor offset to show suggestions
-        text_area.popup._show_suggestions([mock_suggestion], Offset(0,0), Size(80,24))
+        text_area.popup._show_suggestions([suggestion], Offset(0,0), Size(80,24))
         assert text_area.popup.display is True
 
-        # Test Escape
         await pilot.press("escape")
         assert text_area.popup.display is False
 
-        # Re-open
-        text_area.popup._active_autocompleter = strategy # Reset strategy as it is cleared on hide
+        text_area.popup._active_autocompleter = strategy
         text_area.popup._active_request = request
-        text_area.popup._show_suggestions([mock_suggestion], Offset(0,0), Size(80,24))
+        text_area.popup._show_suggestions([suggestion], Offset(0,0), Size(80,24))
 
-        # Test Tab
         await pilot.press("tab")
-        await pilot.pause() # Add pause to let event propagate
+        await pilot.pause()
 
         assert text_area.popup.display is False
         assert text_area.text.startswith("/cmd")
@@ -414,7 +353,7 @@ async def test_submittable_text_area_ctrl_enter(app: TextualApp):
         text_area = app.query_one(SmartInput)
         text_area.focus()
         text_area.text = "line1"
-        text_area.move_cursor((0, 5)) # Move to end
+        text_area.move_cursor((0, 5))
 
         await pilot.press("ctrl+enter")
 
