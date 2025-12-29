@@ -1,6 +1,6 @@
 import pytest
 from textual.widgets import TextArea
-from simple_agent.infrastructure.textual.widgets.smart_input import SubmittableTextArea
+from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
 
 @pytest.mark.asyncio
 async def test_submit_input_includes_referenced_files(textual_harness, tmp_path):
@@ -17,7 +17,7 @@ async def test_submit_input_includes_referenced_files(textual_harness, tmp_path)
 
     async with app.run_test() as pilot:
         await pilot.pause()
-        text_area = app.query_one("#user-input", SubmittableTextArea)
+        text_area = app.query_one("#user-input", SmartInput)
 
         # 1. Simulate user selecting a file (programmatically adding to referenced set)
         text_area._referenced_files.add(test_file_path)
@@ -59,7 +59,7 @@ async def test_submit_input_ignores_unreferenced_files(textual_harness, tmp_path
 
     async with app.run_test() as pilot:
         await pilot.pause()
-        text_area = app.query_one("#user-input", SubmittableTextArea)
+        text_area = app.query_one("#user-input", SmartInput)
 
         # Add file to referenced set but don't include marker in text
         text_area._referenced_files.add(test_file_path)

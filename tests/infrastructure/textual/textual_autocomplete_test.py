@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch, AsyncMock
 
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.widgets.smart_input import SubmittableTextArea
+from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
 from simple_agent.infrastructure.textual.widgets.autocomplete_popup import (
     calculate_autocomplete_position,
     AutocompletePopup,
@@ -38,7 +38,7 @@ def test_slash_command_registry_available_in_textarea():
     """Test that we can attach a registry to the textarea."""
     registry = SlashCommandRegistry()
     autocompleter = SlashCommandAutocompleter(registry)
-    textarea = SubmittableTextArea(autocompleters=[autocompleter])
+    textarea = SmartInput(autocompleters=[autocompleter])
     
     assert any(isinstance(s, SlashCommandAutocompleter) for s in textarea.autocompleters)
 
@@ -140,7 +140,7 @@ async def test_submit_hides_autocomplete_popup():
 
     async with app.run_test() as pilot:
         await pilot.pause()
-        text_area = app.query_one("#user-input", SubmittableTextArea)
+        text_area = app.query_one("#user-input", SmartInput)
         popup = app.query_one("#autocomplete-popup")
 
         # Manually inject autocompleter since StubUserInput doesn't trigger app mounting logic effectively
@@ -179,7 +179,7 @@ async def test_autocomplete_popup_keeps_initial_x_position():
 
     async with app.run_test() as pilot:
         await pilot.pause()
-        text_area = app.query_one("#user-input", SubmittableTextArea)
+        text_area = app.query_one("#user-input", SmartInput)
         popup = app.query_one("#autocomplete-popup")
 
         # Wired by app
@@ -207,7 +207,7 @@ async def test_enter_key_selects_autocomplete_when_visible():
     app = TextualApp(user_input, AgentId("Agent"))
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SubmittableTextArea)
+        text_area = app.query_one("#user-input", SmartInput)
         
         # Wired by app
 
@@ -239,7 +239,7 @@ async def test_enter_key_submits_when_autocomplete_not_visible():
     app = TextualApp(user_input, AgentId("Agent"))
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SubmittableTextArea)
+        text_area = app.query_one("#user-input", SmartInput)
         
         # Type something
         text_area.text = "hello"
@@ -288,7 +288,7 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 @pytest.mark.asyncio
 async def test_submittable_text_area_slash_commands(app: TextualApp):
     async with app.run_test() as pilot:
-        text_area = app.query_one(SubmittableTextArea)
+        text_area = app.query_one(SmartInput)
         popup = app.query_one(AutocompletePopup)
 
         # Test "/" trigger
@@ -321,7 +321,7 @@ async def test_submittable_text_area_slash_commands(app: TextualApp):
 @pytest.mark.asyncio
 async def test_submittable_text_area_file_search(app: TextualApp):
     async with app.run_test() as pilot:
-        text_area = app.query_one(SubmittableTextArea)
+        text_area = app.query_one(SmartInput)
         text_area.focus()
 
         # Mock file searcher (needs to be injected into SmartInput which propagates to textarea)
@@ -329,8 +329,8 @@ async def test_submittable_text_area_file_search(app: TextualApp):
         mock_searcher.search.return_value = ["my_file.py", "other_file.txt"]
 
         # Use SmartInput to set it
-        smart_input = app.query_one("SmartInput")
-        smart_input.file_searcher = mock_searcher
+        # smart_input IS the text area now
+        text_area.file_searcher = mock_searcher
 
         # Type "some text @my"
         text_area.insert("some text ")
@@ -364,7 +364,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
 @pytest.mark.asyncio
 async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
     async with app.run_test() as pilot:
-        text_area = app.query_one(SubmittableTextArea)
+        text_area = app.query_one(SmartInput)
         text_area.focus()
 
         # Open autocomplete manually for test
@@ -398,7 +398,7 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
 @pytest.mark.asyncio
 async def test_submittable_text_area_ctrl_enter(app: TextualApp):
     async with app.run_test() as pilot:
-        text_area = app.query_one(SubmittableTextArea)
+        text_area = app.query_one(SmartInput)
         text_area.focus()
         text_area.text = "line1"
         text_area.move_cursor((0, 5)) # Move to end
