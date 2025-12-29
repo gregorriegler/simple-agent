@@ -8,7 +8,7 @@ from simple_agent.application.file_search import FileSearcher
 logger = logging.getLogger(__name__)
 
 @dataclass
-class InputContext:
+class CursorAndLine:
     row: int
     col: int
     line: str
@@ -49,7 +49,7 @@ class CompletionSearch(Protocol):
         ...
 
 class Autocompleter(Protocol):
-    def check(self, context: InputContext) -> Optional[CompletionSearch]:
+    def check(self, cursor_and_line: CursorAndLine) -> Optional[CompletionSearch]:
         """
         Check if autocomplete should be triggered.
         Returns a search object if triggered, None otherwise.
@@ -116,19 +116,19 @@ class SlashCommandAutocompleter:
     def __init__(self, registry: SlashCommandRegistry):
         self.registry = registry
 
-    def check(self, context: InputContext) -> Optional[CompletionSearch]:
-        if context.row == 0 and context.col > 0 and context.line.startswith("/") and " " not in context.text_before_cursor:
-            return SlashCommandSearch(query=context.text_before_cursor, start_index=0, registry=self.registry)
+    def check(self, cursor_and_line: CursorAndLine) -> Optional[CompletionSearch]:
+        if cursor_and_line.row == 0 and cursor_and_line.col > 0 and cursor_and_line.line.startswith("/") and " " not in cursor_and_line.text_before_cursor:
+            return SlashCommandSearch(query=cursor_and_line.text_before_cursor, start_index=0, registry=self.registry)
         return None
 
 class FileSearchAutocompleter:
     def __init__(self, searcher: FileSearcher):
         self.searcher = searcher
 
-    def check(self, context: InputContext) -> Optional[CompletionSearch]:
+    def check(self, cursor_and_line: CursorAndLine) -> Optional[CompletionSearch]:
         # Check for file search (@)
-        current_word = context.word_before_cursor
+        current_word = cursor_and_line.word_before_cursor
 
         if current_word.startswith("@"):
-             return FileSearch(query=current_word[1:], start_index=context.word_start_index, searcher=self.searcher)
+             return FileSearch(query=current_word[1:], start_index=cursor_and_line.word_start_index, searcher=self.searcher)
         return None
