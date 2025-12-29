@@ -4,6 +4,7 @@ from typing import Optional
 
 from textual import events
 from textual.geometry import Offset
+from textual.message import Message
 from textual.widgets import Static, TextArea
 from textual.css.query import NoMatches
 
@@ -16,6 +17,12 @@ from simple_agent.infrastructure.textual.widgets.autocomplete_popup import Autoc
 logger = logging.getLogger(__name__)
 
 class SubmittableTextArea(TextArea):
+    class Submitted(Message):
+        def __init__(self, value: str, referenced_files: set[str]):
+            self.value = value
+            self.referenced_files = referenced_files
+            super().__init__()
+
     def __init__(
         self,
         autocompleters: list[Autocompleter] | None = None,
@@ -41,6 +48,17 @@ class SubmittableTextArea(TextArea):
         """Return the set of files that were selected via autocomplete and are still in the text."""
         current_text = self.text
         return {f for f in self._referenced_files if f"[📦{f}]" in current_text}
+
+    def submit(self) -> None:
+        """Submit the current text."""
+        content = self.text.strip()
+        referenced_files = self.get_referenced_files()
+
+        self.post_message(self.Submitted(content, referenced_files))
+
+        self.clear()
+        self._referenced_files.clear()
+        self._hide_autocomplete()
 
     async def _on_key(self, event: events.Key) -> None:
         # Handle Tab for autocomplete
@@ -72,7 +90,7 @@ class SubmittableTextArea(TextArea):
                 event.prevent_default()
                 return
 
-            self.app.action_submit_input()
+            self.submit()
             event.stop()
             event.prevent_default()
             return
