@@ -38,9 +38,12 @@ def test_slash_command_registry_available_in_textarea():
     """Test that we can attach a registry to the textarea."""
     registry = SlashCommandRegistry()
     autocompleter = SlashCommandAutocompleter(registry)
+    # Autocompleters are passed to _initial_autocompleters
     textarea = SmartInput(autocompleters=[autocompleter])
     
-    assert any(isinstance(s, SlashCommandAutocompleter) for s in textarea.autocompleters)
+    # After refactoring, SmartInput creates controller in on_mount.
+    # We check _initial_autocompleters for configuration test.
+    assert any(isinstance(s, SlashCommandAutocompleter) for s in textarea._initial_autocompleters)
 
 
 def test_get_autocomplete_suggestions_for_slash():
@@ -143,28 +146,16 @@ async def test_submit_hides_autocomplete_popup():
         text_area = app.query_one("#user-input", SmartInput)
         popup = app.query_one("#autocomplete-popup")
 
-        # Manually inject autocompleter since StubUserInput doesn't trigger app mounting logic effectively
-        # or we want to be explicit. But TextualApp sets them in on_mount.
-        # Actually, TextualApp sets properties on SmartInput, which now sets them on textarea.
-        # So it should already be wired up if TextualApp.on_mount runs.
-        # However, we can also inject manually for testing if needed.
-        # Let's rely on TextualApp wiring but if we were testing just the widget we'd inject.
-        # The test relies on app.run_test() which mounts the app.
-
-        # In TextualApp.on_mount:
-        # smart_input.slash_command_registry = self._slash_command_registry
-        # This triggers the setter in SmartInput, which updates SubmittableTextArea.
-
         # Simulate typing properly so cursor moves
         text_area.text = "/clear"
         text_area.move_cursor((0, len("/clear")))
 
         # Manually verify it triggers
-        text_area._check_autocomplete()
+        text_area.controller.check_autocomplete()
         await pilot.pause()
 
         # Since we use strategies now, check if correct strategy picked it up
-        assert text_area._active_autocompleter is not None
+        assert text_area.controller._active_autocompleter is not None
 
         app.action_submit_input()
         await pilot.pause()
@@ -186,16 +177,16 @@ async def test_autocomplete_popup_keeps_initial_x_position():
 
         text_area.text = "/c"
         text_area.move_cursor((0, len("/c")))
-        text_area._check_autocomplete()
+        text_area.controller.check_autocomplete()
         await pilot.pause()
 
         # Ensure it is visible
-        assert text_area._autocomplete_visible
+        assert text_area.controller.is_visible
         initial_x = popup.absolute_offset.x
 
         text_area.text = "/clear"
         text_area.move_cursor((0, len("/clear")))
-        text_area._check_autocomplete()
+        text_area.controller.check_autocomplete()
         await pilot.pause()
 
         assert popup.absolute_offset.x == initial_x
@@ -215,10 +206,10 @@ async def test_enter_key_selects_autocomplete_when_visible():
         text_area.text = "/c"
         text_area.move_cursor((0, len("/c")))
         # Manually trigger the check/show because typing simulation might be async/complex
-        text_area._check_autocomplete()
+        text_area.controller.check_autocomplete()
         await pilot.pause()
         
-        assert text_area._autocomplete_visible is True
+        assert text_area.controller.is_visible is True
         
         # Press Enter
         await pilot.press("enter")
@@ -230,7 +221,7 @@ async def test_enter_key_selects_autocomplete_when_visible():
         
         assert text_area.text.startswith("/clear")
         assert len(user_input.inputs) == 0
-        assert text_area._autocomplete_visible is False
+        assert text_area.controller.is_visible is False
 
 
 @pytest.mark.asyncio
@@ -243,7 +234,8 @@ async def test_enter_key_submits_when_autocomplete_not_visible():
         
         # Type something
         text_area.text = "hello"
-        assert text_area._autocomplete_visible is False
+        if text_area.controller:
+            assert text_area.controller.is_visible is False
         
         # Press Enter
         await pilot.press("enter")
@@ -298,24 +290,24 @@ async def test_submittable_text_area_slash_commands(app: TextualApp):
         await pilot.pause()
 
         # It should trigger autocomplete
-        assert text_area._autocomplete_visible is True
+        assert text_area.controller.is_visible is True
         assert popup.display is True
-        assert text_area._active_request.trigger_char == "/"
+        assert text_area.controller._active_request.trigger_char == "/"
 
         # Test completion with slash command
-        assert len(text_area._current_suggestions) > 0
+        assert len(text_area.controller._current_suggestions) > 0
 
         await pilot.press("c")
         await pilot.press("l")
         await pilot.pause()
 
         # Select first one
-        text_area._selected_index = 0
-        text_area._complete_selection()
+        text_area.controller._selected_index = 0
+        text_area.controller._complete_selection()
 
         # Text should be replaced
         assert text_area.text.startswith("/clear")
-        assert text_area._autocomplete_visible is False
+        assert text_area.controller.is_visible is False
         assert popup.display is False
 
 @pytest.mark.asyncio
@@ -341,17 +333,17 @@ async def test_submittable_text_area_file_search(app: TextualApp):
 
         await pilot.pause()
 
-        assert text_area._autocomplete_visible is True
-        assert text_area._active_request.trigger_char == "@"
-        assert len(text_area._current_suggestions) > 0
-        assert "my_file.py" in text_area._current_suggestions
+        assert text_area.controller.is_visible is True
+        assert text_area.controller._active_request.trigger_char == "@"
+        assert len(text_area.controller._current_suggestions) > 0
+        assert "my_file.py" in text_area.controller._current_suggestions
 
         # Test navigation
         await pilot.press("down")
-        assert text_area._selected_index == 1
+        assert text_area.controller._selected_index == 1
 
         await pilot.press("up")
-        assert text_area._selected_index == 0
+        assert text_area.controller._selected_index == 0
 
         # Test selection
         await pilot.press("enter")
@@ -359,7 +351,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
         # Text should have marker
         assert "[📦my_file.py]" in text_area.text
         assert "some text" in text_area.text
-        assert text_area._autocomplete_visible is False
+        assert text_area.controller.is_visible is False
 
 @pytest.mark.asyncio
 async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
@@ -371,28 +363,28 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         # We need a strategy to be active for _format_suggestion and _complete_selection to work
         strategy = SlashCommandAutocompleter(SlashCommandRegistry())
         request = AutocompleteRequest(query="/", start_index=0, trigger_char="/")
-        text_area._active_autocompleter = strategy
-        text_area._active_request = request
+        text_area.controller._active_autocompleter = strategy
+        text_area.controller._active_request = request
 
         # Use SimpleNamespace for object with attributes
         cmd = SimpleNamespace(name="/cmd", description="desc")
-        text_area._display_suggestions([cmd])
-        assert text_area._autocomplete_visible is True
+        text_area.controller._display_suggestions([cmd])
+        assert text_area.controller.is_visible is True
 
         # Test Escape
         await pilot.press("escape")
-        assert text_area._autocomplete_visible is False
+        assert text_area.controller.is_visible is False
 
         # Re-open
-        text_area._active_autocompleter = strategy # Reset strategy as it is cleared on hide
-        text_area._active_request = request
-        text_area._display_suggestions([cmd])
+        text_area.controller._active_autocompleter = strategy # Reset strategy as it is cleared on hide
+        text_area.controller._active_request = request
+        text_area.controller._display_suggestions([cmd])
 
         # Test Tab
         await pilot.press("tab")
         await pilot.pause() # Add pause to let event propagate
 
-        assert text_area._autocomplete_visible is False
+        assert text_area.controller.is_visible is False
         assert text_area.text.startswith("/cmd")
 
 @pytest.mark.asyncio
