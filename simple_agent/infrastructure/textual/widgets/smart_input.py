@@ -12,8 +12,8 @@ from simple_agent.infrastructure.textual.autocompletion import (
     Autocompleter,
     SlashCommandAutocompleter,
     FileSearchAutocompleter,
+    CompletionResult
 )
-from simple_agent.infrastructure.textual.widgets.autocomplete_controller import AutocompleteController
 from simple_agent.infrastructure.textual.widgets.file_context_expander import FileContextExpander
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class SmartInput(TextArea):
     A unified SmartInput widget that combines text editing, autocomplete, and file context handling.
     Inherits from TextArea to provide the editing surface, but manages its own Popup and Hint.
 
-    Delegates autocomplete logic to AutocompleteController.
+    Delegates autocomplete logic to AutocompletePopup (which acts as a smart component).
     Delegates file context expansion to FileContextExpander.
     """
 
@@ -37,7 +37,6 @@ class SmartInput(TextArea):
         height: auto;
         dock: bottom;
         border: solid $primary;
-        /* Ensure it behaves like a TextArea visually */
     }
     """
 
@@ -53,12 +52,11 @@ class SmartInput(TextArea):
         self._slash_command_registry = None
         self._file_searcher = None
 
-        # Initial autocompleters
-        self._initial_autocompleters = autocompleters if autocompleters is not None else []
+        # Initial autocompleters config
+        self._initial_autocompleters = autocompleters or []
 
         # Internal components
-        self._popup: AutocompletePopup | None = None
-        self.controller: AutocompleteController | None = None
+        self.popup: AutocompletePopup | None = None
         self.expander = FileContextExpander()
 
         # Track referenced files
@@ -71,7 +69,7 @@ class SmartInput(TextArea):
     @slash_command_registry.setter
     def slash_command_registry(self, value):
         self._slash_command_registry = value
-        self._rebuild_autocompleters()
+        self._update_popup_config()
 
     @property
     def file_searcher(self):
@@ -80,36 +78,29 @@ class SmartInput(TextArea):
     @file_searcher.setter
     def file_searcher(self, value):
         self._file_searcher = value
-        self._rebuild_autocompleters()
+        self._update_popup_config()
 
-    def _rebuild_autocompleters(self):
-        if not self.controller:
+    def _update_popup_config(self):
+        if not self.popup:
             return
 
-        autocompleters = list(self._initial_autocompleters) # Start with base ones
+        autocompleters = list(self._initial_autocompleters)
         if self._slash_command_registry:
             autocompleters.append(SlashCommandAutocompleter(self._slash_command_registry))
         if self._file_searcher:
             autocompleters.append(FileSearchAutocompleter(self._file_searcher))
 
-        self.controller.autocompleters = autocompleters
+        self.popup.autocompleters = autocompleters
 
     def on_mount(self) -> None:
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
 
         # Initialize and mount popup
-        self._popup = AutocompletePopup(id="autocomplete-popup")
-        self.mount(self._popup)
+        self.popup = AutocompletePopup(id="autocomplete-popup")
+        self.mount(self.popup)
 
-        # Initialize controller
-        self.controller = AutocompleteController(
-            owner=self,
-            popup=self._popup,
-            autocompleters=self._initial_autocompleters
-        )
-
-        # Trigger rebuild to pick up any registries set before mount
-        self._rebuild_autocompleters()
+        # Trigger update to pick up any registries set before mount
+        self._update_popup_config()
 
     def get_referenced_files(self) -> set[str]:
         """Return the set of files that were selected via autocomplete and are still in the text."""
@@ -126,15 +117,24 @@ class SmartInput(TextArea):
 
         self.clear()
         self._referenced_files.clear()
-        if self.controller:
-            self.controller.hide()
+        if self.popup:
+            self.popup.hide()
 
     async def _on_key(self, event: events.Key) -> None:
-        # Delegate key handling to controller first
-        if self.controller and await self.controller.handle_key(event):
-            event.stop()
-            event.prevent_default()
-            return
+        # Delegate key handling to popup first
+        # We need to await it because handle_key might need to be async or just return result
+        if self.popup:
+            result = await self.popup.handle_key(event.key)
+            if isinstance(result, CompletionResult):
+                self._apply_completion(result)
+                event.stop()
+                event.prevent_default()
+                return
+            elif result is True:
+                # Key handled by popup (e.g. navigation)
+                event.stop()
+                event.prevent_default()
+                return
 
         # Let Enter submit the form
         if event.key == "enter":
@@ -145,7 +145,6 @@ class SmartInput(TextArea):
 
         # ctrl+j is how Windows/mintty sends Ctrl+Enter - insert newline
         if event.key in ("ctrl+enter", "ctrl+j"):
-            # Explicitly insert newline
             self.insert("\n")
             event.stop()
             event.prevent_default()
@@ -154,6 +153,36 @@ class SmartInput(TextArea):
         # IMPORTANT: Call super()._on_key() first to let the character be inserted
         await super()._on_key(event)
 
-        # THEN check for autocomplete (now self.text will include the new character)
-        if self.controller:
-            self.call_after_refresh(self.controller.check_autocomplete)
+        # THEN check for autocomplete
+        if self.popup:
+            self.call_after_refresh(self._trigger_autocomplete_check)
+
+    def _trigger_autocomplete_check(self) -> None:
+        """Helper to call popup check with current context."""
+        if not self.popup:
+            return
+
+        row, col = self.cursor_location
+        try:
+            line = self.document.get_line(row)
+        except IndexError:
+            self.popup.hide()
+            return
+
+        self.popup.check(row, col, line, self.cursor_screen_offset, self.app.screen.size)
+
+    def _apply_completion(self, result: CompletionResult) -> None:
+        row, col = self.cursor_location
+
+        # Use start_offset populated by the popup logic
+        start_col = result.start_offset if result.start_offset is not None else 0
+
+        self.replace(
+            result.text,
+            start=(row, start_col),
+            end=(row, col),
+            maintain_selection_offset=False,
+        )
+
+        if result.attachments:
+            self._referenced_files.update(result.attachments)
