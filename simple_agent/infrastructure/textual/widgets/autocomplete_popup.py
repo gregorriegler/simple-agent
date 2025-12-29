@@ -7,7 +7,8 @@ from rich.text import Text
 from simple_agent.infrastructure.textual.autocompletion import (
     Autocompleter,
     AutocompleteRequest,
-    CompletionResult
+    CompletionResult,
+    Suggestion
 )
 
 
@@ -54,7 +55,7 @@ class AutocompletePopup(Static):
         super().__init__(**kwargs)
         self.autocompleters = autocompleters or []
 
-        self._current_suggestions: list[Any] = []
+        self._current_suggestions: list[Suggestion] = []
         self._selected_index: int = 0
         self._active_autocompleter: Autocompleter | None = None
         self._active_request: AutocompleteRequest | None = None
@@ -116,7 +117,7 @@ class AutocompletePopup(Static):
 
     def _show_suggestions(
         self,
-        suggestions: list[Any],
+        suggestions: list[Suggestion],
         cursor_offset: Offset,
         screen_size: Size,
     ) -> None:
@@ -145,24 +146,20 @@ class AutocompletePopup(Static):
         if not self._current_suggestions or self._selected_index >= len(self._current_suggestions):
             return None
 
-        if not self._active_autocompleter or not self._active_request:
+        if not self._active_request:
             return None
 
         selected = self._current_suggestions[self._selected_index]
-        autocompleter = self._active_autocompleter
         start_offset = self._active_request.start_index
 
         self.hide()
 
-        result = autocompleter.get_completion(selected)
+        result = selected.to_completion_result()
         result.start_offset = start_offset
         return result
 
     def _update_display(self, cursor_offset: Offset, screen_size: Size) -> None:
-        lines = [
-            self._active_autocompleter.format_suggestion(item)
-            for item in self._current_suggestions
-        ]
+        lines = [item.display_text for item in self._current_suggestions]
 
         if not lines:
             self.hide()
@@ -195,13 +192,10 @@ class AutocompletePopup(Static):
 
     def _render_content(self, lines: list[str] | None = None) -> None:
         if lines is None:
-            if not self._active_autocompleter or not self._current_suggestions:
+            if not self._current_suggestions:
                 return
 
-            raw_lines = [
-                self._active_autocompleter.format_suggestion(item)
-                for item in self._current_suggestions
-            ]
+            raw_lines = [item.display_text for item in self._current_suggestions]
 
             width = self.styles.width
             if width and hasattr(width, 'value'):

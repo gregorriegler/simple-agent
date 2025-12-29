@@ -11,7 +11,7 @@ from simple_agent.infrastructure.textual.widgets.autocomplete_popup import (
     AutocompletePopup,
 )
 from simple_agent.application.agent_id import AgentId
-from simple_agent.infrastructure.textual.autocompletion import AutocompleteRequest, SlashCommandAutocompleter
+from simple_agent.infrastructure.textual.autocompletion import AutocompleteRequest, SlashCommandAutocompleter, CompletionResult
 
 class StubUserInput:
     def __init__(self) -> None:
@@ -47,7 +47,14 @@ def test_slash_command_registry_available_in_textarea():
 def test_get_autocomplete_suggestions_for_slash():
     """Test getting suggestions when user types '/'."""
     registry = SlashCommandRegistry()
+    request = AutocompleteRequest(query="/", start_index=0, trigger_char="/")
     
+    # We test the autocompleter logic directly
+    completer = SlashCommandAutocompleter(registry)
+    # This is async now
+    # We can't easily test async methods in sync test without event loop,
+    # but the test was checking registry.get_matching_commands before.
+    # Let's keep checking registry directly as the test name implies
     suggestions = registry.get_matching_commands("/")
     
     assert len(suggestions) == 2
@@ -255,12 +262,17 @@ async def test_autocomplete_popup_show_suggestions(app: TextualApp):
         assert popup.display is False
 
         # Test normal lines
-        lines = ["option1", "option2 long"]
+        # Mock suggestions
+        mock_suggestion1 = MagicMock()
+        mock_suggestion1.display_text = "option1"
+        mock_suggestion2 = MagicMock()
+        mock_suggestion2.display_text = "option2 long"
+
+        lines = [mock_suggestion1, mock_suggestion2]
+
         cursor_offset = Offset(10, 10)
-        # We need to simulate the active autocompleter for formatting
-        mock_completer = MagicMock()
-        mock_completer.format_suggestion = lambda x: x
-        popup._active_autocompleter = mock_completer
+        # We don't need active autocompleter for formatting anymore
+        # popup._active_autocompleter = mock_completer
 
         popup._show_suggestions(lines, cursor_offset, screen_size)
 
@@ -340,7 +352,8 @@ async def test_submittable_text_area_file_search(app: TextualApp):
         assert text_area.popup.display is True
         assert text_area.popup._active_request.trigger_char == "@"
         assert len(text_area.popup._current_suggestions) > 0
-        assert "my_file.py" in text_area.popup._current_suggestions
+        # Check display text of the suggestion
+        assert "my_file.py" in text_area.popup._current_suggestions[0].display_text
 
         # Test navigation
         await pilot.press("down")
@@ -364,16 +377,19 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         text_area.focus()
 
         # Open autocomplete manually for test
-        # We need a strategy to be active for _format_suggestion and _complete_selection to work
+        # We need a strategy to be active for _get_selection to work (it checks active request)
         strategy = SlashCommandAutocompleter(SlashCommandRegistry())
         request = AutocompleteRequest(query="/", start_index=0, trigger_char="/")
         text_area.popup._active_autocompleter = strategy
         text_area.popup._active_request = request
 
-        # Use SimpleNamespace for object with attributes
-        cmd = SimpleNamespace(name="/cmd", description="desc")
+        # Use Mock or SimpleNamespace that acts like Suggestion
+        mock_suggestion = MagicMock()
+        mock_suggestion.display_text = "Display Text"
+        mock_suggestion.to_completion_result.return_value = CompletionResult(text="/cmd ")
+
         # Need cursor offset to show suggestions
-        text_area.popup._show_suggestions([cmd], Offset(0,0), Size(80,24))
+        text_area.popup._show_suggestions([mock_suggestion], Offset(0,0), Size(80,24))
         assert text_area.popup.display is True
 
         # Test Escape
@@ -383,7 +399,7 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         # Re-open
         text_area.popup._active_autocompleter = strategy # Reset strategy as it is cleared on hide
         text_area.popup._active_request = request
-        text_area.popup._show_suggestions([cmd], Offset(0,0), Size(80,24))
+        text_area.popup._show_suggestions([mock_suggestion], Offset(0,0), Size(80,24))
 
         # Test Tab
         await pilot.press("tab")
