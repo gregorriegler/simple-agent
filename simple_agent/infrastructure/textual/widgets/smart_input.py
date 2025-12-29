@@ -1,24 +1,18 @@
-import asyncio
 import logging
-from pathlib import Path
 from typing import Optional
 
-from rich.text import Text
 from textual import events
-from textual.app import ComposeResult
-from textual.css.query import NoMatches
-from textual.geometry import Offset, Size
 from textual.message import Message
-from textual.widgets import Static, TextArea
-from textual.widget import Widget
+from textual.widgets import TextArea
 
-from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup, calculate_autocomplete_position
+from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup
 from simple_agent.infrastructure.textual.autocompletion import (
     Autocompleter,
     SlashCommandAutocompleter,
     FileSearchAutocompleter,
-    AutocompleteRequest
 )
+from simple_agent.infrastructure.textual.widgets.file_context_expander import FileContextExpander
+from simple_agent.infrastructure.textual.widgets.autocomplete_controller import AutocompleteController
 
 logger = logging.getLogger(__name__)
 
@@ -49,20 +43,15 @@ class SmartInput(TextArea):
         **kwargs
     ):
         super().__init__(id=id, **kwargs)
-        self._autocomplete_visible = False
-        self._current_suggestions = []
-        self._selected_index = 0
-        self._autocomplete_anchor_x = None
-
         self._slash_command_registry = None
         self._file_searcher = None
 
         self.autocompleters: list[Autocompleter] = autocompleters if autocompleters is not None else []
         self._popup: AutocompletePopup | None = None
-        self._active_autocompleter: Autocompleter | None = None
-        self._active_request: AutocompleteRequest | None = None
 
-        self._referenced_files: set[str] = set()
+        # Delegates
+        self.expander = FileContextExpander()
+        self.controller: AutocompleteController | None = None
 
     @property
     def slash_command_registry(self):
@@ -89,6 +78,9 @@ class SmartInput(TextArea):
         if self._file_searcher:
             self.autocompleters.append(FileSearchAutocompleter(self._file_searcher))
 
+        if self.controller:
+            self.controller.set_autocompleters(self.autocompleters)
+
     def on_mount(self) -> None:
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
 
@@ -96,68 +88,43 @@ class SmartInput(TextArea):
         self._popup = AutocompletePopup(id="autocomplete-popup")
         self.mount(self._popup)
 
+        # Initialize controller
+        self.controller = AutocompleteController(self, self._popup, self.autocompleters)
+
     def get_referenced_files(self) -> set[str]:
         """Return the set of files that were selected via autocomplete and are still in the text."""
+        if not self.controller:
+            return set()
+
         current_text = self.text
-        return {f for f in self._referenced_files if f"[📦{f}]" in current_text}
+        # Filter references that are still present in the text
+        return {f for f in self.controller.referenced_files if f"[📦{f}]" in current_text}
 
     def submit(self) -> None:
         """Submit the current text."""
         content = self.text.strip()
         referenced_files = self.get_referenced_files()
 
-        # Perform File Expansion Logic Here
-        if referenced_files:
-            file_contents = []
-            for file_path_str in referenced_files:
-                try:
-                    path = Path(file_path_str)
-                    if path.exists() and path.is_file():
-                        file_text = path.read_text(encoding="utf-8")
-                        file_contents.append(f'<file_context path="{file_path_str}">\n{file_text}\n</file_context>')
-                except Exception as e:
-                    logger.error(f"Failed to read referenced file {file_path_str}: {e}")
-
-            if file_contents:
-                content += "\n" + "\n".join(file_contents)
+        # Expand file content
+        content = self.expander.expand(content, referenced_files)
 
         # Emit the fully processed content
         self.post_message(self.Submitted(content))
 
         self.clear()
-        self._referenced_files.clear()
-        self._hide_autocomplete()
+        if self.controller:
+            self.controller.clear_referenced_files()
+            self.controller.hide()
 
     async def _on_key(self, event: events.Key) -> None:
-        # Handle Tab for autocomplete
-        if event.key == "tab" and self._autocomplete_visible:
-            self._complete_selection()
-            event.stop()
-            event.prevent_default()
-            return
-
-        # Handle arrow keys for autocomplete navigation
-        if event.key in ("down", "up") and self._autocomplete_visible:
-            self._navigate_autocomplete(event.key)
-            event.stop()
-            event.prevent_default()
-            return
-
-        # Handle escape to close autocomplete
-        if event.key == "escape" and self._autocomplete_visible:
-            self._hide_autocomplete()
-            event.stop()
-            event.prevent_default()
-            return
-
-        # Let Enter submit the form
-        if event.key == "enter":
-            if self._autocomplete_visible:
-                self._complete_selection()
+        if self.controller:
+            if await self.controller.handle_key(event):
                 event.stop()
                 event.prevent_default()
                 return
 
+        # Let Enter submit the form
+        if event.key == "enter":
             self.submit()
             event.stop()
             event.prevent_default()
@@ -174,122 +141,5 @@ class SmartInput(TextArea):
         await super()._on_key(event)
 
         # THEN check for autocomplete (now self.text will include the new character)
-        self.call_after_refresh(self._check_autocomplete)
-
-    def _check_autocomplete(self) -> None:
-        """Check if we should show autocomplete based on current text."""
-        cursor_location = self.cursor_location
-        row, col = cursor_location
-        try:
-            line = self.document.get_line(row)
-        except IndexError:
-            self._hide_autocomplete()
-            return
-
-        for autocompleter in self.autocompleters:
-            request = autocompleter.check(row, col, line)
-            if request:
-                self._active_autocompleter = autocompleter
-                self._active_request = request
-                asyncio.create_task(self._fetch_suggestions(autocompleter, request))
-                return
-
-        self._hide_autocomplete()
-
-    async def _fetch_suggestions(self, autocompleter: Autocompleter, request: AutocompleteRequest):
-        if self._active_autocompleter != autocompleter or self._active_request != request:
-            return
-
-        suggestions = await autocompleter.get_suggestions(request)
-
-        if self._active_autocompleter == autocompleter and self._active_request == request:
-            if suggestions:
-                self._display_suggestions(suggestions)
-            else:
-                self._hide_autocomplete()
-
-    def _display_suggestions(self, suggestions: list) -> None:
-        was_visible = self._autocomplete_visible
-        self._autocomplete_visible = True
-        self._current_suggestions = suggestions
-        self._selected_index = 0
-
-        if not was_visible:
-            self._autocomplete_anchor_x = self.cursor_screen_offset.x
-
-        self._update_autocomplete_display()
-
-    def _hide_autocomplete(self) -> None:
-        """Hide autocomplete suggestions."""
-        self._autocomplete_visible = False
-        self._current_suggestions = []
-        self._selected_index = 0
-        self._autocomplete_anchor_x = None
-        self._active_autocompleter = None
-        self._active_request = None
-        self._update_autocomplete_display()
-
-    def _navigate_autocomplete(self, direction: str) -> None:
-        """Navigate autocomplete suggestions with arrow keys."""
-        if not self._current_suggestions:
-            return
-
-        if direction == "down":
-            self._selected_index = (self._selected_index + 1) % len(self._current_suggestions)
-        elif direction == "up":
-            self._selected_index = (self._selected_index - 1) % len(self._current_suggestions)
-
-        self._update_autocomplete_display()
-
-    def _complete_selection(self) -> None:
-        """Complete the selected item."""
-        if not self._current_suggestions or self._selected_index >= len(self._current_suggestions):
-            return
-
-        if not self._active_autocompleter or not self._active_request:
-            return
-
-        selected = self._current_suggestions[self._selected_index]
-        row, col = self.cursor_location
-
-        completion_result = self._active_autocompleter.get_completion(selected)
-
-        start_col = self._active_request.start_index
-        self.replace(
-            completion_result.text,
-            start=(row, start_col),
-            end=(row, col),
-            maintain_selection_offset=False,
-        )
-
-        if completion_result.attachments:
-            self._referenced_files.update(completion_result.attachments)
-
-        self._hide_autocomplete()
-
-    def _update_autocomplete_display(self) -> None:
-        """Update the autocomplete display in the popup."""
-        popup = self._popup
-
-        if self._autocomplete_visible and self._current_suggestions and self._active_autocompleter:
-            lines = [
-                self._active_autocompleter.format_suggestion(item)
-                for item in self._current_suggestions
-            ]
-
-            if popup:
-                if self._autocomplete_anchor_x is not None:
-                    target_x = self._autocomplete_anchor_x
-                else:
-                    target_x = self.cursor_screen_offset.x
-
-                target_offset = Offset(target_x, self.cursor_screen_offset.y)
-
-                popup.show_suggestions(
-                    lines=lines,
-                    selected_index=self._selected_index,
-                    cursor_offset=target_offset,
-                    screen_size=self.app.screen.size,
-                )
-        elif popup:
-            popup.hide()
+        if self.controller:
+            self.call_after_refresh(self.controller.check_autocomplete)
