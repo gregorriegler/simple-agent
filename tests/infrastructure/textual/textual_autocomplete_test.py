@@ -12,7 +12,6 @@ from simple_agent.infrastructure.textual.widgets.autocomplete_popup import (
 )
 from simple_agent.application.agent_id import AgentId
 from simple_agent.infrastructure.textual.autocompletion import (
-    AutocompleteRequest,
     SlashCommandAutocompleter,
     CompletionResult,
     SlashCommandSuggestion,
