@@ -54,7 +54,6 @@ class AutocompletePopup(Static):
         super().__init__(**kwargs)
         self.autocompleters = autocompleters or []
 
-        # State
         self._current_suggestions: list[Any] = []
         self._selected_index: int = 0
         self._active_autocompleter: Autocompleter | None = None
@@ -62,13 +61,6 @@ class AutocompletePopup(Static):
         self._anchor_x: int | None = None
 
     async def handle_key(self, key: str) -> bool | CompletionResult:
-        """
-        Handle a key press.
-        Returns:
-            - CompletionResult if a suggestion was selected.
-            - True if the key was consumed (handled).
-            - False if the key should propagate.
-        """
         if not self.display:
             return False
 
@@ -86,7 +78,6 @@ class AutocompletePopup(Static):
         return False
 
     def check(self, row: int, col: int, line: str, cursor_screen_offset: Offset, screen_size: Size) -> None:
-        """Check for autocomplete triggers and fetch suggestions if needed."""
         for autocompleter in self.autocompleters:
             request = autocompleter.check(row, col, line)
             if request:
@@ -135,7 +126,6 @@ class AutocompletePopup(Static):
         self.display = True
 
         if not was_visible:
-            # Anchor popup X position to current cursor screen position
             self._anchor_x = cursor_offset.x
 
         self._update_display(cursor_offset, screen_size)
@@ -148,22 +138,6 @@ class AutocompletePopup(Static):
             self._selected_index = (self._selected_index + 1) % len(self._current_suggestions)
         elif direction == "up":
             self._selected_index = (self._selected_index - 1) % len(self._current_suggestions)
-
-        # We need screen info to update display, but we don't store it.
-        # However, for navigation, the position shouldn't change drastically usually,
-        # but we do need to re-render.
-        # We can either store the last render position or just re-render content.
-        # Ideally we pass screen info, but handle_key doesn't have it.
-        # Let's try to just update the content without moving the window if possible,
-        # but `_update_display` calls `calculate_autocomplete_position`.
-
-        # Workaround: Use self.screen.size if available (it is available on mounted widgets)
-        screen_size = self.screen.size
-        # For cursor offset, we use the last known position or current widget position?
-        # Using self.absolute_offset is weird because it's the result.
-        # Let's approximate or reuse stored anchors if we had them.
-        # Better yet, since we are just changing selection, we don't strictly need to move the popup
-        # if the text didn't change. But we do need to re-render the highlighting.
 
         self._render_content()
 
@@ -203,7 +177,6 @@ class AutocompletePopup(Static):
         self.styles.width = popup_width
         self.styles.height = popup_height
 
-        # Use anchored X if set
         if self._anchor_x is not None:
             target_x = self._anchor_x
         else:
@@ -221,37 +194,20 @@ class AutocompletePopup(Static):
         self._render_content(trimmed_lines)
 
     def _render_content(self, lines: list[str] | None = None) -> None:
-        # Re-generate lines if not provided (e.g. navigation)
         if lines is None:
             if not self._active_autocompleter or not self._current_suggestions:
                 return
 
-            # Recalculate trimmed lines - this repeats some logic but is safer
-            # We assume width/height is already set correctly by _update_display
             raw_lines = [
                 self._active_autocompleter.format_suggestion(item)
                 for item in self._current_suggestions
             ]
-            # Use current style width for trimming
-            # self.styles.width might be a scalar or None.
-            # Safer to rely on what we computed before.
-            # For simplicity, let's just re-trim based on loose constraints or store trimmed lines?
-            # Storing trimmed lines is cleaner.
-
-            # Let's just grab the width from styles if possible, or recompute.
-            # Since we are inside a widget, self.size.width might be valid if layout happened?
-            # But Textual layout is async.
-
-            # Let's simpler approach: Re-use logic from _update_display but without moving window.
-            # We need available_width.
-            # If we don't have it, we might render incorrectly.
-            # But wait, `_update_display` is called when showing. `_navigate` is called when already shown.
 
             width = self.styles.width
             if width and hasattr(width, 'value'):
                  popup_width = int(width.value)
             else:
-                 popup_width = 20 # Fallback
+                 popup_width = 20
 
             available_width = max(1, popup_width - 2)
             lines = [line[:available_width] for line in raw_lines]
