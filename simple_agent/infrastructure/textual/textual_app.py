@@ -14,7 +14,6 @@ from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
-from simple_agent.infrastructure.textual.widgets.submittable_text_area import SubmittableTextArea
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
 
 class TextualApp(App):
@@ -130,7 +129,7 @@ class TextualApp(App):
         smart_input = self.query_one(SmartInput)
         smart_input.slash_command_registry = self._slash_command_registry
         smart_input.file_searcher = self._file_searcher
-        self.query_one("#user-input", SubmittableTextArea).focus()
+        self.query_one("#user-input").focus()
         if self._session_runner:
             self._session_task = asyncio.create_task(self._run_session())
 
@@ -170,10 +169,7 @@ class TextualApp(App):
         self.query_one(AgentTabs).switch_tab(1)
 
     def action_submit_input(self) -> None:
-        try:
-            self.query_one(SubmittableTextArea).submit()
-        except Exception:
-            self.query_one(SmartInput).submit()
+        self.query_one(SmartInput).submit()
 
     def on_smart_input_submitted(self, event: SmartInput.Submitted) -> None:
         if self.user_input:
