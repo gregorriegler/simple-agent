@@ -8,35 +8,9 @@ from simple_agent.infrastructure.textual.autocompletion import (
     Autocompleter,
     CompletionSearch,
     CompletionResult,
-    Suggestion
+    Suggestion,
+    InputContext
 )
-
-
-def calculate_autocomplete_position(
-    cursor_offset: Offset,
-    screen_size: Size,
-    popup_height: int,
-    popup_width: int,
-) -> Offset:
-    if popup_height < 1:
-        popup_height = 1
-    if popup_width < 1:
-        popup_width = 1
-
-    below_y = cursor_offset.y + 1
-    above_y = cursor_offset.y - popup_height
-
-    if below_y + popup_height <= screen_size.height:
-        y = below_y
-    elif above_y >= 0:
-        y = above_y
-    else:
-        y = max(0, min(below_y, screen_size.height - popup_height))
-
-    anchor_x = cursor_offset.x - 2
-    max_x = max(0, screen_size.width - popup_width)
-    x = min(max(anchor_x, 0), max_x)
-    return Offset(x, y)
 
 
 class AutocompletePopup(Static):
@@ -52,6 +26,13 @@ class AutocompletePopup(Static):
     """
 
     def __init__(self, autocompleters: list[Autocompleter] | None = None, **kwargs):
+        """
+        Initialize the AutocompletePopup.
+
+        Args:
+            autocompleters: Optional list of autocompleter instances to use.
+            **kwargs: Arguments to pass to the superclass (Static).
+        """
         super().__init__(**kwargs)
         self.autocompleters = autocompleters or []
 
@@ -77,9 +58,9 @@ class AutocompletePopup(Static):
 
         return False
 
-    def check(self, row: int, col: int, line: str, cursor_screen_offset: Offset, screen_size: Size) -> None:
+    def check(self, context: InputContext, cursor_screen_offset: Offset, screen_size: Size) -> None:
         for autocompleter in self.autocompleters:
-            search = autocompleter.check(row, col, line)
+            search = autocompleter.check(context)
             if search:
                 self._active_search = search
                 asyncio.create_task(self._fetch_suggestions(search, cursor_screen_offset, screen_size))
@@ -179,7 +160,7 @@ class AutocompletePopup(Static):
 
         target_offset = Offset(target_x, cursor_offset.y)
 
-        self.absolute_offset = calculate_autocomplete_position(
+        self.absolute_offset = self._calculate_position(
             cursor_offset=target_offset,
             screen_size=screen_size,
             popup_height=popup_height,
@@ -187,6 +168,33 @@ class AutocompletePopup(Static):
         )
 
         self._render_content(trimmed_lines)
+
+    @staticmethod
+    def _calculate_position(
+        cursor_offset: Offset,
+        screen_size: Size,
+        popup_height: int,
+        popup_width: int,
+    ) -> Offset:
+        if popup_height < 1:
+            popup_height = 1
+        if popup_width < 1:
+            popup_width = 1
+
+        below_y = cursor_offset.y + 1
+        above_y = cursor_offset.y - popup_height
+
+        if below_y + popup_height <= screen_size.height:
+            y = below_y
+        elif above_y >= 0:
+            y = above_y
+        else:
+            y = max(0, min(below_y, screen_size.height - popup_height))
+
+        anchor_x = cursor_offset.x - 2
+        max_x = max(0, screen_size.width - popup_width)
+        x = min(max(anchor_x, 0), max_x)
+        return Offset(x, y)
 
     def _render_content(self, lines: list[str] | None = None) -> None:
         if lines is None:

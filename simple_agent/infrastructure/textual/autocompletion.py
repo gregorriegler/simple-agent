@@ -8,6 +8,28 @@ from simple_agent.application.file_search import FileSearcher
 logger = logging.getLogger(__name__)
 
 @dataclass
+class InputContext:
+    row: int
+    col: int
+    line: str
+
+    @property
+    def text_before_cursor(self) -> str:
+        return self.line[:self.col]
+
+    @property
+    def word_before_cursor(self) -> str:
+        text = self.text_before_cursor
+        last_space_index = text.rfind(" ")
+        return text[last_space_index + 1:]
+
+    @property
+    def word_start_index(self) -> int:
+        text = self.text_before_cursor
+        last_space_index = text.rfind(" ")
+        return last_space_index + 1
+
+@dataclass
 class CompletionResult:
     text: str
     attachments: set[str] = field(default_factory=set)
@@ -27,7 +49,7 @@ class CompletionSearch(Protocol):
         ...
 
 class Autocompleter(Protocol):
-    def check(self, row: int, col: int, line: str) -> Optional[CompletionSearch]:
+    def check(self, context: InputContext) -> Optional[CompletionSearch]:
         """
         Check if autocomplete should be triggered.
         Returns a search object if triggered, None otherwise.
@@ -94,24 +116,19 @@ class SlashCommandAutocompleter:
     def __init__(self, registry: SlashCommandRegistry):
         self.registry = registry
 
-    def check(self, row: int, col: int, line: str) -> Optional[CompletionSearch]:
-        if row == 0 and col > 0 and line.startswith("/") and " " not in line[:col]:
-            return SlashCommandSearch(query=line[:col], start_index=0, registry=self.registry)
+    def check(self, context: InputContext) -> Optional[CompletionSearch]:
+        if context.row == 0 and context.col > 0 and context.line.startswith("/") and " " not in context.text_before_cursor:
+            return SlashCommandSearch(query=context.text_before_cursor, start_index=0, registry=self.registry)
         return None
 
 class FileSearchAutocompleter:
     def __init__(self, searcher: FileSearcher):
         self.searcher = searcher
 
-    def check(self, row: int, col: int, line: str) -> Optional[CompletionSearch]:
+    def check(self, context: InputContext) -> Optional[CompletionSearch]:
         # Check for file search (@)
-        text_before_cursor = line[:col]
-
-        # Find the start of the word before cursor
-        last_space_index = text_before_cursor.rfind(" ")
-        word_start_index = last_space_index + 1
-        current_word = text_before_cursor[word_start_index:]
+        current_word = context.word_before_cursor
 
         if current_word.startswith("@"):
-             return FileSearch(query=current_word[1:], start_index=word_start_index, searcher=self.searcher)
+             return FileSearch(query=current_word[1:], start_index=context.word_start_index, searcher=self.searcher)
         return None
