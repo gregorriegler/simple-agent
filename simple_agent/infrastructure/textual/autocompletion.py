@@ -19,18 +19,18 @@ class Suggestion(Protocol):
 
     def to_completion_result(self) -> CompletionResult: ...
 
-class AutocompleteContext(Protocol):
+class CompletionSearch(Protocol):
     async def get_suggestions(self) -> List[Suggestion]:
         """
-        Get list of suggestions for this context.
+        Get list of suggestions for this search.
         """
         ...
 
 class Autocompleter(Protocol):
-    def check(self, row: int, col: int, line: str) -> Optional[AutocompleteContext]:
+    def check(self, row: int, col: int, line: str) -> Optional[CompletionSearch]:
         """
         Check if autocomplete should be triggered.
-        Returns a context if triggered, None otherwise.
+        Returns a search object if triggered, None otherwise.
         """
         ...
 
@@ -66,7 +66,7 @@ class FileSuggestion:
              start_offset=self.start_index
          )
 
-class SlashCommandContext:
+class SlashCommandSearch:
     def __init__(self, query: str, start_index: int, registry: SlashCommandRegistry):
         self.query = query
         self.start_index = start_index
@@ -76,7 +76,7 @@ class SlashCommandContext:
         commands = self.registry.get_matching_commands(self.query)
         return [SlashCommandSuggestion(cmd, self.start_index) for cmd in commands]
 
-class FileSearchContext:
+class FileSearch:
     def __init__(self, query: str, start_index: int, searcher: FileSearcher):
         self.query = query
         self.start_index = start_index
@@ -94,16 +94,16 @@ class SlashCommandAutocompleter:
     def __init__(self, registry: SlashCommandRegistry):
         self.registry = registry
 
-    def check(self, row: int, col: int, line: str) -> Optional[AutocompleteContext]:
+    def check(self, row: int, col: int, line: str) -> Optional[CompletionSearch]:
         if row == 0 and col > 0 and line.startswith("/") and " " not in line[:col]:
-            return SlashCommandContext(query=line[:col], start_index=0, registry=self.registry)
+            return SlashCommandSearch(query=line[:col], start_index=0, registry=self.registry)
         return None
 
 class FileSearchAutocompleter:
     def __init__(self, searcher: FileSearcher):
         self.searcher = searcher
 
-    def check(self, row: int, col: int, line: str) -> Optional[AutocompleteContext]:
+    def check(self, row: int, col: int, line: str) -> Optional[CompletionSearch]:
         # Check for file search (@)
         text_before_cursor = line[:col]
 
@@ -113,5 +113,5 @@ class FileSearchAutocompleter:
         current_word = text_before_cursor[word_start_index:]
 
         if current_word.startswith("@"):
-             return FileSearchContext(query=current_word[1:], start_index=word_start_index, searcher=self.searcher)
+             return FileSearch(query=current_word[1:], start_index=word_start_index, searcher=self.searcher)
         return None

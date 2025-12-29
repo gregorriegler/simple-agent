@@ -6,7 +6,7 @@ from rich.text import Text
 
 from simple_agent.infrastructure.textual.autocompletion import (
     Autocompleter,
-    AutocompleteContext,
+    CompletionSearch,
     CompletionResult,
     Suggestion
 )
@@ -57,7 +57,7 @@ class AutocompletePopup(Static):
 
         self._current_suggestions: list[Suggestion] = []
         self._selected_index: int = 0
-        self._active_context: AutocompleteContext | None = None
+        self._active_search: CompletionSearch | None = None
         self._anchor_x: int | None = None
 
     async def handle_key(self, key: str) -> bool | CompletionResult:
@@ -79,10 +79,10 @@ class AutocompletePopup(Static):
 
     def check(self, row: int, col: int, line: str, cursor_screen_offset: Offset, screen_size: Size) -> None:
         for autocompleter in self.autocompleters:
-            context = autocompleter.check(row, col, line)
-            if context:
-                self._active_context = context
-                asyncio.create_task(self._fetch_suggestions(context, cursor_screen_offset, screen_size))
+            search = autocompleter.check(row, col, line)
+            if search:
+                self._active_search = search
+                asyncio.create_task(self._fetch_suggestions(search, cursor_screen_offset, screen_size))
                 return
 
         self.hide()
@@ -92,22 +92,22 @@ class AutocompletePopup(Static):
         self._current_suggestions = []
         self._selected_index = 0
         self._anchor_x = None
-        self._active_context = None
+        self._active_search = None
 
     async def _fetch_suggestions(
         self,
-        context: AutocompleteContext,
+        search: CompletionSearch,
         cursor_screen_offset: Offset,
         screen_size: Size
     ) -> None:
-        # Check if the context is still active (identity check)
-        if self._active_context is not context:
+        # Check if the search is still active (identity check)
+        if self._active_search is not search:
             return
 
-        suggestions = await context.get_suggestions()
+        suggestions = await search.get_suggestions()
 
         # Check again after await
-        if self._active_context is context:
+        if self._active_search is search:
             if suggestions:
                 self._show_suggestions(suggestions, cursor_screen_offset, screen_size)
             else:
@@ -144,9 +144,9 @@ class AutocompletePopup(Static):
         if not self._current_suggestions or self._selected_index >= len(self._current_suggestions):
             return None
 
-        # No need to check _active_context strictly here if we trust the display state,
+        # No need to check _active_search strictly here if we trust the display state,
         # but it's good practice.
-        if not self._active_context:
+        if not self._active_search:
             return None
 
         selected = self._current_suggestions[self._selected_index]
