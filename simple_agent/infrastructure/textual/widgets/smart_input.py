@@ -22,33 +22,79 @@ from simple_agent.infrastructure.textual.autocompletion import (
 
 logger = logging.getLogger(__name__)
 
+class SmartInput(TextArea):
+    """
+    A unified SmartInput widget that combines text editing, autocomplete, and file context handling.
+    Inherits from TextArea to provide the editing surface, but manages its own Popup and Hint.
+    """
 
-class SubmittableTextArea(TextArea):
     class Submitted(Message):
         def __init__(self, value: str):
             self.value = value
             super().__init__()
 
+    DEFAULT_CSS = """
+    SmartInput {
+        height: auto;
+        dock: bottom;
+        border: solid $primary;
+        /* Ensure it behaves like a TextArea visually */
+    }
+    """
+
     def __init__(
         self,
         autocompleters: list[Autocompleter] | None = None,
-        popup: AutocompletePopup | None = None,
-        hint_widget: Static | None = None,
+        id: str | None = None,
         **kwargs
     ):
-        super().__init__(**kwargs)
+        super().__init__(id=id, **kwargs)
         self._autocomplete_visible = False
         self._current_suggestions = []
         self._selected_index = 0
         self._autocomplete_anchor_x = None
 
+        self._slash_command_registry = None
+        self._file_searcher = None
+
         self.autocompleters: list[Autocompleter] = autocompleters if autocompleters is not None else []
-        self._popup = popup
-        self._hint_widget = hint_widget
+        self._popup: AutocompletePopup | None = None
         self._active_autocompleter: Autocompleter | None = None
         self._active_request: AutocompleteRequest | None = None
 
         self._referenced_files: set[str] = set()
+
+    @property
+    def slash_command_registry(self):
+        return self._slash_command_registry
+
+    @slash_command_registry.setter
+    def slash_command_registry(self, value):
+        self._slash_command_registry = value
+        self._rebuild_autocompleters()
+
+    @property
+    def file_searcher(self):
+        return self._file_searcher
+
+    @file_searcher.setter
+    def file_searcher(self, value):
+        self._file_searcher = value
+        self._rebuild_autocompleters()
+
+    def _rebuild_autocompleters(self):
+        self.autocompleters.clear()
+        if self._slash_command_registry:
+            self.autocompleters.append(SlashCommandAutocompleter(self._slash_command_registry))
+        if self._file_searcher:
+            self.autocompleters.append(FileSearchAutocompleter(self._file_searcher))
+
+    def on_mount(self) -> None:
+        self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
+
+        # Initialize and mount popup
+        self._popup = AutocompletePopup(id="autocomplete-popup")
+        self.mount(self._popup)
 
     def get_referenced_files(self) -> set[str]:
         """Return the set of files that were selected via autocomplete and are still in the text."""
@@ -151,13 +197,11 @@ class SubmittableTextArea(TextArea):
         self._hide_autocomplete()
 
     async def _fetch_suggestions(self, autocompleter: Autocompleter, request: AutocompleteRequest):
-        # Double check if we are still on the same request (async race condition)
         if self._active_autocompleter != autocompleter or self._active_request != request:
             return
 
         suggestions = await autocompleter.get_suggestions(request)
 
-        # Verify again before displaying
         if self._active_autocompleter == autocompleter and self._active_request == request:
             if suggestions:
                 self._display_suggestions(suggestions)
@@ -210,9 +254,7 @@ class SubmittableTextArea(TextArea):
 
         completion_result = self._active_autocompleter.get_completion(selected)
 
-        # Apply the completion
         start_col = self._active_request.start_index
-        # Replace from start of trigger/word to current cursor position
         self.replace(
             completion_result.text,
             start=(row, start_col),
@@ -220,7 +262,6 @@ class SubmittableTextArea(TextArea):
             maintain_selection_offset=False,
         )
 
-        # Add attachments
         if completion_result.attachments:
             self._referenced_files.update(completion_result.attachments)
 
@@ -252,75 +293,3 @@ class SubmittableTextArea(TextArea):
                 )
         elif popup:
             popup.hide()
-
-        if self._hint_widget:
-            self._hint_widget.update("Enter to submit, Ctrl+Enter for newline")
-
-
-class SmartInput(Widget):
-    class Submitted(Message):
-        def __init__(self, value: str):
-            self.value = value
-            super().__init__()
-
-    DEFAULT_CSS = """
-    SmartInput {
-        height: auto;
-        dock: bottom;
-    }
-    """
-
-    def __init__(self, id: str | None = None):
-        super().__init__(id=id)
-        self._slash_command_registry = None
-        self._file_searcher = None
-        self._autocompleters = []
-
-    @property
-    def slash_command_registry(self):
-        return self._slash_command_registry
-
-    @slash_command_registry.setter
-    def slash_command_registry(self, value):
-        self._slash_command_registry = value
-        self._rebuild_autocompleters()
-
-    @property
-    def file_searcher(self):
-        return self._file_searcher
-
-    @file_searcher.setter
-    def file_searcher(self, value):
-        self._file_searcher = value
-        self._rebuild_autocompleters()
-
-    def _rebuild_autocompleters(self):
-        self._autocompleters.clear()
-        if self._slash_command_registry:
-            self._autocompleters.append(SlashCommandAutocompleter(self._slash_command_registry))
-        if self._file_searcher:
-            self._autocompleters.append(FileSearchAutocompleter(self._file_searcher))
-
-    def compose(self) -> ComposeResult:
-        hint = Static("Enter to submit, Ctrl+Enter for newline", id="input-hint")
-        popup = AutocompletePopup(id="autocomplete-popup")
-        text_area = SubmittableTextArea(
-            autocompleters=self._autocompleters,
-            popup=popup,
-            hint_widget=hint,
-            id="user-input"
-        )
-        yield hint
-        yield text_area
-        yield popup
-
-    def submit(self) -> None:
-        """Manual submit trigger for compatibility/testing."""
-        try:
-            self.query_one("#user-input", SubmittableTextArea).submit()
-        except NoMatches:
-            pass
-
-    def on_submittable_text_area_submitted(self, event: SubmittableTextArea.Submitted) -> None:
-        # Just bubble the event content up
-        self.post_message(self.Submitted(event.value))

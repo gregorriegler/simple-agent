@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.widgets.smart_input import SubmittableTextArea
+from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
 from simple_agent.application.events import UserPromptedEvent
 from simple_agent.application.agent_id import AgentId
 import re
@@ -32,7 +32,7 @@ async def test_submit_includes_referenced_file_content(tmp_path):
     app = TextualApp(user_input)
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SubmittableTextArea)
+        text_area = app.query_one("#user-input", SmartInput)
         
         # Simulate typing and selecting file
         file_path_str = str(dummy_file)
@@ -65,7 +65,7 @@ async def test_submit_ignores_removed_file_references(tmp_path):
     app = TextualApp(user_input)
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SubmittableTextArea)
+        text_area = app.query_one("#user-input", SmartInput)
         
         # Simulate selecting file but then deleting it from text
         file_path_str = str(dummy_file)
@@ -93,7 +93,7 @@ async def test_submit_ignores_corrupted_marker(tmp_path):
     app = TextualApp(user_input)
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SubmittableTextArea)
+        text_area = app.query_one("#user-input", SmartInput)
         
         # Simulate selecting file but then deleting the closing bracket
         file_path_str = str(dummy_file)

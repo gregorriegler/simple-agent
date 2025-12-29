@@ -94,6 +94,7 @@ class TextualApp(App):
         min-height: 3;
         max-height: 10;
         border: solid $primary;
+        dock: bottom;
     }
 
     #input-hint {
@@ -123,13 +124,13 @@ class TextualApp(App):
     def compose(self) -> ComposeResult:
         with Vertical():
             yield AgentTabs(self._root_agent_id, id="tabs")
-            yield SmartInput(id="smart-input")
+            yield SmartInput(id="user-input")
 
     async def on_mount(self) -> None:
         smart_input = self.query_one(SmartInput)
         smart_input.slash_command_registry = self._slash_command_registry
         smart_input.file_searcher = self._file_searcher
-        self.query_one("#user-input").focus()
+        smart_input.focus()
         if self._session_runner:
             self._session_task = asyncio.create_task(self._run_session())
 

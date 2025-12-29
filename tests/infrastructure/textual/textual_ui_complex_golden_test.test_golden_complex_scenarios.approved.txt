@@ -19,9 +19,7 @@ Active Tab: tab-Agent
                   Markdown id='log-Agent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
-      SmartInput id='smart-input' classes=''
-        Static id='input-hint' classes=''
-        SubmittableTextArea id='user-input' classes='' text=''
+      SmartInput id='user-input' classes='' text=''
         AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Initial State (ASCII UI) ---
@@ -43,12 +41,12 @@ Active Tab: tab-Agent
 
 
 
-                                        Enter to submit, Ctrl+Enter for newline
+
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: SubAgent Started (Widget Tree) ---
 Tabs: ['tab-Agent', 'tab-SubAgent']
@@ -81,9 +79,7 @@ Active Tab: tab-SubAgent
                   Markdown id='log-SubAgent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-SubAgent' classes=''
-      SmartInput id='smart-input' classes=''
-        Static id='input-hint' classes=''
-        SubmittableTextArea id='user-input' classes='' text=''
+      SmartInput id='user-input' classes='' text=''
         AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: SubAgent Started (ASCII UI) ---
@@ -105,12 +101,12 @@ Active Tab: tab-SubAgent
 
 
 
-                                        Enter to submit, Ctrl+Enter for newline
+
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: SubAgent Spoke (Widget Tree) ---
 Tabs: ['tab-Agent', 'tab-SubAgent']
@@ -145,9 +141,7 @@ Active Tab: tab-SubAgent
                   Markdown id='log-SubAgent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-SubAgent' classes=''
-      SmartInput id='smart-input' classes=''
-        Static id='input-hint' classes=''
-        SubmittableTextArea id='user-input' classes='' text=''
+      SmartInput id='user-input' classes='' text=''
         AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: SubAgent Spoke (ASCII UI) ---
@@ -169,12 +163,12 @@ Active Tab: tab-SubAgent
 
 
 
-                                        Enter to submit, Ctrl+Enter for newline
+
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: SubAgent Ended (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -197,9 +191,7 @@ Active Tab: tab-Agent
                   Markdown id='log-Agent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
-      SmartInput id='smart-input' classes=''
-        Static id='input-hint' classes=''
-        SubmittableTextArea id='user-input' classes='' text=''
+      SmartInput id='user-input' classes='' text=''
         AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: SubAgent Ended (ASCII UI) ---
@@ -221,12 +213,12 @@ Active Tab: tab-Agent
 
 
 
-                                        Enter to submit, Ctrl+Enter for newline
+
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: Error Event (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -251,9 +243,7 @@ Active Tab: tab-Agent
                   Markdown id='log-Agent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
-      SmartInput id='smart-input' classes=''
-        Static id='input-hint' classes=''
-        SubmittableTextArea id='user-input' classes='' text=''
+      SmartInput id='user-input' classes='' text=''
         AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Error Event (ASCII UI) ---
@@ -275,12 +265,12 @@ Active Tab: tab-Agent
 
 
 
-                                        Enter to submit, Ctrl+Enter for newline
+
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: Session Interrupted (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -307,9 +297,7 @@ Active Tab: tab-Agent
                   Markdown id='log-Agent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
-      SmartInput id='smart-input' classes=''
-        Static id='input-hint' classes=''
-        SubmittableTextArea id='user-input' classes='' text=''
+      SmartInput id='user-input' classes='' text=''
         AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Session Interrupted (ASCII UI) ---
@@ -331,12 +319,12 @@ Active Tab: tab-Agent
 
 
 
-                                        Enter to submit, Ctrl+Enter for newline
+
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: Tool Call (Suppressed) (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -367,9 +355,7 @@ Active Tab: tab-Agent
                   CollapsibleTitle id='None' classes=''
                   Contents id='None' classes=''
                     TextArea id='None' classes='tool-call' text='In Progress ⠇'
-      SmartInput id='smart-input' classes=''
-        Static id='input-hint' classes=''
-        SubmittableTextArea id='user-input' classes='' text=''
+      SmartInput id='user-input' classes='' text=''
         AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Tool Call (Suppressed) (ASCII UI) ---
@@ -391,12 +377,12 @@ Active Tab: tab-Agent
 
 
 
-                                        Enter to submit, Ctrl+Enter for newline
+
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: Tool Result (Diff) (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -431,9 +417,7 @@ Active Tab: tab-Agent
                   CollapsibleTitle id='None' classes=''
                   Contents id='None' classes=''
                     Static id='None' classes='tool-result tool-result-success'
-      SmartInput id='smart-input' classes=''
-        Static id='input-hint' classes=''
-        SubmittableTextArea id='user-input' classes='' text=''
+      SmartInput id='user-input' classes='' text=''
         AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Tool Result (Diff) (ASCII UI) ---
@@ -455,12 +439,12 @@ Active Tab: tab-Agent
 
 
 
-                                        Enter to submit, Ctrl+Enter for newline
+
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: Tool Cancelled (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -499,9 +483,7 @@ Active Tab: tab-Agent
                   CollapsibleTitle id='None' classes=''
                   Contents id='None' classes=''
                     TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
-      SmartInput id='smart-input' classes=''
-        Static id='input-hint' classes=''
-        SubmittableTextArea id='user-input' classes='' text=''
+      SmartInput id='user-input' classes='' text=''
         AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Tool Cancelled (ASCII UI) ---
@@ -523,12 +505,12 @@ Active Tab: tab-Agent
 
 
 
-                                        Enter to submit, Ctrl+Enter for newline
+
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: File Context Submitted (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -567,9 +549,7 @@ Active Tab: tab-Agent
                   CollapsibleTitle id='None' classes=''
                   Contents id='None' classes=''
                     TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
-      SmartInput id='smart-input' classes=''
-        Static id='input-hint' classes=''
-        SubmittableTextArea id='user-input' classes='' text=''
+      SmartInput id='user-input' classes='' text=''
         AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: File Context Submitted (ASCII UI) ---
@@ -591,9 +571,9 @@ Active Tab: tab-Agent
 
 
 
-                                        Enter to submit, Ctrl+Enter for newline
+
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
