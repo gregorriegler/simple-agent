@@ -48,18 +48,14 @@ class SmartInput(TextArea):
     ):
         super().__init__(id=id, **kwargs)
 
-        # State for configuration
         self._slash_command_registry = None
         self._file_searcher = None
 
-        # Initial autocompleters config
         self._initial_autocompleters = autocompleters or []
 
-        # Internal components
         self.popup: AutocompletePopup | None = None
         self.expander = FileContextExpander()
 
-        # Track referenced files
         self._referenced_files: set[str] = set()
 
     @property
@@ -95,11 +91,9 @@ class SmartInput(TextArea):
     def on_mount(self) -> None:
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
 
-        # Initialize and mount popup
         self.popup = AutocompletePopup(id="autocomplete-popup")
         self.mount(self.popup)
 
-        # Trigger update to pick up any registries set before mount
         self._update_popup_config()
 
     def get_referenced_files(self) -> set[str]:
@@ -109,10 +103,8 @@ class SmartInput(TextArea):
 
     def submit(self) -> None:
         """Submit the current text."""
-        # Expand file contexts
         expanded_content = self.expander.expand(self.text, self._referenced_files)
 
-        # Emit the fully processed content
         self.post_message(self.Submitted(expanded_content))
 
         self.clear()
@@ -121,8 +113,6 @@ class SmartInput(TextArea):
             self.popup.hide()
 
     async def _on_key(self, event: events.Key) -> None:
-        # Delegate key handling to popup first
-        # We need to await it because handle_key might need to be async or just return result
         if self.popup:
             result = await self.popup.handle_key(event.key)
             if isinstance(result, CompletionResult):
@@ -131,29 +121,24 @@ class SmartInput(TextArea):
                 event.prevent_default()
                 return
             elif result is True:
-                # Key handled by popup (e.g. navigation)
                 event.stop()
                 event.prevent_default()
                 return
 
-        # Let Enter submit the form
         if event.key == "enter":
             self.submit()
             event.stop()
             event.prevent_default()
             return
 
-        # ctrl+j is how Windows/mintty sends Ctrl+Enter - insert newline
         if event.key in ("ctrl+enter", "ctrl+j"):
             self.insert("\n")
             event.stop()
             event.prevent_default()
             return
 
-        # IMPORTANT: Call super()._on_key() first to let the character be inserted
         await super()._on_key(event)
 
-        # THEN check for autocomplete
         if self.popup:
             self.call_after_refresh(self._trigger_autocomplete_check)
 
@@ -174,7 +159,6 @@ class SmartInput(TextArea):
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location
 
-        # Use start_offset populated by the popup logic
         start_col = result.start_offset if result.start_offset is not None else 0
 
         self.replace(
