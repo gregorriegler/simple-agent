@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Optional
+from typing import Optional, List
 from dataclasses import dataclass
 
 from rich.text import Text
@@ -28,11 +28,34 @@ from simple_agent.infrastructure.textual.widgets.file_context_expander import Fi
 
 logger = logging.getLogger(__name__)
 
-@dataclass
 class AutocompleteSession:
-    search: CompletionSearch
-    anchor: PopupAnchor
-    suggestion_list: Optional[SuggestionList] = None
+    def __init__(self, search: CompletionSearch, anchor: PopupAnchor):
+        self.search = search
+        self.anchor = anchor
+        self._suggestion_list: Optional[SuggestionList] = None
+
+    @property
+    def suggestion_list(self) -> Optional[SuggestionList]:
+        return self._suggestion_list
+
+    def set_suggestions(self, suggestions: List[Suggestion]) -> None:
+        if suggestions:
+            self._suggestion_list = SuggestionList(suggestions)
+        else:
+            self._suggestion_list = None
+
+    def move_down(self) -> None:
+        if self._suggestion_list:
+            self._suggestion_list.move_down()
+
+    def move_up(self) -> None:
+        if self._suggestion_list:
+            self._suggestion_list.move_up()
+
+    def get_selection(self) -> Optional[CompletionResult]:
+        if self._suggestion_list:
+            return self._suggestion_list.get_selection()
+        return None
 
 class SmartInput(TextArea):
     """
@@ -107,51 +130,64 @@ class SmartInput(TextArea):
         self.popup.update_view(session.suggestion_list, session.anchor)
 
     async def _on_key(self, event: events.Key) -> None:
-        # Handle autocomplete navigation if active
-        if self._active_session and self._active_session.suggestion_list:
-            suggestion_list = self._active_session.suggestion_list
-            if event.key == "down":
-                suggestion_list.move_down()
-                self._update_popup_view()
-                event.stop()
-                event.prevent_default()
-                return
-            elif event.key == "up":
-                suggestion_list.move_up()
-                self._update_popup_view()
-                event.stop()
-                event.prevent_default()
-                return
-            elif event.key in ("tab", "enter"):
-                result = suggestion_list.get_selection()
-                if result:
-                    self._apply_completion(result)
-                    self._close_autocomplete()
-                    event.stop()
-                    event.prevent_default()
-                    return
-            elif event.key == "escape":
-                self._close_autocomplete()
-                event.stop()
-                event.prevent_default()
-                return
-
-        if event.key == "enter":
-            self.submit()
-            event.stop()
-            event.prevent_default()
+        if self._handle_autocomplete_key(event):
             return
 
-        if event.key in ("ctrl+enter", "ctrl+j"):
-            self.insert("\n")
-            event.stop()
-            event.prevent_default()
+        if self._handle_submission_key(event):
             return
 
         await super()._on_key(event)
 
         if self.popup:
             self.call_after_refresh(self._trigger_autocomplete_check)
+
+    def _handle_autocomplete_key(self, event: events.Key) -> bool:
+        session = self._active_session
+        if not session or not session.suggestion_list:
+            return False
+
+        if event.key == "down":
+            session.move_down()
+            self._update_popup_view()
+            event.stop()
+            event.prevent_default()
+            return True
+        elif event.key == "up":
+            session.move_up()
+            self._update_popup_view()
+            event.stop()
+            event.prevent_default()
+            return True
+        elif event.key in ("tab", "enter"):
+            result = session.get_selection()
+            if result:
+                self._apply_completion(result)
+                self._close_autocomplete()
+                event.stop()
+                event.prevent_default()
+                return True
+        elif event.key == "escape":
+            self._close_autocomplete()
+            event.stop()
+            event.prevent_default()
+            return True
+
+        return False
+
+    def _handle_submission_key(self, event: events.Key) -> bool:
+        if event.key == "enter":
+            self.submit()
+            event.stop()
+            event.prevent_default()
+            return True
+
+        if event.key in ("ctrl+enter", "ctrl+j"):
+            self.insert("\n")
+            event.stop()
+            event.prevent_default()
+            return True
+
+        return False
 
     def _trigger_autocomplete_check(self) -> None:
         """Helper to call popup check with current context."""
@@ -201,7 +237,7 @@ class SmartInput(TextArea):
             return
 
         if suggestions:
-            session.suggestion_list = SuggestionList(suggestions)
+            session.set_suggestions(suggestions)
             self._update_popup_view()
         else:
             self._close_autocomplete()
