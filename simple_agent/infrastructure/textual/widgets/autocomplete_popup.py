@@ -60,7 +60,10 @@ class AutocompletePopup(Static):
 
     def check(self, cursor_and_line: CursorAndLine, cursor_screen_offset: Offset, screen_size: Size) -> None:
         search = self.autocompleter.check(cursor_and_line)
-        if search:
+        # Even if search is NoOpSearch (not triggered), calling get_suggestions handles it (returns empty).
+        # However, we want to know if we should potentially show something.
+        # If not triggered, we should hide.
+        if search.is_triggered():
             self._active_search = search
             asyncio.create_task(self._fetch_suggestions(search, cursor_screen_offset, screen_size))
         else:
