@@ -5,12 +5,6 @@ from textual.widgets import Static
 from textual.geometry import Offset, Size
 from rich.text import Text
 
-from simple_agent.infrastructure.textual.autocompletion import (
-    CompletionResult,
-    Suggestion,
-    AutocompleteSession,
-)
-
 @dataclass
 class PopupAnchor:
     """Encapsulates the visual state needed to position the popup."""
@@ -84,105 +78,44 @@ class AutocompletePopup(Static):
     }
     """
 
-    def __init__(self, **kwargs):
-        """
-        Initialize the AutocompletePopup.
-        """
-        super().__init__(**kwargs)
-        self._session: Optional[AutocompleteSession] = None
-
-    async def handle_key(self, key: str) -> bool | CompletionResult:
-        if not self.display:
-            return False
-
-        if key in ("down", "up"):
-            self._navigate(key)
-            return True
-
-        if key in ("tab", "enter"):
-            return self._get_selection()
-
-        if key == "escape":
-            self.hide()
-            return True
-
-        return False
-
-    def hide(self) -> None:
-        self.display = False
-        self._session = None
-
-    def show(
+    def display_suggestions(
         self,
-        suggestions: list[Suggestion],
+        suggestions: list[str],
+        selected_index: int,
         anchor: PopupAnchor,
     ) -> None:
-        self._session = AutocompleteSession(suggestions)
+        """
+        Render the suggestions list at the specified anchor.
+        """
+        if not suggestions:
+            self.hide()
+            return
+
         self.display = True
 
-        self._update_display(anchor)
-
-    def _navigate(self, direction: str) -> None:
-        if not self._session:
-            return
-
-        if direction == "down":
-            self._session.move_down()
-        elif direction == "up":
-            self._session.move_up()
-
-        self._render_content()
-
-    def _get_selection(self) -> CompletionResult | None:
-        if not self._session:
-            return None
-
-        result = self._session.get_selection()
-        if result:
-            self.hide()
-        return result
-
-    def _update_display(self, anchor: PopupAnchor) -> None:
-        if not self._session or not self._session.suggestions:
-            self.hide()
-            return
-
-        lines = [item.display_text for item in self._session.suggestions]
-
-        max_line_length = max(len(line) for line in lines)
+        # Calculate dimensions
+        max_line_length = max(len(line) for line in suggestions)
         popup_width = min(max_line_length + 2, anchor.max_width)
         available_width = max(1, popup_width - 2)
-        trimmed_lines = [line[:available_width] for line in lines]
+        trimmed_lines = [line[:available_width] for line in suggestions]
         popup_height = len(trimmed_lines)
 
+        # Update styles
         self.styles.width = popup_width
         self.styles.height = popup_height
 
+        # Position
         self.absolute_offset = anchor.get_placement(Size(popup_width, popup_height))
 
-        self._render_content(trimmed_lines)
-
-    def _render_content(self, lines: list[str] | None = None) -> None:
-        if not self._session:
-            return
-
-        if lines is None:
-            raw_lines = [item.display_text for item in self._session.suggestions]
-
-            width = self.styles.width
-            if width and hasattr(width, 'value'):
-                 popup_width = int(width.value)
-            else:
-                 popup_width = 20
-
-            available_width = max(1, popup_width - 2)
-            lines = [line[:available_width] for line in raw_lines]
-
+        # Render
         rendered = Text()
-        for index, line in enumerate(lines):
+        for index, line in enumerate(trimmed_lines):
             if index:
                 rendered.append("\n")
-            style = "reverse" if index == self._session.selected_index else ""
+            style = "reverse" if index == selected_index else ""
             rendered.append(line, style=style)
 
         self.update(rendered)
+
+    def hide(self) -> None:
+        self.display = False

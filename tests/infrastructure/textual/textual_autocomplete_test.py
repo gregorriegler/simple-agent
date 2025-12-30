@@ -238,9 +238,9 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         screen_size = Size(80, 24)
 
         # Create suggestions manually
-        suggestions = [
-            SlashCommandSuggestion(SlashCommand("/short", "desc"), 0),
-            SlashCommandSuggestion(SlashCommand("/looooooong", "description"), 0)
+        strings = [
+            "/short - desc",
+            "/looooooong - description"
         ]
 
         # Calculate anchor manually (simulating what SmartInput does)
@@ -248,12 +248,12 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         anchor = PopupAnchor(cursor_offset, screen_size)
 
         # Show suggestions
-        popup.show(suggestions, anchor)
+        popup.display_suggestions(strings, 0, anchor)
         await pilot.pause()
 
         assert popup.display is True
         # Verify width accommodates the long suggestion
-        # "/looooooong - description" length is roughly 11 + 3 + 11 = 25
+        # "/looooooong - description" length is roughly 25
         assert popup.styles.width.value > 20
 
         # Check content
@@ -264,10 +264,10 @@ async def test_autocomplete_popup_hide(app: TextualApp):
     async with app.run_test() as pilot:
         popup = app.query_one(AutocompletePopup)
 
-        suggestions = [SlashCommandSuggestion(SlashCommand("/cmd", "desc"), 0)]
+        strings = ["/cmd - desc"]
         anchor = PopupAnchor(Offset(0, 0), Size(80, 24))
 
-        popup.show(suggestions, anchor)
+        popup.display_suggestions(strings, 0, anchor)
         await pilot.pause()
 
         assert popup.display is True
