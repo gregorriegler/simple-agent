@@ -263,8 +263,11 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         cursor_offset = Offset(10, 10)
         anchor = PopupAnchor(cursor_offset, screen_size)
 
-        # Show suggestions
-        popup.update_view(suggestion_list, anchor)
+        # Manually set state to simulate start() without async search
+        popup.suggestion_list = suggestion_list
+        popup._current_anchor = anchor
+        popup._update_view()
+
         await pilot.pause()
 
         assert popup.display is True
@@ -287,12 +290,14 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 
         anchor = PopupAnchor(Offset(0, 0), Size(80, 24))
 
-        popup.update_view(suggestion_list, anchor)
+        popup.suggestion_list = suggestion_list
+        popup._current_anchor = anchor
+        popup._update_view()
         await pilot.pause()
 
         assert popup.display is True
 
-        popup.hide()
+        popup.close()
         assert popup.display is False
 
 @pytest.mark.asyncio
