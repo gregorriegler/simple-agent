@@ -20,7 +20,7 @@ from simple_agent.infrastructure.textual.autocompletion import (
     SlashCommandSuggestion,
     FileSuggestion,
     CursorAndLine,
-    AutocompleteSession,
+    SuggestionList,
     Suggestion,
 )
 
@@ -253,7 +253,7 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         ]
 
         suggestions = [SimpleSuggestion(s) for s in strings]
-        session = AutocompleteSession(suggestions=suggestions)
+        session = SuggestionList(suggestions=suggestions)
 
         # Calculate anchor manually (simulating what SmartInput does)
         cursor_offset = Offset(10, 10)
@@ -278,7 +278,7 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 
         strings = ["/cmd - desc"]
         suggestions = [SimpleSuggestion(s) for s in strings]
-        session = AutocompleteSession(suggestions=suggestions)
+        session = SuggestionList(suggestions=suggestions)
 
         anchor = PopupAnchor(Offset(0, 0), Size(80, 24))
 
