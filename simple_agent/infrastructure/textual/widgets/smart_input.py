@@ -66,10 +66,6 @@ class SmartInput(TextArea):
     def on_mount(self) -> None:
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
 
-        # AutocompletePopup is now a dumb view
-        self.popup = AutocompletePopup(id="autocomplete-popup")
-        self.mount(self.popup)
-
     def get_referenced_files(self) -> set[str]:
         """Return the set of files that were selected via autocomplete and are still in the text."""
         return MessageDraft(self.text, self._referenced_files).active_files
@@ -90,6 +86,10 @@ class SmartInput(TextArea):
         if self._active_session:
             self._active_session.close()
             self._active_session = None
+
+        if self.popup:
+            self.popup.remove()
+            self.popup = None
 
     async def _on_key(self, event: events.Key) -> None:
         # Handle autocomplete navigation if active
@@ -132,14 +132,10 @@ class SmartInput(TextArea):
 
         await super()._on_key(event)
 
-        if self.popup:
-            self.call_after_refresh(self._trigger_autocomplete_check)
+        self.call_after_refresh(self._trigger_autocomplete_check)
 
     def _trigger_autocomplete_check(self) -> None:
         """Helper to call popup check with current context."""
-        if not self.popup:
-            return
-
         row, col = self.cursor_location
         try:
             line = self.document.get_line(row)
@@ -153,6 +149,10 @@ class SmartInput(TextArea):
         search = self.autocompleter.check(cursor_and_line)
 
         if search.is_triggered():
+            if not self.popup:
+                self.popup = AutocompletePopup(id="autocomplete-popup")
+                self.mount(self.popup)
+
             # Create Anchor
             caret_location = CaretScreenLocation(
                 offset=self.cursor_screen_offset,
