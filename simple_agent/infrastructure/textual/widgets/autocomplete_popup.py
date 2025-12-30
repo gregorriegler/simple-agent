@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import dataclass
 from typing import Any, Optional
 from textual.widgets import Static
 from textual.geometry import Offset, Size
@@ -58,14 +59,20 @@ class AutocompletePopup(Static):
 
         return False
 
-    def check(self, cursor_and_line: CursorAndLine, cursor_screen_offset: Offset, screen_size: Size) -> None:
+    @dataclass
+    class VisualContext:
+        """Context needed for calculating visual positioning."""
+        cursor_offset: Offset
+        screen_size: Size
+
+    def check(self, cursor_and_line: CursorAndLine, visual_context: VisualContext) -> None:
         search = self.autocompleter.check(cursor_and_line)
         # Even if search is NoOpSearch (not triggered), calling get_suggestions handles it (returns empty).
         # However, we want to know if we should potentially show something.
         # If not triggered, we should hide.
         if search.is_triggered():
             self._active_search = search
-            asyncio.create_task(self._fetch_suggestions(search, cursor_screen_offset, screen_size))
+            asyncio.create_task(self._fetch_suggestions(search, visual_context))
         else:
             self.hide()
 
@@ -79,8 +86,7 @@ class AutocompletePopup(Static):
     async def _fetch_suggestions(
         self,
         search: CompletionSearch,
-        cursor_screen_offset: Offset,
-        screen_size: Size
+        visual_context: VisualContext
     ) -> None:
         # Check if the search is still active (identity check)
         if self._active_search is not search:
@@ -91,15 +97,14 @@ class AutocompletePopup(Static):
         # Check again after await
         if self._active_search is search:
             if suggestions:
-                self._show_suggestions(suggestions, cursor_screen_offset, screen_size)
+                self._show_suggestions(suggestions, visual_context)
             else:
                 self.hide()
 
     def _show_suggestions(
         self,
         suggestions: list[Suggestion],
-        cursor_offset: Offset,
-        screen_size: Size,
+        visual_context: VisualContext,
     ) -> None:
         was_visible = self.display
         self._current_suggestions = suggestions
@@ -107,9 +112,9 @@ class AutocompletePopup(Static):
         self.display = True
 
         if not was_visible:
-            self._anchor_x = cursor_offset.x
+            self._anchor_x = visual_context.cursor_offset.x
 
-        self._update_display(cursor_offset, screen_size)
+        self._update_display(visual_context)
 
     def _navigate(self, direction: str) -> None:
         if not self._current_suggestions:
@@ -138,7 +143,7 @@ class AutocompletePopup(Static):
         # including the start_offset which was injected when the Suggestion was created.
         return selected.to_completion_result()
 
-    def _update_display(self, cursor_offset: Offset, screen_size: Size) -> None:
+    def _update_display(self, visual_context: VisualContext) -> None:
         lines = [item.display_text for item in self._current_suggestions]
 
         if not lines:
@@ -146,7 +151,7 @@ class AutocompletePopup(Static):
             return
 
         max_line_length = max(len(line) for line in lines)
-        popup_width = min(max_line_length + 2, screen_size.width)
+        popup_width = min(max_line_length + 2, visual_context.screen_size.width)
         available_width = max(1, popup_width - 2)
         trimmed_lines = [line[:available_width] for line in lines]
         popup_height = len(trimmed_lines)
@@ -157,13 +162,13 @@ class AutocompletePopup(Static):
         if self._anchor_x is not None:
             target_x = self._anchor_x
         else:
-            target_x = cursor_offset.x
+            target_x = visual_context.cursor_offset.x
 
-        target_offset = Offset(target_x, cursor_offset.y)
+        target_offset = Offset(target_x, visual_context.cursor_offset.y)
 
         self.absolute_offset = self._calculate_position(
             cursor_offset=target_offset,
-            screen_size=screen_size,
+            screen_size=visual_context.screen_size,
             popup_height=popup_height,
             popup_width=popup_width,
         )

@@ -254,7 +254,7 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
 
         # Call public check method with input triggering the completer
         cursor_and_line = CursorAndLine(0, 1, "/")
-        popup.check(cursor_and_line, Offset(10, 10), screen_size)
+        popup.check(cursor_and_line, AutocompletePopup.VisualContext(Offset(10, 10), screen_size))
         await pilot.pause()
 
         assert popup.display is True
@@ -277,7 +277,7 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 
         # Trigger display
         cursor_and_line = CursorAndLine(0, 1, "/")
-        popup.check(cursor_and_line, Offset(0, 0), Size(80, 24))
+        popup.check(cursor_and_line, AutocompletePopup.VisualContext(Offset(0, 0), Size(80, 24)))
         await pilot.pause()
 
         assert popup.display is True

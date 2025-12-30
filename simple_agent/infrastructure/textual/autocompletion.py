@@ -31,6 +31,15 @@ class CursorAndLine:
         return WordAtCursor.from_cursor(self.line, self.col)
 
 @dataclass
+class InputContext:
+    text: str
+    known_files: set[str] = field(default_factory=set)
+
+    @property
+    def active_files(self) -> set[str]:
+        return {f for f in self.known_files if f"[📦{f}]" in self.text}
+
+@dataclass
 class CompletionResult:
     text: str
     attachments: set[str] = field(default_factory=set)
