@@ -8,6 +8,12 @@ from simple_agent.application.file_search import FileSearcher
 logger = logging.getLogger(__name__)
 
 @dataclass
+class CompletionResult:
+    text: str
+    attachments: set[str] = field(default_factory=set)
+    start_offset: Optional[int] = None
+
+@dataclass
 class WordAtCursor:
     word: str
     start_index: int
@@ -30,6 +36,18 @@ class CursorAndLine:
     def current_word(self) -> WordAtCursor:
         return WordAtCursor.from_cursor(self.line, self.col)
 
+    def apply_completion(self, completion: CompletionResult) -> "CursorAndLine":
+        start = completion.start_offset
+        if start is None:
+            return self
+
+        prefix = self.line[:start]
+        suffix = self.line[self.col :]
+        new_line = prefix + completion.text + suffix
+        new_col = start + len(completion.text)
+
+        return CursorAndLine(self.row, new_col, new_line)
+
 @dataclass
 class MessageDraft:
     text: str
@@ -38,12 +56,6 @@ class MessageDraft:
     @property
     def active_files(self) -> set[str]:
         return {f for f in self.known_files if f"[📦{f}]" in self.text}
-
-@dataclass
-class CompletionResult:
-    text: str
-    attachments: set[str] = field(default_factory=set)
-    start_offset: Optional[int] = None
 
 class Suggestion(Protocol):
     @property

@@ -7,7 +7,7 @@ from textual import events
 from textual.message import Message
 from textual.widgets import TextArea
 
-from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup
+from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup, PopupAnchor
 from simple_agent.infrastructure.textual.autocompletion import (
     Autocompleter,
     CompositeAutocompleter,
@@ -126,19 +126,22 @@ class SmartInput(TextArea):
 
         cursor_and_line = CursorAndLine(row, col, line)
 
-        self.popup.check(cursor_and_line, AutocompletePopup.PopupAnchor(self.cursor_screen_offset, self.app.screen.size))
+        self.popup.check(cursor_and_line, PopupAnchor(self.cursor_screen_offset, self.app.screen.size))
 
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location
+        line = self.document.get_line(row)
+        cursor_and_line = CursorAndLine(row, col, line)
 
-        start_col = result.start_offset if result.start_offset is not None else 0
+        new_state = cursor_and_line.apply_completion(result)
 
         self.replace(
-            result.text,
-            start=(row, start_col),
-            end=(row, col),
+            new_state.line,
+            start=(row, 0),
+            end=(row, len(line)),
             maintain_selection_offset=False,
         )
+        self.cursor_location = (row, new_state.col)
 
         if result.attachments:
             self._referenced_files.update(result.attachments)
