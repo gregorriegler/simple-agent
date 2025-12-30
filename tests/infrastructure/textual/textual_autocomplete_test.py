@@ -1,4 +1,5 @@
 import pytest
+import asyncio
 from textual.geometry import Offset, Size
 from dataclasses import dataclass
 from unittest.mock import MagicMock, AsyncMock
@@ -51,17 +52,11 @@ async def test_slash_command_registry_available_in_textarea():
     # Mount to trigger popup creation
     app = TextualApp(StubUserInput(), AgentId("Agent"))
     async with app.run_test() as pilot:
-        await pilot.pause() # Wait for mount
-        # We need to manually mount the textarea if it's not part of the app normally,
-        # but here we can just check if we can mount it or use the app's implicit structure.
-        # Actually, let's just use mount() manually on a simpler harness if needed,
-        # but SmartInput creates popup in on_mount.
-
-        # So we must mount textarea to check popup.
+        await pilot.pause()
         await app.mount(textarea)
 
-        # Check that the autocompleter is present
-        assert textarea.popup.autocompleter is autocompleter
+        # Check that the autocompleter is present on the SmartInput
+        assert textarea.autocompleter is autocompleter
 
 
 def test_get_autocomplete_suggestions_for_slash():
@@ -242,20 +237,18 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         popup = app.query_one(AutocompletePopup)
         screen_size = Size(80, 24)
 
-        # Setup real registry with custom commands for rendering test
-        registry = SlashCommandRegistry()
-        registry._commands = {
-            "/short": SlashCommand("/short", "desc"),
-            "/looooooong": SlashCommand("/looooooong", "description")
-        }
-        completer = SlashCommandAutocompleter(registry)
+        # Create suggestions manually
+        suggestions = [
+            SlashCommandSuggestion(SlashCommand("/short", "desc"), 0),
+            SlashCommandSuggestion(SlashCommand("/looooooong", "description"), 0)
+        ]
 
-        popup.autocompleter = completer
+        # Calculate anchor manually (simulating what SmartInput does)
+        cursor_offset = Offset(10, 10)
+        anchor = PopupAnchor(cursor_offset, screen_size)
 
-        # Call public check method with input triggering the completer
-        cursor_and_line = CursorAndLine(0, 1, "/")
-        caret_location = CaretScreenLocation(Offset(10, 10), screen_size)
-        popup.check(cursor_and_line, caret_location)
+        # Show suggestions
+        popup.show(suggestions, anchor)
         await pilot.pause()
 
         assert popup.display is True
@@ -271,15 +264,10 @@ async def test_autocomplete_popup_hide(app: TextualApp):
     async with app.run_test() as pilot:
         popup = app.query_one(AutocompletePopup)
 
-        # Use real completer
-        registry = SlashCommandRegistry()
-        completer = SlashCommandAutocompleter(registry)
-        popup.autocompleter = completer
+        suggestions = [SlashCommandSuggestion(SlashCommand("/cmd", "desc"), 0)]
+        anchor = PopupAnchor(Offset(0, 0), Size(80, 24))
 
-        # Trigger display
-        cursor_and_line = CursorAndLine(0, 1, "/")
-        caret_location = CaretScreenLocation(Offset(0, 0), Size(80, 24))
-        popup.check(cursor_and_line, caret_location)
+        popup.show(suggestions, anchor)
         await pilot.pause()
 
         assert popup.display is True
@@ -318,28 +306,13 @@ async def test_submittable_text_area_slash_commands(app: TextualApp):
 
 @pytest.mark.asyncio
 async def test_submittable_text_area_file_search(app: TextualApp):
-    # This test previously relied on property setters for dependency injection.
-    # We now need to reconstruct the SmartInput or app with the mock dependency.
-
-    # Create app, mount it, but before interacting, we can't easily swap the dependency deep inside.
-    # However, since we are testing integration via UI, we can just use the real app which has NativeFileSearcher.
-    # But we want to mock the file system results.
-    # Or, we can construct a test-specific App or SmartInput.
-
-    # Option 1: Mock NativeFileSearcher.search on the instance used by the app.
-    # But the app creates a new NativeFileSearcher in __init__.
-    # We can monkeypatch NativeFileSearcher class or pass a mock app.
-
+    # Mock searcher
     mock_searcher = AsyncMock()
     mock_searcher.search.return_value = ["my_file.py", "other_file.txt"]
 
     autocompleter = FileSearchAutocompleter(mock_searcher)
 
-    # We need to inject this into the SmartInput widget in the app.
-    # Since TextualApp composes SmartInput in compose(), we can't easily intercept it unless we subclass TextualApp
-    # or modify it after mount (which is what we did before, but now we removed setters).
-
-    # Let's subclass TextualApp for testing purposes to inject dependencies.
+    # Subclass TextualApp to inject dependencies
     class TestApp(TextualApp):
         def compose(self):
             from textual.containers import Vertical
@@ -423,11 +396,3 @@ async def test_submittable_text_area_ctrl_enter(app: TextualApp):
         await pilot.pause()
 
         assert text_area.text == "line1\n"
-
-def test_autocomplete_popup_init_with_autocompleter():
-    """Verify that AutocompletePopup accepts autocompleter argument."""
-    registry = SlashCommandRegistry()
-    autocompleter = SlashCommandAutocompleter(registry)
-    popup = AutocompletePopup(autocompleter=autocompleter)
-
-    assert popup.autocompleter is autocompleter
