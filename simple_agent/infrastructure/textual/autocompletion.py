@@ -2,69 +2,10 @@ from typing import Protocol, List, Any, Optional
 from dataclasses import dataclass, field
 import logging
 
-from textual.geometry import Offset, Size
-
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.file_search import FileSearcher
 
 logger = logging.getLogger(__name__)
-
-@dataclass
-class PopupAnchor:
-    """Encapsulates the visual state needed to position the popup."""
-    cursor_offset: Offset
-    screen_size: Size
-
-    def get_placement(self, popup_size: Size) -> Offset:
-        """
-        Calculate the best position for the popup given its size.
-        """
-        popup_height = popup_size.height
-        popup_width = popup_size.width
-
-        if popup_height < 1:
-            popup_height = 1
-        if popup_width < 1:
-            popup_width = 1
-
-        below_y = self.cursor_offset.y + 1
-        above_y = self.cursor_offset.y - popup_height
-
-        # Default to below if it fits, otherwise try above, else clamp
-        if below_y + popup_height <= self.screen_size.height:
-            y = below_y
-        elif above_y >= 0:
-            y = above_y
-        else:
-            y = max(0, min(below_y, self.screen_size.height - popup_height))
-
-        # Horizontal positioning
-        anchor_x = self.cursor_offset.x - 2
-        max_x = max(0, self.screen_size.width - popup_width)
-        x = min(max(anchor_x, 0), max_x)
-
-        return Offset(x, y)
-
-    @property
-    def max_width(self) -> int:
-        return self.screen_size.width
-
-    @classmethod
-    def from_cursor_context(cls, cursor_and_line: "CursorAndLine", cursor_screen_offset: Offset, screen_size: Size) -> "PopupAnchor":
-        """
-        Creates a PopupAnchor positioned relative to the start of the current word.
-        """
-        word = cursor_and_line.current_word
-        delta = cursor_and_line.col - word.start_index
-        anchor_x = cursor_screen_offset.x - delta
-
-        # Ensure we don't go negative
-        anchor_x = max(0, anchor_x)
-
-        return cls(
-            cursor_offset=Offset(anchor_x, cursor_screen_offset.y),
-            screen_size=screen_size
-        )
 
 @dataclass
 class WordAtCursor:
