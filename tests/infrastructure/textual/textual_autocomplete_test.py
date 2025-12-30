@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, AsyncMock
 from simple_agent.application.slash_command_registry import SlashCommandRegistry, SlashCommand
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
-from simple_agent.infrastructure.textual.widgets.autocomplete_popup import (
-    AutocompletePopup,
+from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup
+from simple_agent.infrastructure.textual.popup_geometry import (
     PopupAnchor,
     CaretScreenLocation
 )

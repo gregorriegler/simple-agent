@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from typing import Optional
+from dataclasses import dataclass
 
 from rich.text import Text
 from textual import events
@@ -8,8 +9,8 @@ from textual.message import Message
 from textual.widgets import TextArea
 from textual.geometry import Offset
 
-from simple_agent.infrastructure.textual.widgets.autocomplete_popup import (
-    AutocompletePopup,
+from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup
+from simple_agent.infrastructure.textual.popup_geometry import (
     CaretScreenLocation,
     PopupAnchor,
 )
@@ -26,6 +27,12 @@ from simple_agent.infrastructure.textual.autocompletion import (
 from simple_agent.infrastructure.textual.widgets.file_context_expander import FileContextExpander
 
 logger = logging.getLogger(__name__)
+
+@dataclass
+class AutocompleteState:
+    search: CompletionSearch
+    anchor: PopupAnchor
+    session: Optional[AutocompleteSession] = None
 
 class SmartInput(TextArea):
     """
@@ -59,9 +66,7 @@ class SmartInput(TextArea):
         self.expander = FileContextExpander()
 
         self._referenced_files: set[str] = set()
-        self._active_search: CompletionSearch | None = None
-        self._session: AutocompleteSession | None = None
-        self._active_anchor: PopupAnchor | None = None
+        self._autocomplete_state: AutocompleteState | None = None
 
     def on_mount(self) -> None:
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
@@ -87,38 +92,38 @@ class SmartInput(TextArea):
 
     def _close_autocomplete(self) -> None:
         """Clear autocomplete state and hide popup."""
-        self._session = None
-        self._active_search = None
-        self._active_anchor = None
+        self._autocomplete_state = None
         if self.popup:
             self.popup.hide()
 
     def _update_popup_view(self) -> None:
         """Update the popup view based on current session state."""
-        if not self.popup or not self._session or not self._active_anchor:
+        state = self._autocomplete_state
+        if not self.popup or not state or not state.session:
             if self.popup:
                 self.popup.hide()
             return
 
-        self.popup.update_view(self._session, self._active_anchor)
+        self.popup.update_view(state.session, state.anchor)
 
     async def _on_key(self, event: events.Key) -> None:
         # Handle autocomplete navigation if active
-        if self._session:
+        if self._autocomplete_state and self._autocomplete_state.session:
+            session = self._autocomplete_state.session
             if event.key == "down":
-                self._session.move_down()
+                session.move_down()
                 self._update_popup_view()
                 event.stop()
                 event.prevent_default()
                 return
             elif event.key == "up":
-                self._session.move_up()
+                session.move_up()
                 self._update_popup_view()
                 event.stop()
                 event.prevent_default()
                 return
             elif event.key in ("tab", "enter"):
-                result = self._session.get_selection()
+                result = session.get_selection()
                 if result:
                     self._apply_completion(result)
                     self._close_autocomplete()
@@ -166,32 +171,40 @@ class SmartInput(TextArea):
         search = self.autocompleter.check(cursor_and_line)
 
         if search.is_triggered():
-            self._active_search = search
-
             # Create Anchor
             caret_location = CaretScreenLocation(
                 offset=self.cursor_screen_offset,
                 screen_size=self.app.screen.size
             )
             anchor = caret_location.anchor_to_word(cursor_and_line)
-            self._active_anchor = anchor
+
+            self._autocomplete_state = AutocompleteState(
+                search=search,
+                anchor=anchor
+            )
 
             asyncio.create_task(self._fetch_suggestions(search))
         else:
             self._close_autocomplete()
 
     async def _fetch_suggestions(self, search: CompletionSearch) -> None:
-        if self._active_search is not search:
+        # Verify if the search is still active
+        current_state = self._autocomplete_state
+        if not current_state or current_state.search is not search:
             return
 
         suggestions = await search.get_suggestions()
 
-        if self._active_search is search:
-            if suggestions:
-                self._session = AutocompleteSession(suggestions)
-                self._update_popup_view()
-            else:
-                self._close_autocomplete()
+        # Re-verify state as async wait happened
+        current_state = self._autocomplete_state
+        if not current_state or current_state.search is not search:
+            return
+
+        if suggestions:
+            current_state.session = AutocompleteSession(suggestions)
+            self._update_popup_view()
+        else:
+            self._close_autocomplete()
 
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location
