@@ -25,12 +25,12 @@ class AutocompletePopup(Static):
     }
     """
 
-    def __init__(self, autocompleter: Autocompleter | None = None, **kwargs):
+    def __init__(self, autocompleter: Autocompleter, **kwargs):
         """
         Initialize the AutocompletePopup.
 
         Args:
-            autocompleter: Optional autocompleter instance to use.
+            autocompleter: Autocompleter instance to use.
             **kwargs: Arguments to pass to the superclass (Static).
         """
         super().__init__(**kwargs)
@@ -59,10 +59,6 @@ class AutocompletePopup(Static):
         return False
 
     def check(self, cursor_and_line: CursorAndLine, cursor_screen_offset: Offset, screen_size: Size) -> None:
-        if not self.autocompleter:
-             self.hide()
-             return
-
         search = self.autocompleter.check(cursor_and_line)
         if search:
             self._active_search = search
