@@ -38,12 +38,26 @@ def app():
     return TextualApp(StubUserInput(), AgentId("Agent"))
 
 
-def test_slash_command_registry_available_in_textarea():
+@pytest.mark.asyncio
+async def test_slash_command_registry_available_in_textarea():
     registry = SlashCommandRegistry()
     autocompleter = SlashCommandAutocompleter(registry)
     textarea = SmartInput(autocompleters=[autocompleter])
     
-    assert any(isinstance(s, SlashCommandAutocompleter) for s in textarea._autocompleters)
+    # Mount to trigger popup creation
+    app = TextualApp(StubUserInput(), AgentId("Agent"))
+    async with app.run_test() as pilot:
+        await pilot.pause() # Wait for mount
+        # We need to manually mount the textarea if it's not part of the app normally,
+        # but here we can just check if we can mount it or use the app's implicit structure.
+        # Actually, let's just use mount() manually on a simpler harness if needed,
+        # but SmartInput creates popup in on_mount.
+
+        # So we must mount textarea to check popup.
+        await app.mount(textarea)
+
+        # Check that the wrapped autocompleter is present
+        assert textarea.popup.autocompleter.autocompleters[0] is autocompleter
 
 
 def test_get_autocomplete_suggestions_for_slash():
@@ -236,7 +250,7 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         }
         completer = SlashCommandAutocompleter(registry)
 
-        popup.autocompleters = [completer]
+        popup.autocompleter = completer
 
         # Call public check method with input triggering the completer
         cursor_and_line = CursorAndLine(0, 1, "/")
@@ -259,7 +273,7 @@ async def test_autocomplete_popup_hide(app: TextualApp):
         # Use real completer
         registry = SlashCommandRegistry()
         completer = SlashCommandAutocompleter(registry)
-        popup.autocompleters = [completer]
+        popup.autocompleter = completer
 
         # Trigger display
         cursor_and_line = CursorAndLine(0, 1, "/")
@@ -410,11 +424,10 @@ async def test_submittable_text_area_ctrl_enter(app: TextualApp):
 
         assert text_area.text == "line1\n"
 
-def test_autocomplete_popup_init_with_autocompleters():
-    """Verify that AutocompletePopup accepts autocompleters argument."""
+def test_autocomplete_popup_init_with_autocompleter():
+    """Verify that AutocompletePopup accepts autocompleter argument."""
     registry = SlashCommandRegistry()
     autocompleter = SlashCommandAutocompleter(registry)
-    popup = AutocompletePopup(autocompleters=[autocompleter])
+    popup = AutocompletePopup(autocompleter=autocompleter)
 
-    assert len(popup.autocompleters) == 1
-    assert popup.autocompleters[0] is autocompleter
+    assert popup.autocompleter is autocompleter

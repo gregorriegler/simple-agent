@@ -25,16 +25,16 @@ class AutocompletePopup(Static):
     }
     """
 
-    def __init__(self, autocompleters: list[Autocompleter] | None = None, **kwargs):
+    def __init__(self, autocompleter: Autocompleter | None = None, **kwargs):
         """
         Initialize the AutocompletePopup.
 
         Args:
-            autocompleters: Optional list of autocompleter instances to use.
+            autocompleter: Optional autocompleter instance to use.
             **kwargs: Arguments to pass to the superclass (Static).
         """
         super().__init__(**kwargs)
-        self.autocompleters = autocompleters or []
+        self.autocompleter = autocompleter
 
         self._current_suggestions: list[Suggestion] = []
         self._selected_index: int = 0
@@ -59,14 +59,16 @@ class AutocompletePopup(Static):
         return False
 
     def check(self, cursor_and_line: CursorAndLine, cursor_screen_offset: Offset, screen_size: Size) -> None:
-        for autocompleter in self.autocompleters:
-            search = autocompleter.check(cursor_and_line)
-            if search:
-                self._active_search = search
-                asyncio.create_task(self._fetch_suggestions(search, cursor_screen_offset, screen_size))
-                return
+        if not self.autocompleter:
+             self.hide()
+             return
 
-        self.hide()
+        search = self.autocompleter.check(cursor_and_line)
+        if search:
+            self._active_search = search
+            asyncio.create_task(self._fetch_suggestions(search, cursor_screen_offset, screen_size))
+        else:
+            self.hide()
 
     def hide(self) -> None:
         self.display = False

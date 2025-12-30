@@ -132,3 +132,14 @@ class FileSearchAutocompleter:
         if current_word.startswith("@"):
              return FileSearch(query=current_word[1:], start_index=cursor_and_line.word_start_index, searcher=self.searcher)
         return None
+
+class CompositeAutocompleter:
+    def __init__(self, autocompleters: List[Autocompleter]):
+        self.autocompleters = autocompleters
+
+    def check(self, cursor_and_line: CursorAndLine) -> Optional[CompletionSearch]:
+        for autocompleter in self.autocompleters:
+            search = autocompleter.check(cursor_and_line)
+            if search:
+                return search
+        return None
