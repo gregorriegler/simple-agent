@@ -146,13 +146,13 @@ async def test_submit_hides_autocomplete_popup():
 
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
-        popup = app.query_one("#autocomplete-popup")
 
         text_area.focus()
         await pilot.press("/")
         await pilot.press("c")
         await pilot.pause()
 
+        popup = app.query_one("#autocomplete-popup")
         assert popup.display is True
 
         await pilot.press("enter")
@@ -168,7 +168,6 @@ async def test_autocomplete_popup_keeps_initial_x_position():
 
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
-        popup = app.query_one("#autocomplete-popup")
         text_area.focus()
 
         # Type to show popup
@@ -176,6 +175,7 @@ async def test_autocomplete_popup_keeps_initial_x_position():
         await pilot.press("c")
         await pilot.pause()
 
+        popup = app.query_one("#autocomplete-popup")
         assert popup.display
         initial_x = popup.absolute_offset.x
 
@@ -207,7 +207,10 @@ async def test_enter_key_selects_autocomplete_when_visible():
         
         assert text_area.text.startswith("/clear")
         assert len(user_input.inputs) == 0
-        assert text_area.popup.display is False
+
+        # When closed, popup might be None or display False (if we kept it, but we removed it)
+        # Since we remove it, text_area.popup should be None
+        assert text_area.popup is None
 
 
 @pytest.mark.asyncio
@@ -243,7 +246,8 @@ class SimpleSuggestion:
 @pytest.mark.asyncio
 async def test_autocomplete_popup_rendering(app: TextualApp):
     async with app.run_test() as pilot:
-        popup = app.query_one(AutocompletePopup)
+        popup = AutocompletePopup(id="autocomplete-popup")
+        await app.mount(popup)
         screen_size = Size(80, 24)
 
         # Create suggestions manually
@@ -274,7 +278,8 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
 @pytest.mark.asyncio
 async def test_autocomplete_popup_hide(app: TextualApp):
     async with app.run_test() as pilot:
-        popup = app.query_one(AutocompletePopup)
+        popup = AutocompletePopup(id="autocomplete-popup")
+        await app.mount(popup)
 
         strings = ["/cmd - desc"]
         suggestions = [SimpleSuggestion(s) for s in strings]
@@ -294,12 +299,12 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 async def test_submittable_text_area_slash_commands(app: TextualApp):
     async with app.run_test() as pilot:
         text_area = app.query_one(SmartInput)
-        popup = app.query_one(AutocompletePopup)
 
         text_area.focus()
         await pilot.press("/")
         await pilot.pause()
 
+        popup = app.query_one(AutocompletePopup)
         assert text_area.popup.display is True
         assert popup.display is True
 
@@ -316,8 +321,7 @@ async def test_submittable_text_area_slash_commands(app: TextualApp):
         await pilot.pause()
 
         assert text_area.text.startswith("/clear")
-        assert text_area.popup.display is False
-        assert popup.display is False
+        assert text_area.popup is None
 
 @pytest.mark.asyncio
 async def test_submittable_text_area_file_search(app: TextualApp):
@@ -364,7 +368,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
 
         assert "[📦my_file.py]" in text_area.text
         assert "s " in text_area.text
-        assert text_area.popup.display is False
+        assert text_area.popup is None
 
 @pytest.mark.asyncio
 async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
@@ -381,7 +385,7 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         # Test Escape
         await pilot.press("escape")
         await pilot.pause()
-        assert text_area.popup.display is False
+        assert text_area.popup is None
 
         # Re-open
         await pilot.press("backspace") # delete /
@@ -393,7 +397,7 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         await pilot.press("tab")
         await pilot.pause()
 
-        assert text_area.popup.display is False
+        assert text_area.popup is None
         # Should have selected the first one (likely /clear or /model, sorted alphabetically?)
         # Just check it started with /
         assert text_area.text.startswith("/")
