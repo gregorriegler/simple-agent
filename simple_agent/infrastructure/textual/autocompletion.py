@@ -1,3 +1,4 @@
+from textual.geometry import Offset, Size
 from typing import Protocol, List, Any, Optional
 from dataclasses import dataclass, field
 import logging
@@ -6,6 +7,20 @@ from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.file_search import FileSearcher
 
 logger = logging.getLogger(__name__)
+
+@dataclass
+class InputContext:
+    text: str
+    known_files: set[str] = field(default_factory=set)
+
+    @property
+    def active_files(self) -> set[str]:
+        return {f for f in self.known_files if f"[📦{f}]" in self.text}
+
+@dataclass
+class VisualContext:
+    cursor_offset: Offset
+    screen_size: Size
 
 @dataclass
 class WordAtCursor:

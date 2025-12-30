@@ -1,3 +1,4 @@
+from simple_agent.infrastructure.textual.autocompletion import InputContext
 import logging
 from pathlib import Path
 
@@ -9,12 +10,12 @@ class FileContextExpander:
     When the user submits text containing [📦path/to/file], this component
     reads the file and wraps it in <file_context> tags.
     """
-    def expand(self, text: str, referenced_files: set[str]) -> str:
-        content = text.strip()
+    def expand(self, context: InputContext) -> str:
+        content = context.text.strip()
 
         # Only process files that are actually referenced in the text
         # (This filters out files that were autocompleted but then deleted from text)
-        active_references = {f for f in referenced_files if f"[📦{f}]" in content}
+        active_references = context.active_files
 
         if active_references:
             file_contents = []

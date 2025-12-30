@@ -14,7 +14,9 @@ from simple_agent.infrastructure.textual.autocompletion import (
     SlashCommandAutocompleter,
     FileSearchAutocompleter,
     CompletionResult,
-    CursorAndLine
+    CursorAndLine,
+    InputContext,
+    VisualContext
 )
 from simple_agent.infrastructure.textual.widgets.file_context_expander import FileContextExpander
 
@@ -67,12 +69,14 @@ class SmartInput(TextArea):
 
     def get_referenced_files(self) -> set[str]:
         """Return the set of files that were selected via autocomplete and are still in the text."""
-        current_text = self.text
-        return {f for f in self._referenced_files if f"[📦{f}]" in current_text}
+        # We can just delegate to InputContext logic now
+        context = InputContext(text=self.text, known_files=self._referenced_files)
+        return context.active_files
 
     def submit(self) -> None:
         """Submit the current text."""
-        expanded_content = self.expander.expand(self.text, self._referenced_files)
+        context = InputContext(text=self.text, known_files=self._referenced_files)
+        expanded_content = self.expander.expand(context)
 
         self.post_message(self.Submitted(expanded_content))
 
@@ -124,8 +128,9 @@ class SmartInput(TextArea):
             return
 
         cursor_and_line = CursorAndLine(row, col, line)
+        visual_context = VisualContext(self.cursor_screen_offset, self.app.screen.size)
 
-        self.popup.check(cursor_and_line, self.cursor_screen_offset, self.app.screen.size)
+        self.popup.check(cursor_and_line, visual_context)
 
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location
