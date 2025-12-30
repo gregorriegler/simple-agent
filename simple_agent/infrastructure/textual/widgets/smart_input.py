@@ -100,12 +100,7 @@ class SmartInput(TextArea):
                 self.popup.hide()
             return
 
-        suggestions_text = [s.display_text for s in self._session.suggestions]
-        self.popup.display_suggestions(
-            suggestions_text,
-            self._session.selected_index,
-            self._active_anchor
-        )
+        self.popup.update_view(self._session, self._active_anchor)
 
     async def _on_key(self, event: events.Key) -> None:
         # Handle autocomplete navigation if active

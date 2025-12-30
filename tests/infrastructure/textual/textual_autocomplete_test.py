@@ -20,6 +20,8 @@ from simple_agent.infrastructure.textual.autocompletion import (
     SlashCommandSuggestion,
     FileSuggestion,
     CursorAndLine,
+    AutocompleteSession,
+    Suggestion,
 )
 
 class StubUserInput:
@@ -231,6 +233,13 @@ async def test_enter_key_submits_when_autocomplete_not_visible():
         assert len(user_input.inputs) == 1
         assert user_input.inputs[0] == "hello"
 
+@dataclass
+class SimpleSuggestion:
+    display_text: str
+
+    def to_completion_result(self) -> CompletionResult:
+        return CompletionResult(text=self.display_text)
+
 @pytest.mark.asyncio
 async def test_autocomplete_popup_rendering(app: TextualApp):
     async with app.run_test() as pilot:
@@ -243,12 +252,15 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
             "/looooooong - description"
         ]
 
+        suggestions = [SimpleSuggestion(s) for s in strings]
+        session = AutocompleteSession(suggestions=suggestions)
+
         # Calculate anchor manually (simulating what SmartInput does)
         cursor_offset = Offset(10, 10)
         anchor = PopupAnchor(cursor_offset, screen_size)
 
         # Show suggestions
-        popup.display_suggestions(strings, 0, anchor)
+        popup.update_view(session, anchor)
         await pilot.pause()
 
         assert popup.display is True
@@ -265,9 +277,12 @@ async def test_autocomplete_popup_hide(app: TextualApp):
         popup = app.query_one(AutocompletePopup)
 
         strings = ["/cmd - desc"]
+        suggestions = [SimpleSuggestion(s) for s in strings]
+        session = AutocompleteSession(suggestions=suggestions)
+
         anchor = PopupAnchor(Offset(0, 0), Size(80, 24))
 
-        popup.display_suggestions(strings, 0, anchor)
+        popup.update_view(session, anchor)
         await pilot.pause()
 
         assert popup.display is True
