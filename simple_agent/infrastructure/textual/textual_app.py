@@ -16,6 +16,7 @@ from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
 from simple_agent.infrastructure.textual.autocompletion import (
+    CompositeAutocompleter,
     SlashCommandAutocompleter,
     FileSearchAutocompleter
 )
@@ -126,13 +127,13 @@ class TextualApp(App):
         return AgentTabs.panel_ids_for(agent_id)
 
     def compose(self) -> ComposeResult:
-        autocompleters = [
+        autocompleter = CompositeAutocompleter([
             SlashCommandAutocompleter(self._slash_command_registry),
             FileSearchAutocompleter(self._file_searcher)
-        ]
+        ])
         with Vertical():
             yield AgentTabs(self._root_agent_id, id="tabs")
-            yield SmartInput(autocompleters=autocompleters, id="user-input")
+            yield SmartInput(autocompleter=autocompleter, id="user-input")
 
     async def on_mount(self) -> None:
         smart_input = self.query_one(SmartInput)

@@ -49,6 +49,23 @@ class PopupAnchor:
     def max_width(self) -> int:
         return self.screen_size.width
 
+    @classmethod
+    def from_cursor_context(cls, cursor_and_line: "CursorAndLine", cursor_screen_offset: Offset, screen_size: Size) -> "PopupAnchor":
+        """
+        Creates a PopupAnchor positioned relative to the start of the current word.
+        """
+        word = cursor_and_line.current_word
+        delta = cursor_and_line.col - word.start_index
+        anchor_x = cursor_screen_offset.x - delta
+
+        # Ensure we don't go negative
+        anchor_x = max(0, anchor_x)
+
+        return cls(
+            cursor_offset=Offset(anchor_x, cursor_screen_offset.y),
+            screen_size=screen_size
+        )
+
 @dataclass
 class WordAtCursor:
     word: str
@@ -213,4 +230,9 @@ class CompositeAutocompleter:
             search = autocompleter.check(cursor_and_line)
             if search.is_triggered():
                 return search
+        return NoOpSearch()
+
+
+class NullAutocompleter:
+    def check(self, cursor_and_line: CursorAndLine) -> CompletionSearch:
         return NoOpSearch()

@@ -43,7 +43,7 @@ def app():
 async def test_slash_command_registry_available_in_textarea():
     registry = SlashCommandRegistry()
     autocompleter = SlashCommandAutocompleter(registry)
-    textarea = SmartInput(autocompleters=[autocompleter])
+    textarea = SmartInput(autocompleter=autocompleter)
     
     # Mount to trigger popup creation
     app = TextualApp(StubUserInput(), AgentId("Agent"))
@@ -57,8 +57,8 @@ async def test_slash_command_registry_available_in_textarea():
         # So we must mount textarea to check popup.
         await app.mount(textarea)
 
-        # Check that the wrapped autocompleter is present
-        assert textarea.popup.autocompleter.autocompleters[0] is autocompleter
+        # Check that the autocompleter is present
+        assert textarea.popup.autocompleter is autocompleter
 
 
 def test_get_autocomplete_suggestions_for_slash():
@@ -328,9 +328,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
     mock_searcher = AsyncMock()
     mock_searcher.search.return_value = ["my_file.py", "other_file.txt"]
 
-    autocompleters = [
-        FileSearchAutocompleter(mock_searcher)
-    ]
+    autocompleter = FileSearchAutocompleter(mock_searcher)
 
     # We need to inject this into the SmartInput widget in the app.
     # Since TextualApp composes SmartInput in compose(), we can't easily intercept it unless we subclass TextualApp
@@ -344,7 +342,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
             with Vertical():
                 yield AgentTabs(self._root_agent_id, id="tabs")
                 # Inject our custom autocompleters
-                yield SmartInput(autocompleters=autocompleters, id="user-input")
+                yield SmartInput(autocompleter=autocompleter, id="user-input")
 
     test_app = TestApp(StubUserInput(), AgentId("Agent"))
 

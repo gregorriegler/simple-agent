@@ -11,9 +11,7 @@ from textual.geometry import Offset
 from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup
 from simple_agent.infrastructure.textual.autocompletion import (
     Autocompleter,
-    CompositeAutocompleter,
-    SlashCommandAutocompleter,
-    FileSearchAutocompleter,
+    NullAutocompleter,
     CompletionResult,
     CursorAndLine,
     MessageDraft,
@@ -47,14 +45,13 @@ class SmartInput(TextArea):
 
     def __init__(
         self,
-        autocompleters: list[Autocompleter] | None = None,
+        autocompleter: Autocompleter = NullAutocompleter(),
         id: str | None = None,
         **kwargs
     ):
         super().__init__(id=id, **kwargs)
 
-        self._autocompleters = autocompleters or []
-
+        self.autocompleter = autocompleter
         self.popup: AutocompletePopup | None = None
         self.expander = FileContextExpander()
 
@@ -63,9 +60,7 @@ class SmartInput(TextArea):
     def on_mount(self) -> None:
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
 
-        # Wrap the list of autocompleters in a CompositeAutocompleter
-        composite_autocompleter = CompositeAutocompleter(self._autocompleters)
-        self.popup = AutocompletePopup(autocompleter=composite_autocompleter, id="autocomplete-popup")
+        self.popup = AutocompletePopup(autocompleter=self.autocompleter, id="autocomplete-popup")
         self.mount(self.popup)
 
     def get_referenced_files(self) -> set[str]:
@@ -128,16 +123,9 @@ class SmartInput(TextArea):
 
         cursor_and_line = CursorAndLine(row, col, line)
 
-        # Calculate stable anchor position relative to the start of the word being completed
-        word = cursor_and_line.current_word
-        delta = col - word.start_index
-        anchor_x = self.cursor_screen_offset.x - delta
-
-        # Ensure we don't go negative (though delta should be positive within the line)
-        anchor_x = max(0, anchor_x)
-
-        anchor = PopupAnchor(
-            Offset(anchor_x, self.cursor_screen_offset.y),
+        anchor = PopupAnchor.from_cursor_context(
+            cursor_and_line,
+            self.cursor_screen_offset,
             self.app.screen.size
         )
 
