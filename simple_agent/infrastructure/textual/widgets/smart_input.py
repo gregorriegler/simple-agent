@@ -10,7 +10,7 @@ from textual.geometry import Offset
 
 from simple_agent.infrastructure.textual.widgets.autocomplete_popup import (
     AutocompletePopup,
-    CaretDisplayState,
+    CaretScreenLocation,
 )
 from simple_agent.infrastructure.textual.autocompletion import (
     Autocompleter,
@@ -124,12 +124,12 @@ class SmartInput(TextArea):
             return
 
         cursor_and_line = CursorAndLine(row, col, line)
-        caret_state = CaretDisplayState(
+        caret_location = CaretScreenLocation(
             offset=self.cursor_screen_offset,
             screen_size=self.app.screen.size
         )
 
-        self.popup.check(cursor_and_line, caret_state)
+        self.popup.check(cursor_and_line, caret_location)
 
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location

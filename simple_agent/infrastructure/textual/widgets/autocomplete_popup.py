@@ -14,11 +14,6 @@ from simple_agent.infrastructure.textual.autocompletion import (
 )
 
 @dataclass
-class CaretDisplayState:
-    offset: Offset
-    screen_size: Size
-
-@dataclass
 class PopupAnchor:
     """Encapsulates the visual state needed to position the popup."""
     cursor_offset: Offset
@@ -58,21 +53,25 @@ class PopupAnchor:
     def max_width(self) -> int:
         return self.screen_size.width
 
-    @classmethod
-    def from_caret_state(cls, cursor_and_line: "CursorAndLine", caret_state: CaretDisplayState) -> "PopupAnchor":
+@dataclass
+class CaretScreenLocation:
+    offset: Offset
+    screen_size: Size
+
+    def anchor_to_word(self, cursor_and_line: "CursorAndLine") -> "PopupAnchor":
         """
         Creates a PopupAnchor positioned relative to the start of the current word.
         """
         word = cursor_and_line.current_word
         delta = cursor_and_line.col - word.start_index
-        anchor_x = caret_state.offset.x - delta
+        anchor_x = self.offset.x - delta
 
         # Ensure we don't go negative
         anchor_x = max(0, anchor_x)
 
-        return cls(
-            cursor_offset=Offset(anchor_x, caret_state.offset.y),
-            screen_size=caret_state.screen_size
+        return PopupAnchor(
+            cursor_offset=Offset(anchor_x, self.offset.y),
+            screen_size=self.screen_size
         )
 
 class AutocompletePopup(Static):
@@ -119,15 +118,15 @@ class AutocompletePopup(Static):
 
         return False
 
-    def check(self, cursor_and_line: CursorAndLine, caret_state: CaretDisplayState) -> None:
+    def check(self, cursor_and_line: CursorAndLine, caret_location: CaretScreenLocation) -> None:
         search = self.autocompleter.check(cursor_and_line)
         # Even if search is NoOpSearch (not triggered), calling get_suggestions handles it (returns empty).
         # However, we want to know if we should potentially show something.
         # If not triggered, we should hide.
         if search.is_triggered():
             self._active_search = search
-            # Calculate anchor internally
-            anchor = PopupAnchor.from_caret_state(cursor_and_line, caret_state)
+            # Calculate anchor internally using the passed caret location
+            anchor = caret_location.anchor_to_word(cursor_and_line)
             asyncio.create_task(self._fetch_suggestions(search, anchor))
         else:
             self.hide()
