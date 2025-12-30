@@ -6,6 +6,7 @@ from rich.text import Text
 from textual import events
 from textual.message import Message
 from textual.widgets import TextArea
+from textual.geometry import Offset
 
 from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup
 from simple_agent.infrastructure.textual.autocompletion import (
@@ -15,7 +16,8 @@ from simple_agent.infrastructure.textual.autocompletion import (
     FileSearchAutocompleter,
     CompletionResult,
     CursorAndLine,
-    MessageDraft
+    MessageDraft,
+    PopupAnchor,
 )
 from simple_agent.infrastructure.textual.widgets.file_context_expander import FileContextExpander
 
@@ -126,7 +128,20 @@ class SmartInput(TextArea):
 
         cursor_and_line = CursorAndLine(row, col, line)
 
-        self.popup.check(cursor_and_line, AutocompletePopup.PopupAnchor(self.cursor_screen_offset, self.app.screen.size))
+        # Calculate stable anchor position relative to the start of the word being completed
+        word = cursor_and_line.current_word
+        delta = col - word.start_index
+        anchor_x = self.cursor_screen_offset.x - delta
+
+        # Ensure we don't go negative (though delta should be positive within the line)
+        anchor_x = max(0, anchor_x)
+
+        anchor = PopupAnchor(
+            Offset(anchor_x, self.cursor_screen_offset.y),
+            self.app.screen.size
+        )
+
+        self.popup.check(cursor_and_line, anchor)
 
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location
