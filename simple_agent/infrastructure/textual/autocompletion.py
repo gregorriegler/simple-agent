@@ -4,6 +4,7 @@ import logging
 
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.file_search import FileSearcher
+from simple_agent.infrastructure.textual.popup_geometry import PopupAnchor
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +92,62 @@ class Autocompleter(Protocol):
         Returns a CompletionSearch object (which may be a NoOpSearch).
         """
         ...
+
+class AutocompleteView(Protocol):
+    def update_view(self, suggestion_list: SuggestionList, anchor: PopupAnchor) -> None:
+        """
+        Render the suggestions list at the specified anchor.
+        """
+        ...
+
+    def hide(self) -> None:
+        """
+        Hide the view.
+        """
+        ...
+
+@dataclass
+class AutocompleteSession:
+    search: CompletionSearch
+    anchor: PopupAnchor
+    view: Optional[AutocompleteView] = None
+    suggestion_list: Optional[SuggestionList] = None
+    _active: bool = field(default=True, init=False)
+
+    def move_selection_down(self) -> None:
+        if self.suggestion_list:
+            self.suggestion_list.move_down()
+            self.update_view()
+
+    def move_selection_up(self) -> None:
+        if self.suggestion_list:
+            self.suggestion_list.move_up()
+            self.update_view()
+
+    def get_selection(self) -> Optional[CompletionResult]:
+        if self.suggestion_list:
+            return self.suggestion_list.get_selection()
+        return None
+
+    def update_view(self) -> None:
+        if self._active and self.view and self.suggestion_list:
+            self.view.update_view(self.suggestion_list, self.anchor)
+
+    async def start(self) -> None:
+        suggestions = await self.search.get_suggestions()
+        if not self._active:
+            return
+
+        if suggestions:
+            self.suggestion_list = SuggestionList(suggestions)
+            self.update_view()
+        else:
+            self.close()
+
+    def close(self) -> None:
+        self._active = False
+        if self.view:
+            self.view.hide()
 
 @dataclass
 class SlashCommandSuggestion:

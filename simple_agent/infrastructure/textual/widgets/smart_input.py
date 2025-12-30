@@ -23,16 +23,11 @@ from simple_agent.infrastructure.textual.autocompletion import (
     MessageDraft,
     Suggestion,
     SuggestionList,
+    AutocompleteSession,
 )
 from simple_agent.infrastructure.textual.widgets.file_context_expander import FileContextExpander
 
 logger = logging.getLogger(__name__)
-
-@dataclass
-class AutocompleteSession:
-    search: CompletionSearch
-    anchor: PopupAnchor
-    suggestion_list: Optional[SuggestionList] = None
 
 class SmartInput(TextArea):
     """
@@ -92,38 +87,25 @@ class SmartInput(TextArea):
 
     def _close_autocomplete(self) -> None:
         """Clear autocomplete state and hide popup."""
-        self._active_session = None
-        if self.popup:
-            self.popup.hide()
-
-    def _update_popup_view(self) -> None:
-        """Update the popup view based on current session state."""
-        session = self._active_session
-        if not self.popup or not session or not session.suggestion_list:
-            if self.popup:
-                self.popup.hide()
-            return
-
-        self.popup.update_view(session.suggestion_list, session.anchor)
+        if self._active_session:
+            self._active_session.close()
+            self._active_session = None
 
     async def _on_key(self, event: events.Key) -> None:
         # Handle autocomplete navigation if active
         if self._active_session and self._active_session.suggestion_list:
-            suggestion_list = self._active_session.suggestion_list
             if event.key == "down":
-                suggestion_list.move_down()
-                self._update_popup_view()
+                self._active_session.move_selection_down()
                 event.stop()
                 event.prevent_default()
                 return
             elif event.key == "up":
-                suggestion_list.move_up()
-                self._update_popup_view()
+                self._active_session.move_selection_up()
                 event.stop()
                 event.prevent_default()
                 return
             elif event.key in ("tab", "enter"):
-                result = suggestion_list.get_selection()
+                result = self._active_session.get_selection()
                 if result:
                     self._apply_completion(result)
                     self._close_autocomplete()
@@ -180,29 +162,11 @@ class SmartInput(TextArea):
 
             self._active_session = AutocompleteSession(
                 search=search,
-                anchor=anchor
+                anchor=anchor,
+                view=self.popup,
             )
 
-            asyncio.create_task(self._fetch_suggestions(search))
-        else:
-            self._close_autocomplete()
-
-    async def _fetch_suggestions(self, search: CompletionSearch) -> None:
-        # Verify if the search is still active
-        session = self._active_session
-        if not session or session.search is not search:
-            return
-
-        suggestions = await search.get_suggestions()
-
-        # Re-verify state as async wait happened
-        session = self._active_session
-        if not session or session.search is not search:
-            return
-
-        if suggestions:
-            session.suggestion_list = SuggestionList(suggestions)
-            self._update_popup_view()
+            asyncio.create_task(self._active_session.start())
         else:
             self._close_autocomplete()
 
