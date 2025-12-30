@@ -3,7 +3,7 @@ from typing import List
 from textual.widgets import Static
 from rich.text import Text
 
-from simple_agent.infrastructure.textual.autocompletion import AutocompleteSession
+from simple_agent.infrastructure.textual.autocompletion import SuggestionList
 from simple_agent.infrastructure.textual.popup_geometry import PopupAnchor, PopupLayout
 
 class AutocompletePopup(Static):
@@ -18,7 +18,7 @@ class AutocompletePopup(Static):
     }
     """
 
-    def update_view(self, session: AutocompleteSession, anchor: PopupAnchor) -> None:
+    def update_view(self, session: SuggestionList, anchor: PopupAnchor) -> None:
         """
         Render the suggestions list at the specified anchor.
         """

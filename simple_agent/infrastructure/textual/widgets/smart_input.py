@@ -22,17 +22,17 @@ from simple_agent.infrastructure.textual.autocompletion import (
     CursorAndLine,
     MessageDraft,
     Suggestion,
-    AutocompleteSession,
+    SuggestionList,
 )
 from simple_agent.infrastructure.textual.widgets.file_context_expander import FileContextExpander
 
 logger = logging.getLogger(__name__)
 
 @dataclass
-class AutocompleteState:
+class AutocompleteSession:
     search: CompletionSearch
     anchor: PopupAnchor
-    session: Optional[AutocompleteSession] = None
+    suggestion_list: Optional[SuggestionList] = None
 
 class SmartInput(TextArea):
     """
@@ -66,7 +66,7 @@ class SmartInput(TextArea):
         self.expander = FileContextExpander()
 
         self._referenced_files: set[str] = set()
-        self._autocomplete_state: AutocompleteState | None = None
+        self._active_session: AutocompleteSession | None = None
 
     def on_mount(self) -> None:
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
@@ -92,38 +92,38 @@ class SmartInput(TextArea):
 
     def _close_autocomplete(self) -> None:
         """Clear autocomplete state and hide popup."""
-        self._autocomplete_state = None
+        self._active_session = None
         if self.popup:
             self.popup.hide()
 
     def _update_popup_view(self) -> None:
         """Update the popup view based on current session state."""
-        state = self._autocomplete_state
-        if not self.popup or not state or not state.session:
+        session = self._active_session
+        if not self.popup or not session or not session.suggestion_list:
             if self.popup:
                 self.popup.hide()
             return
 
-        self.popup.update_view(state.session, state.anchor)
+        self.popup.update_view(session.suggestion_list, session.anchor)
 
     async def _on_key(self, event: events.Key) -> None:
         # Handle autocomplete navigation if active
-        if self._autocomplete_state and self._autocomplete_state.session:
-            session = self._autocomplete_state.session
+        if self._active_session and self._active_session.suggestion_list:
+            suggestion_list = self._active_session.suggestion_list
             if event.key == "down":
-                session.move_down()
+                suggestion_list.move_down()
                 self._update_popup_view()
                 event.stop()
                 event.prevent_default()
                 return
             elif event.key == "up":
-                session.move_up()
+                suggestion_list.move_up()
                 self._update_popup_view()
                 event.stop()
                 event.prevent_default()
                 return
             elif event.key in ("tab", "enter"):
-                result = session.get_selection()
+                result = suggestion_list.get_selection()
                 if result:
                     self._apply_completion(result)
                     self._close_autocomplete()
@@ -178,7 +178,7 @@ class SmartInput(TextArea):
             )
             anchor = caret_location.anchor_to_word(cursor_and_line)
 
-            self._autocomplete_state = AutocompleteState(
+            self._active_session = AutocompleteSession(
                 search=search,
                 anchor=anchor
             )
@@ -189,19 +189,19 @@ class SmartInput(TextArea):
 
     async def _fetch_suggestions(self, search: CompletionSearch) -> None:
         # Verify if the search is still active
-        current_state = self._autocomplete_state
-        if not current_state or current_state.search is not search:
+        session = self._active_session
+        if not session or session.search is not search:
             return
 
         suggestions = await search.get_suggestions()
 
         # Re-verify state as async wait happened
-        current_state = self._autocomplete_state
-        if not current_state or current_state.search is not search:
+        session = self._active_session
+        if not session or session.search is not search:
             return
 
         if suggestions:
-            current_state.session = AutocompleteSession(suggestions)
+            session.suggestion_list = SuggestionList(suggestions)
             self._update_popup_view()
         else:
             self._close_autocomplete()

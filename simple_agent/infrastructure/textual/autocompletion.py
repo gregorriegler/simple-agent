@@ -52,7 +52,7 @@ class Suggestion(Protocol):
     def to_completion_result(self) -> CompletionResult: ...
 
 @dataclass
-class AutocompleteSession:
+class SuggestionList:
     suggestions: List[Suggestion]
     selected_index: int = 0
 
