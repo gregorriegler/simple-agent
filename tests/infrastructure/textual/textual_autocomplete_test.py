@@ -9,7 +9,7 @@ from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
 from simple_agent.infrastructure.textual.widgets.autocomplete_popup import (
     AutocompletePopup,
     PopupAnchor,
-    CaretDisplayState
+    CaretScreenLocation
 )
 from simple_agent.application.agent_id import AgentId
 from simple_agent.infrastructure.textual.autocompletion import (
@@ -254,8 +254,8 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
 
         # Call public check method with input triggering the completer
         cursor_and_line = CursorAndLine(0, 1, "/")
-        caret_state = CaretDisplayState(Offset(10, 10), screen_size)
-        popup.check(cursor_and_line, caret_state)
+        caret_location = CaretScreenLocation(Offset(10, 10), screen_size)
+        popup.check(cursor_and_line, caret_location)
         await pilot.pause()
 
         assert popup.display is True
@@ -278,8 +278,8 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 
         # Trigger display
         cursor_and_line = CursorAndLine(0, 1, "/")
-        caret_state = CaretDisplayState(Offset(0, 0), Size(80, 24))
-        popup.check(cursor_and_line, caret_state)
+        caret_location = CaretScreenLocation(Offset(0, 0), Size(80, 24))
+        popup.check(cursor_and_line, caret_location)
         await pilot.pause()
 
         assert popup.display is True
