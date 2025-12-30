@@ -90,13 +90,9 @@ def test_no_suggestions_for_regular_text():
 def test_autocomplete_position_prefers_below_cursor():
     screen_size = Size(80, 24)
     cursor_offset = Offset(10, 10)
+    anchor = AutocompletePopup.PopupAnchor(cursor_offset, screen_size)
 
-    position = AutocompletePopup._calculate_position(
-        cursor_offset=cursor_offset,
-        screen_size=screen_size,
-        popup_height=3,
-        popup_width=12,
-    )
+    position = anchor.get_placement(Size(12, 3))
 
     assert position.y == 11
     assert position.x == 8
@@ -105,41 +101,41 @@ def test_autocomplete_position_prefers_below_cursor():
 def test_autocomplete_position_uses_above_when_no_room_below():
     screen_size = Size(80, 10)
     cursor_offset = Offset(10, 8)
+    anchor = AutocompletePopup.PopupAnchor(cursor_offset, screen_size)
 
-    position = AutocompletePopup._calculate_position(
-        cursor_offset=cursor_offset,
-        screen_size=screen_size,
-        popup_height=3,
-        popup_width=12,
-    )
+    position = anchor.get_placement(Size(12, 3))
 
     assert position.y == 5
 
 def test_calculate_autocomplete_position_edge_cases():
     screen_size = Size(80, 24)
-    popup_height = 5
-    popup_width = 20
+    popup_size = Size(20, 5)
 
     cursor_offset = Offset(10, 5)
-    pos = AutocompletePopup._calculate_position(cursor_offset, screen_size, popup_height, popup_width)
+    anchor = AutocompletePopup.PopupAnchor(cursor_offset, screen_size)
+    pos = anchor.get_placement(popup_size)
     assert pos.y == 6
     assert pos.x == 8
 
     cursor_offset = Offset(10, 20)
-    pos = AutocompletePopup._calculate_position(cursor_offset, screen_size, popup_height, popup_width)
+    anchor = AutocompletePopup.PopupAnchor(cursor_offset, screen_size)
+    pos = anchor.get_placement(popup_size)
     assert pos.y == 15
 
     cursor_offset = Offset(75, 5)
-    pos = AutocompletePopup._calculate_position(cursor_offset, screen_size, popup_height, popup_width)
+    anchor = AutocompletePopup.PopupAnchor(cursor_offset, screen_size)
+    pos = anchor.get_placement(popup_size)
     assert pos.x == 60
 
     cursor_offset = Offset(1, 5)
-    pos = AutocompletePopup._calculate_position(cursor_offset, screen_size, popup_height, popup_width)
+    anchor = AutocompletePopup.PopupAnchor(cursor_offset, screen_size)
+    pos = anchor.get_placement(popup_size)
     assert pos.x == 0
 
     small_screen = Size(80, 10)
     cursor_offset = Offset(10, 8)
-    pos = AutocompletePopup._calculate_position(cursor_offset, small_screen, popup_height, popup_width)
+    anchor = AutocompletePopup.PopupAnchor(cursor_offset, small_screen)
+    pos = anchor.get_placement(popup_size)
     assert pos.y == 3
 
 @pytest.mark.asyncio
@@ -254,7 +250,7 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
 
         # Call public check method with input triggering the completer
         cursor_and_line = CursorAndLine(0, 1, "/")
-        popup.check(cursor_and_line, AutocompletePopup.VisualContext(Offset(10, 10), screen_size))
+        popup.check(cursor_and_line, AutocompletePopup.PopupAnchor(Offset(10, 10), screen_size))
         await pilot.pause()
 
         assert popup.display is True
@@ -277,7 +273,7 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 
         # Trigger display
         cursor_and_line = CursorAndLine(0, 1, "/")
-        popup.check(cursor_and_line, AutocompletePopup.VisualContext(Offset(0, 0), Size(80, 24)))
+        popup.check(cursor_and_line, AutocompletePopup.PopupAnchor(Offset(0, 0), Size(80, 24)))
         await pilot.pause()
 
         assert popup.display is True

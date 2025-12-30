@@ -15,7 +15,7 @@ from simple_agent.infrastructure.textual.autocompletion import (
     FileSearchAutocompleter,
     CompletionResult,
     CursorAndLine,
-    InputContext
+    MessageDraft
 )
 from simple_agent.infrastructure.textual.widgets.file_context_expander import FileContextExpander
 
@@ -68,12 +68,12 @@ class SmartInput(TextArea):
 
     def get_referenced_files(self) -> set[str]:
         """Return the set of files that were selected via autocomplete and are still in the text."""
-        return InputContext(self.text, self._referenced_files).active_files
+        return MessageDraft(self.text, self._referenced_files).active_files
 
     def submit(self) -> None:
         """Submit the current text."""
-        context = InputContext(self.text, self._referenced_files)
-        expanded_content = self.expander.expand(context)
+        draft = MessageDraft(self.text, self._referenced_files)
+        expanded_content = self.expander.expand(draft)
 
         self.post_message(self.Submitted(expanded_content))
 
@@ -126,7 +126,7 @@ class SmartInput(TextArea):
 
         cursor_and_line = CursorAndLine(row, col, line)
 
-        self.popup.check(cursor_and_line, AutocompletePopup.VisualContext(self.cursor_screen_offset, self.app.screen.size))
+        self.popup.check(cursor_and_line, AutocompletePopup.PopupAnchor(self.cursor_screen_offset, self.app.screen.size))
 
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location

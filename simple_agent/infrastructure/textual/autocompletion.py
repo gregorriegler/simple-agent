@@ -31,7 +31,7 @@ class CursorAndLine:
         return WordAtCursor.from_cursor(self.line, self.col)
 
 @dataclass
-class InputContext:
+class MessageDraft:
     text: str
     known_files: set[str] = field(default_factory=set)
 
