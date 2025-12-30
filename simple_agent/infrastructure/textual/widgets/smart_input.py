@@ -21,6 +21,7 @@ from simple_agent.infrastructure.textual.autocompletion import (
     CursorAndLine,
     MessageDraft,
     Suggestion,
+    AutocompleteSession,
 )
 from simple_agent.infrastructure.textual.widgets.file_context_expander import FileContextExpander
 
@@ -59,11 +60,13 @@ class SmartInput(TextArea):
 
         self._referenced_files: set[str] = set()
         self._active_search: CompletionSearch | None = None
+        self._session: AutocompleteSession | None = None
+        self._active_anchor: PopupAnchor | None = None
 
     def on_mount(self) -> None:
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
 
-        # AutocompletePopup is now a dumb view, doesn't need autocompleter
+        # AutocompletePopup is now a dumb view
         self.popup = AutocompletePopup(id="autocomplete-popup")
         self.mount(self.popup)
 
@@ -80,20 +83,55 @@ class SmartInput(TextArea):
 
         self.clear()
         self._referenced_files.clear()
+        self._close_autocomplete()
+
+    def _close_autocomplete(self) -> None:
+        """Clear autocomplete state and hide popup."""
+        self._session = None
+        self._active_search = None
+        self._active_anchor = None
         if self.popup:
             self.popup.hide()
-        self._active_search = None
+
+    def _update_popup_view(self) -> None:
+        """Update the popup view based on current session state."""
+        if not self.popup or not self._session or not self._active_anchor:
+            if self.popup:
+                self.popup.hide()
+            return
+
+        suggestions_text = [s.display_text for s in self._session.suggestions]
+        self.popup.display_suggestions(
+            suggestions_text,
+            self._session.selected_index,
+            self._active_anchor
+        )
 
     async def _on_key(self, event: events.Key) -> None:
-        if self.popup and self.popup.display:
-            result = await self.popup.handle_key(event.key)
-            if isinstance(result, CompletionResult):
-                self._apply_completion(result)
+        # Handle autocomplete navigation if active
+        if self._session:
+            if event.key == "down":
+                self._session.move_down()
+                self._update_popup_view()
                 event.stop()
                 event.prevent_default()
                 return
-            elif result is True:
-                # Key handled by popup (e.g. navigation), prevent default behavior
+            elif event.key == "up":
+                self._session.move_up()
+                self._update_popup_view()
+                event.stop()
+                event.prevent_default()
+                return
+            elif event.key in ("tab", "enter"):
+                result = self._session.get_selection()
+                if result:
+                    self._apply_completion(result)
+                    self._close_autocomplete()
+                    event.stop()
+                    event.prevent_default()
+                    return
+            elif event.key == "escape":
+                self._close_autocomplete()
                 event.stop()
                 event.prevent_default()
                 return
@@ -124,8 +162,7 @@ class SmartInput(TextArea):
         try:
             line = self.document.get_line(row)
         except IndexError:
-            self.popup.hide()
-            self._active_search = None
+            self._close_autocomplete()
             return
 
         cursor_and_line = CursorAndLine(row, col, line)
@@ -142,13 +179,13 @@ class SmartInput(TextArea):
                 screen_size=self.app.screen.size
             )
             anchor = caret_location.anchor_to_word(cursor_and_line)
+            self._active_anchor = anchor
 
-            asyncio.create_task(self._fetch_suggestions(search, anchor))
+            asyncio.create_task(self._fetch_suggestions(search))
         else:
-            self.popup.hide()
-            self._active_search = None
+            self._close_autocomplete()
 
-    async def _fetch_suggestions(self, search: CompletionSearch, anchor: PopupAnchor) -> None:
+    async def _fetch_suggestions(self, search: CompletionSearch) -> None:
         if self._active_search is not search:
             return
 
@@ -156,11 +193,10 @@ class SmartInput(TextArea):
 
         if self._active_search is search:
             if suggestions:
-                if self.popup:
-                    self.popup.show(suggestions, anchor)
+                self._session = AutocompleteSession(suggestions)
+                self._update_popup_view()
             else:
-                if self.popup:
-                    self.popup.hide()
+                self._close_autocomplete()
 
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location
