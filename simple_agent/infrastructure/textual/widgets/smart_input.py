@@ -23,7 +23,6 @@ from simple_agent.infrastructure.textual.autocompletion import (
     MessageDraft,
     Suggestion,
     SuggestionList,
-    AutocompleteSession,
 )
 from simple_agent.infrastructure.textual.widgets.file_context_expander import FileContextExpander
 
@@ -61,7 +60,6 @@ class SmartInput(TextArea):
         self.expander = FileContextExpander()
 
         self._referenced_files: set[str] = set()
-        self._active_session: AutocompleteSession | None = None
 
     def on_mount(self) -> None:
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
@@ -83,29 +81,26 @@ class SmartInput(TextArea):
 
     def _close_autocomplete(self) -> None:
         """Clear autocomplete state and hide popup."""
-        if self._active_session:
-            self._active_session.close()
-            self._active_session = None
-
         if self.popup:
+            self.popup.close()
             self.popup.remove()
             self.popup = None
 
     async def _on_key(self, event: events.Key) -> None:
         # Handle autocomplete navigation if active
-        if self._active_session and self._active_session.suggestion_list:
+        if self.popup and self.popup.suggestion_list:
             if event.key == "down":
-                self._active_session.move_selection_down()
+                self.popup.move_selection_down()
                 event.stop()
                 event.prevent_default()
                 return
             elif event.key == "up":
-                self._active_session.move_selection_up()
+                self.popup.move_selection_up()
                 event.stop()
                 event.prevent_default()
                 return
             elif event.key in ("tab", "enter"):
-                result = self._active_session.get_selection()
+                result = self.popup.get_selection()
                 if result:
                     self._apply_completion(result)
                     self._close_autocomplete()
@@ -160,13 +155,7 @@ class SmartInput(TextArea):
             )
             anchor = caret_location.anchor_to_word(cursor_and_line)
 
-            self._active_session = AutocompleteSession(
-                search=search,
-                anchor=anchor,
-                view=self.popup,
-            )
-
-            asyncio.create_task(self._active_session.start())
+            asyncio.create_task(self.popup.start(search, anchor))
         else:
             self._close_autocomplete()
 
