@@ -51,6 +51,26 @@ class Suggestion(Protocol):
 
     def to_completion_result(self) -> CompletionResult: ...
 
+@dataclass
+class AutocompleteSession:
+    suggestions: List[Suggestion]
+    selected_index: int = 0
+
+    def move_down(self) -> None:
+        if not self.suggestions:
+            return
+        self.selected_index = (self.selected_index + 1) % len(self.suggestions)
+
+    def move_up(self) -> None:
+        if not self.suggestions:
+            return
+        self.selected_index = (self.selected_index - 1) % len(self.suggestions)
+
+    def get_selection(self) -> Optional[CompletionResult]:
+        if not self.suggestions:
+            return None
+        return self.suggestions[self.selected_index].to_completion_result()
+
 class CompletionSearch(Protocol):
     async def get_suggestions(self) -> List[Suggestion]:
         """

@@ -6,11 +6,9 @@ from textual.geometry import Offset, Size
 from rich.text import Text
 
 from simple_agent.infrastructure.textual.autocompletion import (
-    Autocompleter,
-    CompletionSearch,
     CompletionResult,
     Suggestion,
-    CursorAndLine,
+    AutocompleteSession,
 )
 
 @dataclass
@@ -58,7 +56,7 @@ class CaretScreenLocation:
     offset: Offset
     screen_size: Size
 
-    def anchor_to_word(self, cursor_and_line: "CursorAndLine") -> "PopupAnchor":
+    def anchor_to_word(self, cursor_and_line: Any) -> "PopupAnchor":
         """
         Creates a PopupAnchor positioned relative to the start of the current word.
         """
@@ -86,20 +84,12 @@ class AutocompletePopup(Static):
     }
     """
 
-    def __init__(self, autocompleter: Autocompleter, **kwargs):
+    def __init__(self, **kwargs):
         """
         Initialize the AutocompletePopup.
-
-        Args:
-            autocompleter: Autocompleter instance to use.
-            **kwargs: Arguments to pass to the superclass (Static).
         """
         super().__init__(**kwargs)
-        self.autocompleter = autocompleter
-
-        self._current_suggestions: list[Suggestion] = []
-        self._selected_index: int = 0
-        self._active_search: CompletionSearch | None = None
+        self._session: Optional[AutocompleteSession] = None
 
     async def handle_key(self, key: str) -> bool | CompletionResult:
         if not self.display:
@@ -118,87 +108,46 @@ class AutocompletePopup(Static):
 
         return False
 
-    def check(self, cursor_and_line: CursorAndLine, caret_location: CaretScreenLocation) -> None:
-        search = self.autocompleter.check(cursor_and_line)
-        # Even if search is NoOpSearch (not triggered), calling get_suggestions handles it (returns empty).
-        # However, we want to know if we should potentially show something.
-        # If not triggered, we should hide.
-        if search.is_triggered():
-            self._active_search = search
-            # Calculate anchor internally using the passed caret location
-            anchor = caret_location.anchor_to_word(cursor_and_line)
-            asyncio.create_task(self._fetch_suggestions(search, anchor))
-        else:
-            self.hide()
-
     def hide(self) -> None:
         self.display = False
-        self._current_suggestions = []
-        self._selected_index = 0
-        self._active_search = None
+        self._session = None
 
-    async def _fetch_suggestions(
-        self,
-        search: CompletionSearch,
-        anchor: PopupAnchor
-    ) -> None:
-        # Check if the search is still active (identity check)
-        if self._active_search is not search:
-            return
-
-        suggestions = await search.get_suggestions()
-
-        # Check again after await
-        if self._active_search is search:
-            if suggestions:
-                self._show_suggestions(suggestions, anchor)
-            else:
-                self.hide()
-
-    def _show_suggestions(
+    def show(
         self,
         suggestions: list[Suggestion],
         anchor: PopupAnchor,
     ) -> None:
-        self._current_suggestions = suggestions
-        self._selected_index = 0
+        self._session = AutocompleteSession(suggestions)
         self.display = True
 
         self._update_display(anchor)
 
     def _navigate(self, direction: str) -> None:
-        if not self._current_suggestions:
+        if not self._session:
             return
 
         if direction == "down":
-            self._selected_index = (self._selected_index + 1) % len(self._current_suggestions)
+            self._session.move_down()
         elif direction == "up":
-            self._selected_index = (self._selected_index - 1) % len(self._current_suggestions)
+            self._session.move_up()
 
         self._render_content()
 
     def _get_selection(self) -> CompletionResult | None:
-        if not self._current_suggestions or self._selected_index >= len(self._current_suggestions):
+        if not self._session:
             return None
 
-        # No need to check _active_search strictly here if we trust the display state,
-        # but it's good practice.
-        if not self._active_search:
-            return None
-
-        selected = self._current_suggestions[self._selected_index]
-        self.hide()
-
-        # The Suggestion now encapsulates the logic to create a full CompletionResult,
-        # including the start_offset which was injected when the Suggestion was created.
-        return selected.to_completion_result()
+        result = self._session.get_selection()
+        if result:
+            self.hide()
+        return result
 
     def _update_display(self, anchor: PopupAnchor) -> None:
-        lines = [item.display_text for item in self._current_suggestions]
-
-        if not lines:
+        if not self._session or not self._session.suggestions:
             self.hide()
             return
+
+        lines = [item.display_text for item in self._session.suggestions]
 
         max_line_length = max(len(line) for line in lines)
         popup_width = min(max_line_length + 2, anchor.max_width)
@@ -214,11 +163,11 @@ class AutocompletePopup(Static):
         self._render_content(trimmed_lines)
 
     def _render_content(self, lines: list[str] | None = None) -> None:
-        if lines is None:
-            if not self._current_suggestions:
-                return
+        if not self._session:
+            return
 
-            raw_lines = [item.display_text for item in self._current_suggestions]
+        if lines is None:
+            raw_lines = [item.display_text for item in self._session.suggestions]
 
             width = self.styles.width
             if width and hasattr(width, 'value'):
@@ -233,7 +182,7 @@ class AutocompletePopup(Static):
         for index, line in enumerate(lines):
             if index:
                 rendered.append("\n")
-            style = "reverse" if index == self._selected_index else ""
+            style = "reverse" if index == self._session.selected_index else ""
             rendered.append(line, style=style)
 
         self.update(rendered)
