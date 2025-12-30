@@ -253,14 +253,14 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         ]
 
         suggestions = [SimpleSuggestion(s) for s in strings]
-        session = SuggestionList(suggestions=suggestions)
+        suggestion_list = SuggestionList(suggestions=suggestions)
 
         # Calculate anchor manually (simulating what SmartInput does)
         cursor_offset = Offset(10, 10)
         anchor = PopupAnchor(cursor_offset, screen_size)
 
         # Show suggestions
-        popup.update_view(session, anchor)
+        popup.update_view(suggestion_list, anchor)
         await pilot.pause()
 
         assert popup.display is True
@@ -278,11 +278,11 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 
         strings = ["/cmd - desc"]
         suggestions = [SimpleSuggestion(s) for s in strings]
-        session = SuggestionList(suggestions=suggestions)
+        suggestion_list = SuggestionList(suggestions=suggestions)
 
         anchor = PopupAnchor(Offset(0, 0), Size(80, 24))
 
-        popup.update_view(session, anchor)
+        popup.update_view(suggestion_list, anchor)
         await pilot.pause()
 
         assert popup.display is True
