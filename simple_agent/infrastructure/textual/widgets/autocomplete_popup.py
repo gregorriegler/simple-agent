@@ -18,17 +18,17 @@ class AutocompletePopup(Static):
     }
     """
 
-    def update_view(self, session: SuggestionList, anchor: PopupAnchor) -> None:
+    def update_view(self, suggestion_list: SuggestionList, anchor: PopupAnchor) -> None:
         """
         Render the suggestions list at the specified anchor.
         """
-        if not session.suggestions:
+        if not suggestion_list.suggestions:
             self.hide()
             return
 
         self.display = True
 
-        suggestions_text = [s.display_text for s in session.suggestions]
+        suggestions_text = [s.display_text for s in suggestion_list.suggestions]
         layout = PopupLayout.calculate(suggestions_text, anchor)
 
         # Update styles
@@ -43,7 +43,7 @@ class AutocompletePopup(Static):
         for index, line in enumerate(layout.lines):
             if index:
                 rendered.append("\n")
-            style = "reverse" if index == session.selected_index else ""
+            style = "reverse" if index == suggestion_list.selected_index else ""
             rendered.append(line, style=style)
 
         super().update(rendered)
