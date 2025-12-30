@@ -11,9 +11,69 @@ from simple_agent.infrastructure.textual.autocompletion import (
     CompletionResult,
     Suggestion,
     CursorAndLine,
-    PopupAnchor
 )
 
+@dataclass
+class CaretDisplayState:
+    offset: Offset
+    screen_size: Size
+
+@dataclass
+class PopupAnchor:
+    """Encapsulates the visual state needed to position the popup."""
+    cursor_offset: Offset
+    screen_size: Size
+
+    def get_placement(self, popup_size: Size) -> Offset:
+        """
+        Calculate the best position for the popup given its size.
+        """
+        popup_height = popup_size.height
+        popup_width = popup_size.width
+
+        if popup_height < 1:
+            popup_height = 1
+        if popup_width < 1:
+            popup_width = 1
+
+        below_y = self.cursor_offset.y + 1
+        above_y = self.cursor_offset.y - popup_height
+
+        # Default to below if it fits, otherwise try above, else clamp
+        if below_y + popup_height <= self.screen_size.height:
+            y = below_y
+        elif above_y >= 0:
+            y = above_y
+        else:
+            y = max(0, min(below_y, self.screen_size.height - popup_height))
+
+        # Horizontal positioning
+        anchor_x = self.cursor_offset.x - 2
+        max_x = max(0, self.screen_size.width - popup_width)
+        x = min(max(anchor_x, 0), max_x)
+
+        return Offset(x, y)
+
+    @property
+    def max_width(self) -> int:
+        return self.screen_size.width
+
+    @classmethod
+    def from_caret_state(cls, cursor_and_line: "CursorAndLine", caret_state: CaretDisplayState) -> "PopupAnchor":
+        """
+        Creates a PopupAnchor positioned relative to the start of the current word.
+        """
+        word = cursor_and_line.current_word
+        delta = cursor_and_line.col - word.start_index
+        anchor_x = caret_state.offset.x - delta
+
+        # Ensure we don't go negative
+        anchor_x = max(0, anchor_x)
+
+        return cls(
+            cursor_offset=Offset(anchor_x, caret_state.offset.y),
+            screen_size=caret_state.screen_size
+        )
 
 class AutocompletePopup(Static):
     DEFAULT_CSS = """
@@ -59,13 +119,15 @@ class AutocompletePopup(Static):
 
         return False
 
-    def check(self, cursor_and_line: CursorAndLine, anchor: "PopupAnchor") -> None:
+    def check(self, cursor_and_line: CursorAndLine, caret_state: CaretDisplayState) -> None:
         search = self.autocompleter.check(cursor_and_line)
         # Even if search is NoOpSearch (not triggered), calling get_suggestions handles it (returns empty).
         # However, we want to know if we should potentially show something.
         # If not triggered, we should hide.
         if search.is_triggered():
             self._active_search = search
+            # Calculate anchor internally
+            anchor = PopupAnchor.from_caret_state(cursor_and_line, caret_state)
             asyncio.create_task(self._fetch_suggestions(search, anchor))
         else:
             self.hide()

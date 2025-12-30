@@ -6,7 +6,11 @@ from unittest.mock import MagicMock, AsyncMock
 from simple_agent.application.slash_command_registry import SlashCommandRegistry, SlashCommand
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
-from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup
+from simple_agent.infrastructure.textual.widgets.autocomplete_popup import (
+    AutocompletePopup,
+    PopupAnchor,
+    CaretDisplayState
+)
 from simple_agent.application.agent_id import AgentId
 from simple_agent.infrastructure.textual.autocompletion import (
     SlashCommandAutocompleter,
@@ -15,7 +19,6 @@ from simple_agent.infrastructure.textual.autocompletion import (
     SlashCommandSuggestion,
     FileSuggestion,
     CursorAndLine,
-    PopupAnchor
 )
 
 class StubUserInput:
@@ -251,7 +254,8 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
 
         # Call public check method with input triggering the completer
         cursor_and_line = CursorAndLine(0, 1, "/")
-        popup.check(cursor_and_line, PopupAnchor(Offset(10, 10), screen_size))
+        caret_state = CaretDisplayState(Offset(10, 10), screen_size)
+        popup.check(cursor_and_line, caret_state)
         await pilot.pause()
 
         assert popup.display is True
@@ -274,7 +278,8 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 
         # Trigger display
         cursor_and_line = CursorAndLine(0, 1, "/")
-        popup.check(cursor_and_line, PopupAnchor(Offset(0, 0), Size(80, 24)))
+        caret_state = CaretDisplayState(Offset(0, 0), Size(80, 24))
+        popup.check(cursor_and_line, caret_state)
         await pilot.pause()
 
         assert popup.display is True

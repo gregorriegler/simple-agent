@@ -8,14 +8,16 @@ from textual.message import Message
 from textual.widgets import TextArea
 from textual.geometry import Offset
 
-from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup
+from simple_agent.infrastructure.textual.widgets.autocomplete_popup import (
+    AutocompletePopup,
+    CaretDisplayState,
+)
 from simple_agent.infrastructure.textual.autocompletion import (
     Autocompleter,
     NullAutocompleter,
     CompletionResult,
     CursorAndLine,
     MessageDraft,
-    PopupAnchor,
 )
 from simple_agent.infrastructure.textual.widgets.file_context_expander import FileContextExpander
 
@@ -122,14 +124,12 @@ class SmartInput(TextArea):
             return
 
         cursor_and_line = CursorAndLine(row, col, line)
-
-        anchor = PopupAnchor.from_cursor_context(
-            cursor_and_line,
-            self.cursor_screen_offset,
-            self.app.screen.size
+        caret_state = CaretDisplayState(
+            offset=self.cursor_screen_offset,
+            screen_size=self.app.screen.size
         )
 
-        self.popup.check(cursor_and_line, anchor)
+        self.popup.check(cursor_and_line, caret_state)
 
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location
