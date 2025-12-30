@@ -1,9 +1,11 @@
 import asyncio
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any, Optional, List
 from textual.widgets import Static
 from textual.geometry import Offset, Size
 from rich.text import Text
+
+from simple_agent.infrastructure.textual.autocompletion import AutocompleteSession
 
 @dataclass
 class PopupAnchor:
@@ -66,6 +68,30 @@ class CaretScreenLocation:
             screen_size=self.screen_size
         )
 
+@dataclass
+class PopupLayout:
+    width: int
+    height: int
+    offset: Offset
+    lines: List[str]
+
+    @classmethod
+    def calculate(cls, suggestions: List[str], anchor: PopupAnchor) -> "PopupLayout":
+        max_line_length = max(len(line) for line in suggestions)
+        popup_width = min(max_line_length + 2, anchor.max_width)
+        available_width = max(1, popup_width - 2)
+        trimmed_lines = [line[:available_width] for line in suggestions]
+        popup_height = len(trimmed_lines)
+
+        offset = anchor.get_placement(Size(popup_width, popup_height))
+
+        return cls(
+            width=popup_width,
+            height=popup_height,
+            offset=offset,
+            lines=trimmed_lines
+        )
+
 class AutocompletePopup(Static):
     DEFAULT_CSS = """
     AutocompletePopup {
@@ -78,44 +104,35 @@ class AutocompletePopup(Static):
     }
     """
 
-    def display_suggestions(
-        self,
-        suggestions: list[str],
-        selected_index: int,
-        anchor: PopupAnchor,
-    ) -> None:
+    def update_view(self, session: AutocompleteSession, anchor: PopupAnchor) -> None:
         """
         Render the suggestions list at the specified anchor.
         """
-        if not suggestions:
+        if not session.suggestions:
             self.hide()
             return
 
         self.display = True
 
-        # Calculate dimensions
-        max_line_length = max(len(line) for line in suggestions)
-        popup_width = min(max_line_length + 2, anchor.max_width)
-        available_width = max(1, popup_width - 2)
-        trimmed_lines = [line[:available_width] for line in suggestions]
-        popup_height = len(trimmed_lines)
+        suggestions_text = [s.display_text for s in session.suggestions]
+        layout = PopupLayout.calculate(suggestions_text, anchor)
 
         # Update styles
-        self.styles.width = popup_width
-        self.styles.height = popup_height
+        self.styles.width = layout.width
+        self.styles.height = layout.height
 
         # Position
-        self.absolute_offset = anchor.get_placement(Size(popup_width, popup_height))
+        self.absolute_offset = layout.offset
 
         # Render
         rendered = Text()
-        for index, line in enumerate(trimmed_lines):
+        for index, line in enumerate(layout.lines):
             if index:
                 rendered.append("\n")
-            style = "reverse" if index == selected_index else ""
+            style = "reverse" if index == session.selected_index else ""
             rendered.append(line, style=style)
 
-        self.update(rendered)
+        super().update(rendered)
 
     def hide(self) -> None:
         self.display = False
