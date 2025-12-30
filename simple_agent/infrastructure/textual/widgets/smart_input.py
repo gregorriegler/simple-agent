@@ -10,6 +10,7 @@ from textual.widgets import TextArea
 from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup
 from simple_agent.infrastructure.textual.autocompletion import (
     Autocompleter,
+    CompositeAutocompleter,
     SlashCommandAutocompleter,
     FileSearchAutocompleter,
     CompletionResult,
@@ -59,7 +60,9 @@ class SmartInput(TextArea):
     def on_mount(self) -> None:
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
 
-        self.popup = AutocompletePopup(autocompleters=self._autocompleters, id="autocomplete-popup")
+        # Wrap the list of autocompleters in a CompositeAutocompleter
+        composite_autocompleter = CompositeAutocompleter(self._autocompleters)
+        self.popup = AutocompletePopup(autocompleter=composite_autocompleter, id="autocomplete-popup")
         self.mount(self.popup)
 
     def get_referenced_files(self) -> set[str]:
