@@ -4,8 +4,8 @@ from textual.widgets import Static
 from rich.text import Text
 
 from typing import Optional
-from simple_agent.infrastructure.textual.autocompletion import SuggestionList, CompletionSearch, CompletionResult
-from simple_agent.infrastructure.textual.popup_geometry import PopupAnchor, PopupLayout
+from simple_agent.infrastructure.textual.autocomplete.autocompletion import SuggestionList, CompletionSearch, CompletionResult
+from simple_agent.infrastructure.textual.autocomplete.geometry import PopupAnchor, PopupLayout
 
 class AutocompletePopup(Static):
     DEFAULT_CSS = """

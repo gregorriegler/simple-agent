@@ -15,7 +15,7 @@ from simple_agent.infrastructure.textual.textual_messages import DomainEventMess
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
-from simple_agent.infrastructure.textual.autocompletion import (
+from simple_agent.infrastructure.textual.autocomplete.autocompletion import (
     CompositeAutocompleter,
     SlashCommandAutocompleter,
     FileSearchAutocompleter

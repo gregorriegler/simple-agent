@@ -4,7 +4,7 @@ import logging
 
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.file_search import FileSearcher
-from simple_agent.infrastructure.textual.popup_geometry import PopupAnchor
+from simple_agent.infrastructure.textual.autocomplete.geometry import PopupAnchor
 
 logger = logging.getLogger(__name__)
 
