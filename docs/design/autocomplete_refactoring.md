@@ -37,47 +37,49 @@ The current Autocomplete implementation relies on `SmartInput` (inheriting from 
 
 ### Design Issues & Unnecessary Complications
 
-1.  **Coupling in `SmartInput` (God Class)**: `SmartInput` knows too much. It is coupled to the *lifecycle* of the popup, the *navigation logic* of the popup (forwarding keys), and the *execution flow* of the search.
-2.  **Split Responsibilities**: The logic for "What to show" (Search) and "How to show it" (Popup) is intertwined. The `Popup` executes the search, which binds the UI widget to the data retrieval mechanism.
-3.  **Manual Event Routing**: `SmartInput` explicitly checks `if self.popup: ...` for every navigation key. This makes `_on_key` cluttered and hard to extend.
-4.  **Geometry Logic Leakage**: `SmartInput` calculates screen coordinates (`CaretScreenLocation`) to anchor the popup. This view-layout logic cluttering the input widget.
-5.  **State Management**: `SmartInput` manages the `_referenced_files` set, but this state is implicitly updated by side-effects of applying a completion.
+1.  **Split Responsibilities**: The `Autocompleter` (Factory) vs `CompletionSearch` (Product) split is over-engineered for simple use cases. It forces a two-step "Check then Search" dance even when not needed.
+2.  **Popup Logic Leakage**: The `AutocompletePopup` is responsible for executing the search (`search.get_suggestions()`), which couples the View to the Data Retrieval logic.
+3.  **Complex Protocols**: The `Autocompleter` protocol definition is confusing and unnecessarily separates the trigger check from the suggestion retrieval.
+4.  **Coupling**: `SmartInput` is intimately aware of `AutocompletePopup`'s internal state (checking `if self.popup.suggestion_list` in event handlers).
 
 ---
 
 ## Desirable Design (Refactored)
 
-The goal is to separate the **Controller** (coordination), the **View** (Input & Popup), and the **Model** (Autocompleter/Suggestions). `SmartInput` should return to being primarily a text editor, while a new `AutocompleteController` handles the complexity.
+The goal is to simplify the architecture by consolidating logic into a **Self-Contained SmartInput Widget** that owns a **Dumb AutocompletePopup**. We will replace the complex Protocol interactions with a **Single Protocol** that handles both triggering and suggestion retrieval.
 
 ### ASCII Diagram (DESIRABLE)
 
 ```
-+---------------------+           +-----------------------------+
-|    SmartInput       |<--------->|   AutocompleteController    |
-| (TextArea + Events) | (Attached)|                             |
-+---------------------+           |  [ Autocompleter ] (Model)  |
-         ^                        |  [ PopupManager ]  (UI Logic)|
-         | (Updates Text)         +-------------+---------------+
-         |                                      | (Controls)
-         |                                      v
-+---------------------+           +-----------------------------+
-| FileContextExpander |           |     AutocompletePopup       |
-| (Independent Helper)|           |      (Dumb Display)         |
-+---------------------+           +-----------------------------+
++------------------------------------------------------------------+
+|                           SmartInput                             |
+|                    (Self-Contained Widget)                       |
+|                                                                  |
+|  [ _on_key ] ------------------------+                           |
+|       |                              | (Control Flow)            |
+|       v                              v                           |
+|  [ AutocompleteStrategy ]      [ AutocompletePopup ]             |
+|  (Single Protocol)             (Dumb View)                       |
+|       ^                              ^                           |
+|       | (Data)                       | (Display)                 |
+|       +------------------------------+                           |
+|                                                                  |
++------------------------------------------------------------------+
 ```
 
 ### Responsibilities (DESIRABLE)
 
 | Component | Responsibilities |
 | :--- | :--- |
-| **SmartInput** | - **Primary:** Text editing surface.<br>- **Role:** Emits events (e.g., `CursorMoved`, `TextChanged`) or allows Controller to hook into `_on_key`.<br>- **State:** Holds text and `_referenced_files`.<br>- **Action:** Accepts "Apply Completion" commands from Controller. |
-| **AutocompleteController** | - **Primary:** Coordinator.<br>- **Role:** Listens to `SmartInput`.<br>- **Logic:** Calls `Autocompleter.check()`.<br>- **Action:** Executes the search (async) and updates the Popup.<br>- **Action:** Intercepts navigation keys (Up/Down/Tab) when Popup is active.<br>- **Action:** Calculates anchor position.<br>- **Action:** Updates `SmartInput` when a suggestion is selected. |
-| **Autocompleter** | - **Primary:** Pure Logic/Model.<br>- **Role:** Determines *what* to suggest based on context.<br>- **Output:** Returns `List[Suggestion]` or a Future (decoupled from UI). |
-| **AutocompletePopup** | - **Primary:** Dumb View.<br>- **Role:** Display a list of strings/items.<br>- **API:** `set_items()`, `select_next()`, `select_prev()`, `get_selected()`.<br>- **Note:** No longer executes search or manages async tasks. |
+| **SmartInput** | - **Primary:** The public widget user interacts with.<br>- **Logic:** Orchestrates input, checks strategy, controls popup.<br>- **Action:** Calls `strategy.suggest()`. If suggestions found -> `popup.show()`.<br>- **Action:** On Up/Down/Tab -> `popup.select_next()` etc.<br>- **Action:** On Enter -> `popup.get_selection()` -> Apply to text. |
+| **AutocompleteStrategy** | - **Primary:** Single Protocol for logic.<br>- **Contract:** `async def suggest(cursor) -> List[Suggestion] | None`.<br>- **Behavior:** Returns `None` if not triggered (e.g. wrong prefix), returns `List` (empty or populated) if triggered.<br>- **Implementations:** `SlashCommandStrategy`, `FileSearchStrategy`, `CompositeStrategy`. |
+| **AutocompletePopup** | - **Primary:** Dumb View.<br>- **Contract:** Small API: `show(items, anchor)`, `hide()`, `select_next()`, `get_selection()`.<br>- **Behavior:** Just renders the list given to it. Does not know about strategies or searching. |
 
 ### Key Improvements
 
-1.  **Decoupling**: `SmartInput` no longer knows about `AutocompletePopup`'s internal API. It just works with a Controller.
-2.  **Testability**: The `AutocompleteController` can be unit tested without a full Textual app by mocking `SmartInput` and `Autocompleter`.
-3.  **Simplified Popup**: The `AutocompletePopup` becomes a generic "List Picker" widget that can be reused or easily replaced.
-4.  **Clean Event Flow**: Key events are intercepted by the Controller only when relevant, keeping `SmartInput`'s `_on_key` clean.
+1.  **Single Protocol**: Collapses `Autocompleter` and `CompletionSearch` into one `AutocompleteStrategy`. simpler to implement and understand.
+    *   *Signature:* `async def suggest(self, context) -> Optional[List[Suggestion]]`
+    *   Implementations can perform fast sync checks (e.g., prefix matching) before awaiting IO.
+2.  **Self-Contained Widget**: `SmartInput` encapsulates the complexity. Consumers just instantiate `SmartInput`.
+3.  **Dumb View**: `AutocompletePopup` is strictly a UI component. It doesn't run async tasks or business logic.
+4.  **Reduced Coupling**: `SmartInput` passes data to `Popup`. `Popup` returns selection to `SmartInput`. No shared state or deep probing.
