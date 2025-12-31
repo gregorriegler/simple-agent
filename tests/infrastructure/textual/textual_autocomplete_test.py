@@ -23,10 +23,10 @@ from simple_agent.infrastructure.textual.autocomplete import (
 )
 from simple_agent.infrastructure.textual.autocomplete.protocols import AutocompleteRule
 from simple_agent.infrastructure.textual.autocomplete.slash_commands import (
-    SlashCommandTrigger, SlashCommandProvider
+    SlashAtStartOfLineTrigger, SlashCommandProvider
 )
 from simple_agent.infrastructure.textual.autocomplete.file_search import (
-    FileSearchTrigger, FileSearchProvider
+    AtSymbolTrigger, FileSearchProvider
 )
 
 class StubUserInput:
@@ -55,7 +55,7 @@ async def test_slash_command_registry_available_in_textarea():
     registry = SlashCommandRegistry()
     rules = [
         AutocompleteRule(
-            trigger=SlashCommandTrigger(),
+            trigger=SlashAtStartOfLineTrigger(),
             provider=SlashCommandProvider(registry)
         )
     ]
@@ -347,7 +347,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
 
                 # Inject our custom rules
                 rules = [AutocompleteRule(
-                    trigger=FileSearchTrigger(),
+                    trigger=AtSymbolTrigger(),
                     provider=FileSearchProvider(mock_searcher)
                 )]
                 yield SmartInput(rules=rules, id="user-input")

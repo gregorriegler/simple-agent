@@ -27,7 +27,7 @@ class FileSuggestion:
              start_offset=self.start_index
          )
 
-class FileSearchTrigger:
+class AtSymbolTrigger:
     def is_triggered(self, cursor_and_line: CursorAndLine) -> bool:
         word = cursor_and_line.current_word
         return word.word.startswith("@")
