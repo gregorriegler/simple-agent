@@ -14,7 +14,7 @@ class FileReference:
          return FileReference.to_text(path) in text
 
 @dataclass
-class WordAtCursor:
+class Word:
     word: str
     start_index: int
 
@@ -23,12 +23,12 @@ class Cursor:
     row: int
     col: int
 
-    def get_word_under_cursor(self, line: str) -> "WordAtCursor":
+    def get_word_under_cursor(self, line: str) -> "Word":
         text_before = line[:self.col]
         last_space_index = text_before.rfind(" ")
         start_index = last_space_index + 1
         word = text_before[start_index:]
-        return WordAtCursor(word, start_index)
+        return Word(word, start_index)
 
 @dataclass
 class CursorAndLine:
@@ -36,7 +36,7 @@ class CursorAndLine:
     line: str
 
     @property
-    def current_word(self) -> WordAtCursor:
+    def current_word(self) -> Word:
         return self.cursor.get_word_under_cursor(self.line)
 
 @dataclass
