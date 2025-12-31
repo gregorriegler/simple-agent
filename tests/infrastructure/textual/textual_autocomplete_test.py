@@ -13,7 +13,7 @@ from simple_agent.infrastructure.textual.autocomplete.geometry import (
     CaretScreenLocation
 )
 from simple_agent.application.agent_id import AgentId
-from simple_agent.infrastructure.textual.autocomplete.autocompletion import (
+from simple_agent.infrastructure.textual.autocomplete import (
     SlashCommandAutocompleter,
     FileSearchAutocompleter,
     CompletionResult,
