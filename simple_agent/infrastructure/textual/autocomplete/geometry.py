@@ -55,7 +55,7 @@ class CaretScreenLocation:
         Creates a PopupAnchor positioned relative to the start of the current word.
         """
         word = cursor_and_line.current_word
-        delta = cursor_and_line.col - word.start_index
+        delta = cursor_and_line.cursor.col - word.start_index
         anchor_x = self.offset.x - delta
 
         # Ensure we don't go negative

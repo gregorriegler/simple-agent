@@ -26,15 +26,19 @@ class WordAtCursor:
         word = text_before[start_index:]
         return WordAtCursor(word, start_index)
 
-@dataclass
-class CursorAndLine:
+@dataclass(frozen=True)
+class Cursor:
     row: int
     col: int
+
+@dataclass
+class CursorAndLine:
+    cursor: Cursor
     line: str
 
     @property
     def current_word(self) -> WordAtCursor:
-        return WordAtCursor.from_cursor(self.line, self.col)
+        return WordAtCursor.from_cursor(self.line, self.cursor.col)
 
 @dataclass
 class MessageDraft:
