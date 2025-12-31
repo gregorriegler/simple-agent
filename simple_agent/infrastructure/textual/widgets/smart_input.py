@@ -9,12 +9,12 @@ from textual.message import Message
 from textual.widgets import TextArea
 from textual.geometry import Offset
 
-from simple_agent.infrastructure.textual.widgets.autocomplete_popup import AutocompletePopup
-from simple_agent.infrastructure.textual.popup_geometry import (
+from simple_agent.infrastructure.textual.autocomplete.popup import AutocompletePopup
+from simple_agent.infrastructure.textual.autocomplete.geometry import (
     CaretScreenLocation,
     PopupAnchor,
 )
-from simple_agent.infrastructure.textual.autocompletion import (
+from simple_agent.infrastructure.textual.autocomplete.autocompletion import (
     Autocompleter,
     NullAutocompleter,
     CompletionResult,
