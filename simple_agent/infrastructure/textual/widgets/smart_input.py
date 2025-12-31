@@ -14,7 +14,7 @@ from simple_agent.infrastructure.textual.autocomplete.geometry import (
     CaretScreenLocation,
     PopupAnchor,
 )
-from simple_agent.infrastructure.textual.autocomplete.autocompletion import (
+from simple_agent.infrastructure.textual.autocomplete import (
     Autocompleter,
     NullAutocompleter,
     CompletionResult,

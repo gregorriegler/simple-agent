@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from simple_agent.infrastructure.textual.autocomplete.autocompletion import MessageDraft
+from simple_agent.infrastructure.textual.autocomplete import MessageDraft
 
 logger = logging.getLogger(__name__)
 
