@@ -39,21 +39,21 @@ We will separate the concerns into two **Orthogonal Protocols** with descriptive
 
 ### New Protocols
 
-1.  **`CompletionTrigger`** (formerly Autocompleter)
-    *   **Responsibility:** Pure Logic. Determines *if* the context is valid for this feature.
-    *   **Signature:** `is_triggered(cursor_context) -> bool`
-    *   *Examples:* `PrefixTrigger("@")`, `RegexTrigger("...")`, `StartOfLineTrigger`.
+1.  **`AutocompleteTrigger`** (formerly Autocompleter)
+    *   **Responsibility:** Pure Logic. Determines *if* the autocomplete process should start (i.e., triggering the search and identifying the active feature).
+    *   **Signature:** `is_triggered(cursor_and_line) -> bool`
+    *   *Examples:* `SlashAtStartOfLineTrigger`, `AtSymbolTrigger`, `ColonTrigger`.
 
 2.  **`SuggestionProvider`** (formerly CompletionSearch)
     *   **Responsibility:** Pure Data. Fetches items when requested.
-    *   **Signature:** `async fetch(cursor_context) -> List[Suggestion]`
+    *   **Signature:** `async fetch(cursor_and_line) -> List[Suggestion]`
     *   *Examples:* `FileProvider`, `SlashCommandProvider`, `HistoryProvider`.
 
 ### Composition (The "Rule")
 
 These two are combined into a configuration object (a Rule or Feature), decoupling the *When* from the *What*.
 
-`AutocompleteRule(trigger=StartOfLineTrigger(), provider=SlashCommandProvider())`
+`AutocompleteRule(trigger=SlashAtStartOfLineTrigger(), provider=SlashCommandProvider())`
 
 ### ASCII Diagram (DESIRABLE)
 
@@ -70,10 +70,10 @@ These two are combined into a configuration object (a Rule or Feature), decoupli
 |  [ Logic Flow ]                                                       |
 |       |                                                               |
 |       v                                                               |
-|  1. Iterate Rules -> if rule.trigger.is_triggered(cursor):            |
+|  1. Iterate Rules -> if rule.trigger.is_triggered(cursor_and_line):   |
 |       |                                                               |
 |       +-> 2. active_provider = rule.provider                          |
-|       +-> 3. suggestions = await active_provider.fetch()              |
+|       +-> 3. suggestions = await active_provider.fetch(cursor_and_line)|
 |       +-> 4. popup.show(suggestions)                                  |
 |                                                                       |
 +--------------------------+--------------------------------------------+
@@ -88,13 +88,13 @@ These two are combined into a configuration object (a Rule or Feature), decoupli
 | Component | Responsibilities |
 | :--- | :--- |
 | **SmartInput** | - **Orchestrator:** Holds the list of `AutocompleteRule`s.<br>- **Event Loop:** On keypress, checks `rules`. If match found, invokes `provider`.<br>- **UI Control:** Manages the `AutocompletePopup` (show/hide/nav). |
-| **CompletionTrigger** | - **Contract:** `is_triggered(Context) -> bool`.<br>- **Role:** Reusable logic (e.g., generic "Word starts with X" trigger). |
-| **SuggestionProvider** | - **Contract:** `async fetch(Context) -> List`.<br>- **Role:** Domain logic (e.g., "Get files", "Get Git branches"). |
+| **AutocompleteTrigger** | - **Contract:** `is_triggered(cursor_and_line) -> bool`.<br>- **Role:** Reusable logic (e.g., "Line starts with /"). |
+| **SuggestionProvider** | - **Contract:** `async fetch(cursor_and_line) -> List`.<br>- **Role:** Domain logic (e.g., "Get available slash commands"). |
 | **AutocompleteRule** | - **Role:** A simple container/struct binding a `Trigger` to a `Provider`. |
 | **AutocompletePopup** | - **Contract:** `show(items)`, `select_next()`, `get_selection()`.<br>- **Role:** Dumb view. |
 
 ### Key Improvements
 
-1.  **Orthogonality:** You can combine `StartOfLineTrigger` with *any* provider (e.g., Slash Commands, or maybe a Macro list). You can reuse `FileProvider` with different triggers (e.g., `@` or `file:`).
-2.  **Clarity:** Names `Trigger` and `Provider` clearly describe the two distinct phases of the operation.
+1.  **Orthogonality:** You can combine `SlashAtStartOfLineTrigger` with *any* provider.
+2.  **Honest Naming:** `cursor_and_line` describes exactly what data is passed. `AutocompleteTrigger` describes exactly what feature is being triggered.
 3.  **Simplicity:** `SmartInput` just iterates a list. Adding a new feature is just appending a `Rule` to the list.
