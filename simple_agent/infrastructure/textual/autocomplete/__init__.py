@@ -8,21 +8,17 @@ from simple_agent.infrastructure.textual.autocomplete.domain import (
     FileReference
 )
 from simple_agent.infrastructure.textual.autocomplete.protocols import (
-    CompletionSearch,
-    Autocompleter,
-    NoOpSearch,
+    AutocompleteTrigger,
+    SuggestionProvider,
+    AutocompleteRule,
 )
 from simple_agent.infrastructure.textual.autocomplete.slash_commands import (
     SlashCommandSuggestion,
-    SlashCommandSearch,
-    SlashCommandAutocompleter,
+    SlashCommandTrigger,
+    SlashCommandProvider,
 )
 from simple_agent.infrastructure.textual.autocomplete.file_search import (
     FileSuggestion,
-    FileSearch,
-    FileSearchAutocompleter,
-)
-from simple_agent.infrastructure.textual.autocomplete.engines import (
-    CompositeAutocompleter,
-    NullAutocompleter,
+    FileSearchTrigger,
+    FileSearchProvider,
 )

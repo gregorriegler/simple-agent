@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import List
 import logging
 from simple_agent.application.file_search import FileSearcher
@@ -6,15 +5,15 @@ from simple_agent.infrastructure.textual.autocomplete.domain import (
     Suggestion, CompletionResult, CursorAndLine, FileReference
 )
 from simple_agent.infrastructure.textual.autocomplete.protocols import (
-    Autocompleter, CompletionSearch, NoOpSearch
+    AutocompleteTrigger, SuggestionProvider
 )
 
 logger = logging.getLogger(__name__)
 
-@dataclass
 class FileSuggestion:
-    file_path: str
-    start_index: int
+    def __init__(self, file_path: str, start_index: int):
+        self.file_path = file_path
+        self.start_index = start_index
 
     @property
     def display_text(self) -> str:
@@ -28,29 +27,21 @@ class FileSuggestion:
              start_offset=self.start_index
          )
 
-class FileSearch:
-    def __init__(self, query: str, start_index: int, searcher: FileSearcher):
-        self.query = query
-        self.start_index = start_index
-        self.searcher = searcher
+class FileSearchTrigger:
+    def is_triggered(self, cursor_and_line: CursorAndLine) -> bool:
+        word = cursor_and_line.current_word
+        return word.word.startswith("@")
 
-    async def get_suggestions(self) -> List[Suggestion]:
-        try:
-            results = await self.searcher.search(self.query)
-            return [FileSuggestion(str(res), self.start_index) for res in results]
-        except Exception as e:
-            logger.error(f"File search failed: {e}")
-            return []
-
-    def is_triggered(self) -> bool:
-        return True
-
-class FileSearchAutocompleter:
+class FileSearchProvider:
     def __init__(self, searcher: FileSearcher):
         self.searcher = searcher
 
-    def check(self, cursor_and_line: CursorAndLine) -> CompletionSearch:
+    async def fetch(self, cursor_and_line: CursorAndLine) -> List[Suggestion]:
         word = cursor_and_line.current_word
-        if word.word.startswith("@"):
-             return FileSearch(query=word.word[1:], start_index=word.start_index, searcher=self.searcher)
-        return NoOpSearch()
+        query = word.word[1:] # Strip '@'
+        try:
+            results = await self.searcher.search(query)
+            return [FileSuggestion(str(res), word.start_index) for res in results]
+        except Exception as e:
+            logger.error(f"File search failed: {e}")
+            return []

@@ -1,30 +1,22 @@
 from typing import Protocol, List
+from dataclasses import dataclass
 from simple_agent.infrastructure.textual.autocomplete.domain import Suggestion, CursorAndLine
 
-class CompletionSearch(Protocol):
-    async def get_suggestions(self) -> List[Suggestion]:
+class AutocompleteTrigger(Protocol):
+    def is_triggered(self, cursor_and_line: CursorAndLine) -> bool:
         """
-        Get list of suggestions for this search.
-        """
-        ...
-
-    def is_triggered(self) -> bool:
-        """
-        Returns True if this search was actively triggered by the input context.
+        Pure logic. Determines if the autocomplete process should start.
         """
         ...
 
-class Autocompleter(Protocol):
-    def check(self, cursor_and_line: CursorAndLine) -> CompletionSearch:
+class SuggestionProvider(Protocol):
+    async def fetch(self, cursor_and_line: CursorAndLine) -> List[Suggestion]:
         """
-        Check if autocomplete should be triggered.
-        Returns a CompletionSearch object (which may be a NoOpSearch).
+        Pure data. Fetches items when requested.
         """
         ...
 
-class NoOpSearch:
-    async def get_suggestions(self) -> List[Suggestion]:
-        return []
-
-    def is_triggered(self) -> bool:
-        return False
+@dataclass
+class AutocompleteRule:
+    trigger: AutocompleteTrigger
+    provider: SuggestionProvider

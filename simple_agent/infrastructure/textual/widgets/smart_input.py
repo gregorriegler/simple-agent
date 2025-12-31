@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Optional
+from typing import Optional, List
 from dataclasses import dataclass
 
 from rich.text import Text
@@ -14,11 +14,11 @@ from simple_agent.infrastructure.textual.autocomplete.geometry import (
     CaretScreenLocation,
     PopupAnchor,
 )
-from simple_agent.infrastructure.textual.autocomplete import (
-    Autocompleter,
-    NullAutocompleter,
+from simple_agent.infrastructure.textual.autocomplete.protocols import (
+    AutocompleteRule,
+)
+from simple_agent.infrastructure.textual.autocomplete.domain import (
     CompletionResult,
-    CompletionSearch,
     CursorAndLine,
     MessageDraft,
     Suggestion,
@@ -49,13 +49,13 @@ class SmartInput(TextArea):
 
     def __init__(
         self,
-        autocompleter: Autocompleter = NullAutocompleter(),
+        rules: List[AutocompleteRule] | None = None,
         id: str | None = None,
         **kwargs
     ):
         super().__init__(id=id, **kwargs)
 
-        self.autocompleter = autocompleter
+        self.rules = rules or []
         self.popup: AutocompletePopup | None = None
         self.expander = FileContextExpander()
 
@@ -140,24 +140,37 @@ class SmartInput(TextArea):
 
         cursor_and_line = CursorAndLine(row, col, line)
 
-        # Check autocompleter directly
-        search = self.autocompleter.check(cursor_and_line)
+        for rule in self.rules:
+            if rule.trigger.is_triggered(cursor_and_line):
+                self._start_autocomplete(rule, cursor_and_line)
+                return
 
-        if search.is_triggered():
-            if not self.popup:
-                self.popup = AutocompletePopup(id="autocomplete-popup")
-                self.mount(self.popup)
+        self._close_autocomplete()
 
-            # Create Anchor
-            caret_location = CaretScreenLocation(
-                offset=self.cursor_screen_offset,
-                screen_size=self.app.screen.size
-            )
-            anchor = caret_location.anchor_to_word(cursor_and_line)
+    def _start_autocomplete(self, rule: AutocompleteRule, cursor_and_line: CursorAndLine) -> None:
+        if not self.popup:
+            self.popup = AutocompletePopup(id="autocomplete-popup")
+            self.mount(self.popup)
 
-            asyncio.create_task(self.popup.start(search, anchor))
-        else:
-            self._close_autocomplete()
+        # Create Anchor
+        caret_location = CaretScreenLocation(
+            offset=self.cursor_screen_offset,
+            screen_size=self.app.screen.size
+        )
+        anchor = caret_location.anchor_to_word(cursor_and_line)
+
+        asyncio.create_task(self._fetch_and_show_suggestions(rule, cursor_and_line, anchor))
+
+    async def _fetch_and_show_suggestions(self, rule: AutocompleteRule, cursor_and_line: CursorAndLine, anchor: PopupAnchor) -> None:
+        # Check if popup is still active (it might have been closed while fetching)
+        if not self.popup:
+            return
+
+        suggestions = await rule.provider.fetch(cursor_and_line)
+
+        # Double check popup existence and state after await
+        if self.popup:
+            self.popup.show_suggestions(suggestions, anchor)
 
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location
