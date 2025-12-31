@@ -22,7 +22,7 @@ class SlashCommandSuggestion:
             start_offset=self.start_index
         )
 
-class SlashCommandTrigger:
+class SlashAtStartOfLineTrigger:
     def is_triggered(self, cursor_and_line: CursorAndLine) -> bool:
         if cursor_and_line.row == 0 and cursor_and_line.col > 0:
             word = cursor_and_line.current_word

@@ -14,11 +14,11 @@ from simple_agent.infrastructure.textual.autocomplete.protocols import (
 )
 from simple_agent.infrastructure.textual.autocomplete.slash_commands import (
     SlashCommandSuggestion,
-    SlashCommandTrigger,
+    SlashAtStartOfLineTrigger,
     SlashCommandProvider,
 )
 from simple_agent.infrastructure.textual.autocomplete.file_search import (
     FileSuggestion,
-    FileSearchTrigger,
+    AtSymbolTrigger,
     FileSearchProvider,
 )
