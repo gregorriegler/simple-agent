@@ -19,6 +19,7 @@ from simple_agent.infrastructure.textual.autocomplete.protocols import (
 )
 from simple_agent.infrastructure.textual.autocomplete.domain import (
     CompletionResult,
+    Cursor,
     CursorAndLine,
     MessageDraft,
     Suggestion,
@@ -138,7 +139,7 @@ class SmartInput(TextArea):
             self._close_autocomplete()
             return
 
-        cursor_and_line = CursorAndLine(row, col, line)
+        cursor_and_line = CursorAndLine(Cursor(row, col), line)
 
         for rule in self.rules:
             if rule.trigger.is_triggered(cursor_and_line):
