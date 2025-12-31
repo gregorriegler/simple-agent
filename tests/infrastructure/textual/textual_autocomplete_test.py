@@ -14,14 +14,19 @@ from simple_agent.infrastructure.textual.autocomplete.geometry import (
 )
 from simple_agent.application.agent_id import AgentId
 from simple_agent.infrastructure.textual.autocomplete import (
-    SlashCommandAutocompleter,
-    FileSearchAutocompleter,
     CompletionResult,
     SlashCommandSuggestion,
     FileSuggestion,
     CursorAndLine,
     SuggestionList,
     Suggestion,
+)
+from simple_agent.infrastructure.textual.autocomplete.protocols import AutocompleteRule
+from simple_agent.infrastructure.textual.autocomplete.slash_commands import (
+    SlashCommandTrigger, SlashCommandProvider
+)
+from simple_agent.infrastructure.textual.autocomplete.file_search import (
+    FileSearchTrigger, FileSearchProvider
 )
 
 class StubUserInput:
@@ -48,8 +53,13 @@ def app():
 @pytest.mark.asyncio
 async def test_slash_command_registry_available_in_textarea():
     registry = SlashCommandRegistry()
-    autocompleter = SlashCommandAutocompleter(registry)
-    textarea = SmartInput(autocompleter=autocompleter)
+    rules = [
+        AutocompleteRule(
+            trigger=SlashCommandTrigger(),
+            provider=SlashCommandProvider(registry)
+        )
+    ]
+    textarea = SmartInput(rules=rules)
     
     # Mount to trigger popup creation
     app = TextualApp(StubUserInput(), AgentId("Agent"))
@@ -57,8 +67,8 @@ async def test_slash_command_registry_available_in_textarea():
         await pilot.pause()
         await app.mount(textarea)
 
-        # Check that the autocompleter is present on the SmartInput
-        assert textarea.autocompleter is autocompleter
+        # Check that the rules are present on the SmartInput
+        assert textarea.rules == rules
 
 
 def test_get_autocomplete_suggestions_for_slash():
@@ -257,16 +267,12 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         ]
 
         suggestions = [SimpleSuggestion(s) for s in strings]
-        suggestion_list = SuggestionList(suggestions=suggestions)
-
         # Calculate anchor manually (simulating what SmartInput does)
         cursor_offset = Offset(10, 10)
         anchor = PopupAnchor(cursor_offset, screen_size)
 
         # Manually set state to simulate start() without async search
-        popup.suggestion_list = suggestion_list
-        popup._current_anchor = anchor
-        popup._update_view()
+        popup.show_suggestions(suggestions, anchor)
 
         await pilot.pause()
 
@@ -286,13 +292,10 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 
         strings = ["/cmd - desc"]
         suggestions = [SimpleSuggestion(s) for s in strings]
-        suggestion_list = SuggestionList(suggestions=suggestions)
 
         anchor = PopupAnchor(Offset(0, 0), Size(80, 24))
 
-        popup.suggestion_list = suggestion_list
-        popup._current_anchor = anchor
-        popup._update_view()
+        popup.show_suggestions(suggestions, anchor)
         await pilot.pause()
 
         assert popup.display is True
@@ -334,8 +337,6 @@ async def test_submittable_text_area_file_search(app: TextualApp):
     mock_searcher = AsyncMock()
     mock_searcher.search.return_value = ["my_file.py", "other_file.txt"]
 
-    autocompleter = FileSearchAutocompleter(mock_searcher)
-
     # Subclass TextualApp to inject dependencies
     class TestApp(TextualApp):
         def compose(self):
@@ -343,8 +344,13 @@ async def test_submittable_text_area_file_search(app: TextualApp):
             from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
             with Vertical():
                 yield AgentTabs(self._root_agent_id, id="tabs")
-                # Inject our custom autocompleters
-                yield SmartInput(autocompleter=autocompleter, id="user-input")
+
+                # Inject our custom rules
+                rules = [AutocompleteRule(
+                    trigger=FileSearchTrigger(),
+                    provider=FileSearchProvider(mock_searcher)
+                )]
+                yield SmartInput(rules=rules, id="user-input")
 
     test_app = TestApp(StubUserInput(), AgentId("Agent"))
 
@@ -396,6 +402,8 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         await pilot.press("backspace") # delete /
         await pilot.press("/")
         await pilot.pause()
+        await pilot.pause() # Wait for async fetch
+
         assert text_area.popup.display is True
 
         # Test Tab

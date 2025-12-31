@@ -1,10 +1,9 @@
 import asyncio
-from typing import List
+from typing import List, Optional
 from textual.widgets import Static
 from rich.text import Text
 
-from typing import Optional
-from simple_agent.infrastructure.textual.autocomplete import SuggestionList, CompletionSearch, CompletionResult
+from simple_agent.infrastructure.textual.autocomplete import SuggestionList, CompletionResult, Suggestion
 from simple_agent.infrastructure.textual.autocomplete.geometry import PopupAnchor, PopupLayout
 
 class AutocompletePopup(Static):
@@ -25,12 +24,9 @@ class AutocompletePopup(Static):
         self._active: bool = False
         self._current_anchor: Optional[PopupAnchor] = None
 
-    async def start(self, search: CompletionSearch, anchor: PopupAnchor) -> None:
+    def show_suggestions(self, suggestions: List[Suggestion], anchor: PopupAnchor) -> None:
         self._active = True
         self._current_anchor = anchor
-        suggestions = await search.get_suggestions()
-        if not self._active:
-            return
 
         if suggestions:
             self.suggestion_list = SuggestionList(suggestions)
