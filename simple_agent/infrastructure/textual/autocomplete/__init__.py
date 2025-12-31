@@ -1,5 +1,5 @@
 from simple_agent.infrastructure.textual.autocomplete.domain import (
-    WordAtCursor,
+    Word,
     CursorAndLine,
     MessageDraft,
     CompletionResult,
