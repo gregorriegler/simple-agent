@@ -18,18 +18,17 @@ class WordAtCursor:
     word: str
     start_index: int
 
-    @staticmethod
-    def from_cursor(line: str, col: int) -> "WordAtCursor":
-        text_before = line[:col]
-        last_space_index = text_before.rfind(" ")
-        start_index = last_space_index + 1
-        word = text_before[start_index:]
-        return WordAtCursor(word, start_index)
-
 @dataclass(frozen=True)
 class Cursor:
     row: int
     col: int
+
+    def get_word_under_cursor(self, line: str) -> "WordAtCursor":
+        text_before = line[:self.col]
+        last_space_index = text_before.rfind(" ")
+        start_index = last_space_index + 1
+        word = text_before[start_index:]
+        return WordAtCursor(word, start_index)
 
 @dataclass
 class CursorAndLine:
@@ -38,7 +37,7 @@ class CursorAndLine:
 
     @property
     def current_word(self) -> WordAtCursor:
-        return WordAtCursor.from_cursor(self.line, self.cursor.col)
+        return self.cursor.get_word_under_cursor(self.line)
 
 @dataclass
 class MessageDraft:
