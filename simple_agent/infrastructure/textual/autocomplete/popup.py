@@ -54,6 +54,39 @@ class AutocompletePopup(Static):
         self.suggestion_list = None
         self.display = False
 
+    def handle_key(self, key: str) -> Optional[CompletionResult] | bool:
+        """
+        Handle keyboard interaction for the popup.
+
+        Returns:
+            CompletionResult: If a selection was made.
+            True: If the key was handled (consumed) but no selection.
+            False/None: If the key was not handled.
+        """
+        if not self._active or not self.suggestion_list:
+            return False
+
+        if key == "down":
+            self.move_selection_down()
+            return True
+        elif key == "up":
+            self.move_selection_up()
+            return True
+        elif key in ("tab", "enter"):
+            selection = self.get_selection()
+            if selection:
+                self.close()
+                return selection
+            # If no selection is possible (shouldn't happen if active has items),
+            # we generally don't consume enter unless we want to block submission?
+            # Existing logic suggests we only consume if result is found.
+            return False
+        elif key == "escape":
+            self.close()
+            return True
+
+        return False
+
     def _update_view(self) -> None:
         """
         Render the suggestions list at the specified anchor.

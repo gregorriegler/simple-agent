@@ -20,6 +20,7 @@ Active Tab: tab-Agent
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Initial State (ASCII UI) ---
  Agent
@@ -79,6 +80,7 @@ Active Tab: tab-SubAgent
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-SubAgent' classes=''
       SmartInput id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: SubAgent Started (ASCII UI) ---
  Agent  SubAgent [gpt-4: 0.0%]
@@ -140,6 +142,7 @@ Active Tab: tab-SubAgent
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-SubAgent' classes=''
       SmartInput id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: SubAgent Spoke (ASCII UI) ---
  Agent  SubAgent [gpt-4: 0.0%]
@@ -189,6 +192,7 @@ Active Tab: tab-Agent
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: SubAgent Ended (ASCII UI) ---
  Agent
@@ -240,6 +244,7 @@ Active Tab: tab-Agent
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Error Event (ASCII UI) ---
  Agent
@@ -293,6 +298,7 @@ Active Tab: tab-Agent
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Session Interrupted (ASCII UI) ---
  Agent
@@ -350,6 +356,7 @@ Active Tab: tab-Agent
                   Contents id='None' classes=''
                     TextArea id='None' classes='tool-call' text='In Progress ⠇'
       SmartInput id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Tool Call (Suppressed) (ASCII UI) ---
  Agent
@@ -411,6 +418,7 @@ Active Tab: tab-Agent
                   Contents id='None' classes=''
                     Static id='None' classes='tool-result tool-result-success'
       SmartInput id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Tool Result (Diff) (ASCII UI) ---
  Agent
@@ -476,6 +484,7 @@ Active Tab: tab-Agent
                   Contents id='None' classes=''
                     TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
       SmartInput id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: Tool Cancelled (ASCII UI) ---
  Agent
@@ -541,6 +550,7 @@ Active Tab: tab-Agent
                   Contents id='None' classes=''
                     TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
       SmartInput id='user-input' classes='' text=''
+        AutocompletePopup id='autocomplete-popup' classes=''
 
 --- Step: File Context Submitted (ASCII UI) ---
  Agent

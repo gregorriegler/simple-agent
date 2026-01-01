@@ -57,12 +57,14 @@ class SmartInput(TextArea):
         super().__init__(id=id, **kwargs)
 
         self.rules = rules or []
-        self.popup: AutocompletePopup | None = None
+        self.popup = AutocompletePopup(id="autocomplete-popup")
         self.expander = FileContextExpander()
+        self._autocomplete_task: asyncio.Task | None = None
 
         self._referenced_files: set[str] = set()
 
     def on_mount(self) -> None:
+        self.mount(self.popup)
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
 
     def get_referenced_files(self) -> set[str]:
@@ -82,37 +84,20 @@ class SmartInput(TextArea):
 
     def _close_autocomplete(self) -> None:
         """Clear autocomplete state and hide popup."""
-        if self.popup:
-            self.popup.close()
-            self.popup.remove()
-            self.popup = None
+        if self._autocomplete_task:
+            self._autocomplete_task.cancel()
+            self._autocomplete_task = None
+        self.popup.close()
 
     async def _on_key(self, event: events.Key) -> None:
         # Handle autocomplete navigation if active
-        if self.popup and self.popup.suggestion_list:
-            if event.key == "down":
-                self.popup.move_selection_down()
-                event.stop()
-                event.prevent_default()
-                return
-            elif event.key == "up":
-                self.popup.move_selection_up()
-                event.stop()
-                event.prevent_default()
-                return
-            elif event.key in ("tab", "enter"):
-                result = self.popup.get_selection()
-                if result:
-                    self._apply_completion(result)
-                    self._close_autocomplete()
-                    event.stop()
-                    event.prevent_default()
-                    return
-            elif event.key == "escape":
-                self._close_autocomplete()
-                event.stop()
-                event.prevent_default()
-                return
+        if result := self.popup.handle_key(event.key):
+            if isinstance(result, CompletionResult):
+                self._apply_completion(result)
+
+            event.stop()
+            event.prevent_default()
+            return
 
         if event.key == "enter":
             self.submit()
@@ -140,38 +125,45 @@ class SmartInput(TextArea):
             return
 
         cursor_and_line = CursorAndLine(Cursor(row, col), line)
+        rule = self._find_triggered_rule(cursor_and_line)
 
+        if rule:
+            self._start_autocomplete(rule, cursor_and_line)
+        else:
+            self._close_autocomplete()
+
+    def _find_triggered_rule(self, cursor_and_line: CursorAndLine) -> Optional[AutocompleteRule]:
         for rule in self.rules:
             if rule.trigger.is_triggered(cursor_and_line):
-                self._start_autocomplete(rule, cursor_and_line)
-                return
-
-        self._close_autocomplete()
+                return rule
+        return None
 
     def _start_autocomplete(self, rule: AutocompleteRule, cursor_and_line: CursorAndLine) -> None:
-        if not self.popup:
-            self.popup = AutocompletePopup(id="autocomplete-popup")
-            self.mount(self.popup)
+        if self._autocomplete_task:
+            self._autocomplete_task.cancel()
 
-        # Create Anchor
+        anchor = self._calculate_anchor(cursor_and_line)
+        self._autocomplete_task = asyncio.create_task(
+            self._fetch_and_show_suggestions(rule, cursor_and_line, anchor)
+        )
+
+    def _calculate_anchor(self, cursor_and_line: CursorAndLine) -> PopupAnchor:
         caret_location = CaretScreenLocation(
             offset=self.cursor_screen_offset,
             screen_size=self.app.screen.size
         )
-        anchor = caret_location.anchor_to_word(cursor_and_line)
-
-        asyncio.create_task(self._fetch_and_show_suggestions(rule, cursor_and_line, anchor))
+        return caret_location.anchor_to_word(cursor_and_line)
 
     async def _fetch_and_show_suggestions(self, rule: AutocompleteRule, cursor_and_line: CursorAndLine, anchor: PopupAnchor) -> None:
-        # Check if popup is still active (it might have been closed while fetching)
-        if not self.popup:
-            return
-
-        suggestions = await rule.provider.fetch(cursor_and_line)
-
-        # Double check popup existence and state after await
-        if self.popup:
+        try:
+            suggestions = await rule.provider.fetch(cursor_and_line)
             self.popup.show_suggestions(suggestions, anchor)
+        except asyncio.CancelledError:
+            pass
+        finally:
+            # If this task is still the active one, clear it
+            if self._autocomplete_task == asyncio.current_task():
+                self._autocomplete_task = None
 
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location
