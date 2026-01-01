@@ -115,20 +115,25 @@ class SmartInput(TextArea):
 
     def _trigger_autocomplete_check(self) -> None:
         """Helper to call popup check with current context."""
-        row, col = self.cursor_location
-        try:
-            line = self.document.get_line(row)
-        except IndexError:
+        cursor_and_line = self._get_cursor_and_line()
+        if not cursor_and_line:
             self._close_autocomplete()
             return
 
-        cursor_and_line = CursorAndLine(Cursor(row, col), line)
         rule = self._find_triggered_rule(cursor_and_line)
 
         if rule:
             self._start_autocomplete(rule, cursor_and_line)
         else:
             self._close_autocomplete()
+
+    def _get_cursor_and_line(self) -> Optional[CursorAndLine]:
+        row, col = self.cursor_location
+        try:
+            line = self.document.get_line(row)
+            return CursorAndLine(Cursor(row, col), line)
+        except IndexError:
+            return None
 
     def _find_triggered_rule(self, cursor_and_line: CursorAndLine) -> Optional[AutocompleteRule]:
         for rule in self.rules:
