@@ -59,7 +59,6 @@ class SmartInput(TextArea):
         self.rules = rules or []
         self.popup = AutocompletePopup()
         self.expander = FileContextExpander()
-        self._autocomplete_task: asyncio.Task | None = None
 
         self._referenced_files: set[str] = set()
 
@@ -84,9 +83,6 @@ class SmartInput(TextArea):
 
     def _close_autocomplete(self) -> None:
         """Clear autocomplete state and hide popup."""
-        if self._autocomplete_task:
-            self._autocomplete_task.cancel()
-            self._autocomplete_task = None
         self.popup.close()
 
     def on_autocomplete_popup_selected(self, message: AutocompletePopup.Selected) -> None:
@@ -141,13 +137,8 @@ class SmartInput(TextArea):
         return None
 
     def _start_autocomplete(self, rule: AutocompleteRule, cursor_and_line: CursorAndLine) -> None:
-        if self._autocomplete_task:
-            self._autocomplete_task.cancel()
-
         anchor = self._calculate_anchor(cursor_and_line)
-        self._autocomplete_task = asyncio.create_task(
-            self._fetch_and_show_suggestions(rule, cursor_and_line, anchor)
-        )
+        self.popup.load_suggestions(rule.provider, cursor_and_line, anchor)
 
     def _calculate_anchor(self, cursor_and_line: CursorAndLine) -> PopupAnchor:
         caret_location = CaretScreenLocation(
@@ -155,17 +146,6 @@ class SmartInput(TextArea):
             screen_size=self.app.screen.size
         )
         return caret_location.anchor_to_word(cursor_and_line)
-
-    async def _fetch_and_show_suggestions(self, rule: AutocompleteRule, cursor_and_line: CursorAndLine, anchor: PopupAnchor) -> None:
-        try:
-            suggestions = await rule.provider.fetch(cursor_and_line)
-            self.popup.show_suggestions(suggestions, anchor)
-        except asyncio.CancelledError:
-            pass
-        finally:
-            # If this task is still the active one, clear it
-            if self._autocomplete_task == asyncio.current_task():
-                self._autocomplete_task = None
 
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location
