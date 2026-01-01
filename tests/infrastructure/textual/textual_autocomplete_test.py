@@ -218,7 +218,9 @@ async def test_enter_key_selects_autocomplete_when_visible():
         assert text_area.text.startswith("/clear")
         assert len(user_input.inputs) == 0
 
-        assert text_area.popup.display is False
+        # When closed, popup might be None or display False (if we kept it, but we removed it)
+        # Since we remove it, text_area.popup should be None
+        assert text_area.popup is None
 
 
 @pytest.mark.asyncio
@@ -327,7 +329,7 @@ async def test_submittable_text_area_slash_commands(app: TextualApp):
         await pilot.pause()
 
         assert text_area.text.startswith("/clear")
-        assert text_area.popup.display is False
+        assert text_area.popup is None
 
 @pytest.mark.asyncio
 async def test_submittable_text_area_file_search(app: TextualApp):
@@ -377,7 +379,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
 
         assert "[📦my_file.py]" in text_area.text
         assert "s " in text_area.text
-        assert text_area.popup.display is False
+        assert text_area.popup is None
 
 @pytest.mark.asyncio
 async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
@@ -394,7 +396,7 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         # Test Escape
         await pilot.press("escape")
         await pilot.pause()
-        assert text_area.popup.display is False
+        assert text_area.popup is None
 
         # Re-open
         await pilot.press("backspace") # delete /
@@ -408,7 +410,7 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         await pilot.press("tab")
         await pilot.pause()
 
-        assert text_area.popup.display is False
+        assert text_area.popup is None
         # Should have selected the first one (likely /clear or /model, sorted alphabetically?)
         # Just check it started with /
         assert text_area.text.startswith("/")
