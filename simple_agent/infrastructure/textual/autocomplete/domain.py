@@ -1,4 +1,4 @@
-from typing import Protocol, List, Optional
+from typing import Protocol, List, Optional, Set
 from dataclasses import dataclass, field
 
 class FileReference:
@@ -12,6 +12,28 @@ class FileReference:
     @staticmethod
     def is_present(text: str, path: str) -> bool:
          return FileReference.to_text(path) in text
+
+@dataclass
+class FileReferences:
+    _paths: set[str] = field(default_factory=set)
+
+    def add(self, paths: Set[str] | str) -> None:
+        if isinstance(paths, str):
+            self._paths.add(paths)
+        else:
+            self._paths.update(paths)
+
+    def clear(self) -> None:
+        self._paths.clear()
+
+    def filter_active_in(self, text: str) -> set[str]:
+         return {f for f in self._paths if FileReference.is_present(text, f)}
+
+    def __iter__(self):
+        return iter(self._paths)
+
+    def __len__(self):
+        return len(self._paths)
 
 @dataclass(frozen=True)
 class Cursor:
@@ -42,11 +64,11 @@ class CursorAndLine:
 @dataclass
 class MessageDraft:
     text: str
-    known_files: set[str] = field(default_factory=set)
+    files: FileReferences
 
     @property
     def active_files(self) -> set[str]:
-        return {f for f in self.known_files if FileReference.is_present(self.text, f)}
+        return self.files.filter_active_in(self.text)
 
 @dataclass
 class CompletionResult:

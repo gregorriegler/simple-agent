@@ -4,7 +4,12 @@ from textual.widgets import Static
 from textual.message import Message
 from rich.text import Text
 
-from simple_agent.infrastructure.textual.autocomplete import SuggestionList, CompletionResult, Suggestion, CursorAndLine
+from simple_agent.infrastructure.textual.autocomplete.domain import (
+    CompletionResult,
+    Suggestion,
+    SuggestionList,
+    CursorAndLine,
+)
 from simple_agent.infrastructure.textual.autocomplete.geometry import PopupAnchor, PopupLayout
 from simple_agent.infrastructure.textual.autocomplete.protocols import SuggestionProvider
 
@@ -106,9 +111,6 @@ class AutocompletePopup(Static):
                 self.close()
                 self.post_message(self.Selected(selection))
                 return True
-            # If no selection is possible (shouldn't happen if active has items),
-            # we generally don't consume enter unless we want to block submission?
-            # Existing logic suggests we only consume if result is found.
             return False
         elif key == "escape":
             self.close()

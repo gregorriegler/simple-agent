@@ -9,7 +9,10 @@ from simple_agent.infrastructure.textual.autocomplete.domain import (
 from simple_agent.infrastructure.textual.autocomplete.protocols import (
     AutocompleteTrigger,
     SuggestionProvider,
+)
+from simple_agent.infrastructure.textual.autocomplete.rules import (
     AutocompleteRule,
+    AutocompleteRules
 )
 from simple_agent.infrastructure.textual.autocomplete.slash_commands import (
     SlashCommandSuggestion,
