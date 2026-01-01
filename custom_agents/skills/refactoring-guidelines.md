@@ -2,7 +2,7 @@
 ### Priority sequence (do these in order)
 
 1) **Reduce structural distance first.**  
-Move code/data closer to where it’s used—often by moving **behavior to where the data lives**. This may lead to **Value Objects** or **Rich Domain Models**. Align responsibilities with module/class/function boundaries. Prefer **package by feature** (vertical slices) so a feature’s behavior and data live together; avoid layer-based packaging that spreads one feature across the codebase.  
+Move code/data closer to where it’s used—often by moving **behavior to where the data lives**. Sometimes we have to first reorder/split existing functions to indicate portions of logic that can be moved. This may lead to **Value Objects** or **Rich Domain Models**. Align responsibilities with module/class/function boundaries. Prefer **package by feature** (vertical slices) so a feature’s behavior and data live together; avoid layer-based packaging that spreads one feature across the codebase.  
 **Exception:** it’s fine to have top-level `application/` and `infrastructure/` (or similar) folders; within them, still prefer packaging by feature.
 
 2) **Let Value Objects emerge from primitive obsession.**  
