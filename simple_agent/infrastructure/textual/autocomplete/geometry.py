@@ -77,11 +77,11 @@ class PopupLayout:
 
     @classmethod
     def calculate(cls, suggestion_list: SuggestionList, anchor: PopupAnchor) -> "PopupLayout":
-        suggestions = [s.display_text for s in suggestion_list.suggestions]
-        max_line_length = max(len(line) for line in suggestions)
+        max_line_length = suggestion_list.max_content_width
         popup_width = min(max_line_length + 2, anchor.max_width)
         available_width = max(1, popup_width - 2)
-        trimmed_lines = [line[:available_width] for line in suggestions]
+
+        trimmed_lines = suggestion_list.get_display_lines(available_width)
         popup_height = len(trimmed_lines)
 
         offset = anchor.get_placement(Size(popup_width, popup_height))
