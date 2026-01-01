@@ -7,8 +7,9 @@ Move code/data closer to where it’s used—often by moving **behavior to where
 
 2) **Let Value Objects emerge from primitive obsession.**  
 When you see primitive arguments (strings/ints/etc.) standing in for domain concepts, turn them into **proper objects** that **encapsulate the data** and can **carry behavior**. This often reduces parameters and shared knowledge.
+When introducing a new Value Object, first start using it in a single place. But then find and replace other primitives of the same structure and replace it with the Value, too. In the end we expect all such primitives to be encapsulated by this new Value.
 Caveat: Ensure the new object attracts behavior. Avoid creating "anemic" wrappers for transient/derived data that simply increase indirection (structural distance).
-3) **Then reduce strength (coupling).**  
+4) **Then reduce strength (coupling).**  
 Prefer smaller APIs, fewer parameters, less shared knowledge. Hide details, encapsulate, and minimize what’s visible externally. If encapsulation requires moves, do them (distance reduction supports strength reduction).
 
 ### General rules (apply throughout)
