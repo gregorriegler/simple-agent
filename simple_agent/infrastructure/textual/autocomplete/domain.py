@@ -52,7 +52,7 @@ class MessageDraft:
 class CompletionResult:
     text: str
     attachments: set[str] = field(default_factory=set)
-    start_offset: Optional[int] = None
+    start_offset: int = 0
 
 class Suggestion(Protocol):
     @property
