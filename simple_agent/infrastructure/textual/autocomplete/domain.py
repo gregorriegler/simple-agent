@@ -23,13 +23,6 @@ class Cursor:
     row: int
     col: int
 
-    def get_word_under_cursor(self, line: str) -> "Word":
-        text_before = line[:self.col]
-        last_space_index = text_before.rfind(" ")
-        start_index = last_space_index + 1
-        word = text_before[start_index:]
-        return Word(word, start_index)
-
 @dataclass
 class CursorAndLine:
     cursor: Cursor
@@ -37,7 +30,11 @@ class CursorAndLine:
 
     @property
     def current_word(self) -> Word:
-        return self.cursor.get_word_under_cursor(self.line)
+        text_before = self.line[:self.cursor.col]
+        last_space_index = text_before.rfind(" ")
+        start_index = last_space_index + 1
+        word = text_before[start_index:]
+        return Word(word, start_index)
 
 @dataclass
 class MessageDraft:
