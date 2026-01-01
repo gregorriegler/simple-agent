@@ -57,7 +57,7 @@ class SmartInput(TextArea):
         super().__init__(id=id, **kwargs)
 
         self.rules = rules or []
-        self.popup = AutocompletePopup(id="autocomplete-popup")
+        self.popup = AutocompletePopup()
         self.expander = FileContextExpander()
         self._autocomplete_task: asyncio.Task | None = None
 

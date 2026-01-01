@@ -21,11 +21,9 @@ class AutocompletePopup(Static):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.suggestion_list: Optional[SuggestionList] = None
-        self._active: bool = False
         self._current_anchor: Optional[PopupAnchor] = None
 
     def show_suggestions(self, suggestions: List[Suggestion], anchor: PopupAnchor) -> None:
-        self._active = True
         self._current_anchor = anchor
 
         if suggestions:
@@ -50,7 +48,6 @@ class AutocompletePopup(Static):
         return None
 
     def close(self) -> None:
-        self._active = False
         self.suggestion_list = None
         self.display = False
 
@@ -63,7 +60,7 @@ class AutocompletePopup(Static):
             True: If the key was handled (consumed) but no selection.
             False/None: If the key was not handled.
         """
-        if not self._active or not self.suggestion_list:
+        if not self.display or not self.suggestion_list:
             return False
 
         if key == "down":

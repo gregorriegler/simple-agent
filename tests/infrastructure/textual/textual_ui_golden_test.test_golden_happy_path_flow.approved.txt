@@ -22,7 +22,7 @@ Active Tab: tab-Agent
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='user-input' classes='' text=''
-        AutocompletePopup id='autocomplete-popup' classes=''
+        AutocompletePopup id='None' classes=''
 
 --- Step: Session Started (ASCII UI) ---
  Agent
@@ -76,7 +76,7 @@ Active Tab: tab-Agent
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='user-input' classes='' text=''
-        AutocompletePopup id='autocomplete-popup' classes=''
+        AutocompletePopup id='None' classes=''
 
 --- Step: User Prompt Requested (ASCII UI) ---
  Agent
@@ -130,7 +130,7 @@ Active Tab: tab-Agent
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='user-input' classes='' text=''
-        AutocompletePopup id='autocomplete-popup' classes=''
+        AutocompletePopup id='None' classes=''
 
 --- Step: User Input Submitted (ASCII UI) ---
  Agent
@@ -188,7 +188,7 @@ Active Tab: tab-Agent
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
       SmartInput id='user-input' classes='' text=''
-        AutocompletePopup id='autocomplete-popup' classes=''
+        AutocompletePopup id='None' classes=''
 
 --- Step: Assistant Reply (ASCII UI) ---
  Agent
@@ -250,7 +250,7 @@ Active Tab: tab-Agent
                   Contents id='None' classes=''
                     TextArea id='None' classes='tool-call' text='In Progress ⠇'
       SmartInput id='user-input' classes='' text=''
-        AutocompletePopup id='autocomplete-popup' classes=''
+        AutocompletePopup id='None' classes=''
 
 --- Step: Tool Called (ASCII UI) ---
  Agent
@@ -312,7 +312,7 @@ Active Tab: tab-Agent
                   Contents id='None' classes=''
                     TextArea id='None' classes='tool-result tool-result-success' text='Found 1 file.'
       SmartInput id='user-input' classes='' text=''
-        AutocompletePopup id='autocomplete-popup' classes=''
+        AutocompletePopup id='None' classes=''
 
 --- Step: Tool Result (ASCII UI) ---
  Agent
