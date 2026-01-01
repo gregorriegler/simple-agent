@@ -15,8 +15,3 @@ class SuggestionProvider(Protocol):
         Pure data. Fetches items when requested.
         """
         ...
-
-@dataclass
-class AutocompleteRule:
-    trigger: AutocompleteTrigger
-    provider: SuggestionProvider

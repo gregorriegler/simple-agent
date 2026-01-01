@@ -21,7 +21,7 @@ from simple_agent.infrastructure.textual.autocomplete import (
     SuggestionList,
     Suggestion,
 )
-from simple_agent.infrastructure.textual.autocomplete.protocols import AutocompleteRule
+from simple_agent.infrastructure.textual.autocomplete.rules import AutocompleteRule
 from simple_agent.infrastructure.textual.autocomplete.slash_commands import (
     SlashAtStartOfLineTrigger, SlashCommandProvider
 )
@@ -68,7 +68,7 @@ async def test_slash_command_registry_available_in_textarea():
         await app.mount(textarea)
 
         # Check that the rules are present on the SmartInput
-        assert textarea.rules == rules
+        assert list(textarea.rules) == rules
 
 
 def test_get_autocomplete_suggestions_for_slash():

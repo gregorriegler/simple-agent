@@ -14,8 +14,9 @@ from simple_agent.infrastructure.textual.autocomplete.geometry import (
     CaretScreenLocation,
     PopupAnchor,
 )
-from simple_agent.infrastructure.textual.autocomplete.protocols import (
+from simple_agent.infrastructure.textual.autocomplete.rules import (
     AutocompleteRule,
+    AutocompleteRules,
 )
 from simple_agent.infrastructure.textual.autocomplete.domain import (
     CompletionResult,
@@ -24,6 +25,7 @@ from simple_agent.infrastructure.textual.autocomplete.domain import (
     MessageDraft,
     Suggestion,
     SuggestionList,
+    FileReferences,
 )
 from simple_agent.infrastructure.textual.widgets.file_context_expander import FileContextExpander
 
@@ -56,11 +58,11 @@ class SmartInput(TextArea):
     ):
         super().__init__(id=id, **kwargs)
 
-        self.rules = rules or []
+        self.rules = AutocompleteRules(rules)
         self.popup = AutocompletePopup()
         self.expander = FileContextExpander()
 
-        self._referenced_files: set[str] = set()
+        self._referenced_files = FileReferences()
 
     def on_mount(self) -> None:
         self.mount(self.popup)
@@ -120,7 +122,7 @@ class SmartInput(TextArea):
             self._close_autocomplete()
             return
 
-        rule = self._find_triggered_rule(cursor_and_line)
+        rule = self.rules.find_triggered(cursor_and_line)
 
         if rule:
             self._start_autocomplete(rule, cursor_and_line)
@@ -134,12 +136,6 @@ class SmartInput(TextArea):
             return CursorAndLine(Cursor(row, col), line)
         except IndexError:
             return None
-
-    def _find_triggered_rule(self, cursor_and_line: CursorAndLine) -> Optional[AutocompleteRule]:
-        for rule in self.rules:
-            if rule.trigger.is_triggered(cursor_and_line):
-                return rule
-        return None
 
     def _start_autocomplete(self, rule: AutocompleteRule, cursor_and_line: CursorAndLine) -> None:
         anchor = self._calculate_anchor(cursor_and_line)
@@ -165,4 +161,4 @@ class SmartInput(TextArea):
         )
 
         if result.attachments:
-            self._referenced_files.update(result.attachments)
+            self._referenced_files.add(result.attachments)
