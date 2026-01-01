@@ -79,3 +79,12 @@ class SuggestionList:
         if not self.suggestions:
             return None
         return self.suggestions[self.selected_index].to_completion_result()
+
+    @property
+    def max_content_width(self) -> int:
+        if not self.suggestions:
+            return 0
+        return max(len(s.display_text) for s in self.suggestions)
+
+    def get_display_lines(self, width: int) -> List[str]:
+        return [s.display_text[:width] for s in self.suggestions]
