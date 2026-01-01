@@ -68,8 +68,7 @@ class AutocompletePopup(Static):
 
         self.display = True
 
-        suggestions_text = [s.display_text for s in self.suggestion_list.suggestions]
-        layout = PopupLayout.calculate(suggestions_text, self._current_anchor)
+        layout = PopupLayout.calculate(self.suggestion_list, self._current_anchor)
 
         # Update styles
         self.styles.width = layout.width
