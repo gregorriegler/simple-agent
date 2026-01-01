@@ -270,7 +270,7 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         anchor = PopupAnchor(cursor_offset, screen_size)
 
         # Manually set state to simulate start() without async search
-        popup.show_suggestions(suggestions, anchor)
+        popup._show_suggestions(suggestions, anchor)
 
         await pilot.pause()
 
@@ -293,7 +293,7 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 
         anchor = PopupAnchor(Offset(0, 0), Size(80, 24))
 
-        popup.show_suggestions(suggestions, anchor)
+        popup._show_suggestions(suggestions, anchor)
         await pilot.pause()
 
         assert popup.display is True
