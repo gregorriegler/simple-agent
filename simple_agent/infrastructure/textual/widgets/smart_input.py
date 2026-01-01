@@ -89,12 +89,14 @@ class SmartInput(TextArea):
             self._autocomplete_task = None
         self.popup.close()
 
+    def on_autocomplete_popup_selected(self, message: AutocompletePopup.Selected) -> None:
+        """Handle selection from the autocomplete popup."""
+        self._apply_completion(message.result)
+        message.stop()
+
     async def _on_key(self, event: events.Key) -> None:
         # Handle autocomplete navigation if active
-        if result := self.popup.handle_key(event.key):
-            if isinstance(result, CompletionResult):
-                self._apply_completion(result)
-
+        if self.popup.handle_key(event.key):
             event.stop()
             event.prevent_default()
             return
