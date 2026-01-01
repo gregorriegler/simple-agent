@@ -1,12 +1,19 @@
 import asyncio
 from typing import List, Optional
 from textual.widgets import Static
+from textual.message import Message
 from rich.text import Text
 
 from simple_agent.infrastructure.textual.autocomplete import SuggestionList, CompletionResult, Suggestion
 from simple_agent.infrastructure.textual.autocomplete.geometry import PopupAnchor, PopupLayout
 
 class AutocompletePopup(Static):
+    class Selected(Message):
+        """Posted when a suggestion is selected."""
+        def __init__(self, result: CompletionResult):
+            self.result = result
+            super().__init__()
+
     DEFAULT_CSS = """
     AutocompletePopup {
         background: $surface;
@@ -51,14 +58,12 @@ class AutocompletePopup(Static):
         self.suggestion_list = None
         self.display = False
 
-    def handle_key(self, key: str) -> Optional[CompletionResult] | bool:
+    def handle_key(self, key: str) -> bool:
         """
         Handle keyboard interaction for the popup.
 
         Returns:
-            CompletionResult: If a selection was made.
-            True: If the key was handled (consumed) but no selection.
-            False/None: If the key was not handled.
+            bool: True if the key was handled (consumed), False otherwise.
         """
         if not self.display or not self.suggestion_list:
             return False
@@ -73,7 +78,8 @@ class AutocompletePopup(Static):
             selection = self.get_selection()
             if selection:
                 self.close()
-                return selection
+                self.post_message(self.Selected(selection))
+                return True
             # If no selection is possible (shouldn't happen if active has items),
             # we generally don't consume enter unless we want to block submission?
             # Existing logic suggests we only consume if result is found.
