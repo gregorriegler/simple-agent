@@ -162,7 +162,7 @@ async def test_submit_hides_autocomplete_popup():
         await pilot.press("c")
         await pilot.pause()
 
-        popup = app.query_one("#autocomplete-popup")
+        popup = app.query_one(AutocompletePopup)
         assert popup.display is True
 
         await pilot.press("enter")
@@ -185,7 +185,7 @@ async def test_autocomplete_popup_keeps_initial_x_position():
         await pilot.press("c")
         await pilot.pause()
 
-        popup = app.query_one("#autocomplete-popup")
+        popup = app.query_one(AutocompletePopup)
         assert popup.display
         initial_x = popup.absolute_offset.x
 
