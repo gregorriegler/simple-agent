@@ -13,11 +13,6 @@ class FileReference:
     def is_present(text: str, path: str) -> bool:
          return FileReference.to_text(path) in text
 
-@dataclass
-class Word:
-    word: str
-    start_index: int
-
 @dataclass(frozen=True)
 class Cursor:
     row: int
@@ -29,12 +24,20 @@ class CursorAndLine:
     line: str
 
     @property
-    def current_word(self) -> Word:
+    def _word_context(self) -> tuple[str, int]:
         text_before = self.line[:self.cursor.col]
         last_space_index = text_before.rfind(" ")
         start_index = last_space_index + 1
         word = text_before[start_index:]
-        return Word(word, start_index)
+        return word, start_index
+
+    @property
+    def word(self) -> str:
+        return self._word_context[0]
+
+    @property
+    def word_start_index(self) -> int:
+        return self._word_context[1]
 
 @dataclass
 class MessageDraft:

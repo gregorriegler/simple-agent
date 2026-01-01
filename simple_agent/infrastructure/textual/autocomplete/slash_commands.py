@@ -25,8 +25,7 @@ class SlashCommandSuggestion:
 class SlashAtStartOfLineTrigger:
     def is_triggered(self, cursor_and_line: CursorAndLine) -> bool:
         if cursor_and_line.cursor.row == 0 and cursor_and_line.cursor.col > 0:
-            word = cursor_and_line.current_word
-            return word.start_index == 0 and word.word.startswith("/")
+            return cursor_and_line.word_start_index == 0 and cursor_and_line.word.startswith("/")
         return False
 
 class SlashCommandProvider:
@@ -34,8 +33,7 @@ class SlashCommandProvider:
         self.registry = registry
 
     async def fetch(self, cursor_and_line: CursorAndLine) -> List[Suggestion]:
-        word = cursor_and_line.current_word
-        query = word.word
+        query = cursor_and_line.word
         # start_index is implicit from the word logic, but we pass it to suggestion
         commands = self.registry.get_matching_commands(query)
-        return [SlashCommandSuggestion(cmd, word.start_index) for cmd in commands]
+        return [SlashCommandSuggestion(cmd, cursor_and_line.word_start_index) for cmd in commands]

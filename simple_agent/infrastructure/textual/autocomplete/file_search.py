@@ -29,19 +29,17 @@ class FileSuggestion:
 
 class AtSymbolTrigger:
     def is_triggered(self, cursor_and_line: CursorAndLine) -> bool:
-        word = cursor_and_line.current_word
-        return word.word.startswith("@")
+        return cursor_and_line.word.startswith("@")
 
 class FileSearchProvider:
     def __init__(self, searcher: FileSearcher):
         self.searcher = searcher
 
     async def fetch(self, cursor_and_line: CursorAndLine) -> List[Suggestion]:
-        word = cursor_and_line.current_word
-        query = word.word[1:] # Strip '@'
+        query = cursor_and_line.word[1:] # Strip '@'
         try:
             results = await self.searcher.search(query)
-            return [FileSuggestion(str(res), word.start_index) for res in results]
+            return [FileSuggestion(str(res), cursor_and_line.word_start_index) for res in results]
         except Exception as e:
             logger.error(f"File search failed: {e}")
             return []
