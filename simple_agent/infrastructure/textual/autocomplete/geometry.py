@@ -3,6 +3,8 @@ from typing import Any, List
 
 from textual.geometry import Offset, Size
 
+from simple_agent.infrastructure.textual.autocomplete.domain import SuggestionList
+
 
 @dataclass
 class PopupAnchor:
@@ -74,7 +76,8 @@ class PopupLayout:
     lines: List[str]
 
     @classmethod
-    def calculate(cls, suggestions: List[str], anchor: PopupAnchor) -> "PopupLayout":
+    def calculate(cls, suggestion_list: SuggestionList, anchor: PopupAnchor) -> "PopupLayout":
+        suggestions = [s.display_text for s in suggestion_list.suggestions]
         max_line_length = max(len(line) for line in suggestions)
         popup_width = min(max_line_length + 2, anchor.max_width)
         available_width = max(1, popup_width - 2)
