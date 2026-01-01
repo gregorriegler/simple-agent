@@ -24,3 +24,6 @@ Prefer smaller APIs, fewer parameters, less shared knowledge. Hide details, enca
 
 - **Prefer tiny functions.**  
   3 lines is ideal, 5 is acceptable. Keep **one level of indentation per function** whenever possible—extract early to avoid nested control flow.
+
+- **Apply 'Tell, Don't Ask' to avoid Feature Envy.**
+  If a method asks an object for data to perform a calculation, move the calculation into that object. Keep logic co-located with the data it operates on to preserve encapsulation and autonomy.
