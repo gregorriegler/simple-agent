@@ -1,4 +1,4 @@
-from typing import Protocol, List, Optional, Set
+from typing import Protocol, List, Optional, Set, Iterator
 from dataclasses import dataclass, field
 
 @dataclass(frozen=True)
@@ -12,29 +12,29 @@ class FileReference:
         return f"{self.PREFIX}{self.path}{self.SUFFIX}"
 
     def is_in(self, text: str) -> bool:
-         return self.to_text() in text
+        return self.to_text() in text
 
 @dataclass
 class FileReferences:
-    _paths: set[str] = field(default_factory=set)
+    _refs: set[FileReference] = field(default_factory=set)
 
     def add(self, paths: Set[str] | str) -> None:
         if isinstance(paths, str):
-            self._paths.add(paths)
+            self._refs.add(FileReference(paths))
         else:
-            self._paths.update(paths)
+            self._refs.update(FileReference(p) for p in paths)
 
     def clear(self) -> None:
-        self._paths.clear()
+        self._refs.clear()
 
-    def filter_active_in(self, text: str) -> set[str]:
-         return {f for f in self._paths if FileReference(f).is_in(text)}
+    def filter_active_in(self, text: str) -> Set[FileReference]:
+        return {ref for ref in self._refs if ref.is_in(text)}
 
-    def __iter__(self):
-        return iter(self._paths)
+    def __iter__(self) -> Iterator[FileReference]:
+        return iter(self._refs)
 
-    def __len__(self):
-        return len(self._paths)
+    def __len__(self) -> int:
+        return len(self._refs)
 
 @dataclass(frozen=True)
 class Cursor:
@@ -68,7 +68,7 @@ class MessageDraft:
     files: FileReferences
 
     @property
-    def active_files(self) -> set[str]:
+    def active_files(self) -> Set[FileReference]:
         return self.files.filter_active_in(self.text)
 
 @dataclass

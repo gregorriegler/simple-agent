@@ -20,7 +20,8 @@ class FileContextExpander:
 
         if active_references:
             file_contents = []
-            for file_path_str in active_references:
+            for file_ref in active_references:
+                file_path_str = file_ref.path
                 try:
                     path = Path(file_path_str)
                     if path.exists() and path.is_file():
