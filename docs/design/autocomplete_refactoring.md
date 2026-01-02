@@ -53,7 +53,11 @@ We will separate the concerns into two **Orthogonal Protocols** with descriptive
 
 These two are combined into a configuration object (a Rule or Feature), decoupling the *When* from the *What*.
 
-`AutocompleteRule(trigger=SlashAtStartOfLineTrigger(), provider=SlashCommandProvider())`
+`SingleAutocompleteRule(trigger=SlashAtStartOfLineTrigger(), provider=SlashCommandProvider())`
+
+The `AutocompleteRule` is now a Protocol defining a `check(cursor_and_line) -> Optional[SuggestionProvider]` method.
+- `SingleAutocompleteRule` implements this for a single trigger/provider pair.
+- `AutocompleteRules` implements this as a Composite, iterating through a list of rules.
 
 ### ASCII Diagram (DESIRABLE)
 
@@ -62,18 +66,18 @@ These two are combined into a configuration object (a Rule or Feature), decoupli
 |                             SmartInput                                |
 |                      (Self-Contained Widget)                          |
 |                                                                       |
-|  [ Config/Rules ]                                                     |
+|  [ AutocompleteRules ] (Composite)                                    |
 |       |                                                               |
-|       +-> [ Rule A: (Trigger A) + (Provider A) ]                      |
-|       +-> [ Rule B: (Trigger B) + (Provider B) ]                      |
+|       +-> [ SingleRule A: (Trigger A) + (Provider A) ]                |
+|       +-> [ SingleRule B: (Trigger B) + (Provider B) ]                |
 |                                                                       |
 |  [ Logic Flow ]                                                       |
 |       |                                                               |
 |       v                                                               |
-|  1. Iterate Rules -> if rule.trigger.is_triggered(cursor_and_line):   |
+|  1. provider = rules.check(cursor_and_line)                           |
 |       |                                                               |
-|       +-> 2. active_provider = rule.provider                          |
-|       +-> 3. suggestions = await active_provider.fetch(cursor_and_line)|
+|       +-> 2. if provider:                                             |
+|       +-> 3. suggestions = await provider.fetch(cursor_and_line)      |
 |       +-> 4. popup.show(suggestions)                                  |
 |                                                                       |
 +--------------------------+--------------------------------------------+
@@ -87,10 +91,11 @@ These two are combined into a configuration object (a Rule or Feature), decoupli
 
 | Component | Responsibilities |
 | :--- | :--- |
-| **SmartInput** | - **Orchestrator:** Holds the list of `AutocompleteRule`s.<br>- **Event Loop:** On keypress, checks `rules`. If match found, invokes `provider`.<br>- **UI Control:** Manages the `AutocompletePopup` (show/hide/nav). |
+| **SmartInput** | - **Orchestrator:** Holds the `AutocompleteRules` composite.<br>- **Event Loop:** On keypress, calls `rules.check()`. If provider returned, invokes it.<br>- **UI Control:** Manages the `AutocompletePopup` (show/hide/nav). |
 | **AutocompleteTrigger** | - **Contract:** `is_triggered(cursor_and_line) -> bool`.<br>- **Role:** Reusable logic (e.g., "Line starts with /"). |
 | **SuggestionProvider** | - **Contract:** `async fetch(cursor_and_line) -> List`.<br>- **Role:** Domain logic (e.g., "Get available slash commands"). |
-| **AutocompleteRule** | - **Role:** A simple container/struct binding a `Trigger` to a `Provider`. |
+| **SingleAutocompleteRule** | - **Role:** A concrete implementation of `AutocompleteRule` Protocol binding a `Trigger` to a `Provider`. Enforces non-nullability of both. |
+| **AutocompleteRules** | - **Role:** Composite implementation of `AutocompleteRule` that checks a list of rules. |
 | **AutocompletePopup** | - **Contract:** `show(items)`, `select_next()`, `get_selection()`.<br>- **Role:** Dumb view. |
 
 ### Key Improvements
