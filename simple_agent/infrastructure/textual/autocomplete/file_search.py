@@ -20,7 +20,7 @@ class FileSuggestion:
         return self.file_path
 
     def to_completion_result(self) -> CompletionResult:
-         display_marker = f"{FileReference.to_text(self.file_path)} "
+         display_marker = f"{FileReference(self.file_path).to_text()} "
          return CompletionResult(
              text=display_marker,
              attachments={self.file_path},
