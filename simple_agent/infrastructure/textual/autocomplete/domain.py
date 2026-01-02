@@ -64,7 +64,7 @@ class CursorAndLine:
         return self._word_context[1]
 
 @dataclass
-class MessageDraft:
+class CompletionResult:
     text: str
     files: FileReferences
     start_offset: int = 0
@@ -77,7 +77,7 @@ class Suggestion(Protocol):
     @property
     def display_text(self) -> str: ...
 
-    def to_message_draft(self) -> MessageDraft: ...
+    def to_completion_result(self) -> CompletionResult: ...
 
 @dataclass
 class SuggestionList:
@@ -97,10 +97,10 @@ class SuggestionList:
             return
         self.selected_index = (self.selected_index - 1) % len(self.suggestions)
 
-    def get_selection(self) -> Optional[MessageDraft]:
+    def get_selection(self) -> Optional[CompletionResult]:
         if not self.suggestions:
             return None
-        return self.suggestions[self.selected_index].to_message_draft()
+        return self.suggestions[self.selected_index].to_completion_result()
 
     @property
     def max_content_width(self) -> int:
