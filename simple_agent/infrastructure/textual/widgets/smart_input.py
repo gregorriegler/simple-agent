@@ -164,12 +164,8 @@ class SmartInput(TextArea):
             offset=self.cursor_screen_offset,
             screen_size=self.app.screen.size
         )
-        anchor_col = suggestion_list.anchor_col
-        if anchor_col is None:
-            anchor_col = cursor_and_line.word_start_index
-
         return caret_location.anchor_to_column(
-            anchor_col,
+            suggestion_list.get_anchor_col(cursor_and_line),
             cursor_and_line.cursor.col
         )
 

@@ -111,3 +111,8 @@ class SuggestionList:
 
     def get_display_lines(self, width: int) -> List[str]:
         return [s.display_text[:width] for s in self.suggestions]
+
+    def get_anchor_col(self, cursor_and_line: CursorAndLine) -> int:
+        if self.anchor_col is not None:
+            return self.anchor_col
+        return cursor_and_line.word_start_index
