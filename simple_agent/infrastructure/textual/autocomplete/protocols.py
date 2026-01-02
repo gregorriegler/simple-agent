@@ -1,6 +1,6 @@
 from typing import Protocol, List, Optional
 from dataclasses import dataclass
-from simple_agent.infrastructure.textual.autocomplete.domain import Suggestion, CursorAndLine
+from simple_agent.infrastructure.textual.autocomplete.domain import Suggestion, CursorAndLine, SuggestionList
 
 class AutocompleteTrigger(Protocol):
     def is_triggered(self, cursor_and_line: CursorAndLine) -> bool:
@@ -18,8 +18,8 @@ class SuggestionProvider(Protocol):
 
 
 class AutocompleteRule(Protocol):
-    async def check(self, cursor_and_line: CursorAndLine) -> List[Suggestion]:
+    async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:
         """
-        Checks if the rule is triggered and returns suggestions if so.
+        Checks if the rule is triggered and returns a SuggestionList if so.
         """
         ...

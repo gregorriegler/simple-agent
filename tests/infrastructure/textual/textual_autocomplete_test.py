@@ -109,14 +109,16 @@ async def test_single_autocomplete_rule_check_logic():
 
     # triggered
     rule = SingleAutocompleteRule(MockTrigger(True), MockProvider())
-    suggestions = await rule.check(cursor)
-    assert len(suggestions) == 1
-    assert suggestions[0].display_text == "s1"
+    suggestion_list = await rule.suggest(cursor)
+    assert isinstance(suggestion_list, SuggestionList)
+    assert len(suggestion_list.suggestions) == 1
+    assert suggestion_list.suggestions[0].display_text == "s1"
 
     # not triggered
     rule = SingleAutocompleteRule(MockTrigger(False), MockProvider())
-    suggestions = await rule.check(cursor)
-    assert suggestions == []
+    suggestion_list = await rule.suggest(cursor)
+    assert isinstance(suggestion_list, SuggestionList)
+    assert len(suggestion_list.suggestions) == 0
 
 
 def test_get_autocomplete_suggestions_for_slash():
@@ -318,7 +320,7 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         anchor = PopupAnchor(cursor_offset, screen_size)
 
         # Manually set state to simulate start() without async search
-        popup.show(suggestions, anchor)
+        popup.show(SuggestionList(suggestions), anchor)
 
         await pilot.pause()
 
@@ -341,7 +343,7 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 
         anchor = PopupAnchor(Offset(0, 0), Size(80, 24))
 
-        popup.show(suggestions, anchor)
+        popup.show(SuggestionList(suggestions), anchor)
         await pilot.pause()
 
         assert popup.display is True
