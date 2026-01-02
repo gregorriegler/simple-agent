@@ -4,7 +4,7 @@ from textual.message import Message
 from rich.text import Text
 
 from simple_agent.infrastructure.textual.autocomplete.domain import (
-    CompletionResult,
+    MessageDraft,
     Suggestion,
     SuggestionList,
 )
@@ -13,7 +13,7 @@ from simple_agent.infrastructure.textual.autocomplete.geometry import PopupAncho
 class AutocompletePopup(Static):
     class Selected(Message):
         """Posted when a suggestion is selected."""
-        def __init__(self, result: CompletionResult):
+        def __init__(self, result: MessageDraft):
             self.result = result
             super().__init__()
 
@@ -52,7 +52,7 @@ class AutocompletePopup(Static):
             self.suggestion_list.move_up()
             self._update_view()
 
-    def get_selection(self) -> Optional[CompletionResult]:
+    def get_selection(self) -> Optional[MessageDraft]:
         if self.suggestion_list:
             return self.suggestion_list.get_selection()
         return None

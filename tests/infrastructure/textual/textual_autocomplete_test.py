@@ -14,13 +14,14 @@ from simple_agent.infrastructure.textual.autocomplete.geometry import (
 )
 from simple_agent.application.agent_id import AgentId
 from simple_agent.infrastructure.textual.autocomplete import (
-    CompletionResult,
+    MessageDraft,
     SlashCommandSuggestion,
     FileSuggestion,
     CursorAndLine,
     SuggestionList,
     Suggestion,
     Cursor,
+    FileReferences
 )
 from simple_agent.infrastructure.textual.autocomplete.rules import SingleAutocompleteRule
 from simple_agent.infrastructure.textual.autocomplete.slash_commands import (
@@ -298,8 +299,8 @@ async def test_enter_key_submits_when_autocomplete_not_visible():
 class SimpleSuggestion:
     display_text: str
 
-    def to_completion_result(self) -> CompletionResult:
-        return CompletionResult(text=self.display_text)
+    def to_message_draft(self) -> MessageDraft:
+        return MessageDraft(text=self.display_text, files=FileReferences())
 
 @pytest.mark.asyncio
 async def test_autocomplete_popup_rendering(app: TextualApp):

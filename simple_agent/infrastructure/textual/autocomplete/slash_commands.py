@@ -1,7 +1,7 @@
 from typing import List, Any
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.textual.autocomplete.domain import (
-    Suggestion, CompletionResult, CursorAndLine, FileReferences
+    Suggestion, MessageDraft, CursorAndLine, FileReferences
 )
 from simple_agent.infrastructure.textual.autocomplete.protocols import (
     AutocompleteTrigger, SuggestionProvider
@@ -16,8 +16,8 @@ class SlashCommandSuggestion:
     def display_text(self) -> str:
         return f"{self.command.name} - {self.command.description}"
 
-    def to_completion_result(self) -> CompletionResult:
-        return CompletionResult(
+    def to_message_draft(self) -> MessageDraft:
+        return MessageDraft(
             text=self.command.name + " ",
             files=FileReferences(),
             start_offset=self.start_index
