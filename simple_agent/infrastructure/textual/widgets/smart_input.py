@@ -164,12 +164,14 @@ class SmartInput(TextArea):
             offset=self.cursor_screen_offset,
             screen_size=self.app.screen.size
         )
-        if suggestion_list.anchor_col is not None:
-            return caret_location.anchor_to_column(
-                suggestion_list.anchor_col,
-                cursor_and_line.cursor.col
-            )
-        return caret_location.anchor_to_word(cursor_and_line)
+        anchor_col = suggestion_list.anchor_col
+        if anchor_col is None:
+            anchor_col = cursor_and_line.word_start_index
+
+        return caret_location.anchor_to_column(
+            anchor_col,
+            cursor_and_line.cursor.col
+        )
 
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location
