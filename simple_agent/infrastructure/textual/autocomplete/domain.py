@@ -27,8 +27,9 @@ class FileReferences:
     def clear(self) -> None:
         self._references.clear()
 
-    def filter_active_in(self, text: str) -> Set[FileReference]:
-        return {ref for ref in self._references if ref.is_in(text)}
+    def filter_active_in(self, text: str) -> "FileReferences":
+        active_refs = {ref for ref in self._references if ref.is_in(text)}
+        return FileReferences(active_refs)
 
     def __iter__(self) -> Iterator[FileReference]:
         return iter(self._references)
@@ -68,7 +69,7 @@ class MessageDraft:
     files: FileReferences
 
     @property
-    def active_files(self) -> Set[FileReference]:
+    def active_files(self) -> "FileReferences":
         return self.files.filter_active_in(self.text)
 
 @dataclass
