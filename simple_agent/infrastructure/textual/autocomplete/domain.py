@@ -1,17 +1,18 @@
 from typing import Protocol, List, Optional, Set
 from dataclasses import dataclass, field
 
+@dataclass(frozen=True)
 class FileReference:
+    path: str
+
     PREFIX = "[📦"
     SUFFIX = "]"
 
-    @staticmethod
-    def to_text(path: str) -> str:
-        return f"{FileReference.PREFIX}{path}{FileReference.SUFFIX}"
+    def to_text(self) -> str:
+        return f"{self.PREFIX}{self.path}{self.SUFFIX}"
 
-    @staticmethod
-    def is_present(text: str, path: str) -> bool:
-         return FileReference.to_text(path) in text
+    def is_in(self, text: str) -> bool:
+         return self.to_text() in text
 
 @dataclass
 class FileReferences:
@@ -27,7 +28,7 @@ class FileReferences:
         self._paths.clear()
 
     def filter_active_in(self, text: str) -> set[str]:
-         return {f for f in self._paths if FileReference.is_present(text, f)}
+         return {f for f in self._paths if FileReference(f).is_in(text)}
 
     def __iter__(self):
         return iter(self._paths)
