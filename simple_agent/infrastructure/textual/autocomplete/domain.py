@@ -16,25 +16,25 @@ class FileReference:
 
 @dataclass
 class FileReferences:
-    _refs: set[FileReference] = field(default_factory=set)
+    _references: set[FileReference] = field(default_factory=set)
 
     def add(self, paths: Set[str] | str) -> None:
         if isinstance(paths, str):
-            self._refs.add(FileReference(paths))
+            self._references.add(FileReference(paths))
         else:
-            self._refs.update(FileReference(p) for p in paths)
+            self._references.update(FileReference(p) for p in paths)
 
     def clear(self) -> None:
-        self._refs.clear()
+        self._references.clear()
 
     def filter_active_in(self, text: str) -> Set[FileReference]:
-        return {ref for ref in self._refs if ref.is_in(text)}
+        return {ref for ref in self._references if ref.is_in(text)}
 
     def __iter__(self) -> Iterator[FileReference]:
-        return iter(self._refs)
+        return iter(self._references)
 
     def __len__(self) -> int:
-        return len(self._refs)
+        return len(self._references)
 
 @dataclass(frozen=True)
 class Cursor:
