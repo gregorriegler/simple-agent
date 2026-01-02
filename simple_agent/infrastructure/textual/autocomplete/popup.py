@@ -53,13 +53,9 @@ class AutocompletePopup(Static):
         )
 
         # Determine current column. SmartInput uses TextArea logic.
-        # Fallback for generic TextArea if needed, but SmartInput assumes row/col.
         row, col = self.editor.cursor_location
 
-        # Use provided anchor_col or fallback to current column (though usually provided)
-        anchor_col = suggestion_list.anchor_col if suggestion_list.anchor_col is not None else col
-
-        return caret_location.anchor_to_column(anchor_col, col)
+        return caret_location.anchor_to_column(suggestion_list.anchor_col, col)
 
     def move_selection_down(self) -> None:
         if self.suggestion_list:
