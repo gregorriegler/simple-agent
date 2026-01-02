@@ -21,7 +21,6 @@ from simple_agent.infrastructure.textual.autocomplete.protocols import (
     AutocompleteRule,
 )
 from simple_agent.infrastructure.textual.autocomplete.domain import (
-    CompletionResult,
     Cursor,
     CursorAndLine,
     MessageDraft,
@@ -162,7 +161,7 @@ class SmartInput(TextArea):
         )
         return caret_location.anchor_to_word(cursor_and_line)
 
-    def _apply_completion(self, result: CompletionResult) -> None:
+    def _apply_completion(self, result: MessageDraft) -> None:
         row, col = self.cursor_location
 
         start_col = result.start_offset
