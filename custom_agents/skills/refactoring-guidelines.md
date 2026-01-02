@@ -22,6 +22,7 @@ Prefer smaller APIs, fewer parameters, less shared knowledge. Hide details, enca
 
 - **Name honestly and completely (7 stages of naming).**  
   Use names that state responsibilities, even if long (e.g., `calculate_price_and_ship`) to reveal extraction opportunities. Avoid vague names like `manager`, `service`, `controller`, `context`.
+  Never abbreviate but always give the full, unambiguous name.
 
 - **Prefer tiny functions.**  
   3 lines is ideal, 5 is acceptable. Keep at most **one level of indentation per function** whenever possible—extract early to avoid nested control flow.
