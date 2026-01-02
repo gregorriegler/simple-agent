@@ -1,5 +1,5 @@
-from typing import List, Optional
-from textual.widgets import Static
+from typing import List, Optional, TYPE_CHECKING
+from textual.widgets import Static, TextArea
 from textual.message import Message
 from rich.text import Text
 
@@ -8,7 +8,11 @@ from simple_agent.infrastructure.textual.autocomplete.domain import (
     Suggestion,
     SuggestionList,
 )
-from simple_agent.infrastructure.textual.autocomplete.geometry import PopupAnchor, PopupLayout
+from simple_agent.infrastructure.textual.autocomplete.geometry import (
+    PopupAnchor,
+    PopupLayout,
+    CaretScreenLocation,
+)
 
 class AutocompletePopup(Static):
     class Selected(Message):
@@ -28,19 +32,34 @@ class AutocompletePopup(Static):
     }
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, editor: TextArea, **kwargs):
         super().__init__(**kwargs)
+        self.editor = editor
         self.suggestion_list: Optional[SuggestionList] = None
         self._current_anchor: Optional[PopupAnchor] = None
 
-    def show(self, suggestion_list: SuggestionList, anchor: PopupAnchor) -> None:
-        self._current_anchor = anchor
-
+    def show(self, suggestion_list: SuggestionList) -> None:
         if suggestion_list:
             self.suggestion_list = suggestion_list
+            self._current_anchor = self._calculate_anchor(suggestion_list)
             self._update_view()
         else:
             self.close()
+
+    def _calculate_anchor(self, suggestion_list: SuggestionList) -> PopupAnchor:
+        caret_location = CaretScreenLocation(
+            offset=self.editor.cursor_screen_offset,
+            screen_size=self.app.screen.size
+        )
+
+        # Determine current column. SmartInput uses TextArea logic.
+        # Fallback for generic TextArea if needed, but SmartInput assumes row/col.
+        row, col = self.editor.cursor_location
+
+        # Use provided anchor_col or fallback to current column (though usually provided)
+        anchor_col = suggestion_list.anchor_col if suggestion_list.anchor_col is not None else col
+
+        return caret_location.anchor_to_column(anchor_col, col)
 
     def move_selection_down(self) -> None:
         if self.suggestion_list:
