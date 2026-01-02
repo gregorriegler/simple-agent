@@ -71,6 +71,30 @@ async def test_slash_command_registry_available_in_textarea():
         assert list(textarea.rules) == rules
 
 
+def test_single_autocomplete_rule_requires_trigger_and_provider():
+    # Helper to satisfy Protocol types without functionality
+    class DummyTrigger:
+        def is_triggered(self, _): return False
+
+    class DummyProvider:
+        async def fetch(self, _): return []
+
+    trigger = DummyTrigger()
+    provider = DummyProvider()
+
+    # Valid construction
+    rule = SingleAutocompleteRule(trigger=trigger, provider=provider)
+    assert rule.trigger is trigger
+    assert rule.provider is provider
+
+    # Invalid constructions
+    with pytest.raises(ValueError, match="Trigger cannot be None"):
+        SingleAutocompleteRule(trigger=None, provider=provider)
+
+    with pytest.raises(ValueError, match="Provider cannot be None"):
+        SingleAutocompleteRule(trigger=trigger, provider=None)
+
+
 def test_get_autocomplete_suggestions_for_slash():
     registry = SlashCommandRegistry()
     
