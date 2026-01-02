@@ -19,7 +19,6 @@ from simple_agent.infrastructure.textual.autocomplete.rules import (
 )
 from simple_agent.infrastructure.textual.autocomplete.protocols import (
     AutocompleteRule,
-    SuggestionProvider,
 )
 from simple_agent.infrastructure.textual.autocomplete.domain import (
     CompletionResult,
@@ -66,6 +65,7 @@ class SmartInput(TextArea):
         self.expander = FileContextExpander()
 
         self._referenced_files = FileReferences()
+        self._autocomplete_task: Optional[asyncio.Task] = None
 
     def on_mount(self) -> None:
         self.mount(self.popup)
@@ -88,6 +88,9 @@ class SmartInput(TextArea):
 
     def _close_autocomplete(self) -> None:
         """Clear autocomplete state and hide popup."""
+        if self._autocomplete_task:
+            self._autocomplete_task.cancel()
+            self._autocomplete_task = None
         self.popup.close()
 
     def on_autocomplete_popup_selected(self, message: AutocompletePopup.Selected) -> None:
@@ -125,12 +128,24 @@ class SmartInput(TextArea):
             self._close_autocomplete()
             return
 
-        provider = self.rules.check(cursor_and_line)
+        if self._autocomplete_task:
+            self._autocomplete_task.cancel()
 
-        if provider:
-            self._start_autocomplete(provider, cursor_and_line)
-        else:
-            self._close_autocomplete()
+        self._autocomplete_task = asyncio.create_task(self._run_autocomplete_check(cursor_and_line))
+
+    async def _run_autocomplete_check(self, cursor_and_line: CursorAndLine) -> None:
+        try:
+            suggestions = await self.rules.check(cursor_and_line)
+            if suggestions:
+                anchor = self._calculate_anchor(cursor_and_line)
+                self.popup.show(suggestions, anchor)
+            else:
+                self.popup.close()
+        except asyncio.CancelledError:
+            pass
+        finally:
+            if self._autocomplete_task == asyncio.current_task():
+                self._autocomplete_task = None
 
     def _get_cursor_and_line(self) -> Optional[CursorAndLine]:
         row, col = self.cursor_location
@@ -139,10 +154,6 @@ class SmartInput(TextArea):
             return CursorAndLine(Cursor(row, col), line)
         except IndexError:
             return None
-
-    def _start_autocomplete(self, provider: SuggestionProvider, cursor_and_line: CursorAndLine) -> None:
-        anchor = self._calculate_anchor(cursor_and_line)
-        self.popup.load_suggestions(provider, cursor_and_line, anchor)
 
     def _calculate_anchor(self, cursor_and_line: CursorAndLine) -> PopupAnchor:
         caret_location = CaretScreenLocation(

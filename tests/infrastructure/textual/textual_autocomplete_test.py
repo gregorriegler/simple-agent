@@ -20,6 +20,7 @@ from simple_agent.infrastructure.textual.autocomplete import (
     CursorAndLine,
     SuggestionList,
     Suggestion,
+    Cursor,
 )
 from simple_agent.infrastructure.textual.autocomplete.rules import SingleAutocompleteRule
 from simple_agent.infrastructure.textual.autocomplete.slash_commands import (
@@ -93,6 +94,29 @@ def test_single_autocomplete_rule_requires_trigger_and_provider():
 
     with pytest.raises(ValueError, match="Provider cannot be None"):
         SingleAutocompleteRule(trigger=trigger, provider=None)
+
+
+@pytest.mark.asyncio
+async def test_single_autocomplete_rule_check_logic():
+    class MockTrigger:
+        def __init__(self, should_trigger): self.triggered = should_trigger
+        def is_triggered(self, _): return self.triggered
+
+    class MockProvider:
+        async def fetch(self, _): return [SimpleSuggestion("s1")]
+
+    cursor = CursorAndLine(Cursor(0,0), "")
+
+    # triggered
+    rule = SingleAutocompleteRule(MockTrigger(True), MockProvider())
+    suggestions = await rule.check(cursor)
+    assert len(suggestions) == 1
+    assert suggestions[0].display_text == "s1"
+
+    # not triggered
+    rule = SingleAutocompleteRule(MockTrigger(False), MockProvider())
+    suggestions = await rule.check(cursor)
+    assert suggestions == []
 
 
 def test_get_autocomplete_suggestions_for_slash():
@@ -294,7 +318,7 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         anchor = PopupAnchor(cursor_offset, screen_size)
 
         # Manually set state to simulate start() without async search
-        popup._show_suggestions(suggestions, anchor)
+        popup.show(suggestions, anchor)
 
         await pilot.pause()
 
@@ -317,7 +341,7 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 
         anchor = PopupAnchor(Offset(0, 0), Size(80, 24))
 
-        popup._show_suggestions(suggestions, anchor)
+        popup.show(suggestions, anchor)
         await pilot.pause()
 
         assert popup.display is True

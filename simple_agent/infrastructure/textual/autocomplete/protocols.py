@@ -18,8 +18,8 @@ class SuggestionProvider(Protocol):
 
 
 class AutocompleteRule(Protocol):
-    def check(self, cursor_and_line: CursorAndLine) -> Optional["SuggestionProvider"]:
+    async def check(self, cursor_and_line: CursorAndLine) -> List[Suggestion]:
         """
-        Checks if the rule is triggered and returns the provider if so.
+        Checks if the rule is triggered and returns suggestions if so.
         """
         ...
