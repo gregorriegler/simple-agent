@@ -2,7 +2,7 @@ from typing import List
 import logging
 from simple_agent.application.file_search import FileSearcher
 from simple_agent.infrastructure.textual.autocomplete.domain import (
-    Suggestion, MessageDraft, CursorAndLine, FileReference, FileReferences
+    Suggestion, CompletionResult, CursorAndLine, FileReference, FileReferences
 )
 from simple_agent.infrastructure.textual.autocomplete.protocols import (
     AutocompleteTrigger, SuggestionProvider
@@ -19,11 +19,11 @@ class FileSuggestion:
     def display_text(self) -> str:
         return self.file_path
 
-    def to_message_draft(self) -> MessageDraft:
+    def to_completion_result(self) -> CompletionResult:
          display_marker = f"{FileReference(self.file_path).to_text()} "
          files = FileReferences()
          files.add(self.file_path)
-         return MessageDraft(
+         return CompletionResult(
              text=display_marker,
              files=files,
              start_offset=self.start_index

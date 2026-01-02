@@ -1,7 +1,7 @@
 from simple_agent.infrastructure.textual.autocomplete.domain import (
     Cursor,
     CursorAndLine,
-    MessageDraft,
+    CompletionResult,
     Suggestion,
     SuggestionList,
     FileReference,

@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from simple_agent.infrastructure.textual.autocomplete import MessageDraft
+from simple_agent.infrastructure.textual.autocomplete import CompletionResult
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +11,7 @@ class FileContextExpander:
     When the user submits text containing [📦path/to/file], this component
     reads the file and wraps it in <file_context> tags.
     """
-    def expand(self, draft: MessageDraft) -> str:
+    def expand(self, draft: CompletionResult) -> str:
         content = draft.text.strip()
 
         # Only process files that are actually referenced in the text

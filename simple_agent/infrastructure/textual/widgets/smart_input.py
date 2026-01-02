@@ -23,7 +23,7 @@ from simple_agent.infrastructure.textual.autocomplete.protocols import (
 from simple_agent.infrastructure.textual.autocomplete.domain import (
     Cursor,
     CursorAndLine,
-    MessageDraft,
+    CompletionResult,
     Suggestion,
     SuggestionList,
     FileReferences,
@@ -72,11 +72,11 @@ class SmartInput(TextArea):
 
     def get_referenced_files(self) -> set[str]:
         """Return the set of files that were selected via autocomplete and are still in the text."""
-        return {ref.path for ref in MessageDraft(self.text, self._referenced_files).active_files}
+        return {ref.path for ref in CompletionResult(self.text, self._referenced_files).active_files}
 
     def submit(self) -> None:
         """Submit the current text."""
-        draft = MessageDraft(self.text, self._referenced_files)
+        draft = CompletionResult(self.text, self._referenced_files)
         expanded_content = self.expander.expand(draft)
 
         self.post_message(self.Submitted(expanded_content))
@@ -161,7 +161,7 @@ class SmartInput(TextArea):
         )
         return caret_location.anchor_to_word(cursor_and_line)
 
-    def _apply_completion(self, result: MessageDraft) -> None:
+    def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location
 
         start_col = result.start_offset
