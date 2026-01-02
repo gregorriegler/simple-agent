@@ -15,8 +15,11 @@ from simple_agent.infrastructure.textual.autocomplete.geometry import (
     PopupAnchor,
 )
 from simple_agent.infrastructure.textual.autocomplete.rules import (
-    AutocompleteRule,
     AutocompleteRules,
+)
+from simple_agent.infrastructure.textual.autocomplete.protocols import (
+    AutocompleteRule,
+    SuggestionProvider,
 )
 from simple_agent.infrastructure.textual.autocomplete.domain import (
     CompletionResult,
@@ -122,10 +125,10 @@ class SmartInput(TextArea):
             self._close_autocomplete()
             return
 
-        rule = self.rules.find_triggered(cursor_and_line)
+        provider = self.rules.check(cursor_and_line)
 
-        if rule:
-            self._start_autocomplete(rule, cursor_and_line)
+        if provider:
+            self._start_autocomplete(provider, cursor_and_line)
         else:
             self._close_autocomplete()
 
@@ -137,9 +140,9 @@ class SmartInput(TextArea):
         except IndexError:
             return None
 
-    def _start_autocomplete(self, rule: AutocompleteRule, cursor_and_line: CursorAndLine) -> None:
+    def _start_autocomplete(self, provider: SuggestionProvider, cursor_and_line: CursorAndLine) -> None:
         anchor = self._calculate_anchor(cursor_and_line)
-        self.popup.load_suggestions(rule.provider, cursor_and_line, anchor)
+        self.popup.load_suggestions(provider, cursor_and_line, anchor)
 
     def _calculate_anchor(self, cursor_and_line: CursorAndLine) -> PopupAnchor:
         caret_location = CaretScreenLocation(
