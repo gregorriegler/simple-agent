@@ -21,7 +21,6 @@ class SingleAutocompleteRule:
     async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:
         if self.trigger.is_triggered(cursor_and_line):
             suggestions = await self.provider.fetch(cursor_and_line)
-            # Default anchoring to word start for now
             return SuggestionList(suggestions, anchor_col=cursor_and_line.word_start_index)
         return SuggestionList([])
 
