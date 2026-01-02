@@ -21,7 +21,7 @@ from simple_agent.infrastructure.textual.autocomplete import (
     SuggestionList,
     Suggestion,
 )
-from simple_agent.infrastructure.textual.autocomplete.rules import AutocompleteRule
+from simple_agent.infrastructure.textual.autocomplete.rules import SingleAutocompleteRule
 from simple_agent.infrastructure.textual.autocomplete.slash_commands import (
     SlashAtStartOfLineTrigger, SlashCommandProvider
 )
@@ -54,7 +54,7 @@ def app():
 async def test_slash_command_registry_available_in_textarea():
     registry = SlashCommandRegistry()
     rules = [
-        AutocompleteRule(
+        SingleAutocompleteRule(
             trigger=SlashAtStartOfLineTrigger(),
             provider=SlashCommandProvider(registry)
         )
@@ -344,7 +344,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
                 yield AgentTabs(self._root_agent_id, id="tabs")
 
                 # Inject our custom rules
-                rules = [AutocompleteRule(
+                rules = [SingleAutocompleteRule(
                     trigger=AtSymbolTrigger(),
                     provider=FileSearchProvider(mock_searcher)
                 )]

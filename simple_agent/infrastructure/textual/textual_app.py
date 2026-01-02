@@ -15,7 +15,7 @@ from simple_agent.infrastructure.textual.textual_messages import DomainEventMess
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
-from simple_agent.infrastructure.textual.autocomplete.rules import AutocompleteRule
+from simple_agent.infrastructure.textual.autocomplete.rules import SingleAutocompleteRule
 from simple_agent.infrastructure.textual.autocomplete.slash_commands import (
     SlashAtStartOfLineTrigger, SlashCommandProvider
 )
@@ -130,11 +130,11 @@ class TextualApp(App):
 
     def compose(self) -> ComposeResult:
         rules = [
-            AutocompleteRule(
+            SingleAutocompleteRule(
                 trigger=SlashAtStartOfLineTrigger(),
                 provider=SlashCommandProvider(self._slash_command_registry)
             ),
-            AutocompleteRule(
+            SingleAutocompleteRule(
                 trigger=AtSymbolTrigger(),
                 provider=FileSearchProvider(self._file_searcher)
             )
