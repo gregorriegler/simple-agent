@@ -55,9 +55,9 @@ These two are combined into a configuration object (a Rule or Feature), decoupli
 
 `SingleAutocompleteRule(trigger=SlashAtStartOfLineTrigger(), provider=SlashCommandProvider())`
 
-The `AutocompleteRule` is now a Protocol defining a `check(cursor_and_line) -> Optional[SuggestionProvider]` method.
-- `SingleAutocompleteRule` implements this for a single trigger/provider pair.
-- `AutocompleteRules` implements this as a Composite, iterating through a list of rules.
+The `AutocompleteRule` is now a Protocol defining a `async check(cursor_and_line) -> List[Suggestion]` method.
+- `SingleAutocompleteRule` implements this for a single trigger/provider pair: if triggered, it awaits the provider's fetch; otherwise returns empty list.
+- `AutocompleteRules` implements this as a Composite, iterating through a list of rules and returning the first non-empty list of suggestions.
 
 ### ASCII Diagram (DESIRABLE)
 
@@ -74,11 +74,10 @@ The `AutocompleteRule` is now a Protocol defining a `check(cursor_and_line) -> O
 |  [ Logic Flow ]                                                       |
 |       |                                                               |
 |       v                                                               |
-|  1. provider = rules.check(cursor_and_line)                           |
+|  1. suggestions = await rules.check(cursor_and_line)                  |
 |       |                                                               |
-|       +-> 2. if provider:                                             |
-|       +-> 3. suggestions = await provider.fetch(cursor_and_line)      |
-|       +-> 4. popup.show(suggestions)                                  |
+|       +-> 2. if suggestions:                                          |
+|       +-> 3. popup.show(suggestions)                                  |
 |                                                                       |
 +--------------------------+--------------------------------------------+
                            |
@@ -91,10 +90,10 @@ The `AutocompleteRule` is now a Protocol defining a `check(cursor_and_line) -> O
 
 | Component | Responsibilities |
 | :--- | :--- |
-| **SmartInput** | - **Orchestrator:** Holds the `AutocompleteRules` composite.<br>- **Event Loop:** On keypress, calls `rules.check()`. If provider returned, invokes it.<br>- **UI Control:** Manages the `AutocompletePopup` (show/hide/nav). |
+| **SmartInput** | - **Orchestrator:** Holds the `AutocompleteRules` composite.<br>- **Event Loop:** On keypress, awaits `rules.check()`. If suggestions returned, shows popup.<br>- **UI Control:** Manages the `AutocompletePopup` (show/hide/nav). |
 | **AutocompleteTrigger** | - **Contract:** `is_triggered(cursor_and_line) -> bool`.<br>- **Role:** Reusable logic (e.g., "Line starts with /"). |
 | **SuggestionProvider** | - **Contract:** `async fetch(cursor_and_line) -> List`.<br>- **Role:** Domain logic (e.g., "Get available slash commands"). |
-| **SingleAutocompleteRule** | - **Role:** A concrete implementation of `AutocompleteRule` Protocol binding a `Trigger` to a `Provider`. Enforces non-nullability of both. |
+| **SingleAutocompleteRule** | - **Role:** A concrete implementation of `AutocompleteRule` Protocol binding a `Trigger` to a `Provider`. Returns suggestions directly. |
 | **AutocompleteRules** | - **Role:** Composite implementation of `AutocompleteRule` that checks a list of rules. |
 | **AutocompletePopup** | - **Contract:** `show(items)`, `select_next()`, `get_selection()`.<br>- **Role:** Dumb view. |
 

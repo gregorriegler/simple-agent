@@ -5,7 +5,7 @@ from simple_agent.infrastructure.textual.autocomplete.protocols import (
     SuggestionProvider,
     AutocompleteRule,
 )
-from simple_agent.infrastructure.textual.autocomplete.domain import CursorAndLine
+from simple_agent.infrastructure.textual.autocomplete.domain import CursorAndLine, Suggestion
 
 @dataclass
 class SingleAutocompleteRule:
@@ -18,21 +18,21 @@ class SingleAutocompleteRule:
         if self.provider is None:
             raise ValueError("Provider cannot be None")
 
-    def check(self, cursor_and_line: CursorAndLine) -> Optional[SuggestionProvider]:
+    async def check(self, cursor_and_line: CursorAndLine) -> List[Suggestion]:
         if self.trigger.is_triggered(cursor_and_line):
-            return self.provider
-        return None
+            return await self.provider.fetch(cursor_and_line)
+        return []
 
 class AutocompleteRules:
     def __init__(self, rules: List[AutocompleteRule] = None):
         self._rules = rules or []
 
-    def check(self, cursor_and_line: CursorAndLine) -> Optional[SuggestionProvider]:
+    async def check(self, cursor_and_line: CursorAndLine) -> List[Suggestion]:
         for rule in self._rules:
-            provider = rule.check(cursor_and_line)
-            if provider:
-                return provider
-        return None
+            suggestions = await rule.check(cursor_and_line)
+            if suggestions:
+                return suggestions
+        return []
 
     def __iter__(self) -> Iterator[AutocompleteRule]:
         return iter(self._rules)

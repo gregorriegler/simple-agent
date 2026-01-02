@@ -1,4 +1,3 @@
-import asyncio
 from typing import List, Optional
 from textual.widgets import Static
 from textual.message import Message
@@ -8,10 +7,8 @@ from simple_agent.infrastructure.textual.autocomplete.domain import (
     CompletionResult,
     Suggestion,
     SuggestionList,
-    CursorAndLine,
 )
 from simple_agent.infrastructure.textual.autocomplete.geometry import PopupAnchor, PopupLayout
-from simple_agent.infrastructure.textual.autocomplete.protocols import SuggestionProvider
 
 class AutocompletePopup(Static):
     class Selected(Message):
@@ -35,29 +32,8 @@ class AutocompletePopup(Static):
         super().__init__(**kwargs)
         self.suggestion_list: Optional[SuggestionList] = None
         self._current_anchor: Optional[PopupAnchor] = None
-        self._search_task: Optional[asyncio.Task] = None
 
-    def load_suggestions(self, provider: SuggestionProvider, cursor_and_line: CursorAndLine, anchor: PopupAnchor) -> None:
-        """
-        Starts an async task to fetch suggestions from the provider and display them at the anchor.
-        Cancels any existing search task.
-        """
-        if self._search_task:
-            self._search_task.cancel()
-
-        self._search_task = asyncio.create_task(self._fetch_and_show(provider, cursor_and_line, anchor))
-
-    async def _fetch_and_show(self, provider: SuggestionProvider, cursor_and_line: CursorAndLine, anchor: PopupAnchor) -> None:
-        try:
-            suggestions = await provider.fetch(cursor_and_line)
-            self._show_suggestions(suggestions, anchor)
-        except asyncio.CancelledError:
-            pass
-        finally:
-            if self._search_task == asyncio.current_task():
-                self._search_task = None
-
-    def _show_suggestions(self, suggestions: List[Suggestion], anchor: PopupAnchor) -> None:
+    def show(self, suggestions: List[Suggestion], anchor: PopupAnchor) -> None:
         self._current_anchor = anchor
 
         if suggestions:
@@ -82,10 +58,6 @@ class AutocompletePopup(Static):
         return None
 
     def close(self) -> None:
-        if self._search_task:
-            self._search_task.cancel()
-            self._search_task = None
-
         self.suggestion_list = None
         self.display = False
 
