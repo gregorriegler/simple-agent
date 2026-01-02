@@ -70,7 +70,7 @@ class SmartInput(TextArea):
 
     def get_referenced_files(self) -> set[str]:
         """Return the set of files that were selected via autocomplete and are still in the text."""
-        return MessageDraft(self.text, self._referenced_files).active_files
+        return {ref.path for ref in MessageDraft(self.text, self._referenced_files).active_files}
 
     def submit(self) -> None:
         """Submit the current text."""
