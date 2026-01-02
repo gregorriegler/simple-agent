@@ -83,6 +83,7 @@ class Suggestion(Protocol):
 class SuggestionList:
     suggestions: List[Suggestion]
     selected_index: int = 0
+    anchor_col: Optional[int] = None
 
     def __bool__(self) -> bool:
         return bool(self.suggestions)
