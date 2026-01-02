@@ -174,5 +174,5 @@ class SmartInput(TextArea):
             maintain_selection_offset=False,
         )
 
-        if result.attachments:
-            self._referenced_files.add(result.attachments)
+        if result.files:
+            self._referenced_files.add({ref.path for ref in result.files})

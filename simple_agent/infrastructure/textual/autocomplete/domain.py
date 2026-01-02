@@ -73,9 +73,7 @@ class MessageDraft:
         return self.files.filter_active_in(self.text)
 
 @dataclass
-class CompletionResult:
-    text: str
-    attachments: set[str] = field(default_factory=set)
+class CompletionResult(MessageDraft):
     start_offset: int = 0
 
 class Suggestion(Protocol):
