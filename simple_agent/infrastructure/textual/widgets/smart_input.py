@@ -135,10 +135,10 @@ class SmartInput(TextArea):
 
     async def _run_autocomplete_check(self, cursor_and_line: CursorAndLine) -> None:
         try:
-            suggestions = await self.rules.check(cursor_and_line)
-            if suggestions:
+            suggestion_list = await self.rules.suggest(cursor_and_line)
+            if suggestion_list:
                 anchor = self._calculate_anchor(cursor_and_line)
-                self.popup.show(suggestions, anchor)
+                self.popup.show(suggestion_list, anchor)
             else:
                 self.popup.close()
         except asyncio.CancelledError:

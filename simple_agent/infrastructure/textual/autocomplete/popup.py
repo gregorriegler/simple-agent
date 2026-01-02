@@ -33,11 +33,11 @@ class AutocompletePopup(Static):
         self.suggestion_list: Optional[SuggestionList] = None
         self._current_anchor: Optional[PopupAnchor] = None
 
-    def show(self, suggestions: List[Suggestion], anchor: PopupAnchor) -> None:
+    def show(self, suggestion_list: SuggestionList, anchor: PopupAnchor) -> None:
         self._current_anchor = anchor
 
-        if suggestions:
-            self.suggestion_list = SuggestionList(suggestions)
+        if suggestion_list:
+            self.suggestion_list = suggestion_list
             self._update_view()
         else:
             self.close()

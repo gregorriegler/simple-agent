@@ -89,6 +89,9 @@ class SuggestionList:
     suggestions: List[Suggestion]
     selected_index: int = 0
 
+    def __bool__(self) -> bool:
+        return bool(self.suggestions)
+
     def move_down(self) -> None:
         if not self.suggestions:
             return
