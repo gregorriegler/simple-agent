@@ -72,7 +72,7 @@ class SmartInput(TextArea):
 
     def get_referenced_files(self) -> set[str]:
         """Return the set of files that were selected via autocomplete and are still in the text."""
-        return {ref.path for ref in CompletionResult(self.text, self._referenced_files).active_files}
+        return {ref.path for ref in self._referenced_files.filter_active_in(self.text)}
 
     def submit(self) -> None:
         """Submit the current text."""
@@ -98,27 +98,32 @@ class SmartInput(TextArea):
         message.stop()
 
     async def _on_key(self, event: events.Key) -> None:
-        # Handle autocomplete navigation if active
         if self.popup.handle_key(event.key):
-            event.stop()
-            event.prevent_default()
+            self._consume_event(event)
             return
 
         if event.key == "enter":
-            self.submit()
-            event.stop()
-            event.prevent_default()
+            self._handle_enter(event)
             return
 
         if event.key in ("ctrl+enter", "ctrl+j"):
-            self.insert("\n")
-            event.stop()
-            event.prevent_default()
+            self._handle_newline(event)
             return
 
         await super()._on_key(event)
-
         self.call_after_refresh(self._trigger_autocomplete_check)
+
+    def _consume_event(self, event: events.Key) -> None:
+        event.stop()
+        event.prevent_default()
+
+    def _handle_enter(self, event: events.Key) -> None:
+        self.submit()
+        self._consume_event(event)
+
+    def _handle_newline(self, event: events.Key) -> None:
+        self.insert("\n")
+        self._consume_event(event)
 
     def _trigger_autocomplete_check(self) -> None:
         """Helper to call popup check with current context."""
@@ -136,7 +141,7 @@ class SmartInput(TextArea):
         try:
             suggestion_list = await self.rules.suggest(cursor_and_line)
             if suggestion_list:
-                anchor = self._calculate_anchor(cursor_and_line)
+                anchor = self._calculate_anchor(cursor_and_line, suggestion_list)
                 self.popup.show(suggestion_list, anchor)
             else:
                 self.popup.close()
@@ -154,11 +159,16 @@ class SmartInput(TextArea):
         except IndexError:
             return None
 
-    def _calculate_anchor(self, cursor_and_line: CursorAndLine) -> PopupAnchor:
+    def _calculate_anchor(self, cursor_and_line: CursorAndLine, suggestion_list: SuggestionList) -> PopupAnchor:
         caret_location = CaretScreenLocation(
             offset=self.cursor_screen_offset,
             screen_size=self.app.screen.size
         )
+        if suggestion_list.anchor_col is not None:
+            return caret_location.anchor_to_column(
+                suggestion_list.anchor_col,
+                cursor_and_line.cursor.col
+            )
         return caret_location.anchor_to_word(cursor_and_line)
 
     def _apply_completion(self, result: CompletionResult) -> None:

@@ -55,8 +55,18 @@ class CaretScreenLocation:
     def anchor_to_word(self, cursor_and_line: Any) -> "PopupAnchor":
         """
         Creates a PopupAnchor positioned relative to the start of the current word.
+        DEPRECATED: Use anchor_to_column instead.
         """
-        delta = cursor_and_line.cursor.col - cursor_and_line.word_start_index
+        return self.anchor_to_column(
+            anchor_col=cursor_and_line.word_start_index,
+            current_col=cursor_and_line.cursor.col
+        )
+
+    def anchor_to_column(self, anchor_col: int, current_col: int) -> "PopupAnchor":
+        """
+        Creates a PopupAnchor positioned relative to a specific column index.
+        """
+        delta = current_col - anchor_col
         anchor_x = self.offset.x - delta
 
         # Ensure we don't go negative
