@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 from simple_agent.infrastructure.textual.autocomplete import CompletionResult
 from simple_agent.infrastructure.textual.widgets.file_loader import FileLoader
 from simple_agent.infrastructure.textual.widgets.file_context_formatter import FileContextFormatter
@@ -11,7 +12,7 @@ class FileContextExpander:
     When the user submits text containing [📦path/to/file], this component
     reads the file and wraps it in <file_context> tags.
     """
-    def __init__(self, file_loader: FileLoader = None, formatter: FileContextFormatter = None):
+    def __init__(self, file_loader: Optional[FileLoader] = None, formatter: Optional[FileContextFormatter] = None):
         self.file_loader = file_loader or FileLoader()
         self.formatter = formatter or FileContextFormatter()
 
