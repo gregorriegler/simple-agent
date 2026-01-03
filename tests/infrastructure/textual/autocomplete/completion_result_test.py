@@ -9,20 +9,26 @@ class FakeFileLoader:
     def read_file(self, path: str) -> Optional[str]:
         return self.files.get(path)
 
-class FakeFormatter:
-    def format(self, loaded_files: List[Tuple[str, str]]) -> str:
-        return "\n".join([f"<{path}>{content}</{path}>" for path, content in loaded_files])
+class DecoratedFakeFileLoader:
+    def __init__(self, inner):
+        self.inner = inner
+
+    def read_file(self, path: str) -> Optional[str]:
+        content = self.inner.read_file(path)
+        if content is None:
+            return None
+        return f"<{path}>{content}</{path}>"
 
 def test_expand_reads_and_formats_files():
     # Arrange
     file1 = "/path/to/test1.txt"
     file2 = "/path/to/test2.txt"
 
-    loader = FakeFileLoader({
+    inner_loader = FakeFileLoader({
         file1: "Content 1",
         file2: "Content 2"
     })
-    formatter = FakeFormatter()
+    loader = DecoratedFakeFileLoader(inner_loader)
 
     draft_text = f"Check [📦{file1}] and [📦{file2}]"
 
@@ -32,7 +38,7 @@ def test_expand_reads_and_formats_files():
     result = CompletionResult(text=draft_text, files=files)
 
     # Act
-    expanded_text = result.expand(loader, formatter)
+    expanded_text = result.expand(loader)
 
     # Assert
     expected_part1 = f"<{file1}>Content 1</{file1}>"
@@ -45,8 +51,7 @@ def test_expand_reads_and_formats_files():
 def test_expand_handles_missing_files():
     # Arrange
     file_path = "/missing.txt"
-    loader = FakeFileLoader({}) # Empty
-    formatter = FakeFormatter()
+    loader = DecoratedFakeFileLoader(FakeFileLoader({})) # Empty
 
     draft_text = f"Check [📦{file_path}]"
     files = FileReferences()
@@ -55,7 +60,7 @@ def test_expand_handles_missing_files():
     result = CompletionResult(text=draft_text, files=files)
 
     # Act
-    expanded_text = result.expand(loader, formatter)
+    expanded_text = result.expand(loader)
 
     # Assert
     assert expanded_text == draft_text.strip()

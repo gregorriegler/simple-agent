@@ -81,9 +81,6 @@ class CursorAndLine:
     def is_on_first_line(self) -> bool:
         return self.cursor.row == 0
 
-class FileContextFormatter(Protocol):
-    def format(self, loaded_files: List[Tuple[str, str]]) -> str: ...
-
 @dataclass
 class CompletionResult:
     text: str
@@ -93,10 +90,10 @@ class CompletionResult:
     def active_files(self) -> "FileReferences":
         return self.files.filter_active_in(self.text)
 
-    def expand(self, file_loader: FileLoader, formatter: FileContextFormatter) -> str:
+    def expand(self, file_loader: FileLoader) -> str:
         content = self.text.strip()
         loaded_files = self.active_files.load_all(file_loader)
-        file_contents = formatter.format(loaded_files)
+        file_contents = "\n".join(text for _, text in loaded_files)
 
         if file_contents:
             content += "\n" + file_contents
