@@ -1,7 +1,7 @@
 from typing import List, Any
 
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
-from simple_agent.infrastructure.textual.autocomplete.domain import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import (
     Suggestion, CompletionResult, CursorAndLine, FileReferences
 )
 

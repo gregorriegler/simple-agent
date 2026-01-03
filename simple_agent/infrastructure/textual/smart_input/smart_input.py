@@ -9,17 +9,17 @@ from textual.message import Message
 from textual.widgets import TextArea
 from textual.geometry import Offset
 
-from simple_agent.infrastructure.textual.autocomplete.popup import AutocompletePopup
-from simple_agent.infrastructure.textual.autocomplete.geometry import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import AutocompletePopup
+from simple_agent.infrastructure.textual.smart_input.autocomplete.geometry import (
     PopupAnchor,
 )
-from simple_agent.infrastructure.textual.autocomplete.rules import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.rules import (
     AutocompleteRules,
 )
-from simple_agent.infrastructure.textual.autocomplete.protocols import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.protocols import (
     AutocompleteRule,
 )
-from simple_agent.infrastructure.textual.autocomplete.domain import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import (
     Cursor,
     CursorAndLine,
     CompletionResult,

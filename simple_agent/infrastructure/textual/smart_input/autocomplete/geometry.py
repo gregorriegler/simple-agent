@@ -3,7 +3,7 @@ from typing import List
 
 from textual.geometry import Offset, Size
 
-from simple_agent.infrastructure.textual.autocomplete.domain import SuggestionList
+from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import SuggestionList
 
 
 @dataclass

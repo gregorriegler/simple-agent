@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import List, Iterator
 
-from simple_agent.infrastructure.textual.autocomplete.domain import CursorAndLine, SuggestionList
-from simple_agent.infrastructure.textual.autocomplete.protocols import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import CursorAndLine, SuggestionList
+from simple_agent.infrastructure.textual.smart_input.autocomplete.protocols import (
     AutocompleteTrigger,
     SuggestionProvider,
     AutocompleteRule,

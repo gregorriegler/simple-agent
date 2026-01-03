@@ -6,13 +6,13 @@ from unittest.mock import MagicMock, AsyncMock
 
 from simple_agent.application.slash_command_registry import SlashCommandRegistry, SlashCommand
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
-from simple_agent.infrastructure.textual.autocomplete.popup import AutocompletePopup
-from simple_agent.infrastructure.textual.autocomplete.geometry import (
+from simple_agent.infrastructure.textual.smart_input import SmartInput
+from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import AutocompletePopup
+from simple_agent.infrastructure.textual.smart_input.autocomplete.geometry import (
     PopupAnchor,
 )
 from simple_agent.application.agent_id import AgentId
-from simple_agent.infrastructure.textual.autocomplete import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete import (
     CompletionResult,
     SlashCommandSuggestion,
     FileSuggestion,
@@ -22,11 +22,11 @@ from simple_agent.infrastructure.textual.autocomplete import (
     Cursor,
     FileReferences
 )
-from simple_agent.infrastructure.textual.autocomplete.rules import SingleAutocompleteRule
-from simple_agent.infrastructure.textual.autocomplete.slash_commands import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.rules import SingleAutocompleteRule
+from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
     SlashAtStartOfLineTrigger, SlashCommandProvider
 )
-from simple_agent.infrastructure.textual.autocomplete.file_search import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search import (
     AtSymbolTrigger, FileSearchProvider
 )
 

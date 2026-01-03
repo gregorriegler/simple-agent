@@ -1,6 +1,6 @@
 import pytest
 from textual.widgets import TextArea
-from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
+from simple_agent.infrastructure.textual.smart_input import SmartInput
 
 @pytest.mark.asyncio
 async def test_submit_input_includes_referenced_files(textual_harness, tmp_path):

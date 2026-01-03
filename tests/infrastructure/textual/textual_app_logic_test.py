@@ -5,7 +5,7 @@ from textual.containers import VerticalScroll
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
+from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.application.events import (
     SessionInterruptedEvent,
     SessionStartedEvent,

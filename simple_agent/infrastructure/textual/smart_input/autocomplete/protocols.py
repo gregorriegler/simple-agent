@@ -1,6 +1,6 @@
 from typing import Protocol, List
 
-from simple_agent.infrastructure.textual.autocomplete.domain import Suggestion, CursorAndLine, SuggestionList
+from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import Suggestion, CursorAndLine, SuggestionList
 
 
 class AutocompleteTrigger(Protocol):

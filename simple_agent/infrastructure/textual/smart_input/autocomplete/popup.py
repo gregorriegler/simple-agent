@@ -3,11 +3,11 @@ from textual.widgets import Static
 from textual.message import Message
 from rich.text import Text
 
-from simple_agent.infrastructure.textual.autocomplete.domain import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import (
     CompletionResult,
     SuggestionList,
 )
-from simple_agent.infrastructure.textual.autocomplete.geometry import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.geometry import (
     PopupAnchor,
     PopupLayout,
 )
