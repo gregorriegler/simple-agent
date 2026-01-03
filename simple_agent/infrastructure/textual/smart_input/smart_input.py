@@ -41,13 +41,13 @@ class SmartInput(TextArea):
 
     def __init__(
         self,
-        provider: SuggestionProvider | None = None,
+        provider: SuggestionProvider,
         id: str | None = None,
         **kwargs
     ):
         super().__init__(id=id, **kwargs)
 
-        self.provider = provider or CompositeSuggestionProvider()
+        self.provider = provider
         self.popup = AutocompletePopup()
         self.file_loader = XmlFormattingFileLoader(DiskFileLoader())
 
