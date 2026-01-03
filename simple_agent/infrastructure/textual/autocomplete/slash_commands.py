@@ -23,9 +23,11 @@ class SlashCommandSuggestion:
 
 class SlashAtStartOfLineTrigger:
     def is_triggered(self, cursor_and_line: CursorAndLine) -> bool:
-        if cursor_and_line.cursor.row == 0 and cursor_and_line.cursor.col > 0:
-            return cursor_and_line.word_start_index == 0 and cursor_and_line.word.startswith("/")
-        return False
+        return (
+            cursor_and_line.is_on_first_line
+            and cursor_and_line.word_start_index == 0
+            and cursor_and_line.word.startswith("/")
+        )
 
 class SlashCommandProvider:
     def __init__(self, registry: SlashCommandRegistry):

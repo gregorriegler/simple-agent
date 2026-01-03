@@ -63,6 +63,10 @@ class CursorAndLine:
     def word_start_index(self) -> int:
         return self._word_context[1]
 
+    @property
+    def is_on_first_line(self) -> bool:
+        return self.cursor.row == 0
+
 @dataclass
 class CompletionResult:
     text: str
