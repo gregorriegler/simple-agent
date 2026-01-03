@@ -46,25 +46,26 @@ class PopupAnchor:
     def max_width(self) -> int:
         return self.screen_size.width
 
-
-@dataclass
-class CaretScreenLocation:
-    offset: Offset
-    screen_size: Size
-
-    def anchor_to_column(self, anchor_col: int, current_col: int) -> "PopupAnchor":
+    @classmethod
+    def create_at_column(
+        cls,
+        cursor_screen_offset: Offset,
+        screen_size: Size,
+        anchor_col: int,
+        current_col: int,
+    ) -> "PopupAnchor":
         """
         Creates a PopupAnchor positioned relative to a specific column index.
         """
         delta = current_col - anchor_col
-        anchor_x = self.offset.x - delta
+        anchor_x = cursor_screen_offset.x - delta
 
         # Ensure we don't go negative
         anchor_x = max(0, anchor_x)
 
-        return PopupAnchor(
-            cursor_offset=Offset(anchor_x, self.offset.y),
-            screen_size=self.screen_size
+        return cls(
+            cursor_offset=Offset(anchor_x, cursor_screen_offset.y),
+            screen_size=screen_size,
         )
 
 
