@@ -7,11 +7,9 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import 
     FileReference,
     FileReferences
 )
-from simple_agent.infrastructure.textual.smart_input.autocomplete.protocols import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.rules import (
     AutocompleteTrigger,
     SuggestionProvider,
-)
-from simple_agent.infrastructure.textual.smart_input.autocomplete.rules import (
     AutocompleteRule,
     AutocompleteRules
 )

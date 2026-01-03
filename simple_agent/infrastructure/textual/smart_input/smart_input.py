@@ -1,31 +1,24 @@
 import asyncio
 import logging
 from typing import Optional, List
-from dataclasses import dataclass
 
-from rich.text import Text
 from textual import events
 from textual.message import Message
 from textual.widgets import TextArea
-from textual.geometry import Offset
 
+from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import (
+    Cursor,
+    CursorAndLine,
+    CompletionResult,
+    FileReferences,
+)
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import AutocompletePopup
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
     PopupAnchor,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.rules import (
-    AutocompleteRules,
-)
-from simple_agent.infrastructure.textual.smart_input.autocomplete.protocols import (
     AutocompleteRule,
-)
-from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import (
-    Cursor,
-    CursorAndLine,
-    CompletionResult,
-    Suggestion,
-    SuggestionList,
-    FileReferences,
+    AutocompleteRules,
 )
 from simple_agent.infrastructure.textual.widgets.file_loader import DiskFileLoader, XmlFormattingFileLoader
 

@@ -1,7 +1,7 @@
 import asyncio
 
 from .agent_id import AgentId
-from .event_bus_protocol import EventBus
+from .event_bus import EventBus
 from .events import ToolCalledEvent, ToolResultEvent, ToolCancelledEvent
 from .tool_library import ToolLibrary, ParsedTool
 from .tool_results import ToolResult, ManyToolsResult

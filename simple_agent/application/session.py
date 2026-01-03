@@ -6,7 +6,7 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.display_type import DisplayType
-from simple_agent.application.event_bus_protocol import EventBus
+from simple_agent.application.event_bus import EventBus
 from simple_agent.application.events import SessionStartedEvent
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.project_tree import ProjectTree

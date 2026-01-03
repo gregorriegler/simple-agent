@@ -2,7 +2,7 @@ from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_types import AgentTypes
-from simple_agent.application.event_bus_protocol import EventBus
+from simple_agent.application.event_bus import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLMProvider, Messages
 from simple_agent.application.project_tree import ProjectTree

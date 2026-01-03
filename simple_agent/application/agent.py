@@ -2,7 +2,7 @@ import asyncio
 
 from simple_agent.logging_config import get_logger
 from .agent_id import AgentId
-from .event_bus_protocol import EventBus
+from .event_bus import EventBus
 from .events import (
     AgentStartedEvent, AgentFinishedEvent,
     AssistantSaidEvent, AssistantRespondedEvent,
