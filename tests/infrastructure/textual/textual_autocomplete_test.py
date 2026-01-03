@@ -10,7 +10,6 @@ from simple_agent.infrastructure.textual.widgets.smart_input import SmartInput
 from simple_agent.infrastructure.textual.autocomplete.popup import AutocompletePopup
 from simple_agent.infrastructure.textual.autocomplete.geometry import (
     PopupAnchor,
-    CaretScreenLocation
 )
 from simple_agent.application.agent_id import AgentId
 from simple_agent.infrastructure.textual.autocomplete import (
