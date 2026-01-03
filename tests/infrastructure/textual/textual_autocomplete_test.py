@@ -52,13 +52,13 @@ def app():
 @pytest.mark.asyncio
 async def test_slash_command_registry_available_in_textarea():
     registry = SlashCommandRegistry()
-    autocompletes = [
+    providers = [
         TriggeredSuggestionProvider(
             trigger=SlashAtStartOfLineTrigger(),
             provider=SlashCommandProvider(registry)
         )
     ]
-    textarea = SmartInput(autocompletes=autocompletes)
+    textarea = SmartInput(providers=providers)
 
     # Mount to trigger popup creation
     app = TextualApp(StubUserInput(), AgentId("Agent"))
@@ -66,8 +66,8 @@ async def test_slash_command_registry_available_in_textarea():
         await pilot.pause()
         await app.mount(textarea)
 
-        # Check that the autocompletes are present on the SmartInput
-        assert list(textarea.autocompletes) == autocompletes
+        # Check that the providers are present on the SmartInput
+        assert list(textarea.providers) == providers
 
 
 def test_triggered_suggestion_provider_requires_trigger_and_provider():
@@ -386,12 +386,12 @@ async def test_submittable_text_area_file_search(app: TextualApp):
             with Vertical():
                 yield AgentTabs(self._root_agent_id, id="tabs")
 
-                # Inject our custom autocompletes
-                autocompletes = [TriggeredSuggestionProvider(
+                # Inject our custom providers
+                providers = [TriggeredSuggestionProvider(
                     trigger=AtSymbolTrigger(),
                     provider=FileSearchProvider(mock_searcher)
                 )]
-                yield SmartInput(autocompletes=autocompletes, id="user-input")
+                yield SmartInput(providers=providers, id="user-input")
 
     test_app = TestApp(StubUserInput(), AgentId("Agent"))
 

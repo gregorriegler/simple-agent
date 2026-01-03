@@ -162,15 +162,15 @@ class TriggeredSuggestionProvider(SuggestionProvider):
         return SuggestionList([])
 
 class CompositeSuggestionProvider(SuggestionProvider):
-    def __init__(self, autocompletes: List[SuggestionProvider] = None):
-        self._autocompletes = autocompletes or []
+    def __init__(self, providers: List[SuggestionProvider] = None):
+        self._providers = providers or []
 
     async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:
-        for autocomplete in self._autocompletes:
-            suggestion_list = await autocomplete.suggest(cursor_and_line)
+        for provider in self._providers:
+            suggestion_list = await provider.suggest(cursor_and_line)
             if suggestion_list:
                 return suggestion_list
         return SuggestionList([])
 
     def __iter__(self) -> Iterator[SuggestionProvider]:
-        return iter(self._autocompletes)
+        return iter(self._providers)

@@ -41,13 +41,13 @@ class SmartInput(TextArea):
 
     def __init__(
         self,
-        autocompletes: List[SuggestionProvider] | None = None,
+        providers: List[SuggestionProvider] | None = None,
         id: str | None = None,
         **kwargs
     ):
         super().__init__(id=id, **kwargs)
 
-        self.autocompletes = CompositeSuggestionProvider(autocompletes)
+        self.providers = CompositeSuggestionProvider(providers)
         self.popup = AutocompletePopup()
         self.file_loader = XmlFormattingFileLoader(DiskFileLoader())
 
@@ -136,7 +136,7 @@ class SmartInput(TextArea):
 
     async def _run_autocomplete_check(self, cursor_and_line: CursorAndLine) -> None:
         try:
-            suggestion_list = await self.autocompletes.suggest(cursor_and_line)
+            suggestion_list = await self.providers.suggest(cursor_and_line)
             if suggestion_list:
                 # Calculate anchor
                 anchor = PopupAnchor.create_at_column(

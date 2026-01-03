@@ -129,7 +129,7 @@ class TextualApp(App):
         return AgentTabs.panel_ids_for(agent_id)
 
     def compose(self) -> ComposeResult:
-        autocompletes: list[SuggestionProvider] = [
+        providers: list[SuggestionProvider] = [
             TriggeredSuggestionProvider(
                 trigger=SlashAtStartOfLineTrigger(),
                 provider=SlashCommandProvider(self._slash_command_registry)
@@ -141,7 +141,7 @@ class TextualApp(App):
         ]
         with Vertical():
             yield AgentTabs(self._root_agent_id, id="tabs")
-            yield SmartInput(autocompletes=autocompletes, id="user-input")
+            yield SmartInput(providers=providers, id="user-input")
 
     async def on_mount(self) -> None:
         smart_input = self.query_one(SmartInput)
