@@ -12,13 +12,13 @@ class SuggestionProvider(Protocol):
     async def fetch(self, cursor_and_line: CursorAndLine) -> List[Suggestion]:
         ...
 
-class AutocompleteRule(Protocol):
+class Autocomplete(Protocol):
     async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:
         ...
 
 
 @dataclass
-class SingleAutocompleteRule(AutocompleteRule):
+class SingleAutocomplete(Autocomplete):
     trigger: AutocompleteTrigger
     provider: SuggestionProvider
 
@@ -34,16 +34,16 @@ class SingleAutocompleteRule(AutocompleteRule):
             return SuggestionList(suggestions)
         return SuggestionList([])
 
-class AutocompleteRules(AutocompleteRule):
-    def __init__(self, rules: List[AutocompleteRule] = None):
-        self._rules = rules or []
+class Autocompletes(Autocomplete):
+    def __init__(self, autocompletes: List[Autocomplete] = None):
+        self._autocompletes = autocompletes or []
 
     async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:
-        for rule in self._rules:
-            suggestion_list = await rule.suggest(cursor_and_line)
+        for autocomplete in self._autocompletes:
+            suggestion_list = await autocomplete.suggest(cursor_and_line)
             if suggestion_list:
                 return suggestion_list
         return SuggestionList([])
 
-    def __iter__(self) -> Iterator[AutocompleteRule]:
-        return iter(self._rules)
+    def __iter__(self) -> Iterator[Autocomplete]:
+        return iter(self._autocompletes)

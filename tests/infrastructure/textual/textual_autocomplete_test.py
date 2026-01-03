@@ -22,7 +22,7 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete import (
     Cursor,
     FileReferences
 )
-from simple_agent.infrastructure.textual.smart_input.autocomplete.rules import SingleAutocompleteRule
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import SingleAutocomplete
 from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
     SlashAtStartOfLineTrigger, SlashCommandProvider
 )
@@ -54,13 +54,13 @@ def app():
 @pytest.mark.asyncio
 async def test_slash_command_registry_available_in_textarea():
     registry = SlashCommandRegistry()
-    rules = [
-        SingleAutocompleteRule(
+    autocompletes = [
+        SingleAutocomplete(
             trigger=SlashAtStartOfLineTrigger(),
             provider=SlashCommandProvider(registry)
         )
     ]
-    textarea = SmartInput(rules=rules)
+    textarea = SmartInput(autocompletes=autocompletes)
     
     # Mount to trigger popup creation
     app = TextualApp(StubUserInput(), AgentId("Agent"))
@@ -68,11 +68,11 @@ async def test_slash_command_registry_available_in_textarea():
         await pilot.pause()
         await app.mount(textarea)
 
-        # Check that the rules are present on the SmartInput
-        assert list(textarea.rules) == rules
+        # Check that the autocompletes are present on the SmartInput
+        assert list(textarea.autocompletes) == autocompletes
 
 
-def test_single_autocomplete_rule_requires_trigger_and_provider():
+def test_single_autocomplete_requires_trigger_and_provider():
     # Helper to satisfy Protocol types without functionality
     class DummyTrigger:
         def is_triggered(self, _): return False
@@ -84,20 +84,20 @@ def test_single_autocomplete_rule_requires_trigger_and_provider():
     provider = DummyProvider()
 
     # Valid construction
-    rule = SingleAutocompleteRule(trigger=trigger, provider=provider)
-    assert rule.trigger is trigger
-    assert rule.provider is provider
+    autocomplete = SingleAutocomplete(trigger=trigger, provider=provider)
+    assert autocomplete.trigger is trigger
+    assert autocomplete.provider is provider
 
     # Invalid constructions
     with pytest.raises(ValueError, match="Trigger cannot be None"):
-        SingleAutocompleteRule(trigger=None, provider=provider)
+        SingleAutocomplete(trigger=None, provider=provider)
 
     with pytest.raises(ValueError, match="Provider cannot be None"):
-        SingleAutocompleteRule(trigger=trigger, provider=None)
+        SingleAutocomplete(trigger=trigger, provider=None)
 
 
 @pytest.mark.asyncio
-async def test_single_autocomplete_rule_check_logic():
+async def test_single_autocomplete_check_logic():
     class MockTrigger:
         def __init__(self, should_trigger): self.triggered = should_trigger
         def is_triggered(self, _): return self.triggered
@@ -108,15 +108,15 @@ async def test_single_autocomplete_rule_check_logic():
     cursor = CursorAndLine(Cursor(0,0), "")
 
     # triggered
-    rule = SingleAutocompleteRule(MockTrigger(True), MockProvider())
-    suggestion_list = await rule.suggest(cursor)
+    autocomplete = SingleAutocomplete(MockTrigger(True), MockProvider())
+    suggestion_list = await autocomplete.suggest(cursor)
     assert isinstance(suggestion_list, SuggestionList)
     assert len(suggestion_list.suggestions) == 1
     assert suggestion_list.suggestions[0].display_text == "s1"
 
     # not triggered
-    rule = SingleAutocompleteRule(MockTrigger(False), MockProvider())
-    suggestion_list = await rule.suggest(cursor)
+    autocomplete = SingleAutocomplete(MockTrigger(False), MockProvider())
+    suggestion_list = await autocomplete.suggest(cursor)
     assert isinstance(suggestion_list, SuggestionList)
     assert len(suggestion_list.suggestions) == 0
 
@@ -388,12 +388,12 @@ async def test_submittable_text_area_file_search(app: TextualApp):
             with Vertical():
                 yield AgentTabs(self._root_agent_id, id="tabs")
 
-                # Inject our custom rules
-                rules = [SingleAutocompleteRule(
+                # Inject our custom autocompletes
+                autocompletes = [SingleAutocomplete(
                     trigger=AtSymbolTrigger(),
                     provider=FileSearchProvider(mock_searcher)
                 )]
-                yield SmartInput(rules=rules, id="user-input")
+                yield SmartInput(autocompletes=autocompletes, id="user-input")
 
     test_app = TestApp(StubUserInput(), AgentId("Agent"))
 

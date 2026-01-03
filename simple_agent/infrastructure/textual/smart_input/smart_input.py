@@ -16,9 +16,9 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import A
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
     PopupAnchor,
 )
-from simple_agent.infrastructure.textual.smart_input.autocomplete.rules import (
-    AutocompleteRule,
-    AutocompleteRules,
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
+    Autocomplete,
+    Autocompletes,
 )
 from simple_agent.infrastructure.textual.widgets.file_loader import DiskFileLoader, XmlFormattingFileLoader
 
@@ -41,13 +41,13 @@ class SmartInput(TextArea):
 
     def __init__(
         self,
-        rules: List[AutocompleteRule] | None = None,
+        autocompletes: List[Autocomplete] | None = None,
         id: str | None = None,
         **kwargs
     ):
         super().__init__(id=id, **kwargs)
 
-        self.rules = AutocompleteRules(rules)
+        self.autocompletes = Autocompletes(autocompletes)
         self.popup = AutocompletePopup()
         self.file_loader = XmlFormattingFileLoader(DiskFileLoader())
 
@@ -136,7 +136,7 @@ class SmartInput(TextArea):
 
     async def _run_autocomplete_check(self, cursor_and_line: CursorAndLine) -> None:
         try:
-            suggestion_list = await self.rules.suggest(cursor_and_line)
+            suggestion_list = await self.autocompletes.suggest(cursor_and_line)
             if suggestion_list:
                 # Calculate anchor
                 anchor = PopupAnchor.create_at_column(
