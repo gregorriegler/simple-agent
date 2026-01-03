@@ -28,8 +28,7 @@ from simple_agent.infrastructure.textual.autocomplete.domain import (
     SuggestionList,
     FileReferences,
 )
-from simple_agent.infrastructure.textual.widgets.file_loader import DiskFileLoader
-from simple_agent.infrastructure.textual.widgets.file_context_formatter import XmlFileContextFormatter
+from simple_agent.infrastructure.textual.widgets.file_loader import DiskFileLoader, XmlFormattingFileLoader
 
 logger = logging.getLogger(__name__)
 
@@ -58,8 +57,7 @@ class SmartInput(TextArea):
 
         self.rules = AutocompleteRules(rules)
         self.popup = AutocompletePopup()
-        self.file_loader = DiskFileLoader()
-        self.formatter = XmlFileContextFormatter()
+        self.file_loader = XmlFormattingFileLoader(DiskFileLoader())
 
         self._referenced_files = FileReferences()
         self._autocomplete_task: Optional[asyncio.Task] = None
@@ -73,7 +71,7 @@ class SmartInput(TextArea):
 
     def submit(self) -> None:
         result = CompletionResult(self.text, self._referenced_files)
-        expanded_content = result.expand(self.file_loader, self.formatter)
+        expanded_content = result.expand(self.file_loader)
 
         self.post_message(self.Submitted(expanded_content))
 
