@@ -84,7 +84,7 @@ class CompletionResult:
     files: FileReferences
 
     @property
-    def active_files(self) -> "FileReferences":
+    def active_files(self) -> FileReferences:
         return self.files.filter_active_in(self.text)
 
     def expand(self, file_loader: FileLoader) -> str:
