@@ -29,18 +29,18 @@ def test_expand_reads_and_formats_files():
     files = FileReferences()
     files.add({file1, file2})
 
-    draft = CompletionResult(text=draft_text, files=files)
+    result = CompletionResult(text=draft_text, files=files)
 
     # Act
-    result = draft.expand(loader, formatter)
+    expanded_text = result.expand(loader, formatter)
 
     # Assert
     expected_part1 = f"<{file1}>Content 1</{file1}>"
     expected_part2 = f"<{file2}>Content 2</{file2}>"
 
-    assert draft_text in result
-    assert expected_part1 in result
-    assert expected_part2 in result
+    assert draft_text in expanded_text
+    assert expected_part1 in expanded_text
+    assert expected_part2 in expanded_text
 
 def test_expand_handles_missing_files():
     # Arrange
@@ -52,10 +52,10 @@ def test_expand_handles_missing_files():
     files = FileReferences()
     files.add(file_path)
 
-    draft = CompletionResult(text=draft_text, files=files)
+    result = CompletionResult(text=draft_text, files=files)
 
     # Act
-    result = draft.expand(loader, formatter)
+    expanded_text = result.expand(loader, formatter)
 
     # Assert
-    assert result == draft_text.strip()
+    assert expanded_text == draft_text.strip()

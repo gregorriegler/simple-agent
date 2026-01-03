@@ -72,8 +72,8 @@ class SmartInput(TextArea):
         return {ref.path for ref in self._referenced_files.filter_active_in(self.text)}
 
     def submit(self) -> None:
-        draft = CompletionResult(self.text, self._referenced_files)
-        expanded_content = draft.expand(self.file_loader, self.formatter)
+        result = CompletionResult(self.text, self._referenced_files)
+        expanded_content = result.expand(self.file_loader, self.formatter)
 
         self.post_message(self.Submitted(expanded_content))
 
