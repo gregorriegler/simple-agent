@@ -1,9 +1,6 @@
 from typing import List, Tuple
 
-class FileContextFormatter:
-    """
-    Responsible for formatting loaded file contents into the XML format expected by the Agent.
-    """
+class XmlFileContextFormatter:
     def format(self, loaded_files: List[Tuple[str, str]]) -> str:
         file_contents = []
         for path_str, text in loaded_files:

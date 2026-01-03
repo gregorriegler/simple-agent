@@ -4,10 +4,7 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-class FileLoader:
-    """
-    Responsible for reading file contents from the filesystem.
-    """
+class DiskFileLoader:
     def read_file(self, file_path_str: str) -> Optional[str]:
         try:
             path = Path(file_path_str)

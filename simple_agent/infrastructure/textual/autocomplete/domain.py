@@ -67,10 +67,10 @@ class CursorAndLine:
     def is_on_first_line(self) -> bool:
         return self.cursor.row == 0
 
-class FileLoaderProtocol(Protocol):
+class FileLoader(Protocol):
     def read_file(self, file_path_str: str) -> Optional[str]: ...
 
-class FileContextFormatterProtocol(Protocol):
+class FileContextFormatter(Protocol):
     def format(self, loaded_files: List[Tuple[str, str]]) -> str: ...
 
 @dataclass
@@ -82,22 +82,21 @@ class CompletionResult:
     def active_files(self) -> "FileReferences":
         return self.files.filter_active_in(self.text)
 
-    def expand(self, file_loader: FileLoaderProtocol, formatter: FileContextFormatterProtocol) -> str:
+    def expand(self, file_loader: FileLoader, formatter: FileContextFormatter) -> str:
         content = self.text.strip()
         active_references = self.active_files
 
-        if active_references:
-            loaded_files = []
-            for file_ref in active_references:
-                file_path_str = file_ref.path
-                file_text = file_loader.read_file(file_path_str)
-                if file_text is not None:
-                    loaded_files.append((file_path_str, file_text))
+        loaded_files = []
+        for file_ref in active_references:
+            file_path_str = file_ref.path
+            file_text = file_loader.read_file(file_path_str)
+            if file_text is not None:
+                loaded_files.append((file_path_str, file_text))
 
-            file_contents = formatter.format(loaded_files)
+        file_contents = formatter.format(loaded_files)
 
-            if file_contents:
-                content += "\n" + file_contents
+        if file_contents:
+            content += "\n" + file_contents
 
         return content
 
