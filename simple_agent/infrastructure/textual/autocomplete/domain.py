@@ -43,12 +43,12 @@ class FileReferences:
     def __len__(self) -> int:
         return len(self._references)
 
-    def load_all(self, loader: FileLoader) -> List[Tuple[str, str]]:
+    def load_all(self, loader: FileLoader) -> List[str]:
         loaded = []
         for ref in self._references:
             content = ref.load_content(loader)
             if content is not None:
-                loaded.append((ref.path, content))
+                loaded.append(content)
         return loaded
 
 @dataclass(frozen=True)
@@ -90,7 +90,7 @@ class CompletionResult:
     def expand(self, file_loader: FileLoader) -> str:
         content = self.text.strip()
         loaded_files = self.active_files.load_all(file_loader)
-        file_contents = "\n".join(text for _, text in loaded_files)
+        file_contents = "\n".join(loaded_files)
 
         if file_contents:
             content += "\n" + file_contents
