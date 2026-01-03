@@ -98,9 +98,23 @@ class SmartInput(TextArea):
         message.stop()
 
     async def _on_key(self, event: events.Key) -> None:
-        if self.popup.handle_key(event.key):
-            self._consume_event(event)
-            return
+        if self.popup.display:
+            if event.key == "down":
+                self.popup.move_selection_down()
+                self._consume_event(event)
+                return
+            elif event.key == "up":
+                self.popup.move_selection_up()
+                self._consume_event(event)
+                return
+            elif event.key in ("tab", "enter"):
+                if self.popup.accept_selection():
+                    self._consume_event(event)
+                    return
+            elif event.key == "escape":
+                self.popup.close()
+                self._consume_event(event)
+                return
 
         if event.key == "enter":
             self._handle_enter(event)
@@ -144,7 +158,7 @@ class SmartInput(TextArea):
                 # Calculate anchor
                 caret_location = CaretScreenLocation(
                     offset=self.cursor_screen_offset,
-                    screen_size=self.app.screen.size
+                    screen_size=self.screen.size
                 )
                 anchor_col = cursor_and_line.word_start_index
                 anchor = caret_location.anchor_to_column(anchor_col, self.cursor_location[1])
