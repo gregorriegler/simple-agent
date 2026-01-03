@@ -146,7 +146,7 @@ class SuggestionProvider(Protocol):
         ...
 
 @dataclass
-class SingleAutocomplete(SuggestionProvider):
+class TriggeredSuggestionProvider(SuggestionProvider):
     trigger: AutocompleteTrigger
     provider: SuggestionProvider
 
@@ -161,7 +161,7 @@ class SingleAutocomplete(SuggestionProvider):
             return await self.provider.suggest(cursor_and_line)
         return SuggestionList([])
 
-class Autocompletes(SuggestionProvider):
+class CompositeSuggestionProvider(SuggestionProvider):
     def __init__(self, autocompletes: List[SuggestionProvider] = None):
         self._autocompletes = autocompletes or []
 

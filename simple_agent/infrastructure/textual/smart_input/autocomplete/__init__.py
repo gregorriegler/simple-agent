@@ -11,7 +11,7 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete i
     AutocompleteTrigger,
     SuggestionProvider,
 
-    Autocompletes
+    CompositeSuggestionProvider
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
     SlashCommandSuggestion,

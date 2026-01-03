@@ -18,7 +18,7 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
     SuggestionProvider,
-    Autocompletes,
+    CompositeSuggestionProvider,
 )
 from simple_agent.infrastructure.textual.widgets.file_loader import DiskFileLoader, XmlFormattingFileLoader
 
@@ -47,7 +47,7 @@ class SmartInput(TextArea):
     ):
         super().__init__(id=id, **kwargs)
 
-        self.autocompletes = Autocompletes(autocompletes)
+        self.autocompletes = CompositeSuggestionProvider(autocompletes)
         self.popup = AutocompletePopup()
         self.file_loader = XmlFormattingFileLoader(DiskFileLoader())
 

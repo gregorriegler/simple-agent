@@ -14,7 +14,7 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete import (
     Cursor,
     FileReferences
 )
-from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import SingleAutocomplete
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import TriggeredSuggestionProvider
 from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search import (
     AtSymbolTrigger, FileSearchProvider
 )
@@ -53,7 +53,7 @@ def app():
 async def test_slash_command_registry_available_in_textarea():
     registry = SlashCommandRegistry()
     autocompletes = [
-        SingleAutocomplete(
+        TriggeredSuggestionProvider(
             trigger=SlashAtStartOfLineTrigger(),
             provider=SlashCommandProvider(registry)
         )
@@ -70,7 +70,7 @@ async def test_slash_command_registry_available_in_textarea():
         assert list(textarea.autocompletes) == autocompletes
 
 
-def test_single_autocomplete_requires_trigger_and_provider():
+def test_triggered_suggestion_provider_requires_trigger_and_provider():
     # Helper to satisfy Protocol types without functionality
     class DummyTrigger:
         def is_triggered(self, _): return False
@@ -82,20 +82,20 @@ def test_single_autocomplete_requires_trigger_and_provider():
     provider = DummyProvider()
 
     # Valid construction
-    autocomplete = SingleAutocomplete(trigger=trigger, provider=provider)
+    autocomplete = TriggeredSuggestionProvider(trigger=trigger, provider=provider)
     assert autocomplete.trigger is trigger
     assert autocomplete.provider is provider
 
     # Invalid constructions
     with pytest.raises(ValueError, match="Trigger cannot be None"):
-        SingleAutocomplete(trigger=None, provider=provider)
+        TriggeredSuggestionProvider(trigger=None, provider=provider)
 
     with pytest.raises(ValueError, match="Provider cannot be None"):
-        SingleAutocomplete(trigger=trigger, provider=None)
+        TriggeredSuggestionProvider(trigger=trigger, provider=None)
 
 
 @pytest.mark.asyncio
-async def test_single_autocomplete_check_logic():
+async def test_triggered_suggestion_provider_check_logic():
     class MockTrigger:
         def __init__(self, should_trigger): self.triggered = should_trigger
         def is_triggered(self, _): return self.triggered
@@ -106,14 +106,14 @@ async def test_single_autocomplete_check_logic():
     cursor = CursorAndLine(Cursor(0,0), "")
 
     # triggered
-    autocomplete = SingleAutocomplete(MockTrigger(True), MockProvider())
+    autocomplete = TriggeredSuggestionProvider(MockTrigger(True), MockProvider())
     suggestion_list = await autocomplete.suggest(cursor)
     assert isinstance(suggestion_list, SuggestionList)
     assert len(suggestion_list.suggestions) == 1
     assert suggestion_list.suggestions[0].display_text == "s1"
 
     # not triggered
-    autocomplete = SingleAutocomplete(MockTrigger(False), MockProvider())
+    autocomplete = TriggeredSuggestionProvider(MockTrigger(False), MockProvider())
     suggestion_list = await autocomplete.suggest(cursor)
     assert isinstance(suggestion_list, SuggestionList)
     assert len(suggestion_list.suggestions) == 0
@@ -387,7 +387,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
                 yield AgentTabs(self._root_agent_id, id="tabs")
 
                 # Inject our custom autocompletes
-                autocompletes = [SingleAutocomplete(
+                autocompletes = [TriggeredSuggestionProvider(
                     trigger=AtSymbolTrigger(),
                     provider=FileSearchProvider(mock_searcher)
                 )]
