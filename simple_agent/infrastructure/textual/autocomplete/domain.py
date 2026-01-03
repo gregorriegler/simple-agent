@@ -1,6 +1,9 @@
 from typing import Protocol, List, Optional, Set, Iterator, Tuple
 from dataclasses import dataclass, field
 
+class FileLoader(Protocol):
+    def read_file(self, file_path_str: str) -> Optional[str]: ...
+
 @dataclass(frozen=True)
 class FileReference:
     path: str
@@ -13,6 +16,9 @@ class FileReference:
 
     def is_in(self, text: str) -> bool:
         return self.to_text() in text
+
+    def load_content(self, loader: FileLoader) -> Optional[str]:
+        return loader.read_file(self.path)
 
 @dataclass
 class FileReferences:
@@ -36,6 +42,14 @@ class FileReferences:
 
     def __len__(self) -> int:
         return len(self._references)
+
+    def load_all(self, loader: FileLoader) -> List[Tuple[str, str]]:
+        loaded = []
+        for ref in self._references:
+            content = ref.load_content(loader)
+            if content is not None:
+                loaded.append((ref.path, content))
+        return loaded
 
 @dataclass(frozen=True)
 class Cursor:
@@ -67,9 +81,6 @@ class CursorAndLine:
     def is_on_first_line(self) -> bool:
         return self.cursor.row == 0
 
-class FileLoader(Protocol):
-    def read_file(self, file_path_str: str) -> Optional[str]: ...
-
 class FileContextFormatter(Protocol):
     def format(self, loaded_files: List[Tuple[str, str]]) -> str: ...
 
@@ -84,15 +95,7 @@ class CompletionResult:
 
     def expand(self, file_loader: FileLoader, formatter: FileContextFormatter) -> str:
         content = self.text.strip()
-        active_references = self.active_files
-
-        loaded_files = []
-        for file_ref in active_references:
-            file_path_str = file_ref.path
-            file_text = file_loader.read_file(file_path_str)
-            if file_text is not None:
-                loaded_files.append((file_path_str, file_text))
-
+        loaded_files = self.active_files.load_all(file_loader)
         file_contents = formatter.format(loaded_files)
 
         if file_contents:
