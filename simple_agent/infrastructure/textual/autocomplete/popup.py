@@ -62,33 +62,18 @@ class AutocompletePopup(Static):
         self.suggestion_list = None
         self.display = False
 
-    def handle_key(self, key: str) -> bool:
+    def accept_selection(self) -> bool:
         """
-        Handle keyboard interaction for the popup.
+        Accept the current selection if one exists.
 
         Returns:
-            bool: True if the key was handled (consumed), False otherwise.
+            bool: True if a selection was accepted, False otherwise.
         """
-        if not self.display or not self.suggestion_list:
-            return False
-
-        if key == "down":
-            self.move_selection_down()
-            return True
-        elif key == "up":
-            self.move_selection_up()
-            return True
-        elif key in ("tab", "enter"):
-            selection = self.get_selection()
-            if selection:
-                self.close()
-                self.post_message(self.Selected(selection))
-                return True
-            return False
-        elif key == "escape":
+        selection = self.get_selection()
+        if selection:
             self.close()
+            self.post_message(self.Selected(selection))
             return True
-
         return False
 
     def _update_view(self) -> None:
