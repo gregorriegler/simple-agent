@@ -1,5 +1,6 @@
-from typing import Protocol, List, Optional, Set, Iterator, Tuple
 from dataclasses import dataclass, field
+from typing import Protocol, List, Optional, Set, Iterator
+
 
 class FileLoader(Protocol):
     def read_file(self, file_path_str: str) -> Optional[str]: ...

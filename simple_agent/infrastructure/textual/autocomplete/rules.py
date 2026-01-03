@@ -1,11 +1,13 @@
-from typing import List, Optional, Iterator
 from dataclasses import dataclass
+from typing import List, Iterator
+
+from simple_agent.infrastructure.textual.autocomplete.domain import CursorAndLine, SuggestionList
 from simple_agent.infrastructure.textual.autocomplete.protocols import (
     AutocompleteTrigger,
     SuggestionProvider,
     AutocompleteRule,
 )
-from simple_agent.infrastructure.textual.autocomplete.domain import CursorAndLine, Suggestion, SuggestionList
+
 
 @dataclass
 class SingleAutocompleteRule:

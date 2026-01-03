@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, List
+from typing import List
 
 from textual.geometry import Offset, Size
 
@@ -8,7 +8,6 @@ from simple_agent.infrastructure.textual.autocomplete.domain import SuggestionLi
 
 @dataclass
 class PopupAnchor:
-    """Encapsulates the visual state needed to position the popup."""
     cursor_offset: Offset
     screen_size: Size
 
@@ -20,14 +19,8 @@ class PopupAnchor:
         anchor_col: int,
         current_col: int,
     ) -> "PopupAnchor":
-        """
-        Creates a PopupAnchor positioned relative to a specific column index.
-        """
         delta = current_col - anchor_col
-        anchor_x = cursor_screen_offset.x - delta
-
-        # Ensure we don't go negative
-        anchor_x = max(0, anchor_x)
+        anchor_x = max(0, cursor_screen_offset.x - delta)
 
         return cls(
             cursor_offset=Offset(anchor_x, cursor_screen_offset.y),
@@ -35,9 +28,6 @@ class PopupAnchor:
         )
 
     def get_placement(self, popup_size: Size) -> Offset:
-        """
-        Calculate the best position for the popup given its size.
-        """
         popup_height = popup_size.height
         popup_width = popup_size.width
 
@@ -49,7 +39,6 @@ class PopupAnchor:
         below_y = self.cursor_offset.y + 1
         above_y = self.cursor_offset.y - popup_height
 
-        # Default to below if it fits, otherwise try above, else clamp
         if below_y + popup_height <= self.screen_size.height:
             y = below_y
         elif above_y >= 0:
@@ -57,7 +46,6 @@ class PopupAnchor:
         else:
             y = max(0, min(below_y, self.screen_size.height - popup_height))
 
-        # Horizontal positioning
         anchor_x = self.cursor_offset.x - 2
         max_x = max(0, self.screen_size.width - popup_width)
         x = min(max(anchor_x, 0), max_x)

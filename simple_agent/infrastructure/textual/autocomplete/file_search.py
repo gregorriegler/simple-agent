@@ -1,11 +1,9 @@
-from typing import List
 import logging
+from typing import List
+
 from simple_agent.application.file_search import FileSearcher
 from simple_agent.infrastructure.textual.autocomplete.domain import (
     Suggestion, CompletionResult, CursorAndLine, FileReference, FileReferences
-)
-from simple_agent.infrastructure.textual.autocomplete.protocols import (
-    AutocompleteTrigger, SuggestionProvider
 )
 
 logger = logging.getLogger(__name__)

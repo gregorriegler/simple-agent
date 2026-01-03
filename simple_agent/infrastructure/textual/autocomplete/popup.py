@@ -14,7 +14,6 @@ from simple_agent.infrastructure.textual.autocomplete.geometry import (
 
 class AutocompletePopup(Static):
     class Selected(Message):
-        """Posted when a suggestion is selected."""
         def __init__(self, result: CompletionResult):
             self.result = result
             super().__init__()
@@ -63,12 +62,6 @@ class AutocompletePopup(Static):
         self.display = False
 
     def accept_selection(self) -> bool:
-        """
-        Accept the current selection if one exists.
-
-        Returns:
-            bool: True if a selection was accepted, False otherwise.
-        """
         selection = self.get_selection()
         if selection:
             self.close()
@@ -77,9 +70,6 @@ class AutocompletePopup(Static):
         return False
 
     def _update_view(self) -> None:
-        """
-        Render the suggestions list at the specified anchor.
-        """
         if not self.suggestion_list or not self.suggestion_list.suggestions:
             self.close()
             return
@@ -92,14 +82,11 @@ class AutocompletePopup(Static):
 
         layout = PopupLayout.calculate(self.suggestion_list, self._current_anchor)
 
-        # Update styles
         self.styles.width = layout.width
         self.styles.height = layout.height
 
-        # Position
         self.absolute_offset = layout.offset
 
-        # Render
         rendered = Text()
         for index, line in enumerate(layout.lines):
             if index:
