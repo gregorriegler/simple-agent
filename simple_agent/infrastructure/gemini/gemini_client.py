@@ -43,13 +43,27 @@ class GeminiLLM(LLM):
         }
 
         timeout = self._config.request_timeout
+        max_retries = 5
+        retry_delay = 2
 
-        try:
-            async with LoggingAsyncClient(timeout=timeout, transport=self._transport) as client:
-                response = await client.post(url, headers=headers, json=data)
-            response.raise_for_status()
-        except httpx.RequestError as error:
-            raise GeminiClientError(f"API request failed: {error}") from error
+        for attempt in range(max_retries + 1):
+            try:
+                async with LoggingAsyncClient(timeout=timeout, transport=self._transport) as client:
+                    response = await client.post(url, headers=headers, json=data)
+                
+                response.raise_for_status()
+                break
+            except (httpx.RequestError, httpx.HTTPStatusError) as error:
+                should_retry = attempt < max_retries and (
+                    isinstance(error, httpx.TimeoutException) or 
+                    (isinstance(error, httpx.HTTPStatusError) and error.response.status_code == 500)
+                )
+                
+                if should_retry:
+                    await asyncio.sleep(retry_delay)
+                    continue
+                
+                raise GeminiClientError(f"API request failed: {error}") from error
 
         response_data = response.json()
 
