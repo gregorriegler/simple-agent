@@ -11,9 +11,8 @@ from simple_agent.infrastructure.textual.autocomplete.protocols import (
 logger = logging.getLogger(__name__)
 
 class FileSuggestion:
-    def __init__(self, file_path: str, start_index: int):
+    def __init__(self, file_path: str):
         self.file_path = file_path
-        self.start_index = start_index
 
     @property
     def display_text(self) -> str:
@@ -26,7 +25,6 @@ class FileSuggestion:
          return CompletionResult(
              text=display_marker,
              files=files,
-             start_offset=self.start_index
          )
 
 class AtSymbolTrigger:
@@ -41,7 +39,7 @@ class FileSearchProvider:
         query = cursor_and_line.word[1:] # Strip '@'
         try:
             results = await self.searcher.search(query)
-            return [FileSuggestion(str(res), cursor_and_line.word_start_index) for res in results]
+            return [FileSuggestion(str(res)) for res in results]
         except Exception as e:
             logger.error(f"File search failed: {e}")
             return []

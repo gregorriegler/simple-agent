@@ -298,10 +298,9 @@ async def test_enter_key_submits_when_autocomplete_not_visible():
 @dataclass
 class SimpleSuggestion:
     display_text: str
-    start_index: int = 10  # Default to match the mock editor cursor in tests
 
     def to_completion_result(self) -> CompletionResult:
-        return CompletionResult(text=self.display_text, files=FileReferences(), start_offset=self.start_index)
+        return CompletionResult(text=self.display_text, files=FileReferences())
 
 @pytest.mark.asyncio
 async def test_autocomplete_popup_rendering(app: TextualApp):

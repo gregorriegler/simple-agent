@@ -8,9 +8,8 @@ from simple_agent.infrastructure.textual.autocomplete.protocols import (
 )
 
 class SlashCommandSuggestion:
-    def __init__(self, command: Any, start_index: int):
+    def __init__(self, command: Any):
         self.command = command
-        self.start_index = start_index
 
     @property
     def display_text(self) -> str:
@@ -20,7 +19,6 @@ class SlashCommandSuggestion:
         return CompletionResult(
             text=self.command.name + " ",
             files=FileReferences(),
-            start_offset=self.start_index
         )
 
 class SlashAtStartOfLineTrigger:
@@ -35,6 +33,5 @@ class SlashCommandProvider:
 
     async def fetch(self, cursor_and_line: CursorAndLine) -> List[Suggestion]:
         query = cursor_and_line.word
-        # start_index is implicit from the word logic, but we pass it to suggestion
         commands = self.registry.get_matching_commands(query)
-        return [SlashCommandSuggestion(cmd, cursor_and_line.word_start_index) for cmd in commands]
+        return [SlashCommandSuggestion(cmd) for cmd in commands]
