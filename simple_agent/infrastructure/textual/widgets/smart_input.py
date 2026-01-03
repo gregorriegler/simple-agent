@@ -60,7 +60,7 @@ class SmartInput(TextArea):
         super().__init__(id=id, **kwargs)
 
         self.rules = AutocompleteRules(rules)
-        self.popup = AutocompletePopup(editor=self)
+        self.popup = AutocompletePopup()
         self.expander = FileContextExpander()
 
         self._referenced_files = FileReferences()
@@ -141,7 +141,15 @@ class SmartInput(TextArea):
         try:
             suggestion_list = await self.rules.suggest(cursor_and_line)
             if suggestion_list:
-                self.popup.show(suggestion_list)
+                # Calculate anchor
+                caret_location = CaretScreenLocation(
+                    offset=self.cursor_screen_offset,
+                    screen_size=self.app.screen.size
+                )
+                anchor_col = cursor_and_line.word_start_index
+                anchor = caret_location.anchor_to_column(anchor_col, self.cursor_location[1])
+
+                self.popup.show(suggestion_list, anchor)
             else:
                 self.popup.close()
         except asyncio.CancelledError:

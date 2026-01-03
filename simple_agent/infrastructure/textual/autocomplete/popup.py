@@ -1,19 +1,15 @@
-from typing import List, Optional, TYPE_CHECKING
-from textual.widgets import Static, TextArea
+from typing import Optional
+from textual.widgets import Static
 from textual.message import Message
 from rich.text import Text
 
 from simple_agent.infrastructure.textual.autocomplete.domain import (
     CompletionResult,
-    Suggestion,
     SuggestionList,
-    Cursor,
-    CursorAndLine,
 )
 from simple_agent.infrastructure.textual.autocomplete.geometry import (
     PopupAnchor,
     PopupLayout,
-    CaretScreenLocation,
 )
 
 class AutocompletePopup(Static):
@@ -34,32 +30,18 @@ class AutocompletePopup(Static):
     }
     """
 
-    def __init__(self, editor: TextArea, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.editor = editor
         self.suggestion_list: Optional[SuggestionList] = None
         self._current_anchor: Optional[PopupAnchor] = None
 
-    def show(self, suggestion_list: SuggestionList) -> None:
+    def show(self, suggestion_list: SuggestionList, anchor: PopupAnchor) -> None:
         if suggestion_list:
             self.suggestion_list = suggestion_list
-            self._current_anchor = self._calculate_anchor(suggestion_list)
+            self._current_anchor = anchor
             self._update_view()
         else:
             self.close()
-
-    def _calculate_anchor(self, suggestion_list: SuggestionList) -> PopupAnchor:
-        caret_location = CaretScreenLocation(
-            offset=self.editor.cursor_screen_offset,
-            screen_size=self.app.screen.size
-        )
-
-        row, col = self.editor.cursor_location
-        line = self.editor.document.get_line(row)
-        cursor_and_line = CursorAndLine(Cursor(row, col), line)
-        anchor_col = cursor_and_line.word_start_index
-
-        return caret_location.anchor_to_column(anchor_col, col)
 
     def move_selection_down(self) -> None:
         if self.suggestion_list:

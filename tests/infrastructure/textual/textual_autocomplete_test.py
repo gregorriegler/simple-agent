@@ -305,13 +305,7 @@ class SimpleSuggestion:
 @pytest.mark.asyncio
 async def test_autocomplete_popup_rendering(app: TextualApp):
     async with app.run_test() as pilot:
-        # Mock editor
-        editor = MagicMock()
-        editor.cursor_screen_offset = Offset(10, 10)
-        editor.cursor_location = (0, 10)
-        editor.document.get_line.return_value = "/short"
-
-        popup = AutocompletePopup(editor=editor, id="autocomplete-popup")
+        popup = AutocompletePopup(id="autocomplete-popup")
         await app.mount(popup)
 
         # Create suggestions manually
@@ -321,9 +315,10 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         ]
 
         suggestions = [SimpleSuggestion(s) for s in strings]
+        anchor = PopupAnchor(Offset(10, 10), Size(80, 24))
 
         # Manually set state to simulate start() without async search
-        popup.show(SuggestionList(suggestions))
+        popup.show(SuggestionList(suggestions), anchor)
 
         await pilot.pause()
 
@@ -337,18 +332,14 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
 @pytest.mark.asyncio
 async def test_autocomplete_popup_hide(app: TextualApp):
     async with app.run_test() as pilot:
-        editor = MagicMock()
-        editor.cursor_screen_offset = Offset(0, 0)
-        editor.cursor_location = (0, 0)
-        editor.document.get_line.return_value = ""
-
-        popup = AutocompletePopup(editor=editor, id="autocomplete-popup")
+        popup = AutocompletePopup(id="autocomplete-popup")
         await app.mount(popup)
 
         strings = ["/cmd - desc"]
         suggestions = [SimpleSuggestion(s) for s in strings]
+        anchor = PopupAnchor(Offset(0, 0), Size(80, 24))
 
-        popup.show(SuggestionList(suggestions))
+        popup.show(SuggestionList(suggestions), anchor)
         await pilot.pause()
 
         assert popup.display is True
