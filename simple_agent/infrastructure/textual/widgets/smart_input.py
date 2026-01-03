@@ -161,7 +161,11 @@ class SmartInput(TextArea):
     def _apply_completion(self, result: CompletionResult) -> None:
         row, col = self.cursor_location
 
-        start_col = result.start_offset
+        cursor_and_line = self._get_cursor_and_line()
+        if cursor_and_line:
+            start_col = cursor_and_line.word_start_index
+        else:
+            start_col = col
 
         self.replace(
             result.text,

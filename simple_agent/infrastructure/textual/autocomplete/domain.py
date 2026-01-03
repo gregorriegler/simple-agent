@@ -67,7 +67,6 @@ class CursorAndLine:
 class CompletionResult:
     text: str
     files: FileReferences
-    start_offset: int = 0
 
     @property
     def active_files(self) -> "FileReferences":
