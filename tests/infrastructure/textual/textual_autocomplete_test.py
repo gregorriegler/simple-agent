@@ -310,6 +310,7 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         editor = MagicMock()
         editor.cursor_screen_offset = Offset(10, 10)
         editor.cursor_location = (0, 10)
+        editor.document.get_line.return_value = "/short"
 
         popup = AutocompletePopup(editor=editor, id="autocomplete-popup")
         await app.mount(popup)
@@ -323,7 +324,6 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         suggestions = [SimpleSuggestion(s) for s in strings]
 
         # Manually set state to simulate start() without async search
-        # Using default anchor (cursor pos) from SimpleSuggestion default
         popup.show(SuggestionList(suggestions))
 
         await pilot.pause()
@@ -341,6 +341,7 @@ async def test_autocomplete_popup_hide(app: TextualApp):
         editor = MagicMock()
         editor.cursor_screen_offset = Offset(0, 0)
         editor.cursor_location = (0, 0)
+        editor.document.get_line.return_value = ""
 
         popup = AutocompletePopup(editor=editor, id="autocomplete-popup")
         await app.mount(popup)

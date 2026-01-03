@@ -84,12 +84,6 @@ class SuggestionList:
     suggestions: List[Suggestion]
     selected_index: int = 0
 
-    @property
-    def anchor_col(self) -> int:
-        if not self.suggestions:
-            return 0
-        return self.suggestions[0].to_completion_result().start_offset
-
     def __bool__(self) -> bool:
         return bool(self.suggestions)
 
