@@ -12,6 +12,28 @@ class PopupAnchor:
     cursor_offset: Offset
     screen_size: Size
 
+    @classmethod
+    def create_at_column(
+        cls,
+        cursor_screen_offset: Offset,
+        screen_size: Size,
+        anchor_col: int,
+        current_col: int,
+    ) -> "PopupAnchor":
+        """
+        Creates a PopupAnchor positioned relative to a specific column index.
+        """
+        delta = current_col - anchor_col
+        anchor_x = cursor_screen_offset.x - delta
+
+        # Ensure we don't go negative
+        anchor_x = max(0, anchor_x)
+
+        return cls(
+            cursor_offset=Offset(anchor_x, cursor_screen_offset.y),
+            screen_size=screen_size,
+        )
+
     def get_placement(self, popup_size: Size) -> Offset:
         """
         Calculate the best position for the popup given its size.
@@ -45,28 +67,6 @@ class PopupAnchor:
     @property
     def max_width(self) -> int:
         return self.screen_size.width
-
-    @classmethod
-    def create_at_column(
-        cls,
-        cursor_screen_offset: Offset,
-        screen_size: Size,
-        anchor_col: int,
-        current_col: int,
-    ) -> "PopupAnchor":
-        """
-        Creates a PopupAnchor positioned relative to a specific column index.
-        """
-        delta = current_col - anchor_col
-        anchor_x = cursor_screen_offset.x - delta
-
-        # Ensure we don't go negative
-        anchor_x = max(0, anchor_x)
-
-        return cls(
-            cursor_offset=Offset(anchor_x, cursor_screen_offset.y),
-            screen_size=screen_size,
-        )
 
 
 @dataclass
