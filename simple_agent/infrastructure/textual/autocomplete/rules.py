@@ -10,7 +10,7 @@ from simple_agent.infrastructure.textual.autocomplete.protocols import (
 
 
 @dataclass
-class SingleAutocompleteRule:
+class SingleAutocompleteRule(AutocompleteRule):
     trigger: AutocompleteTrigger
     provider: SuggestionProvider
 
@@ -26,7 +26,7 @@ class SingleAutocompleteRule:
             return SuggestionList(suggestions)
         return SuggestionList([])
 
-class AutocompleteRules:
+class AutocompleteRules(AutocompleteRule):
     def __init__(self, rules: List[AutocompleteRule] = None):
         self._rules = rules or []
 
