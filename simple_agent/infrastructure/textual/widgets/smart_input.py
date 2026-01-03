@@ -60,6 +60,7 @@ class SmartInput(TextArea):
 
         self._referenced_files = FileReferences()
         self._autocomplete_task: Optional[asyncio.Task] = None
+        self._active_suggestion_list: Optional[SuggestionList] = None
 
     def on_mount(self) -> None:
         self.mount(self.popup)
@@ -82,28 +83,30 @@ class SmartInput(TextArea):
         if self._autocomplete_task:
             self._autocomplete_task.cancel()
             self._autocomplete_task = None
+        self._active_suggestion_list = None
         self.popup.close()
 
-    def on_autocomplete_popup_selected(self, message: AutocompletePopup.Selected) -> None:
-        self._apply_completion(message.result)
-        message.stop()
-
     async def _on_key(self, event: events.Key) -> None:
-        if self.popup.display:
+        if self.popup.display and self._active_suggestion_list:
             if event.key == "down":
-                self.popup.move_selection_down()
+                self._active_suggestion_list.move_down()
+                self.popup.set_selected_index(self._active_suggestion_list.selected_index)
                 self._consume_event(event)
                 return
             elif event.key == "up":
-                self.popup.move_selection_up()
+                self._active_suggestion_list.move_up()
+                self.popup.set_selected_index(self._active_suggestion_list.selected_index)
                 self._consume_event(event)
                 return
             elif event.key in ("tab", "enter"):
-                if self.popup.accept_selection():
+                selection = self._active_suggestion_list.get_selection()
+                if selection:
+                    self._apply_completion(selection)
+                    self._close_autocomplete()
                     self._consume_event(event)
                     return
             elif event.key == "escape":
-                self.popup.close()
+                self._close_autocomplete()
                 self._consume_event(event)
                 return
 
@@ -145,6 +148,7 @@ class SmartInput(TextArea):
         try:
             suggestion_list = await self.rules.suggest(cursor_and_line)
             if suggestion_list:
+                self._active_suggestion_list = suggestion_list
                 # Calculate anchor
                 anchor = PopupAnchor.create_at_column(
                     cursor_screen_offset=self.cursor_screen_offset,
@@ -154,9 +158,9 @@ class SmartInput(TextArea):
                 )
 
                 layout = anchor.compute_layout(suggestion_list)
-                self.popup.show(suggestion_list, layout)
+                self.popup.show(layout, suggestion_list.selected_index)
             else:
-                self.popup.close()
+                self._close_autocomplete()
         except asyncio.CancelledError:
             pass
         finally:

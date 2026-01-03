@@ -315,9 +315,10 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
 
         suggestions = [SimpleSuggestion(s) for s in strings]
         anchor = PopupAnchor(Offset(10, 10), Size(80, 24))
+        sl = SuggestionList(suggestions)
 
         # Manually set state to simulate start() without async search
-        popup.show(SuggestionList(suggestions), anchor.compute_layout(SuggestionList(suggestions)))
+        popup.show(anchor.compute_layout(sl), sl.selected_index)
 
         await pilot.pause()
 
@@ -337,8 +338,9 @@ async def test_autocomplete_popup_hide(app: TextualApp):
         strings = ["/cmd - desc"]
         suggestions = [SimpleSuggestion(s) for s in strings]
         anchor = PopupAnchor(Offset(0, 0), Size(80, 24))
+        sl = SuggestionList(suggestions)
 
-        popup.show(SuggestionList(suggestions), anchor.compute_layout(SuggestionList(suggestions)))
+        popup.show(anchor.compute_layout(sl), sl.selected_index)
         await pilot.pause()
 
         assert popup.display is True

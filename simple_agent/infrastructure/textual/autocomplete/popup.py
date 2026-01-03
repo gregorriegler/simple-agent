@@ -1,23 +1,12 @@
 from typing import Optional
 from textual.widgets import Static
-from textual.message import Message
 from rich.text import Text
 
-from simple_agent.infrastructure.textual.autocomplete.domain import (
-    CompletionResult,
-    SuggestionList,
-)
 from simple_agent.infrastructure.textual.autocomplete.geometry import (
     PopupLayout,
 )
 
 class AutocompletePopup(Static):
-    class Selected(Message):
-        """Posted when a suggestion is selected."""
-        def __init__(self, result: CompletionResult):
-            self.result = result
-            super().__init__()
-
     DEFAULT_CSS = """
     AutocompletePopup {
         background: $surface;
@@ -31,58 +20,26 @@ class AutocompletePopup(Static):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.suggestion_list: Optional[SuggestionList] = None
         self.popup_layout: Optional[PopupLayout] = None
+        self._selected_index: int = 0
 
-    def show(self, suggestion_list: SuggestionList, layout: PopupLayout) -> None:
-        if suggestion_list:
-            self.suggestion_list = suggestion_list
-            self.popup_layout = layout
-            self._update_view()
-        else:
-            self.close()
+    def show(self, layout: PopupLayout, selected_index: int = 0) -> None:
+        self.popup_layout = layout
+        self._selected_index = selected_index
+        self._update_view()
 
-    def move_selection_down(self) -> None:
-        if self.suggestion_list:
-            self.suggestion_list.move_down()
-            self._update_view()
-
-    def move_selection_up(self) -> None:
-        if self.suggestion_list:
-            self.suggestion_list.move_up()
-            self._update_view()
-
-    def get_selection(self) -> Optional[CompletionResult]:
-        if self.suggestion_list:
-            return self.suggestion_list.get_selection()
-        return None
+    def set_selected_index(self, index: int) -> None:
+        self._selected_index = index
+        self._update_view()
 
     def close(self) -> None:
-        self.suggestion_list = None
+        self.popup_layout = None
         self.display = False
-
-    def accept_selection(self) -> bool:
-        """
-        Accept the current selection if one exists.
-
-        Returns:
-            bool: True if a selection was accepted, False otherwise.
-        """
-        selection = self.get_selection()
-        if selection:
-            self.close()
-            self.post_message(self.Selected(selection))
-            return True
-        return False
 
     def _update_view(self) -> None:
         """
         Render the suggestions list at the specified layout.
         """
-        if not self.suggestion_list or not self.suggestion_list.suggestions:
-            self.close()
-            return
-
         if not self.popup_layout:
             self.close()
             return
@@ -101,7 +58,7 @@ class AutocompletePopup(Static):
         for index, line in enumerate(self.popup_layout.lines):
             if index:
                 rendered.append("\n")
-            style = "reverse" if index == self.suggestion_list.selected_index else ""
+            style = "reverse" if index == self._selected_index else ""
             rendered.append(line, style=style)
 
         super().update(rendered)
