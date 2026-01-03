@@ -1,6 +1,6 @@
 import pytest
 from textual.geometry import Offset, Size
-from simple_agent.infrastructure.textual.smart_input.autocomplete.geometry import PopupAnchor
+from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import PopupAnchor
 
 def test_popup_anchor_create_at_column_calculates_correctly():
     # Arrange

@@ -25,3 +25,8 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search im
     AtSymbolTrigger,
     FileSearchProvider,
 )
+from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
+    AutocompletePopup,
+    PopupAnchor,
+    PopupLayout,
+)

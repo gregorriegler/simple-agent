@@ -10,7 +10,7 @@ from textual.widgets import TextArea
 from textual.geometry import Offset
 
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import AutocompletePopup
-from simple_agent.infrastructure.textual.smart_input.autocomplete.geometry import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
     PopupAnchor,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.rules import (
