@@ -1,4 +1,4 @@
-from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
     Cursor,
     CursorAndLine,
     CompletionResult,

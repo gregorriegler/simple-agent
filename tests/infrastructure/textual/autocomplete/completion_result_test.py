@@ -1,6 +1,6 @@
 from typing import List, Tuple, Optional
 from types import SimpleNamespace
-from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import CompletionResult, FileReference, FileReferences
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import CompletionResult, FileReference, FileReferences
 
 class FakeFileLoader:
     def __init__(self, files):

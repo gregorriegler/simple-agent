@@ -5,7 +5,7 @@ from textual.message import Message
 from textual.geometry import Offset, Size
 from rich.text import Text
 
-from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import (
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
     CompletionResult,
     SuggestionList,
 )
