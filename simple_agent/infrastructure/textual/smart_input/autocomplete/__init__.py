@@ -10,7 +10,7 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import 
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
     AutocompleteTrigger,
     SuggestionProvider,
-    Autocomplete,
+
     Autocompletes
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (

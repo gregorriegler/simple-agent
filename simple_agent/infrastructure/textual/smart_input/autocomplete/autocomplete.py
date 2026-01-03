@@ -9,16 +9,11 @@ class AutocompleteTrigger(Protocol):
         ...
 
 class SuggestionProvider(Protocol):
-    async def fetch(self, cursor_and_line: CursorAndLine) -> List[Suggestion]:
-        ...
-
-class Autocomplete(Protocol):
     async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:
         ...
 
-
 @dataclass
-class SingleAutocomplete(Autocomplete):
+class SingleAutocomplete(SuggestionProvider):
     trigger: AutocompleteTrigger
     provider: SuggestionProvider
 
@@ -30,12 +25,11 @@ class SingleAutocomplete(Autocomplete):
 
     async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:
         if self.trigger.is_triggered(cursor_and_line):
-            suggestions = await self.provider.fetch(cursor_and_line)
-            return SuggestionList(suggestions)
+            return await self.provider.suggest(cursor_and_line)
         return SuggestionList([])
 
-class Autocompletes(Autocomplete):
-    def __init__(self, autocompletes: List[Autocomplete] = None):
+class Autocompletes(SuggestionProvider):
+    def __init__(self, autocompletes: List[SuggestionProvider] = None):
         self._autocompletes = autocompletes or []
 
     async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:
@@ -45,5 +39,5 @@ class Autocompletes(Autocomplete):
                 return suggestion_list
         return SuggestionList([])
 
-    def __iter__(self) -> Iterator[Autocomplete]:
+    def __iter__(self) -> Iterator[SuggestionProvider]:
         return iter(self._autocompletes)

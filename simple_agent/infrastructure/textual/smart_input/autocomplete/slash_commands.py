@@ -2,7 +2,7 @@ from typing import List, Any
 
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import (
-    Suggestion, CompletionResult, CursorAndLine, FileReferences
+    Suggestion, CompletionResult, CursorAndLine, FileReferences, SuggestionList
 )
 
 
@@ -32,7 +32,7 @@ class SlashCommandProvider:
     def __init__(self, registry: SlashCommandRegistry):
         self.registry = registry
 
-    async def fetch(self, cursor_and_line: CursorAndLine) -> List[Suggestion]:
+    async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:
         query = cursor_and_line.word
         commands = self.registry.get_matching_commands(query)
-        return [SlashCommandSuggestion(cmd) for cmd in commands]
+        return SuggestionList([SlashCommandSuggestion(cmd) for cmd in commands])

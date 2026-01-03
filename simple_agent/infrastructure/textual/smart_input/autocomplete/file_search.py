@@ -3,7 +3,7 @@ from typing import List
 
 from simple_agent.application.file_search import FileSearcher
 from simple_agent.infrastructure.textual.smart_input.autocomplete.domain import (
-    Suggestion, CompletionResult, CursorAndLine, FileReference, FileReferences
+    Suggestion, CompletionResult, CursorAndLine, FileReference, FileReferences, SuggestionList
 )
 
 logger = logging.getLogger(__name__)
@@ -33,11 +33,11 @@ class FileSearchProvider:
     def __init__(self, searcher: FileSearcher):
         self.searcher = searcher
 
-    async def fetch(self, cursor_and_line: CursorAndLine) -> List[Suggestion]:
+    async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:
         query = cursor_and_line.word[1:] # Strip '@'
         try:
             results = await self.searcher.search(query)
-            return [FileSuggestion(str(res)) for res in results]
+            return SuggestionList([FileSuggestion(str(res)) for res in results])
         except Exception as e:
             logger.error(f"File search failed: {e}")
-            return []
+            return SuggestionList([])

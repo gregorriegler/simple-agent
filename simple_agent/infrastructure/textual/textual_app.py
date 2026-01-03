@@ -15,7 +15,7 @@ from simple_agent.infrastructure.textual.textual_messages import DomainEventMess
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
-from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import SingleAutocomplete
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import SingleAutocomplete, SuggestionProvider
 from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
     SlashAtStartOfLineTrigger, SlashCommandProvider
 )
@@ -129,7 +129,7 @@ class TextualApp(App):
         return AgentTabs.panel_ids_for(agent_id)
 
     def compose(self) -> ComposeResult:
-        autocompletes = [
+        autocompletes: list[SuggestionProvider] = [
             SingleAutocomplete(
                 trigger=SlashAtStartOfLineTrigger(),
                 provider=SlashCommandProvider(self._slash_command_registry)

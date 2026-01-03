@@ -1,34 +1,32 @@
-import pytest
-import asyncio
-from textual.geometry import Offset, Size
 from dataclasses import dataclass
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import AsyncMock
 
-from simple_agent.application.slash_command_registry import SlashCommandRegistry, SlashCommand
-from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.smart_input import SmartInput
-from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import AutocompletePopup
-from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
-    PopupAnchor,
-)
+import pytest
+from textual.geometry import Offset, Size
+
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.slash_command_registry import SlashCommandRegistry
+from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.smart_input.autocomplete import (
     CompletionResult,
-    SlashCommandSuggestion,
-    FileSuggestion,
     CursorAndLine,
     SuggestionList,
-    Suggestion,
     Cursor,
     FileReferences
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import SingleAutocomplete
-from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
-    SlashAtStartOfLineTrigger, SlashCommandProvider
-)
 from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search import (
     AtSymbolTrigger, FileSearchProvider
 )
+from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import AutocompletePopup
+from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
+    PopupAnchor,
+)
+from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
+    SlashAtStartOfLineTrigger, SlashCommandProvider
+)
+from simple_agent.infrastructure.textual.textual_app import TextualApp
+
 
 class StubUserInput:
     def __init__(self) -> None:
@@ -61,7 +59,7 @@ async def test_slash_command_registry_available_in_textarea():
         )
     ]
     textarea = SmartInput(autocompletes=autocompletes)
-    
+
     # Mount to trigger popup creation
     app = TextualApp(StubUserInput(), AgentId("Agent"))
     async with app.run_test() as pilot:
@@ -78,7 +76,7 @@ def test_single_autocomplete_requires_trigger_and_provider():
         def is_triggered(self, _): return False
 
     class DummyProvider:
-        async def fetch(self, _): return []
+        async def suggest(self, _): return SuggestionList([])
 
     trigger = DummyTrigger()
     provider = DummyProvider()
@@ -103,7 +101,7 @@ async def test_single_autocomplete_check_logic():
         def is_triggered(self, _): return self.triggered
 
     class MockProvider:
-        async def fetch(self, _): return [SimpleSuggestion("s1")]
+        async def suggest(self, _): return SuggestionList([SimpleSuggestion("s1")])
 
     cursor = CursorAndLine(Cursor(0,0), "")
 
@@ -123,9 +121,9 @@ async def test_single_autocomplete_check_logic():
 
 def test_get_autocomplete_suggestions_for_slash():
     registry = SlashCommandRegistry()
-    
+
     suggestions = registry.get_matching_commands("/")
-    
+
     assert len(suggestions) == 2
     assert any(cmd.name == "/clear" for cmd in suggestions)
     assert any(cmd.name == "/model" for cmd in suggestions)
@@ -133,18 +131,18 @@ def test_get_autocomplete_suggestions_for_slash():
 
 def test_get_autocomplete_suggestions_for_partial():
     registry = SlashCommandRegistry()
-    
+
     suggestions = registry.get_matching_commands("/m")
-    
+
     assert len(suggestions) == 1
     assert suggestions[0].name == "/model"
 
 
 def test_no_suggestions_for_regular_text():
     registry = SlashCommandRegistry()
-    
+
     suggestions = registry.get_matching_commands("hello")
-    
+
     assert len(suggestions) == 0
 
 
@@ -255,16 +253,16 @@ async def test_enter_key_selects_autocomplete_when_visible():
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
         text_area.focus()
-        
+
         await pilot.press("/")
         await pilot.press("c")
         await pilot.pause()
-        
+
         assert text_area.popup.display is True
-        
+
         await pilot.press("enter")
         await pilot.pause()
-        
+
         assert text_area.text.startswith("/clear")
         assert len(user_input.inputs) == 0
 
@@ -280,17 +278,17 @@ async def test_enter_key_submits_when_autocomplete_not_visible():
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
         text_area.focus()
-        
+
         # Type "hello"
         for char in "hello":
             await pilot.press(char)
         await pilot.pause()
 
         assert text_area.popup.display is False
-        
+
         await pilot.press("enter")
         await pilot.pause()
-        
+
         assert len(user_input.inputs) == 1
         assert user_input.inputs[0] == "hello"
 
