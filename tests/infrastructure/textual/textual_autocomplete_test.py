@@ -14,7 +14,7 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete import (
     Cursor,
     FileReferences
 )
-from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import TriggeredSuggestionProvider
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import TriggeredSuggestionProvider, CompositeSuggestionProvider
 from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search import (
     AtSymbolTrigger, FileSearchProvider
 )
@@ -52,13 +52,13 @@ def app():
 @pytest.mark.asyncio
 async def test_slash_command_registry_available_in_textarea():
     registry = SlashCommandRegistry()
-    providers = [
+    provider = CompositeSuggestionProvider([
         TriggeredSuggestionProvider(
             trigger=SlashAtStartOfLineTrigger(),
             provider=SlashCommandProvider(registry)
         )
-    ]
-    textarea = SmartInput(providers=providers)
+    ])
+    textarea = SmartInput(provider=provider)
 
     # Mount to trigger popup creation
     app = TextualApp(StubUserInput(), AgentId("Agent"))
@@ -66,8 +66,8 @@ async def test_slash_command_registry_available_in_textarea():
         await pilot.pause()
         await app.mount(textarea)
 
-        # Check that the providers are present on the SmartInput
-        assert list(textarea.providers) == providers
+        # Check that the provider is present on the SmartInput
+        assert textarea.provider == provider
 
 
 def test_triggered_suggestion_provider_requires_trigger_and_provider():
@@ -386,12 +386,14 @@ async def test_submittable_text_area_file_search(app: TextualApp):
             with Vertical():
                 yield AgentTabs(self._root_agent_id, id="tabs")
 
-                # Inject our custom providers
-                providers = [TriggeredSuggestionProvider(
-                    trigger=AtSymbolTrigger(),
-                    provider=FileSearchProvider(mock_searcher)
-                )]
-                yield SmartInput(providers=providers, id="user-input")
+                # Inject our custom provider
+                provider = CompositeSuggestionProvider([
+                    TriggeredSuggestionProvider(
+                        trigger=AtSymbolTrigger(),
+                        provider=FileSearchProvider(mock_searcher)
+                    )
+                ])
+                yield SmartInput(provider=provider, id="user-input")
 
     test_app = TestApp(StubUserInput(), AgentId("Agent"))
 

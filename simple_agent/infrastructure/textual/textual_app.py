@@ -15,7 +15,9 @@ from simple_agent.infrastructure.textual.textual_messages import DomainEventMess
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
-from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import TriggeredSuggestionProvider, SuggestionProvider
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
+    TriggeredSuggestionProvider, SuggestionProvider, CompositeSuggestionProvider
+)
 from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
     SlashAtStartOfLineTrigger, SlashCommandProvider
 )
@@ -129,7 +131,7 @@ class TextualApp(App):
         return AgentTabs.panel_ids_for(agent_id)
 
     def compose(self) -> ComposeResult:
-        providers: list[SuggestionProvider] = [
+        provider = CompositeSuggestionProvider([
             TriggeredSuggestionProvider(
                 trigger=SlashAtStartOfLineTrigger(),
                 provider=SlashCommandProvider(self._slash_command_registry)
@@ -138,10 +140,10 @@ class TextualApp(App):
                 trigger=AtSymbolTrigger(),
                 provider=FileSearchProvider(self._file_searcher)
             )
-        ]
+        ])
         with Vertical():
             yield AgentTabs(self._root_agent_id, id="tabs")
-            yield SmartInput(providers=providers, id="user-input")
+            yield SmartInput(provider=provider, id="user-input")
 
     async def on_mount(self) -> None:
         smart_input = self.query_one(SmartInput)
