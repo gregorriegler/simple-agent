@@ -28,16 +28,12 @@ from simple_agent.infrastructure.textual.autocomplete.domain import (
     SuggestionList,
     FileReferences,
 )
-from simple_agent.infrastructure.textual.widgets.file_loader import FileLoader
-from simple_agent.infrastructure.textual.widgets.file_context_formatter import FileContextFormatter
+from simple_agent.infrastructure.textual.widgets.file_loader import DiskFileLoader
+from simple_agent.infrastructure.textual.widgets.file_context_formatter import XmlFileContextFormatter
 
 logger = logging.getLogger(__name__)
 
 class SmartInput(TextArea):
-    """
-    A unified SmartInput widget that combines text editing, autocomplete, and file context handling.
-    Inherits from TextArea to provide the editing surface, but manages its own Popup and Hint.
-    """
 
     class Submitted(Message):
         def __init__(self, value: str):
@@ -62,8 +58,8 @@ class SmartInput(TextArea):
 
         self.rules = AutocompleteRules(rules)
         self.popup = AutocompletePopup()
-        self.file_loader = FileLoader()
-        self.formatter = FileContextFormatter()
+        self.file_loader = DiskFileLoader()
+        self.formatter = XmlFileContextFormatter()
 
         self._referenced_files = FileReferences()
         self._autocomplete_task: Optional[asyncio.Task] = None
@@ -73,11 +69,9 @@ class SmartInput(TextArea):
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
 
     def get_referenced_files(self) -> set[str]:
-        """Return the set of files that were selected via autocomplete and are still in the text."""
         return {ref.path for ref in self._referenced_files.filter_active_in(self.text)}
 
     def submit(self) -> None:
-        """Submit the current text."""
         draft = CompletionResult(self.text, self._referenced_files)
         expanded_content = draft.expand(self.file_loader, self.formatter)
 
@@ -88,14 +82,12 @@ class SmartInput(TextArea):
         self._close_autocomplete()
 
     def _close_autocomplete(self) -> None:
-        """Clear autocomplete state and hide popup."""
         if self._autocomplete_task:
             self._autocomplete_task.cancel()
             self._autocomplete_task = None
         self.popup.close()
 
     def on_autocomplete_popup_selected(self, message: AutocompletePopup.Selected) -> None:
-        """Handle selection from the autocomplete popup."""
         self._apply_completion(message.result)
         message.stop()
 
@@ -142,7 +134,6 @@ class SmartInput(TextArea):
         self._consume_event(event)
 
     def _trigger_autocomplete_check(self) -> None:
-        """Helper to call popup check with current context."""
         cursor_and_line = self._get_cursor_and_line()
         if not cursor_and_line:
             self._close_autocomplete()
