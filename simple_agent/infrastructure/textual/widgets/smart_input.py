@@ -153,7 +153,8 @@ class SmartInput(TextArea):
                     current_col=self.cursor_location[1],
                 )
 
-                self.popup.show(suggestion_list, anchor)
+                layout = anchor.compute_layout(suggestion_list)
+                self.popup.show(suggestion_list, layout)
             else:
                 self.popup.close()
         except asyncio.CancelledError:

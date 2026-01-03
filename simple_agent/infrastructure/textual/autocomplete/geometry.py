@@ -7,6 +7,14 @@ from simple_agent.infrastructure.textual.autocomplete.domain import SuggestionLi
 
 
 @dataclass
+class PopupLayout:
+    width: int
+    height: int
+    offset: Offset
+    lines: List[str]
+
+
+@dataclass
 class PopupAnchor:
     """Encapsulates the visual state needed to position the popup."""
     cursor_offset: Offset
@@ -68,26 +76,17 @@ class PopupAnchor:
     def max_width(self) -> int:
         return self.screen_size.width
 
-
-@dataclass
-class PopupLayout:
-    width: int
-    height: int
-    offset: Offset
-    lines: List[str]
-
-    @classmethod
-    def calculate(cls, suggestion_list: SuggestionList, anchor: PopupAnchor) -> "PopupLayout":
+    def compute_layout(self, suggestion_list: SuggestionList) -> PopupLayout:
         max_line_length = suggestion_list.max_content_width
-        popup_width = min(max_line_length + 2, anchor.max_width)
+        popup_width = min(max_line_length + 2, self.max_width)
         available_width = max(1, popup_width - 2)
 
         trimmed_lines = suggestion_list.get_display_lines(available_width)
         popup_height = len(trimmed_lines)
 
-        offset = anchor.get_placement(Size(popup_width, popup_height))
+        offset = self.get_placement(Size(popup_width, popup_height))
 
-        return cls(
+        return PopupLayout(
             width=popup_width,
             height=popup_height,
             offset=offset,

@@ -8,7 +8,6 @@ from simple_agent.infrastructure.textual.autocomplete.domain import (
     SuggestionList,
 )
 from simple_agent.infrastructure.textual.autocomplete.geometry import (
-    PopupAnchor,
     PopupLayout,
 )
 
@@ -33,12 +32,12 @@ class AutocompletePopup(Static):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.suggestion_list: Optional[SuggestionList] = None
-        self._current_anchor: Optional[PopupAnchor] = None
+        self.popup_layout: Optional[PopupLayout] = None
 
-    def show(self, suggestion_list: SuggestionList, anchor: PopupAnchor) -> None:
+    def show(self, suggestion_list: SuggestionList, layout: PopupLayout) -> None:
         if suggestion_list:
             self.suggestion_list = suggestion_list
-            self._current_anchor = anchor
+            self.popup_layout = layout
             self._update_view()
         else:
             self.close()
@@ -78,30 +77,28 @@ class AutocompletePopup(Static):
 
     def _update_view(self) -> None:
         """
-        Render the suggestions list at the specified anchor.
+        Render the suggestions list at the specified layout.
         """
         if not self.suggestion_list or not self.suggestion_list.suggestions:
             self.close()
             return
 
-        if not self._current_anchor:
+        if not self.popup_layout:
             self.close()
             return
 
         self.display = True
 
-        layout = PopupLayout.calculate(self.suggestion_list, self._current_anchor)
-
         # Update styles
-        self.styles.width = layout.width
-        self.styles.height = layout.height
+        self.styles.width = self.popup_layout.width
+        self.styles.height = self.popup_layout.height
 
         # Position
-        self.absolute_offset = layout.offset
+        self.absolute_offset = self.popup_layout.offset
 
         # Render
         rendered = Text()
-        for index, line in enumerate(layout.lines):
+        for index, line in enumerate(self.popup_layout.lines):
             if index:
                 rendered.append("\n")
             style = "reverse" if index == self.suggestion_list.selected_index else ""
