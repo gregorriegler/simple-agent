@@ -62,20 +62,17 @@ class CursorAndLine:
     line: str
 
     @property
-    def _word_context(self) -> tuple[str, int]:
+    def word(self) -> str:
         text_before = self.line[:self.cursor.col]
         last_space_index = text_before.rfind(" ")
         start_index = last_space_index + 1
-        word = text_before[start_index:]
-        return word, start_index
-
-    @property
-    def word(self) -> str:
-        return self._word_context[0]
+        return text_before[start_index:]
 
     @property
     def word_start_index(self) -> int:
-        return self._word_context[1]
+        text_before = self.line[:self.cursor.col]
+        last_space_index = text_before.rfind(" ")
+        return last_space_index + 1
 
     @property
     def is_on_first_line(self) -> bool:
