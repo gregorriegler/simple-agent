@@ -30,11 +30,6 @@ class SmartInput(TextArea):
             self.result = result
             super().__init__()
 
-        @property
-        def value(self) -> str:
-            # For backward compatibility during refactoring if needed, though strictly we should update consumers
-            return self.result.text
-
     DEFAULT_CSS = """
     SmartInput {
         height: auto;
