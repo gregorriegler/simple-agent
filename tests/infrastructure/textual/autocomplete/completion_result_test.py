@@ -32,10 +32,7 @@ def test_expand_reads_and_formats_files():
 
     draft_text = f"Check [📦{file1}] and [📦{file2}]"
 
-    files = FileReferences()
-    files.add({file1, file2})
-
-    result = CompletionResult(text=draft_text, files=files)
+    result = CompletionResult(text=draft_text)
 
     # Act
     expanded_text = result.expand(loader)
@@ -54,10 +51,8 @@ def test_expand_handles_missing_files():
     loader = DecoratedFakeFileLoader(FakeFileLoader({})) # Empty
 
     draft_text = f"Check [📦{file_path}]"
-    files = FileReferences()
-    files.add(file_path)
 
-    result = CompletionResult(text=draft_text, files=files)
+    result = CompletionResult(text=draft_text)
 
     # Act
     expanded_text = result.expand(loader)

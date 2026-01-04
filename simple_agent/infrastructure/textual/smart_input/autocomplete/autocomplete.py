@@ -91,15 +91,14 @@ class CursorAndLine:
 @dataclass
 class CompletionResult:
     text: str
-    files: FileReferences
 
     @property
-    def active_files(self) -> FileReferences:
-        return self.files.filter_active_in(self.text)
+    def files(self) -> FileReferences:
+        return FileReferences.from_text(self.text)
 
     def expand(self, file_loader: FileLoader) -> str:
         content = self.text.strip()
-        loaded_files = self.active_files.load_all(file_loader)
+        loaded_files = self.files.load_all(file_loader)
         file_contents = "\n".join(loaded_files)
 
         if file_contents:
