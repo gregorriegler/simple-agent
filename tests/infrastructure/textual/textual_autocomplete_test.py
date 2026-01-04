@@ -297,7 +297,7 @@ class SimpleSuggestion:
     display_text: str
 
     def to_completion_result(self) -> CompletionResult:
-        return CompletionResult(text=self.display_text, files=FileReferences())
+        return CompletionResult(text=self.display_text)
 
 @pytest.mark.asyncio
 async def test_autocomplete_popup_rendering(app: TextualApp):

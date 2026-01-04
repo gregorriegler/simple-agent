@@ -17,11 +17,8 @@ class FileSuggestion:
 
     def to_completion_result(self) -> CompletionResult:
          display_marker = f"{FileReference(self.file_path).to_text()} "
-         files = FileReferences()
-         files.add(self.file_path)
          return CompletionResult(
-             text=display_marker,
-             files=files,
+             text=display_marker
          )
 
 class AtSymbolTrigger:

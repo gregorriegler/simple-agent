@@ -59,7 +59,7 @@ class SmartInput(TextArea):
         return {ref.path for ref in FileReferences.from_text(self.text)}
 
     def submit(self) -> None:
-        result = CompletionResult(self.text, FileReferences.from_text(self.text))
+        result = CompletionResult(self.text)
 
         self.post_message(self.Submitted(result))
 

@@ -16,8 +16,7 @@ class SlashCommandSuggestion:
 
     def to_completion_result(self) -> CompletionResult:
         return CompletionResult(
-            text=self.command.name + " ",
-            files=FileReferences(),
+            text=self.command.name + " "
         )
 
 class SlashAtStartOfLineTrigger:
