@@ -15,6 +15,7 @@ from simple_agent.infrastructure.textual.textual_messages import DomainEventMess
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+from simple_agent.infrastructure.textual.widgets.file_loader import DiskFileLoader, XmlFormattingFileLoader
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
     TriggeredSuggestionProvider, SuggestionProvider, CompositeSuggestionProvider
 )
@@ -122,6 +123,7 @@ class TextualApp(App):
         self._session_task: asyncio.Task | None = None
         self._slash_command_registry = SlashCommandRegistry()
         self._file_searcher = NativeFileSearcher()
+        self.file_loader = XmlFormattingFileLoader(DiskFileLoader())
 
     def has_agent_tab(self, agent_id: AgentId) -> bool:
         return self.query_one(AgentTabs).has_agent_tab(agent_id)
@@ -191,7 +193,8 @@ class TextualApp(App):
 
     def on_smart_input_submitted(self, event: SmartInput.Submitted) -> None:
         if self.user_input:
-            self.user_input.submit_input(event.value)
+            expanded_content = event.result.expand(self.file_loader)
+            self.user_input.submit_input(expanded_content)
 
     def add_subagent_tab(self, agent_id: AgentId, tab_title: str) -> tuple[str, str]:
         return self.query_one(AgentTabs).add_subagent_tab(agent_id, tab_title)

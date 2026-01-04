@@ -3,6 +3,7 @@ from typing import Optional, List
 from textual.widgets import Static
 from textual.message import Message
 from textual.geometry import Offset, Size
+from textual import events
 from rich.text import Text
 
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
@@ -141,6 +142,23 @@ class AutocompletePopup(Static):
         if selection:
             self.close()
             self.post_message(self.Selected(selection))
+            return True
+        return False
+
+    def handle_key(self, event: events.Key) -> bool:
+        if not self.display:
+            return False
+
+        if event.key == "down":
+            self.move_selection_down()
+            return True
+        elif event.key == "up":
+            self.move_selection_up()
+            return True
+        elif event.key in ("tab", "enter"):
+            return self.accept_selection()
+        elif event.key == "escape":
+            self.close()
             return True
         return False
 
