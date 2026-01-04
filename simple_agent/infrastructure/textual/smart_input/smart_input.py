@@ -20,16 +20,20 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete i
     SuggestionProvider,
     CompositeSuggestionProvider,
 )
-from simple_agent.infrastructure.textual.widgets.file_loader import DiskFileLoader, XmlFormattingFileLoader
 
 logger = logging.getLogger(__name__)
 
 class SmartInput(TextArea):
 
     class Submitted(Message):
-        def __init__(self, value: str):
-            self.value = value
+        def __init__(self, result: CompletionResult):
+            self.result = result
             super().__init__()
+
+        @property
+        def value(self) -> str:
+            # For backward compatibility during refactoring if needed, though strictly we should update consumers
+            return self.result.text
 
     DEFAULT_CSS = """
     SmartInput {
@@ -49,7 +53,6 @@ class SmartInput(TextArea):
 
         self.provider = provider
         self.popup = AutocompletePopup()
-        self.file_loader = XmlFormattingFileLoader(DiskFileLoader())
 
         self._referenced_files = FileReferences()
         self._autocomplete_task: Optional[asyncio.Task] = None
@@ -63,12 +66,11 @@ class SmartInput(TextArea):
 
     def submit(self) -> None:
         result = CompletionResult(self.text, self._referenced_files)
-        expanded_content = result.expand(self.file_loader)
 
-        self.post_message(self.Submitted(expanded_content))
+        self.post_message(self.Submitted(result))
 
         self.clear()
-        self._referenced_files.clear()
+        self._referenced_files = FileReferences()
         self._close_autocomplete()
 
     def _close_autocomplete(self) -> None:
@@ -82,23 +84,9 @@ class SmartInput(TextArea):
         message.stop()
 
     async def _on_key(self, event: events.Key) -> None:
-        if self.popup.display:
-            if event.key == "down":
-                self.popup.move_selection_down()
-                self._consume_event(event)
-                return
-            elif event.key == "up":
-                self.popup.move_selection_up()
-                self._consume_event(event)
-                return
-            elif event.key in ("tab", "enter"):
-                if self.popup.accept_selection():
-                    self._consume_event(event)
-                    return
-            elif event.key == "escape":
-                self.popup.close()
-                self._consume_event(event)
-                return
+        if self.popup.handle_key(event):
+            self._consume_event(event)
+            return
 
         if event.key == "enter":
             self._handle_enter(event)
