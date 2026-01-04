@@ -20,7 +20,8 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search im
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import AutocompletePopup
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
-    PopupAnchor,
+    CompletionSeed,
+    PopupLayout,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
     SlashAtStartOfLineTrigger, SlashCommandProvider
@@ -149,53 +150,100 @@ def test_no_suggestions_for_regular_text():
 def test_autocomplete_position_prefers_below_cursor():
     screen_size = Size(80, 24)
     cursor_offset = Offset(10, 10)
-    anchor = PopupAnchor(cursor_offset, screen_size)
+    # The prefix "ab" means the word started 2 chars ago
+    seed = CompletionSeed(cursor_offset, "ab")
 
-    position = anchor.get_placement(Size(12, 3))
+    # We need a dummy suggestion list
+    suggestions = SuggestionList([SimpleSuggestion("abc")])
 
-    assert position.y == 11
-    assert position.x == 8
+    layout = PopupLayout.calculate(suggestions, seed, screen_size)
+
+    assert layout.offset.y == 11
+    # cursor_offset.x (10) - width(2) = 8.
+    # The layout shifts left by 2 to account for padding/styling, so 8 - 2 = 6.
+    assert layout.offset.x == 6
 
 
 def test_autocomplete_position_uses_above_when_no_room_below():
     screen_size = Size(80, 10)
     cursor_offset = Offset(10, 8)
-    anchor = PopupAnchor(cursor_offset, screen_size)
+    seed = CompletionSeed(cursor_offset, "ab")
 
-    position = anchor.get_placement(Size(12, 3))
+    suggestions = SuggestionList([SimpleSuggestion("abc")]) # 1 item = height 1
 
-    assert position.y == 5
+    # Let's make it taller to force it above
+    suggestions = SuggestionList([SimpleSuggestion("abc") for _ in range(3)]) # height 3
+
+    # below would be 8+1 = 9. 9+3 = 12 > 10. So it should go above.
+    # above_y = 8 - 3 = 5.
+
+    layout = PopupLayout.calculate(suggestions, seed, screen_size)
+
+    assert layout.offset.y == 5
 
 def test_calculate_autocomplete_position_edge_cases():
     screen_size = Size(80, 24)
-    popup_size = Size(20, 5)
+    popup_size = Size(20, 5) # Note: PopupLayout calculates size from suggestions, but we can verify logic
+
+    # We need to simulate suggestions that result in specific size
+    # height 5 -> 5 suggestions
+    # width 20 -> max line length 18
+    long_text = "a" * 18
+    suggestions = SuggestionList([SimpleSuggestion(long_text) for _ in range(5)])
 
     cursor_offset = Offset(10, 5)
-    anchor = PopupAnchor(cursor_offset, screen_size)
-    pos = anchor.get_placement(popup_size)
-    assert pos.y == 6
-    assert pos.x == 8
+    seed = CompletionSeed(cursor_offset, "ab") # width 2
+    layout = PopupLayout.calculate(suggestions, seed, screen_size)
 
+    assert layout.offset.y == 6
+    # 10 - 2 (width) - 2 (offset) = 6
+    assert layout.offset.x == 6
+
+    # Test bottom edge
     cursor_offset = Offset(10, 20)
-    anchor = PopupAnchor(cursor_offset, screen_size)
-    pos = anchor.get_placement(popup_size)
-    assert pos.y == 15
+    seed = CompletionSeed(cursor_offset, "ab")
+    layout = PopupLayout.calculate(suggestions, seed, screen_size)
+    # below: 21 + 5 = 26 > 24. above: 20 - 5 = 15.
+    assert layout.offset.y == 15
 
+    # Test right edge
     cursor_offset = Offset(75, 5)
-    anchor = PopupAnchor(cursor_offset, screen_size)
-    pos = anchor.get_placement(popup_size)
-    assert pos.x == 60
+    seed = CompletionSeed(cursor_offset, "ab") # start at 73. width 20. 73+20 = 93 > 80.
+    # max_x = 80 - 20 = 60.
+    layout = PopupLayout.calculate(suggestions, seed, screen_size)
+    # x = min(max(73, 0), 60) -> 60
+    # Wait, existing logic was: anchor_x = cursor - 2.
+    # Existing logic in PopupAnchor:
+    # anchor_x = self.cursor_offset.x - 2
+    # But self.cursor_offset was constructed as `cursor_screen_offset.x - delta`.
+    # Let's re-verify the old logic.
+    # Old logic:
+    # anchor_x = max(0, cursor_screen_offset.x - delta)
+    # Then placement used `anchor_x - 2`.
 
-    cursor_offset = Offset(1, 5)
-    anchor = PopupAnchor(cursor_offset, screen_size)
-    pos = anchor.get_placement(popup_size)
-    assert pos.x == 0
+    # In my new logic:
+    # anchor_x = max(0, seed.location.x - seed.width) -> 75 - 2 = 73
+    # anchor_point = Offset(73, ...)
+    # _calculate_placement:
+    # anchor_x = anchor_point.x - 2 -> 71.
+    # max_x = 80 - 20 = 60.
+    # x = min(71, 60) = 60.
+    assert layout.offset.x == 60
 
+    # Test left edge
+    cursor_offset = Offset(1, 5) # prefix 2 chars -> -1 -> 0
+    seed = CompletionSeed(cursor_offset, "ab")
+    layout = PopupLayout.calculate(suggestions, seed, screen_size)
+    assert layout.offset.x == 0
+
+    # Small screen
     small_screen = Size(80, 10)
     cursor_offset = Offset(10, 8)
-    anchor = PopupAnchor(cursor_offset, small_screen)
-    pos = anchor.get_placement(popup_size)
-    assert pos.y == 3
+    seed = CompletionSeed(cursor_offset, "ab")
+    layout = PopupLayout.calculate(suggestions, seed, small_screen)
+    # below: 9 + 5 = 14 > 10.
+    # above: 8 - 5 = 3.
+    assert layout.offset.y == 3
 
 @pytest.mark.asyncio
 async def test_submit_hides_autocomplete_popup():
@@ -312,10 +360,12 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         ]
 
         suggestions = [SimpleSuggestion(s) for s in strings]
-        anchor = PopupAnchor(Offset(10, 10), Size(80, 24))
 
         # Manually set state to simulate start() without async search
-        popup.show(SuggestionList(suggestions), anchor)
+        # seed at 10,10, empty text (width 0) for simplicity
+        seed = CompletionSeed(Offset(10, 10), "")
+
+        popup.show(SuggestionList(suggestions), seed)
 
         await pilot.pause()
 
@@ -334,9 +384,9 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 
         strings = ["/cmd - desc"]
         suggestions = [SimpleSuggestion(s) for s in strings]
-        anchor = PopupAnchor(Offset(0, 0), Size(80, 24))
+        seed = CompletionSeed(Offset(0, 0), "")
 
-        popup.show(SuggestionList(suggestions), anchor)
+        popup.show(SuggestionList(suggestions), seed)
         await pilot.pause()
 
         assert popup.display is True

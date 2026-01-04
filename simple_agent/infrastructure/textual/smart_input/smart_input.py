@@ -12,9 +12,9 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete i
     CompletionResult,
     FileReferences,
 )
-from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import AutocompletePopup
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
-    PopupAnchor,
+    AutocompletePopup,
+    CompletionSeed,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
     SuggestionProvider,
@@ -119,15 +119,11 @@ class SmartInput(TextArea):
         try:
             suggestion_list = await self.provider.suggest(cursor_and_line)
             if suggestion_list:
-                # Calculate anchor
-                anchor = PopupAnchor.create_at_column(
-                    cursor_screen_offset=self.cursor_screen_offset,
-                    screen_size=self.screen.size,
-                    anchor_col=cursor_and_line.word_start_index,
-                    current_col=self.cursor_location[1],
+                seed = CompletionSeed(
+                    location=self.cursor_screen_offset,
+                    text=cursor_and_line.word
                 )
-
-                self.popup.show(suggestion_list, anchor)
+                self.popup.show(suggestion_list, seed)
             else:
                 self.popup.close()
         except asyncio.CancelledError:

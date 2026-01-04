@@ -25,6 +25,6 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search im
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
     AutocompletePopup,
-    PopupAnchor,
+    CompletionSeed,
     PopupLayout,
 )
