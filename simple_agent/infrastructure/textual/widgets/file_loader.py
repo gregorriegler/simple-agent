@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 from typing import Optional
-from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import FileLoader
+from simple_agent.application.file_loader import FileLoader
 
 logger = logging.getLogger(__name__)
 
