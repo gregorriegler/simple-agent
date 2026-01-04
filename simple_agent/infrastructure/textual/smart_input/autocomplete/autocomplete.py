@@ -2,9 +2,8 @@ from dataclasses import dataclass, field
 import re
 from typing import Protocol, List, Optional, Set, Iterator
 
+from simple_agent.application.file_loader import FileLoader
 
-class FileLoader(Protocol):
-    def read_file(self, file_path_str: str) -> Optional[str]: ...
 
 @dataclass(frozen=True)
 class FileReference:
