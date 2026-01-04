@@ -159,8 +159,6 @@ def test_autocomplete_position_prefers_below_cursor():
     layout = PopupLayout.calculate(suggestions, seed, screen_size)
 
     assert layout.offset.y == 11
-    # cursor_offset.x (10) - width(2) = 8.
-    # The layout shifts left by 2 to account for padding/styling, so 8 - 2 = 6.
     assert layout.offset.x == 6
 
 
@@ -173,9 +171,6 @@ def test_autocomplete_position_uses_above_when_no_room_below():
 
     # Let's make it taller to force it above
     suggestions = SuggestionList([SimpleSuggestion("abc") for _ in range(3)]) # height 3
-
-    # below would be 8+1 = 9. 9+3 = 12 > 10. So it should go above.
-    # above_y = 8 - 3 = 5.
 
     layout = PopupLayout.calculate(suggestions, seed, screen_size)
 
@@ -196,38 +191,18 @@ def test_calculate_autocomplete_position_edge_cases():
     layout = PopupLayout.calculate(suggestions, seed, screen_size)
 
     assert layout.offset.y == 6
-    # 10 - 2 (width) - 2 (offset) = 6
     assert layout.offset.x == 6
 
     # Test bottom edge
     cursor_offset = Offset(10, 20)
     seed = CompletionSeed(cursor_offset, "ab")
     layout = PopupLayout.calculate(suggestions, seed, screen_size)
-    # below: 21 + 5 = 26 > 24. above: 20 - 5 = 15.
     assert layout.offset.y == 15
 
     # Test right edge
     cursor_offset = Offset(75, 5)
     seed = CompletionSeed(cursor_offset, "ab") # start at 73. width 20. 73+20 = 93 > 80.
-    # max_x = 80 - 20 = 60.
     layout = PopupLayout.calculate(suggestions, seed, screen_size)
-    # x = min(max(73, 0), 60) -> 60
-    # Wait, existing logic was: anchor_x = cursor - 2.
-    # Existing logic in PopupAnchor:
-    # anchor_x = self.cursor_offset.x - 2
-    # But self.cursor_offset was constructed as `cursor_screen_offset.x - delta`.
-    # Let's re-verify the old logic.
-    # Old logic:
-    # anchor_x = max(0, cursor_screen_offset.x - delta)
-    # Then placement used `anchor_x - 2`.
-
-    # In my new logic:
-    # anchor_x = max(0, seed.location.x - seed.width) -> 75 - 2 = 73
-    # anchor_point = Offset(73, ...)
-    # _calculate_placement:
-    # anchor_x = anchor_point.x - 2 -> 71.
-    # max_x = 80 - 20 = 60.
-    # x = min(71, 60) = 60.
     assert layout.offset.x == 60
 
     # Test left edge
@@ -241,8 +216,6 @@ def test_calculate_autocomplete_position_edge_cases():
     cursor_offset = Offset(10, 8)
     seed = CompletionSeed(cursor_offset, "ab")
     layout = PopupLayout.calculate(suggestions, seed, small_screen)
-    # below: 9 + 5 = 14 > 10.
-    # above: 8 - 5 = 3.
     assert layout.offset.y == 3
 
 @pytest.mark.asyncio
