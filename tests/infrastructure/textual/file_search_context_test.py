@@ -37,7 +37,6 @@ async def test_submit_includes_referenced_file_content(tmp_path):
         # Simulate typing and selecting file
         file_path_str = str(dummy_file)
         text_area.text = f"Check this [📦{file_path_str}]"
-        text_area._referenced_files.add(file_path_str)
         
         # Action
         app.action_submit_input()
@@ -53,7 +52,7 @@ async def test_submit_includes_referenced_file_content(tmp_path):
         assert "</file_context>" in submitted_text
         
         # Verify references are cleared
-        assert len(text_area._referenced_files) == 0
+        assert len(text_area.get_referenced_files()) == 0
 
 @pytest.mark.asyncio
 async def test_submit_ignores_removed_file_references(tmp_path):
@@ -70,7 +69,6 @@ async def test_submit_ignores_removed_file_references(tmp_path):
         # Simulate selecting file but then deleting it from text
         file_path_str = str(dummy_file)
         text_area.text = "I deleted the file ref"
-        text_area._referenced_files.add(file_path_str)
         
         # Action
         app.action_submit_input()
@@ -99,7 +97,6 @@ async def test_submit_ignores_corrupted_marker(tmp_path):
         file_path_str = str(dummy_file)
         # Corrupted marker
         text_area.text = f"Check this [📦{file_path_str}"
-        text_area._referenced_files.add(file_path_str)
         
         # Action
         app.action_submit_input()

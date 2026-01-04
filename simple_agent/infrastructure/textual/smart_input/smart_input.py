@@ -49,7 +49,6 @@ class SmartInput(TextArea):
         self.provider = provider
         self.popup = AutocompletePopup()
 
-        self._referenced_files = FileReferences()
         self._autocomplete_task: Optional[asyncio.Task] = None
 
     def on_mount(self) -> None:
@@ -57,15 +56,14 @@ class SmartInput(TextArea):
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
 
     def get_referenced_files(self) -> set[str]:
-        return {ref.path for ref in self._referenced_files.filter_active_in(self.text)}
+        return {ref.path for ref in FileReferences.from_text(self.text)}
 
     def submit(self) -> None:
-        result = CompletionResult(self.text, self._referenced_files)
+        result = CompletionResult(self.text, FileReferences.from_text(self.text))
 
         self.post_message(self.Submitted(result))
 
         self.clear()
-        self._referenced_files = FileReferences()
         self._close_autocomplete()
 
     def _close_autocomplete(self) -> None:
@@ -161,6 +159,3 @@ class SmartInput(TextArea):
             end=(row, col),
             maintain_selection_offset=False,
         )
-
-        if result.files:
-            self._referenced_files.add({ref.path for ref in result.files})

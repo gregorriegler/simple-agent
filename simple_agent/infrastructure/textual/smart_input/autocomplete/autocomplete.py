@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+import re
 from typing import Protocol, List, Optional, Set, Iterator
 
 
@@ -24,6 +25,14 @@ class FileReference:
 @dataclass
 class FileReferences:
     _references: set[FileReference] = field(default_factory=set)
+
+    @classmethod
+    def from_text(cls, text: str) -> "FileReferences":
+        pattern = re.escape(FileReference.PREFIX) + r"(.*?)" + re.escape(FileReference.SUFFIX)
+        matches = re.findall(pattern, text)
+        refs = cls()
+        refs.add(set(matches))
+        return refs
 
     def add(self, paths: Set[str] | str) -> None:
         if isinstance(paths, str):

@@ -145,7 +145,6 @@ new line
         file_path_str = str(dummy_file.absolute())
         marker = f"[📦{file_path_str}]"
         text_area.text = f"Look at this file: {marker}"
-        text_area._referenced_files.add(file_path_str)
 
         await pilot.press("enter")
         await pilot.pause()

@@ -19,17 +19,14 @@ async def test_submit_input_includes_referenced_files(textual_harness, tmp_path)
         await pilot.pause()
         text_area = app.query_one("#user-input", SmartInput)
 
-        # 1. Simulate user selecting a file (programmatically adding to referenced set)
-        text_area._referenced_files.add(test_file_path)
-
-        # 2. User types text including the file marker
+        # 1. User types text including the file marker
         text_area.text = f"Check this [📦{test_file_path}]"
 
-        # 3. Submit
+        # 2. Submit
         app.action_submit_input()
         await pilot.pause()
 
-        # 4. Verify submission
+        # 3. Verify submission
         assert len(user_input.submissions) == 1
         submission = user_input.submissions[0]
 
@@ -39,30 +36,25 @@ async def test_submit_input_includes_referenced_files(textual_harness, tmp_path)
         assert expected_context in submission
 
         # Verify references are cleared
-        assert len(text_area._referenced_files) == 0
+        assert len(text_area.get_referenced_files()) == 0
         assert text_area.text == ""
 
 @pytest.mark.asyncio
 async def test_submit_input_ignores_unreferenced_files(textual_harness, tmp_path):
     """
-    Characterization test: verifies that if a file is in _referenced_files but NOT in the text
-    (e.g. user deleted the marker), it is not included.
+    Characterization test: verifies that if a file is not in text, it is not included.
+    (This test used to check manual references, now it checks that logic doesn't hallucinate)
     """
     _, _, user_input, app = textual_harness
 
-    # Create a dummy file path (file existence check happens inside logic, so we should create it to be sure logic isn't failing on exists())
-    # Actually, if the logic is "ignore if not in text", it doesn't even reach file reading.
-    # But let's create it to isolate the test to just "is it in text?"
+    # Create a dummy file path
     test_file = tmp_path / "test_file.txt"
     test_file.write_text("Secret content", encoding="utf-8")
-    test_file_path = str(test_file)
 
     async with app.run_test() as pilot:
         await pilot.pause()
         text_area = app.query_one("#user-input", SmartInput)
 
-        # Add file to referenced set but don't include marker in text
-        text_area._referenced_files.add(test_file_path)
         text_area.text = "Just text without file"
 
         app.action_submit_input()
@@ -73,4 +65,4 @@ async def test_submit_input_ignores_unreferenced_files(textual_harness, tmp_path
         assert "<file_context" not in submission
 
         # References should be cleared on submit
-        assert len(text_area._referenced_files) == 0
+        assert len(text_area.get_referenced_files()) == 0
