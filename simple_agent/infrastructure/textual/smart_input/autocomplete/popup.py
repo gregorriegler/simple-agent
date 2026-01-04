@@ -110,10 +110,17 @@ class AutocompletePopup(Static):
         self.suggestion_list: Optional[SuggestionList] = None
         self._current_anchor: Optional[PopupAnchor] = None
 
-    def show(self, suggestion_list: SuggestionList, anchor: PopupAnchor) -> None:
+    def show(self, suggestion_list: SuggestionList, caret_screen_location: Offset, prefix_width: int) -> None:
         if suggestion_list:
             self.suggestion_list = suggestion_list
-            self._current_anchor = anchor
+
+            # Calculate anchor internally
+            anchor_x = max(0, caret_screen_location.x - prefix_width)
+            self._current_anchor = PopupAnchor(
+                cursor_offset=Offset(anchor_x, caret_screen_location.y),
+                screen_size=self.screen.size
+            )
+
             self._update_view()
         else:
             self.close()
