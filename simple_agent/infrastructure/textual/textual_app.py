@@ -20,7 +20,8 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete i
     TriggeredSuggestionProvider, SuggestionProvider, CompositeSuggestionProvider
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
-    SlashAtStartOfLineTrigger, SlashCommandProvider
+    SlashAtStartOfLineTrigger, SlashCommandProvider,
+    SlashCommandArgumentTrigger, SlashCommandArgumentProvider
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search import (
     AtSymbolTrigger, FileSearchProvider
@@ -137,6 +138,10 @@ class TextualApp(App):
             TriggeredSuggestionProvider(
                 trigger=SlashAtStartOfLineTrigger(),
                 provider=SlashCommandProvider(self._slash_command_registry)
+            ),
+            TriggeredSuggestionProvider(
+                trigger=SlashCommandArgumentTrigger(),
+                provider=SlashCommandArgumentProvider(self._slash_command_registry)
             ),
             TriggeredSuggestionProvider(
                 trigger=AtSymbolTrigger(),
