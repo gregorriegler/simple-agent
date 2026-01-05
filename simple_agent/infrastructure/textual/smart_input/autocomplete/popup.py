@@ -145,7 +145,7 @@ class AutocompletePopup(Static):
                 return self.accept
         if key == "escape":
             return self.close
-        
+
         return None
 
     def _update_view(self) -> None:
