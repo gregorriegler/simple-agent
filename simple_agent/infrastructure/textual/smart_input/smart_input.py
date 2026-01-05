@@ -77,7 +77,9 @@ class SmartInput(TextArea):
         message.stop()
 
     async def _on_key(self, event: events.Key) -> None:
-        if self.popup.handle_key(event):
+        action = self.popup.get_action_for_key(event.key)
+        if action:
+            action()
             self._consume_event(event)
             return
 

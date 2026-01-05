@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import Optional, List, Callable
 from textual.widgets import Static
 from textual.message import Message
 from textual.geometry import Offset, Size
@@ -126,30 +126,27 @@ class AutocompletePopup(Static):
         self.suggestion_list = None
         self.display = False
 
-    def accept_selection(self) -> bool:
+    def accept(self) -> None:
         selection = self.get_selection()
         if selection:
             self.close()
             self.post_message(self.Selected(selection))
-            return True
-        return False
 
-    def handle_key(self, event: events.Key) -> bool:
+    def get_action_for_key(self, key: str) -> Optional[Callable[[], None]]:
         if not self.display:
-            return False
+            return None
 
-        if event.key == "down":
-            self.move_selection_down()
-            return True
-        elif event.key == "up":
-            self.move_selection_up()
-            return True
-        elif event.key in ("tab", "enter"):
-            return self.accept_selection()
-        elif event.key == "escape":
-            self.close()
-            return True
-        return False
+        if key == "down":
+            return self.move_selection_down
+        if key == "up":
+            return self.move_selection_up
+        if key in ("tab", "enter"):
+            if self.get_selection():
+                return self.accept
+        if key == "escape":
+            return self.close
+        
+        return None
 
     def _update_view(self) -> None:
         if not self.suggestion_list or not self.suggestion_list.suggestions:

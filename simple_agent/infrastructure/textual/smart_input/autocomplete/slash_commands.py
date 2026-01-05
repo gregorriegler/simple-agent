@@ -1,6 +1,7 @@
 from typing import Any
 
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
+from simple_agent.infrastructure.textual.smart_input.autocomplete import AutocompleteTrigger
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
     CompletionResult, CursorAndLine, SuggestionList
 )
@@ -19,7 +20,7 @@ class SlashCommandSuggestion:
             text=self.command.name + " "
         )
 
-class SlashAtStartOfLineTrigger:
+class SlashAtStartOfLineTrigger(AutocompleteTrigger):
     def is_triggered(self, cursor_and_line: CursorAndLine) -> bool:
         return (
             cursor_and_line.is_on_first_line
