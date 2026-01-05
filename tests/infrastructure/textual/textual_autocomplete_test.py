@@ -5,7 +5,7 @@ import pytest
 from textual.geometry import Offset, Size
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.slash_command_registry import SlashCommandRegistry
+from simple_agent.application.slash_command_registry import SlashCommandRegistry, SlashCommand
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.smart_input.autocomplete import (
     CompletionResult,
@@ -24,7 +24,8 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
     PopupLayout,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
-    SlashAtStartOfLineTrigger, SlashCommandProvider
+    SlashAtStartOfLineTrigger, SlashCommandProvider,
+    SlashCommandArgumentTrigger, SlashCommandArgumentProvider
 )
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 
@@ -494,3 +495,90 @@ async def test_submittable_text_area_ctrl_enter(app: TextualApp):
         await pilot.pause()
 
         assert text_area.text == "line1\n"
+
+@pytest.mark.asyncio
+async def test_slash_command_argument_suggestions_appear():
+    registry = SlashCommandRegistry()
+    # Mocking arg_completer for a test command
+    registry._commands["/test"] = SlashCommand(
+        name="/test",
+        description="Test command",
+        arg_completer=lambda: ["option1", "option2", "other"]
+    )
+    provider = CompositeSuggestionProvider([
+        TriggeredSuggestionProvider(
+            trigger=SlashCommandArgumentTrigger(),
+            provider=SlashCommandArgumentProvider(registry)
+        )
+    ])
+
+    # Simulate input: "/test "
+    line = "/test "
+    cursor = Cursor(0, 6) # At end of line
+    cursor_and_line = CursorAndLine(cursor, line)
+
+    # Check trigger manually
+    trigger = SlashCommandArgumentTrigger()
+    assert trigger.is_triggered(cursor_and_line) is True
+
+    # Check suggestions
+    suggestions = await provider.suggest(cursor_and_line)
+    assert suggestions
+    assert len(suggestions.suggestions) == 3
+    assert suggestions.suggestions[0].display_text == "option1"
+
+@pytest.mark.asyncio
+async def test_slash_command_argument_filtering():
+    registry = SlashCommandRegistry()
+    registry._commands["/test"] = SlashCommand(
+        name="/test",
+        description="Test command",
+        arg_completer=lambda: ["option1", "option2", "other"]
+    )
+    provider = CompositeSuggestionProvider([
+        TriggeredSuggestionProvider(
+            trigger=SlashCommandArgumentTrigger(),
+            provider=SlashCommandArgumentProvider(registry)
+        )
+    ])
+
+    # Simulate input: "/test op"
+    line = "/test op"
+    cursor = Cursor(0, 8) # At end of line
+    cursor_and_line = CursorAndLine(cursor, line)
+
+    # Check suggestions
+    suggestions = await provider.suggest(cursor_and_line)
+    assert suggestions
+    assert len(suggestions.suggestions) == 2
+    assert suggestions.suggestions[0].display_text == "option1"
+    assert suggestions.suggestions[1].display_text == "option2"
+
+@pytest.mark.asyncio
+async def test_slash_command_argument_no_trigger_if_no_space():
+    # Simulate input: "/test" (no space yet)
+    line = "/test"
+    cursor = Cursor(0, 5)
+    cursor_and_line = CursorAndLine(cursor, line)
+
+    trigger = SlashCommandArgumentTrigger()
+    assert trigger.is_triggered(cursor_and_line) is False
+
+@pytest.mark.asyncio
+async def test_model_command_integration():
+    # Test with real registry and /model command
+    registry = SlashCommandRegistry() # Uses real ModelInfo
+    provider = SlashCommandArgumentProvider(registry)
+    trigger = SlashCommandArgumentTrigger()
+
+    line = "/model "
+    cursor = Cursor(0, 7)
+    cursor_and_line = CursorAndLine(cursor, line)
+
+    assert trigger.is_triggered(cursor_and_line) is True
+
+    suggestions = await provider.suggest(cursor_and_line)
+    assert suggestions
+    # Verify at least one known model is present
+    model_texts = [s.display_text for s in suggestions.suggestions]
+    assert "gpt-5.1-codex" in model_texts
