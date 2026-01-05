@@ -1,5 +1,7 @@
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Optional
+
+from simple_agent.application.model_info import ModelInfo
 
 
 @dataclass
@@ -18,7 +20,8 @@ class SlashCommandRegistry:
             ),
             "/model": SlashCommand(
                 name="/model",
-                description="Change model"
+                description="Change model",
+                arg_completer=lambda: list(ModelInfo.KNOWN_MODELS.keys())
             ),
         }
     
@@ -38,3 +41,7 @@ class SlashCommandRegistry:
                 matching.append(cmd)
         
         return matching
+
+    def get_command(self, name: str) -> Optional[SlashCommand]:
+        """Returns a command by name, or None if not found."""
+        return self._commands.get(name)
