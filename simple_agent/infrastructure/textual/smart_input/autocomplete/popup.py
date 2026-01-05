@@ -70,7 +70,7 @@ class PopupLayout:
         else:
             y = max(0, min(below_y, screen_size.height - popup_height))
 
-        anchor_x = anchor_point.x - 2
+        anchor_x = anchor_point.x - 1
         max_x = max(0, screen_size.width - popup_width)
         x = min(max(anchor_x, 0), max_x)
 

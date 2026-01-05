@@ -159,7 +159,7 @@ def test_autocomplete_position_prefers_below_cursor():
     layout = PopupLayout.calculate(suggestions, seed, screen_size)
 
     assert layout.offset.y == 11
-    assert layout.offset.x == 6
+    assert layout.offset.x == 7
 
 
 def test_autocomplete_position_uses_above_when_no_room_below():
@@ -191,7 +191,7 @@ def test_calculate_autocomplete_position_edge_cases():
     layout = PopupLayout.calculate(suggestions, seed, screen_size)
 
     assert layout.offset.y == 6
-    assert layout.offset.x == 6
+    assert layout.offset.x == 7
 
     # Test bottom edge
     cursor_offset = Offset(10, 20)
