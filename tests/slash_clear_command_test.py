@@ -1,14 +1,14 @@
 import pytest
 
-pytestmark = pytest.mark.asyncio
-
-from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.events import (
     SessionClearedEvent,
     UserPromptRequestedEvent,
 )
+from simple_agent.application.persisted_messages import PersistedMessages
 from tests.session_storage_stub import SessionStorageStub
 from tests.session_test_bed import SessionTestBed
+
+pytestmark = pytest.mark.asyncio
 
 
 async def test_slash_clear_command_in_full_session():

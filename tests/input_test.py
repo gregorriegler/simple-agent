@@ -56,13 +56,13 @@ async def test_has_stacked_messages_returns_correct_boolean():
     user_input_port = UserInputStub("user input")
     feed = Input(user_input_port)
 
-    assert feed.has_stacked_messages() == False
+    assert not feed.has_stacked_messages()
 
     feed.stack("message")
-    assert feed.has_stacked_messages() == True
+    assert feed.has_stacked_messages()
 
     await feed.read_async()
-    assert feed.has_stacked_messages() == False
+    assert not feed.has_stacked_messages()
 
 
 async def test_mixing_stacked_and_user_input_reads():

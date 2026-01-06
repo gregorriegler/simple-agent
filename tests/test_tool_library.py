@@ -1,14 +1,14 @@
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_types import AgentTypes
+from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.tool_library_factory import ToolContext
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
+from simple_agent.application.tool_library_factory import ToolLibraryFactory
+from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.tools import AllTools
 from simple_agent.tools.all_tools import AllToolsFactory
-from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
-from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from tests.test_helpers import DummyProjectTree
 from tests.user_input_stub import UserInputStub
 
@@ -50,11 +50,12 @@ class ToolLibraryStub(AllTools):
 
             agent_id = AgentId("Agent")
             actual_tool_context = ToolContext(tool_keys or [], agent_id)
-            actual_spawner = (
-                lambda agent_type, task_description: agent_factory.spawn_subagent(
+
+            def actual_spawner(agent_type, task_description):
+                return agent_factory.spawn_subagent(
                     agent_id, agent_type, task_description, 1
                 )
-            )
+
             actual_agent_types = AgentTypes(agent_library.list_agent_types())
 
         tool_syntax = EmojiBracketToolSyntax()
@@ -101,8 +102,11 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
         self,
         tool_context: ToolContext,
         spawner=None,
-        agent_types: AgentTypes = AgentTypes.empty(),
+        agent_types: AgentTypes | None = None,
     ) -> AllTools:
+        actual_agent_types = (
+            agent_types if agent_types is not None else AgentTypes.empty()
+        )
         return ToolLibraryStub(
             self._llm,
             inputs=self._inputs,
@@ -111,5 +115,5 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
             event_bus=self._event_bus,
             tool_context=tool_context,
             spawner=spawner,
-            agent_types=agent_types,
+            agent_types=actual_agent_types,
         )

@@ -24,7 +24,7 @@ def iter_python_files(root_dir):
 def collect_references(paths):
     references = set()
     for path in paths:
-        with open(path, "r", encoding="utf-8") as handle:
+        with open(path, encoding="utf-8") as handle:
             content = handle.read()
         try:
             tree = ast.parse(content, filename=path)
@@ -75,7 +75,7 @@ def main():
         test_references.update(collect_references(iter_python_files(reference_dir)))
 
     for path in python_files:
-        with open(path, "r", encoding="utf-8") as handle:
+        with open(path, encoding="utf-8") as handle:
             content = handle.read()
         try:
             tree = ast.parse(content, filename=path)

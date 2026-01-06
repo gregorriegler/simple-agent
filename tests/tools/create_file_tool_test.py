@@ -82,7 +82,7 @@ async def verify_create_tool(library, command, expected_filename, tmp_path):
         tool = library.parse_message_and_tools(command)
         result = await library.execute_parsed_tool(tool.tools[0])
 
-        with open(expected_filename, "r", encoding="utf-8") as f:
+        with open(expected_filename, encoding="utf-8") as f:
             actual_content = f.read()
             file_info = f"File created: {expected_filename}\nFile content:\n--- FILE CONTENT START ---\n{actual_content}\n--- FILE CONTENT END ---"
 

@@ -16,15 +16,14 @@ from tests.user_input_stub import UserInputStub
 
 def create_all_tools_for_test():
     from simple_agent.application.agent_factory import AgentFactory
-    from simple_agent.application.tool_library_factory import ToolContext
     from simple_agent.application.event_bus import SimpleEventBus
-    from simple_agent.tools.all_tools import AllToolsFactory
-    from simple_agent.application.llm_stub import StubLLMProvider
     from simple_agent.application.emoji_bracket_tool_syntax import (
         EmojiBracketToolSyntax,
     )
-
+    from simple_agent.application.llm_stub import StubLLMProvider
     from simple_agent.application.session_storage import NoOpSessionStorage
+    from simple_agent.application.tool_library_factory import ToolContext
+    from simple_agent.tools.all_tools import AllToolsFactory
 
     event_bus = SimpleEventBus()
     session_storage = NoOpSessionStorage()
@@ -43,9 +42,11 @@ def create_all_tools_for_test():
 
     agent_id = AgentId("Agent")
     tool_context = ToolContext([], agent_id)
-    spawner = lambda agent_type, task_description: agent_factory.spawn_subagent(
-        agent_id, agent_type, task_description, 0
-    )
+
+    def spawner(agent_type, task_description):
+        return agent_factory.spawn_subagent(
+            agent_id, agent_type, task_description, 0
+        )
 
     return AllTools(
         tool_context=tool_context,

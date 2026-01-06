@@ -1,6 +1,7 @@
-import pytest
 import os
 import textwrap
+
+import pytest
 from approvaltests import Options, verify
 
 from tests.test_helpers import all_scrubbers, temp_directory, create_all_tools_for_test
@@ -19,7 +20,7 @@ async def verify_edit_tool(library, setup_file, setup_content, command, tmp_path
 
         tool = library.parse_message_and_tools(command)
         result = await library.execute_parsed_tool(tool.tools[0])
-        with open(setup_file, "r", encoding="utf-8") as f:
+        with open(setup_file, encoding="utf-8") as f:
             actual_content = f.read()
         final_file_info = f"File after edit: {setup_file}\nFinal content:\n--- FINAL CONTENT START ---\n{actual_content}\n--- FINAL CONTENT END ---"
         verify(

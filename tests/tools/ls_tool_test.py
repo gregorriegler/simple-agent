@@ -6,7 +6,9 @@ from tests.test_helpers import (
     create_all_tools_for_test,
 )
 
-claude_stub = lambda messages: ""
+def claude_stub(messages):
+    return ""
+
 library = create_all_tools_for_test()
 pytestmark = pytest.mark.asyncio
 
