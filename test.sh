@@ -2,10 +2,16 @@
 set -euo pipefail
 
 # 1) formatting (no changes allowed)
-uv run ruff format --check .
+if ! output=$(uv run ruff format --check . 2>&1); then
+    echo "$output"
+    exit 1
+fi
 
 # 2) lint (no auto-fix in CI/test script)
-uv run ruff check .
+if ! output=$(uv run ruff check . 2>&1); then
+    echo "$output"
+    exit 1
+fi
 
 show_help() {
     echo "Usage: ./test.sh [OPTIONS] [TEST_PATTERN]"
