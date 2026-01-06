@@ -11,14 +11,17 @@ if [[ -n "$files_to_format" ]]; then
         echo "$format_output"
         exit 1
     fi
-    echo "Reformatted:"
+    echo "Ruff reformatted:"
     echo "$files_to_format"
     echo ""
 fi
 
 # 2) lint (no auto-fix in CI/test script)
 if ! output=$(uv run ruff check . 2>&1); then
+    echo "Ruff linter findings:"
     echo "$output"
+    echo ""
+    echo "To fix auto-fixable issues, run: uv run ruff check --fix ."
     exit 1
 fi
 
