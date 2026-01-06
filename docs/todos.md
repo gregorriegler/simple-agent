@@ -24,3 +24,53 @@ description onto that shared stack (tools/subagent_tool.py:47-49), so nested age
 - Login with Claude Max subscription (We need to ask for a OAuth ClientId)
 - Refactoring opportunity in edit_file_tool.py
 - Simpler switching between models
+
+
+###
+
+gemini:
+Response missing parts field
+
+2026-01-06 21:51:14 - DEBUG - simple_agent.infrastructure.logging_http_client -
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Vary: Origin, X-Origin, Referer
+Content-Encoding: gzip
+Date: Tue, 06 Jan 2026 20:51:14 GMT
+Server: scaffolding on HTTPServer2
+X-Xss-Protection: 0
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Server-Timing: gfet4t7; dur=14147
+Alt-Svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+Transfer-Encoding: chunked
+
+{
+"candidates": [
+{
+"content": {},
+"finishReason": "STOP",
+"index": 0
+}
+],
+"usageMetadata": {
+"promptTokenCount": 21505,
+"totalTokenCount": 23623,
+"cachedContentTokenCount": 16346,
+"promptTokensDetails": [
+{
+"modality": "TEXT",
+"tokenCount": 21505
+}
+],
+"cacheTokensDetails": [
+{
+"modality": "TEXT",
+"tokenCount": 16346
+}
+],
+"thoughtsTokenCount": 2118
+},
+"modelVersion": "gemini-3-flash-preview",
+"responseId": "wnVdadmlDpHYxN8Pk7Hg6QE"
+}
