@@ -41,8 +41,10 @@ def test_parent_and_depth_navigation():
     assert not root.has_parent()
     assert root.parent() is None
     assert nested.has_parent()
-    assert nested.parent() == AgentId("root/child")
-    assert nested.parent().parent() == AgentId("root")
+    parent = nested.parent()
+    assert parent == AgentId("root/child")
+    assert parent is not None
+    assert parent.parent() == AgentId("root")
     assert nested.depth() == 2
 
 

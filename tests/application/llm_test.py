@@ -4,6 +4,7 @@ from simple_agent.application.llm import LLMResponse, Messages
 def test_llm_response_defaults_usage():
     response = LLMResponse(content="Hello")
 
+    assert response.usage is not None
     assert response.usage.total_tokens == 0
 
 
