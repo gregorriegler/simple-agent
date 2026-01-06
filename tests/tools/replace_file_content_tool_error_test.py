@@ -60,6 +60,7 @@ async def test_parse_arguments_requires_body_separator():
     parsed, error = tool.parse_arguments(raw_call)
 
     assert parsed is None
+    assert error is not None
     assert "Missing '@@@'" in error
 
 
@@ -72,6 +73,7 @@ async def test_parse_arguments_reports_invalid_replace_mode():
     parsed, error = tool.parse_arguments(raw_call)
 
     assert parsed is None
+    assert error is not None
     assert "Invalid replace_mode" in error
 
 
@@ -82,6 +84,7 @@ async def test_parse_arguments_reports_invalid_argument_syntax():
     parsed, error = tool.parse_arguments(raw_call)
 
     assert parsed is None
+    assert error is not None
     assert "Error parsing arguments" in error
 
 
