@@ -70,60 +70,7 @@
         document.addEventListener("keypress", handleCtrlEnter, true);
       }
 
-      function installTouchDragShim() {
-        const terminal = document.getElementById("terminal");
-        if (!terminal) {
-          return;
-        }
-
-        function toMouseEvent(type, touch) {
-          return new MouseEvent(type, {
-            bubbles: true,
-            cancelable: true,
-            clientX: touch.clientX,
-            clientY: touch.clientY,
-            screenX: touch.screenX,
-            screenY: touch.screenY,
-          });
-        }
-
-        function dispatchMouse(type, touch) {
-          const target = touch.target || terminal;
-          target.dispatchEvent(toMouseEvent(type, touch));
-        }
-
-        function onTouchStart(event) {
-          if (event.touches.length === 0) {
-            return;
-          }
-          dispatchMouse("mousedown", event.touches[0]);
-          event.preventDefault();
-        }
-
-        function onTouchMove(event) {
-          if (event.touches.length === 0) {
-            return;
-          }
-          dispatchMouse("mousemove", event.touches[0]);
-          event.preventDefault();
-        }
-
-        function onTouchEnd(event) {
-          if (event.changedTouches.length === 0) {
-            return;
-          }
-          dispatchMouse("mouseup", event.changedTouches[0]);
-          event.preventDefault();
-        }
-
-        terminal.addEventListener("touchstart", onTouchStart, { passive: false });
-        terminal.addEventListener("touchmove", onTouchMove, { passive: false });
-        terminal.addEventListener("touchend", onTouchEnd, { passive: false });
-        terminal.addEventListener("touchcancel", onTouchEnd, { passive: false });
-      }
-
       window.addEventListener("load", installCtrlEnterHandler);
-      window.addEventListener("load", installTouchDragShim);
     </script>
     <style>
       body {
@@ -178,10 +125,6 @@
       body.-first-byte .textual-terminal {
         opacity: 1;
         transition: opacity 0.3s ease-out;
-      }
-
-      .textual-terminal {
-        touch-action: none;
       }
 
       .intro svg {
