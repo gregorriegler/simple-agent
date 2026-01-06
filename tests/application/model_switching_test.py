@@ -12,6 +12,7 @@ from simple_agent.application.llm import (
     TokenUsage,
 )
 from simple_agent.application.session import Session
+from simple_agent.application.todo_cleanup import TodoCleanup
 from tests.session_storage_stub import SessionStorageStub
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
@@ -46,6 +47,17 @@ class MockLLMProvider(LLMProvider):
         if name not in self.llms:
             self.llms[name] = MockLLM(name)
         return self.llms[name]
+
+    def get_available_models(self) -> list[str]:
+        return list(self.llms.keys())
+
+
+class TodoCleanupStub(TodoCleanup):
+    def cleanup_all_todos(self) -> None:
+        return None
+
+    def cleanup_todos_for_agent(self, agent_id: AgentId) -> None:
+        return None
 
 
 class FakeAgentLibrary:
@@ -93,7 +105,7 @@ async def test_model_switching_uses_new_llm_instance():
         ),
         agent_library=FakeAgentLibrary(),
         user_input=user_input,
-        todo_cleanup=None,  # Not needed
+        todo_cleanup=TodoCleanupStub(),
         llm_provider=llm_provider,
         project_tree=DummyProjectTree(),
     )
