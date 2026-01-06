@@ -2,7 +2,6 @@
 - timeouts for gemini?
 
 # NEXT
-- shift+enter newline
 - agent slash command
 - linter
 - web-ui

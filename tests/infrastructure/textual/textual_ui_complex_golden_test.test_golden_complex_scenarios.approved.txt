@@ -46,7 +46,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
+└───────────────────── Enter to submit, Shift+Enter or Ctrl+Enter for newline ─┘
 
 --- Step: SubAgent Started (Widget Tree) ---
 Tabs: ['tab-Agent', 'tab-SubAgent']
@@ -106,7 +106,7 @@ Active Tab: tab-SubAgent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
+└───────────────────── Enter to submit, Shift+Enter or Ctrl+Enter for newline ─┘
 
 --- Step: SubAgent Spoke (Widget Tree) ---
 Tabs: ['tab-Agent', 'tab-SubAgent']
@@ -168,7 +168,7 @@ Active Tab: tab-SubAgent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
+└───────────────────── Enter to submit, Shift+Enter or Ctrl+Enter for newline ─┘
 
 --- Step: SubAgent Ended (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -218,7 +218,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
+└───────────────────── Enter to submit, Shift+Enter or Ctrl+Enter for newline ─┘
 
 --- Step: Error Event (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -270,7 +270,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
+└───────────────────── Enter to submit, Shift+Enter or Ctrl+Enter for newline ─┘
 
 --- Step: Session Interrupted (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -324,7 +324,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
+└───────────────────── Enter to submit, Shift+Enter or Ctrl+Enter for newline ─┘
 
 --- Step: Tool Call (Suppressed) (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -382,7 +382,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
+└───────────────────── Enter to submit, Shift+Enter or Ctrl+Enter for newline ─┘
 
 --- Step: Tool Result (Diff) (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -444,7 +444,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
+└───────────────────── Enter to submit, Shift+Enter or Ctrl+Enter for newline ─┘
 
 --- Step: Tool Cancelled (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -510,7 +510,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
+└───────────────────── Enter to submit, Shift+Enter or Ctrl+Enter for newline ─┘
 
 --- Step: File Context Submitted (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -576,4 +576,4 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
+└───────────────────── Enter to submit, Shift+Enter or Ctrl+Enter for newline ─┘

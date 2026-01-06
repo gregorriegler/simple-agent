@@ -53,7 +53,7 @@ class SmartInput(TextArea):
 
     def on_mount(self) -> None:
         self.mount(self.popup)
-        self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
+        self.border_subtitle = "Enter to submit, Shift+Enter or Ctrl+Enter for newline"
 
     def get_referenced_files(self) -> set[str]:
         return {ref.path for ref in FileReferences.from_text(self.text)}
@@ -87,7 +87,7 @@ class SmartInput(TextArea):
             self._handle_enter(event)
             return
 
-        if event.key in ("ctrl+enter", "ctrl+j"):
+        if event.key in ("ctrl+enter", "ctrl+j", "shift+enter"):
             self._handle_newline(event)
             return
 
