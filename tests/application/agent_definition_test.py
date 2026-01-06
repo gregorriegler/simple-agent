@@ -40,7 +40,9 @@ name: helper
 model: gpt-4
 ---
 You are a helper."""
-    agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
+    agent_definition = AgentDefinition(
+        AgentType("assistant"), content, StubGroundRules("rules")
+    )
 
     assert agent_definition.model() == "gpt-4"
     assert agent_definition.prompt().agent_name == "helper"
@@ -48,7 +50,9 @@ You are a helper."""
 
 def test_no_front_matter():
     content = "No front matter here"
-    agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
+    agent_definition = AgentDefinition(
+        AgentType("assistant"), content, StubGroundRules("rules")
+    )
 
     assert agent_definition.model() is None
     assert agent_definition.tool_keys() == []
@@ -57,7 +61,9 @@ def test_no_front_matter():
 
 def test_empty_content():
     content = ""
-    agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
+    agent_definition = AgentDefinition(
+        AgentType("assistant"), content, StubGroundRules("rules")
+    )
 
     assert agent_definition.model() is None
     assert agent_definition.prompt().agent_name == "Assistant"
@@ -65,7 +71,9 @@ def test_empty_content():
 
 def test_front_matter_with_windows_line_endings():
     content = "---\r\nname: windows\r\nmodel: gpt-4\r\n---\r\nTemplate body"
-    agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
+    agent_definition = AgentDefinition(
+        AgentType("assistant"), content, StubGroundRules("rules")
+    )
 
     assert agent_definition.model() == "gpt-4"
     assert agent_definition.agent_name() == "windows"
@@ -74,7 +82,9 @@ def test_front_matter_with_windows_line_endings():
 
 def test_incomplete_front_matter():
     content = "---\nname: incomplete\nNo closing marker"
-    agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
+    agent_definition = AgentDefinition(
+        AgentType("assistant"), content, StubGroundRules("rules")
+    )
 
     assert agent_definition.model() is None
     assert agent_definition.prompt().template == content
@@ -82,7 +92,9 @@ def test_incomplete_front_matter():
 
 def test_invalid_yaml_front_matter():
     content = "---\nvalid: yaml: :\n---\nBody"
-    agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
+    agent_definition = AgentDefinition(
+        AgentType("assistant"), content, StubGroundRules("rules")
+    )
 
     assert agent_definition.model() is None
     assert agent_definition.prompt().template == "Body"
@@ -90,7 +102,9 @@ def test_invalid_yaml_front_matter():
 
 def test_front_matter_not_a_dict():
     content = "---\n- item1\n- item2\n---\nBody"
-    agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
+    agent_definition = AgentDefinition(
+        AgentType("assistant"), content, StubGroundRules("rules")
+    )
 
     assert agent_definition.model() is None
     assert agent_definition.prompt().template == "Body"
@@ -98,26 +112,39 @@ def test_front_matter_not_a_dict():
 
 def test_tool_keys_parsing():
     # String input
-    agent1 = AgentDefinition(AgentType("a"), "---\ntools: hammer, saw\n---\n", StubGroundRules(""))
+    agent1 = AgentDefinition(
+        AgentType("a"), "---\ntools: hammer, saw\n---\n", StubGroundRules("")
+    )
     assert agent1.tool_keys() == ["hammer", "saw"]
 
     # List input with empty/whitespace
-    agent2 = AgentDefinition(AgentType("a"), "---\ntools: [\" alpha\", \"\", \"beta \"]\n---\n", StubGroundRules(""))
+    agent2 = AgentDefinition(
+        AgentType("a"),
+        '---\ntools: [" alpha", "", "beta "]\n---\n',
+        StubGroundRules(""),
+    )
     assert agent2.tool_keys() == ["alpha", "beta"]
 
     # Invalid type
-    agent3 = AgentDefinition(AgentType("a"), "---\ntools: 123\n---\n", StubGroundRules(""))
+    agent3 = AgentDefinition(
+        AgentType("a"), "---\ntools: 123\n---\n", StubGroundRules("")
+    )
     assert agent3.tool_keys() == []
 
 
 def test_parse_front_matter_invalid_newline_after_triple_dash():
     content = "---no-newline\nname: test\n---\nBody"
-    agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
+    agent_definition = AgentDefinition(
+        AgentType("assistant"), content, StubGroundRules("rules")
+    )
     assert agent_definition.model() is None
     assert agent_definition.prompt().template == content
 
+
 def test_parse_front_matter_with_prefix():
     content = "  ---\nname: prefixed\n---\nBody"
-    agent_definition = AgentDefinition(AgentType("assistant"), content, StubGroundRules("rules"))
+    agent_definition = AgentDefinition(
+        AgentType("assistant"), content, StubGroundRules("rules")
+    )
     assert agent_definition.agent_name() == "prefixed"
     assert agent_definition.prompt().template == "  Body"

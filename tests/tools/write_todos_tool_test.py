@@ -26,10 +26,14 @@ async def test_write_todos_creates_markdown_file(tmp_path):
 
     from simple_agent.tools.all_tools import AllToolsFactory
     from simple_agent.application.agent_types import AgentTypes
-    from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
+    from simple_agent.application.emoji_bracket_tool_syntax import (
+        EmojiBracketToolSyntax,
+    )
 
     factory = AllToolsFactory(tool_syntax=EmojiBracketToolSyntax())
-    async def dummy_spawner(*args): pass
+
+    async def dummy_spawner(*args):
+        pass
 
     library = factory.create(tool_context, dummy_spawner, AgentTypes([]))
 
@@ -40,5 +44,5 @@ async def test_write_todos_creates_markdown_file(tmp_path):
     content = (tmp_path / ".Agent.todos.md").read_text(encoding="utf-8")
     verify(
         f"Command:\n{command}\n\nResult:\n{result}\n\nFile content:\n--- FILE CONTENT START ---\n{content}\n--- FILE CONTENT END ---",
-        options=Options().with_scrubber(all_scrubbers())
+        options=Options().with_scrubber(all_scrubbers()),
     )

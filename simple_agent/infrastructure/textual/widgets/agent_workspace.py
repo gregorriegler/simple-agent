@@ -1,9 +1,13 @@
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_results import ToolResult
-from simple_agent.infrastructure.textual.resizable_container import ResizableHorizontal, ResizableVertical
+from simple_agent.infrastructure.textual.resizable_container import (
+    ResizableHorizontal,
+    ResizableVertical,
+)
 from simple_agent.infrastructure.textual.widgets.chat_log import ChatLog
 from simple_agent.infrastructure.textual.widgets.todo_view import TodoView
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
+
 
 class AgentWorkspace(ResizableHorizontal):
     """
@@ -12,22 +16,18 @@ class AgentWorkspace(ResizableHorizontal):
     - Right Panel: Tool execution log
     """
 
-    def __init__(
-        self,
-        agent_id: AgentId,
-        log_id: str,
-        tool_results_id: str,
-        **kwargs
-    ):
+    def __init__(self, agent_id: AgentId, log_id: str, tool_results_id: str, **kwargs):
         self.chat_log = ChatLog(id=f"{log_id}-scroll", classes="left-panel-top")
         self.todo_view = TodoView(
             agent_id,
             markdown_id=f"{log_id}-todos",
             id=f"{log_id}-secondary",
-            classes="left-panel-bottom"
+            classes="left-panel-bottom",
         )
 
-        self.left_panel = ResizableVertical(self.chat_log, self.todo_view, id="left-panel")
+        self.left_panel = ResizableVertical(
+            self.chat_log, self.todo_view, id="left-panel"
+        )
         self.left_panel.set_bottom_visibility(self.todo_view.has_content)
 
         self.tool_log = ToolLog(id=tool_results_id)

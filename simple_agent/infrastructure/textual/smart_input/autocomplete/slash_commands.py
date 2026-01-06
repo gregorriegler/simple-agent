@@ -1,9 +1,13 @@
 from typing import Any
 
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
-from simple_agent.infrastructure.textual.smart_input.autocomplete import AutocompleteTrigger
+from simple_agent.infrastructure.textual.smart_input.autocomplete import (
+    AutocompleteTrigger,
+)
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
-    CompletionResult, CursorAndLine, SuggestionList
+    CompletionResult,
+    CursorAndLine,
+    SuggestionList,
 )
 
 
@@ -16,9 +20,8 @@ class SlashCommandSuggestion:
         return f"{self.command.name} - {self.command.description}"
 
     def to_completion_result(self) -> CompletionResult:
-        return CompletionResult(
-            text=self.command.name + " "
-        )
+        return CompletionResult(text=self.command.name + " ")
+
 
 class SlashAtStartOfLineTrigger(AutocompleteTrigger):
     def is_triggered(self, cursor_and_line: CursorAndLine) -> bool:
@@ -27,6 +30,7 @@ class SlashAtStartOfLineTrigger(AutocompleteTrigger):
             and cursor_and_line.word_start_index == 0
             and cursor_and_line.word.startswith("/")
         )
+
 
 class SlashCommandProvider:
     def __init__(self, registry: SlashCommandRegistry):
@@ -47,9 +51,7 @@ class SlashCommandArgSuggestion:
         return self.argument
 
     def to_completion_result(self) -> CompletionResult:
-        return CompletionResult(
-            text=self.argument
-        )
+        return CompletionResult(text=self.argument)
 
 
 class SlashCommandArgumentTrigger(AutocompleteTrigger):
@@ -66,13 +68,13 @@ class SlashCommandArgumentTrigger(AutocompleteTrigger):
         parts = line.split(" ", 1)
         # Must have a command part and a space
         if len(parts) < 2:
-             # Check if we have a trailing space if parts didn't split (e.g. "/model ")
-             # " ".split(" ", 1) -> ['', '']
-             # "/model ".split(" ", 1) -> ['/model', '']
-             # "/model".split(" ", 1) -> ['/model']
-             if line.endswith(" "):
-                  return True
-             return False
+            # Check if we have a trailing space if parts didn't split (e.g. "/model ")
+            # " ".split(" ", 1) -> ['', '']
+            # "/model ".split(" ", 1) -> ['/model', '']
+            # "/model".split(" ", 1) -> ['/model']
+            if line.endswith(" "):
+                return True
+            return False
 
         # If we have parts[1], we are in the argument section.
         # But wait, CursorAndLine.word logic separates by space.

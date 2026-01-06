@@ -15,8 +15,13 @@ from simple_agent.application.events import (
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from approvaltests import verify
-from tests.infrastructure.textual.test_utils import dump_ui_state, dump_ascii_screen, MockUserInput
+from tests.infrastructure.textual.test_utils import (
+    dump_ui_state,
+    dump_ascii_screen,
+    MockUserInput,
+)
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
+
 
 @pytest.mark.asyncio
 async def test_golden_complex_scenarios(tmp_path, monkeypatch):
@@ -56,11 +61,15 @@ async def test_golden_complex_scenarios(tmp_path, monkeypatch):
 
         # --- Scenario: Subagents ---
         sub_agent_id = AgentId("SubAgent", root=tmp_path)
-        app.on_domain_event_message(DomainEventMessage(AgentStartedEvent(sub_agent_id, "SubAgent", "gpt-4")))
+        app.on_domain_event_message(
+            DomainEventMessage(AgentStartedEvent(sub_agent_id, "SubAgent", "gpt-4"))
+        )
         await pilot.pause()
         capture_step("SubAgent Started")
 
-        app.on_domain_event_message(DomainEventMessage(AssistantSaidEvent(sub_agent_id, "Hello from SubAgent")))
+        app.on_domain_event_message(
+            DomainEventMessage(AssistantSaidEvent(sub_agent_id, "Hello from SubAgent"))
+        )
         await pilot.pause()
         capture_step("SubAgent Spoke")
 
@@ -69,11 +78,15 @@ async def test_golden_complex_scenarios(tmp_path, monkeypatch):
         capture_step("SubAgent Ended")
 
         # --- Scenario: Lifecycle & Errors ---
-        app.on_domain_event_message(DomainEventMessage(ErrorEvent(agent_id, "Something went wrong")))
+        app.on_domain_event_message(
+            DomainEventMessage(ErrorEvent(agent_id, "Something went wrong"))
+        )
         await pilot.pause()
         capture_step("Error Event")
 
-        app.on_domain_event_message(DomainEventMessage(SessionInterruptedEvent(agent_id)))
+        app.on_domain_event_message(
+            DomainEventMessage(SessionInterruptedEvent(agent_id))
+        )
         await pilot.pause()
         capture_step("Session Interrupted")
 
@@ -81,13 +94,29 @@ async def test_golden_complex_scenarios(tmp_path, monkeypatch):
 
         # 1. Suppressed Tool Call (write-todos)
         call_id_todo = "call-todo"
-        app.on_domain_event_message(DomainEventMessage(ToolCalledEvent(agent_id, call_id_todo, type("Tool", (), {"header": lambda s: "write_todos()"})())))
+        app.on_domain_event_message(
+            DomainEventMessage(
+                ToolCalledEvent(
+                    agent_id,
+                    call_id_todo,
+                    type("Tool", (), {"header": lambda s: "write_todos()"})(),
+                )
+            )
+        )
         await pilot.pause()
         capture_step("Tool Call (Suppressed)")
 
         # 2. Diff Result
         call_id_diff = "call-diff"
-        app.on_domain_event_message(DomainEventMessage(ToolCalledEvent(agent_id, call_id_diff, type("Tool", (), {"header": lambda s: "apply_diff()"})())))
+        app.on_domain_event_message(
+            DomainEventMessage(
+                ToolCalledEvent(
+                    agent_id,
+                    call_id_diff,
+                    type("Tool", (), {"header": lambda s: "apply_diff()"})(),
+                )
+            )
+        )
         await pilot.pause()
 
         diff_content = """<<<<<<< SEARCH
@@ -98,21 +127,33 @@ new line
         result_diff = SingleToolResult(
             message=diff_content,
             display_language="diff",
-            status=ToolResultStatus.SUCCESS
+            status=ToolResultStatus.SUCCESS,
         )
-        app.on_domain_event_message(DomainEventMessage(ToolResultEvent(agent_id, call_id_diff, result_diff)))
+        app.on_domain_event_message(
+            DomainEventMessage(ToolResultEvent(agent_id, call_id_diff, result_diff))
+        )
         await pilot.pause()
         capture_step("Tool Result (Diff)")
 
         # 3. Cancelled Tool
         call_id_cancel = "call-cancel"
-        app.on_domain_event_message(DomainEventMessage(ToolCalledEvent(agent_id, call_id_cancel, type("Tool", (), {"header": lambda s: "long_running()"})())))
+        app.on_domain_event_message(
+            DomainEventMessage(
+                ToolCalledEvent(
+                    agent_id,
+                    call_id_cancel,
+                    type("Tool", (), {"header": lambda s: "long_running()"})(),
+                )
+            )
+        )
         await pilot.pause()
 
         # Wait for the tool call to be rendered
         await pilot.pause()
 
-        app.on_domain_event_message(DomainEventMessage(ToolCancelledEvent(agent_id, call_id_cancel)))
+        app.on_domain_event_message(
+            DomainEventMessage(ToolCancelledEvent(agent_id, call_id_cancel))
+        )
         await pilot.pause()
 
         # Verification: Wait for UI update
@@ -126,8 +167,10 @@ new line
                     # Find the collapsible for the cancelled tool
                     # We iterate over collapsibles to find the one with the title
                     for widget in app.query(Collapsible):
-                         if "long_running()" in str(widget.title) and "(Cancelled)" in str(widget.title):
-                             return
+                        if "long_running()" in str(
+                            widget.title
+                        ) and "(Cancelled)" in str(widget.title):
+                            return
                 except Exception:
                     pass
 

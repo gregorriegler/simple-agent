@@ -11,20 +11,20 @@ pytestmark = pytest.mark.asyncio
 
 async def verify_edit_tool(library, setup_file, setup_content, command, tmp_path):
     with temp_directory(tmp_path):
-        os.makedirs(os.path.dirname(setup_file) or '.', exist_ok=True)
-        with open(setup_file, "w", encoding='utf-8') as f:
+        os.makedirs(os.path.dirname(setup_file) or ".", exist_ok=True)
+        with open(setup_file, "w", encoding="utf-8") as f:
             f.write(setup_content)
 
         initial_file_info = f"Initial file: {setup_file}\nInitial content:\n--- INITIAL CONTENT START ---\n{setup_content}\n--- INITIAL CONTENT END ---"
 
         tool = library.parse_message_and_tools(command)
         result = await library.execute_parsed_tool(tool.tools[0])
-        with open(setup_file, "r", encoding='utf-8') as f:
+        with open(setup_file, "r", encoding="utf-8") as f:
             actual_content = f.read()
         final_file_info = f"File after edit: {setup_file}\nFinal content:\n--- FINAL CONTENT START ---\n{actual_content}\n--- FINAL CONTENT END ---"
         verify(
             f"Command:\n{command}\n\nResult:\n{result}\n\n{initial_file_info}\n\n{final_file_info}",
-            options=Options().with_scrubber(all_scrubbers())
+            options=Options().with_scrubber(all_scrubbers()),
         )
 
 
@@ -38,7 +38,9 @@ async def test_replace_file_content_basic(tmp_path):
         goodbye
         🛠️[/end]
         """).strip()
-    await verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+    await verify_edit_tool(
+        library, "test.txt", initial_content, command, tmp_path=tmp_path
+    )
 
 
 async def test_replace_file_content_multiline(tmp_path):
@@ -52,7 +54,9 @@ async def test_replace_file_content_multiline(tmp_path):
         replaced
         🛠️[/end]
         """).strip()
-    await verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+    await verify_edit_tool(
+        library, "test.txt", initial_content, command, tmp_path=tmp_path
+    )
 
 
 async def test_replace_file_content_preserves_indentation(tmp_path):
@@ -65,7 +69,9 @@ async def test_replace_file_content_preserves_indentation(tmp_path):
             new_code = 42
         🛠️[/end]
         """).strip()
-    await verify_edit_tool(library, "test.py", initial_content, command, tmp_path=tmp_path)
+    await verify_edit_tool(
+        library, "test.py", initial_content, command, tmp_path=tmp_path
+    )
 
 
 async def test_replace_file_content_not_found(tmp_path):
@@ -78,7 +84,9 @@ async def test_replace_file_content_not_found(tmp_path):
         replacement
         🛠️[/end]
         """).strip()
-    await verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+    await verify_edit_tool(
+        library, "test.txt", initial_content, command, tmp_path=tmp_path
+    )
 
 
 async def test_replace_file_content_multiple_matches_error(tmp_path):
@@ -91,7 +99,9 @@ async def test_replace_file_content_multiple_matches_error(tmp_path):
         replaced
         🛠️[/end]
         """).strip()
-    await verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+    await verify_edit_tool(
+        library, "test.txt", initial_content, command, tmp_path=tmp_path
+    )
 
 
 async def test_replace_file_content_with_unique_context(tmp_path):
@@ -106,7 +116,9 @@ async def test_replace_file_content_with_unique_context(tmp_path):
         replaced
         🛠️[/end]
         """).strip()
-    await verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+    await verify_edit_tool(
+        library, "test.txt", initial_content, command, tmp_path=tmp_path
+    )
 
 
 async def test_replace_file_content_delete_string(tmp_path):
@@ -118,7 +130,9 @@ async def test_replace_file_content_delete_string(tmp_path):
         @@@
         🛠️[/end]
         """).strip()
-    await verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+    await verify_edit_tool(
+        library, "test.txt", initial_content, command, tmp_path=tmp_path
+    )
 
 
 async def test_replace_file_content_all(tmp_path):
@@ -131,7 +145,10 @@ async def test_replace_file_content_all(tmp_path):
         replaced
         🛠️[/end]
         """).strip()
-    await verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+    await verify_edit_tool(
+        library, "test.txt", initial_content, command, tmp_path=tmp_path
+    )
+
 
 async def test_replace_file_content_single_default(tmp_path):
     """Replace a single occurrence of a string by default."""
@@ -143,4 +160,6 @@ async def test_replace_file_content_single_default(tmp_path):
         replaced
         🛠️[/end]
         """).strip()
-    await verify_edit_tool(library, "test.txt", initial_content, command, tmp_path=tmp_path)
+    await verify_edit_tool(
+        library, "test.txt", initial_content, command, tmp_path=tmp_path
+    )

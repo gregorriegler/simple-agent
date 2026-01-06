@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from simple_agent.application.file_search import FileSearcher
 
+
 class NativeFileSearcher(FileSearcher):
     def __init__(self, root_path: Path = Path(".")):
         self._root_path = root_path
@@ -11,32 +12,34 @@ class NativeFileSearcher(FileSearcher):
         # Simple implementation: walk and filter
         # In a real "fzf-like" scenario, we might want fuzzy matching.
         # For now, we'll do simple substring matching or prefix matching.
-        
+
         results = []
         query = query.lower()
-        
-        # We can optimize this by caching the file list if needed, 
+
+        # We can optimize this by caching the file list if needed,
         # but for now we'll walk fresh to pick up new files.
         for root, dirs, files in os.walk(self._root_path):
             # Modify dirs in-place to skip ignored directories
             dirs[:] = [d for d in dirs if not self._should_ignore(Path(root) / d)]
-            
+
             for file in files:
                 file_path = Path(root) / file
                 if self._should_ignore(file_path):
                     continue
-                
+
                 # Get relative path for display/matching
                 try:
-                    rel_path = str(file_path.relative_to(self._root_path)).replace("\\", "/")
+                    rel_path = str(file_path.relative_to(self._root_path)).replace(
+                        "\\", "/"
+                    )
                 except ValueError:
                     continue
-                    
+
                 if query in rel_path.lower():
                     results.append(rel_path)
-                    if len(results) >= 50: # sensible limit for autocomplete
+                    if len(results) >= 50:  # sensible limit for autocomplete
                         return results
-        
+
         return sorted(results)
 
     def _read_gitignore(self, root_path: Path) -> set[str]:
@@ -55,7 +58,7 @@ class NativeFileSearcher(FileSearcher):
                         pattern = line.rstrip("/")
                         patterns.add(pattern)
         except Exception:
-            pass # Fail safe
+            pass  # Fail safe
 
         return patterns
 
@@ -83,8 +86,8 @@ class NativeFileSearcher(FileSearcher):
                     return True
                 # Handle path segments
                 elif "/" not in pattern and pattern in str(path):
-                     # This is a bit aggressive (matches substrings anywhere), 
-                     # but matches the previous logic.
+                    # This is a bit aggressive (matches substrings anywhere),
+                    # but matches the previous logic.
                     return True
-                
+
         return False

@@ -2,7 +2,6 @@ from simple_agent.application.user_input import UserInput
 
 
 class NonInteractiveUserInput(UserInput):
-
     async def read_async(self) -> str:
         return ""
 

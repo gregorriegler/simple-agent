@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 SENSITIVE_HEADERS = {"authorization", "x-api-key"}
 
+
 class LoggingAsyncClient(httpx.AsyncClient):
     async def request(
         self,
@@ -81,7 +82,11 @@ def _format_response(response: httpx.Response) -> str:
     lines = [status_line]
     lines.extend(_format_headers(response.headers))
 
-    body = _format_body(response.headers.get("content-type"), response.content, getattr(response, "encoding", None))
+    body = _format_body(
+        response.headers.get("content-type"),
+        response.content,
+        getattr(response, "encoding", None),
+    )
     if body:
         lines.append("")
         lines.append(body)

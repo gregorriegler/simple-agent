@@ -1,20 +1,21 @@
 import pytest
 import httpx
 
-from simple_agent.infrastructure.gemini.gemini_client import GeminiLLM, GeminiClientError
+from simple_agent.infrastructure.gemini.gemini_client import (
+    GeminiLLM,
+    GeminiClientError,
+)
 
 
 @pytest.mark.asyncio
 async def test_gemini_chat_returns_text_from_parts():
     response_data = {
-        "candidates": [{
-            "content": {
-                "parts": [{"text": "assistant response"}]
-            }
-        }]
+        "candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]
     }
 
-    transport = httpx.MockTransport(lambda request: httpx.Response(200, json=response_data))
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(200, json=response_data)
+    )
 
     chat = GeminiLLM(StubGeminiConfig(), transport=transport)
     messages = [{"role": "user", "content": "Hello"}]
@@ -27,14 +28,18 @@ async def test_gemini_chat_returns_text_from_parts():
 
 @pytest.mark.asyncio
 async def test_gemini_chat_handles_system_prompt():
-    response_data = {"candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]}
+    response_data = {
+        "candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]
+    }
 
-    transport = httpx.MockTransport(lambda request: httpx.Response(200, json=response_data))
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(200, json=response_data)
+    )
 
     chat = GeminiLLM(StubGeminiConfig(), transport=transport)
     messages = [
         {"role": "system", "content": "You are a helpful assistant"},
-        {"role": "user", "content": "Hello"}
+        {"role": "user", "content": "Hello"},
     ]
 
     result = await chat.call_async(messages)
@@ -44,15 +49,19 @@ async def test_gemini_chat_handles_system_prompt():
 
 @pytest.mark.asyncio
 async def test_gemini_chat_converts_assistant_to_model_role():
-    response_data = {"candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]}
+    response_data = {
+        "candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]
+    }
 
-    transport = httpx.MockTransport(lambda request: httpx.Response(200, json=response_data))
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(200, json=response_data)
+    )
 
     chat = GeminiLLM(StubGeminiConfig(), transport=transport)
     messages = [
         {"role": "user", "content": "Hello"},
         {"role": "assistant", "content": "Hi there!"},
-        {"role": "user", "content": "How are you?"}
+        {"role": "user", "content": "How are you?"},
     ]
 
     result = await chat.call_async(messages)
@@ -62,12 +71,15 @@ async def test_gemini_chat_converts_assistant_to_model_role():
 
 @pytest.mark.asyncio
 async def test_gemini_chat_concatenates_multiple_text_parts():
-    response_data = {"candidates": [{"content": {"parts": [
-        {"text": "First part. "},
-        {"text": "Second part."}
-    ]}}]}
+    response_data = {
+        "candidates": [
+            {"content": {"parts": [{"text": "First part. "}, {"text": "Second part."}]}}
+        ]
+    }
 
-    transport = httpx.MockTransport(lambda request: httpx.Response(200, json=response_data))
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(200, json=response_data)
+    )
 
     chat = GeminiLLM(StubGeminiConfig(), transport=transport)
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -89,7 +101,9 @@ async def test_gemini_chat_raises_error_when_candidates_missing():
 
 @pytest.mark.asyncio
 async def test_gemini_chat_raises_error_when_content_missing():
-    transport = httpx.MockTransport(lambda request: httpx.Response(200, json={"candidates": [{}]}))
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(200, json={"candidates": [{}]})
+    )
 
     chat = GeminiLLM(StubGeminiConfig(), transport=transport)
 
@@ -116,7 +130,9 @@ async def test_gemini_chat_raises_error_when_parts_missing():
 @pytest.mark.asyncio
 async def test_gemini_chat_raises_error_on_api_error_response():
     transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, json={"error": {"code": 400, "message": "Invalid API key"}})
+        lambda request: httpx.Response(
+            200, json={"error": {"code": 400, "message": "Invalid API key"}}
+        )
     )
 
     chat = GeminiLLM(StubGeminiConfig(), transport=transport)
@@ -148,7 +164,10 @@ def test_gemini_chat_raises_error_when_adapter_is_not_gemini():
     with pytest.raises(GeminiClientError) as error:
         GeminiLLM(config)
 
-    assert str(error.value) == "Configured adapter is not 'gemini'; cannot use Gemini client"
+    assert (
+        str(error.value)
+        == "Configured adapter is not 'gemini'; cannot use Gemini client"
+    )
 
 
 class StubGeminiConfig:

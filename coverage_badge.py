@@ -7,7 +7,9 @@ import xml.etree.ElementTree as ET
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate a coverage badge from coverage.xml")
+    parser = argparse.ArgumentParser(
+        description="Generate a coverage badge from coverage.xml"
+    )
     parser.add_argument(
         "--coverage-xml",
         default="coverage.xml",

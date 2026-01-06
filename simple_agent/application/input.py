@@ -4,7 +4,6 @@ from .user_input import UserInput
 
 
 class Input:
-
     def __init__(self, user_input: UserInput):
         self.user_input = user_input
         self._stack: List[str] = []

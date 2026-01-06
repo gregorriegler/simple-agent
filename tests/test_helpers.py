@@ -20,9 +20,12 @@ def create_all_tools_for_test():
     from simple_agent.application.event_bus import SimpleEventBus
     from simple_agent.tools.all_tools import AllToolsFactory
     from simple_agent.application.llm_stub import StubLLMProvider
-    from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
+    from simple_agent.application.emoji_bracket_tool_syntax import (
+        EmojiBracketToolSyntax,
+    )
 
     from simple_agent.application.session_storage import NoOpSessionStorage
+
     event_bus = SimpleEventBus()
     session_storage = NoOpSessionStorage()
     tool_syntax = EmojiBracketToolSyntax()
@@ -39,10 +42,7 @@ def create_all_tools_for_test():
     )
 
     agent_id = AgentId("Agent")
-    tool_context = ToolContext(
-        [],
-        agent_id
-    )
+    tool_context = ToolContext([], agent_id)
     spawner = lambda agent_type, task_description: agent_factory.spawn_subagent(
         agent_id, agent_type, task_description, 0
     )
@@ -51,7 +51,7 @@ def create_all_tools_for_test():
         tool_context=tool_context,
         spawner=spawner,
         agent_types=AgentTypes(agent_library.list_agent_types()),
-        tool_syntax=tool_syntax
+        tool_syntax=tool_syntax,
     )
 
 
@@ -88,14 +88,14 @@ def create_temp_directory_structure(tmp_path):
 
 def create_path_scrubber():
     def path_replacer(text):
-        lines = text.split('\n')
+        lines = text.split("\n")
         result_lines = []
 
         for line in lines:
             new_line = scrub_line_with_path(line)
             result_lines.append(new_line)
 
-        return '\n'.join(result_lines)
+        return "\n".join(result_lines)
 
     return path_replacer
 
@@ -106,14 +106,14 @@ def scrub_line_with_path(line):
     def replace_path(match):
         path = match.group(0)
 
-        if re.match(r'^/[a-z-]+$', path):
+        if re.match(r"^/[a-z-]+$", path):
             return path
 
-        if re.search(r'\.[A-Za-z0-9]+$', path):
+        if re.search(r"\.[A-Za-z0-9]+$", path):
             filename = os.path.basename(path)
-            return f'/tmp/test_path/{filename}'
+            return f"/tmp/test_path/{filename}"
         else:
-            return '/tmp/test_path'
+            return "/tmp/test_path"
 
     windows_pattern = r'[A-Za-z]:[/\\\\](?:[^]<>:"|?*\n\r\s\[/]+[/\\\\])*[^]<>:"|?*\n\r\s\[/]*(?:\.[A-Za-z0-9]+)?'
     result = re.sub(windows_pattern, replace_path, line)
@@ -127,6 +127,7 @@ def scrub_line_with_path(line):
             class MockMatch:
                 def group(self, n):
                     return path
+
             replaced = replace_path(MockMatch())
             return f"'{replaced}'"
         elif match.group(2):
@@ -142,16 +143,13 @@ def scrub_line_with_path(line):
 
 def create_date_scrubber():
     return create_regex_scrubber(
-        r'\w{3}\s+\d{1,2}\s+\d{1,2}:\d{2}|\d{1,2}\s+\w{3}\s+\d{1,2}:\d{2}|\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}',
-        '[DATE]'
+        r"\w{3}\s+\d{1,2}\s+\d{1,2}:\d{2}|\d{1,2}\s+\w{3}\s+\d{1,2}:\d{2}|\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}",
+        "[DATE]",
     )
 
 
 def create_elapsed_time_scrubber():
-    return create_regex_scrubber(
-        r'\(\d+\.\d{3}s elapsed\)',
-        '[ELAPSED]'
-    )
+    return create_regex_scrubber(r"\(\d+\.\d{3}s elapsed\)", "[ELAPSED]")
 
 
 def create_ls_error_scrubber():
@@ -159,6 +157,7 @@ def create_ls_error_scrubber():
 
     def ls_error_replacer(text):
         import re
+
         if "cannot access" not in text:
             pattern = r"ls: ([^:]+): No such file or directory"
             replacement = r"ls: cannot access '\1': No such file or directory"
@@ -173,18 +172,22 @@ def all_scrubbers():
         create_path_scrubber(),
         create_date_scrubber(),
         create_elapsed_time_scrubber(),
-        create_ls_error_scrubber()
+        create_ls_error_scrubber(),
     )
 
 
 async def verify_tool(library, command):
     tool = library.parse_message_and_tools(command)
     result = await library.execute_parsed_tool(tool.tools[0])
-    verify(f"Command:\n{command}\n\nResult:\n{result}", options=Options()
-           .with_scrubber(all_scrubbers()))
+    verify(
+        f"Command:\n{command}\n\nResult:\n{result}",
+        options=Options().with_scrubber(all_scrubbers()),
+    )
 
 
-def create_session_args(continue_session: bool, start_message: str | None = None) -> SessionArgs:
+def create_session_args(
+    continue_session: bool, start_message: str | None = None
+) -> SessionArgs:
     return SessionArgs(
         continue_session=continue_session,
         start_message=start_message,
@@ -196,7 +199,6 @@ def create_test_prompt(agent_name: str = "Agent") -> AgentPrompt:
 
 
 class DummyProjectTree(ProjectTree):
-
     def render(self, max_depth: int = 2) -> str:
         return (
             "./\n"

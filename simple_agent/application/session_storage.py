@@ -4,16 +4,12 @@ from .llm import Messages
 
 
 class SessionStorage(Protocol):
+    def load(self) -> Messages: ...
 
-    def load(self) -> Messages:
-        ...
-
-    def save(self, messages: Messages) -> None:
-        ...
+    def save(self, messages: Messages) -> None: ...
 
 
 class NoOpSessionStorage:
-
     def load(self) -> Messages:
         return Messages()
 

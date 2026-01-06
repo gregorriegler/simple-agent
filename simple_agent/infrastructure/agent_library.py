@@ -29,7 +29,7 @@ class FileSystemAgentLibrary(AgentLibrary):
         if not os.path.isdir(self.directory):
             return []
 
-        pattern = os.path.join(self.directory, '*.agent.md')
+        pattern = os.path.join(self.directory, "*.agent.md")
         agent_types = [
             agent_type_from_filename(os.path.basename(path))
             for path in glob.glob(pattern)
@@ -40,7 +40,7 @@ class FileSystemAgentLibrary(AgentLibrary):
         filename = filename_from_agent_type(agent_type)
         path = os.path.join(self.directory, filename)
         try:
-            with open(path, 'r', encoding='utf-8') as handle:
+            with open(path, "r", encoding="utf-8") as handle:
                 content = handle.read()
                 return AgentDefinition(agent_type, content, self.ground_rules)
         except FileNotFoundError as error:
@@ -64,9 +64,9 @@ class BuiltinAgentLibrary:
     def __init__(
         self,
         ground_rules: GroundRules = None,
-        starting_agent_type: AgentType | None = None
+        starting_agent_type: AgentType | None = None,
     ):
-        self.package = 'simple_agent'
+        self.package = "simple_agent"
         if ground_rules is not None:
             self.ground_rules = ground_rules
         else:
@@ -79,12 +79,16 @@ class BuiltinAgentLibrary:
     def read_agent_definition(self, agent_type: AgentType) -> AgentDefinition:
         filename = filename_from_agent_type(agent_type)
         try:
-            content = resources.files(self.package).joinpath(filename).read_text(encoding='utf-8')
+            content = (
+                resources.files(self.package)
+                .joinpath(filename)
+                .read_text(encoding="utf-8")
+            )
             return AgentDefinition(agent_type, content, self.ground_rules)
         except (FileNotFoundError, ModuleNotFoundError):
             package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             path = os.path.join(package_root, filename)
-            with open(path, 'r', encoding='utf-8') as handle:
+            with open(path, "r", encoding="utf-8") as handle:
                 content = handle.read()
                 return AgentDefinition(agent_type, content, self.ground_rules)
 
@@ -96,11 +100,12 @@ class BuiltinAgentLibrary:
             raise ValueError("starting agent type not configured")
         return self.read_agent_definition(self._starting_agent_type)
 
-
     def _discover_agent_types(self) -> list[str]:
         try:
-            package_contents = [item.name for item in resources.files(self.package).iterdir()]
-            names = [name for name in package_contents if name.endswith('.agent.md')]
+            package_contents = [
+                item.name for item in resources.files(self.package).iterdir()
+            ]
+            names = [name for name in package_contents if name.endswith(".agent.md")]
         except (FileNotFoundError, ModuleNotFoundError, TypeError):
             names = []
 
@@ -108,14 +113,13 @@ class BuiltinAgentLibrary:
             return sorted(agent_type_from_filename(name) for name in names)
 
         package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        pattern = os.path.join(package_root, '*.agent.md')
+        pattern = os.path.join(package_root, "*.agent.md")
         names = [os.path.basename(path) for path in glob.glob(pattern)]
         return sorted(agent_type_from_filename(name) for name in names)
 
 
 def create_agent_library(
-    user_config: UserConfiguration,
-    args: SessionArgs | None = None
+    user_config: UserConfiguration, args: SessionArgs | None = None
 ) -> AgentLibrary:
     starting_agent_type = get_starting_agent(user_config, args)
     candidate_directories = user_config.agents_candidate_directories()

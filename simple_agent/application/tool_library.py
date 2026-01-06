@@ -23,8 +23,6 @@ class RawToolCall:
         return f"🛠️ {self.name}"
 
 
-
-
 class ParsedTool:
     def __init__(self, raw_call, tool_instance):
         self.raw_call = raw_call
@@ -68,8 +66,9 @@ class ToolArgument:
 
 
 class ToolArguments:
-
-    def __init__(self, header: List[ToolArgument] = None, body: ToolArgument | None = None):
+    def __init__(
+        self, header: List[ToolArgument] = None, body: ToolArgument | None = None
+    ):
         self._header: List[ToolArgument] = header or []
         self._body: ToolArgument | None = body
 
@@ -108,35 +107,26 @@ class ToolArguments:
 
 
 class Tool(Protocol):
+    @property
+    def name(self) -> str: ...
 
     @property
-    def name(self) -> str:
-        ...
+    def description(self) -> str: ...
 
     @property
-    def description(self) -> str:
-        ...
+    def arguments(self) -> ToolArguments: ...
 
     @property
-    def arguments(self) -> ToolArguments:
-        ...
+    def examples(self) -> List[Dict[str, Any]]: ...
 
-    @property
-    def examples(self) -> List[Dict[str, Any]]:
-        ...
+    async def execute(self, raw_call: RawToolCall) -> ToolResult: ...
 
-    async def execute(self, raw_call: RawToolCall) -> ToolResult:
-        ...
-
-    def get_template_variables(self) -> Dict[str, str]:
-        ...
+    def get_template_variables(self) -> Dict[str, str]: ...
 
 
 class ToolLibrary(Protocol):
     tools: List[Tool]
 
-    def parse_message_and_tools(self, text: str) -> MessageAndParsedTools:
-        ...
+    def parse_message_and_tools(self, text: str) -> MessageAndParsedTools: ...
 
-    async def execute_parsed_tool(self, parsed_tool: ParsedTool) -> ToolResult:
-        ...
+    async def execute_parsed_tool(self, parsed_tool: ParsedTool) -> ToolResult: ...

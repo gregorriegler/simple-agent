@@ -1,4 +1,5 @@
 import pytest
+
 pytestmark = pytest.mark.asyncio
 
 from simple_agent.application.user_input import DummyUserInput

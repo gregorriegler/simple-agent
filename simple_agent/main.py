@@ -25,12 +25,17 @@ from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.infrastructure.llm import RemoteLLMProvider
-from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
+from simple_agent.infrastructure.non_interactive_user_input import (
+    NonInteractiveUserInput,
+)
 from simple_agent.infrastructure.project_tree import FileSystemProjectTree
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
-from simple_agent.infrastructure.user_configuration import UserConfiguration, ConfigurationError
+from simple_agent.infrastructure.user_configuration import (
+    UserConfiguration,
+    ConfigurationError,
+)
 from simple_agent.logging_config import setup_logging
 from simple_agent.tools.all_tools import AllToolsFactory
 
@@ -38,8 +43,7 @@ from simple_agent.tools.all_tools import AllToolsFactory
 class TextualRunStrategy(Protocol):
     allow_async: bool
 
-    async def run(self, textual_app: TextualApp, run_session):
-        ...
+    async def run(self, textual_app: TextualApp, run_session): ...
 
 
 class ProductionTextualRunStrategy(TextualRunStrategy):
@@ -117,7 +121,7 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
     textual_app = TextualApp(
         textual_user_input,
         starting_agent_id,
-        available_models=llm_provider.get_available_models()
+        available_models=llm_provider.get_available_models(),
     )
     subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
     if event_subscriber:
@@ -170,29 +174,38 @@ def print_system_prompt_command(user_config, cwd, args):
     )
     agent_definition = agent_library._starting_agent_definition()
     agent_id = AgentId("Agent", root=Path(cwd))
-    tool_context = ToolContext(
-        agent_definition.tool_keys(),
-        agent_id
-    )
+    tool_context = ToolContext(agent_definition.tool_keys(), agent_id)
     spawner = agent_factory.create_spawner(agent_id)
-    tool_library = tool_library_factory.create(tool_context, spawner, AgentTypes(agent_library.list_agent_types()))
+    tool_library = tool_library_factory.create(
+        tool_context, spawner, AgentTypes(agent_library.list_agent_types())
+    )
     tools_documentation = generate_tools_documentation(tool_library.tools, tool_syntax)
-    system_prompt = agent_definition.prompt().render(tools_documentation, FileSystemProjectTree(Path(cwd)))
+    system_prompt = agent_definition.prompt().render(
+        tools_documentation, FileSystemProjectTree(Path(cwd))
+    )
     print(system_prompt)
     return
 
 
 def parse_args(argv=None) -> SessionArgs:
     parser = argparse.ArgumentParser(description="Simple Agent")
-    parser.add_argument("-a", "--agent", action='store', type=str, help="Defines the starting agent")
-    parser.add_argument("-c", "--continue", action="store_true", help="Continue previous session")
     parser.add_argument(
-        "-s", "--system-prompt", action="store_true",
-        help="Print the current system prompt including AGENTS.md content"
+        "-a", "--agent", action="store", type=str, help="Defines the starting agent"
     )
     parser.add_argument(
-        "-ni", "--non-interactive", action="store_true",
-        help="Run in non-interactive mode (no user input prompts)"
+        "-c", "--continue", action="store_true", help="Continue previous session"
+    )
+    parser.add_argument(
+        "-s",
+        "--system-prompt",
+        action="store_true",
+        help="Print the current system prompt including AGENTS.md content",
+    )
+    parser.add_argument(
+        "-ni",
+        "--non-interactive",
+        action="store_true",
+        help="Run in non-interactive mode (no user input prompts)",
     )
     parser.add_argument("--stub", action="store_true", help="Use LLM stub for testing")
     parser.add_argument("message", nargs="*", help="Message to send to the agent")

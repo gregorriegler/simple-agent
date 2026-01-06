@@ -9,6 +9,7 @@ from simple_agent.application.tool_results import ToolResult
 
 logger = logging.getLogger(__name__)
 
+
 class ToolLog(VerticalScroll):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -29,7 +30,9 @@ class ToolLog(VerticalScroll):
         for _, text_area, _ in self._pending_tool_calls.values():
             text_area.load_text(f"In Progress {frame}")
             text_area.refresh()
-        self.loading_frame_index = (self.loading_frame_index + 1) % len(self.loading_frames)
+        self.loading_frame_index = (self.loading_frame_index + 1) % len(
+            self.loading_frames
+        )
 
     def _stop_loading_if_idle(self) -> None:
         if not self._pending_tool_calls:
@@ -65,7 +68,9 @@ class ToolLog(VerticalScroll):
             self.mount(collapsible)
             self.scroll_end(animate=False)
             if not self.loading_timer:
-                self.loading_timer = self.set_interval(0.1, self._update_loading_animation)
+                self.loading_timer = self.set_interval(
+                    0.1, self._update_loading_animation
+                )
 
     def compose(self):
         yield from self._collapsibles
@@ -74,7 +79,9 @@ class ToolLog(VerticalScroll):
         if self._pending_tool_calls and not self.loading_timer:
             self.loading_timer = self.set_interval(0.1, self._update_loading_animation)
 
-    def _pop_pending_tool_call(self, call_id: str) -> tuple[tuple[str, TextArea, Collapsible] | None, bool]:
+    def _pop_pending_tool_call(
+        self, call_id: str
+    ) -> tuple[tuple[str, TextArea, Collapsible] | None, bool]:
         if call_id in self._suppressed_tool_calls:
             self._suppressed_tool_calls.discard(call_id)
             return None, True
@@ -110,7 +117,11 @@ class ToolLog(VerticalScroll):
             existing.collapsed = True
         call_collapsible.collapsed = False
 
-        classes = "tool-result tool-result-success" if success else "tool-result tool-result-error"
+        classes = (
+            "tool-result tool-result-success"
+            if success
+            else "tool-result tool-result-error"
+        )
         language = result.display_language or "python"
 
         if language == "diff":

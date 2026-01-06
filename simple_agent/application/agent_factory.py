@@ -9,10 +9,11 @@ from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_documentation import generate_tools_documentation
-from simple_agent.application.tool_library_factory import ToolLibraryFactory, ToolContext
+from simple_agent.application.tool_library_factory import (
+    ToolLibraryFactory,
+    ToolContext,
+)
 from simple_agent.application.user_input import UserInput
-
-
 
 
 class AgentFactory:
@@ -59,6 +60,7 @@ class AgentFactory:
                 agent_id, definition, task_description, Messages()
             )
             return await subagent.start()
+
         return spawn
 
     def create_agent(
@@ -66,18 +68,19 @@ class AgentFactory:
         agent_id: AgentId,
         definition,
         initial_message: str | None,
-        messages: Messages
+        messages: Messages,
     ) -> Agent:
-        tool_context = ToolContext(
-            definition.tool_keys(),
-            agent_id
-        )
+        tool_context = ToolContext(definition.tool_keys(), agent_id)
         spawner = self.create_spawner(agent_id)
         tools = self._tool_library_factory.create(
             tool_context, spawner, AgentTypes(self._agent_library.list_agent_types())
         )
-        tools_documentation = generate_tools_documentation(tools.tools, tools.tool_syntax)
-        system_prompt = definition.prompt().render(tools_documentation, self._project_tree)
+        tools_documentation = generate_tools_documentation(
+            tools.tools, tools.tool_syntax
+        )
+        system_prompt = definition.prompt().render(
+            tools_documentation, self._project_tree
+        )
         messages.seed_system_prompt(system_prompt)
 
         return Agent(
@@ -88,5 +91,5 @@ class AgentFactory:
             definition.model(),
             self.create_input(initial_message),
             self._event_bus,
-            messages
+            messages,
         )

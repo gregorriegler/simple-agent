@@ -4,6 +4,4 @@ from typing import Protocol
 
 
 class GroundRules(Protocol):
-    def read(self) -> str:
-        ...
-
+    def read(self) -> str: ...

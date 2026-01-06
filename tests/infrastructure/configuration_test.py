@@ -3,7 +3,10 @@ from pathlib import Path
 import pytest
 
 from simple_agent.infrastructure import user_configuration
-from simple_agent.infrastructure.user_configuration import UserConfiguration, ConfigurationError
+from simple_agent.infrastructure.user_configuration import (
+    UserConfiguration,
+    ConfigurationError,
+)
 
 
 def test_resolve_api_key_replaces_env_placeholder(monkeypatch, tmp_path):
@@ -44,7 +47,9 @@ api_key = "${MISSING_KEY}"
 """.lstrip()
     )
 
-    with pytest.raises(ConfigurationError, match="environment variable 'MISSING_KEY' is not set"):
+    with pytest.raises(
+        ConfigurationError, match="environment variable 'MISSING_KEY' is not set"
+    ):
         UserConfiguration.load_from_config_file(str(tmp_path))
 
 
@@ -99,6 +104,4 @@ path = "${APP_DIR}/custom_agents"
     user_config = UserConfiguration.load_from_config_file(str(tmp_path))
 
     app_dir = str(Path(user_configuration.__file__).resolve().parents[2])
-    assert user_config.agents_candidate_directories() == [
-        f"{app_dir}/custom_agents"
-    ]
+    assert user_config.agents_candidate_directories() == [f"{app_dir}/custom_agents"]

@@ -4,7 +4,6 @@ from simple_agent.application.tool_results import SingleToolResult
 
 
 class TestSimpleEventBus:
-
     def test_subscribe_adds_handler_for_event_type(self):
         event_bus = SimpleEventBus()
         handler = lambda event: None

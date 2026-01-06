@@ -26,15 +26,13 @@ class LLMResponse:
 
 
 class LLM(Protocol):
-    async def call_async(self, messages: ChatMessages) -> LLMResponse:
-        ...
+    async def call_async(self, messages: ChatMessages) -> LLMResponse: ...
+
 
 class LLMProvider(Protocol):
-    def get(self, model_name: str | None = None) -> LLM:
-        ...
+    def get(self, model_name: str | None = None) -> LLM: ...
 
-    def get_available_models(self) -> list[str]:
-        ...
+    def get_available_models(self) -> list[str]: ...
 
 
 class Messages:

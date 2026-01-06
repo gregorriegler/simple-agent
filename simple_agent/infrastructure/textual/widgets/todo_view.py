@@ -4,6 +4,7 @@ from textual.css.query import NoMatches
 from simple_agent.application.agent_id import AgentId
 from pathlib import Path
 
+
 class TodoView(VerticalScroll):
     def __init__(self, agent_id: AgentId, markdown_id: str, **kwargs):
         super().__init__(**kwargs)

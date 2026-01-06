@@ -52,6 +52,7 @@ def test_parse_tool_with_multiline_message_and_ls_command():
     assert message_and_tools.tools[0].arguments == ""
     assert type(message_and_tools.tools[0].tool_instance).__name__ == "LsTool"
 
+
 def test_parse_tool_with_message_and_two_tool_calls():
     text = dedent("""
     I will run ls and read test.txt

@@ -6,7 +6,6 @@ from simple_agent.application.ground_rules import GroundRules
 
 
 class AgentsMdGroundRules(GroundRules):
-
     def __init__(self, base_dir: str = None, filename: str = "AGENTS.md"):
         self.base_dir = base_dir or os.getcwd()
         self.filename = filename
@@ -18,4 +17,3 @@ class AgentsMdGroundRules(GroundRules):
                 return handle.read()
         except FileNotFoundError:
             return ""
-

@@ -1,7 +1,10 @@
 import pytest
 
 from simple_agent.application.tool_library import RawToolCall
-from simple_agent.tools.replace_file_content_tool import FileReplacer, ReplaceFileContentTool
+from simple_agent.tools.replace_file_content_tool import (
+    FileReplacer,
+    ReplaceFileContentTool,
+)
 
 pytestmark = pytest.mark.asyncio
 
@@ -62,7 +65,9 @@ async def test_parse_arguments_requires_body_separator():
 
 async def test_parse_arguments_reports_invalid_replace_mode():
     tool = ReplaceFileContentTool()
-    raw_call = RawToolCall(name=tool.name, arguments="file.txt invalid", body="a\n@@@\nb")
+    raw_call = RawToolCall(
+        name=tool.name, arguments="file.txt invalid", body="a\n@@@\nb"
+    )
 
     parsed, error = tool.parse_arguments(raw_call)
 

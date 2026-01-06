@@ -11,16 +11,12 @@ from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 
 def test_create_agent_library(tmp_path):
-    project_agents_dir = tmp_path / '.simple-agent' / 'agents'
+    project_agents_dir = tmp_path / ".simple-agent" / "agents"
     project_agents_dir.mkdir(parents=True, exist_ok=True)
 
-    (project_agents_dir / 'test.agent.md').write_text(
-        "---\n"
-        "name: ProjectLocal\n"
-        "tools: bash\n"
-        "---\n"
-        "This is a project-local agent.",
-        encoding='utf-8'
+    (project_agents_dir / "test.agent.md").write_text(
+        "---\nname: ProjectLocal\ntools: bash\n---\nThis is a project-local agent.",
+        encoding="utf-8",
     )
 
     user_config = UserConfiguration({"agents": {"start": "test"}}, str(tmp_path))
@@ -29,16 +25,16 @@ def test_create_agent_library(tmp_path):
     starting_agent_id = agents.starting_agent_id()
     prompt = agents.read_agent_definition(AgentType("test")).prompt()
     assert starting_agent_id == AgentId("ProjectLocal")
-    assert 'project-local agent' in prompt.template
+    assert "project-local agent" in prompt.template
 
 
 def test_falls_back_to_builtin_when_no_filesystem_agents(tmp_path):
     user_config = UserConfiguration({}, str(tmp_path))
 
     agents = create_agent_library(user_config)
-    definition = agents.read_agent_definition(AgentType('coding'))
+    definition = agents.read_agent_definition(AgentType("coding"))
     prompt = definition.prompt()
-    assert prompt.agent_name == 'Coding'
+    assert prompt.agent_name == "Coding"
     assert len(definition.tool_keys()) > 0
 
 
@@ -46,31 +42,26 @@ def test_load_agent_prompt_handles_missing_custom_definition_by_using_builtin(tm
     user_config = UserConfiguration({}, str(tmp_path))
 
     agents = create_agent_library(user_config)
-    prompt = agents.read_agent_definition(AgentType('orchestrator')).prompt()
-    assert prompt.agent_name == 'Orchestrator'
+    prompt = agents.read_agent_definition(AgentType("orchestrator")).prompt()
+    assert prompt.agent_name == "Orchestrator"
 
 
 def test_load_agent_prompt_prefers_filesystem_directory(tmp_path):
     configured_dir = tmp_path / "agents"
     configured_dir.mkdir()
     (configured_dir / "custom.agent.md").write_text(
-        "---\n"
-        "name: Configured\n"
-        "tools: bash\n"
-        "---\n"
-        "Configured definitions.",
-        encoding='utf-8'
+        "---\nname: Configured\ntools: bash\n---\nConfigured definitions.",
+        encoding="utf-8",
     )
 
     user_config = UserConfiguration(
-        {"agents": {"path": str(configured_dir), "start": "custom"}},
-        str(tmp_path)
+        {"agents": {"path": str(configured_dir), "start": "custom"}}, str(tmp_path)
     )
 
     agents = create_agent_library(user_config)
-    prompt = agents.read_agent_definition(AgentType('custom')).prompt()
-    assert prompt.agent_name == 'Configured'
-    assert 'Configured definitions' in prompt.template
+    prompt = agents.read_agent_definition(AgentType("custom")).prompt()
+    assert prompt.agent_name == "Configured"
+    assert "Configured definitions" in prompt.template
 
 
 def test_filesystem_agent_library_lists_sorted_agent_types(tmp_path):

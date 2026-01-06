@@ -7,28 +7,30 @@ from ..application.agent_type import AgentType
 
 
 class SubagentTool(BaseTool):
-    name = 'subagent'
+    name = "subagent"
     description = "Creates a new subagent that will handle a specific task/todo and report back the result."
-    arguments = ToolArguments(header=[
-        ToolArgument(
-            name="agenttype",
-            type="string",
-            required=True,
-            description="Type of agent to create. {{AGENT_TYPES}}",
-        ),
-        ToolArgument(
-            name="task_description",
-            type="string",
-            required=True,
-            description="Detailed description of the task for the subagent to perform",
-        ),
-    ])
+    arguments = ToolArguments(
+        header=[
+            ToolArgument(
+                name="agenttype",
+                type="string",
+                required=True,
+                description="Type of agent to create. {{AGENT_TYPES}}",
+            ),
+            ToolArgument(
+                name="task_description",
+                type="string",
+                required=True,
+                description="Detailed description of the task for the subagent to perform",
+            ),
+        ]
+    )
     examples = [
         {
             "reasoning": "Let's say you want to delegate a coding task to a subagent. Send the following:",
             "agenttype": "default",
             "task_description": "Write a Python function to calculate fibonacci numbers",
-            "result": "def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)"
+            "result": "def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)",
         },
         {
             "agenttype": "default",
@@ -44,28 +46,36 @@ class SubagentTool(BaseTool):
     async def execute(self, raw_call):
         args = raw_call.arguments
         if not args or not args.strip():
-            return SingleToolResult('STDERR: subagent: missing arguments', status=ToolResultStatus.FAILURE)
+            return SingleToolResult(
+                "STDERR: subagent: missing arguments", status=ToolResultStatus.FAILURE
+            )
 
         parts = args.strip().split(None, 1)
 
         if len(parts) < 2:
-            return SingleToolResult('STDERR: subagent: missing agenttype or task description', status=ToolResultStatus.FAILURE)
+            return SingleToolResult(
+                "STDERR: subagent: missing agenttype or task description",
+                status=ToolResultStatus.FAILURE,
+            )
 
         agent_type_str = parts[0]
         task_description = parts[1]
 
         try:
             result = await self._spawn_subagent(
-                AgentType(agent_type_str),
-                task_description
+                AgentType(agent_type_str), task_description
             )
-            status = ToolResultStatus.SUCCESS if result.success else ToolResultStatus.FAILURE
+            status = (
+                ToolResultStatus.SUCCESS if result.success else ToolResultStatus.FAILURE
+            )
             return SingleToolResult(str(result), status=status)
         except Exception as e:
-            return SingleToolResult(f'STDERR: subagent error: {str(e)}', status=ToolResultStatus.FAILURE)
+            return SingleToolResult(
+                f"STDERR: subagent error: {str(e)}", status=ToolResultStatus.FAILURE
+            )
 
     def get_template_variables(self) -> dict:
         if not self._agent_types:  # Empty AgentTypes
             return {}
-        types_str = ', '.join(f"'{t}'" for t in self._agent_types)
-        return {'AGENT_TYPES': f"Available types: {types_str}"}
+        types_str = ", ".join(f"'{t}'" for t in self._agent_types)
+        return {"AGENT_TYPES": f"Available types: {types_str}"}

@@ -22,8 +22,8 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete i
 
 logger = logging.getLogger(__name__)
 
-class SmartInput(TextArea):
 
+class SmartInput(TextArea):
     class Submitted(Message):
         def __init__(self, result: CompletionResult):
             self.result = result
@@ -37,12 +37,7 @@ class SmartInput(TextArea):
     }
     """
 
-    def __init__(
-        self,
-        provider: SuggestionProvider,
-        id: str | None = None,
-        **kwargs
-    ):
+    def __init__(self, provider: SuggestionProvider, id: str | None = None, **kwargs):
         super().__init__(id=id, **kwargs)
 
         self.provider = provider
@@ -71,7 +66,9 @@ class SmartInput(TextArea):
             self._autocomplete_task = None
         self.popup.close()
 
-    def on_autocomplete_popup_selected(self, message: AutocompletePopup.Selected) -> None:
+    def on_autocomplete_popup_selected(
+        self, message: AutocompletePopup.Selected
+    ) -> None:
         self._apply_completion(message.result)
         message.stop()
 
@@ -114,15 +111,16 @@ class SmartInput(TextArea):
         if self._autocomplete_task:
             self._autocomplete_task.cancel()
 
-        self._autocomplete_task = asyncio.create_task(self._run_autocomplete_check(cursor_and_line))
+        self._autocomplete_task = asyncio.create_task(
+            self._run_autocomplete_check(cursor_and_line)
+        )
 
     async def _run_autocomplete_check(self, cursor_and_line: CursorAndLine) -> None:
         try:
             suggestion_list = await self.provider.suggest(cursor_and_line)
             if suggestion_list:
                 seed = CompletionSeed(
-                    location=self.cursor_screen_offset,
-                    text=cursor_and_line.word
+                    location=self.cursor_screen_offset, text=cursor_and_line.word
                 )
                 self.popup.show(suggestion_list, seed)
             else:

@@ -5,7 +5,6 @@ from simple_agent.application.user_input import UserInput
 
 
 class TextualUserInput(UserInput):
-
     def __init__(self):
         self.input_queue: Queue[str] = Queue()
         self.escape_flag = False

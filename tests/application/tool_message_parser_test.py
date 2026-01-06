@@ -5,6 +5,7 @@ from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolS
 
 syntax = EmojiBracketToolSyntax()
 
+
 def test_parse_simple_tool_call():
     text = "Hello\n🛠️[bash echo hello]"
     result = parse_tool_calls(text, syntax)

@@ -4,8 +4,8 @@ import shlex
 def create_lexer(text):
     lexer = shlex.shlex(text, posix=True)
     lexer.whitespace_split = True
-    lexer.commenters = ''
-    lexer.escape = ''
+    lexer.commenters = ""
+    lexer.escape = ""
     return lexer
 
 

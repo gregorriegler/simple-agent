@@ -12,7 +12,7 @@ class ModelConfig:
     request_timeout: int = 60
 
     @staticmethod
-    def from_dict(name: str, config: Mapping[str, Any]) -> 'ModelConfig':
+    def from_dict(name: str, config: Mapping[str, Any]) -> "ModelConfig":
         model = config.get("model") or config.get("name")
         if not model:
             raise ValueError(f"model '{name}' is missing required field 'model'")
@@ -46,12 +46,11 @@ class ModelConfig:
             adapter=normalized_adapter,
             api_key=api_key,
             base_url=base_url,
-            request_timeout=request_timeout
+            request_timeout=request_timeout,
         )
 
 
 class ModelsRegistry:
-
     def __init__(self, models: dict[str, ModelConfig], default: str):
         self.models = models
         self.default = default
@@ -63,7 +62,7 @@ class ModelsRegistry:
         return self.models[key]
 
     @staticmethod
-    def from_config(config: Mapping[str, Any]) -> 'ModelsRegistry':
+    def from_config(config: Mapping[str, Any]) -> "ModelsRegistry":
         model_section = config.get("model")
         if not isinstance(model_section, Mapping):
             raise ValueError("missing required 'model' section in configuration")
@@ -80,7 +79,9 @@ class ModelsRegistry:
         models_dict = {}
         for model_name, model_config in models_section.items():
             if isinstance(model_config, Mapping):
-                models_dict[str(model_name)] = ModelConfig.from_dict(str(model_name), model_config)
+                models_dict[str(model_name)] = ModelConfig.from_dict(
+                    str(model_name), model_config
+                )
 
         if default_name not in models_dict:
             available = ", ".join(models_dict.keys())

@@ -4,11 +4,17 @@ from simple_agent.logging_config import get_logger
 from .agent_id import AgentId
 from .event_bus import EventBus
 from .events import (
-    AgentStartedEvent, AgentFinishedEvent,
-    AssistantSaidEvent, AssistantRespondedEvent,
-    SessionEndedEvent, SessionInterruptedEvent,
-    UserPromptRequestedEvent, UserPromptedEvent,
-    ErrorEvent, SessionClearedEvent, ModelChangedEvent
+    AgentStartedEvent,
+    AgentFinishedEvent,
+    AssistantSaidEvent,
+    AssistantRespondedEvent,
+    SessionEndedEvent,
+    SessionInterruptedEvent,
+    UserPromptRequestedEvent,
+    UserPromptedEvent,
+    ErrorEvent,
+    SessionClearedEvent,
+    ModelChangedEvent,
 )
 from .input import Input
 from .llm import LLM, Messages, LLMProvider
@@ -18,6 +24,7 @@ from .tool_results import ToolResult, SingleToolResult
 from .tools_executor import ToolsExecutor
 
 logger = get_logger(__name__)
+
 
 class Agent:
     def __init__(
@@ -72,7 +79,7 @@ class Agent:
         if not self.user_input.has_stacked_messages():
             await self._notify_user_prompt_requested()
         prompt = await self.user_input.read_async()
-        
+
         while prompt and self._is_slash_command(prompt):
             await self._handle_slash_command(prompt)
             await self._notify_user_prompt_requested()
@@ -82,16 +89,16 @@ class Agent:
             self.context.user_says(prompt)
             await self._notify_user_prompted(prompt)
         return prompt
-    
+
     def _is_slash_command(self, prompt: str) -> bool:
         """Check if the prompt is a registered slash command."""
         if not prompt.startswith("/"):
             return False
-        
+
         command_name = prompt.split()[0]
         all_commands = self.slash_command_registry.get_all_commands()
         return command_name in all_commands
-    
+
     async def _handle_slash_command(self, prompt: str):
         """Handle slash commands using the registry."""
         if prompt == "/clear":
@@ -106,7 +113,9 @@ class Agent:
                 old_model = self.llm.model
                 try:
                     self.llm = self.llm_provider.get(new_model)
-                    self.event_bus.publish(ModelChangedEvent(self.agent_id, old_model, new_model))
+                    self.event_bus.publish(
+                        ModelChangedEvent(self.agent_id, old_model, new_model)
+                    )
                 except Exception as e:
                     await self._notify_error_occured(str(e))
 
@@ -134,14 +143,13 @@ class Agent:
             await self._notify_error_occured(e)
             return None
 
-
     async def llm_responds(self) -> MessageAndParsedTools:
         from simple_agent.application.model_info import ModelInfo
 
         response = await self.llm.call_async(self.context.to_list())
         answer = response.content
         model = response.model
-        
+
         input_tokens = 0
         if response.usage:
             input_tokens = response.usage.input_tokens
@@ -151,17 +159,21 @@ class Agent:
             max_tokens = response.usage.input_token_limit
 
         self.context.assistant_says(answer)
-        self.event_bus.publish(AssistantRespondedEvent(
-            self.agent_id,
-            answer,
-            model=model,
-            max_tokens=max_tokens,
-            input_tokens=input_tokens
-        ))
+        self.event_bus.publish(
+            AssistantRespondedEvent(
+                self.agent_id,
+                answer,
+                model=model,
+                max_tokens=max_tokens,
+                input_tokens=input_tokens,
+            )
+        )
         return self.tools.parse_message_and_tools(answer)
 
     def _notify_agent_started(self):
-        self.event_bus.publish(AgentStartedEvent(self.agent_id, self.agent_name, self.llm.model))
+        self.event_bus.publish(
+            AgentStartedEvent(self.agent_id, self.agent_name, self.llm.model)
+        )
 
     async def _notify_user_prompt_requested(self):
         self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))

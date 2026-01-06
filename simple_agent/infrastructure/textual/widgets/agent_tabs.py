@@ -22,6 +22,7 @@ from simple_agent.application.events import (
 
 logger = logging.getLogger(__name__)
 
+
 class AgentTabs(TabbedContent):
     """
     Manages the tabs for different agents/sub-agents.
@@ -32,7 +33,9 @@ class AgentTabs(TabbedContent):
         super().__init__(**kwargs)
         self._root_agent_id = root_agent_id
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
-        self._agent_names: dict[AgentId, str] = {self._root_agent_id: self._root_agent_id.raw}
+        self._agent_names: dict[AgentId, str] = {
+            self._root_agent_id: self._root_agent_id.raw
+        }
         self._agent_workspaces: dict[str, AgentWorkspace] = {}
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._agent_models: dict[AgentId, str] = {self._root_agent_id: ""}
@@ -43,7 +46,9 @@ class AgentTabs(TabbedContent):
         # We construct the TabPane manually
         new_tab = TabPane(self._root_agent_id.raw, id=tab_id)
         # And add the AgentWorkspace to it
-        new_tab.compose_add_child(self.create_agent_container(log_id, tool_results_id, self._root_agent_id))
+        new_tab.compose_add_child(
+            self.create_agent_container(log_id, tool_results_id, self._root_agent_id)
+        )
         # Then add the pane to self (TabbedContent)
         self.add_pane(new_tab)
 
@@ -60,7 +65,7 @@ class AgentTabs(TabbedContent):
             agent_id=agent_id,
             log_id=log_id,
             tool_results_id=tool_results_id,
-            id="tab-content"
+            id="tab-content",
         )
 
         self._agent_workspaces[str(agent_id)] = workspace
@@ -78,7 +83,9 @@ class AgentTabs(TabbedContent):
         self._agent_names[agent_id] = agent_name
 
         new_tab = TabPane(tab_title, id=tab_id)
-        new_tab.compose_add_child(self.create_agent_container(log_id, tool_results_id, agent_id))
+        new_tab.compose_add_child(
+            self.create_agent_container(log_id, tool_results_id, agent_id)
+        )
 
         self.add_pane(new_tab)
         self.active = tab_id
@@ -106,7 +113,9 @@ class AgentTabs(TabbedContent):
         tab_panes = list(self.query(TabPane))
         if len(tab_panes) <= 1:
             return
-        current_index = next((i for i, pane in enumerate(tab_panes) if pane.id == self.active), 0)
+        current_index = next(
+            (i for i, pane in enumerate(tab_panes) if pane.id == self.active), 0
+        )
         new_index = (current_index + direction) % len(tab_panes)
         new_tab_id = tab_panes[new_index].id
         if new_tab_id:
@@ -120,27 +129,38 @@ class AgentTabs(TabbedContent):
             if workspace:
                 workspace.clear()
             else:
-                logger.warning("Could not find workspace for agent %s to clear", event.agent_id)
+                logger.warning(
+                    "Could not find workspace for agent %s to clear", event.agent_id
+                )
             self._reset_agent_token_usage(event.agent_id)
         elif isinstance(event, UserPromptedEvent):
             workspace = self._agent_workspaces.get(str(event.agent_id))
             if workspace:
                 workspace.add_user_message(event.input_text)
             else:
-                logger.warning("Could not find workspace for agent %s to add user message", event.agent_id)
+                logger.warning(
+                    "Could not find workspace for agent %s to add user message",
+                    event.agent_id,
+                )
         elif isinstance(event, AssistantSaidEvent):
             workspace = self._agent_workspaces.get(str(event.agent_id))
             if workspace:
                 agent_name = self._agent_names.get(event.agent_id, str(event.agent_id))
                 workspace.add_assistant_message(event.message, agent_name)
             else:
-                logger.warning("Could not find workspace for agent %s to add assistant message", event.agent_id)
+                logger.warning(
+                    "Could not find workspace for agent %s to add assistant message",
+                    event.agent_id,
+                )
         elif isinstance(event, ToolCalledEvent):
             workspace = self._agent_workspaces.get(str(event.agent_id))
             if workspace:
                 workspace.on_tool_call(event.call_id, event.tool.header())
             else:
-                logger.warning("Could not find workspace for agent %s to write tool call", event.agent_id)
+                logger.warning(
+                    "Could not find workspace for agent %s to write tool call",
+                    event.agent_id,
+                )
         elif isinstance(event, ToolResultEvent):
             if not event.result:
                 return
@@ -148,13 +168,19 @@ class AgentTabs(TabbedContent):
             if workspace:
                 workspace.on_tool_result(event.call_id, event.result)
             else:
-                logger.warning("Could not find workspace for agent %s to write tool result", event.agent_id)
+                logger.warning(
+                    "Could not find workspace for agent %s to write tool result",
+                    event.agent_id,
+                )
         elif isinstance(event, ToolCancelledEvent):
             workspace = self._agent_workspaces.get(str(event.agent_id))
             if workspace:
                 workspace.on_tool_cancelled(event.call_id)
             else:
-                logger.warning("Could not find workspace for agent %s to write tool cancelled", event.agent_id)
+                logger.warning(
+                    "Could not find workspace for agent %s to write tool cancelled",
+                    event.agent_id,
+                )
         elif isinstance(event, SessionInterruptedEvent):
             workspace = self._agent_workspaces.get(str(event.agent_id))
             if workspace:
@@ -182,14 +208,18 @@ class AgentTabs(TabbedContent):
         elif isinstance(event, AssistantRespondedEvent):
             self._agent_models[event.agent_id] = event.model
             self._agent_max_tokens[event.agent_id] = event.max_tokens
-            title = self._tab_title_for(event.agent_id, event.model, event.input_tokens, event.max_tokens)
+            title = self._tab_title_for(
+                event.agent_id, event.model, event.input_tokens, event.max_tokens
+            )
             self.update_tab_title(event.agent_id, title)
         elif isinstance(event, ModelChangedEvent):
             self._agent_models[event.agent_id] = event.new_model
             title = self._tab_title_for(event.agent_id, event.new_model, 0, 0)
             self.update_tab_title(event.agent_id, title)
 
-    def _ensure_agent_tab_exists(self, agent_id: AgentId, agent_name: str | None, model: str) -> None:
+    def _ensure_agent_tab_exists(
+        self, agent_id: AgentId, agent_name: str | None, model: str
+    ) -> None:
         if not self.app.is_running:
             return
         if agent_name:
@@ -198,13 +228,17 @@ class AgentTabs(TabbedContent):
             self._agent_models[agent_id] = model
         if self.has_agent_tab(agent_id):
             if model:
-                title = self._tab_title_for(agent_id, model, 0, self._agent_max_tokens.get(agent_id, 0))
+                title = self._tab_title_for(
+                    agent_id, model, 0, self._agent_max_tokens.get(agent_id, 0)
+                )
                 self.update_tab_title(agent_id, title)
             return
         tab_title = self._tab_title_for(agent_id, model, 0, 0)
         self.add_subagent_tab(agent_id, tab_title)
 
-    def _tab_title_for(self, agent_id: AgentId, model: str, input_tokens: int, max_tokens: int) -> str:
+    def _tab_title_for(
+        self, agent_id: AgentId, model: str, input_tokens: int, max_tokens: int
+    ) -> str:
         base_title = self._agent_names.get(agent_id, str(agent_id))
 
         if not model:

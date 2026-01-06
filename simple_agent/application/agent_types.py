@@ -2,7 +2,6 @@ from typing import List
 
 
 class AgentTypes:
-
     def __init__(self, types: List[str]):
         self._types = list(types)
 

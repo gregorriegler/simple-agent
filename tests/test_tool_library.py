@@ -24,13 +24,16 @@ class ToolLibraryStub(AllTools):
         tool_context: ToolContext | None = None,
         spawner=None,
         tool_keys: list[str] | None = None,
-        agent_types: AgentTypes = None
+        agent_types: AgentTypes = None,
     ):
         from simple_agent.application.session_storage import NoOpSessionStorage
+
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
         actual_tool_context = tool_context
         actual_spawner = spawner
-        actual_agent_types = agent_types if agent_types is not None else AgentTypes.empty()
+        actual_agent_types = (
+            agent_types if agent_types is not None else AgentTypes.empty()
+        )
         if actual_tool_context is None:
             tool_library_factory = AllToolsFactory()
             agent_library = BuiltinAgentLibrary()
@@ -46,22 +49,30 @@ class ToolLibraryStub(AllTools):
             )
 
             agent_id = AgentId("Agent")
-            actual_tool_context = ToolContext(
-                tool_keys or [],
-                agent_id
-            )
-            actual_spawner = lambda agent_type, task_description: agent_factory.spawn_subagent(
-                agent_id, agent_type, task_description, 1
+            actual_tool_context = ToolContext(tool_keys or [], agent_id)
+            actual_spawner = (
+                lambda agent_type, task_description: agent_factory.spawn_subagent(
+                    agent_id, agent_type, task_description, 1
+                )
             )
             actual_agent_types = AgentTypes(agent_library.list_agent_types())
 
         tool_syntax = EmojiBracketToolSyntax()
-        super().__init__(tool_context=actual_tool_context, spawner=actual_spawner, agent_types=actual_agent_types, tool_syntax=tool_syntax)
+        super().__init__(
+            tool_context=actual_tool_context,
+            spawner=actual_spawner,
+            agent_types=actual_agent_types,
+            tool_syntax=tool_syntax,
+        )
         self.interrupts = interrupts or []
         self.counter = 0
 
     async def execute_parsed_tool(self, parsed_tool):
-        if self.interrupts and self.counter < len(self.interrupts) and self.interrupts[self.counter]:
+        if (
+            self.interrupts
+            and self.counter < len(self.interrupts)
+            and self.interrupts[self.counter]
+        ):
             self.counter += 1
             raise KeyboardInterrupt()
         result = await parsed_tool.tool_instance.execute(parsed_tool.raw_call)
@@ -77,7 +88,7 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
         escapes=None,
         interrupts=None,
         event_bus=None,
-        all_displays=None
+        all_displays=None,
     ):
         self._llm = llm
         self._inputs = inputs
@@ -90,7 +101,7 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
         self,
         tool_context: ToolContext,
         spawner=None,
-        agent_types: AgentTypes = AgentTypes.empty()
+        agent_types: AgentTypes = AgentTypes.empty(),
     ) -> AllTools:
         return ToolLibraryStub(
             self._llm,
@@ -100,5 +111,5 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
             event_bus=self._event_bus,
             tool_context=tool_context,
             spawner=spawner,
-            agent_types=agent_types
+            agent_types=agent_types,
         )

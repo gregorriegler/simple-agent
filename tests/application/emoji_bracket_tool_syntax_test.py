@@ -6,27 +6,35 @@ from simple_agent.application.tool_library import ToolArgument, ToolArguments
 
 
 class SimpleTool(BaseTool):
-    name = 'test_tool'
-    description = 'A test tool'
-    arguments = ToolArguments(header=[
-        ToolArgument(name='arg1', description='First argument', required=True),
-        ToolArgument(name='arg2', description='Second argument', required=False),
-    ])
+    name = "test_tool"
+    description = "A test tool"
+    arguments = ToolArguments(
+        header=[
+            ToolArgument(name="arg1", description="First argument", required=True),
+            ToolArgument(name="arg2", description="Second argument", required=False),
+        ]
+    )
     examples = [
-        {'arg1': 'value1', 'arg2': 'value2'},
-        {'arg1': 'only_required'},
+        {"arg1": "value1", "arg2": "value2"},
+        {"arg1": "only_required"},
     ]
 
 
 class MultilineTool(BaseTool):
-    name = 'multiline_tool'
-    description = 'Tool with multiline input'
+    name = "multiline_tool"
+    description = "Tool with multiline input"
     arguments = ToolArguments(
-        header=[ToolArgument(name='inline_arg', description='Inline argument', required=True)],
-        body=ToolArgument(name='multiline_arg', description='Multiline content', required=True),
+        header=[
+            ToolArgument(
+                name="inline_arg", description="Inline argument", required=True
+            )
+        ],
+        body=ToolArgument(
+            name="multiline_arg", description="Multiline content", required=True
+        ),
     )
     examples = [
-        {'inline_arg': 'test', 'multiline_arg': 'line1\nline2\nline3'},
+        {"inline_arg": "test", "multiline_arg": "line1\nline2\nline3"},
     ]
 
 
@@ -49,8 +57,8 @@ class TestEmojiBracketDocumentation:
 
     def test_renders_tool_without_arguments(self):
         class NoArgsTool(BaseTool):
-            name = 'no_args'
-            description = 'Tool without arguments'
+            name = "no_args"
+            description = "Tool without arguments"
             arguments = ToolArguments()
             examples = []
 
@@ -63,8 +71,8 @@ class TestEmojiBracketDocumentation:
 
     def test_renders_non_dict_example_values(self):
         class WeirdExampleTool(BaseTool):
-            name = 'weird_example'
-            description = 'Tool with unusual examples'
+            name = "weird_example"
+            description = "Tool with unusual examples"
             arguments = ToolArguments()
             examples = [123]
 
@@ -77,7 +85,6 @@ class TestEmojiBracketDocumentation:
 
 
 class TestEmojiBracketBasicParsing:
-
     def test_parses_simple_tool_call_with_no_body(self):
         syntax = EmojiBracketToolSyntax()
         text = "🛠️[create-file]"
@@ -146,7 +153,6 @@ line3
 
 
 class TestEmojiBracketHeaderParsing:
-
     def test_parses_tool_name_with_multiple_arguments(self):
         syntax = EmojiBracketToolSyntax()
         text = "🛠️[run-query main.sql 100]"
@@ -174,7 +180,6 @@ class TestEmojiBracketHeaderParsing:
 
 
 class TestEmojiBracketBodyHandling:
-
     def test_preserves_newlines_in_body(self):
         syntax = EmojiBracketToolSyntax()
         text = "🛠️[tool]\nline1\nline2\n🛠️[/end]"
@@ -194,8 +199,8 @@ def hello():
 
         result = syntax.parse(text)
 
-        assert '```python' in result.tool_calls[0].body
-        assert 'def hello():' in result.tool_calls[0].body
+        assert "```python" in result.tool_calls[0].body
+        assert "def hello():" in result.tool_calls[0].body
 
     def test_handles_markdown_in_body(self):
         syntax = EmojiBracketToolSyntax()
@@ -206,12 +211,11 @@ This is **bold** text.
 
         result = syntax.parse(text)
 
-        assert '# Hello' in result.tool_calls[0].body
-        assert '**bold**' in result.tool_calls[0].body
+        assert "# Hello" in result.tool_calls[0].body
+        assert "**bold**" in result.tool_calls[0].body
 
 
 class TestEmojiBracketMultipleToolCalls:
-
     def test_parses_two_sequential_tool_calls(self):
         syntax = EmojiBracketToolSyntax()
         text = """🛠️[create-file script.py]
@@ -231,7 +235,7 @@ This is a README.
         assert 'print("Hello World")' in result.tool_calls[0].body
         assert result.tool_calls[1].name == "create-file"
         assert result.tool_calls[1].arguments == "readme.md"
-        assert '# Hello' in result.tool_calls[1].body
+        assert "# Hello" in result.tool_calls[1].body
 
     def test_parses_tool_calls_with_text_between(self):
         syntax = EmojiBracketToolSyntax()
@@ -361,7 +365,7 @@ print("test")
 
         # Inner 🛠️[ should be treated as plain text in the body
         assert len(result.tool_calls) == 1
-        assert '🛠️[another-tool]' in result.tool_calls[0].body
+        assert "🛠️[another-tool]" in result.tool_calls[0].body
 
 
 class TestEmojiBracketEdgeCases:
@@ -386,8 +390,8 @@ line2
 
         result = syntax.parse(text)
 
-        assert 'line1' in result.tool_calls[0].body
-        assert 'line2' in result.tool_calls[0].body
+        assert "line1" in result.tool_calls[0].body
+        assert "line2" in result.tool_calls[0].body
 
     def test_handles_tool_call_with_only_whitespace_body(self):
         syntax = EmojiBracketToolSyntax()

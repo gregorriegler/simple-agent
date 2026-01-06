@@ -15,8 +15,6 @@ from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from simple_agent.application.user_input import UserInput
 
 
-
-
 @dataclass
 class SessionArgs:
     continue_session: bool = False
@@ -64,7 +62,9 @@ class Session:
             self._project_tree,
         )
 
-        self._event_bus.publish(SessionStartedEvent(starting_agent_id, args.continue_session))
+        self._event_bus.publish(
+            SessionStartedEvent(starting_agent_id, args.continue_session)
+        )
 
         if args.continue_session:
             persisted_messages = PersistedMessages(
@@ -76,10 +76,7 @@ class Session:
 
         agent_definition = self._agent_library._starting_agent_definition()
         agent = agent_factory.create_agent(
-            starting_agent_id,
-            agent_definition,
-            args.start_message,
-            persisted_messages
+            starting_agent_id, agent_definition, args.start_message, persisted_messages
         )
 
         await agent.start()

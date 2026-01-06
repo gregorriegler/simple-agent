@@ -69,7 +69,6 @@ class SessionTestBed:
             def model(self) -> str:
                 return "failing-model"
 
-
             async def call_async(self, messages):
                 raise ClaudeClientError(error_message)
 
@@ -109,7 +108,9 @@ class SessionTestBed:
         event_bus = SimpleEventBus()
         user_input = UserInputStub(inputs=self._user_inputs, escapes=self._escape_hits)
         session_storage = SessionStorageStub()
-        todo_cleanup = self._todo_cleanup if self._todo_cleanup is not None else _NoOpTodoCleanup()
+        todo_cleanup = (
+            self._todo_cleanup if self._todo_cleanup is not None else _NoOpTodoCleanup()
+        )
 
         event_spy = EventSpy()
         tracked_events = [
@@ -137,7 +138,7 @@ class SessionTestBed:
             inputs=self._user_inputs,
             escapes=self._escape_hits,
             interrupts=[self._ctrl_c_hits],
-            event_bus=event_bus
+            event_bus=event_bus,
         )
 
         session = Session(
@@ -152,7 +153,9 @@ class SessionTestBed:
         )
 
         await session.run_async(
-            create_session_args(self._continue_session, start_message=self._start_message),
+            create_session_args(
+                self._continue_session, start_message=self._start_message
+            ),
             AgentId("Agent"),
         )
 
@@ -167,21 +170,21 @@ class TestAgentLibrary:
                 """---
 name: Agent
 ---""",
-                GroundRulesStub("Test system prompt")
+                GroundRulesStub("Test system prompt"),
             ),
             "coding": AgentDefinition(
                 AgentType("coding"),
                 """---
 name: Coding
 ---""",
-                GroundRulesStub("Test system prompt")
+                GroundRulesStub("Test system prompt"),
             ),
             "orchestrator": AgentDefinition(
                 AgentType("orchestrator"),
                 """---
 name: Orchestrator
 ---""",
-                GroundRulesStub("Test system prompt")
+                GroundRulesStub("Test system prompt"),
             ),
         }
 
@@ -199,7 +202,6 @@ name: Orchestrator
 
 
 class _NoOpTodoCleanup:
-
     def cleanup_all_todos(self) -> None:
         return None
 

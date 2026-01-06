@@ -1,6 +1,7 @@
 #!/usr/bin/env -S uv run --script
 import sys
 
+
 def say_with_piper(message):
     try:
         from piper import PiperVoice
@@ -33,14 +34,17 @@ def say_with_piper(message):
         print(f"Piper TTS error: {e}")
         return False
 
+
 def parse_args():
     message = sys.argv[1]
     return message
 
+
 def main():
-    message = ' '.join(sys.argv[1:])
+    message = " ".join(sys.argv[1:])
     print(f"Speaking: {message[:50]}{'...' if len(message) > 50 else ''}")
     say_with_piper(message)
+
 
 if __name__ == "__main__":
     main()

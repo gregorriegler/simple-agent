@@ -22,7 +22,6 @@ class SlowLLM:
 
 
 class InputWithStartMessage:
-
     def __init__(self):
         self._read_count = 0
 
@@ -37,11 +36,7 @@ class InputWithStartMessage:
 
 
 def _make_response(content: str):
-    return Mock(
-        content=content,
-        model="test-model",
-        usage=Mock(total_tokens=10)
-    )
+    return Mock(content=content, model="test-model", usage=Mock(total_tokens=10))
 
 
 def _make_tool_library():
@@ -94,14 +89,12 @@ async def test_cancel_interrupts_during_llm_call():
 
 
 class SlowTool:
-
     async def __call__(self, **kwargs):
         await asyncio.sleep(10)
         return SingleToolResult("This should not be reached")
 
 
 class ToolCallingLLM:
-
     def __init__(self):
         self._call_count = 0
 
@@ -117,7 +110,6 @@ class ToolCallingLLM:
 
 
 class ToolCallingToolLibrary:
-
     def __init__(self, slow_tool: SlowTool):
         self._slow_tool = slow_tool
 
@@ -131,7 +123,6 @@ class ToolCallingToolLibrary:
 
 
 class InputForToolTest:
-
     def __init__(self):
         self._read_count = 0
 

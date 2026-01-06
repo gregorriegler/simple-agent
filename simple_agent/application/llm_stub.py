@@ -6,7 +6,9 @@ from .llm import ChatMessages, LLM, LLMResponse, TokenUsage
 
 
 class StubLLM:
-    def __init__(self, responses: Sequence[str], default: str = "", model: str = "stub-model"):
+    def __init__(
+        self, responses: Sequence[str], default: str = "", model: str = "stub-model"
+    ):
         self._responses = responses
         self._default = default
         self._model_name = model
@@ -22,7 +24,9 @@ class StubLLM:
         if self._index < len(self._responses):
             content = self._responses[self._index]
             self._index += 1
-        return LLMResponse(content=content, model=self._model_name, usage=TokenUsage(0, 0, 0))
+        return LLMResponse(
+            content=content, model=self._model_name, usage=TokenUsage(0, 0, 0)
+        )
 
 
 def create_llm_stub(responses: Sequence[str], *, default: str = "") -> LLM:
@@ -42,27 +46,26 @@ def _create_default_stub_llm() -> LLM:
             "🛠️[bash rm newfile.txt]",
             "🛠️[complete-task Subagent2 completed successfully]",
             "🛠️[complete-task Subagent1 completed successfully]",
-            "🛠️[complete-task Main task completed successfully]"
+            "🛠️[complete-task Main task completed successfully]",
         ]
     )
 
 
 class StubLLMProvider:
-
     @classmethod
-    def dummy(cls) -> 'StubLLMProvider':
+    def dummy(cls) -> "StubLLMProvider":
         class DummyLLM:
             @property
             def model(self) -> str:
                 return "dummy"
 
             async def call_async(self, messages):
-                return LLMResponse(content='', model="dummy", usage=TokenUsage())
+                return LLMResponse(content="", model="dummy", usage=TokenUsage())
 
         return cls.for_testing(DummyLLM())
 
     @classmethod
-    def for_testing(cls, llm: LLM) -> 'StubLLMProvider':
+    def for_testing(cls, llm: LLM) -> "StubLLMProvider":
         provider = object.__new__(cls)
         provider._llm = llm
         return provider

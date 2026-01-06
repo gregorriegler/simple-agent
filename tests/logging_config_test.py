@@ -26,10 +26,7 @@ def test_setup_logging_applies_logger_levels(monkeypatch, tmp_path):
     config = {
         "log": {
             "level": "INFO",
-            "loggers": {
-                "simple_agent": "DEBUG",
-                "simple_agent.tools": "ERROR"
-            }
+            "loggers": {"simple_agent": "DEBUG", "simple_agent.tools": "ERROR"},
         }
     }
     user_config = UserConfiguration(config)

@@ -1,8 +1,16 @@
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.subagent_spawner import SubagentSpawner
-from simple_agent.application.tool_library import ToolLibrary, MessageAndParsedTools, ParsedTool, Tool
+from simple_agent.application.tool_library import (
+    ToolLibrary,
+    MessageAndParsedTools,
+    ParsedTool,
+    Tool,
+)
 from simple_agent.application.tool_message_parser import parse_tool_calls
-from simple_agent.application.tool_library_factory import ToolLibraryFactory, ToolContext
+from simple_agent.application.tool_library_factory import (
+    ToolLibraryFactory,
+    ToolContext,
+)
 from simple_agent.application.tool_syntax import ToolSyntax
 from .bash_tool import BashTool
 from .cat_tool import CatTool
@@ -20,7 +28,7 @@ class AllTools(ToolLibrary):
         tool_context: ToolContext,
         spawner: SubagentSpawner,
         agent_types: AgentTypes,
-        tool_syntax: ToolSyntax
+        tool_syntax: ToolSyntax,
     ):
         self.tool_context = tool_context
         self._spawner = spawner
@@ -31,18 +39,20 @@ class AllTools(ToolLibrary):
         static_tools = self._create_static_tools()
         dynamic_tools = self._discover_dynamic_tools()
         self.tools: list[Tool] = static_tools + dynamic_tools
-        self.tool_dict = {getattr(tool, 'name', ''): tool for tool in self.tools}
+        self.tool_dict = {getattr(tool, "name", ""): tool for tool in self.tools}
 
     def _create_static_tools(self):
         tool_map = {
-            'write_todos': lambda: WriteTodosTool(self.tool_context.agent_id.todo_filename()),
-            'ls': lambda: LsTool(),
-            'cat': lambda: CatTool(),
-            'create_file': lambda: CreateFileTool(),
-            'replace_file_content': lambda: ReplaceFileContentTool(),
-            'complete_task': lambda: CompleteTaskTool(),
-            'bash': lambda: BashTool(),
-            'subagent': lambda: SubagentTool(self._spawner, self._agent_types)
+            "write_todos": lambda: WriteTodosTool(
+                self.tool_context.agent_id.todo_filename()
+            ),
+            "ls": lambda: LsTool(),
+            "cat": lambda: CatTool(),
+            "create_file": lambda: CreateFileTool(),
+            "replace_file_content": lambda: ReplaceFileContentTool(),
+            "complete_task": lambda: CompleteTaskTool(),
+            "bash": lambda: BashTool(),
+            "subagent": lambda: SubagentTool(self._spawner, self._agent_types),
         }
 
         if not self.tool_keys:
@@ -84,6 +94,6 @@ class AllToolsFactory(ToolLibraryFactory):
         self,
         tool_context: ToolContext,
         spawner: SubagentSpawner,
-        agent_types: AgentTypes
+        agent_types: AgentTypes,
     ) -> ToolLibrary:
         return AllTools(tool_context, spawner, agent_types, self.tool_syntax)

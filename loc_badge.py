@@ -6,7 +6,9 @@ from pathlib import Path
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate a LoC badge from source files")
+    parser = argparse.ArgumentParser(
+        description="Generate a LoC badge from source files"
+    )
     parser.add_argument(
         "--paths",
         nargs="*",

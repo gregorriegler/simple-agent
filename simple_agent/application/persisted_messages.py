@@ -3,7 +3,6 @@ from .session_storage import SessionStorage
 
 
 class PersistedMessages(Messages):
-
     def __init__(
         self,
         session_storage: SessionStorage,
@@ -28,4 +27,3 @@ class PersistedMessages(Messages):
     def clear(self):
         super().clear()
         self._session_storage.save(self)
-

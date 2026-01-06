@@ -1,6 +1,7 @@
 import pytest
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 
+
 @pytest.mark.asyncio
 async def test_submit_input_includes_referenced_files(textual_harness, tmp_path):
     """
@@ -29,7 +30,9 @@ async def test_submit_input_includes_referenced_files(textual_harness, tmp_path)
         assert len(user_input.submissions) == 1
         submission = user_input.submissions[0]
 
-        expected_context = f'<file_context path="{test_file_path}">\nSecret content\n</file_context>'
+        expected_context = (
+            f'<file_context path="{test_file_path}">\nSecret content\n</file_context>'
+        )
 
         assert f"Check this [📦{test_file_path}]" in submission
         assert expected_context in submission
@@ -37,6 +40,7 @@ async def test_submit_input_includes_referenced_files(textual_harness, tmp_path)
         # Verify references are cleared
         assert len(text_area.get_referenced_files()) == 0
         assert text_area.text == ""
+
 
 @pytest.mark.asyncio
 async def test_submit_input_ignores_unreferenced_files(textual_harness, tmp_path):

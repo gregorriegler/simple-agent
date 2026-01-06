@@ -1,17 +1,17 @@
 import pytest
 import httpx
 
-from simple_agent.infrastructure.claude.claude_client import ClaudeLLM, ClaudeClientError
+from simple_agent.infrastructure.claude.claude_client import (
+    ClaudeLLM,
+    ClaudeClientError,
+)
 
 
 @pytest.mark.asyncio
 async def test_claude_chat_returns_content_text():
     response_data = {
         "content": [{"text": "assistant response"}],
-        "usage": {
-            "input_tokens": 10,
-            "output_tokens": 20
-        }
+        "usage": {"input_tokens": 10, "output_tokens": 20},
     }
     system_prompt = "system prompt"
 
@@ -22,7 +22,7 @@ async def test_claude_chat_returns_content_text():
     chat = ClaudeLLM(StubClaudeConfig(), transport=transport)
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": "Hello"}
+        {"role": "user", "content": "Hello"},
     ]
 
     result = await chat.call_async(messages)

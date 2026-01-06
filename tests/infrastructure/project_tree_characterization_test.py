@@ -1,6 +1,7 @@
 from pathlib import Path
 from simple_agent.infrastructure.project_tree import FileSystemProjectTree
 
+
 def test_characterization_of_project_tree_rendering(tmp_path: Path):
     # Setup - "Legacy" state we want to preserve
     (tmp_path / "dir1").mkdir()

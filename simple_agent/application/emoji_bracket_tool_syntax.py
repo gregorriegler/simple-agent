@@ -14,7 +14,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
     def render_documentation(self, tool: Tool) -> str:
         lines = [f"Tool: {tool.name}"]
 
-        if hasattr(tool, 'description') and tool.description:
+        if hasattr(tool, "description") and tool.description:
             lines.append(f"Description: {tool.description}")
 
         lines.append("")
@@ -27,8 +27,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
             for arg in tool.arguments.all:
                 lines.append(self._format_arg_doc(arg))
 
-
-        if hasattr(tool, 'examples') and tool.examples:
+        if hasattr(tool, "examples") and tool.examples:
             lines.append("")
             lines.append("### Examples:\n")
             for i, example in enumerate(tool.examples):
@@ -42,7 +41,9 @@ class EmojiBracketToolSyntax(ToolSyntax):
         syntax_parts = []
         if tool.arguments:
             for arg in tool.arguments.header:
-                syntax_parts.append("{" + f"{arg.name}" + "}" if arg.required else f"[{arg.name}]")
+                syntax_parts.append(
+                    "{" + f"{arg.name}" + "}" if arg.required else f"[{arg.name}]"
+                )
         syntax = f"🛠️[{tool.name}"
         if syntax_parts:
             syntax += " " + " ".join(syntax_parts)
@@ -79,7 +80,9 @@ class EmojiBracketToolSyntax(ToolSyntax):
         reasoning = example.get("reasoning")
         result = example.get("result")
         # Create a copy without special fields for formatting
-        example_without_special = {k: v for k, v in example.items() if k not in ("reasoning", "result")}
+        example_without_special = {
+            k: v for k, v in example.items() if k not in ("reasoning", "result")
+        }
 
         # Collect inline argument values (header args)
         inline_values = []
@@ -119,7 +122,9 @@ class EmojiBracketToolSyntax(ToolSyntax):
 
         # Append result if present
         if result:
-            result_header = f"\nThen you will receive a result:\nResult of 🛠️ {tool.name}"
+            result_header = (
+                f"\nThen you will receive a result:\nResult of 🛠️ {tool.name}"
+            )
             if inline_values:
                 result_header += " " + " ".join(inline_values)
             output_lines.append(result_header)
@@ -178,7 +183,11 @@ class EmojiBracketToolSyntax(ToolSyntax):
 
             if self_closing_idx != -1:
                 # Check if this self-closing comes before a regular close
-                if regular_close_idx == -1 or self_closing_idx + len(SELF_CLOSING_SUFFIX) - 1 == regular_close_idx:
+                if (
+                    regular_close_idx == -1
+                    or self_closing_idx + len(SELF_CLOSING_SUFFIX) - 1
+                    == regular_close_idx
+                ):
                     is_self_closing = True
                     header_end = self_closing_idx
 
@@ -207,7 +216,9 @@ class EmojiBracketToolSyntax(ToolSyntax):
 
             if is_self_closing:
                 # Self-closing tool call - no body
-                tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=""))
+                tool_calls.append(
+                    RawToolCall(name=tool_name, arguments=arguments, body="")
+                )
                 pos = header_end + len(SELF_CLOSING_SUFFIX)
             else:
                 # Tool call with body - must find matching end marker
@@ -217,17 +228,21 @@ class EmojiBracketToolSyntax(ToolSyntax):
                 end_idx = -1
 
                 while True:
-                    next_start_idx, next_start_marker = find_any(START_MARKERS, search_pos)
+                    next_start_idx, next_start_marker = find_any(
+                        START_MARKERS, search_pos
+                    )
                     next_end_idx, next_end_marker = find_any(END_MARKERS, search_pos)
 
                     if next_end_idx == -1:
                         # Missing end marker - best effort: treat rest as body
                         body = text[after_header:].rstrip()
-                        if body.startswith('\n'):
+                        if body.startswith("\n"):
                             body = body[1:]
-                        elif body.startswith('\r\n'):
+                        elif body.startswith("\r\n"):
                             body = body[2:]
-                        tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=body))
+                        tool_calls.append(
+                            RawToolCall(name=tool_name, arguments=arguments, body=body)
+                        )
                         pos = len(text)
                         break
 
@@ -248,13 +263,15 @@ class EmojiBracketToolSyntax(ToolSyntax):
                 if end_idx != -1:
                     # Extract body (skip leading newline if present)
                     body_text = text[after_header:end_idx]
-                    if body_text.startswith('\n'):
+                    if body_text.startswith("\n"):
                         body_text = body_text[1:]
-                    elif body_text.startswith('\r\n'):
+                    elif body_text.startswith("\r\n"):
                         body_text = body_text[2:]
-                    body = body_text.rstrip('\n\r')
+                    body = body_text.rstrip("\n\r")
 
-                    tool_calls.append(RawToolCall(name=tool_name, arguments=arguments, body=body))
+                    tool_calls.append(
+                        RawToolCall(name=tool_name, arguments=arguments, body=body)
+                    )
 
                     # Continue after end marker
                     pos = end_idx + len(current_end_marker)

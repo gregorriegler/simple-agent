@@ -22,7 +22,9 @@ def resolve_public_url(arg_value: str | None) -> str | None:
     return os.environ.get("SIMPLE_AGENT_PUBLIC_URL")
 
 
-def resolve_templates_path(arg_value: str | None, base_dir: Path | None = None) -> str | None:
+def resolve_templates_path(
+    arg_value: str | None, base_dir: Path | None = None
+) -> str | None:
     if arg_value:
         return arg_value
     env_value = os.environ.get("SIMPLE_AGENT_TEMPLATES_PATH")

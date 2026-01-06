@@ -1,4 +1,5 @@
 """Global pytest configuration for all tests."""
+
 import os
 import sys
 
@@ -21,16 +22,19 @@ def configure_approvals():
         def utf8_write_received_file(self, received_file):
             """Write the received file using UTF-8 encoding with normalized line endings."""
             # Normalize line endings to LF to match .gitattributes and .editorconfig
-            content = self.contents.replace('\r\n', '\n').replace('\r', '\n')
-            with open(received_file, 'w', encoding='utf-8', newline='\n') as file:
+            content = self.contents.replace("\r\n", "\n").replace("\r", "\n")
+            with open(received_file, "w", encoding="utf-8", newline="\n") as file:
                 file.write(content)
             return received_file
 
         StringWriter.write_received_file = utf8_write_received_file
 
-    use_approve_sh_reporter = os.getenv("USE_APPROVE_SH_REPORTER", 'False').lower() in ('true', '1', 't')
+    use_approve_sh_reporter = os.getenv("USE_APPROVE_SH_REPORTER", "False").lower() in (
+        "true",
+        "1",
+        "t",
+    )
     if use_approve_sh_reporter:
         set_default_reporter(ApproveShReporter())
     else:
         set_default_reporter(ReportWithWinMerge())
-

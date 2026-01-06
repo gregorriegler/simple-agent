@@ -55,23 +55,25 @@ def is_factory_function(node, parent_class_name, class_names):
 
 def main():
     root_dir = sys.argv[1] if len(sys.argv) > 1 else "simple_agent"
-    
-    if hasattr(signal, 'SIGPIPE'):
+
+    if hasattr(signal, "SIGPIPE"):
         signal.signal(signal.SIGPIPE, signal.SIG_DFL)
-    
+
     if not os.path.isdir(root_dir):
         sys.stderr.write(f"Root directory not found: {root_dir}\n")
         sys.exit(1)
-    
+
     python_files = iter_python_files(root_dir)
-    test_reference_dirs = [dir_name for dir_name in TEST_REFERENCE_DIRS if os.path.isdir(dir_name)]
-    
+    test_reference_dirs = [
+        dir_name for dir_name in TEST_REFERENCE_DIRS if os.path.isdir(dir_name)
+    ]
+
     definitions = []
     production_references = collect_references(python_files)
     test_references = set()
     for reference_dir in test_reference_dirs:
         test_references.update(collect_references(iter_python_files(reference_dir)))
-    
+
     for path in python_files:
         with open(path, "r", encoding="utf-8") as handle:
             content = handle.read()
@@ -79,34 +81,45 @@ def main():
             tree = ast.parse(content, filename=path)
         except SyntaxError:
             continue
-        
+
         for node in ast.walk(tree):
             for child in ast.iter_child_nodes(node):
                 child.parent = node
 
         class_names = {
-            node.name for node in ast.walk(tree)
-            if isinstance(node, ast.ClassDef)
+            node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)
         }
-        
+
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 if not node.name.startswith("__"):
-                    parent_class = node.parent.name if isinstance(node.parent, ast.ClassDef) else None
+                    parent_class = (
+                        node.parent.name
+                        if isinstance(node.parent, ast.ClassDef)
+                        else None
+                    )
                     is_factory = is_factory_function(node, parent_class, class_names)
-                    definitions.append((path, "function", node.name, node.lineno, is_factory))
+                    definitions.append(
+                        (path, "function", node.name, node.lineno, is_factory)
+                    )
             elif isinstance(node, ast.ClassDef):
                 if not node.name.startswith("__"):
                     definitions.append((path, "class", node.name, node.lineno, False))
             elif isinstance(node, ast.Assign) and isinstance(node.parent, ast.Module):
                 for target in node.targets:
                     if isinstance(target, ast.Name) and not target.id.startswith("__"):
-                        definitions.append((path, "variable", target.id, node.lineno, False))
-            elif isinstance(node, ast.AnnAssign) and isinstance(node.parent, ast.Module):
+                        definitions.append(
+                            (path, "variable", target.id, node.lineno, False)
+                        )
+            elif isinstance(node, ast.AnnAssign) and isinstance(
+                node.parent, ast.Module
+            ):
                 target = node.target
                 if isinstance(target, ast.Name) and not target.id.startswith("__"):
-                    definitions.append((path, "variable", target.id, node.lineno, False))
-    
+                    definitions.append(
+                        (path, "variable", target.id, node.lineno, False)
+                    )
+
     unused = []
     for path, kind, name, line, is_factory in definitions:
         if name not in production_references:
@@ -117,12 +130,13 @@ def main():
             else:
                 reason = "no_refs" if kind in {"function", "class"} else "no_reads"
             unused.append((path, kind, name, line, reason))
-    
+
     unused.sort()
     if unused:
         print("PATH|KIND|NAME|LINE|REASON")
     for path, kind, name, line, reason in unused:
         print(f"{path}|{kind}|{name}|{line}|{reason}")
+
 
 if __name__ == "__main__":
     main()

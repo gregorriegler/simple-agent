@@ -1,7 +1,10 @@
 import pytest
 from unittest.mock import patch
 from simple_agent.application.session import SessionArgs
-from simple_agent.infrastructure.user_configuration import UserConfiguration, ConfigurationError
+from simple_agent.infrastructure.user_configuration import (
+    UserConfiguration,
+    ConfigurationError,
+)
 from simple_agent.main import parse_args, print_system_prompt_command, main
 
 
@@ -28,8 +31,11 @@ def test_print_system_prompt_command_outputs_prompt(capsys, tmp_path):
     assert result is None
     assert "You are an orchestrator" in capsys.readouterr().out
 
+
 def test_main_handles_configuration_error_gracefully(capsys):
-    with patch('simple_agent.main._run_main', side_effect=ConfigurationError("Missing API key")):
+    with patch(
+        "simple_agent.main._run_main", side_effect=ConfigurationError("Missing API key")
+    ):
         with pytest.raises(SystemExit) as excinfo:
             main()
         assert excinfo.value.code == 1

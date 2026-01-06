@@ -5,20 +5,20 @@ from pathlib import Path
 from typing import Mapping, Optional
 
 
-def setup_logging(level: Optional[str] = None, user_config = None) -> None:
+def setup_logging(level: Optional[str] = None, user_config=None) -> None:
     if level is None:
         if user_config:
             level = user_config.log_level()
         else:
-            level = os.environ.get('SIMPLE_AGENT_LOG_LEVEL', 'INFO').upper()
+            level = os.environ.get("SIMPLE_AGENT_LOG_LEVEL", "INFO").upper()
 
     logger_level_names: Mapping[str, str] = {}
     if user_config:
         logger_level_names = user_config.logger_levels()
 
-    log_dir = Path.home() / '.simple-agent' / 'logs'
+    log_dir = Path.home() / ".simple-agent" / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / 'simple-agent.log'
+    log_file = log_dir / "simple-agent.log"
 
     logging.config.dictConfig(
         _build_logging_config(level, logger_level_names, log_file)
@@ -59,4 +59,3 @@ def _build_logging_config(
         "root": {"level": base_level, "handlers": ["file"]},
         "loggers": loggers,
     }
-

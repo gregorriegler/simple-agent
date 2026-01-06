@@ -2,6 +2,7 @@ from textual.containers import VerticalScroll
 from textual.widgets import Markdown
 import re
 
+
 class ChatLog(VerticalScroll):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

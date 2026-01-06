@@ -17,10 +17,16 @@ class JsonFileSessionStorage(SessionStorage):
             with open(self.path, "r", encoding="utf-8") as session_file:
                 raw_data = json.load(session_file)
         except json.JSONDecodeError as error:
-            print(f"Warning: Could not load session file {self.path}: {error}", file=sys.stderr)
+            print(
+                f"Warning: Could not load session file {self.path}: {error}",
+                file=sys.stderr,
+            )
             return Messages()
         except Exception as error:
-            print(f"Warning: Could not load session file {self.path}: {error}", file=sys.stderr)
+            print(
+                f"Warning: Could not load session file {self.path}: {error}",
+                file=sys.stderr,
+            )
             return Messages()
         if isinstance(raw_data, list):
             return Messages(raw_data)
@@ -31,4 +37,7 @@ class JsonFileSessionStorage(SessionStorage):
             with open(self.path, "w", encoding="utf-8") as session_file:
                 json.dump(messages.to_list(), session_file, indent=2)
         except Exception as error:
-            print(f"Warning: Could not save session file {self.path}: {error}", file=sys.stderr)
+            print(
+                f"Warning: Could not save session file {self.path}: {error}",
+                file=sys.stderr,
+            )

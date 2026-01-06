@@ -29,7 +29,9 @@ class PopupLayout:
     lines: List[str]
 
     @classmethod
-    def calculate(cls, suggestion_list: SuggestionList, seed: CompletionSeed, screen_size: Size) -> "PopupLayout":
+    def calculate(
+        cls, suggestion_list: SuggestionList, seed: CompletionSeed, screen_size: Size
+    ) -> "PopupLayout":
         max_line_length = suggestion_list.max_content_width
         popup_width = min(max_line_length + 2, screen_size.width)
         available_width = max(1, popup_width - 2)
@@ -40,17 +42,18 @@ class PopupLayout:
         anchor_x = max(0, seed.location.x - seed.width)
         anchor_point = Offset(anchor_x, seed.location.y)
 
-        offset = cls._calculate_placement(anchor_point, Size(popup_width, popup_height), screen_size)
+        offset = cls._calculate_placement(
+            anchor_point, Size(popup_width, popup_height), screen_size
+        )
 
         return cls(
-            width=popup_width,
-            height=popup_height,
-            offset=offset,
-            lines=trimmed_lines
+            width=popup_width, height=popup_height, offset=offset, lines=trimmed_lines
         )
 
     @staticmethod
-    def _calculate_placement(anchor_point: Offset, popup_size: Size, screen_size: Size) -> Offset:
+    def _calculate_placement(
+        anchor_point: Offset, popup_size: Size, screen_size: Size
+    ) -> Offset:
         popup_height = popup_size.height
         popup_width = popup_size.width
 
@@ -158,7 +161,9 @@ class AutocompletePopup(Static):
 
         self.display = True
 
-        layout = PopupLayout.calculate(self.suggestion_list, self._seed, self.screen.size)
+        layout = PopupLayout.calculate(
+            self.suggestion_list, self._seed, self.screen.size
+        )
 
         self.styles.width = layout.width
         self.styles.height = layout.height

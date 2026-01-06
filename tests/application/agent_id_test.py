@@ -46,6 +46,7 @@ def test_parent_and_depth_navigation():
 
 from pathlib import Path
 
+
 def test_filesystem_and_repr_helpers():
     agent_id = AgentId(r"root/sub agent\\id")
 

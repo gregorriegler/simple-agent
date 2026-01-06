@@ -6,6 +6,7 @@ from simple_agent.infrastructure.textual.textual_messages import DomainEventMess
 from simple_agent.infrastructure.textual.widgets.todo_view import TodoView
 from tests.infrastructure.textual.test_utils import MockUserInput
 
+
 @pytest.mark.asyncio
 async def test_session_cleared_clears_todos():
     agent_id = AgentId("Agent")

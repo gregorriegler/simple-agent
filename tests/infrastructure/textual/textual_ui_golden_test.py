@@ -15,6 +15,7 @@ from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 from approvaltests import verify
 from tests.infrastructure.textual.test_utils import dump_ui_state, dump_ascii_screen
 
+
 @pytest.mark.asyncio
 async def test_golden_happy_path_flow(tmp_path, monkeypatch):
     """
@@ -56,12 +57,16 @@ async def test_golden_happy_path_flow(tmp_path, monkeypatch):
         # 1. Session Start (Initial state)
         # Note: In a real run, the session might start automatically or via an event.
         # We inject the event to simulate the backend starting the session.
-        app.on_domain_event_message(DomainEventMessage(SessionStartedEvent(agent_id, False)))
+        app.on_domain_event_message(
+            DomainEventMessage(SessionStartedEvent(agent_id, False))
+        )
         await pilot.pause()
         capture_step("Session Started")
 
         # 2. User Prompt Requested
-        app.on_domain_event_message(DomainEventMessage(UserPromptRequestedEvent(agent_id)))
+        app.on_domain_event_message(
+            DomainEventMessage(UserPromptRequestedEvent(agent_id))
+        )
         await pilot.pause()
         capture_step("User Prompt Requested")
 
@@ -80,21 +85,37 @@ async def test_golden_happy_path_flow(tmp_path, monkeypatch):
         # We need to verify that `submit_input` was called or that the UI reacted (cleared input).
 
         # Inject response to move flow forward
-        app.on_domain_event_message(DomainEventMessage(UserPromptedEvent(agent_id, "Hello")))
-        app.on_domain_event_message(DomainEventMessage(AssistantSaidEvent(agent_id, "Hi there!")))
+        app.on_domain_event_message(
+            DomainEventMessage(UserPromptedEvent(agent_id, "Hello"))
+        )
+        app.on_domain_event_message(
+            DomainEventMessage(AssistantSaidEvent(agent_id, "Hi there!"))
+        )
         await pilot.pause()
         capture_step("Assistant Reply")
 
         # 5. Assistant Calls Tool
         call_id = "call-1"
         tool_header = "search_files(query='test')"
-        app.on_domain_event_message(DomainEventMessage(ToolCalledEvent(agent_id, call_id, type("Tool", (), {"header": lambda s: tool_header})())))
+        app.on_domain_event_message(
+            DomainEventMessage(
+                ToolCalledEvent(
+                    agent_id,
+                    call_id,
+                    type("Tool", (), {"header": lambda s: tool_header})(),
+                )
+            )
+        )
         await pilot.pause()
         capture_step("Tool Called")
 
         # 6. Tool Returns Result
-        result = SingleToolResult(message="Found 1 file.", display_title="Search Results")
-        app.on_domain_event_message(DomainEventMessage(ToolResultEvent(agent_id, call_id, result)))
+        result = SingleToolResult(
+            message="Found 1 file.", display_title="Search Results"
+        )
+        app.on_domain_event_message(
+            DomainEventMessage(ToolResultEvent(agent_id, call_id, result))
+        )
         await pilot.pause()
         capture_step("Tool Result")
 

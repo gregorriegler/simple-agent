@@ -21,13 +21,16 @@ class FileReference:
     def load_content(self, loader: FileLoader) -> Optional[str]:
         return loader.read_file(self.path)
 
+
 @dataclass
 class FileReferences:
     _references: set[FileReference] = field(default_factory=set)
 
     @classmethod
     def from_text(cls, text: str) -> "FileReferences":
-        pattern = re.escape(FileReference.PREFIX) + r"(.*?)" + re.escape(FileReference.SUFFIX)
+        pattern = (
+            re.escape(FileReference.PREFIX) + r"(.*?)" + re.escape(FileReference.SUFFIX)
+        )
         matches = re.findall(pattern, text)
         refs = cls()
         refs.add(set(matches))
@@ -60,10 +63,12 @@ class FileReferences:
                 loaded.append(content)
         return loaded
 
+
 @dataclass(frozen=True)
 class Cursor:
     row: int
     col: int
+
 
 @dataclass
 class CursorAndLine:
@@ -72,20 +77,21 @@ class CursorAndLine:
 
     @property
     def word(self) -> str:
-        text_before = self.line[:self.cursor.col]
+        text_before = self.line[: self.cursor.col]
         last_space_index = text_before.rfind(" ")
         start_index = last_space_index + 1
         return text_before[start_index:]
 
     @property
     def word_start_index(self) -> int:
-        text_before = self.line[:self.cursor.col]
+        text_before = self.line[: self.cursor.col]
         last_space_index = text_before.rfind(" ")
         return last_space_index + 1
 
     @property
     def is_on_first_line(self) -> bool:
         return self.cursor.row == 0
+
 
 @dataclass
 class CompletionResult:
@@ -105,11 +111,13 @@ class CompletionResult:
 
         return content
 
+
 class Suggestion(Protocol):
     @property
     def display_text(self) -> str: ...
 
     def to_completion_result(self) -> CompletionResult: ...
+
 
 @dataclass
 class SuggestionList:
@@ -145,12 +153,12 @@ class SuggestionList:
 
 
 class AutocompleteTrigger(Protocol):
-    def is_triggered(self, cursor_and_line: CursorAndLine) -> bool:
-        ...
+    def is_triggered(self, cursor_and_line: CursorAndLine) -> bool: ...
+
 
 class SuggestionProvider(Protocol):
-    async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:
-        ...
+    async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList: ...
+
 
 @dataclass
 class TriggeredSuggestionProvider(SuggestionProvider):
@@ -167,6 +175,7 @@ class TriggeredSuggestionProvider(SuggestionProvider):
         if self.trigger.is_triggered(cursor_and_line):
             return await self.provider.suggest(cursor_and_line)
         return SuggestionList([])
+
 
 class CompositeSuggestionProvider(SuggestionProvider):
     def __init__(self, providers: List[SuggestionProvider] = None):

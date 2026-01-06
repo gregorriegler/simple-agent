@@ -4,6 +4,7 @@ from simple_agent.application.input import Input
 
 pytestmark = pytest.mark.asyncio
 
+
 class UserInputStub:
     def __init__(self, value="input"):
         self.value = value

@@ -18,31 +18,30 @@ class SlashCommandRegistry:
 
         self._commands = {
             "/clear": SlashCommand(
-                name="/clear",
-                description="Clear conversation history"
+                name="/clear", description="Clear conversation history"
             ),
             "/model": SlashCommand(
                 name="/model",
                 description="Change model",
-                arg_completer=lambda: available_models
+                arg_completer=lambda: available_models,
             ),
         }
-    
+
     def get_all_commands(self) -> list[str]:
         """Returns a list of all command names."""
         return list(self._commands.keys())
-    
+
     def get_matching_commands(self, prefix: str) -> list[SlashCommand]:
         """Returns commands that match the given prefix."""
         if prefix == "/":
             # Return all commands when only "/" is typed
             return list(self._commands.values())
-        
+
         matching = []
         for name, cmd in self._commands.items():
             if name.startswith(prefix):
                 matching.append(cmd)
-        
+
         return matching
 
     def get_command(self, name: str) -> Optional[SlashCommand]:

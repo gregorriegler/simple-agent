@@ -1,5 +1,8 @@
 from typing import Optional
-from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import CompletionResult
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
+    CompletionResult,
+)
+
 
 class FakeFileLoader:
     def __init__(self, files):
@@ -7,6 +10,7 @@ class FakeFileLoader:
 
     def read_file(self, path: str) -> Optional[str]:
         return self.files.get(path)
+
 
 class DecoratedFakeFileLoader:
     def __init__(self, inner):
@@ -18,15 +22,13 @@ class DecoratedFakeFileLoader:
             return None
         return f"<{path}>{content}</{path}>"
 
+
 def test_expand_reads_and_formats_files():
     # Arrange
     file1 = "/path/to/test1.txt"
     file2 = "/path/to/test2.txt"
 
-    inner_loader = FakeFileLoader({
-        file1: "Content 1",
-        file2: "Content 2"
-    })
+    inner_loader = FakeFileLoader({file1: "Content 1", file2: "Content 2"})
     loader = DecoratedFakeFileLoader(inner_loader)
 
     draft_text = f"Check [📦{file1}] and [📦{file2}]"
@@ -44,10 +46,11 @@ def test_expand_reads_and_formats_files():
     assert expected_part1 in expanded_text
     assert expected_part2 in expanded_text
 
+
 def test_expand_handles_missing_files():
     # Arrange
     file_path = "/missing.txt"
-    loader = DecoratedFakeFileLoader(FakeFileLoader({})) # Empty
+    loader = DecoratedFakeFileLoader(FakeFileLoader({}))  # Empty
 
     draft_text = f"Check [📦{file_path}]"
 

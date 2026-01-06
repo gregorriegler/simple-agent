@@ -11,7 +11,9 @@ class GeminiV1ClientError(Exception):
 
 
 class GeminiV1LLM(LLM):
-    def __init__(self, config: ModelConfig, transport: httpx.AsyncBaseTransport | None = None):
+    def __init__(
+        self, config: ModelConfig, transport: httpx.AsyncBaseTransport | None = None
+    ):
         self._config = config
         self._transport = transport
         self._ensure_gemini_v1_adapter()
@@ -23,11 +25,15 @@ class GeminiV1LLM(LLM):
 
         api_key = self._config.api_key
         model = self._config.model
-        base_url = self._config.base_url or "https://generativelanguage.googleapis.com/v1"
+        base_url = (
+            self._config.base_url or "https://generativelanguage.googleapis.com/v1"
+        )
         url = f"{base_url.rstrip('/')}/models/{model}?key={api_key}"
 
         try:
-            async with LoggingAsyncClient(timeout=10, transport=self._transport) as client:
+            async with LoggingAsyncClient(
+                timeout=10, transport=self._transport
+            ) as client:
                 response = await client.get(url)
                 response.raise_for_status()
                 data = response.json()
@@ -48,7 +54,9 @@ class GeminiV1LLM(LLM):
         api_key = self._config.api_key
         model = self._config.model
 
-        base_url = self._config.base_url or "https://generativelanguage.googleapis.com/v1"
+        base_url = (
+            self._config.base_url or "https://generativelanguage.googleapis.com/v1"
+        )
         url = f"{base_url.rstrip('/')}/models/{model}:generateContent"
 
         gemini_contents = self._convert_messages_to_gemini_format(messages)
@@ -65,7 +73,9 @@ class GeminiV1LLM(LLM):
         timeout = self._config.request_timeout
 
         try:
-            async with LoggingAsyncClient(timeout=timeout, transport=self._transport) as client:
+            async with LoggingAsyncClient(
+                timeout=timeout, transport=self._transport
+            ) as client:
                 response = await client.post(url, headers=headers, json=data)
             response.raise_for_status()
         except httpx.RequestError as error:
@@ -76,7 +86,9 @@ class GeminiV1LLM(LLM):
         if "error" in response_data:
             error_message = response_data["error"].get("message", "Unknown error")
             error_code = response_data["error"].get("code", "")
-            raise GeminiV1ClientError(f"Gemini API error [{error_code}]: {error_message}")
+            raise GeminiV1ClientError(
+                f"Gemini API error [{error_code}]: {error_message}"
+            )
 
         candidates = response_data.get("candidates")
         if not candidates:
@@ -101,7 +113,9 @@ class GeminiV1LLM(LLM):
             input_tokens=usage_metadata.get("promptTokenCount", 0),
             output_tokens=usage_metadata.get("candidatesTokenCount", 0),
             total_tokens=usage_metadata.get("totalTokenCount", 0),
-            input_token_limit=input_token_limit if input_token_limit and input_token_limit > 0 else None
+            input_token_limit=input_token_limit
+            if input_token_limit and input_token_limit > 0
+            else None,
         )
 
         return LLMResponse(content=text_content, model=model, usage=usage)
@@ -129,15 +143,9 @@ class GeminiV1LLM(LLM):
                     content = f"{system_prompt}\n\n{content}"
                     system_prompt = None
 
-                gemini_contents.append({
-                    "role": "user",
-                    "parts": [{"text": content}]
-                })
+                gemini_contents.append({"role": "user", "parts": [{"text": content}]})
             elif role == "assistant":
-                gemini_contents.append({
-                    "role": "model",
-                    "parts": [{"text": content}]
-                })
+                gemini_contents.append({"role": "model", "parts": [{"text": content}]})
 
         return gemini_contents
 

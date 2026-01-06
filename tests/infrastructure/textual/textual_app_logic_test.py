@@ -7,11 +7,12 @@ from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.application.events import (
     SessionClearedEvent,
     AssistantSaidEvent,
-    ToolResultEvent
+    ToolResultEvent,
 )
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from unittest.mock import patch
 from tests.infrastructure.textual.test_utils import MockUserInput
+
 
 @pytest.fixture
 def app():
@@ -62,7 +63,9 @@ async def test_textual_app_write_tool_result_no_pending(app: TextualApp):
 
         # Write result with no call
         result = SingleToolResult(message="Done")
-        app.on_domain_event_message(DomainEventMessage(ToolResultEvent(agent_id, "unknown-call", result)))
+        app.on_domain_event_message(
+            DomainEventMessage(ToolResultEvent(agent_id, "unknown-call", result))
+        )
         # Should just log warning and not crash
 
 
@@ -73,7 +76,9 @@ async def test_textual_app_clear_panels(app: TextualApp):
         _, log_id, _ = app.panel_ids_for(agent_id)
 
         # Add content via event
-        app.on_domain_event_message(DomainEventMessage(AssistantSaidEvent(agent_id, "Message")))
+        app.on_domain_event_message(
+            DomainEventMessage(AssistantSaidEvent(agent_id, "Message"))
+        )
         await pilot.pause()
 
         # Clear via event

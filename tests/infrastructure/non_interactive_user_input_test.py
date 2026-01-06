@@ -1,6 +1,8 @@
 import pytest
 
-from simple_agent.infrastructure.non_interactive_user_input import NonInteractiveUserInput
+from simple_agent.infrastructure.non_interactive_user_input import (
+    NonInteractiveUserInput,
+)
 
 pytestmark = pytest.mark.asyncio
 

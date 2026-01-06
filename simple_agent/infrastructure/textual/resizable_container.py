@@ -8,7 +8,6 @@ MIN_VERTICAL_PANEL_HEIGHT = 3
 
 
 class Splitter(Widget):
-
     DEFAULT_CSS = """
     Splitter {
         width: 1;
@@ -49,8 +48,8 @@ class Splitter(Widget):
             elif isinstance(parent, ResizableVertical):
                 parent.resize_panels(event.screen_y)
 
-class ResizableHorizontal(Horizontal):
 
+class ResizableHorizontal(Horizontal):
     def __init__(self, left_widget: Widget, right_widget: Widget, **kwargs):
         super().__init__(**kwargs)
         self.left_widget = left_widget
@@ -76,7 +75,6 @@ class ResizableHorizontal(Horizontal):
 
 
 class ResizableVertical(Vertical):
-
     def __init__(self, top_widget: Widget, bottom_widget: Widget, **kwargs):
         super().__init__(**kwargs)
         self.top_widget = top_widget
@@ -102,7 +100,10 @@ class ResizableVertical(Vertical):
         if container_height <= min_height * 2:
             top_height = container_height / 2
         else:
-            top_height = max(min_height, min(container_height - min_height, y_position - self.region.y))
+            top_height = max(
+                min_height,
+                min(container_height - min_height, y_position - self.region.y),
+            )
 
         top_percent = (top_height / container_height) * 100
         bottom_percent = 100 - top_percent

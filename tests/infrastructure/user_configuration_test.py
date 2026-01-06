@@ -19,8 +19,8 @@ def test_logger_levels_reads_from_config():
             "level": "INFO",
             "loggers": {
                 "simple_agent": "DEBUG",
-                "simple_agent.tools": "WARNING"
-            }
+                "simple_agent.tools": "WARNING",
+            },
         }
     }
     user_config = UserConfiguration(config)
@@ -28,7 +28,7 @@ def test_logger_levels_reads_from_config():
 
     assert levels == {
         "simple_agent": "DEBUG",
-        "simple_agent.tools": "WARNING"
+        "simple_agent.tools": "WARNING",
     }
 
 
@@ -38,8 +38,8 @@ def test_logger_levels_uppercases_level_names():
             "level": "info",
             "loggers": {
                 "simple_agent": "debug",
-                "urllib3": "warning"
-            }
+                "urllib3": "warning",
+            },
         }
     }
     user_config = UserConfiguration(config)
@@ -47,7 +47,7 @@ def test_logger_levels_uppercases_level_names():
 
     assert levels == {
         "simple_agent": "DEBUG",
-        "urllib3": "WARNING"
+        "urllib3": "WARNING",
     }
 
 
@@ -62,9 +62,7 @@ def test_agents_path_returns_none_without_agents_section(tmp_path):
 def test_agents_path_returns_value_from_config(tmp_path):
     user_config = UserConfiguration({"agents": {"path": "./agents"}}, tmp_path)
 
-    assert user_config.agents_candidate_directories() == [
-        str(tmp_path / "agents")
-    ]
+    assert user_config.agents_candidate_directories() == [str(tmp_path / "agents")]
 
 
 def test_log_level_defaults_to_info():

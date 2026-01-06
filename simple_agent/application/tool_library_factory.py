@@ -7,7 +7,6 @@ from simple_agent.application.tool_library import ToolLibrary
 
 
 class ToolContext:
-
     def __init__(self, tool_keys: list[str], agent_id: AgentId):
         self.tool_keys = tool_keys
         self.agent_id = agent_id
@@ -18,6 +17,5 @@ class ToolLibraryFactory(Protocol):
         self,
         tool_context: ToolContext,
         spawner: SubagentSpawner,
-        agent_types: AgentTypes
-    ) -> ToolLibrary:
-        ...
+        agent_types: AgentTypes,
+    ) -> ToolLibrary: ...

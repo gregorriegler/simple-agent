@@ -28,11 +28,11 @@ class FileReplacer:
         if not os.path.exists(self.filename):
             raise FileNotFoundError(f'File "{self.filename}" not found')
 
-        with open(self.filename, 'r', encoding='utf-8') as f:
+        with open(self.filename, "r", encoding="utf-8") as f:
             self.original_content = f.read()
 
     def save_file(self):
-        with open(self.filename, 'w', encoding='utf-8', newline="\n") as f:
+        with open(self.filename, "w", encoding="utf-8", newline="\n") as f:
             f.write(self.new_content)
 
     def replace(self, old_string: str, new_string: str, replace_mode: str):
@@ -43,7 +43,8 @@ class FileReplacer:
         count = content.count(old_string)
         if count == 0:
             raise ValueError(
-                "Action Failed: File not modified. The provided text to be replaced was not found in the file. Please use 'cat' to verify the exact content before retrying.")
+                "Action Failed: File not modified. The provided text to be replaced was not found in the file. Please use 'cat' to verify the exact content before retrying."
+            )
 
         if replace_mode == "single":
             self.new_content = content.replace(old_string, new_string, 1)
@@ -71,25 +72,28 @@ class ReplaceFileContentTool(BaseTool):
     name = "replace-file-content"
     description = "Replace exact string matches in files. Unlike edit-file, this tool uses string matching instead of line numbers, making it more reliable for replacing specific content."
 
-    arguments = ToolArguments(header=[
-        ToolArgument(
-            name="filename",
+    arguments = ToolArguments(
+        header=[
+            ToolArgument(
+                name="filename",
+                type="string",
+                required=True,
+                description="Path to the file to edit",
+            ),
+            ToolArgument(
+                name="replace_mode",
+                type="string",
+                required=True,
+                description="Replace mode: 'single', 'all'. 'single' replaces only the first occurence. 'all' replaces all occurences.",
+            ),
+        ],
+        body=ToolArgument(
+            name="content",
             type="string",
             required=True,
-            description="Path to the file to edit",
+            description="Content with @@@ separator: text before @@@ is search string, text after is replacement string",
         ),
-        ToolArgument(
-            name="replace_mode",
-            type="string",
-            required=True,
-            description="Replace mode: 'single', 'all'. 'single' replaces only the first occurence. 'all' replaces all occurences.",
-        ),
-    ], body=ToolArgument(
-        name="content",
-        type="string",
-        required=True,
-        description="Content with @@@ separator: text before @@@ is search string, text after is replacement string",
-    ))
+    )
 
     examples = [
         {
@@ -97,7 +101,7 @@ class ReplaceFileContentTool(BaseTool):
             "filename": "test.txt",
             "replace_mode": "single",
             "content": "search content\n@@@\nreplacement content",
-            "result": "Successfully replaced content in test.txt"
+            "result": "Successfully replaced content in test.txt",
         },
         "🛠️[replace-file-content test.txt all]\nfoo\n@@@\nbar\n🛠️[/end]",
         "🛠️[replace-file-content test.txt nth:2]\nold_value = 1\n@@@\nnew_value = 2\n🛠️[/end]",
@@ -106,7 +110,9 @@ class ReplaceFileContentTool(BaseTool):
     async def execute(self, raw_call):
         replace_args, error = self.parse_arguments(raw_call)
         if error or replace_args is None:
-            return SingleToolResult(error or "Failed to parse arguments", status=ToolResultStatus.FAILURE)
+            return SingleToolResult(
+                error or "Failed to parse arguments", status=ToolResultStatus.FAILURE
+            )
 
         try:
             replacer = FileReplacer(replace_args.filename)
@@ -115,7 +121,7 @@ class ReplaceFileContentTool(BaseTool):
             replacer.replace(
                 replace_args.old_string,
                 replace_args.new_string,
-                replace_args.replace_mode
+                replace_args.replace_mode,
             )
 
             diff_lines = replacer.build_diff()
@@ -143,26 +149,37 @@ class ReplaceFileContentTool(BaseTool):
         except ValueError as e:
             return SingleToolResult(str(e), status=ToolResultStatus.FAILURE)
         except OSError as e:
-            return SingleToolResult(f'Error replacing content in "{replace_args.filename}": {str(e)}', status=ToolResultStatus.FAILURE)
+            return SingleToolResult(
+                f'Error replacing content in "{replace_args.filename}": {str(e)}',
+                status=ToolResultStatus.FAILURE,
+            )
         except Exception as e:
-            return SingleToolResult(f'Unexpected error replacing content in "{replace_args.filename}": {str(e)}', status=ToolResultStatus.FAILURE)
+            return SingleToolResult(
+                f'Unexpected error replacing content in "{replace_args.filename}": {str(e)}',
+                status=ToolResultStatus.FAILURE,
+            )
 
-    def _parse_replace_body(self, body: str) -> tuple[tuple[str, str], None] | tuple[None, str]:
+    def _parse_replace_body(
+        self, body: str
+    ) -> tuple[tuple[str, str], None] | tuple[None, str]:
         """Parse body with @@@ separator (text before @@@ is search string, text after is replacement)."""
         if not body:
             return None, "replace-file-content requires body with @@@ separator"
 
         # Find the @@@ separator
         if "@@@" not in body:
-            return None, "Missing '@@@' separator between search and replacement content"
+            return (
+                None,
+                "Missing '@@@' separator between search and replacement content",
+            )
 
         # Split on @@@ separator
         parts = body.split("@@@", 1)
         if len(parts) != 2:
             return None, "Body must contain exactly one '@@@' separator"
 
-        old_string = parts[0].rstrip('\n')
-        new_string = parts[1].lstrip('\n')
+        old_string = parts[0].rstrip("\n")
+        new_string = parts[1].lstrip("\n")
 
         return (old_string, new_string), None
 
@@ -171,7 +188,7 @@ class ReplaceFileContentTool(BaseTool):
         body = raw_call.body
 
         if not args:
-            return None, 'No arguments specified'
+            return None, "No arguments specified"
 
         try:
             parts = split_arguments(args.strip())
@@ -179,7 +196,7 @@ class ReplaceFileContentTool(BaseTool):
             return None, f"Error parsing arguments: {str(e)}"
 
         if len(parts) < 1:
-            return None, 'Usage: replace-file-content <filename> [replace_mode]'
+            return None, "Usage: replace-file-content <filename> [replace_mode]"
 
         filename = parts[0]
         replace_mode = "single"
@@ -190,7 +207,9 @@ class ReplaceFileContentTool(BaseTool):
         if len(parts) > 2:
             return None, "Too many arguments for replace-file-content"
 
-        if replace_mode not in ["single", "all"] and not replace_mode.startswith("nth:"):
+        if replace_mode not in ["single", "all"] and not replace_mode.startswith(
+            "nth:"
+        ):
             return None, f"Invalid replace_mode: {replace_mode}"
 
         parsed, error = self._parse_replace_body(body)
@@ -202,7 +221,7 @@ class ReplaceFileContentTool(BaseTool):
             filename=filename,
             old_string=old_string,
             new_string=new_string,
-            replace_mode=replace_mode
+            replace_mode=replace_mode,
         ), None
 
     @staticmethod

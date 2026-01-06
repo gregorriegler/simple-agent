@@ -14,27 +14,37 @@ from simple_agent.infrastructure.textual.textual_messages import DomainEventMess
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
-from simple_agent.infrastructure.textual.widgets.file_loader import DiskFileLoader, XmlFormattingFileLoader
+from simple_agent.infrastructure.textual.widgets.file_loader import (
+    DiskFileLoader,
+    XmlFormattingFileLoader,
+)
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
-    TriggeredSuggestionProvider, CompositeSuggestionProvider
+    TriggeredSuggestionProvider,
+    CompositeSuggestionProvider,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
-    SlashAtStartOfLineTrigger, SlashCommandProvider,
-    SlashCommandArgumentTrigger, SlashCommandArgumentProvider
+    SlashAtStartOfLineTrigger,
+    SlashCommandProvider,
+    SlashCommandArgumentTrigger,
+    SlashCommandArgumentProvider,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search import (
-    AtSymbolTrigger, FileSearchProvider
+    AtSymbolTrigger,
+    FileSearchProvider,
 )
 
-class TextualApp(App):
 
-    async def run_with_session_async(self, session_runner: Callable[[], Coroutine[Any, Any, None]]):
+class TextualApp(App):
+    async def run_with_session_async(
+        self, session_runner: Callable[[], Coroutine[Any, Any, None]]
+    ):
         self._session_runner = session_runner
         return await self.run_async()
 
     def shutdown(self):
         if self.is_running:
             self.exit()
+
     BINDINGS = [
         ("alt+left", "previous_tab", "Previous Tab"),
         ("alt+right", "next_tab", "Next Tab"),
@@ -115,13 +125,20 @@ class TextualApp(App):
     }
     """
 
-    def __init__(self, user_input=None, root_agent_id: AgentId | None = None, available_models: list[str] | None = None):
+    def __init__(
+        self,
+        user_input=None,
+        root_agent_id: AgentId | None = None,
+        available_models: list[str] | None = None,
+    ):
         super().__init__()
         self.user_input = user_input
         self._root_agent_id = root_agent_id or AgentId("Agent")
         self._session_runner: Callable[[], Coroutine[Any, Any, None]] | None = None
         self._session_task: asyncio.Task | None = None
-        self._slash_command_registry = SlashCommandRegistry(available_models=available_models)
+        self._slash_command_registry = SlashCommandRegistry(
+            available_models=available_models
+        )
         self._file_searcher = NativeFileSearcher()
         self.file_loader = XmlFormattingFileLoader(DiskFileLoader())
 
@@ -133,20 +150,22 @@ class TextualApp(App):
         return AgentTabs.panel_ids_for(agent_id)
 
     def compose(self) -> ComposeResult:
-        provider = CompositeSuggestionProvider([
-            TriggeredSuggestionProvider(
-                trigger=SlashAtStartOfLineTrigger(),
-                provider=SlashCommandProvider(self._slash_command_registry)
-            ),
-            TriggeredSuggestionProvider(
-                trigger=SlashCommandArgumentTrigger(),
-                provider=SlashCommandArgumentProvider(self._slash_command_registry)
-            ),
-            TriggeredSuggestionProvider(
-                trigger=AtSymbolTrigger(),
-                provider=FileSearchProvider(self._file_searcher)
-            )
-        ])
+        provider = CompositeSuggestionProvider(
+            [
+                TriggeredSuggestionProvider(
+                    trigger=SlashAtStartOfLineTrigger(),
+                    provider=SlashCommandProvider(self._slash_command_registry),
+                ),
+                TriggeredSuggestionProvider(
+                    trigger=SlashCommandArgumentTrigger(),
+                    provider=SlashCommandArgumentProvider(self._slash_command_registry),
+                ),
+                TriggeredSuggestionProvider(
+                    trigger=AtSymbolTrigger(),
+                    provider=FileSearchProvider(self._file_searcher),
+                ),
+            ]
+        )
         with Vertical():
             yield AgentTabs(self._root_agent_id, id="tabs")
             yield SmartInput(provider=provider, id="user-input")

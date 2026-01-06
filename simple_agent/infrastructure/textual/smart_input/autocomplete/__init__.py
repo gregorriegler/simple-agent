@@ -5,13 +5,12 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete i
     Suggestion,
     SuggestionList,
     FileReference,
-    FileReferences
+    FileReferences,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
     AutocompleteTrigger,
     SuggestionProvider,
-
-    CompositeSuggestionProvider
+    CompositeSuggestionProvider,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
     SlashCommandSuggestion,

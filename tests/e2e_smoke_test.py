@@ -16,7 +16,9 @@ def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.5):
     if not approved_path.exists():
         approved_path.parent.mkdir(parents=True, exist_ok=True)
         approved_path.write_text(actual, encoding="utf-8")
-        pytest.fail(f"No approved file found. Created: {approved_path}\nReview and re-run.")
+        pytest.fail(
+            f"No approved file found. Created: {approved_path}\nReview and re-run."
+        )
 
     approved = approved_path.read_text(encoding="utf-8")
     ratio = SequenceMatcher(None, actual, approved).ratio()
@@ -32,6 +34,7 @@ def fuzzy_verify(actual: str, approved_path: Path, threshold: float = 0.5):
             f"Approved: {approved_path}"
         )
 
+
 @pytest.mark.flaky(reruns=2, reruns_delay=0.5)
 @pytest.mark.asyncio
 async def test_golden_master_agent_stub(monkeypatch, tmp_path):
@@ -39,13 +42,13 @@ async def test_golden_master_agent_stub(monkeypatch, tmp_path):
     os.chdir(tmp_path)
     monkeypatch.setenv("PYTHONPATH", project_root)
 
-    monkeypatch.setattr(sys, "argv", [
-        "main.py",
-        "--stub",
-        "Hello, world!"
-    ])
+    monkeypatch.setattr(sys, "argv", ["main.py", "--stub", "Hello, world!"])
 
-    approved_path = Path(__file__).parent / "approved_files" / "e2e_smoke_test.test_golden_master_agent_stub.approved.txt"
+    approved_path = (
+        Path(__file__).parent
+        / "approved_files"
+        / "e2e_smoke_test.test_golden_master_agent_stub.approved.txt"
+    )
 
     def normalize(text):
         return text.replace("▃", "").replace("╸", "").replace("▂", "").replace("▄", "")

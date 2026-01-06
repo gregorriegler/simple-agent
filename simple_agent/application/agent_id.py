@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 class AgentId:
     def __init__(self, raw_id: str, root: Path | None = None):
         if not raw_id or not raw_id.strip():
@@ -7,15 +8,17 @@ class AgentId:
         self._raw_id = raw_id
         self._root = root
 
-    def with_root(self, root: Path) -> 'AgentId':
+    def with_root(self, root: Path) -> "AgentId":
         return AgentId(self._raw_id, root=root)
 
-    def with_suffix(self, suffix: str) -> 'AgentId':
+    def with_suffix(self, suffix: str) -> "AgentId":
         if suffix:
             return AgentId(f"{self._raw_id}{suffix}", root=self._root)
         return self
 
-    def create_subagent_id(self, agent_name: str, suffixer: 'AgentIdSuffixer') -> 'AgentId':
+    def create_subagent_id(
+        self, agent_name: str, suffixer: "AgentIdSuffixer"
+    ) -> "AgentId":
         base_id = AgentId(f"{self._raw_id}/{agent_name}", root=self._root)
         suffix = suffixer.suffix(base_id)
         return base_id.with_suffix(suffix)
@@ -23,7 +26,7 @@ class AgentId:
     def has_parent(self) -> bool:
         return "/" in self._raw_id
 
-    def parent(self) -> 'AgentId | None':
+    def parent(self) -> "AgentId | None":
         if "/" not in self._raw_id:
             return None
         parent_raw = self._raw_id.rsplit("/", 1)[0]
@@ -59,6 +62,7 @@ class AgentId:
 
     def __hash__(self) -> int:
         return hash(self._raw_id)
+
 
 class AgentIdSuffixer:
     def __init__(self):

@@ -2,8 +2,11 @@ import os
 import tomllib
 from pathlib import Path
 
+
 class ConfigurationError(Exception):
     pass
+
+
 from typing import Mapping, Any, Self, Tuple
 
 from simple_agent.application.agent_type import AgentType
@@ -15,7 +18,6 @@ APP_DIR = str(Path(__file__).resolve().parents[2])
 
 
 class UserConfiguration:
-
     @classmethod
     def create_from_args(cls, args: SessionArgs, cwd: str) -> Self:
         if args.stub_llm:
@@ -60,7 +62,6 @@ class UserConfiguration:
             result = os.path.abspath(os.path.join(self._cwd, result))
         return [result]
 
-
     def starting_agent_type(self) -> AgentType:
         agents_section = self._config.get("agents")
         if isinstance(agents_section, Mapping):
@@ -91,10 +92,7 @@ class UserConfiguration:
         if isinstance(log_section, Mapping):
             loggers = log_section.get("loggers")
             if isinstance(loggers, Mapping):
-                return {
-                    logger: str(level).upper()
-                    for logger, level in loggers.items()
-                }
+                return {logger: str(level).upper() for logger, level in loggers.items()}
         return {}
 
 
@@ -143,10 +141,7 @@ def _resolve_app_dir(value: str) -> str:
 
 def _resolve_value(value: Any) -> Any:
     if isinstance(value, Mapping):
-        return {
-            key: _resolve_api_key_value(key, child)
-            for key, child in value.items()
-        }
+        return {key: _resolve_api_key_value(key, child) for key, child in value.items()}
     if isinstance(value, list):
         return [_resolve_value(child) for child in value]
     if isinstance(value, str):
@@ -163,7 +158,9 @@ def _resolve_api_key_value(key: str, value: Any) -> Any:
     return _resolve_value(value)
 
 
-def _merge_dicts(base: Mapping[str, Any], override: Mapping[str, Any]) -> dict[str, Any]:
+def _merge_dicts(
+    base: Mapping[str, Any], override: Mapping[str, Any]
+) -> dict[str, Any]:
     result = dict(base)
     for key, value in override.items():
         if (

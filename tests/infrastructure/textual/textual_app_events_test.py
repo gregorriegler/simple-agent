@@ -76,9 +76,7 @@ async def test_user_prompted_file_context_is_compacted(textual_harness):
     event_bus, _, _, app = textual_harness
     agent_id = AgentId("Agent")
     input_text = (
-        "Please check <file_context path=\"notes.md\">\n"
-        "Note contents\n"
-        "</file_context>"
+        'Please check <file_context path="notes.md">\nNote contents\n</file_context>'
     )
 
     async with app.run_test() as pilot:
@@ -87,7 +85,9 @@ async def test_user_prompted_file_context_is_compacted(textual_harness):
         event_bus.publish(UserPromptedEvent(agent_id, input_text))
         await pilot.pause()
 
-        assert _last_markdown_text(app, agent_id) == "**User:** Please check\n[📦notes.md]"
+        assert (
+            _last_markdown_text(app, agent_id) == "**User:** Please check\n[📦notes.md]"
+        )
 
 
 @pytest.mark.asyncio
@@ -120,7 +120,9 @@ async def test_tool_call_and_result_are_tracked(textual_harness):
         tool_log = app.query_one(f"#{tool_results_id}", ToolLog)
         assert call_id in tool_log._pending_tool_calls
 
-        event_bus.publish(ToolResultEvent(agent_id, call_id, SingleToolResult(message="Done")))
+        event_bus.publish(
+            ToolResultEvent(agent_id, call_id, SingleToolResult(message="Done"))
+        )
         await pilot.pause()
 
         assert call_id not in tool_log._pending_tool_calls

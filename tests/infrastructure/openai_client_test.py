@@ -9,11 +9,7 @@ from simple_agent.infrastructure.openai.openai_client import OpenAILLM
 async def test_openai_client_sends_correct_request():
     response_data = {
         "choices": [{"message": {"content": "assistant response"}}],
-        "usage": {
-            "prompt_tokens": 10,
-            "completion_tokens": 20,
-            "total_tokens": 30
-        }
+        "usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30},
     }
     captured = {}
 

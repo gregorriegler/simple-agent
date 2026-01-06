@@ -3,6 +3,7 @@ from rich.console import Console
 from textual.widgets import TextArea, Static, Collapsible, Markdown
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 
+
 class MockUserInput:
     def __init__(self):
         self.submitted_content = []
@@ -18,6 +19,7 @@ class MockUserInput:
 
     def close(self) -> None:
         pass
+
 
 def dump_ui_state(app: TextualApp) -> str:
     lines = []
@@ -44,9 +46,9 @@ def dump_ui_state(app: TextualApp) -> str:
         info = f"{indent}{class_name} id='{widget.id}' classes='{' '.join(classes)}'"
 
         if isinstance(widget, Markdown):
-             # Markdown content isn't easily accessible as raw text directly from widget.source
-             # but we can try accessing the source if available
-             info += f" source={repr(widget.source[:50])}..."
+            # Markdown content isn't easily accessible as raw text directly from widget.source
+            # but we can try accessing the source if available
+            info += f" source={repr(widget.source[:50])}..."
 
         if isinstance(widget, TextArea):
             info += f" text={repr(widget.text)}"
@@ -55,13 +57,14 @@ def dump_ui_state(app: TextualApp) -> str:
             info += f" title={repr(widget.title)} collapsed={widget.collapsed}"
 
         if isinstance(widget, Static) and not isinstance(widget, (Markdown, TextArea)):
-             # Try to get text from renderable if it's simple
-             if hasattr(widget, "renderable") and hasattr(widget.renderable, "plain"):
-                 info += f" content={repr(widget.renderable.plain)}"
+            # Try to get text from renderable if it's simple
+            if hasattr(widget, "renderable") and hasattr(widget.renderable, "plain"):
+                info += f" content={repr(widget.renderable.plain)}"
 
         lines.append(info)
 
     return "\n".join(lines)
+
 
 def dump_ascii_screen(app: TextualApp) -> str:
     """Capture the ASCII representation of the current screen."""
@@ -88,11 +91,11 @@ def dump_ascii_screen(app: TextualApp) -> str:
     normalized_lines = []
     for line in lines:
         if "━" in line and ("╸" in line or "╺" in line):
-             # Heuristic: if a line is mostly splitter chars, replace it
-             if len(line) > 10 and all(c in " ━╸╺" for c in line.strip()):
-                 # Replace with a solid line of the same length
-                 normalized_lines.append("━" * len(line))
-                 continue
+            # Heuristic: if a line is mostly splitter chars, replace it
+            if len(line) > 10 and all(c in " ━╸╺" for c in line.strip()):
+                # Replace with a solid line of the same length
+                normalized_lines.append("━" * len(line))
+                continue
         normalized_lines.append(line)
 
     return "\n".join(normalized_lines)

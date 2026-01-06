@@ -6,7 +6,6 @@ from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 
 class RemoteLLMProvider:
-
     def __init__(self, user_config: UserConfiguration):
         self._registry = user_config.models_registry()
 

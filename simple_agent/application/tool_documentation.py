@@ -4,6 +4,7 @@ from simple_agent.application.tool_library import ToolArgument, ToolArguments
 
 class _MockTool:
     """Mock tool for generating syntax examples."""
+
     def __init__(self, name: str, arguments: ToolArguments):
         self.name = name
         self.arguments = arguments
@@ -56,11 +57,10 @@ def _generate_syntax_examples(tool_syntax: ToolSyntax) -> str:
                 ToolArgument(name="required_arg", description="", required=True),
                 ToolArgument(name="optional_arg", description="", required=False),
             ]
-        )
+        ),
     )
     example1 = tool_syntax._format_example(
-        {"required_arg": "arg1", "optional_arg": "arg2"},
-        example1_tool
+        {"required_arg": "arg1", "optional_arg": "arg2"}, example1_tool
     )
     examples.append(f"Example:\n{example1}")
 
@@ -69,12 +69,11 @@ def _generate_syntax_examples(tool_syntax: ToolSyntax) -> str:
         name="example_tool_with_body",
         arguments=ToolArguments(
             header=[ToolArgument(name="header_arg", description="", required=True)],
-            body=ToolArgument(name="body_content", description="", required=True)
-        )
+            body=ToolArgument(name="body_content", description="", required=True),
+        ),
     )
     example2 = tool_syntax._format_example(
-        {"header_arg": "header", "body_content": "body"},
-        example2_tool
+        {"header_arg": "header", "body_content": "body"}, example2_tool
     )
     examples.append(f"Example (tool with body):\n{example2}")
 
@@ -87,29 +86,29 @@ def _generate_tool_documentation(tool, syntax):
     # Substitute template variables
     template_vars = tool.get_template_variables()
     for key, value in template_vars.items():
-        usage_info = usage_info.replace(f'{{{{{key}}}}}', value)
+        usage_info = usage_info.replace(f"{{{{{key}}}}}", value)
 
-    lines = usage_info.split('\n')
+    lines = usage_info.split("\n")
     if not lines:
         return ""
 
     tool_line = lines[0]
-    if not tool_line.startswith('Tool: '):
+    if not tool_line.startswith("Tool: "):
         return ""
 
-    tool_name = tool_line.replace('Tool: ', '')
+    tool_name = tool_line.replace("Tool: ", "")
 
     description = ""
     for line in lines[1:]:
-        if line.startswith('Description: '):
-            description = line.replace('Description: ', '')
+        if line.startswith("Description: "):
+            description = line.replace("Description: ", "")
             break
 
     doc_lines = [f"## {tool_name} tool"]
     if description:
         doc_lines.append(f"{description}")
 
-    remaining_lines = usage_info.split('\n')[2:]
+    remaining_lines = usage_info.split("\n")[2:]
 
     if remaining_lines:
         doc_lines.extend(remaining_lines)

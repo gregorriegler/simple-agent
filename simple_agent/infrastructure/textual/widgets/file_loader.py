@@ -5,6 +5,7 @@ from simple_agent.application.file_loader import FileLoader
 
 logger = logging.getLogger(__name__)
 
+
 class DiskFileLoader:
     def read_file(self, file_path_str: str) -> Optional[str]:
         try:
@@ -14,6 +15,7 @@ class DiskFileLoader:
         except Exception as e:
             logger.error(f"Failed to read referenced file {file_path_str}: {e}")
         return None
+
 
 class XmlFormattingFileLoader:
     def __init__(self, loader: FileLoader):

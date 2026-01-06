@@ -3,24 +3,23 @@ from approvaltests.reporters import Reporter
 
 
 class ApproveShReporter(Reporter):
-
     def __init__(self):
         pass
 
     def report(self, received_path, approved_path):
         approved_filename = os.path.basename(approved_path)
-        test_name = approved_filename.replace('.approved.txt', '')
+        test_name = approved_filename.replace(".approved.txt", "")
 
         print("\nApproval test failed!")
         print(f"Received: {received_path}")
         print(f"Approved: {approved_path}")
 
         try:
-            with open(received_path, 'r', encoding='utf-8') as f:
+            with open(received_path, "r", encoding="utf-8") as f:
                 received_content = f.read()
 
             try:
-                with open(approved_path, 'r', encoding='utf-8') as f:
+                with open(approved_path, "r", encoding="utf-8") as f:
                     approved_content = f.read()
             except FileNotFoundError:
                 approved_content = ""

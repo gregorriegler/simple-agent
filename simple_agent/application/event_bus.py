@@ -1,19 +1,16 @@
 from typing import Dict, List, Type, Callable, TypeVar, Any, Protocol
 from .events import AgentEvent
 
-T = TypeVar('T', bound=AgentEvent)
+T = TypeVar("T", bound=AgentEvent)
 
 
 class EventBus(Protocol):
-    def subscribe(self, event_type: Type[T], handler: Callable[[T], None]) -> None:
-        ...
+    def subscribe(self, event_type: Type[T], handler: Callable[[T], None]) -> None: ...
 
-    def publish(self, event: AgentEvent) -> None:
-        ...
+    def publish(self, event: AgentEvent) -> None: ...
 
 
 class SimpleEventBus(EventBus):
-
     def __init__(self):
         self._handlers: Dict[Type[AgentEvent], List[Any]] = {}
 

@@ -5,26 +5,37 @@ import pytest
 from textual.geometry import Offset, Size
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.slash_command_registry import SlashCommandRegistry, SlashCommand
+from simple_agent.application.slash_command_registry import (
+    SlashCommandRegistry,
+    SlashCommand,
+)
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.smart_input.autocomplete import (
     CompletionResult,
     CursorAndLine,
     SuggestionList,
-    Cursor
+    Cursor,
 )
-from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import TriggeredSuggestionProvider, CompositeSuggestionProvider
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
+    TriggeredSuggestionProvider,
+    CompositeSuggestionProvider,
+)
 from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search import (
-    AtSymbolTrigger, FileSearchProvider
+    AtSymbolTrigger,
+    FileSearchProvider,
 )
-from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import AutocompletePopup
+from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
+    AutocompletePopup,
+)
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
     CompletionSeed,
     PopupLayout,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
-    SlashAtStartOfLineTrigger, SlashCommandProvider,
-    SlashCommandArgumentTrigger, SlashCommandArgumentProvider
+    SlashAtStartOfLineTrigger,
+    SlashCommandProvider,
+    SlashCommandArgumentTrigger,
+    SlashCommandArgumentProvider,
 )
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 
@@ -45,6 +56,7 @@ class StubUserInput:
     def escape_requested(self) -> bool:
         return False
 
+
 @pytest.fixture
 def app():
     return TextualApp(StubUserInput(), AgentId("Agent"))
@@ -53,12 +65,14 @@ def app():
 @pytest.mark.asyncio
 async def test_slash_command_registry_available_in_textarea():
     registry = SlashCommandRegistry()
-    provider = CompositeSuggestionProvider([
-        TriggeredSuggestionProvider(
-            trigger=SlashAtStartOfLineTrigger(),
-            provider=SlashCommandProvider(registry)
-        )
-    ])
+    provider = CompositeSuggestionProvider(
+        [
+            TriggeredSuggestionProvider(
+                trigger=SlashAtStartOfLineTrigger(),
+                provider=SlashCommandProvider(registry),
+            )
+        ]
+    )
     textarea = SmartInput(provider=provider)
 
     # Mount to trigger popup creation
@@ -74,10 +88,12 @@ async def test_slash_command_registry_available_in_textarea():
 def test_triggered_suggestion_provider_requires_trigger_and_provider():
     # Helper to satisfy Protocol types without functionality
     class DummyTrigger:
-        def is_triggered(self, _): return False
+        def is_triggered(self, _):
+            return False
 
     class DummyProvider:
-        async def suggest(self, _): return SuggestionList([])
+        async def suggest(self, _):
+            return SuggestionList([])
 
     trigger = DummyTrigger()
     provider = DummyProvider()
@@ -98,13 +114,17 @@ def test_triggered_suggestion_provider_requires_trigger_and_provider():
 @pytest.mark.asyncio
 async def test_triggered_suggestion_provider_check_logic():
     class MockTrigger:
-        def __init__(self, should_trigger): self.triggered = should_trigger
-        def is_triggered(self, _): return self.triggered
+        def __init__(self, should_trigger):
+            self.triggered = should_trigger
+
+        def is_triggered(self, _):
+            return self.triggered
 
     class MockProvider:
-        async def suggest(self, _): return SuggestionList([SimpleSuggestion("s1")])
+        async def suggest(self, _):
+            return SuggestionList([SimpleSuggestion("s1")])
 
-    cursor = CursorAndLine(Cursor(0,0), "")
+    cursor = CursorAndLine(Cursor(0, 0), "")
 
     # triggered
     autocomplete = TriggeredSuggestionProvider(MockTrigger(True), MockProvider())
@@ -167,18 +187,23 @@ def test_autocomplete_position_uses_above_when_no_room_below():
     cursor_offset = Offset(10, 8)
     seed = CompletionSeed(cursor_offset, "ab")
 
-    suggestions = SuggestionList([SimpleSuggestion("abc")]) # 1 item = height 1
+    suggestions = SuggestionList([SimpleSuggestion("abc")])  # 1 item = height 1
 
     # Let's make it taller to force it above
-    suggestions = SuggestionList([SimpleSuggestion("abc") for _ in range(3)]) # height 3
+    suggestions = SuggestionList(
+        [SimpleSuggestion("abc") for _ in range(3)]
+    )  # height 3
 
     layout = PopupLayout.calculate(suggestions, seed, screen_size)
 
     assert layout.offset.y == 5
 
+
 def test_calculate_autocomplete_position_edge_cases():
     screen_size = Size(80, 24)
-    popup_size = Size(20, 5) # Note: PopupLayout calculates size from suggestions, but we can verify logic
+    popup_size = Size(
+        20, 5
+    )  # Note: PopupLayout calculates size from suggestions, but we can verify logic
 
     # We need to simulate suggestions that result in specific size
     # height 5 -> 5 suggestions
@@ -187,7 +212,7 @@ def test_calculate_autocomplete_position_edge_cases():
     suggestions = SuggestionList([SimpleSuggestion(long_text) for _ in range(5)])
 
     cursor_offset = Offset(10, 5)
-    seed = CompletionSeed(cursor_offset, "ab") # width 2
+    seed = CompletionSeed(cursor_offset, "ab")  # width 2
     layout = PopupLayout.calculate(suggestions, seed, screen_size)
 
     assert layout.offset.y == 6
@@ -201,12 +226,14 @@ def test_calculate_autocomplete_position_edge_cases():
 
     # Test right edge
     cursor_offset = Offset(75, 5)
-    seed = CompletionSeed(cursor_offset, "ab") # start at 73. width 20. 73+20 = 93 > 80.
+    seed = CompletionSeed(
+        cursor_offset, "ab"
+    )  # start at 73. width 20. 73+20 = 93 > 80.
     layout = PopupLayout.calculate(suggestions, seed, screen_size)
     assert layout.offset.x == 60
 
     # Test left edge
-    cursor_offset = Offset(1, 5) # prefix 2 chars -> -1 -> 0
+    cursor_offset = Offset(1, 5)  # prefix 2 chars -> -1 -> 0
     seed = CompletionSeed(cursor_offset, "ab")
     layout = PopupLayout.calculate(suggestions, seed, screen_size)
     assert layout.offset.x == 0
@@ -217,6 +244,7 @@ def test_calculate_autocomplete_position_edge_cases():
     seed = CompletionSeed(cursor_offset, "ab")
     layout = PopupLayout.calculate(suggestions, seed, small_screen)
     assert layout.offset.y == 3
+
 
 @pytest.mark.asyncio
 async def test_submit_hides_autocomplete_popup():
@@ -313,12 +341,14 @@ async def test_enter_key_submits_when_autocomplete_not_visible():
         assert len(user_input.inputs) == 1
         assert user_input.inputs[0] == "hello"
 
+
 @dataclass
 class SimpleSuggestion:
     display_text: str
 
     def to_completion_result(self) -> CompletionResult:
         return CompletionResult(text=self.display_text)
+
 
 @pytest.mark.asyncio
 async def test_autocomplete_popup_rendering(app: TextualApp):
@@ -327,10 +357,7 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         await app.mount(popup)
 
         # Create suggestions manually
-        strings = [
-            "/short - desc",
-            "/looooooong - description"
-        ]
+        strings = ["/short - desc", "/looooooong - description"]
 
         suggestions = [SimpleSuggestion(s) for s in strings]
 
@@ -349,6 +376,7 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         # Check content
         assert "/short" in str(popup.render())
 
+
 @pytest.mark.asyncio
 async def test_autocomplete_popup_hide(app: TextualApp):
     async with app.run_test() as pilot:
@@ -366,6 +394,7 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 
         popup.close()
         assert popup.display is False
+
 
 @pytest.mark.asyncio
 async def test_submittable_text_area_slash_commands(app: TextualApp):
@@ -395,6 +424,7 @@ async def test_submittable_text_area_slash_commands(app: TextualApp):
         assert text_area.text.startswith("/clear")
         assert text_area.popup.display is False
 
+
 @pytest.mark.asyncio
 async def test_submittable_text_area_file_search(app: TextualApp):
     # Mock searcher
@@ -406,16 +436,19 @@ async def test_submittable_text_area_file_search(app: TextualApp):
         def compose(self):
             from textual.containers import Vertical
             from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+
             with Vertical():
                 yield AgentTabs(self._root_agent_id, id="tabs")
 
                 # Inject our custom provider
-                provider = CompositeSuggestionProvider([
-                    TriggeredSuggestionProvider(
-                        trigger=AtSymbolTrigger(),
-                        provider=FileSearchProvider(mock_searcher)
-                    )
-                ])
+                provider = CompositeSuggestionProvider(
+                    [
+                        TriggeredSuggestionProvider(
+                            trigger=AtSymbolTrigger(),
+                            provider=FileSearchProvider(mock_searcher),
+                        )
+                    ]
+                )
                 yield SmartInput(provider=provider, id="user-input")
 
     test_app = TestApp(StubUserInput(), AgentId("Agent"))
@@ -447,6 +480,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
         assert "s " in text_area.text
         assert text_area.popup.display is False
 
+
 @pytest.mark.asyncio
 async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
     async with app.run_test() as pilot:
@@ -465,10 +499,10 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         assert text_area.popup.display is False
 
         # Re-open
-        await pilot.press("backspace") # delete /
+        await pilot.press("backspace")  # delete /
         await pilot.press("/")
         await pilot.pause()
-        await pilot.pause() # Wait for async fetch
+        await pilot.pause()  # Wait for async fetch
 
         assert text_area.popup.display is True
 
@@ -481,6 +515,7 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         # Just check it started with /
         assert text_area.text.startswith("/")
         assert len(text_area.text) > 1
+
 
 @pytest.mark.asyncio
 async def test_submittable_text_area_shift_enter(app: TextualApp):
@@ -511,6 +546,7 @@ async def test_submittable_text_area_ctrl_enter(app: TextualApp):
 
         assert text_area.text == "line1\n"
 
+
 @pytest.mark.asyncio
 async def test_slash_command_argument_suggestions_appear():
     registry = SlashCommandRegistry()
@@ -518,18 +554,20 @@ async def test_slash_command_argument_suggestions_appear():
     registry._commands["/test"] = SlashCommand(
         name="/test",
         description="Test command",
-        arg_completer=lambda: ["option1", "option2", "other"]
+        arg_completer=lambda: ["option1", "option2", "other"],
     )
-    provider = CompositeSuggestionProvider([
-        TriggeredSuggestionProvider(
-            trigger=SlashCommandArgumentTrigger(),
-            provider=SlashCommandArgumentProvider(registry)
-        )
-    ])
+    provider = CompositeSuggestionProvider(
+        [
+            TriggeredSuggestionProvider(
+                trigger=SlashCommandArgumentTrigger(),
+                provider=SlashCommandArgumentProvider(registry),
+            )
+        ]
+    )
 
     # Simulate input: "/test "
     line = "/test "
-    cursor = Cursor(0, 6) # At end of line
+    cursor = Cursor(0, 6)  # At end of line
     cursor_and_line = CursorAndLine(cursor, line)
 
     # Check trigger manually
@@ -542,24 +580,27 @@ async def test_slash_command_argument_suggestions_appear():
     assert len(suggestions.suggestions) == 3
     assert suggestions.suggestions[0].display_text == "option1"
 
+
 @pytest.mark.asyncio
 async def test_slash_command_argument_filtering():
     registry = SlashCommandRegistry()
     registry._commands["/test"] = SlashCommand(
         name="/test",
         description="Test command",
-        arg_completer=lambda: ["option1", "option2", "other"]
+        arg_completer=lambda: ["option1", "option2", "other"],
     )
-    provider = CompositeSuggestionProvider([
-        TriggeredSuggestionProvider(
-            trigger=SlashCommandArgumentTrigger(),
-            provider=SlashCommandArgumentProvider(registry)
-        )
-    ])
+    provider = CompositeSuggestionProvider(
+        [
+            TriggeredSuggestionProvider(
+                trigger=SlashCommandArgumentTrigger(),
+                provider=SlashCommandArgumentProvider(registry),
+            )
+        ]
+    )
 
     # Simulate input: "/test op"
     line = "/test op"
-    cursor = Cursor(0, 8) # At end of line
+    cursor = Cursor(0, 8)  # At end of line
     cursor_and_line = CursorAndLine(cursor, line)
 
     # Check suggestions
@@ -568,6 +609,7 @@ async def test_slash_command_argument_filtering():
     assert len(suggestions.suggestions) == 2
     assert suggestions.suggestions[0].display_text == "option1"
     assert suggestions.suggestions[1].display_text == "option2"
+
 
 @pytest.mark.asyncio
 async def test_slash_command_argument_no_trigger_if_no_space():
@@ -579,10 +621,11 @@ async def test_slash_command_argument_no_trigger_if_no_space():
     trigger = SlashCommandArgumentTrigger()
     assert trigger.is_triggered(cursor_and_line) is False
 
+
 @pytest.mark.asyncio
 async def test_model_command_integration():
     # Test with real registry and /model command
-    registry = SlashCommandRegistry() # Uses real ModelInfo
+    registry = SlashCommandRegistry()  # Uses real ModelInfo
     provider = SlashCommandArgumentProvider(registry)
     trigger = SlashCommandArgumentTrigger()
 

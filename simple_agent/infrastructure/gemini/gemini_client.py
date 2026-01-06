@@ -12,7 +12,9 @@ class GeminiClientError(Exception):
 
 
 class GeminiLLM(LLM):
-    def __init__(self, config: ModelConfig, transport: httpx.AsyncBaseTransport | None = None):
+    def __init__(
+        self, config: ModelConfig, transport: httpx.AsyncBaseTransport | None = None
+    ):
         self._config = config
         self._transport = transport
         self._ensure_gemini_adapter()
@@ -24,11 +26,15 @@ class GeminiLLM(LLM):
 
         api_key = self._config.api_key
         model = self._config.model
-        base_url = self._config.base_url or "https://generativelanguage.googleapis.com/v1beta"
+        base_url = (
+            self._config.base_url or "https://generativelanguage.googleapis.com/v1beta"
+        )
         url = f"{base_url.rstrip('/')}/models/{model}?key={api_key}"
 
         try:
-            async with LoggingAsyncClient(timeout=10, transport=self._transport) as client:
+            async with LoggingAsyncClient(
+                timeout=10, transport=self._transport
+            ) as client:
                 response = await client.get(url)
                 response.raise_for_status()
                 data = response.json()
@@ -49,7 +55,9 @@ class GeminiLLM(LLM):
         api_key = self._config.api_key
         model = self._config.model
 
-        base_url = self._config.base_url or "https://generativelanguage.googleapis.com/v1beta"
+        base_url = (
+            self._config.base_url or "https://generativelanguage.googleapis.com/v1beta"
+        )
         url = f"{base_url.rstrip('/')}/models/{model}:generateContent?key={api_key}"
 
         # Convert messages to Gemini format
@@ -69,21 +77,26 @@ class GeminiLLM(LLM):
 
         for attempt in range(max_retries + 1):
             try:
-                async with LoggingAsyncClient(timeout=timeout, transport=self._transport) as client:
+                async with LoggingAsyncClient(
+                    timeout=timeout, transport=self._transport
+                ) as client:
                     response = await client.post(url, headers=headers, json=data)
-                
+
                 response.raise_for_status()
                 break
             except (httpx.RequestError, httpx.HTTPStatusError) as error:
                 should_retry = attempt < max_retries and (
-                    isinstance(error, httpx.TimeoutException) or 
-                    (isinstance(error, httpx.HTTPStatusError) and error.response.status_code == 500)
+                    isinstance(error, httpx.TimeoutException)
+                    or (
+                        isinstance(error, httpx.HTTPStatusError)
+                        and error.response.status_code == 500
+                    )
                 )
-                
+
                 if should_retry:
                     await asyncio.sleep(retry_delay)
                     continue
-                
+
                 raise GeminiClientError(f"API request failed: {error}") from error
 
         response_data = response.json()
@@ -120,7 +133,9 @@ class GeminiLLM(LLM):
             input_tokens=usage_metadata.get("promptTokenCount", 0),
             output_tokens=usage_metadata.get("candidatesTokenCount", 0),
             total_tokens=usage_metadata.get("totalTokenCount", 0),
-            input_token_limit=input_token_limit if input_token_limit and input_token_limit > 0 else None
+            input_token_limit=input_token_limit
+            if input_token_limit and input_token_limit > 0
+            else None,
         )
 
         return LLMResponse(content=text_content, model=model, usage=usage)
@@ -150,15 +165,9 @@ class GeminiLLM(LLM):
                     content = f"{system_prompt}\n\n{content}"
                     system_prompt = None
 
-                gemini_contents.append({
-                    "role": "user",
-                    "parts": [{"text": content}]
-                })
+                gemini_contents.append({"role": "user", "parts": [{"text": content}]})
             elif role == "assistant":
-                gemini_contents.append({
-                    "role": "model",
-                    "parts": [{"text": content}]
-                })
+                gemini_contents.append({"role": "model", "parts": [{"text": content}]})
 
         return gemini_contents
 

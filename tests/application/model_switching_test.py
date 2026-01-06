@@ -3,13 +3,20 @@ from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
-from simple_agent.application.llm import LLM, LLMResponse, TokenUsage, ChatMessages, LLMProvider
+from simple_agent.application.llm import (
+    LLM,
+    LLMResponse,
+    TokenUsage,
+    ChatMessages,
+    LLMProvider,
+)
 from simple_agent.application.session import Session
 from tests.session_storage_stub import SessionStorageStub
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import create_session_args, DummyProjectTree
 from tests.test_tool_library import ToolLibraryFactoryStub
 from tests.user_input_stub import UserInputStub
+
 
 class MockLLM(LLM):
     def __init__(self, model_name: str):
@@ -22,7 +29,12 @@ class MockLLM(LLM):
 
     async def call_async(self, messages: ChatMessages) -> LLMResponse:
         self.calls.append(messages)
-        return LLMResponse(content=f"Response from {self._model_name}", model=self._model_name, usage=TokenUsage(0, 0, 0))
+        return LLMResponse(
+            content=f"Response from {self._model_name}",
+            model=self._model_name,
+            usage=TokenUsage(0, 0, 0),
+        )
+
 
 class MockLLMProvider(LLMProvider):
     def __init__(self):
@@ -34,15 +46,27 @@ class MockLLMProvider(LLMProvider):
             self.llms[name] = MockLLM(name)
         return self.llms[name]
 
+
 class FakeAgentLibrary:
     def __init__(self):
         self._definitions = {
-            "agent": AgentDefinition(AgentType("agent"), "---\nname: Agent\n---", GroundRulesStub("Prompt")),
+            "agent": AgentDefinition(
+                AgentType("agent"), "---\nname: Agent\n---", GroundRulesStub("Prompt")
+            ),
         }
-    def list_agent_types(self): return list(self._definitions.keys())
-    def read_agent_definition(self, agent_type): return self._definitions[agent_type.raw]
-    def starting_agent_id(self): return AgentId("Agent")
-    def _starting_agent_definition(self): return self._definitions["agent"]
+
+    def list_agent_types(self):
+        return list(self._definitions.keys())
+
+    def read_agent_definition(self, agent_type):
+        return self._definitions[agent_type.raw]
+
+    def starting_agent_id(self):
+        return AgentId("Agent")
+
+    def _starting_agent_definition(self):
+        return self._definitions["agent"]
+
 
 @pytest.mark.asyncio
 async def test_model_switching_uses_new_llm_instance():
@@ -51,21 +75,32 @@ async def test_model_switching_uses_new_llm_instance():
     llm_provider = MockLLMProvider()
 
     # User inputs: initial message, command, subsequent message
-    user_input = UserInputStub(inputs=["Hello", "/model specialized-gpt", "Do verify"], escapes=[False, False, False])
+    user_input = UserInputStub(
+        inputs=["Hello", "/model specialized-gpt", "Do verify"],
+        escapes=[False, False, False],
+    )
 
     session = Session(
         event_bus=event_bus,
         session_storage=SessionStorageStub(),
-        tool_library_factory=ToolLibraryFactoryStub(llm_provider.get("default"), inputs=[], escapes=[], interrupts=[], event_bus=event_bus),
+        tool_library_factory=ToolLibraryFactoryStub(
+            llm_provider.get("default"),
+            inputs=[],
+            escapes=[],
+            interrupts=[],
+            event_bus=event_bus,
+        ),
         agent_library=FakeAgentLibrary(),
         user_input=user_input,
-        todo_cleanup=None, # Not needed
+        todo_cleanup=None,  # Not needed
         llm_provider=llm_provider,
         project_tree=DummyProjectTree(),
     )
 
     # Run
-    await session.run_async(create_session_args(False, start_message="Start"), AgentId("Agent"))
+    await session.run_async(
+        create_session_args(False, start_message="Start"), AgentId("Agent")
+    )
 
     # Verify
     default_llm = llm_provider.llms.get("default")
@@ -90,4 +125,4 @@ async def test_model_switching_uses_new_llm_instance():
     assert len(specialized_llm.calls) == 1
     last_call_messages = specialized_llm.calls[0]
     # The last user message in that call should be "Do verify"
-    assert last_call_messages[-1]['content'] == "Do verify"
+    assert last_call_messages[-1]["content"] == "Do verify"

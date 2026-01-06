@@ -27,7 +27,9 @@ def test_generate_coding_system_prompt():
 
 def verify_system_prompt(agent_type, tool_library):
     agent_library = BuiltinAgentLibrary(GroundRulesStub())
-    tools_documentation = generate_tools_documentation(tool_library.tools, tool_library.tool_syntax)
+    tools_documentation = generate_tools_documentation(
+        tool_library.tools, tool_library.tool_syntax
+    )
     prompt = agent_library.read_agent_definition(AgentType(agent_type)).prompt()
     system_prompt = prompt.render(tools_documentation, DummyProjectTree())
     verify(system_prompt)
@@ -45,7 +47,7 @@ tools: write_todos,ls,cat
 
 # Role
 Content here""",
-            ['write_todos', 'ls', 'cat'],
+            ["write_todos", "ls", "cat"],
         ),
         (
             "list-sample",
@@ -58,7 +60,7 @@ tools:
 
 # Role
 Content here""",
-            ['bash', 'cat'],
+            ["bash", "cat"],
         ),
         (
             "no-keys",
@@ -78,7 +80,9 @@ Content here""",
         ),
     ],
 )
-def test_extract_tool_keys_from_prompt(agent_type, definition_content, expected_keys, tmp_path: Path):
+def test_extract_tool_keys_from_prompt(
+    agent_type, definition_content, expected_keys, tmp_path: Path
+):
     agent_type_obj = AgentType(agent_type)
     agent_library = create_filesystem_agent_library(tmp_path)
     write_agent_definition(tmp_path, agent_type_obj, definition_content)
@@ -90,9 +94,7 @@ def test_extract_tool_keys_from_prompt(agent_type, definition_content, expected_
 
 def test_render_removes_placeholder_when_no_agents_content():
     prompt = AgentPrompt(
-        agent_name="Test",
-        template="Header\n{{AGENTS.MD}}\nFooter",
-        agents_content=""
+        agent_name="Test", template="Header\n{{AGENTS.MD}}\nFooter", agents_content=""
     )
 
     result = prompt.render("TOOLS DOCS", DummyProjectTree())
@@ -111,14 +113,15 @@ def create_filesystem_agent_library(directory: Path) -> FileSystemAgentLibrary:
     return library
 
 
-def write_agent_definition(directory: Path, agent_type: AgentType, content: str) -> None:
+def write_agent_definition(
+    directory: Path, agent_type: AgentType, content: str
+) -> None:
     path = directory / f"{agent_type.raw}.agent.md"
     path.write_text(content, encoding="utf-8")
 
 
 class GroundRulesStub(GroundRules):
-
-    def __init__(self, stub = None):
+    def __init__(self, stub=None):
         if stub is not None:
             self._stub = stub
         else:

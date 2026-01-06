@@ -9,6 +9,7 @@ from simple_agent.application.system_prompt import AgentPrompt
 
 logger = logging.getLogger(__name__)
 
+
 class AgentDefinition:
     def __init__(self, agent_type: AgentType, content: str, ground_rules: GroundRules):
         self._agent_type = agent_type
@@ -23,11 +24,11 @@ class AgentDefinition:
 
     def tool_keys(self):
         metadata, _ = self._load()
-        return self._read_tool_keys(metadata.get('tools'))
+        return self._read_tool_keys(metadata.get("tools"))
 
     def model(self) -> str | None:
         metadata, _ = self._load()
-        model_value = metadata.get('model')
+        model_value = metadata.get("model")
         return str(model_value).strip() if model_value is not None else None
 
     def prompt(self) -> AgentPrompt:
@@ -37,7 +38,7 @@ class AgentDefinition:
 
     def _build_prompt(self) -> AgentPrompt:
         metadata, template = self._load()
-        name = metadata.get('name', str(self._agent_type).capitalize())
+        name = metadata.get("name", str(self._agent_type).capitalize())
         ground_rules = self.ground_rules.read()
         return AgentPrompt(name, template, ground_rules)
 
@@ -54,16 +55,16 @@ class AgentDefinition:
         leading_prefix = content[: len(content) - len(leading_trimmed)]
         working = leading_trimmed
 
-        if not working.startswith('---'):
+        if not working.startswith("---"):
             return {}, content
 
         working = working[3:]
 
-        if working.startswith('\r\n'):
-            newline = '\r\n'
+        if working.startswith("\r\n"):
+            newline = "\r\n"
             working = working[2:]
-        elif working.startswith('\n'):
-            newline = '\n'
+        elif working.startswith("\n"):
+            newline = "\n"
             working = working[1:]
         else:
             return {}, content
@@ -74,13 +75,12 @@ class AgentDefinition:
             return {}, content
 
         front_matter_text = working[:end_index]
-        remainder = working[end_index + len(closing):]
+        remainder = working[end_index + len(closing) :]
         if newline and remainder.startswith(newline):
-            remainder = remainder[len(newline):]
+            remainder = remainder[len(newline) :]
 
         metadata = self._load_front_matter(front_matter_text)
         return metadata, leading_prefix + remainder
-
 
     @staticmethod
     def _load_front_matter(front_matter_text: str) -> dict[str, Any]:
@@ -94,14 +94,13 @@ class AgentDefinition:
 
         return {}
 
-
     @staticmethod
     def _read_tool_keys(raw_tools: Any) -> list[str]:
         if raw_tools is None:
             return []
 
         if isinstance(raw_tools, str):
-            parts = [item.strip() for item in raw_tools.split(',')]
+            parts = [item.strip() for item in raw_tools.split(",")]
             return [item for item in parts if item]
 
         if isinstance(raw_tools, list):
@@ -114,4 +113,3 @@ class AgentDefinition:
             return normalized
 
         return []
-
