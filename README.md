@@ -4,7 +4,7 @@
 [![Coverage](docs/coverage.svg)](#generate-coverage-locally)
 [![LoC](docs/loc.svg)](#generate-coverage-locally)
 
-Simple Agent aims to be a simple, extensible, and transparent general-purpose agent system.
+Simple Agent aims to be a simple, transparent, general-purpose agent TUI.
 
 ![Simple Agent Screenshot](docs/screenshot.png)
 
@@ -55,6 +55,23 @@ agent "your message here"
 ./agent.sh --user-interface console --continue
 ```
 
+## Run in a browser (Docker)
+
+The Textual UI can be served in a browser using `textual-serve` (via `serve_web.py`).
+
+```bash
+# Build and run
+docker compose up -d --build
+
+# Example .env entries
+SIMPLE_AGENT_PUBLIC_URL=http://<host>:8000
+ANTHROPIC_API_KEY=...
+OPENAI_API_KEY=...
+GEMINI_API_KEY=...
+```
+
+Then open `http://<host>:8000` in your browser.
+
 ## Configuration
 
 Create a `.simple-agent.toml` file either in your home directory or in the directory where you run the agent. Values from the current directory override those from `~`.
@@ -104,7 +121,12 @@ api_key = "${GOOGLE_API_KEY}"
 
 ### Custom agent definitions
 
-Agent definition files (`*.agent.md`) are discovered from the built-in `simple_agent` package and from `.simple-agent/agents` in your project directory. To point the agent at a different directory, add `agent_definitions_dir = "/path/to/agents"` under the `[paths]` section of `.simple-agent.toml`. When configured, only the files from that directory are used for type discovery and prompt loading.
+Agent definition files (`*.agent.md`) are discovered from the built-in `simple_agent` package and from `.simple-agent/agents` in your project directory. 
+To point the agent at a different directory, add this to `.simple-agent.toml`:
+```
+[agents]
+path = "${APP_DIR}/custom_agents"
+```
 
 Example custom agent definition (save as `marketing.agent.md` in your configured agents directory):
 
@@ -129,7 +151,6 @@ To change which agent starts first, set it via the `[agents]` section:
 
 ```toml
 [agents]
-path = "/path/to/custom/agents"
 start = "orchestrator"
 ```
 
@@ -151,18 +172,6 @@ start = "orchestrator"
 ./coverage.sh foo.py        # show coverage of a specific file
 ./coverage.sh --badge       # update the coverage badge
 ```
-
-Running the coverage script with `--badge` creates `docs/coverage.svg`, and `loc_badge.py` generates `docs/loc.svg`, keeping the badges self-hosted.
-
-Badge updates run automatically on `main` via the [`Coverage Badge` workflow](.github/workflows/coverage-badge.yml), which commits refreshed coverage and LoC badges after each push.
-
-## Components
-
-- [`simple_agent/main.py`](simple_agent/main.py): CLI entry point that wires the event bus, user interface, Claude client, and tool library before running a session.
-- [`simple_agent/application/session.py`](simple_agent/application/session.py): Orchestrates the lifecycle of a chat session, including streaming assistant output, tool execution, and persistence.
-- [`simple_agent/application/agent.py`](simple_agent/application/agent.py): Core chat loop that gathers user input, streams Claude responses, and coordinates tool execution.
-- [`simple_agent/tools/all_tools.py`](simple_agent/tools/all_tools.py): Registers built-in tools (bash, cat, edit_file, etc.), parses tool calls, and executes them.
-- [`simple_agent/infrastructure/system_prompt/agent_definition.py`](simple_agent/infrastructure/system_prompt/agent_definition.py): Loads agent definitions and renders prompts that describe available tools to Claude.
 
 ## Text-to-Speech setup
 
