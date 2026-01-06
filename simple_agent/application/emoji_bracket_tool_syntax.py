@@ -142,9 +142,9 @@ class EmojiBracketToolSyntax(ToolSyntax):
         END_MARKERS = ["🛠️[/end]", "🛠[/end]"]
         SELF_CLOSING_SUFFIX = " /]"
 
-        def find_any(markers, start_pos):
+        def find_any(markers, start_pos) -> tuple[int, str]:
             earliest = -1
-            found_marker = None
+            found_marker = ""
             for marker in markers:
                 idx = text.find(marker, start_pos)
                 if idx != -1 and (earliest == -1 or idx < earliest):

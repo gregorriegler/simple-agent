@@ -70,7 +70,7 @@ class ToolArgument:
 
 class ToolArguments:
     def __init__(
-        self, header: list[ToolArgument] = None, body: ToolArgument | None = None
+        self, header: list[ToolArgument] | None = None, body: ToolArgument | None = None
     ):
         self._header: list[ToolArgument] = header or []
         self._body: ToolArgument | None = body
@@ -110,17 +110,10 @@ class ToolArguments:
 
 
 class Tool(Protocol):
-    @property
-    def name(self) -> str: ...
-
-    @property
-    def description(self) -> str: ...
-
-    @property
-    def arguments(self) -> ToolArguments: ...
-
-    @property
-    def examples(self) -> list[dict[str, Any]]: ...
+    name: str
+    description: str
+    arguments: ToolArguments
+    examples: list[dict[str, Any]]
 
     async def execute(self, raw_call: RawToolCall) -> ToolResult: ...
 

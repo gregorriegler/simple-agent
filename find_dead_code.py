@@ -56,8 +56,9 @@ def is_factory_function(node, parent_class_name, class_names):
 def main():
     root_dir = sys.argv[1] if len(sys.argv) > 1 else "simple_agent"
 
-    if hasattr(signal, "SIGPIPE"):
-        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+    sigpipe = getattr(signal, "SIGPIPE", None)
+    if sigpipe is not None:
+        signal.signal(sigpipe, signal.SIG_DFL)
 
     if not os.path.isdir(root_dir):
         sys.stderr.write(f"Root directory not found: {root_dir}\n")
@@ -84,7 +85,7 @@ def main():
 
         for node in ast.walk(tree):
             for child in ast.iter_child_nodes(node):
-                child.parent = node
+                child.parent = node  # type: ignore[attr-defined]
 
         class_names = {
             node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)
@@ -93,10 +94,9 @@ def main():
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 if not node.name.startswith("__"):
+                    parent = getattr(node, "parent", None)
                     parent_class = (
-                        node.parent.name
-                        if isinstance(node.parent, ast.ClassDef)
-                        else None
+                        parent.name if isinstance(parent, ast.ClassDef) else None
                     )
                     is_factory = is_factory_function(node, parent_class, class_names)
                     definitions.append(
@@ -105,14 +105,16 @@ def main():
             elif isinstance(node, ast.ClassDef):
                 if not node.name.startswith("__"):
                     definitions.append((path, "class", node.name, node.lineno, False))
-            elif isinstance(node, ast.Assign) and isinstance(node.parent, ast.Module):
+            elif isinstance(node, ast.Assign) and isinstance(
+                getattr(node, "parent", None), ast.Module
+            ):
                 for target in node.targets:
                     if isinstance(target, ast.Name) and not target.id.startswith("__"):
                         definitions.append(
                             (path, "variable", target.id, node.lineno, False)
                         )
             elif isinstance(node, ast.AnnAssign) and isinstance(
-                node.parent, ast.Module
+                getattr(node, "parent", None), ast.Module
             ):
                 target = node.target
                 if isinstance(target, ast.Name) and not target.id.startswith("__"):

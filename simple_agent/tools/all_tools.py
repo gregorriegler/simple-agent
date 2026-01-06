@@ -45,7 +45,7 @@ class AllTools(ToolLibrary):
     def _create_static_tools(self):
         tool_map = {
             "write_todos": lambda: WriteTodosTool(
-                self.tool_context.agent_id.todo_filename()
+                str(self.tool_context.agent_id.todo_filename())
             ),
             "ls": lambda: LsTool(),
             "cat": lambda: CatTool(),

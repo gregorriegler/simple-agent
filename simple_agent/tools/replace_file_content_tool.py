@@ -215,6 +215,8 @@ class ReplaceFileContentTool(BaseTool):
         parsed, error = self._parse_replace_body(body)
         if error:
             return None, error
+        if parsed is None:
+            return None, "Error parsing arguments"
         old_string, new_string = parsed
 
         return ReplaceFileArgs(
