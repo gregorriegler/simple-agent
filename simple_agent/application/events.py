@@ -7,7 +7,7 @@ from simple_agent.application.tool_results import ToolResult
 
 @dataclass
 class AgentEvent:
-    agent_id: AgentId = None
+    agent_id: AgentId | None = None
     event_name: ClassVar[str] = "agent_event"
 
 
@@ -28,7 +28,7 @@ class ToolCalledEvent(AgentEvent):
 class ToolResultEvent(AgentEvent):
     event_name: ClassVar[str] = "tool_result"
     call_id: str = ""
-    result: ToolResult = None
+    result: ToolResult | None = None
 
 
 @dataclass

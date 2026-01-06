@@ -21,7 +21,7 @@ from .input import Input
 from .llm import LLM, LLMProvider, Messages
 from .slash_command_registry import SlashCommandRegistry
 from .tool_library import MessageAndParsedTools, ToolLibrary
-from .tool_results import SingleToolResult, ToolResult
+from .tool_results import SingleToolResult, ToolResult, ToolResultStatus
 from .tools_executor import ToolsExecutor
 
 logger = get_logger(__name__)
@@ -124,7 +124,9 @@ class Agent:
         try:
             tool_result: ToolResult = SingleToolResult()
             while tool_result.do_continue():
-                message, tools = await self.llm_responds()
+                response = await self.llm_responds()
+                message = response.message
+                tools = response.tools
                 if message:
                     await self._notify_assistant_said(message)
 
@@ -142,7 +144,11 @@ class Agent:
             raise
         except Exception as e:
             await self._notify_error_occured(e)
-            return None
+            return SingleToolResult(
+                message=str(e),
+                status=ToolResultStatus.FAILURE,
+                completes=True,
+            )
 
     async def llm_responds(self) -> MessageAndParsedTools:
         from simple_agent.application.model_info import ModelInfo

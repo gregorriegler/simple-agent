@@ -1,7 +1,10 @@
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 from .tool_results import ToolResult
+
+if TYPE_CHECKING:
+    from .tool_syntax import ToolSyntax
 
 
 @dataclass
@@ -126,6 +129,7 @@ class Tool(Protocol):
 
 class ToolLibrary(Protocol):
     tools: list[Tool]
+    tool_syntax: "ToolSyntax"
 
     def parse_message_and_tools(self, text: str) -> MessageAndParsedTools: ...
 

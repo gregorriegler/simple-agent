@@ -16,7 +16,7 @@ class AgentDefinition:
         self._content = content
         self.ground_rules = ground_rules
         self._metadata: dict[str, Any] | None = None
-        self._template: str | None = None
+        self._template: str = ""
         self._prompt: AgentPrompt | None = None
 
     def agent_name(self):
@@ -44,7 +44,9 @@ class AgentDefinition:
 
     def _load(self) -> tuple[dict[str, Any], str]:
         if self._metadata is None:
-            self._metadata, self._template = self._parse_front_matter(self._content)
+            metadata, template = self._parse_front_matter(self._content)
+            self._metadata = metadata
+            self._template = template
         return self._metadata, self._template
 
     def _parse_front_matter(self, content: str) -> tuple[dict[str, Any], str]:

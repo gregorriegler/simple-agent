@@ -18,7 +18,7 @@ class TokenUsage:
 class LLMResponse:
     content: str
     model: str = ""
-    usage: TokenUsage = None
+    usage: TokenUsage | None = None
 
     def __post_init__(self):
         if self.usage is None:
@@ -26,6 +26,9 @@ class LLMResponse:
 
 
 class LLM(Protocol):
+    @property
+    def model(self) -> str: ...
+
     async def call_async(self, messages: ChatMessages) -> LLMResponse: ...
 
 
