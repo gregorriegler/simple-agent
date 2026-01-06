@@ -1,10 +1,10 @@
 # NOW
-- env var error handling
+- timeouts for gemini?
 
 # NEXT
-- timeouts for gemini?
 - shift+enter newline
 - agent slash command
+- linter
 - web-ui
 - async subagents
 - coverage drilldown slow because redoing the whole thing
