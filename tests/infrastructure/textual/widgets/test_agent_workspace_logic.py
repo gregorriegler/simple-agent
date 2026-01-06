@@ -1,6 +1,6 @@
-from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_results import SingleToolResult
+from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 
 
 def test_refresh_todos_updates_content_from_file(tmp_path):

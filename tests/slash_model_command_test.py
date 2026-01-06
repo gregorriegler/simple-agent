@@ -1,6 +1,6 @@
 import pytest
 
-from simple_agent.application.events import ModelChangedEvent, ErrorEvent
+from simple_agent.application.events import ErrorEvent, ModelChangedEvent
 from tests.session_test_bed import SessionTestBed
 
 pytestmark = pytest.mark.asyncio

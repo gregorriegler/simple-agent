@@ -4,11 +4,12 @@ import sys
 
 def say_with_piper(message):
     try:
-        from piper import PiperVoice
-        import pygame
-        import tempfile
         import os
+        import tempfile
         import wave
+
+        import pygame
+        from piper import PiperVoice
 
         voice_obj = PiperVoice.load("en_US-lessac-medium.onnx")
 

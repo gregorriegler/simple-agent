@@ -1,4 +1,5 @@
 import pytest
+
 from simple_agent.application.input import Input
 
 

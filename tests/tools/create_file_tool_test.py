@@ -1,8 +1,7 @@
+from approvaltests import Options, verify
 import pytest
 
-from approvaltests import Options, verify
-
-from tests.test_helpers import create_all_tools_for_test, temp_directory, all_scrubbers
+from tests.test_helpers import all_scrubbers, create_all_tools_for_test, temp_directory
 
 library = create_all_tools_for_test()
 pytestmark = pytest.mark.asyncio

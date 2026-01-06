@@ -7,6 +7,7 @@ from simple_agent.application.events import (
     AssistantRespondedEvent,
     AssistantSaidEvent,
     ErrorEvent,
+    ModelChangedEvent,
     SessionClearedEvent,
     SessionEndedEvent,
     SessionInterruptedEvent,
@@ -15,11 +16,11 @@ from simple_agent.application.events import (
     ToolResultEvent,
     UserPromptRequestedEvent,
     UserPromptedEvent,
-    ModelChangedEvent,
 )
-from simple_agent.application.llm_stub import create_llm_stub, StubLLMProvider
+from simple_agent.application.llm_stub import StubLLMProvider, create_llm_stub
 from simple_agent.application.session import Session
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
+
 from tests.event_spy import EventSpy
 from tests.session_storage_stub import SessionStorageStub
 from tests.system_prompt_generator_test import GroundRulesStub

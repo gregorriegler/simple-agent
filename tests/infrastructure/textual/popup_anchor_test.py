@@ -1,4 +1,5 @@
 from textual.geometry import Offset
+
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
     CompletionSeed,
 )

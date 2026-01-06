@@ -2,7 +2,7 @@ import os
 from contextlib import contextmanager
 
 from approvaltests import Options, verify
-from approvaltests.scrubbers.scrubbers import create_regex_scrubber, combine_scrubbers
+from approvaltests.scrubbers.scrubbers import combine_scrubbers, create_regex_scrubber
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_types import AgentTypes

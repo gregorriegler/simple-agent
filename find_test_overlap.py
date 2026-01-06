@@ -3,9 +3,10 @@
 # dependencies = ["coverage", "pytest", "pytest-cov"]
 # ///
 import os
-import sys
 import subprocess
+import sys
 from collections import defaultdict
+
 import coverage
 
 

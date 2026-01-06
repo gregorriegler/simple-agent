@@ -1,6 +1,7 @@
+from approvaltests import verify
 import pytest
-from textual.widgets import TextArea, Collapsible
-from simple_agent.infrastructure.textual.textual_app import TextualApp
+from textual.widgets import Collapsible, TextArea
+
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
     AgentStartedEvent,
@@ -13,14 +14,15 @@ from simple_agent.application.events import (
     ToolResultEvent,
 )
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
+from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
-from approvaltests import verify
+from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
+
 from tests.infrastructure.textual.test_utils import (
-    dump_ui_state,
     dump_ascii_screen,
+    dump_ui_state,
     MockUserInput,
 )
-from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 
 
 @pytest.mark.asyncio

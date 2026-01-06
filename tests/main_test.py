@@ -1,11 +1,13 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
+
 from simple_agent.application.session import SessionArgs
 from simple_agent.infrastructure.user_configuration import (
-    UserConfiguration,
     ConfigurationError,
+    UserConfiguration,
 )
-from simple_agent.main import parse_args, print_system_prompt_command, main
+from simple_agent.main import main, parse_args, print_system_prompt_command
 
 
 def test_parse_args_returns_joined_message():

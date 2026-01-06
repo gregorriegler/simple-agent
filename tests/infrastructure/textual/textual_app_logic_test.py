@@ -1,16 +1,18 @@
+from unittest.mock import patch
+
 import pytest
 from textual.widgets import TabbedContent
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.tool_results import SingleToolResult
-from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.application.events import (
-    SessionClearedEvent,
     AssistantSaidEvent,
+    SessionClearedEvent,
     ToolResultEvent,
 )
+from simple_agent.application.tool_results import SingleToolResult
+from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
-from unittest.mock import patch
+
 from tests.infrastructure.textual.test_utils import MockUserInput
 
 
@@ -42,7 +44,7 @@ async def test_switch_tabs_cycles_between_root_and_subagent(app: TextualApp):
 
 @pytest.mark.asyncio
 async def test_textual_app_lifecycle(app: TextualApp):
-    async with app.run_test() as pilot:
+    async with app.run_test():
         # Test action_quit
         with patch.object(app, "exit") as mock_exit:
             app.action_quit()
@@ -57,7 +59,7 @@ async def test_textual_app_lifecycle(app: TextualApp):
 
 @pytest.mark.asyncio
 async def test_textual_app_write_tool_result_no_pending(app: TextualApp):
-    async with app.run_test() as pilot:
+    async with app.run_test():
         agent_id = AgentId("Agent")
         _, _, tool_results_id = app.panel_ids_for(agent_id)
 

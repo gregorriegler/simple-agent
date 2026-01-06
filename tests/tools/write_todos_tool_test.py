@@ -1,7 +1,8 @@
-import pytest
 import textwrap
 
 from approvaltests import Options, verify
+import pytest
+
 from tests.test_helpers import all_scrubbers, create_all_tools_for_test
 
 library = create_all_tools_for_test()
@@ -18,17 +19,16 @@ async def test_write_todos_creates_markdown_file(tmp_path):
     """).strip()
 
     from simple_agent.application.agent_id import AgentId
-    from simple_agent.application.tool_library_factory import ToolContext
-
-    agent_id = AgentId("Agent", root=tmp_path)
-
-    tool_context = ToolContext(tool_keys=[], agent_id=agent_id)
-
-    from simple_agent.tools.all_tools import AllToolsFactory
     from simple_agent.application.agent_types import AgentTypes
     from simple_agent.application.emoji_bracket_tool_syntax import (
         EmojiBracketToolSyntax,
     )
+    from simple_agent.application.tool_library_factory import ToolContext
+    from simple_agent.tools.all_tools import AllToolsFactory
+
+    agent_id = AgentId("Agent", root=tmp_path)
+
+    tool_context = ToolContext(tool_keys=[], agent_id=agent_id)
 
     factory = AllToolsFactory(tool_syntax=EmojiBracketToolSyntax())
 

@@ -1,10 +1,10 @@
 from pathlib import Path
 
-import pytest
 from approvaltests import verify
+import pytest
 
-from simple_agent.application.agent_type import AgentType
 from simple_agent.application.agent_library import AgentLibrary
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.ground_rules import GroundRules
 from simple_agent.application.system_prompt import AgentPrompt
 from simple_agent.application.tool_documentation import generate_tools_documentation
@@ -12,6 +12,7 @@ from simple_agent.infrastructure.agent_library import (
     BuiltinAgentLibrary,
     FileSystemAgentLibrary,
 )
+
 from tests.test_helpers import create_all_tools_for_test, DummyProjectTree
 
 

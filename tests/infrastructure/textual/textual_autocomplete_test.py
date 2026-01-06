@@ -6,19 +6,19 @@ from textual.geometry import Offset, Size
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.slash_command_registry import (
-    SlashCommandRegistry,
     SlashCommand,
+    SlashCommandRegistry,
 )
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.smart_input.autocomplete import (
     CompletionResult,
+    Cursor,
     CursorAndLine,
     SuggestionList,
-    Cursor,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
-    TriggeredSuggestionProvider,
     CompositeSuggestionProvider,
+    TriggeredSuggestionProvider,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search import (
     AtSymbolTrigger,
@@ -26,8 +26,6 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search im
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
     AutocompletePopup,
-)
-from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
     CompletionSeed,
     PopupLayout,
 )
@@ -201,9 +199,6 @@ def test_autocomplete_position_uses_above_when_no_room_below():
 
 def test_calculate_autocomplete_position_edge_cases():
     screen_size = Size(80, 24)
-    popup_size = Size(
-        20, 5
-    )  # Note: PopupLayout calculates size from suggestions, but we can verify logic
 
     # We need to simulate suggestions that result in specific size
     # height 5 -> 5 suggestions
@@ -435,6 +430,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
     class TestApp(TextualApp):
         def compose(self):
             from textual.containers import Vertical
+
             from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
 
             with Vertical():

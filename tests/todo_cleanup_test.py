@@ -1,12 +1,12 @@
 from pathlib import Path
 
+from approvaltests import Options, verify
 import pytest
-
-from approvaltests import verify, Options
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import AgentFinishedEvent
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
+
 from .session_test_bed import SessionTestBed
 from .test_helpers import all_scrubbers
 

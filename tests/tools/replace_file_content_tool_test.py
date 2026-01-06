@@ -1,10 +1,10 @@
 import os
 import textwrap
 
-import pytest
 from approvaltests import Options, verify
+import pytest
 
-from tests.test_helpers import all_scrubbers, temp_directory, create_all_tools_for_test
+from tests.test_helpers import all_scrubbers, create_all_tools_for_test, temp_directory
 
 library = create_all_tools_for_test()
 pytestmark = pytest.mark.asyncio

@@ -1,6 +1,8 @@
 import io
+
 from rich.console import Console
-from textual.widgets import TextArea, Static, Collapsible, Markdown
+from textual.widgets import Collapsible, Markdown, Static, TextArea
+
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 
 

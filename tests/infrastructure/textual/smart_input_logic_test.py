@@ -1,4 +1,5 @@
 import pytest
+
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 
 
