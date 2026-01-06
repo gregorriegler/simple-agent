@@ -2,12 +2,17 @@
 set -euo pipefail
 
 # 1) formatting
-if ! output=$(uv run ruff format -v . 2>&1); then
-    echo "$output"
-    exit 1
-fi
-if [[ "$output" == *"reformatted"* ]]; then
-    echo "$output" | grep "reformatted"
+check_output=$(uv run ruff format --check . 2>&1 || true)
+files_to_format=$(echo "$check_output" | grep "Would reformat:" | sed 's/Would reformat: //' || true)
+
+if [[ -n "$files_to_format" ]]; then
+    if ! format_output=$(uv run ruff format . 2>&1); then
+        echo "Error during formatting:"
+        echo "$format_output"
+        exit 1
+    fi
+    echo "Reformatted:"
+    echo "$files_to_format"
 fi
 
 # 2) lint (no auto-fix in CI/test script)
