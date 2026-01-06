@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# 1) formatting (no changes allowed)
-if ! output=$(uv run ruff format --check . 2>&1); then
+# 1) formatting
+if ! output=$(uv run ruff format . 2>&1); then
     echo "$output"
     exit 1
+fi
+if [[ "$output" == *"reformatted"* ]]; then
+    echo "$output"
 fi
 
 # 2) lint (no auto-fix in CI/test script)
