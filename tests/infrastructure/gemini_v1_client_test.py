@@ -152,7 +152,7 @@ def test_gemini_v1_chat_raises_error_when_adapter_is_not_gemini_v1():
 
 
 class StubGeminiV1Config:
-    def __init__(self, base_url=None):
+    def __init__(self, base_url="https://generativelanguage.googleapis.com/v1"):
         self._base_url = base_url
         self._adapter = "gemini_v1"
 

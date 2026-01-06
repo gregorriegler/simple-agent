@@ -16,6 +16,27 @@ class GeminiV1LLM(LLM):
         self._config = config
         self._transport = transport
         self._ensure_gemini_v1_adapter()
+        self._input_token_limit = None
+
+    async def _get_input_token_limit(self) -> int | None:
+        if self._input_token_limit is not None:
+            return self._input_token_limit
+
+        api_key = self._config.api_key
+        model = self._config.model
+        base_url = self._config.base_url
+        url = f"{base_url.rstrip('/')}/models/{model}?key={api_key}"
+
+        try:
+            async with LoggingAsyncClient(timeout=10, transport=self._transport) as client:
+                response = await client.get(url)
+                response.raise_for_status()
+                data = response.json()
+                self._input_token_limit = int(data.get("inputTokenLimit", 0))
+        except Exception:
+            self._input_token_limit = 0
+
+        return self._input_token_limit
 
     @property
     def model(self) -> str:
@@ -75,10 +96,13 @@ class GeminiV1LLM(LLM):
         text_content = "".join(text_parts)
 
         usage_metadata = response_data.get("usageMetadata", {})
+        input_token_limit = await self._get_input_token_limit()
+
         usage = TokenUsage(
             input_tokens=usage_metadata.get("promptTokenCount", 0),
             output_tokens=usage_metadata.get("candidatesTokenCount", 0),
             total_tokens=usage_metadata.get("totalTokenCount", 0),
+            input_token_limit=input_token_limit if input_token_limit and input_token_limit > 0 else None
         )
 
         return LLMResponse(content=text_content, model=model, usage=usage)

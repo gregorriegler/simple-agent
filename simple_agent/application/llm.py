@@ -11,6 +11,7 @@ class TokenUsage:
     input_tokens: int = 0
     output_tokens: int = 0
     total_tokens: int = 0
+    input_token_limit: int | None = None
 
 
 @dataclass

@@ -484,6 +484,22 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
         assert len(text_area.text) > 1
 
 @pytest.mark.asyncio
+async def test_submittable_text_area_shift_enter(app: TextualApp):
+    async with app.run_test() as pilot:
+        text_area = app.query_one(SmartInput)
+        text_area.focus()
+        text_area.text = "line1"
+        text_area.move_cursor((0, 5))
+
+        await pilot.press("shift+enter")
+        await pilot.pause()
+
+        assert text_area.text == "line1\n"
+        # Ensure it didn't submit
+        assert len(app.user_input.inputs) == 0
+
+
+@pytest.mark.asyncio
 async def test_submittable_text_area_ctrl_enter(app: TextualApp):
     async with app.run_test() as pilot:
         text_area = app.query_one(SmartInput)

@@ -141,16 +141,22 @@ class Agent:
         response = await self.llm.call_async(self.context.to_list())
         answer = response.content
         model = response.model
-        token_count = response.usage.total_tokens if response.usage else 0
+        
+        input_tokens = 0
+        if response.usage:
+            input_tokens = response.usage.input_tokens
+
         max_tokens = ModelInfo.get_context_window(model)
+        if response.usage and response.usage.input_token_limit:
+            max_tokens = response.usage.input_token_limit
 
         self.context.assistant_says(answer)
         self.event_bus.publish(AssistantRespondedEvent(
             self.agent_id,
             answer,
             model=model,
-            token_count=token_count,
-            max_tokens=max_tokens
+            max_tokens=max_tokens,
+            input_tokens=input_tokens
         ))
         return self.tools.parse_message_and_tools(answer)
 

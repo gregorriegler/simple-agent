@@ -182,7 +182,7 @@ class AgentTabs(TabbedContent):
         elif isinstance(event, AssistantRespondedEvent):
             self._agent_models[event.agent_id] = event.model
             self._agent_max_tokens[event.agent_id] = event.max_tokens
-            title = self._tab_title_for(event.agent_id, event.model, event.token_count, event.max_tokens)
+            title = self._tab_title_for(event.agent_id, event.model, event.input_tokens, event.max_tokens)
             self.update_tab_title(event.agent_id, title)
         elif isinstance(event, ModelChangedEvent):
             self._agent_models[event.agent_id] = event.new_model
@@ -204,7 +204,7 @@ class AgentTabs(TabbedContent):
         tab_title = self._tab_title_for(agent_id, model, 0, 0)
         self.add_subagent_tab(agent_id, tab_title)
 
-    def _tab_title_for(self, agent_id: AgentId, model: str, token_count: int, max_tokens: int) -> str:
+    def _tab_title_for(self, agent_id: AgentId, model: str, input_tokens: int, max_tokens: int) -> str:
         base_title = self._agent_names.get(agent_id, str(agent_id))
 
         if not model:
@@ -213,7 +213,7 @@ class AgentTabs(TabbedContent):
         if max_tokens == 0:
             return f"{base_title} [{model}: 0.0%]"
 
-        percentage = (token_count / max_tokens) * 100
+        percentage = (input_tokens / max_tokens) * 100
         return f"{base_title} [{model}: {percentage:.1f}%]"
 
     def _reset_agent_token_usage(self, agent_id: AgentId) -> None:
