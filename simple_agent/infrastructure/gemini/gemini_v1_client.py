@@ -24,7 +24,7 @@ class GeminiV1LLM(LLM):
 
         api_key = self._config.api_key
         model = self._config.model
-        base_url = self._config.base_url
+        base_url = self._config.base_url or "https://generativelanguage.googleapis.com/v1"
         url = f"{base_url.rstrip('/')}/models/{model}?key={api_key}"
 
         try:
