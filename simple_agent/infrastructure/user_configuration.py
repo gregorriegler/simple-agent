@@ -1,5 +1,8 @@
 import os
 import tomllib
+
+class ConfigurationError(Exception):
+    pass
 from typing import Mapping, Any, Self, Tuple
 
 from simple_agent.application.agent_type import AgentType
@@ -98,7 +101,7 @@ def _read_config(path: str) -> Mapping[str, Any]:
         with open(path, "rb") as handle:
             return tomllib.load(handle)
     except Exception as error:  # pragma: no cover - configuration errors exit early
-        raise ValueError(f"error reading {path}: {error}") from error
+        raise ConfigurationError(f"error reading {path}: {error}") from error
 
 
 def _load_configuration_sources(cwd: str) -> Tuple[Mapping[str, Any], bool]:
@@ -125,7 +128,7 @@ def _resolve_api_key(value: str) -> str:
         var_name = value[2:-1]
         result = os.environ.get(var_name)
         if not result:
-            raise ValueError(f"environment variable '{var_name}' is not set")
+            raise ConfigurationError(f"environment variable '{var_name}' is not set")
         return result
     return value
 

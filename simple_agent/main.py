@@ -30,7 +30,7 @@ from simple_agent.infrastructure.project_tree import FileSystemProjectTree
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
-from simple_agent.infrastructure.user_configuration import UserConfiguration
+from simple_agent.infrastructure.user_configuration import UserConfiguration, ConfigurationError
 from simple_agent.logging_config import setup_logging
 from simple_agent.tools.all_tools import AllToolsFactory
 
@@ -126,7 +126,11 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
 
 
 def main():
-    return asyncio.run(_run_main(ProductionTextualRunStrategy()))
+    try:
+        return asyncio.run(_run_main(ProductionTextualRunStrategy()))
+    except ConfigurationError as e:
+        print(f"Configuration error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 async def main_async(on_user_prompt_requested=None):

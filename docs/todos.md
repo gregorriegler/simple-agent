@@ -1,8 +1,12 @@
 # NOW
-- slash command registry does not include the handler
-- plan agent vs slicer agent
+- env var error handling
 
 # NEXT
+- timeouts for gemini?
+- shift+enter newline
+- agent slash command
+- web-ui
+- async subagents
 - coverage drilldown slow because redoing the whole thing
 - the subagent tool description need to allow for a subscription per agent, so we can explain that a test-writer will only ever write a single test
 
