@@ -1,3 +1,4 @@
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AssistantSaidEvent, ToolResultEvent
 from simple_agent.application.tool_results import SingleToolResult
@@ -44,7 +45,7 @@ class TestSimpleEventBus:
         event_bus.subscribe(AssistantSaidEvent, handler1)
         event_bus.subscribe(AssistantSaidEvent, handler2)
 
-        event = AssistantSaidEvent("agent", "test_data")
+        event = AssistantSaidEvent(AgentId("agent"), "test_data")
         event_bus.publish(event)
 
         assert len(results) == 2
@@ -60,7 +61,7 @@ class TestSimpleEventBus:
 
         event_bus.subscribe(AssistantSaidEvent, handler)
 
-        event = AssistantSaidEvent("agent", "message")
+        event = AssistantSaidEvent(AgentId("agent"), "message")
         event_bus.publish(event)
 
         assert received_data[0] == event
@@ -68,7 +69,9 @@ class TestSimpleEventBus:
     def test_publish_nonexistent_event_type_does_nothing(self):
         event_bus = SimpleEventBus()
 
-        event_bus.publish(ToolResultEvent("agent", "call-1", SingleToolResult("data")))
+        event_bus.publish(
+            ToolResultEvent(AgentId("agent"), "call-1", SingleToolResult("data"))
+        )
 
         assert len(event_bus._handlers) == 0
 
@@ -80,7 +83,7 @@ class TestSimpleEventBus:
             received_data.append(event)
 
         event_bus.subscribe(AssistantSaidEvent, handler)
-        event = AssistantSaidEvent("agent", "test_data")
+        event = AssistantSaidEvent(AgentId("agent"), "test_data")
 
         event_bus.publish(event)
 
