@@ -1,5 +1,4 @@
 import pytest
-from textual.widgets import TextArea
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 
 @pytest.mark.asyncio

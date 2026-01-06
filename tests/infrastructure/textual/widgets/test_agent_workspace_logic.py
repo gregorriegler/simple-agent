@@ -1,10 +1,7 @@
 
-import pytest
-from pathlib import Path
 from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_results import SingleToolResult
-from textual.widgets import Markdown
 
 def test_refresh_todos_updates_content_from_file(tmp_path):
     agent_id = AgentId("test_agent", root=tmp_path)

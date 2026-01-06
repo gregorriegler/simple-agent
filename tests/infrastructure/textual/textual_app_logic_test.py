@@ -1,28 +1,16 @@
 import pytest
-from textual.widgets import TabbedContent, TextArea, Static, Markdown
-from textual.containers import VerticalScroll
+from textual.widgets import TabbedContent
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.application.events import (
-    SessionInterruptedEvent,
-    SessionStartedEvent,
-    SessionEndedEvent,
-    ErrorEvent,
     SessionClearedEvent,
-    UserPromptedEvent,
     AssistantSaidEvent,
-    ToolCalledEvent,
-    ToolResultEvent,
-    ToolCancelledEvent,
-    UserPromptRequestedEvent,
-    AssistantRespondedEvent,
-    AgentStartedEvent
+    ToolResultEvent
 )
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from tests.infrastructure.textual.test_utils import MockUserInput
 
 @pytest.fixture

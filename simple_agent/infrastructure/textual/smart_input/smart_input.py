@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Optional, List
+from typing import Optional
 
 from textual import events
 from textual.message import Message
@@ -18,7 +18,6 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
     SuggestionProvider,
-    CompositeSuggestionProvider,
 )
 
 logger = logging.getLogger(__name__)

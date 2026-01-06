@@ -1,5 +1,4 @@
-import pytest
-from textual.geometry import Offset, Size
+from textual.geometry import Offset
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import CompletionSeed
 
 def test_completion_seed_initialization():

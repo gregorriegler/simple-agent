@@ -1,7 +1,6 @@
 import pytest
 import httpx
-import asyncio
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from simple_agent.infrastructure.gemini.gemini_client import GeminiLLM, GeminiClientError
 
 class StubGeminiConfig:

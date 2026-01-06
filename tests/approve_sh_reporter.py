@@ -11,7 +11,7 @@ class ApproveShReporter(Reporter):
         approved_filename = os.path.basename(approved_path)
         test_name = approved_filename.replace('.approved.txt', '')
 
-        print(f"\nApproval test failed!")
+        print("\nApproval test failed!")
         print(f"Received: {received_path}")
         print(f"Approved: {approved_path}")
 
@@ -25,9 +25,9 @@ class ApproveShReporter(Reporter):
             except FileNotFoundError:
                 approved_content = ""
 
-            print(f"\n--- Expected")
-            print(f"+++ Received")
-            print(f"@@ Differences @@")
+            print("\n--- Expected")
+            print("+++ Received")
+            print("@@ Differences @@")
 
             received_lines = received_content.splitlines()
             approved_lines = approved_content.splitlines()

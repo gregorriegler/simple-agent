@@ -12,7 +12,6 @@ from simple_agent.application.events import (
     UserPromptedEvent,
 )
 from simple_agent.application.tool_results import SingleToolResult
-from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog

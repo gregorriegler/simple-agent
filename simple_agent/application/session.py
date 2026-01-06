@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Callable, Any, Awaitable
 
 from simple_agent.application.llm import LLMProvider
 from simple_agent.application.agent_factory import AgentFactory

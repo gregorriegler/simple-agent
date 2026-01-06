@@ -1,9 +1,5 @@
 import pytest
-import io
-import asyncio
-from pathlib import Path
-from rich.console import Console
-from textual.widgets import TextArea, Static, Collapsible, Markdown
+from textual.widgets import TextArea, Collapsible
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (

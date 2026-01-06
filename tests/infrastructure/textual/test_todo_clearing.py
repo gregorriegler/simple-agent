@@ -1,5 +1,4 @@
 import pytest
-from textual.widgets import Markdown
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import SessionClearedEvent

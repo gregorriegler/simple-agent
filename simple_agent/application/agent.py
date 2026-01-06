@@ -14,7 +14,7 @@ from .input import Input
 from .llm import LLM, Messages, LLMProvider
 from .slash_command_registry import SlashCommandRegistry
 from .tool_library import ToolLibrary, MessageAndParsedTools
-from .tool_results import ToolResult, SingleToolResult, ToolResultStatus
+from .tool_results import ToolResult, SingleToolResult
 from .tools_executor import ToolsExecutor
 
 logger = get_logger(__name__)

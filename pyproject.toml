@@ -64,6 +64,7 @@ dev-dependencies = [
     "respx",
     "pytest-httpserver>=1.1.3",
     "pytest-xdist",
+    "ruff>=0.14.10",
 ]
 
 [tool.pytest.ini_options]

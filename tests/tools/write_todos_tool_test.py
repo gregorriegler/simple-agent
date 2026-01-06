@@ -1,9 +1,8 @@
 import pytest
 import textwrap
-from pathlib import Path
 
 from approvaltests import Options, verify
-from tests.test_helpers import all_scrubbers, temp_directory, create_all_tools_for_test
+from tests.test_helpers import all_scrubbers, create_all_tools_for_test
 
 library = create_all_tools_for_test()
 pytestmark = pytest.mark.asyncio
@@ -20,7 +19,6 @@ async def test_write_todos_creates_markdown_file(tmp_path):
 
     from simple_agent.application.agent_id import AgentId
     from simple_agent.application.tool_library_factory import ToolContext
-    from tests.test_helpers import create_all_tools_for_test
 
     agent_id = AgentId("Agent", root=tmp_path)
 

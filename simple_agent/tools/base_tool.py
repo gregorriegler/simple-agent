@@ -1,9 +1,9 @@
 import asyncio
 import subprocess
 import time
-from typing import List, Dict
+from typing import Dict
 
-from simple_agent.application.tool_library import Tool, ToolArgument, ToolArguments
+from simple_agent.application.tool_library import Tool, ToolArguments
 from simple_agent.application.tool_results import ToolResult
 from simple_agent.application.tool_syntax import RawToolCall
 
@@ -43,7 +43,7 @@ class BaseTool(Tool):
             output = result.stdout.rstrip('\n')
             if result.stderr:
                 if output:
-                    output += f"\n";
+                    output += "\n"
                 output += f"STDERR: {result.stderr}"
             return {
                 'output': output,

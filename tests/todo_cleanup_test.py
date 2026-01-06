@@ -32,7 +32,7 @@ async def test_continued_session_keeps_todo_files(tmp_path, monkeypatch):
 
     remaining_files = sorted([f.name for f in Path.cwd().iterdir() if f.is_file()])
 
-    result = f"Remaining files after continued session:\n" + "\n".join(remaining_files)
+    result = "Remaining files after continued session:\n" + "\n".join(remaining_files)
     verify(result, options=Options().with_scrubber(all_scrubbers()))
 
 

@@ -3,7 +3,6 @@ from typing import Optional, List, Callable
 from textual.widgets import Static
 from textual.message import Message
 from textual.geometry import Offset, Size
-from textual import events
 from rich.text import Text
 
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (

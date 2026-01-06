@@ -2,7 +2,7 @@ import logging
 
 from simple_agent.application.file_search import FileSearcher
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
-    CompletionResult, CursorAndLine, FileReference, FileReferences, SuggestionList
+    CompletionResult, CursorAndLine, FileReference, SuggestionList
 )
 
 logger = logging.getLogger(__name__)

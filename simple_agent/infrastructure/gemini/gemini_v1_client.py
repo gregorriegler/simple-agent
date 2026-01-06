@@ -1,4 +1,3 @@
-import asyncio
 import httpx
 from typing import Dict, List
 

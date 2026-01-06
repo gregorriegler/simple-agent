@@ -11,8 +11,7 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete import (
     CompletionResult,
     CursorAndLine,
     SuggestionList,
-    Cursor,
-    FileReferences
+    Cursor
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import TriggeredSuggestionProvider, CompositeSuggestionProvider
 from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search import (

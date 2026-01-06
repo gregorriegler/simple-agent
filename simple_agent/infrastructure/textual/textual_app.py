@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Vertical
-from textual.widgets import TabbedContent
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
@@ -17,7 +16,7 @@ from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
 from simple_agent.infrastructure.textual.widgets.file_loader import DiskFileLoader, XmlFormattingFileLoader
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
-    TriggeredSuggestionProvider, SuggestionProvider, CompositeSuggestionProvider
+    TriggeredSuggestionProvider, CompositeSuggestionProvider
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
     SlashAtStartOfLineTrigger, SlashCommandProvider,

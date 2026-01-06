@@ -1,21 +1,8 @@
 import pytest
-from textual.containers import VerticalScroll
-from textual.widgets import Markdown, TextArea
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.events import (
-    AssistantSaidEvent,
-    SessionStartedEvent,
-    ToolCalledEvent,
-    ToolResultEvent,
-    UserPromptRequestedEvent,
-    UserPromptedEvent,
-)
-from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
-from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 
 
 class FakeEventBus:

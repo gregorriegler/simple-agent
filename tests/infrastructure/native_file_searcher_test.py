@@ -1,5 +1,4 @@
 import pytest
-from pathlib import Path
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 
 @pytest.fixture

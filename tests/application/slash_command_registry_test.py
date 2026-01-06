@@ -1,4 +1,3 @@
-import pytest
 from simple_agent.application.slash_command_registry import (
     SlashCommand,
     SlashCommandRegistry,
