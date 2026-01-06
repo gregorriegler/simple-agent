@@ -22,7 +22,7 @@ from simple_agent.infrastructure.user_configuration import UserConfiguration
 class FileSystemAgentLibrary(AgentLibrary):
     def __init__(self, directory: str, starting_agent_type: AgentType | None = None):
         self.directory = directory
-        self.ground_rules = AgentsMdGroundRules()
+        self.ground_rules: GroundRules = AgentsMdGroundRules()
         self._starting_agent_type = starting_agent_type
 
     def list_agent_types(self) -> list[str]:
@@ -68,7 +68,7 @@ class BuiltinAgentLibrary:
     ):
         self.package = "simple_agent"
         if ground_rules is not None:
-            self.ground_rules = ground_rules
+            self.ground_rules: GroundRules = ground_rules
         else:
             self.ground_rules = AgentsMdGroundRules()
         self._starting_agent_type = starting_agent_type

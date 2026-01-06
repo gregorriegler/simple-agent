@@ -4,10 +4,12 @@ from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.llm_stub import StubLLMProvider
+from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library_factory import (
     ToolContext,
     ToolLibraryFactory,
 )
+from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.tools import AllTools
 from simple_agent.tools.all_tools import AllToolsFactory
@@ -26,18 +28,19 @@ class ToolLibraryStub(AllTools):
         tool_context: ToolContext | None = None,
         spawner=None,
         tool_keys: list[str] | None = None,
-        agent_types: AgentTypes = None,
+        agent_types: AgentTypes | None = None,
     ):
         from simple_agent.application.session_storage import NoOpSessionStorage
 
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
         actual_tool_context = tool_context
-        actual_spawner = spawner
+        actual_spawner: SubagentSpawner | None = spawner
         actual_agent_types = (
             agent_types if agent_types is not None else AgentTypes.empty()
         )
         if actual_tool_context is None:
-            tool_library_factory = AllToolsFactory()
+            tool_syntax = EmojiBracketToolSyntax()
+            tool_library_factory = AllToolsFactory(tool_syntax)
             agent_library = BuiltinAgentLibrary()
             session_storage = NoOpSessionStorage()
             agent_factory = AgentFactory(
@@ -52,15 +55,18 @@ class ToolLibraryStub(AllTools):
 
             agent_id = AgentId("Agent")
             actual_tool_context = ToolContext(tool_keys or [], agent_id)
-
-            def actual_spawner(agent_type, task_description):
-                return agent_factory.spawn_subagent(
-                    agent_id, agent_type, task_description, 1
-                )
-
+            actual_spawner = agent_factory.create_spawner(agent_id)
             actual_agent_types = AgentTypes(agent_library.list_agent_types())
 
+        if actual_spawner is None:
+
+            async def fallback_spawner(agent_type, task_description):
+                return SingleToolResult(message="")
+
+            actual_spawner = fallback_spawner
+
         tool_syntax = EmojiBracketToolSyntax()
+        assert actual_spawner is not None
         super().__init__(
             tool_context=actual_tool_context,
             spawner=actual_spawner,
@@ -103,12 +109,9 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
     def create(
         self,
         tool_context: ToolContext,
-        spawner=None,
-        agent_types: AgentTypes | None = None,
+        spawner: SubagentSpawner,
+        agent_types: AgentTypes,
     ) -> AllTools:
-        actual_agent_types = (
-            agent_types if agent_types is not None else AgentTypes.empty()
-        )
         return ToolLibraryStub(
             self._llm,
             inputs=self._inputs,
@@ -117,5 +120,5 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
             event_bus=self._event_bus,
             tool_context=tool_context,
             spawner=spawner,
-            agent_types=actual_agent_types,
+            agent_types=agent_types,
         )

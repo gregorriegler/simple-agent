@@ -4,6 +4,7 @@ from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import UserPromptedEvent
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.textual_app import TextualApp
+from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 
 
 class StubUserInput:
@@ -128,7 +129,7 @@ async def test_user_prompted_event_display_compaction():
         event = UserPromptedEvent(agent_id=agent_id, input_text=full_text)
 
         # Trigger event handler
-        app.on_domain_event_message(type("Message", (), {"event": event})())
+        app.on_domain_event_message(DomainEventMessage(event))
         await pilot.pause()
 
         # Verify side effect on ChatLog

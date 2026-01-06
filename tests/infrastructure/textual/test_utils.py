@@ -1,7 +1,7 @@
 import io
 
 from rich.console import Console
-from textual.widgets import Collapsible, Markdown, Static, TextArea
+from textual.widgets import Collapsible, Markdown, Static, TabbedContent, TextArea
 
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 
@@ -29,7 +29,7 @@ def dump_ui_state(app: TextualApp) -> str:
     # Dump Tabs
     tabs = app.query("TabPane")
     lines.append(f"Tabs: {[t.id for t in tabs]}")
-    lines.append(f"Active Tab: {app.query_one('TabbedContent').active}")
+    lines.append(f"Active Tab: {app.query_one(TabbedContent).active}")
 
     # Dump Visible Widgets in Main Content
     for widget in app.screen.walk_children():
@@ -59,9 +59,9 @@ def dump_ui_state(app: TextualApp) -> str:
             info += f" title={repr(widget.title)} collapsed={widget.collapsed}"
 
         if isinstance(widget, Static) and not isinstance(widget, (Markdown, TextArea)):
-            # Try to get text from renderable if it's simple
-            if hasattr(widget, "renderable") and hasattr(widget.renderable, "plain"):
-                info += f" content={repr(widget.renderable.plain)}"
+            renderable = getattr(widget, "renderable", None)
+            if renderable is not None and hasattr(renderable, "plain"):
+                info += f" content={repr(renderable.plain)}"
 
         lines.append(info)
 

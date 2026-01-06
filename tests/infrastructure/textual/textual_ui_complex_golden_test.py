@@ -1,5 +1,8 @@
+from typing import cast
+
 import pytest
 from approvaltests import verify
+from textual.timer import Timer
 from textual.widgets import Collapsible, TextArea
 
 from simple_agent.application.agent_id import AgentId
@@ -33,15 +36,23 @@ async def test_golden_complex_scenarios(tmp_path, monkeypatch):
     3. Tool Call Variants (Cancelled, Diff, Suppressed)
     4. File Context Submission
     """
+
+    class DummyTimer:
+        def stop(self) -> None:
+            return None
+
+    def noop_set_interval(*args: object, **kwargs: object) -> Timer:
+        return cast(Timer, DummyTimer())
+
     # Disable timers on ToolLog to prevent non-deterministic loading animations
-    monkeypatch.setattr(ToolLog, "set_interval", lambda *args, **kwargs: None)
+    monkeypatch.setattr(ToolLog, "set_interval", noop_set_interval)
 
     agent_id = AgentId("Agent", root=tmp_path)
     mock_user_input = MockUserInput()
     app = TextualApp(user_input=mock_user_input, root_agent_id=agent_id)
 
     # Disable loading timer
-    app.set_interval = lambda *args, **kwargs: None
+    app.set_interval = noop_set_interval
 
     timeline = []
 

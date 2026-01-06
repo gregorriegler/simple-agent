@@ -17,6 +17,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
+from simple_agent.application.llm import LLMResponse
 from simple_agent.application.llm_stub import StubLLMProvider, create_llm_stub
 from simple_agent.application.session import Session
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
@@ -47,8 +48,8 @@ class SessionTestBed:
             def model(self) -> str:
                 return "default-model"
 
-            async def call_async(self, m):
-                return ""
+            async def call_async(self, messages):
+                return LLMResponse(content="")
 
         self._llm = DefaultLLM()
         self._user_inputs = ["\n"]

@@ -43,8 +43,7 @@ def create_all_tools_for_test():
     agent_id = AgentId("Agent")
     tool_context = ToolContext([], agent_id)
 
-    def spawner(agent_type, task_description):
-        return agent_factory.spawn_subagent(agent_id, agent_type, task_description, 0)
+    spawner = agent_factory.create_spawner(agent_id)
 
     return AllTools(
         tool_context=tool_context,

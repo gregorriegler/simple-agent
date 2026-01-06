@@ -7,19 +7,19 @@ class FakeFileLoader:
     def __init__(self, files):
         self.files = files
 
-    def read_file(self, path: str) -> str | None:
-        return self.files.get(path)
+    def read_file(self, file_path_str: str) -> str | None:
+        return self.files.get(file_path_str)
 
 
 class DecoratedFakeFileLoader:
     def __init__(self, inner):
         self.inner = inner
 
-    def read_file(self, path: str) -> str | None:
-        content = self.inner.read_file(path)
+    def read_file(self, file_path_str: str) -> str | None:
+        content = self.inner.read_file(file_path_str)
         if content is None:
             return None
-        return f"<{path}>{content}</{path}>"
+        return f"<{file_path_str}>{content}</{file_path_str}>"
 
 
 def test_expand_reads_and_formats_files():

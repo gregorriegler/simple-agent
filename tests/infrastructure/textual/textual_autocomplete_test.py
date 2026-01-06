@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import cast
 from unittest.mock import AsyncMock
 
 import pytest
@@ -17,7 +18,9 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete import (
     SuggestionList,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
+    AutocompleteTrigger,
     CompositeSuggestionProvider,
+    SuggestionProvider,
     TriggeredSuggestionProvider,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search import (
@@ -86,11 +89,11 @@ async def test_slash_command_registry_available_in_textarea():
 def test_triggered_suggestion_provider_requires_trigger_and_provider():
     # Helper to satisfy Protocol types without functionality
     class DummyTrigger:
-        def is_triggered(self, _):
+        def is_triggered(self, cursor_and_line):
             return False
 
     class DummyProvider:
-        async def suggest(self, _):
+        async def suggest(self, cursor_and_line):
             return SuggestionList([])
 
     trigger = DummyTrigger()
@@ -103,10 +106,14 @@ def test_triggered_suggestion_provider_requires_trigger_and_provider():
 
     # Invalid constructions
     with pytest.raises(ValueError, match="Trigger cannot be None"):
-        TriggeredSuggestionProvider(trigger=None, provider=provider)
+        TriggeredSuggestionProvider(
+            trigger=cast(AutocompleteTrigger, None), provider=provider
+        )
 
     with pytest.raises(ValueError, match="Provider cannot be None"):
-        TriggeredSuggestionProvider(trigger=trigger, provider=None)
+        TriggeredSuggestionProvider(
+            trigger=trigger, provider=cast(SuggestionProvider, None)
+        )
 
 
 @pytest.mark.asyncio
@@ -115,11 +122,11 @@ async def test_triggered_suggestion_provider_check_logic():
         def __init__(self, should_trigger):
             self.triggered = should_trigger
 
-        def is_triggered(self, _):
+        def is_triggered(self, cursor_and_line):
             return self.triggered
 
     class MockProvider:
-        async def suggest(self, _):
+        async def suggest(self, cursor_and_line):
             return SuggestionList([SimpleSuggestion("s1")])
 
     cursor = CursorAndLine(Cursor(0, 0), "")
@@ -279,6 +286,7 @@ async def test_autocomplete_popup_keeps_initial_x_position():
 
         popup = app.query_one(AutocompletePopup)
         assert popup.display
+        assert popup.absolute_offset is not None
         initial_x = popup.absolute_offset.x
 
         # Continue typing
@@ -286,6 +294,7 @@ async def test_autocomplete_popup_keeps_initial_x_position():
         await pilot.press("e")
         await pilot.pause()
 
+        assert popup.absolute_offset is not None
         assert popup.absolute_offset.x == initial_x
 
 
@@ -365,6 +374,7 @@ async def test_autocomplete_popup_rendering(app: TextualApp):
         await pilot.pause()
 
         assert popup.display is True
+        assert popup.styles.width is not None
         # Verify width accommodates the long suggestion
         assert popup.styles.width.value > 20
 
@@ -526,6 +536,7 @@ async def test_submittable_text_area_shift_enter(app: TextualApp):
 
         assert text_area.text == "line1\n"
         # Ensure it didn't submit
+        assert app.user_input is not None
         assert len(app.user_input.inputs) == 0
 
 

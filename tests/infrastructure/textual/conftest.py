@@ -1,24 +1,11 @@
 import pytest
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.infrastructure.event_logger import EventLogger
+from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-
-
-class FakeEventBus:
-    def __init__(self) -> None:
-        self._handlers = {}
-
-    def subscribe(self, event_type, handler) -> None:
-        if event_type not in self._handlers:
-            self._handlers[event_type] = []
-        self._handlers[event_type].append(handler)
-
-    def publish(self, event) -> None:
-        event_type = type(event)
-        if event_type in self._handlers:
-            for handler in self._handlers[event_type]:
-                handler(event)
 
 
 class FakeSessionStorage:
@@ -47,12 +34,12 @@ class FakeUserInput:
         self.closed = True
 
 
-class FakeEventLogger:
+class FakeEventLogger(EventLogger):
     def log_event(self, event) -> None:
         return None
 
 
-class FakeTodoCleanup:
+class FakeTodoCleanup(FileSystemTodoCleanup):
     def cleanup_all_todos(self) -> None:
         return None
 
@@ -67,7 +54,7 @@ class StubTool:
 
 @pytest.fixture
 def textual_harness():
-    event_bus = FakeEventBus()
+    event_bus = SimpleEventBus()
     session_storage = FakeSessionStorage()
     user_input = FakeUserInput()
     app = TextualApp(user_input, AgentId("Agent"))

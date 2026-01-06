@@ -5,6 +5,7 @@ from simple_agent.infrastructure.gemini.gemini_v1_client import (
     GeminiV1ClientError,
     GeminiV1LLM,
 )
+from simple_agent.infrastructure.model_config import ModelConfig
 
 
 @pytest.mark.asyncio
@@ -17,7 +18,7 @@ async def test_gemini_v1_chat_returns_text_from_parts():
         lambda request: httpx.Response(200, json=response_data)
     )
 
-    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
+    chat = GeminiV1LLM(build_config(), transport=transport)
     messages = [{"role": "user", "content": "Hello"}]
 
     result = await chat.call_async(messages)
@@ -36,7 +37,7 @@ async def test_gemini_v1_chat_handles_system_prompt():
         lambda request: httpx.Response(200, json=response_data)
     )
 
-    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
+    chat = GeminiV1LLM(build_config(), transport=transport)
     messages = [
         {"role": "system", "content": "You are a helpful assistant"},
         {"role": "user", "content": "Hello"},
@@ -57,7 +58,7 @@ async def test_gemini_v1_chat_converts_assistant_to_model_role():
         lambda request: httpx.Response(200, json=response_data)
     )
 
-    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
+    chat = GeminiV1LLM(build_config(), transport=transport)
     messages = [
         {"role": "user", "content": "Hello"},
         {"role": "assistant", "content": "Hi there!"},
@@ -81,7 +82,7 @@ async def test_gemini_v1_chat_concatenates_multiple_text_parts():
         lambda request: httpx.Response(200, json=response_data)
     )
 
-    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
+    chat = GeminiV1LLM(build_config(), transport=transport)
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
     assert result.content == "First part. Second part."
@@ -91,7 +92,7 @@ async def test_gemini_v1_chat_concatenates_multiple_text_parts():
 async def test_gemini_v1_chat_raises_error_when_candidates_missing():
     transport = httpx.MockTransport(lambda request: httpx.Response(200, json={}))
 
-    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
+    chat = GeminiV1LLM(build_config(), transport=transport)
 
     with pytest.raises(GeminiV1ClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -105,7 +106,7 @@ async def test_gemini_v1_chat_raises_error_when_content_missing():
         lambda request: httpx.Response(200, json={"candidates": [{}]})
     )
 
-    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
+    chat = GeminiV1LLM(build_config(), transport=transport)
 
     with pytest.raises(GeminiV1ClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -119,7 +120,7 @@ async def test_gemini_v1_chat_raises_error_when_parts_missing():
         lambda request: httpx.Response(200, json={"candidates": [{"content": {}}]})
     )
 
-    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
+    chat = GeminiV1LLM(build_config(), transport=transport)
 
     with pytest.raises(GeminiV1ClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -135,7 +136,7 @@ async def test_gemini_v1_chat_raises_error_on_api_error_response():
         )
     )
 
-    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
+    chat = GeminiV1LLM(build_config(), transport=transport)
 
     with pytest.raises(GeminiV1ClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -149,7 +150,7 @@ async def test_gemini_v1_chat_raises_error_when_request_fails():
         raise httpx.ConnectError("Connection failed", request=request)
 
     transport = httpx.MockTransport(handler)
-    chat = GeminiV1LLM(StubGeminiV1Config(), transport=transport)
+    chat = GeminiV1LLM(build_config(), transport=transport)
 
     with pytest.raises(GeminiV1ClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -158,8 +159,7 @@ async def test_gemini_v1_chat_raises_error_when_request_fails():
 
 
 def test_gemini_v1_chat_raises_error_when_adapter_is_not_gemini_v1():
-    config = StubGeminiV1Config()
-    config._adapter = "openai"
+    config = build_config(adapter="openai")
 
     with pytest.raises(GeminiV1ClientError) as error:
         GeminiV1LLM(config)
@@ -170,27 +170,15 @@ def test_gemini_v1_chat_raises_error_when_adapter_is_not_gemini_v1():
     )
 
 
-class StubGeminiV1Config:
-    def __init__(self, base_url="https://generativelanguage.googleapis.com/v1"):
-        self._base_url = base_url
-        self._adapter = "gemini_v1"
-
-    @property
-    def api_key(self):
-        return "test-api-key"
-
-    @property
-    def model(self):
-        return "test-model"
-
-    @property
-    def adapter(self):
-        return self._adapter
-
-    @property
-    def base_url(self):
-        return self._base_url
-
-    @property
-    def request_timeout(self):
-        return 60
+def build_config(
+    adapter: str = "gemini_v1",
+    base_url: str | None = "https://generativelanguage.googleapis.com/v1",
+) -> ModelConfig:
+    return ModelConfig(
+        name="gemini_v1",
+        model="test-model",
+        adapter=adapter,
+        api_key="test-api-key",
+        base_url=base_url,
+        request_timeout=60,
+    )

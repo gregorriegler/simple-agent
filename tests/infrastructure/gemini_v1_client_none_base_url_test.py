@@ -2,6 +2,7 @@ import httpx
 import pytest
 
 from simple_agent.infrastructure.gemini.gemini_v1_client import GeminiV1LLM
+from simple_agent.infrastructure.model_config import ModelConfig
 
 
 @pytest.mark.asyncio
@@ -13,35 +14,17 @@ async def test_gemini_v1_get_input_token_limit_handles_none_base_url():
         lambda request: httpx.Response(200, json=response_data)
     )
 
-    config = StubGeminiV1ConfigWithNoneBaseUrl()
+    config = ModelConfig(
+        name="gemini_v1",
+        model="test-model",
+        adapter="gemini_v1",
+        api_key="test-api-key",
+        base_url=None,
+        request_timeout=60,
+    )
     chat = GeminiV1LLM(config, transport=transport)
 
     # This should not raise AttributeError: 'NoneType' object has no attribute 'rstrip'
     limit = await chat._get_input_token_limit()
 
     assert limit == 1000000
-
-
-class StubGeminiV1ConfigWithNoneBaseUrl:
-    def __init__(self):
-        self._adapter = "gemini_v1"
-
-    @property
-    def api_key(self):
-        return "test-api-key"
-
-    @property
-    def model(self):
-        return "test-model"
-
-    @property
-    def adapter(self):
-        return self._adapter
-
-    @property
-    def base_url(self):
-        return None  # This triggers the bug
-
-    @property
-    def request_timeout(self):
-        return 60

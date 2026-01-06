@@ -1,23 +1,30 @@
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.gemini import GeminiLLM, GeminiV1LLM
 from simple_agent.infrastructure.llm import RemoteLLMProvider
-from simple_agent.infrastructure.model_config import ModelConfig, ModelsRegistry
+from simple_agent.infrastructure.model_config import ModelConfig
 from simple_agent.infrastructure.openai import OpenAILLM
+from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 
-class UserConfigStub:
-    def __init__(self, model_config: ModelConfig):
-        self._registry = ModelsRegistry(
-            models={model_config.name: model_config}, default=model_config.name
-        )
-
-    def models_registry(self) -> ModelsRegistry:
-        return self._registry
+def build_user_config(model_config: ModelConfig) -> UserConfiguration:
+    config = {
+        "model": {"default": model_config.name},
+        "models": {
+            model_config.name: {
+                "model": model_config.model,
+                "adapter": model_config.adapter,
+                "api_key": model_config.api_key,
+                "base_url": model_config.base_url,
+                "request_timeout": model_config.request_timeout,
+            }
+        },
+    }
+    return UserConfiguration(config, "/tmp")
 
 
 def test_remote_llm_provider_returns_openai_adapter():
     model = ModelConfig(name="openai", model="gpt-4", adapter="openai", api_key="key")
-    provider = RemoteLLMProvider(UserConfigStub(model))
+    provider = RemoteLLMProvider(build_user_config(model))
 
     llm = provider.get()
 
@@ -28,7 +35,7 @@ def test_remote_llm_provider_returns_gemini_adapter():
     model = ModelConfig(
         name="gemini", model="gemini-pro", adapter="gemini", api_key="key"
     )
-    provider = RemoteLLMProvider(UserConfigStub(model))
+    provider = RemoteLLMProvider(build_user_config(model))
 
     llm = provider.get()
 
@@ -39,7 +46,7 @@ def test_remote_llm_provider_returns_gemini_v1_adapter():
     model = ModelConfig(
         name="gemini-v1", model="gemini-pro", adapter="gemini_v1", api_key="key"
     )
-    provider = RemoteLLMProvider(UserConfigStub(model))
+    provider = RemoteLLMProvider(build_user_config(model))
 
     llm = provider.get()
 
@@ -50,7 +57,7 @@ def test_remote_llm_provider_returns_claude_adapter_by_default():
     model = ModelConfig(
         name="claude", model="claude-sonnet-4", adapter="claude", api_key="key"
     )
-    provider = RemoteLLMProvider(UserConfigStub(model))
+    provider = RemoteLLMProvider(build_user_config(model))
 
     llm = provider.get()
 

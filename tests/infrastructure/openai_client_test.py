@@ -3,6 +3,7 @@ import json
 import httpx
 import pytest
 
+from simple_agent.infrastructure.model_config import ModelConfig
 from simple_agent.infrastructure.openai.openai_client import OpenAILLM
 
 
@@ -21,13 +22,14 @@ async def test_openai_client_sends_correct_request():
 
     transport = httpx.MockTransport(handler)
 
-    client = OpenAILLM(StubOpenAIConfig(), transport=transport)
+    client = OpenAILLM(build_config(), transport=transport)
     messages = [{"role": "user", "content": "Hello"}]
 
     result = await client.call_async(messages)
 
     assert result.content == "assistant response"
     assert result.model == "test-openai-model"
+    assert result.usage is not None
     assert result.usage.input_tokens == 10
     assert result.usage.output_tokens == 20
     assert result.usage.total_tokens == 30
@@ -36,26 +38,12 @@ async def test_openai_client_sends_correct_request():
     assert captured["json"]["messages"] == messages
 
 
-class StubOpenAIConfig:
-    def __init__(self, base_url=None):
-        self._base_url = base_url
-
-    @property
-    def adapter(self):
-        return "openai"
-
-    @property
-    def api_key(self):
-        return "test-openai-api-key"
-
-    @property
-    def model(self):
-        return "test-openai-model"
-
-    @property
-    def base_url(self):
-        return self._base_url
-
-    @property
-    def request_timeout(self):
-        return 60
+def build_config(base_url: str | None = None) -> ModelConfig:
+    return ModelConfig(
+        name="openai",
+        model="test-openai-model",
+        adapter="openai",
+        api_key="test-openai-api-key",
+        base_url=base_url,
+        request_timeout=60,
+    )

@@ -1,5 +1,8 @@
+from typing import cast
+
 import pytest
 from approvaltests import verify
+from textual.timer import Timer
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
@@ -30,8 +33,16 @@ async def test_golden_happy_path_flow(tmp_path, monkeypatch):
     5. Assistant Calls Tool
     6. Tool Returns Result
     """
+
+    class DummyTimer:
+        def stop(self) -> None:
+            return None
+
+    def noop_set_interval(*args: object, **kwargs: object) -> Timer:
+        return cast(Timer, DummyTimer())
+
     # Disable timers on ToolLog to prevent non-deterministic loading animations
-    monkeypatch.setattr(ToolLog, "set_interval", lambda *args, **kwargs: None)
+    monkeypatch.setattr(ToolLog, "set_interval", noop_set_interval)
 
     agent_id = AgentId("Agent", root=tmp_path)
     app = TextualApp(user_input=None, root_agent_id=agent_id)
@@ -39,7 +50,7 @@ async def test_golden_happy_path_flow(tmp_path, monkeypatch):
     # Disable loading timer to avoid non-determinism
     # We can mock set_interval on the app or just ensure we don't wait for it
     # But better to prevent it from updating state asynchronously
-    app.set_interval = lambda *args, **kwargs: None
+    app.set_interval = noop_set_interval
 
     timeline = []
 

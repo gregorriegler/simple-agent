@@ -5,6 +5,7 @@ from simple_agent.infrastructure.claude.claude_client import (
     ClaudeClientError,
     ClaudeLLM,
 )
+from simple_agent.infrastructure.model_config import ModelConfig
 
 
 @pytest.mark.asyncio
@@ -19,7 +20,7 @@ async def test_claude_chat_returns_content_text():
         lambda request: httpx.Response(200, json=response_data)
     )
 
-    chat = ClaudeLLM(StubClaudeConfig(), transport=transport)
+    chat = ClaudeLLM(build_config(), transport=transport)
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": "Hello"},
@@ -29,6 +30,7 @@ async def test_claude_chat_returns_content_text():
 
     assert result.content == "assistant response"
     assert result.model == "test-model"
+    assert result.usage is not None
     assert result.usage.input_tokens == 10
     assert result.usage.output_tokens == 20
     assert result.usage.total_tokens == 30
@@ -38,7 +40,7 @@ async def test_claude_chat_returns_content_text():
 async def test_claude_chat_raises_error_when_content_missing():
     transport = httpx.MockTransport(lambda request: httpx.Response(200, json={}))
 
-    chat = ClaudeLLM(StubClaudeConfig(), transport=transport)
+    chat = ClaudeLLM(build_config(), transport=transport)
 
     with pytest.raises(ClaudeClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -52,7 +54,7 @@ async def test_claude_chat_raises_error_when_request_fails():
         raise httpx.ConnectError("Connection failed", request=request)
 
     transport = httpx.MockTransport(handler)
-    chat = ClaudeLLM(StubClaudeConfig(), transport=transport)
+    chat = ClaudeLLM(build_config(), transport=transport)
 
     with pytest.raises(ClaudeClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -60,26 +62,12 @@ async def test_claude_chat_raises_error_when_request_fails():
     assert "API request failed" in str(error.value)
 
 
-class StubClaudeConfig:
-    def __init__(self, base_url=None):
-        self._base_url = base_url
-
-    @property
-    def api_key(self):
-        return "test-api-key"
-
-    @property
-    def model(self):
-        return "test-model"
-
-    @property
-    def adapter(self):
-        return "claude"
-
-    @property
-    def base_url(self):
-        return self._base_url
-
-    @property
-    def request_timeout(self):
-        return 60
+def build_config(base_url: str | None = None) -> ModelConfig:
+    return ModelConfig(
+        name="claude",
+        model="test-model",
+        adapter="claude",
+        api_key="test-api-key",
+        base_url=base_url,
+        request_timeout=60,
+    )

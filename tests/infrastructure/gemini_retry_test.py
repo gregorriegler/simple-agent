@@ -7,15 +7,18 @@ from simple_agent.infrastructure.gemini.gemini_client import (
     GeminiClientError,
     GeminiLLM,
 )
+from simple_agent.infrastructure.model_config import ModelConfig
 
 
-class StubGeminiConfig:
-    def __init__(self):
-        self.api_key = "test-api-key"
-        self.model = "test-model"
-        self.adapter = "gemini"
-        self.base_url = "https://generativelanguage.googleapis.com/v1beta"
-        self.request_timeout = 60
+def build_config() -> ModelConfig:
+    return ModelConfig(
+        name="gemini",
+        model="test-model",
+        adapter="gemini",
+        api_key="test-api-key",
+        base_url="https://generativelanguage.googleapis.com/v1beta",
+        request_timeout=60,
+    )
 
 
 @pytest.mark.asyncio
@@ -42,7 +45,7 @@ async def test_gemini_retries_on_500():
         )
 
     transport = httpx.MockTransport(handler)
-    client = GeminiLLM(StubGeminiConfig(), transport=transport)
+    client = GeminiLLM(build_config(), transport=transport)
 
     # We need to patch asyncio.sleep to avoid waiting in tests
     with patch("asyncio.sleep", return_value=None):
@@ -77,7 +80,7 @@ async def test_gemini_retries_on_timeout():
         )
 
     transport = httpx.MockTransport(handler)
-    client = GeminiLLM(StubGeminiConfig(), transport=transport)
+    client = GeminiLLM(build_config(), transport=transport)
 
     with patch("asyncio.sleep", return_value=None):
         result = await client.call_async([{"role": "user", "content": "hello"}])
@@ -98,7 +101,7 @@ async def test_gemini_eventually_fails_after_5_retries():
         return httpx.Response(500)
 
     transport = httpx.MockTransport(handler)
-    client = GeminiLLM(StubGeminiConfig(), transport=transport)
+    client = GeminiLLM(build_config(), transport=transport)
 
     with patch("asyncio.sleep", return_value=None):
         with pytest.raises(GeminiClientError) as excinfo:
