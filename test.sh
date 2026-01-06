@@ -25,6 +25,13 @@ if ! output=$(uv run ruff check . 2>&1); then
     exit 1
 fi
 
+# 3) type check
+if ! output=$(uv run pyright 2>&1); then
+    echo "Pyright findings:"
+    echo "$output"
+    exit 1
+fi
+
 show_help() {
     echo "Usage: ./test.sh [OPTIONS] [TEST_PATTERN]"
     echo ""
@@ -45,25 +52,25 @@ show_help() {
 filter_pytest_output() {
     local output="$1"
     local verbose="$2"
-    
+
     if [[ "$verbose" == true ]]; then
         # Verbose mode: show everything
         echo "$output"
     else
         # Quiet mode: only hide pytest session header boilerplate, keep everything else
         local in_failure_section=false
-        
+
         while IFS= read -r line; do
             # Detect if we're in the FAILURES/ERRORS section
             if [[ "$line" == *"FAILURES"* ]] || [[ "$line" == *"ERRORS"* ]]; then
                 in_failure_section=true
             fi
-            
+
             # Check if we're at the short test summary
             if [[ "$line" == *"short test summary"* ]]; then
                 in_failure_section=true
             fi
-            
+
             # Show lines that are:
             # 1. In the FAILURES/ERRORS section (or test summary)
             # 2. Empty lines between sections
@@ -135,7 +142,7 @@ if [[ -n "${1:-}" ]]; then
         fi
         shift
     done
-    
+
     # If we have patterns (and no file was provided), combine them with 'or'
     # If a file was provided, ignore remaining patterns
     if [[ ${#patterns[@]} -gt 0 ]] && [[ "$file_provided" == false ]]; then
