@@ -1,6 +1,6 @@
 # NOW
-- agent slash command
 - linter
+- agent slash command
 
 # NEXT
 - async subagents
