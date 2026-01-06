@@ -512,7 +512,6 @@ class TestEmojiBracketRoundTrip:
     def test_round_trip_simple_example(self):
         syntax = EmojiBracketToolSyntax()
 
-
         # Extract the first example (should be "🛠️[test_tool value1 value2]")
         # Bodyless tools no longer have [/end]
         example_line = "🛠️[test_tool value1 value2]"

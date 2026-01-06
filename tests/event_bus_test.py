@@ -6,6 +6,7 @@ from simple_agent.application.tool_results import SingleToolResult
 class TestSimpleEventBus:
     def test_subscribe_adds_handler_for_event_type(self):
         event_bus = SimpleEventBus()
+
         def handler(event):
             return None
 
@@ -16,6 +17,7 @@ class TestSimpleEventBus:
 
     def test_subscribe_multiple_handlers_for_same_event_type(self):
         event_bus = SimpleEventBus()
+
         def handler1(event):
             return None
 
@@ -38,6 +40,7 @@ class TestSimpleEventBus:
 
         def handler2(event):
             results.append(("handler2", event))
+
         event_bus.subscribe(AssistantSaidEvent, handler1)
         event_bus.subscribe(AssistantSaidEvent, handler2)
 
@@ -54,6 +57,7 @@ class TestSimpleEventBus:
 
         def handler(event):
             received_data.append(event)
+
         event_bus.subscribe(AssistantSaidEvent, handler)
 
         event = AssistantSaidEvent("agent", "message")
@@ -74,6 +78,7 @@ class TestSimpleEventBus:
 
         def handler(event):
             received_data.append(event)
+
         event_bus.subscribe(AssistantSaidEvent, handler)
         event = AssistantSaidEvent("agent", "test_data")
 

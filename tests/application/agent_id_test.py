@@ -45,6 +45,7 @@ def test_parent_and_depth_navigation():
     assert nested.parent().parent() == AgentId("root")
     assert nested.depth() == 2
 
+
 def test_filesystem_and_repr_helpers():
     agent_id = AgentId(r"root/sub agent\\id")
 
