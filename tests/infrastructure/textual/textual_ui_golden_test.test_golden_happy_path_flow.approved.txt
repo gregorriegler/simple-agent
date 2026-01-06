@@ -48,7 +48,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────── Enter to submit, Ctrl+Enter for newline (Ctrl+J in web) ─┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: User Prompt Requested (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -102,7 +102,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────── Enter to submit, Ctrl+Enter for newline (Ctrl+J in web) ─┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: User Input Submitted (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -156,7 +156,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────── Enter to submit, Ctrl+Enter for newline (Ctrl+J in web) ─┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: Assistant Reply (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -214,7 +214,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────── Enter to submit, Ctrl+Enter for newline (Ctrl+J in web) ─┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: Tool Called (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -276,7 +276,7 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────── Enter to submit, Ctrl+Enter for newline (Ctrl+J in web) ─┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: Tool Result (Widget Tree) ---
 Tabs: ['tab-Agent']
@@ -338,4 +338,4 @@ Active Tab: tab-Agent
 │                                                                              │
 │                                                                              │
 │                                                                              │
-└──────────────────── Enter to submit, Ctrl+Enter for newline (Ctrl+J in web) ─┘
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘

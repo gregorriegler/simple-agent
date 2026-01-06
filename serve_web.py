@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import os
 import shlex
+from pathlib import Path
 
 from textual_serve.server import Server
 
@@ -21,6 +22,19 @@ def resolve_public_url(arg_value: str | None) -> str | None:
     return os.environ.get("SIMPLE_AGENT_PUBLIC_URL")
 
 
+def resolve_templates_path(arg_value: str | None, base_dir: Path | None = None) -> str | None:
+    if arg_value:
+        return arg_value
+    env_value = os.environ.get("SIMPLE_AGENT_TEMPLATES_PATH")
+    if env_value:
+        return env_value
+    root = base_dir or Path(__file__).resolve().parent
+    candidate = root / "web" / "templates"
+    if candidate.is_dir():
+        return str(candidate)
+    return None
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Serve the Simple Agent Textual app in a browser.",
@@ -33,6 +47,11 @@ def main() -> None:
         default=None,
         help="Public URL used by the browser to reach the server.",
     )
+    parser.add_argument(
+        "--templates-path",
+        default=None,
+        help="Override the HTML templates directory.",
+    )
     parser.add_argument("--debug", action="store_true")
     parser.add_argument(
         "app_args",
@@ -43,13 +62,16 @@ def main() -> None:
 
     command = build_command(args.app_args)
     public_url = resolve_public_url(args.public_url)
-    server = Server(
-        command,
-        host=args.host,
-        port=args.port,
-        title=args.title,
-        public_url=public_url,
-    )
+    templates_path = resolve_templates_path(args.templates_path)
+    server_kwargs = {
+        "host": args.host,
+        "port": args.port,
+        "title": args.title,
+        "public_url": public_url,
+    }
+    if templates_path:
+        server_kwargs["templates_path"] = templates_path
+    server = Server(command, **server_kwargs)
     server.serve(debug=args.debug)
 
 
