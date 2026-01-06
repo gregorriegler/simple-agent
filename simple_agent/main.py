@@ -6,7 +6,7 @@ import io
 import os
 import sys
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol, cast
 
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
@@ -43,13 +43,13 @@ from simple_agent.tools.all_tools import AllToolsFactory
 class TextualRunStrategy(Protocol):
     allow_async: bool
 
-    async def run(self, textual_app: TextualApp, run_session): ...
+    async def run(self, textual_app: TextualApp, run_session) -> TextualApp | None: ...
 
 
 class ProductionTextualRunStrategy(TextualRunStrategy):
     allow_async = False
 
-    async def run(self, textual_app: TextualApp, run_session):
+    async def run(self, textual_app: TextualApp, run_session) -> TextualApp | None:
         await textual_app.run_with_session_async(run_session)
         return None
 
@@ -57,12 +57,13 @@ class ProductionTextualRunStrategy(TextualRunStrategy):
 class TestTextualRunStrategy(TextualRunStrategy):
     allow_async = True
 
-    async def run(self, textual_app: TextualApp, run_session):
+    async def run(self, textual_app: TextualApp, run_session) -> TextualApp | None:
         async with textual_app.run_test() as pilot:
             if sys.platform == "win32":
-                textual_app._original_stdout = io.StringIO()
-                textual_app._original_stderr = io.StringIO()
-            textual_app._pilot = pilot
+                app_any = cast(Any, textual_app)
+                app_any._original_stdout = io.StringIO()
+                app_any._original_stderr = io.StringIO()
+            cast(Any, textual_app)._pilot = pilot
             await pilot.pause()  # Wait for app to fully mount
             session_task = asyncio.create_task(run_session())
             await session_task
@@ -142,12 +143,15 @@ def main():
 
 
 async def main_async(on_user_prompt_requested=None):
+    on_prompt = on_user_prompt_requested
+
     def subscribe_prompt(event_bus, textual_app):
-        if not on_user_prompt_requested:
+        if not on_prompt:
             return
 
         def on_prompt_wrapper(_):
-            result = on_user_prompt_requested(textual_app)
+            assert on_prompt is not None
+            result = on_prompt(textual_app)
             asyncio.create_task(result)
 
         event_bus.subscribe(UserPromptRequestedEvent, on_prompt_wrapper)

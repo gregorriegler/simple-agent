@@ -124,71 +124,74 @@ class AgentTabs(TabbedContent):
             self.active = new_tab_id
 
     def handle_event(self, event) -> None:
+        agent_id = getattr(event, "agent_id", None)
+        if agent_id is None:
+            return
         if isinstance(event, AgentStartedEvent):
-            self._ensure_agent_tab_exists(event.agent_id, event.agent_name, event.model)
+            self._ensure_agent_tab_exists(agent_id, event.agent_name, event.model)
         elif isinstance(event, SessionClearedEvent):
-            workspace = self._agent_workspaces.get(str(event.agent_id))
+            workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
                 workspace.clear()
             else:
                 logger.warning(
-                    "Could not find workspace for agent %s to clear", event.agent_id
+                    "Could not find workspace for agent %s to clear", agent_id
                 )
-            self._reset_agent_token_usage(event.agent_id)
+            self._reset_agent_token_usage(agent_id)
         elif isinstance(event, UserPromptedEvent):
-            workspace = self._agent_workspaces.get(str(event.agent_id))
+            workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
                 workspace.add_user_message(event.input_text)
             else:
                 logger.warning(
                     "Could not find workspace for agent %s to add user message",
-                    event.agent_id,
+                    agent_id,
                 )
         elif isinstance(event, AssistantSaidEvent):
-            workspace = self._agent_workspaces.get(str(event.agent_id))
+            workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
-                agent_name = self._agent_names.get(event.agent_id, str(event.agent_id))
+                agent_name = self._agent_names.get(agent_id, str(agent_id))
                 workspace.add_assistant_message(event.message, agent_name)
             else:
                 logger.warning(
                     "Could not find workspace for agent %s to add assistant message",
-                    event.agent_id,
+                    agent_id,
                 )
         elif isinstance(event, ToolCalledEvent):
-            workspace = self._agent_workspaces.get(str(event.agent_id))
+            workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
                 workspace.on_tool_call(event.call_id, event.tool.header())
             else:
                 logger.warning(
                     "Could not find workspace for agent %s to write tool call",
-                    event.agent_id,
+                    agent_id,
                 )
         elif isinstance(event, ToolResultEvent):
             if not event.result:
                 return
-            workspace = self._agent_workspaces.get(str(event.agent_id))
+            workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
                 workspace.on_tool_result(event.call_id, event.result)
             else:
                 logger.warning(
                     "Could not find workspace for agent %s to write tool result",
-                    event.agent_id,
+                    agent_id,
                 )
         elif isinstance(event, ToolCancelledEvent):
-            workspace = self._agent_workspaces.get(str(event.agent_id))
+            workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
                 workspace.on_tool_cancelled(event.call_id)
             else:
                 logger.warning(
                     "Could not find workspace for agent %s to write tool cancelled",
-                    event.agent_id,
+                    agent_id,
                 )
         elif isinstance(event, SessionInterruptedEvent):
-            workspace = self._agent_workspaces.get(str(event.agent_id))
+            workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
                 workspace.write_message("\n[Session interrupted by user]")
         elif isinstance(event, SessionStartedEvent):
-            workspace = self._agent_workspaces.get(str(event.agent_id))
+            workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
                 if event.is_continuation:
                     workspace.write_message("Continuing session")
@@ -197,27 +200,27 @@ class AgentTabs(TabbedContent):
         elif isinstance(event, SessionEndedEvent):
             if not self.app.is_running:
                 return
-            if self.has_agent_tab(event.agent_id):
-                self.remove_subagent_tab(event.agent_id)
+            if self.has_agent_tab(agent_id):
+                self.remove_subagent_tab(agent_id)
         elif isinstance(event, UserPromptRequestedEvent):
-            workspace = self._agent_workspaces.get(str(event.agent_id))
+            workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
                 workspace.write_message("\nWaiting for user input...")
         elif isinstance(event, ErrorEvent):
-            workspace = self._agent_workspaces.get(str(event.agent_id))
+            workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
                 workspace.write_message(f"\n**❌ Error: {event.message}**")
         elif isinstance(event, AssistantRespondedEvent):
-            self._agent_models[event.agent_id] = event.model
-            self._agent_max_tokens[event.agent_id] = event.max_tokens
+            self._agent_models[agent_id] = event.model
+            self._agent_max_tokens[agent_id] = event.max_tokens
             title = self._tab_title_for(
-                event.agent_id, event.model, event.input_tokens, event.max_tokens
+                agent_id, event.model, event.input_tokens, event.max_tokens
             )
-            self.update_tab_title(event.agent_id, title)
+            self.update_tab_title(agent_id, title)
         elif isinstance(event, ModelChangedEvent):
-            self._agent_models[event.agent_id] = event.new_model
-            title = self._tab_title_for(event.agent_id, event.new_model, 0, 0)
-            self.update_tab_title(event.agent_id, title)
+            self._agent_models[agent_id] = event.new_model
+            title = self._tab_title_for(agent_id, event.new_model, 0, 0)
+            self.update_tab_title(agent_id, title)
 
     def _ensure_agent_tab_exists(
         self, agent_id: AgentId, agent_name: str | None, model: str

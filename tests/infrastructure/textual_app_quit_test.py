@@ -41,7 +41,7 @@ async def test_action_quit_cancels_session_task():
         session_task = app._session_task
         assert session_task is not None
 
-        app.action_quit()
+        await app.action_quit()
         await asyncio.sleep(0)
 
         assert cancelled.is_set()

@@ -120,7 +120,7 @@ class AutocompletePopup(Static):
             self.suggestion_list.move_up()
             self._update_view()
 
-    def get_selection(self) -> CompletionResult | None:
+    def get_completion(self) -> CompletionResult | None:
         if self.suggestion_list:
             return self.suggestion_list.get_selection()
         return None
@@ -130,7 +130,7 @@ class AutocompletePopup(Static):
         self.display = False
 
     def accept(self) -> None:
-        selection = self.get_selection()
+        selection = self.get_completion()
         if selection:
             self.close()
             self.post_message(self.Selected(selection))
@@ -144,7 +144,7 @@ class AutocompletePopup(Static):
         if key == "up":
             return self.move_selection_up
         if key in ("tab", "enter"):
-            if self.get_selection():
+            if self.get_completion():
                 return self.accept
         if key == "escape":
             return self.close

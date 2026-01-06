@@ -46,7 +46,7 @@ async def test_textual_app_lifecycle(app: TextualApp):
     async with app.run_test():
         # Test action_quit
         with patch.object(app, "exit") as mock_exit:
-            app.action_quit()
+            await app.action_quit()
             mock_exit.assert_called_once()
 
         # Test shutdown

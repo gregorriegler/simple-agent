@@ -179,6 +179,8 @@ class TextualApp(App):
 
     async def _run_session(self) -> None:
         """Run the session and exit the app when done."""
+        if self._session_runner is None:
+            return
         try:
             await self._session_runner()
         except Exception as e:
@@ -198,7 +200,7 @@ class TextualApp(App):
         # Enter is now handled by SubmittableTextArea
         return
 
-    def action_quit(self) -> None:
+    async def action_quit(self) -> None:
         """Ensure Ctrl+C / Ctrl+Q stop the agent, not just the UI."""
         if self.user_input:
             self.user_input.close()

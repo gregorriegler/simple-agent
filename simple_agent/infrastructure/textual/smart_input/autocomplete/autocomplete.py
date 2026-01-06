@@ -1,5 +1,5 @@
 import re
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from typing import Protocol
 
@@ -122,7 +122,7 @@ class Suggestion(Protocol):
 
 @dataclass
 class SuggestionList:
-    suggestions: list[Suggestion]
+    suggestions: Sequence[Suggestion]
     selected_index: int = 0
 
     def __bool__(self) -> bool:
@@ -179,8 +179,8 @@ class TriggeredSuggestionProvider(SuggestionProvider):
 
 
 class CompositeSuggestionProvider(SuggestionProvider):
-    def __init__(self, providers: list[SuggestionProvider] = None):
-        self._providers = providers or []
+    def __init__(self, providers: Sequence[SuggestionProvider] | None = None):
+        self._providers = list(providers) if providers else []
 
     async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:
         for provider in self._providers:
