@@ -1,0 +1,14 @@
+services:
+  simple-agent:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      SIMPLE_AGENT_LOG_LEVEL: ${SIMPLE_AGENT_LOG_LEVEL:-INFO}
+    volumes:
+      - ./.simple-agent.toml:/app/.simple-agent.toml:ro
+      - ./claude-session.json:/app/claude-session.json
+    restart: unless-stopped

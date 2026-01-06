@@ -1,5 +1,6 @@
 import os
 import tomllib
+from pathlib import Path
 
 class ConfigurationError(Exception):
     pass
@@ -10,6 +11,7 @@ from simple_agent.application.session import SessionArgs
 from simple_agent.infrastructure.model_config import ModelsRegistry
 
 DEFAULT_STARTING_AGENT_TYPE = "orchestrator"
+APP_DIR = str(Path(__file__).resolve().parents[2])
 
 
 class UserConfiguration:
@@ -133,6 +135,12 @@ def _resolve_api_key(value: str) -> str:
     return value
 
 
+def _resolve_app_dir(value: str) -> str:
+    if "${APP_DIR}" not in value:
+        return value
+    return value.replace("${APP_DIR}", APP_DIR)
+
+
 def _resolve_value(value: Any) -> Any:
     if isinstance(value, Mapping):
         return {
@@ -141,12 +149,17 @@ def _resolve_value(value: Any) -> Any:
         }
     if isinstance(value, list):
         return [_resolve_value(child) for child in value]
+    if isinstance(value, str):
+        return _resolve_app_dir(value)
     return value
 
 
 def _resolve_api_key_value(key: str, value: Any) -> Any:
-    if key == "api_key" and isinstance(value, str):
-        return _resolve_api_key(value)
+    if isinstance(value, str):
+        resolved = _resolve_app_dir(value)
+        if key == "api_key":
+            return _resolve_api_key(resolved)
+        return resolved
     return _resolve_value(value)
 
 
