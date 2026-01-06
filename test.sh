@@ -13,6 +13,7 @@ if [[ -n "$files_to_format" ]]; then
     fi
     echo "Reformatted:"
     echo "$files_to_format"
+    echo ""
 fi
 
 # 2) lint (no auto-fix in CI/test script)
