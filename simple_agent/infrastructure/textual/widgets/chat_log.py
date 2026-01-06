@@ -1,6 +1,7 @@
+import re
+
 from textual.containers import VerticalScroll
 from textual.widgets import Markdown
-import re
 
 
 class ChatLog(VerticalScroll):

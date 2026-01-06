@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from simple_agent.infrastructure.project_tree import FileSystemProjectTree
 
 

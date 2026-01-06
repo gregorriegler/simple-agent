@@ -1,8 +1,8 @@
 import os
 import textwrap
 
-from approvaltests import Options, verify
 import pytest
+from approvaltests import Options, verify
 
 from tests.test_helpers import all_scrubbers, create_all_tools_for_test, temp_directory
 

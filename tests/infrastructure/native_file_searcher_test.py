@@ -1,4 +1,5 @@
 import pytest
+
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 
 

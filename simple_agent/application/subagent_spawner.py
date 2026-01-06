@@ -1,4 +1,5 @@
-from typing import Awaitable, Protocol
+from collections.abc import Awaitable
+from typing import Protocol
 
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.tool_results import ToolResult

@@ -33,8 +33,8 @@ from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
 from simple_agent.infrastructure.user_configuration import (
-    UserConfiguration,
     ConfigurationError,
+    UserConfiguration,
 )
 from simple_agent.logging_config import setup_logging
 from simple_agent.tools.all_tools import AllToolsFactory
@@ -213,11 +213,11 @@ def parse_args(argv=None) -> SessionArgs:
     return SessionArgs(
         bool(getattr(parsed, "continue")),
         build_start_message(parsed.message),
-        bool(getattr(parsed, "system_prompt")),
+        bool(parsed.system_prompt),
         DisplayType.TEXTUAL,
-        bool(getattr(parsed, "stub")),
-        bool(getattr(parsed, "non_interactive")),
-        getattr(parsed, "agent"),
+        bool(parsed.stub),
+        bool(parsed.non_interactive),
+        parsed.agent,
     )
 
 

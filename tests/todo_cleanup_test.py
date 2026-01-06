@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from approvaltests import Options, verify
 import pytest
+from approvaltests import Options, verify
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import AgentFinishedEvent

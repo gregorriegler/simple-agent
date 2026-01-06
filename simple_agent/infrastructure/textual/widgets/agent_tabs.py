@@ -1,24 +1,26 @@
 import logging
-from textual.widgets import TabbedContent, TabPane
+
 from textual.css.query import NoMatches
+from textual.widgets import TabbedContent, TabPane
+
 from simple_agent.application.agent_id import AgentId
-from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 from simple_agent.application.events import (
     AgentStartedEvent,
-    SessionClearedEvent,
-    UserPromptedEvent,
+    AssistantRespondedEvent,
     AssistantSaidEvent,
-    ToolCalledEvent,
-    ToolResultEvent,
-    ToolCancelledEvent,
+    ErrorEvent,
+    ModelChangedEvent,
+    SessionClearedEvent,
+    SessionEndedEvent,
     SessionInterruptedEvent,
     SessionStartedEvent,
-    SessionEndedEvent,
+    ToolCalledEvent,
+    ToolCancelledEvent,
+    ToolResultEvent,
+    UserPromptedEvent,
     UserPromptRequestedEvent,
-    ErrorEvent,
-    AssistantRespondedEvent,
-    ModelChangedEvent,
 )
+from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,5 @@
-from simple_agent.application.tool_syntax import ToolSyntax
 from simple_agent.application.tool_library import ToolArgument, ToolArguments
+from simple_agent.application.tool_syntax import ToolSyntax
 
 
 class _MockTool:

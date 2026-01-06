@@ -1,19 +1,20 @@
 import pytest
+
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.llm import (
     LLM,
-    LLMResponse,
-    TokenUsage,
     ChatMessages,
     LLMProvider,
+    LLMResponse,
+    TokenUsage,
 )
 from simple_agent.application.session import Session
 from tests.session_storage_stub import SessionStorageStub
 from tests.system_prompt_generator_test import GroundRulesStub
-from tests.test_helpers import create_session_args, DummyProjectTree
+from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
 from tests.user_input_stub import UserInputStub
 

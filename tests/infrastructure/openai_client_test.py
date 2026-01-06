@@ -1,6 +1,7 @@
 import json
-import pytest
+
 import httpx
+import pytest
 
 from simple_agent.infrastructure.openai.openai_client import OpenAILLM
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol, List, Dict, Any
+from typing import Any, Protocol
 
 from .tool_results import ToolResult
 
@@ -50,7 +50,7 @@ class ParsedTool:
 @dataclass
 class MessageAndParsedTools:
     message: str
-    tools: List[ParsedTool]
+    tools: list[ParsedTool]
 
     def __iter__(self):
         yield self.message
@@ -67,9 +67,9 @@ class ToolArgument:
 
 class ToolArguments:
     def __init__(
-        self, header: List[ToolArgument] = None, body: ToolArgument | None = None
+        self, header: list[ToolArgument] = None, body: ToolArgument | None = None
     ):
-        self._header: List[ToolArgument] = header or []
+        self._header: list[ToolArgument] = header or []
         self._body: ToolArgument | None = body
 
     def __iter__(self):
@@ -91,7 +91,7 @@ class ToolArguments:
         return bool(self._header) or self._body is not None
 
     @property
-    def header(self) -> List[ToolArgument]:
+    def header(self) -> list[ToolArgument]:
         return self._header
 
     @property
@@ -99,7 +99,7 @@ class ToolArguments:
         return self._body
 
     @property
-    def all(self) -> List[ToolArgument]:
+    def all(self) -> list[ToolArgument]:
         """Return all arguments: header args followed by body (if present)."""
         if self._body:
             return self._header + [self._body]
@@ -117,15 +117,15 @@ class Tool(Protocol):
     def arguments(self) -> ToolArguments: ...
 
     @property
-    def examples(self) -> List[Dict[str, Any]]: ...
+    def examples(self) -> list[dict[str, Any]]: ...
 
     async def execute(self, raw_call: RawToolCall) -> ToolResult: ...
 
-    def get_template_variables(self) -> Dict[str, str]: ...
+    def get_template_variables(self) -> dict[str, str]: ...
 
 
 class ToolLibrary(Protocol):
-    tools: List[Tool]
+    tools: list[Tool]
 
     def parse_message_and_tools(self, text: str) -> MessageAndParsedTools: ...
 

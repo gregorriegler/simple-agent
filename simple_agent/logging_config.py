@@ -1,11 +1,11 @@
 import logging
 import logging.config
 import os
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Mapping, Optional
 
 
-def setup_logging(level: Optional[str] = None, user_config=None) -> None:
+def setup_logging(level: str | None = None, user_config=None) -> None:
     if level is None:
         if user_config:
             level = user_config.log_level()

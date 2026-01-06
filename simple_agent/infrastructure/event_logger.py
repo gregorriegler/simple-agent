@@ -1,4 +1,5 @@
 import logging
+
 from simple_agent.application.events import AgentEvent
 
 

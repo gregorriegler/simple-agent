@@ -1,5 +1,6 @@
 import pytest
-from simple_agent.infrastructure.model_config import ModelsRegistry, ModelConfig
+
+from simple_agent.infrastructure.model_config import ModelConfig, ModelsRegistry
 
 
 def test_get_falls_back_to_default_model_when_unknown_model_requested():

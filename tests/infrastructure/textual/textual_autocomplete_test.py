@@ -31,9 +31,9 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
     SlashAtStartOfLineTrigger,
-    SlashCommandProvider,
-    SlashCommandArgumentTrigger,
     SlashCommandArgumentProvider,
+    SlashCommandArgumentTrigger,
+    SlashCommandProvider,
 )
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 

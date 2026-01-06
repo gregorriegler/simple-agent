@@ -1,9 +1,9 @@
-from typing import Protocol, Iterator, Dict, List
+from collections.abc import Iterator
 from dataclasses import dataclass
+from typing import Protocol
 
-
-ChatMessage = Dict[str, str]
-ChatMessages = List[ChatMessage]
+ChatMessage = dict[str, str]
+ChatMessages = list[ChatMessage]
 
 
 @dataclass

@@ -1,7 +1,6 @@
 import asyncio
 import subprocess
 import time
-from typing import Dict
 
 from simple_agent.application.tool_library import Tool, ToolArguments
 from simple_agent.application.tool_results import ToolResult
@@ -63,7 +62,7 @@ class BaseTool(Tool):
     async def run_command_async(command, args=None, cwd=None):
         return await asyncio.to_thread(BaseTool.run_command, command, args, cwd)
 
-    def get_template_variables(self) -> Dict[str, str]:
+    def get_template_variables(self) -> dict[str, str]:
         """Return variables to substitute in documentation templates.
 
         Override this method to provide runtime values for template placeholders

@@ -1,9 +1,10 @@
+import logging
+
 from rich.syntax import Syntax
 from textual.containers import VerticalScroll
-from textual.widgets import TextArea, Collapsible, Static
-from textual.timer import Timer
 from textual.css.query import NoMatches
-import logging
+from textual.timer import Timer
+from textual.widgets import Collapsible, Static, TextArea
 
 from simple_agent.application.tool_results import ToolResult
 

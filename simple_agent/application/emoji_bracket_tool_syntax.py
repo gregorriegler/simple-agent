@@ -1,6 +1,6 @@
 from typing import Any
 
-from simple_agent.application.tool_library import Tool, ToolArgument, RawToolCall
+from simple_agent.application.tool_library import RawToolCall, Tool, ToolArgument
 from simple_agent.application.tool_syntax import ParsedMessage, ToolSyntax
 
 

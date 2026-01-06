@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Optional
 
 from simple_agent.application.model_info import ModelInfo
 
@@ -44,6 +44,6 @@ class SlashCommandRegistry:
 
         return matching
 
-    def get_command(self, name: str) -> Optional[SlashCommand]:
+    def get_command(self, name: str) -> SlashCommand | None:
         """Returns a command by name, or None if not found."""
         return self._commands.get(name)

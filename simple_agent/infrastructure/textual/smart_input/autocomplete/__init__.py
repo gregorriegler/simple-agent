@@ -1,29 +1,27 @@
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
+    AutocompleteTrigger,
+    CompletionResult,
+    CompositeSuggestionProvider,
     Cursor,
     CursorAndLine,
-    CompletionResult,
-    Suggestion,
-    SuggestionList,
     FileReference,
     FileReferences,
-)
-from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
-    AutocompleteTrigger,
+    Suggestion,
+    SuggestionList,
     SuggestionProvider,
-    CompositeSuggestionProvider,
-)
-from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
-    SlashCommandSuggestion,
-    SlashAtStartOfLineTrigger,
-    SlashCommandProvider,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search import (
-    FileSuggestion,
     AtSymbolTrigger,
     FileSearchProvider,
+    FileSuggestion,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
     AutocompletePopup,
     CompletionSeed,
     PopupLayout,
+)
+from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
+    SlashAtStartOfLineTrigger,
+    SlashCommandProvider,
+    SlashCommandSuggestion,
 )

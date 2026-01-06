@@ -1,7 +1,7 @@
 from ..application.tool_library import ToolArgument, ToolArguments
 from ..application.tool_results import SingleToolResult, ToolResultStatus
-from .base_tool import BaseTool
 from .argument_parser import split_arguments
+from .base_tool import BaseTool
 
 
 class CatTool(BaseTool):
@@ -118,7 +118,7 @@ class CatTool(BaseTool):
 
     def _read_file_range(self, filename, start_line, end_line, with_line_numbers):
         try:
-            with open(filename, "r", encoding="utf-8") as f:
+            with open(filename, encoding="utf-8") as f:
                 lines = f.readlines()
 
             if not lines:

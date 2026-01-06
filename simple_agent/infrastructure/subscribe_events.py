@@ -1,9 +1,9 @@
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
-    AgentStartedEvent,
     AgentFinishedEvent,
-    AssistantSaidEvent,
+    AgentStartedEvent,
     AssistantRespondedEvent,
+    AssistantSaidEvent,
     ErrorEvent,
     ModelChangedEvent,
     SessionClearedEvent,
@@ -13,8 +13,8 @@ from simple_agent.application.events import (
     ToolCalledEvent,
     ToolCancelledEvent,
     ToolResultEvent,
-    UserPromptRequestedEvent,
     UserPromptedEvent,
+    UserPromptRequestedEvent,
 )
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup

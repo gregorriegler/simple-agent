@@ -1,23 +1,20 @@
 import asyncio
 import logging
-from typing import Optional
 
 from textual import events
 from textual.message import Message
 from textual.widgets import TextArea
 
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
+    CompletionResult,
     Cursor,
     CursorAndLine,
-    CompletionResult,
     FileReferences,
+    SuggestionProvider,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
     AutocompletePopup,
     CompletionSeed,
-)
-from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
-    SuggestionProvider,
 )
 
 logger = logging.getLogger(__name__)
@@ -43,7 +40,7 @@ class SmartInput(TextArea):
         self.provider = provider
         self.popup = AutocompletePopup()
 
-        self._autocomplete_task: Optional[asyncio.Task] = None
+        self._autocomplete_task: asyncio.Task | None = None
 
     def on_mount(self) -> None:
         self.mount(self.popup)
@@ -131,7 +128,7 @@ class SmartInput(TextArea):
             if self._autocomplete_task == asyncio.current_task():
                 self._autocomplete_task = None
 
-    def _get_cursor_and_line(self) -> Optional[CursorAndLine]:
+    def _get_cursor_and_line(self) -> CursorAndLine | None:
         row, col = self.cursor_location
         try:
             line = self.document.get_line(row)

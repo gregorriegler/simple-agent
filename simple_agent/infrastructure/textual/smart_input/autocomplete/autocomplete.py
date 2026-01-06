@@ -1,6 +1,7 @@
-from dataclasses import dataclass, field
 import re
-from typing import Protocol, List, Optional, Set, Iterator
+from collections.abc import Iterator
+from dataclasses import dataclass, field
+from typing import Protocol
 
 from simple_agent.application.file_loader import FileLoader
 
@@ -18,7 +19,7 @@ class FileReference:
     def is_in(self, text: str) -> bool:
         return self.to_text() in text
 
-    def load_content(self, loader: FileLoader) -> Optional[str]:
+    def load_content(self, loader: FileLoader) -> str | None:
         return loader.read_file(self.path)
 
 
@@ -36,7 +37,7 @@ class FileReferences:
         refs.add(set(matches))
         return refs
 
-    def add(self, paths: Set[str] | str) -> None:
+    def add(self, paths: set[str] | str) -> None:
         if isinstance(paths, str):
             self._references.add(FileReference(paths))
         else:
@@ -55,7 +56,7 @@ class FileReferences:
     def __len__(self) -> int:
         return len(self._references)
 
-    def load_all(self, loader: FileLoader) -> List[str]:
+    def load_all(self, loader: FileLoader) -> list[str]:
         loaded = []
         for ref in self._references:
             content = ref.load_content(loader)
@@ -121,7 +122,7 @@ class Suggestion(Protocol):
 
 @dataclass
 class SuggestionList:
-    suggestions: List[Suggestion]
+    suggestions: list[Suggestion]
     selected_index: int = 0
 
     def __bool__(self) -> bool:
@@ -137,7 +138,7 @@ class SuggestionList:
             return
         self.selected_index = (self.selected_index - 1) % len(self.suggestions)
 
-    def get_selection(self) -> Optional[CompletionResult]:
+    def get_selection(self) -> CompletionResult | None:
         if not self.suggestions:
             return None
         return self.suggestions[self.selected_index].to_completion_result()
@@ -148,7 +149,7 @@ class SuggestionList:
             return 0
         return max(len(s.display_text) for s in self.suggestions)
 
-    def get_display_lines(self, width: int) -> List[str]:
+    def get_display_lines(self, width: int) -> list[str]:
         return [s.display_text[:width] for s in self.suggestions]
 
 
@@ -178,7 +179,7 @@ class TriggeredSuggestionProvider(SuggestionProvider):
 
 
 class CompositeSuggestionProvider(SuggestionProvider):
-    def __init__(self, providers: List[SuggestionProvider] = None):
+    def __init__(self, providers: list[SuggestionProvider] = None):
         self._providers = providers or []
 
     async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:

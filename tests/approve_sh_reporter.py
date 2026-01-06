@@ -1,4 +1,5 @@
 import os
+
 from approvaltests.reporters import Reporter
 
 
@@ -15,11 +16,11 @@ class ApproveShReporter(Reporter):
         print(f"Approved: {approved_path}")
 
         try:
-            with open(received_path, "r", encoding="utf-8") as f:
+            with open(received_path, encoding="utf-8") as f:
                 received_content = f.read()
 
             try:
-                with open(approved_path, "r", encoding="utf-8") as f:
+                with open(approved_path, encoding="utf-8") as f:
                     approved_content = f.read()
             except FileNotFoundError:
                 approved_content = ""

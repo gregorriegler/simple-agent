@@ -1,8 +1,8 @@
 from approvaltests import verify
 
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
-from simple_agent.tools.base_tool import BaseTool
 from simple_agent.application.tool_library import ToolArgument, ToolArguments
+from simple_agent.tools.base_tool import BaseTool
 
 
 class SimpleTool(BaseTool):

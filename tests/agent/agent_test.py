@@ -1,12 +1,12 @@
 import pytest
-from approvaltests import verify, Options
+from approvaltests import Options, verify
 
 from simple_agent.application.events import ErrorEvent
 from tests.session_test_bed import SessionTestBed
 from tests.test_helpers import (
-    create_temp_file,
-    create_temp_directory_structure,
     all_scrubbers,
+    create_temp_directory_structure,
+    create_temp_file,
 )
 
 pytestmark = pytest.mark.asyncio

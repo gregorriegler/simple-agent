@@ -2,7 +2,6 @@ import pytest
 
 from simple_agent.application.input import Input
 
-
 pytestmark = pytest.mark.asyncio
 
 

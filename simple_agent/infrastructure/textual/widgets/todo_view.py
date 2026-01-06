@@ -1,8 +1,10 @@
-from textual.containers import VerticalScroll
-from textual.widgets import Markdown
-from textual.css.query import NoMatches
-from simple_agent.application.agent_id import AgentId
 from pathlib import Path
+
+from textual.containers import VerticalScroll
+from textual.css.query import NoMatches
+from textual.widgets import Markdown
+
+from simple_agent.application.agent_id import AgentId
 
 
 class TodoView(VerticalScroll):

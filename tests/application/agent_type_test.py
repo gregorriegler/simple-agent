@@ -1,4 +1,5 @@
 import pytest
+
 from simple_agent.application.agent_type import AgentType
 
 

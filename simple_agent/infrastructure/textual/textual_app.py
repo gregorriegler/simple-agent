@@ -1,6 +1,7 @@
 import asyncio
 import logging
-from typing import Callable, Coroutine, Any
+from collections.abc import Callable, Coroutine
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -10,27 +11,27 @@ from textual.containers import Vertical
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
-from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.smart_input import SmartInput
-from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
-from simple_agent.infrastructure.textual.widgets.file_loader import (
-    DiskFileLoader,
-    XmlFormattingFileLoader,
-)
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
-    TriggeredSuggestionProvider,
     CompositeSuggestionProvider,
-)
-from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
-    SlashAtStartOfLineTrigger,
-    SlashCommandProvider,
-    SlashCommandArgumentTrigger,
-    SlashCommandArgumentProvider,
+    TriggeredSuggestionProvider,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.file_search import (
     AtSymbolTrigger,
     FileSearchProvider,
+)
+from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands import (
+    SlashAtStartOfLineTrigger,
+    SlashCommandArgumentProvider,
+    SlashCommandArgumentTrigger,
+    SlashCommandProvider,
+)
+from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
+from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+from simple_agent.infrastructure.textual.widgets.file_loader import (
+    DiskFileLoader,
+    XmlFormattingFileLoader,
 )
 
 

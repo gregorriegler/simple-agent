@@ -1,9 +1,11 @@
-import pytest
-import httpx
 from unittest.mock import patch
+
+import httpx
+import pytest
+
 from simple_agent.infrastructure.gemini.gemini_client import (
-    GeminiLLM,
     GeminiClientError,
+    GeminiLLM,
 )
 
 

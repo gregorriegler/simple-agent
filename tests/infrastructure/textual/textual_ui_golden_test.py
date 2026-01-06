@@ -1,5 +1,5 @@
-from approvaltests import verify
 import pytest
+from approvaltests import verify
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
@@ -7,14 +7,13 @@ from simple_agent.application.events import (
     SessionStartedEvent,
     ToolCalledEvent,
     ToolResultEvent,
-    UserPromptRequestedEvent,
     UserPromptedEvent,
+    UserPromptRequestedEvent,
 )
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
-
 from tests.infrastructure.textual.test_utils import dump_ascii_screen, dump_ui_state
 
 

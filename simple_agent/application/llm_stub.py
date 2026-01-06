@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from .llm import ChatMessages, LLM, LLMResponse, TokenUsage
+from .llm import LLM, ChatMessages, LLMResponse, TokenUsage
 
 
 class StubLLM:
@@ -53,7 +53,7 @@ def _create_default_stub_llm() -> LLM:
 
 class StubLLMProvider:
     @classmethod
-    def dummy(cls) -> "StubLLMProvider":
+    def dummy(cls) -> StubLLMProvider:
         class DummyLLM:
             @property
             def model(self) -> str:
@@ -65,7 +65,7 @@ class StubLLMProvider:
         return cls.for_testing(DummyLLM())
 
     @classmethod
-    def for_testing(cls, llm: LLM) -> "StubLLMProvider":
+    def for_testing(cls, llm: LLM) -> StubLLMProvider:
         provider = object.__new__(cls)
         provider._llm = llm
         return provider

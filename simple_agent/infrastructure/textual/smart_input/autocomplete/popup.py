@@ -1,9 +1,10 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Optional, List, Callable
-from textual.widgets import Static
-from textual.message import Message
-from textual.geometry import Offset, Size
+
 from rich.text import Text
+from textual.geometry import Offset, Size
+from textual.message import Message
+from textual.widgets import Static
 
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
     CompletionResult,
@@ -26,7 +27,7 @@ class PopupLayout:
     width: int
     height: int
     offset: Offset
-    lines: List[str]
+    lines: list[str]
 
     @classmethod
     def calculate(
@@ -98,8 +99,8 @@ class AutocompletePopup(Static):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.suggestion_list: Optional[SuggestionList] = None
-        self._seed: Optional[CompletionSeed] = None
+        self.suggestion_list: SuggestionList | None = None
+        self._seed: CompletionSeed | None = None
 
     def show(self, suggestion_list: SuggestionList, seed: CompletionSeed) -> None:
         if suggestion_list:
@@ -119,7 +120,7 @@ class AutocompletePopup(Static):
             self.suggestion_list.move_up()
             self._update_view()
 
-    def get_selection(self) -> Optional[CompletionResult]:
+    def get_selection(self) -> CompletionResult | None:
         if self.suggestion_list:
             return self.suggestion_list.get_selection()
         return None
@@ -134,7 +135,7 @@ class AutocompletePopup(Static):
             self.close()
             self.post_message(self.Selected(selection))
 
-    def get_action_for_key(self, key: str) -> Optional[Callable[[], None]]:
+    def get_action_for_key(self, key: str) -> Callable[[], None] | None:
         if not self.display:
             return None
 

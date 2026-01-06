@@ -2,8 +2,9 @@ from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library import ToolArgument, ToolArguments
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
-from .base_tool import BaseTool
+
 from ..application.agent_type import AgentType
+from .base_tool import BaseTool
 
 
 class SubagentTool(BaseTool):

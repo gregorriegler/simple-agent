@@ -1,8 +1,8 @@
+from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
+from simple_agent.infrastructure.gemini import GeminiLLM, GeminiV1LLM
 from simple_agent.infrastructure.llm import RemoteLLMProvider
 from simple_agent.infrastructure.model_config import ModelConfig, ModelsRegistry
 from simple_agent.infrastructure.openai import OpenAILLM
-from simple_agent.infrastructure.gemini import GeminiLLM, GeminiV1LLM
-from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 
 
 class UserConfigStub:

@@ -1,15 +1,16 @@
+from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_types import AgentTypes
-from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.llm_stub import StubLLMProvider
-from simple_agent.application.tool_library_factory import ToolContext
-from simple_agent.application.tool_library_factory import ToolLibraryFactory
+from simple_agent.application.tool_library_factory import (
+    ToolContext,
+    ToolLibraryFactory,
+)
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.tools import AllTools
 from simple_agent.tools.all_tools import AllToolsFactory
-
 from tests.test_helpers import DummyProjectTree
 from tests.user_input_stub import UserInputStub
 

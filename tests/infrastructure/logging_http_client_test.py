@@ -1,6 +1,7 @@
-import pytest
 import logging
+
 import httpx
+import pytest
 from approvaltests import verify
 
 from simple_agent.infrastructure.logging_http_client import LoggingAsyncClient

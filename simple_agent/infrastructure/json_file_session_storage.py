@@ -14,7 +14,7 @@ class JsonFileSessionStorage(SessionStorage):
         if not os.path.exists(self.path):
             return Messages()
         try:
-            with open(self.path, "r", encoding="utf-8") as session_file:
+            with open(self.path, encoding="utf-8") as session_file:
                 raw_data = json.load(session_file)
         except json.JSONDecodeError as error:
             print(

@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 
-from simple_agent.application.llm import LLMProvider
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import EventBus
 from simple_agent.application.events import SessionStartedEvent
+from simple_agent.application.llm import LLMProvider
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.session_storage import SessionStorage

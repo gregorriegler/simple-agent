@@ -1,5 +1,5 @@
-import pytest
 import httpx
+import pytest
 
 from simple_agent.infrastructure.gemini.gemini_client import GeminiLLM
 

@@ -1,15 +1,12 @@
-from typing import List
-
-
 class AgentTypes:
-    def __init__(self, types: List[str]):
+    def __init__(self, types: list[str]):
         self._types = list(types)
 
     @staticmethod
     def empty():
         return AgentTypes([])
 
-    def all(self) -> List[str]:
+    def all(self) -> list[str]:
         return self._types
 
     def __iter__(self):

@@ -4,8 +4,10 @@ import glob
 import os
 from importlib import resources
 
-from simple_agent.application.agent_type import AgentType
+from simple_agent.application.agent_definition import AgentDefinition
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.ground_rules import GroundRules
 from simple_agent.application.session import SessionArgs
 from simple_agent.infrastructure.agent_file_conventions import (
@@ -13,8 +15,6 @@ from simple_agent.infrastructure.agent_file_conventions import (
     filename_from_agent_type,
 )
 from simple_agent.infrastructure.agents_md_ground_rules import AgentsMdGroundRules
-from simple_agent.application.agent_definition import AgentDefinition
-from simple_agent.application.agent_id import AgentId
 from simple_agent.infrastructure.configuration import get_starting_agent
 from simple_agent.infrastructure.user_configuration import UserConfiguration
 
@@ -40,7 +40,7 @@ class FileSystemAgentLibrary(AgentLibrary):
         filename = filename_from_agent_type(agent_type)
         path = os.path.join(self.directory, filename)
         try:
-            with open(path, "r", encoding="utf-8") as handle:
+            with open(path, encoding="utf-8") as handle:
                 content = handle.read()
                 return AgentDefinition(agent_type, content, self.ground_rules)
         except FileNotFoundError as error:
@@ -88,7 +88,7 @@ class BuiltinAgentLibrary:
         except (FileNotFoundError, ModuleNotFoundError):
             package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             path = os.path.join(package_root, filename)
-            with open(path, "r", encoding="utf-8") as handle:
+            with open(path, encoding="utf-8") as handle:
                 content = handle.read()
                 return AgentDefinition(agent_type, content, self.ground_rules)
 

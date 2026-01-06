@@ -1,13 +1,13 @@
 from dataclasses import dataclass
-from typing import Protocol, List
+from typing import Protocol
 
-from simple_agent.application.tool_library import Tool, RawToolCall
+from simple_agent.application.tool_library import RawToolCall, Tool
 
 
 @dataclass
 class ParsedMessage:
     message: str
-    tool_calls: List[RawToolCall]
+    tool_calls: list[RawToolCall]
 
 
 class ToolSyntax(Protocol):

@@ -1,11 +1,10 @@
 import logging
-from typing import Dict, List
 
 import httpx
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
-from simple_agent.infrastructure.model_config import ModelConfig
 from simple_agent.infrastructure.logging_http_client import LoggingAsyncClient
+from simple_agent.infrastructure.model_config import ModelConfig
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +34,7 @@ class OpenAILLM(LLM):
         api_key = self._config.api_key
         model = self._config.model
 
-        payload_messages: List[Dict[str, str]] = list(messages)
+        payload_messages: list[dict[str, str]] = list(messages)
 
         data = {
             "model": model,

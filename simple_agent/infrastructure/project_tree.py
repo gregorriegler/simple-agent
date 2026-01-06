@@ -31,7 +31,7 @@ def _read_gitignore(root_path: Path) -> set:
     if not gitignore_path.exists():
         return patterns
 
-    with open(gitignore_path, "r") as f:
+    with open(gitignore_path) as f:
         for line in f:
             line = line.strip()
             if line and not line.startswith("#"):

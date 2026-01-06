@@ -4,8 +4,8 @@ import pytest
 
 from simple_agent.infrastructure import user_configuration
 from simple_agent.infrastructure.user_configuration import (
-    UserConfiguration,
     ConfigurationError,
+    UserConfiguration,
 )
 
 

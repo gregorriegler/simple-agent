@@ -1,5 +1,6 @@
 import asyncio
 import sys
+
 import pytest
 
 from simple_agent.application.agent_id import AgentId

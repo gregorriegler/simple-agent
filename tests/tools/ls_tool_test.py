@@ -6,8 +6,10 @@ from tests.test_helpers import (
     verify_tool,
 )
 
+
 def claude_stub(messages):
     return ""
+
 
 library = create_all_tools_for_test()
 pytestmark = pytest.mark.asyncio

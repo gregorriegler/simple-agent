@@ -1,7 +1,7 @@
 import textwrap
 
-from simple_agent.application.tool_message_parser import parse_tool_calls
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
+from simple_agent.application.tool_message_parser import parse_tool_calls
 
 syntax = EmojiBracketToolSyntax()
 

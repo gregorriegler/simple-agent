@@ -7,7 +7,8 @@ class ConfigurationError(Exception):
     pass
 
 
-from typing import Mapping, Any, Self, Tuple
+from collections.abc import Mapping
+from typing import Any, Self
 
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.session import SessionArgs
@@ -104,7 +105,7 @@ def _read_config(path: str) -> Mapping[str, Any]:
         raise ConfigurationError(f"error reading {path}: {error}") from error
 
 
-def _load_configuration_sources(cwd: str) -> Tuple[Mapping[str, Any], bool]:
+def _load_configuration_sources(cwd: str) -> tuple[Mapping[str, Any], bool]:
     home_config_path = os.path.join(os.path.expanduser("~"), ".simple-agent.toml")
     cwd_config_path = os.path.join(cwd, ".simple-agent.toml")
 

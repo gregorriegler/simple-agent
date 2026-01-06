@@ -2,10 +2,10 @@ import difflib
 import os
 from dataclasses import dataclass
 
-from .argument_parser import split_arguments
-from .base_tool import BaseTool
 from ..application.tool_library import ToolArgument, ToolArguments
 from ..application.tool_results import SingleToolResult, ToolResultStatus
+from .argument_parser import split_arguments
+from .base_tool import BaseTool
 
 
 @dataclass
@@ -28,7 +28,7 @@ class FileReplacer:
         if not os.path.exists(self.filename):
             raise FileNotFoundError(f'File "{self.filename}" not found')
 
-        with open(self.filename, "r", encoding="utf-8") as f:
+        with open(self.filename, encoding="utf-8") as f:
             self.original_content = f.read()
 
     def save_file(self):

@@ -14,17 +14,16 @@ from simple_agent.application.events import (
     SessionStartedEvent,
     ToolCalledEvent,
     ToolResultEvent,
-    UserPromptRequestedEvent,
     UserPromptedEvent,
+    UserPromptRequestedEvent,
 )
 from simple_agent.application.llm_stub import StubLLMProvider, create_llm_stub
 from simple_agent.application.session import Session
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
-
 from tests.event_spy import EventSpy
 from tests.session_storage_stub import SessionStorageStub
 from tests.system_prompt_generator_test import GroundRulesStub
-from tests.test_helpers import create_session_args, DummyProjectTree
+from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
 from tests.user_input_stub import UserInputStub
 

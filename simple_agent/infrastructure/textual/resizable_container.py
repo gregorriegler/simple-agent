@@ -1,8 +1,7 @@
 from textual import events
 from textual.containers import Horizontal, Vertical
-from textual.widget import Widget
 from textual.reactive import reactive
-
+from textual.widget import Widget
 
 MIN_VERTICAL_PANEL_HEIGHT = 3
 

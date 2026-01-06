@@ -1,5 +1,5 @@
 import asyncio
-from queue import Queue, Empty
+from queue import Empty, Queue
 
 from simple_agent.application.user_input import UserInput
 

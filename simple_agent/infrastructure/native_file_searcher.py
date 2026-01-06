@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 from simple_agent.application.file_search import FileSearcher
 
 
@@ -50,7 +51,7 @@ class NativeFileSearcher(FileSearcher):
             return patterns
 
         try:
-            with open(gitignore_path, "r", encoding="utf-8") as f:
+            with open(gitignore_path, encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
                     if line and not line.startswith("#"):

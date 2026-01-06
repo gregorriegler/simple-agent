@@ -2,8 +2,8 @@ from simple_agent.application.agent_type import AgentType
 from simple_agent.application.session import SessionArgs
 from simple_agent.infrastructure.configuration import get_starting_agent
 from simple_agent.infrastructure.user_configuration import (
-    UserConfiguration,
     DEFAULT_STARTING_AGENT_TYPE,
+    UserConfiguration,
 )
 
 

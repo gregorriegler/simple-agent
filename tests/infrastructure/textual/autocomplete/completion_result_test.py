@@ -1,4 +1,3 @@
-from typing import Optional
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
     CompletionResult,
 )
@@ -8,7 +7,7 @@ class FakeFileLoader:
     def __init__(self, files):
         self.files = files
 
-    def read_file(self, path: str) -> Optional[str]:
+    def read_file(self, path: str) -> str | None:
         return self.files.get(path)
 
 
@@ -16,7 +15,7 @@ class DecoratedFakeFileLoader:
     def __init__(self, inner):
         self.inner = inner
 
-    def read_file(self, path: str) -> Optional[str]:
+    def read_file(self, path: str) -> str | None:
         content = self.inner.read_file(path)
         if content is None:
             return None

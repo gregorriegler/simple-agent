@@ -1,10 +1,10 @@
 import asyncio
+
 import httpx
-from typing import Dict, List
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
-from simple_agent.infrastructure.model_config import ModelConfig
 from simple_agent.infrastructure.logging_http_client import LoggingAsyncClient
+from simple_agent.infrastructure.model_config import ModelConfig
 
 
 class GeminiClientError(Exception):
@@ -140,7 +140,7 @@ class GeminiLLM(LLM):
 
         return LLMResponse(content=text_content, model=model, usage=usage)
 
-    def _convert_messages_to_gemini_format(self, messages: ChatMessages) -> List[Dict]:
+    def _convert_messages_to_gemini_format(self, messages: ChatMessages) -> list[dict]:
         """
         Convert standard chat messages to Gemini API format.
 
