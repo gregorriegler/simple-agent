@@ -17,8 +17,6 @@ def configure_approvals():
         from approvaltests.string_writer import StringWriter
 
         # Monkey-patch the write_received_file method to use UTF-8 encoding
-        original_write_received_file = StringWriter.write_received_file
-
         def utf8_write_received_file(self, received_file):
             """Write the received file using UTF-8 encoding with normalized line endings."""
             # Normalize line endings to LF to match .gitattributes and .editorconfig

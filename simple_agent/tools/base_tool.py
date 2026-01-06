@@ -29,8 +29,7 @@ class BaseTool(Tool):
             result = subprocess.run(
                 command_line,
                 stdin=subprocess.DEVNULL,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                capture_output=True,
                 text=True,
                 encoding="utf-8",
                 errors="replace",

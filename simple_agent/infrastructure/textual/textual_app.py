@@ -3,8 +3,6 @@ import logging
 from collections.abc import Callable, Coroutine
 from typing import Any
 
-logger = logging.getLogger(__name__)
-
 from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Vertical
@@ -33,6 +31,8 @@ from simple_agent.infrastructure.textual.widgets.file_loader import (
     DiskFileLoader,
     XmlFormattingFileLoader,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class TextualApp(App):

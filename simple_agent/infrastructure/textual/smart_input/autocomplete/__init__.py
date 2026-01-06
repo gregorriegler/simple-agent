@@ -25,3 +25,25 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands
     SlashCommandProvider,
     SlashCommandSuggestion,
 )
+
+__all__ = [
+    "AutocompletePopup",
+    "AutocompleteTrigger",
+    "AtSymbolTrigger",
+    "CompletionResult",
+    "CompletionSeed",
+    "CompositeSuggestionProvider",
+    "Cursor",
+    "CursorAndLine",
+    "FileReference",
+    "FileReferences",
+    "FileSearchProvider",
+    "FileSuggestion",
+    "PopupLayout",
+    "SlashAtStartOfLineTrigger",
+    "SlashCommandProvider",
+    "SlashCommandSuggestion",
+    "Suggestion",
+    "SuggestionList",
+    "SuggestionProvider",
+]

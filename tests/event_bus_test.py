@@ -6,7 +6,8 @@ from simple_agent.application.tool_results import SingleToolResult
 class TestSimpleEventBus:
     def test_subscribe_adds_handler_for_event_type(self):
         event_bus = SimpleEventBus()
-        handler = lambda event: None
+        def handler(event):
+            return None
 
         event_bus.subscribe(AssistantSaidEvent, handler)
 
@@ -15,8 +16,11 @@ class TestSimpleEventBus:
 
     def test_subscribe_multiple_handlers_for_same_event_type(self):
         event_bus = SimpleEventBus()
-        handler1 = lambda event: None
-        handler2 = lambda event: None
+        def handler1(event):
+            return None
+
+        def handler2(event):
+            return None
 
         event_bus.subscribe(AssistantSaidEvent, handler1)
         event_bus.subscribe(AssistantSaidEvent, handler2)
@@ -28,8 +32,12 @@ class TestSimpleEventBus:
     def test_publish_calls_all_subscribed_handlers(self):
         event_bus = SimpleEventBus()
         results = []
-        handler1 = lambda event: results.append(("handler1", event))
-        handler2 = lambda event: results.append(("handler2", event))
+
+        def handler1(event):
+            results.append(("handler1", event))
+
+        def handler2(event):
+            results.append(("handler2", event))
         event_bus.subscribe(AssistantSaidEvent, handler1)
         event_bus.subscribe(AssistantSaidEvent, handler2)
 
@@ -43,7 +51,9 @@ class TestSimpleEventBus:
     def test_publish_with_no_data_passes_none_to_handlers(self):
         event_bus = SimpleEventBus()
         received_data = []
-        handler = lambda event: received_data.append(event)
+
+        def handler(event):
+            received_data.append(event)
         event_bus.subscribe(AssistantSaidEvent, handler)
 
         event = AssistantSaidEvent("agent", "message")
@@ -61,7 +71,9 @@ class TestSimpleEventBus:
     def test_publish_passes_event_data_to_handlers(self):
         event_bus = SimpleEventBus()
         received_data = []
-        handler = lambda event: received_data.append(event)
+
+        def handler(event):
+            received_data.append(event)
         event_bus.subscribe(AssistantSaidEvent, handler)
         event = AssistantSaidEvent("agent", "test_data")
 

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
@@ -42,10 +44,6 @@ def test_parent_and_depth_navigation():
     assert nested.parent() == AgentId("root/child")
     assert nested.parent().parent() == AgentId("root")
     assert nested.depth() == 2
-
-
-from pathlib import Path
-
 
 def test_filesystem_and_repr_helpers():
     agent_id = AgentId(r"root/sub agent\\id")

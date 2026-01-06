@@ -1,13 +1,7 @@
 import os
 import tomllib
-from pathlib import Path
-
-
-class ConfigurationError(Exception):
-    pass
-
-
 from collections.abc import Mapping
+from pathlib import Path
 from typing import Any, Self
 
 from simple_agent.application.agent_type import AgentType
@@ -16,6 +10,10 @@ from simple_agent.infrastructure.model_config import ModelsRegistry
 
 DEFAULT_STARTING_AGENT_TYPE = "orchestrator"
 APP_DIR = str(Path(__file__).resolve().parents[2])
+
+
+class ConfigurationError(Exception):
+    pass
 
 
 class UserConfiguration:

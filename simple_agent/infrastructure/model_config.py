@@ -36,10 +36,10 @@ class ModelConfig:
         timeout = config.get("request_timeout", 60)
         try:
             request_timeout = int(timeout)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError) as err:
             raise ValueError(
                 f"model '{name}' has non-integer 'request_timeout': {timeout!r}"
-            )
+            ) from err
 
         return ModelConfig(
             name=name,

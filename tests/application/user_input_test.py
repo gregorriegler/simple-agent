@@ -1,8 +1,8 @@
 import pytest
 
-pytestmark = pytest.mark.asyncio
-
 from simple_agent.application.user_input import DummyUserInput
+
+pytestmark = pytest.mark.asyncio
 
 
 async def test_dummy_user_input_returns_empty_prompt_and_no_escape_request():

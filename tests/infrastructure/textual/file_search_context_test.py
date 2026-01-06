@@ -69,7 +69,6 @@ async def test_submit_ignores_removed_file_references(tmp_path):
         text_area = app.query_one("#user-input", SmartInput)
 
         # Simulate selecting file but then deleting it from text
-        file_path_str = str(dummy_file)
         text_area.text = "I deleted the file ref"
 
         # Action
