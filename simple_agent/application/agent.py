@@ -40,7 +40,9 @@ class Agent:
         self.event_bus = event_bus
         self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
         self.context: Messages = context
-        self.slash_command_registry = SlashCommandRegistry()
+        self.slash_command_registry = SlashCommandRegistry(
+            available_models=llm_provider.get_available_models()
+        )
 
     async def start(self):
         self._notify_agent_started()

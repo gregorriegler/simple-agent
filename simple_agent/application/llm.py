@@ -32,6 +32,9 @@ class LLMProvider(Protocol):
     def get(self, model_name: str | None = None) -> LLM:
         ...
 
+    def get_available_models(self) -> list[str]:
+        ...
+
 
 class Messages:
     def __init__(

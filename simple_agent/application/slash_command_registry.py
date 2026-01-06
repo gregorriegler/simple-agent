@@ -12,7 +12,10 @@ class SlashCommand:
 
 
 class SlashCommandRegistry:
-    def __init__(self):
+    def __init__(self, available_models: list[str] | None = None):
+        if available_models is None:
+            available_models = list(ModelInfo.KNOWN_MODELS.keys())
+
         self._commands = {
             "/clear": SlashCommand(
                 name="/clear",
@@ -21,7 +24,7 @@ class SlashCommandRegistry:
             "/model": SlashCommand(
                 name="/model",
                 description="Change model",
-                arg_completer=lambda: list(ModelInfo.KNOWN_MODELS.keys())
+                arg_completer=lambda: available_models
             ),
         }
     

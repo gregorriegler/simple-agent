@@ -10,6 +10,9 @@ class RemoteLLMProvider:
     def __init__(self, user_config: UserConfiguration):
         self._registry = user_config.models_registry()
 
+    def get_available_models(self) -> list[str]:
+        return list(self._registry.models.keys())
+
     def get(self, model_name: str | None = None) -> LLM:
         model_config = self._registry.get(model_name)
         if model_config.adapter == "openai":

@@ -72,3 +72,6 @@ class StubLLMProvider:
 
     def get(self, model_name: str | None = None) -> LLM:
         return self._llm
+
+    def get_available_models(self) -> list[str]:
+        return [self._llm.model]
