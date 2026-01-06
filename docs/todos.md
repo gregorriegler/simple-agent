@@ -1,16 +1,13 @@
 # NOW
-- timeouts for gemini?
-
-# NEXT
 - agent slash command
 - linter
-- web-ui
+
+# NEXT
 - async subagents
 - coverage drilldown slow because redoing the whole thing
 - the subagent tool description need to allow for a subscription per agent, so we can explain that a test-writer will only ever write a single test
 
 # LATER
-- token usage % counter not going up for gemini
 - rag for code
 - say as a tool (too much noise in root)
 - add review agent
