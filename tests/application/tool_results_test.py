@@ -1,3 +1,4 @@
+from simple_agent.application.tool_library import ParsedTool, RawToolCall
 from simple_agent.application.tool_results import (
     ManyToolsResult,
     SingleToolResult,
@@ -17,7 +18,7 @@ def test_single_tool_result_cancelled_when_status_cancelled():
 
 
 def test_many_tools_result_exposes_last_result_display_fields():
-    tool = DummyTool()
+    tool = ParsedTool(RawToolCall(name="dummy", arguments=""), DummyTool())
     inner_result = SingleToolResult(
         message="done",
         display_title="Title",
@@ -34,7 +35,7 @@ def test_many_tools_result_exposes_last_result_display_fields():
 
 
 def test_many_tools_result_reports_failure_when_cancelled():
-    tool = DummyTool()
+    tool = ParsedTool(RawToolCall(name="dummy", arguments=""), DummyTool())
     results = ManyToolsResult()
     results.add(tool, SingleToolResult())
 
