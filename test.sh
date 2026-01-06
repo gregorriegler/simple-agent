@@ -2,12 +2,12 @@
 set -euo pipefail
 
 # 1) formatting
-if ! output=$(uv run ruff format . 2>&1); then
+if ! output=$(uv run ruff format -v . 2>&1); then
     echo "$output"
     exit 1
 fi
 if [[ "$output" == *"reformatted"* ]]; then
-    echo "$output"
+    echo "$output" | grep "reformatted"
 fi
 
 # 2) lint (no auto-fix in CI/test script)
