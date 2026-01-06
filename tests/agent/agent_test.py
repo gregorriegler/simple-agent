@@ -35,7 +35,9 @@ async def test_llm_error_displayed_to_user():
 
     error_events = result.events.get_events(ErrorEvent)
     assert len(error_events) == 1
-    assert "429" in error_events[0].message
+    error_event = error_events[0]
+    assert isinstance(error_event, ErrorEvent)
+    assert "429" in error_event.message
 
 
 async def test_chat_with_regular_response():
