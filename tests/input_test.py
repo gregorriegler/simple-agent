@@ -17,6 +17,9 @@ class UserInputStub:
     def escape_requested(self):
         return False
 
+    def close(self) -> None:
+        pass
+
 
 async def test_input_uses_display_input_when_stack_empty():
     user_input_port = UserInputStub("user input")

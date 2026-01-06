@@ -7,8 +7,17 @@ import pytest
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
+from simple_agent.application.tool_library import (
+    MessageAndParsedTools,
+    ParsedTool,
+    RawToolCall,
+    Tool,
+)
 from simple_agent.application.tool_results import SingleToolResult
+from simple_agent.application.tool_syntax import ToolSyntax
+from simple_agent.application.user_input import DummyUserInput
 
 
 class SlowLLM:
@@ -21,28 +30,27 @@ class SlowLLM:
         return _make_response("This should not be reached")
 
 
-class InputWithStartMessage:
-    def __init__(self):
-        self._read_count = 0
-
-    def has_stacked_messages(self) -> bool:
-        return self._read_count == 0
-
-    async def read_async(self) -> str:
-        self._read_count += 1
-        if self._read_count == 1:
-            return "Hello"
-        return ""
-
-
 def _make_response(content: str):
     return Mock(content=content, model="test-model", usage=Mock(total_tokens=10))
 
 
-def _make_tool_library():
-    library = Mock()
-    library.parse_message_and_tools.return_value = ("response", [])
-    return library
+def _make_input_with_message(message: str) -> Input:
+    user_input = DummyUserInput()
+    feed = Input(user_input)
+    feed.stack(message)
+    return feed
+
+
+class EmptyToolLibrary:
+    def __init__(self):
+        self.tools: list[Tool] = []
+        self.tool_syntax: ToolSyntax = Mock()
+
+    def parse_message_and_tools(self, text: str) -> MessageAndParsedTools:
+        return MessageAndParsedTools(text, [])
+
+    async def execute_parsed_tool(self, parsed_tool: ParsedTool):
+        return SingleToolResult()
 
 
 @pytest.mark.asyncio
@@ -57,12 +65,12 @@ async def test_cancel_interrupts_during_llm_call():
     agent = Agent(
         agent_id=AgentId("test"),
         agent_name="Test Agent",
-        tools=_make_tool_library(),
+        tools=EmptyToolLibrary(),
         llm_provider=llm_provider,
         model_name="slow-model",
-        user_input=InputWithStartMessage(),
+        user_input=_make_input_with_message("Hello"),
         event_bus=event_bus,
-        context=Messages("system prompt"),
+        context=Messages(system_prompt="system prompt"),
     )
 
     start = time.monotonic()
@@ -112,28 +120,17 @@ class ToolCallingLLM:
 class ToolCallingToolLibrary:
     def __init__(self, slow_tool: SlowTool):
         self._slow_tool = slow_tool
+        self.tools: list[Tool] = []
+        self.tool_syntax: ToolSyntax = Mock()
 
-    def parse_message_and_tools(self, message: str):
-        if "<tool>slow_tool</tool>" in message:
-            return ("", [Mock(name="slow_tool")])
-        return (message, [])
+    def parse_message_and_tools(self, text: str) -> MessageAndParsedTools:
+        if "<tool>slow_tool</tool>" in text:
+            tool_call = RawToolCall(name="slow_tool", arguments="", body="")
+            return MessageAndParsedTools("", [ParsedTool(tool_call, self._slow_tool)])
+        return MessageAndParsedTools(text, [])
 
-    async def execute_parsed_tool(self, tool):
+    async def execute_parsed_tool(self, parsed_tool: ParsedTool):
         return await self._slow_tool()
-
-
-class InputForToolTest:
-    def __init__(self):
-        self._read_count = 0
-
-    def has_stacked_messages(self) -> bool:
-        return self._read_count == 0
-
-    async def read_async(self) -> str:
-        self._read_count += 1
-        if self._read_count == 1:
-            return "call the slow tool"
-        return ""
 
 
 @pytest.mark.asyncio
@@ -154,9 +151,9 @@ async def test_cancel_interrupts_during_tool_execution():
         tools=tool_library,
         llm_provider=llm_provider,
         model_name="tool-calling-model",
-        user_input=InputForToolTest(),
+        user_input=_make_input_with_message("call the slow tool"),
         event_bus=event_bus,
-        context=Messages("system prompt"),
+        context=Messages(system_prompt="system prompt"),
     )
 
     start = time.monotonic()
