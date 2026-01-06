@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from treelib import Tree
+from treelib.tree import Tree
 
 from simple_agent.application.project_tree import ProjectTree
 
@@ -21,7 +21,7 @@ class FileSystemProjectTree(ProjectTree):
             max_depth=max_depth,
             gitignore_patterns=gitignore_patterns,
         )
-        return tree.show(stdout=False)
+        return tree.show(stdout=False) or ""
 
 
 def _read_gitignore(root_path: Path) -> set:

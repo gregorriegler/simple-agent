@@ -226,6 +226,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
                 search_pos = after_header
                 depth = 1
                 end_idx = -1
+                current_end_marker = ""
 
                 while True:
                     next_start_idx, next_start_marker = find_any(

@@ -63,7 +63,7 @@ class FileSystemAgentLibrary(AgentLibrary):
 class BuiltinAgentLibrary:
     def __init__(
         self,
-        ground_rules: GroundRules = None,
+        ground_rules: GroundRules | None = None,
         starting_agent_type: AgentType | None = None,
     ):
         self.package = "simple_agent"

@@ -1,4 +1,7 @@
+from typing import Any
+
 from simple_agent.application.tool_library import ToolArgument, ToolArguments
+from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
 from simple_agent.application.tool_syntax import ToolSyntax
 
 
@@ -9,10 +12,13 @@ class _MockTool:
         self.name = name
         self.arguments = arguments
         self.description = ""
-        self.examples = []
+        self.examples: list[dict[str, Any]] = []
 
     def get_template_variables(self):
         return {}
+
+    async def execute(self, raw_call):
+        return SingleToolResult("", status=ToolResultStatus.SUCCESS)
 
 
 def generate_tools_documentation(tools, tool_syntax: ToolSyntax) -> str:

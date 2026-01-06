@@ -11,6 +11,8 @@ def setup_logging(level: str | None = None, user_config=None) -> None:
             level = user_config.log_level()
         else:
             level = os.environ.get("SIMPLE_AGENT_LOG_LEVEL", "INFO").upper()
+    if not level:
+        level = os.environ.get("SIMPLE_AGENT_LOG_LEVEL", "INFO").upper()
 
     logger_level_names: Mapping[str, str] = {}
     if user_config:

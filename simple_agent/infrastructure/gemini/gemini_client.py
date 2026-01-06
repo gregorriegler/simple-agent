@@ -75,6 +75,7 @@ class GeminiLLM(LLM):
         max_retries = 5
         retry_delay = 2
 
+        response: httpx.Response | None = None
         for attempt in range(max_retries + 1):
             try:
                 async with LoggingAsyncClient(
@@ -98,6 +99,9 @@ class GeminiLLM(LLM):
                     continue
 
                 raise GeminiClientError(f"API request failed: {error}") from error
+
+        if response is None:
+            raise GeminiClientError("API request failed: no response")
 
         response_data = response.json()
 

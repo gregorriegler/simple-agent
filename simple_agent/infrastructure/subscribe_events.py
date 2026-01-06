@@ -41,12 +41,14 @@ def subscribe_events(
     event_bus.subscribe(
         AgentFinishedEvent,
         lambda event: todo_cleanup.cleanup_todos_for_agent(event.agent_id)
-        if event.agent_id.has_parent()
+        if event.agent_id and event.agent_id.has_parent()
         else None,
     )
     event_bus.subscribe(
         SessionClearedEvent,
-        lambda event: todo_cleanup.cleanup_todos_for_agent(event.agent_id),
+        lambda event: todo_cleanup.cleanup_todos_for_agent(event.agent_id)
+        if event.agent_id
+        else None,
     )
     if app:
 
