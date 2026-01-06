@@ -3,6 +3,8 @@
 [![Tests](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/gregorriegler/simple-agent/actions/workflows/tests.yml)
 [![Coverage](docs/coverage.svg)](#generate-coverage-locally)
 [![LoC](docs/loc.svg)](#generate-coverage-locally)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 Simple Agent aims to be a simple, transparent, general-purpose agent TUI.
 
