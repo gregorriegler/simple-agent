@@ -3,11 +3,11 @@ from dataclasses import dataclass
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
+from simple_agent.application.agent_switch import AgentSwitch
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import EventBus
 from simple_agent.application.events import SessionStartedEvent
-from simple_agent.application.exceptions import SwitchAgent
 from simple_agent.application.llm import LLMProvider
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.project_tree import ProjectTree
@@ -86,10 +86,11 @@ class Session:
                 persisted_messages,
             )
 
-            try:
-                await agent.start()
-                break
-            except SwitchAgent as e:
-                agent_type = AgentType(e.agent_type)
+            result = await agent.start()
+            if isinstance(result, AgentSwitch):
+                agent_type = AgentType(result.agent_type)
                 agent_definition = self._agent_library.read_agent_definition(agent_type)
                 args.start_message = None
+                continue
+
+            break

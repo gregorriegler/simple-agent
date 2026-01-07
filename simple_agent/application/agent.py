@@ -3,6 +3,7 @@ import asyncio
 from simple_agent.logging_config import get_logger
 
 from .agent_id import AgentId
+from .agent_switch import AgentSwitch
 from .event_bus import EventBus
 from .events import (
     AgentFinishedEvent,
@@ -17,7 +18,6 @@ from .events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
-from .exceptions import SwitchAgent
 from .input import Input
 from .llm import LLM, LLMProvider, Messages
 from .slash_command_registry import SlashCommandRegistry
@@ -55,6 +55,7 @@ class Agent:
             available_models=llm_provider.get_available_models(),
             available_agents=available_agents,
         )
+        self._pending_agent_switch: str | None = None
 
     async def start(self):
         self._notify_agent_started()
@@ -64,6 +65,10 @@ class Agent:
             while True:
                 try:
                     prompt = await self.user_prompts()
+
+                    if self._pending_agent_switch:
+                        return AgentSwitch(self._pending_agent_switch)
+
                     if not prompt:
                         break
                     tool_result = await self.run_tool_loop()
@@ -87,6 +92,10 @@ class Agent:
 
         while prompt and self._is_slash_command(prompt):
             await self._handle_slash_command(prompt)
+
+            if self._pending_agent_switch:
+                return None
+
             await self._notify_user_prompt_requested()
             prompt = await self.user_input.read_async()
 
@@ -141,7 +150,7 @@ class Agent:
             await self._notify_error_occured(f"Unknown agent type: {agent_type}")
             return
 
-        raise SwitchAgent(agent_type)
+        self._pending_agent_switch = agent_type
 
     async def run_tool_loop(self):
         try:

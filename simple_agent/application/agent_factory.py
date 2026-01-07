@@ -1,6 +1,8 @@
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.agent_library import AgentLibrary
+from simple_agent.application.agent_switch import AgentSwitch
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.event_bus import EventBus
 from simple_agent.application.input import Input
@@ -56,10 +58,21 @@ class AgentFactory:
             agent_id = parent_agent_id.create_subagent_id(
                 definition.agent_name(), self._agent_suffixer
             )
-            subagent = self.create_agent(
-                agent_id, definition, task_description, Messages()
-            )
-            return await subagent.start()
+            messages = Messages()
+            initial_message = task_description
+
+            while True:
+                subagent = self.create_agent(
+                    agent_id, definition, initial_message, messages
+                )
+                result = await subagent.start()
+                if isinstance(result, AgentSwitch):
+                    agent_type = AgentType(result.agent_type)
+                    definition = self._agent_library.read_agent_definition(agent_type)
+                    initial_message = None
+                    continue
+
+                return result
 
         return spawn
 
