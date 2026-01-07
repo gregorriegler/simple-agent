@@ -55,7 +55,6 @@ class Agent:
             available_models=llm_provider.get_available_models(),
             available_agents=available_agents,
         )
-        self._pending_agent_switch: str | None = None
 
     async def start(self):
         self._notify_agent_started()
@@ -66,8 +65,8 @@ class Agent:
                 try:
                     prompt = await self.user_prompts()
 
-                    if self._pending_agent_switch:
-                        return AgentSwitch(self._pending_agent_switch)
+                    if isinstance(prompt, AgentSwitch):
+                        return prompt
 
                     if not prompt:
                         break
@@ -91,10 +90,9 @@ class Agent:
         prompt = await self.user_input.read_async()
 
         while prompt and self._is_slash_command(prompt):
-            await self._handle_slash_command(prompt)
-
-            if self._pending_agent_switch:
-                return None
+            result = await self._handle_slash_command(prompt)
+            if isinstance(result, AgentSwitch):
+                return result
 
             await self._notify_user_prompt_requested()
             prompt = await self.user_input.read_async()
@@ -133,7 +131,7 @@ class Agent:
                 except Exception as e:
                     await self._notify_error_occured(str(e))
         elif prompt.startswith("/agent"):
-            await self._handle_agent_command(prompt)
+            return await self._handle_agent_command(prompt)
 
     async def _handle_agent_command(self, prompt: str):
         if not self.available_agents:
@@ -150,7 +148,7 @@ class Agent:
             await self._notify_error_occured(f"Unknown agent type: {agent_type}")
             return
 
-        self._pending_agent_switch = agent_type
+        return AgentSwitch(agent_type)
 
     async def run_tool_loop(self):
         try:
