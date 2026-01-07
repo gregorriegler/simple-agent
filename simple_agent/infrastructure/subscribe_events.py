@@ -1,6 +1,5 @@
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
-    AgentChangedEvent,
     AgentFinishedEvent,
     AgentStartedEvent,
     AssistantRespondedEvent,
@@ -39,7 +38,6 @@ def subscribe_events(
     event_bus.subscribe(ErrorEvent, event_logger.log_event)
     event_bus.subscribe(SessionEndedEvent, event_logger.log_event)
     event_bus.subscribe(AgentStartedEvent, event_logger.log_event)
-    event_bus.subscribe(AgentChangedEvent, event_logger.log_event)
     event_bus.subscribe(
         AgentFinishedEvent,
         lambda event: todo_cleanup.cleanup_todos_for_agent(event.agent_id)
@@ -65,7 +63,6 @@ def subscribe_events(
         event_bus.subscribe(AssistantSaidEvent, _post_domain_event)
         event_bus.subscribe(AssistantRespondedEvent, _post_domain_event)
         event_bus.subscribe(ModelChangedEvent, _post_domain_event)
-        event_bus.subscribe(AgentChangedEvent, _post_domain_event)
         event_bus.subscribe(ToolCalledEvent, _post_domain_event)
         event_bus.subscribe(ToolResultEvent, _post_domain_event)
         event_bus.subscribe(ToolCancelledEvent, _post_domain_event)

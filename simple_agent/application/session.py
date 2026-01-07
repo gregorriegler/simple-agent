@@ -3,9 +3,11 @@ from dataclasses import dataclass
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import EventBus
 from simple_agent.application.events import SessionStartedEvent
+from simple_agent.application.exceptions import SwitchAgent
 from simple_agent.application.llm import LLMProvider
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.project_tree import ProjectTree
@@ -75,8 +77,19 @@ class Session:
             persisted_messages = PersistedMessages(self._session_storage)
 
         agent_definition = self._agent_library._starting_agent_definition()
-        agent = agent_factory.create_agent(
-            starting_agent_id, agent_definition, args.start_message, persisted_messages
-        )
 
-        await agent.start()
+        while True:
+            agent = agent_factory.create_agent(
+                starting_agent_id,
+                agent_definition,
+                args.start_message,
+                persisted_messages,
+            )
+
+            try:
+                await agent.start()
+                break
+            except SwitchAgent as e:
+                agent_type = AgentType(e.agent_type)
+                agent_definition = self._agent_library.read_agent_definition(agent_type)
+                args.start_message = None

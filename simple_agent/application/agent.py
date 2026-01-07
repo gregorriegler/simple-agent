@@ -3,12 +3,8 @@ import asyncio
 from simple_agent.logging_config import get_logger
 
 from .agent_id import AgentId
-from .agent_library import AgentLibrary
-from .agent_type import AgentType
-from .agent_types import AgentTypes
 from .event_bus import EventBus
 from .events import (
-    AgentChangedEvent,
     AgentFinishedEvent,
     AgentStartedEvent,
     AssistantRespondedEvent,
@@ -21,14 +17,11 @@ from .events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
+from .exceptions import SwitchAgent
 from .input import Input
 from .llm import LLM, LLMProvider, Messages
-from .project_tree import ProjectTree
 from .slash_command_registry import SlashCommandRegistry
-from .subagent_spawner import SubagentSpawner
-from .tool_documentation import generate_tools_documentation
 from .tool_library import MessageAndParsedTools, ToolLibrary
-from .tool_library_factory import ToolContext, ToolLibraryFactory
 from .tool_results import SingleToolResult, ToolResult, ToolResultStatus
 from .tools_executor import ToolsExecutor
 
@@ -46,10 +39,7 @@ class Agent:
         user_input: Input,
         event_bus: EventBus,
         context: Messages,
-        agent_library: AgentLibrary | None = None,
-        tool_library_factory: ToolLibraryFactory | None = None,
-        project_tree: ProjectTree | None = None,
-        subagent_spawner: SubagentSpawner | None = None,
+        available_agents: list[str] | None = None,
     ):
         self.agent_id = agent_id
         self.agent_name = agent_name
@@ -60,15 +50,10 @@ class Agent:
         self.event_bus = event_bus
         self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
         self.context: Messages = context
-        self.agent_library = agent_library
-        self.tool_library_factory = tool_library_factory
-        self.project_tree = project_tree
-        self.subagent_spawner = subagent_spawner
+        self.available_agents = available_agents
         self.slash_command_registry = SlashCommandRegistry(
             available_models=llm_provider.get_available_models(),
-            available_agents=agent_library.list_agent_types()
-            if agent_library
-            else None,
+            available_agents=available_agents,
         )
 
     async def start(self):
@@ -142,12 +127,7 @@ class Agent:
             await self._handle_agent_command(prompt)
 
     async def _handle_agent_command(self, prompt: str):
-        if (
-            not self.agent_library
-            or not self.tool_library_factory
-            or not self.project_tree
-            or not self.subagent_spawner
-        ):
+        if not self.available_agents:
             await self._notify_error_occured("Agent switching is not available.")
             return
 
@@ -156,48 +136,12 @@ class Agent:
             await self._notify_error_occured("Usage: /agent <agent-type>")
             return
 
-        agent_type_str = parts[1]
-
-        if agent_type_str not in self.agent_library.list_agent_types():
-            await self._notify_error_occured(f"Unknown agent type: {agent_type_str}")
+        agent_type = parts[1]
+        if agent_type not in self.available_agents:
+            await self._notify_error_occured(f"Unknown agent type: {agent_type}")
             return
 
-        try:
-            agent_type = AgentType(agent_type_str)
-            definition = self.agent_library.read_agent_definition(agent_type)
-
-            self.agent_name = definition.agent_name()
-
-            # Update Model
-            model_name = definition.model()
-            if model_name:
-                self.llm = self.llm_provider.get(model_name)
-
-            # Update Tools
-            tool_context = ToolContext(definition.tool_keys(), self.agent_id)
-            tools = self.tool_library_factory.create(
-                tool_context,
-                self.subagent_spawner,
-                AgentTypes(self.agent_library.list_agent_types()),
-            )
-            self.tools = tools
-            self.tools_executor = ToolsExecutor(
-                self.tools, self.event_bus, self.agent_id
-            )
-
-            # Update System Prompt
-            tools_documentation = generate_tools_documentation(
-                tools.tools, tools.tool_syntax
-            )
-            system_prompt = definition.prompt().render(
-                tools_documentation, self.project_tree
-            )
-            self.context.seed_system_prompt(system_prompt)
-
-            self.event_bus.publish(AgentChangedEvent(self.agent_id, definition))
-
-        except Exception as e:
-            await self._notify_error_occured(str(e))
+        raise SwitchAgent(agent_type)
 
     async def run_tool_loop(self):
         try:

@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, ClassVar
 
-from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_results import ToolResult
 
@@ -102,9 +101,3 @@ class ModelChangedEvent(AgentEvent):
     event_name: ClassVar[str] = "model_changed"
     old_model: str = ""
     new_model: str = ""
-
-
-@dataclass
-class AgentChangedEvent(AgentEvent):
-    event_name: ClassVar[str] = "agent_changed"
-    agent_definition: AgentDefinition | None = None
