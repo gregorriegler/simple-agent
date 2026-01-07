@@ -12,6 +12,11 @@ from simple_agent.application.llm import (
     TokenUsage,
 )
 from simple_agent.application.session import Session
+from simple_agent.application.slash_command_registry import (
+    SlashCommand,
+    SlashCommandRegistry,
+)
+from simple_agent.application.slash_commands import model_handler
 from simple_agent.application.todo_cleanup import TodoCleanup
 from tests.session_storage_stub import SessionStorageStub
 from tests.system_prompt_generator_test import GroundRulesStub
@@ -93,6 +98,9 @@ async def test_model_switching_uses_new_llm_instance():
         escapes=[False, False, False],
     )
 
+    registry = SlashCommandRegistry()
+    registry.register(SlashCommand("/model", "desc", model_handler))
+
     session = Session(
         event_bus=event_bus,
         session_storage=SessionStorageStub(),
@@ -108,6 +116,7 @@ async def test_model_switching_uses_new_llm_instance():
         todo_cleanup=TodoCleanupStub(),
         llm_provider=llm_provider,
         project_tree=DummyProjectTree(),
+        slash_command_registry=registry,
     )
 
     # Run

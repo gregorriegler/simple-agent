@@ -20,6 +20,15 @@ from simple_agent.application.events import (
 from simple_agent.application.llm import LLMResponse
 from simple_agent.application.llm_stub import StubLLMProvider, create_llm_stub
 from simple_agent.application.session import Session
+from simple_agent.application.slash_command_registry import (
+    SlashCommand,
+    SlashCommandRegistry,
+)
+from simple_agent.application.slash_commands import (
+    clear_handler,
+    create_agent_handler,
+    model_handler,
+)
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from tests.event_spy import EventSpy
 from tests.session_storage_stub import SessionStorageStub
@@ -142,15 +151,37 @@ class SessionTestBed:
             event_bus=event_bus,
         )
 
+        agent_library = TestAgentLibrary()
+        slash_command_registry = SlashCommandRegistry()
+        slash_command_registry.register(
+            SlashCommand(
+                "/agent",
+                "",
+                handler=create_agent_handler(agent_library.list_agent_types()),
+            )
+        )
+        slash_command_registry.register(
+            SlashCommand(
+                "/model",
+                "",
+                handler=model_handler,
+                arg_completer=lambda: ["default-model"],
+            )
+        )
+        slash_command_registry.register(
+            SlashCommand("/clear", "", handler=clear_handler)
+        )
+
         session = Session(
             event_bus=event_bus,
             session_storage=session_storage,
             tool_library_factory=tool_library_factory,
-            agent_library=TestAgentLibrary(),
+            agent_library=agent_library,
             user_input=user_input,
             todo_cleanup=todo_cleanup,
             llm_provider=StubLLMProvider.for_testing(self._llm),
             project_tree=DummyProjectTree(),
+            slash_command_registry=slash_command_registry,
         )
 
         await session.run_async(

@@ -39,6 +39,10 @@ class ToolLibraryStub(AllTools):
             agent_types if agent_types is not None else AgentTypes.empty()
         )
         if actual_tool_context is None:
+            from simple_agent.application.slash_command_registry import (
+                SlashCommandRegistry,
+            )
+
             tool_syntax = EmojiBracketToolSyntax()
             tool_library_factory = AllToolsFactory(tool_syntax)
             agent_library = BuiltinAgentLibrary()
@@ -51,6 +55,7 @@ class ToolLibraryStub(AllTools):
                 user_input=UserInputStub(inputs=inputs, escapes=escapes),
                 llm_provider=StubLLMProvider.for_testing(llm),
                 project_tree=DummyProjectTree(),
+                slash_command_registry=SlashCommandRegistry(),
             )
 
             agent_id = AgentId("Agent")

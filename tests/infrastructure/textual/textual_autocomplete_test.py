@@ -60,7 +60,14 @@ class StubUserInput:
 
 @pytest.fixture
 def app():
-    return TextualApp(StubUserInput(), AgentId("Agent"))
+    registry = SlashCommandRegistry()
+    registry.register(
+        SlashCommand("/clear", "Clear conversation history", handler=lambda *_: None)
+    )
+    registry.register(SlashCommand("/model", "Change model", handler=lambda *_: None))
+    return TextualApp(
+        StubUserInput(), AgentId("Agent"), slash_command_registry=registry
+    )
 
 
 @pytest.mark.asyncio
@@ -147,6 +154,10 @@ async def test_triggered_suggestion_provider_check_logic():
 
 def test_get_autocomplete_suggestions_for_slash():
     registry = SlashCommandRegistry()
+    registry.register(
+        SlashCommand("/clear", "Clear conversation history", handler=lambda *_: None)
+    )
+    registry.register(SlashCommand("/model", "Change model", handler=lambda *_: None))
 
     suggestions = registry.get_matching_commands("/")
 
@@ -157,6 +168,7 @@ def test_get_autocomplete_suggestions_for_slash():
 
 def test_get_autocomplete_suggestions_for_partial():
     registry = SlashCommandRegistry()
+    registry.register(SlashCommand("/model", "Change model", handler=lambda *_: None))
 
     suggestions = registry.get_matching_commands("/m")
 
@@ -166,6 +178,7 @@ def test_get_autocomplete_suggestions_for_partial():
 
 def test_no_suggestions_for_regular_text():
     registry = SlashCommandRegistry()
+    registry.register(SlashCommand("/model", "Change model", handler=lambda *_: None))
 
     suggestions = registry.get_matching_commands("hello")
 
@@ -251,7 +264,11 @@ def test_calculate_autocomplete_position_edge_cases():
 @pytest.mark.asyncio
 async def test_submit_hides_autocomplete_popup():
     user_input = StubUserInput()
-    app = TextualApp(user_input, AgentId("Agent"))
+    registry = SlashCommandRegistry()
+    registry.register(
+        SlashCommand("/clear", "Clear conversation history", handler=lambda *_: None)
+    )
+    app = TextualApp(user_input, AgentId("Agent"), slash_command_registry=registry)
 
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
@@ -273,7 +290,11 @@ async def test_submit_hides_autocomplete_popup():
 @pytest.mark.asyncio
 async def test_autocomplete_popup_keeps_initial_x_position():
     user_input = StubUserInput()
-    app = TextualApp(user_input, AgentId("Agent"))
+    registry = SlashCommandRegistry()
+    registry.register(
+        SlashCommand("/clear", "Clear conversation history", handler=lambda *_: None)
+    )
+    app = TextualApp(user_input, AgentId("Agent"), slash_command_registry=registry)
 
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
@@ -301,7 +322,11 @@ async def test_autocomplete_popup_keeps_initial_x_position():
 @pytest.mark.asyncio
 async def test_enter_key_selects_autocomplete_when_visible():
     user_input = StubUserInput()
-    app = TextualApp(user_input, AgentId("Agent"))
+    registry = SlashCommandRegistry()
+    registry.register(
+        SlashCommand("/clear", "Clear conversation history", handler=lambda *_: None)
+    )
+    app = TextualApp(user_input, AgentId("Agent"), slash_command_registry=registry)
 
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
@@ -326,7 +351,11 @@ async def test_enter_key_selects_autocomplete_when_visible():
 @pytest.mark.asyncio
 async def test_enter_key_submits_when_autocomplete_not_visible():
     user_input = StubUserInput()
-    app = TextualApp(user_input, AgentId("Agent"))
+    registry = SlashCommandRegistry()
+    registry.register(
+        SlashCommand("/clear", "Clear conversation history", handler=lambda *_: None)
+    )
+    app = TextualApp(user_input, AgentId("Agent"), slash_command_registry=registry)
 
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
@@ -561,6 +590,7 @@ async def test_slash_command_argument_suggestions_appear():
     registry._commands["/test"] = SlashCommand(
         name="/test",
         description="Test command",
+        handler=lambda *_: None,
         arg_completer=lambda: ["option1", "option2", "other"],
     )
     provider = CompositeSuggestionProvider(
@@ -594,6 +624,7 @@ async def test_slash_command_argument_filtering():
     registry._commands["/test"] = SlashCommand(
         name="/test",
         description="Test command",
+        handler=lambda *_: None,
         arg_completer=lambda: ["option1", "option2", "other"],
     )
     provider = CompositeSuggestionProvider(
@@ -632,7 +663,15 @@ async def test_slash_command_argument_no_trigger_if_no_space():
 @pytest.mark.asyncio
 async def test_model_command_integration():
     # Test with real registry and /model command
-    registry = SlashCommandRegistry()  # Uses real ModelInfo
+    registry = SlashCommandRegistry()
+    registry.register(
+        SlashCommand(
+            "/model",
+            "Change model",
+            handler=lambda *_: None,
+            arg_completer=lambda: ["gpt-5.1-codex"],
+        )
+    )
     provider = SlashCommandArgumentProvider(registry)
     trigger = SlashCommandArgumentTrigger()
 

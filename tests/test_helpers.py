@@ -22,6 +22,7 @@ def create_all_tools_for_test():
     from simple_agent.application.event_bus import SimpleEventBus
     from simple_agent.application.llm_stub import StubLLMProvider
     from simple_agent.application.session_storage import NoOpSessionStorage
+    from simple_agent.application.slash_command_registry import SlashCommandRegistry
     from simple_agent.application.tool_library_factory import ToolContext
     from simple_agent.tools.all_tools import AllToolsFactory
 
@@ -38,6 +39,7 @@ def create_all_tools_for_test():
         UserInputStub(),
         StubLLMProvider.dummy(),
         DummyProjectTree(),
+        SlashCommandRegistry(),
     )
 
     agent_id = AgentId("Agent")

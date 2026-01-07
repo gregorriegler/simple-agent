@@ -4,8 +4,17 @@ from simple_agent.application.slash_command_registry import (
 )
 
 
+async def dummy_handler(args, agent):
+    pass
+
+
 def test_registry_returns_all_commands():
     registry = SlashCommandRegistry()
+    registry.register(
+        SlashCommand("/clear", "Clear conversation history", dummy_handler)
+    )
+    registry.register(SlashCommand("/model", "Change model", dummy_handler))
+
     commands = registry.get_all_commands()
 
     assert "/clear" in commands
@@ -14,6 +23,7 @@ def test_registry_returns_all_commands():
 
 def test_registry_filters_commands_by_prefix():
     registry = SlashCommandRegistry()
+    registry.register(SlashCommand("/model", "Change model", dummy_handler))
 
     # Test filtering with "/m"
     matches = registry.get_matching_commands("/m")
@@ -23,6 +33,11 @@ def test_registry_filters_commands_by_prefix():
 
 def test_registry_returns_all_on_slash_only():
     registry = SlashCommandRegistry()
+    registry.register(
+        SlashCommand("/clear", "Clear conversation history", dummy_handler)
+    )
+    registry.register(SlashCommand("/model", "Change model", dummy_handler))
+
     matches = registry.get_matching_commands("/")
 
     assert len(matches) == 2
@@ -39,22 +54,17 @@ def test_registry_returns_empty_for_no_matches():
 
 def test_slash_command_has_description():
     registry = SlashCommandRegistry()
+    registry.register(
+        SlashCommand("/clear", "Clear conversation history", dummy_handler)
+    )
     matches = registry.get_matching_commands("/clear")
 
     assert len(matches) == 1
     assert matches[0].description == "Clear conversation history"
 
 
-def test_model_command_has_description():
-    registry = SlashCommandRegistry()
-    matches = registry.get_matching_commands("/model")
-
-    assert len(matches) == 1
-    assert matches[0].description == "Change model"
-
-
 def test_slash_command_dataclass_has_name_and_description():
-    cmd = SlashCommand(name="/test", description="Test command")
+    cmd = SlashCommand(name="/test", description="Test command", handler=dummy_handler)
 
     assert cmd.name == "/test"
     assert cmd.description == "Test command"
@@ -66,7 +76,10 @@ def test_slash_command_with_arg_completer():
         return ["arg1", "arg2"]
 
     cmd = SlashCommand(
-        name="/test", description="Test command", arg_completer=dummy_completer
+        name="/test",
+        description="Test command",
+        handler=dummy_handler,
+        arg_completer=dummy_completer,
     )
 
     assert cmd.arg_completer is not None

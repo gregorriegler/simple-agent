@@ -12,6 +12,7 @@ from simple_agent.application.llm import LLMProvider
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.session_storage import SessionStorage
+from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.todo_cleanup import TodoCleanup
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from simple_agent.application.user_input import UserInput
@@ -39,6 +40,7 @@ class Session:
         todo_cleanup: TodoCleanup,
         llm_provider: LLMProvider,
         project_tree: ProjectTree,
+        slash_command_registry: SlashCommandRegistry,
     ):
         self._event_bus = event_bus
         self._session_storage = session_storage
@@ -48,6 +50,7 @@ class Session:
         self._todo_cleanup = todo_cleanup
         self._llm_provider = llm_provider
         self._project_tree = project_tree
+        self._slash_command_registry = slash_command_registry
 
     async def run_async(
         self,
@@ -62,6 +65,7 @@ class Session:
             self._user_input,
             self._llm_provider,
             self._project_tree,
+            self._slash_command_registry,
         )
 
         self._event_bus.publish(

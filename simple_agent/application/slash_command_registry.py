@@ -1,42 +1,22 @@
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-
-from simple_agent.application.model_info import ModelInfo
+from typing import Any
 
 
 @dataclass
 class SlashCommand:
     name: str
     description: str
+    handler: Callable[[str, Any], Awaitable[Any] | Any]
     arg_completer: Callable[[], list[str]] | None = None
 
 
 class SlashCommandRegistry:
-    def __init__(
-        self,
-        available_models: list[str] | None = None,
-        available_agents: list[str] | None = None,
-    ):
-        if available_models is None:
-            available_models = list(ModelInfo.KNOWN_MODELS.keys())
-        if available_agents is None:
-            available_agents = []
+    def __init__(self):
+        self._commands: dict[str, SlashCommand] = {}
 
-        self._commands = {
-            "/clear": SlashCommand(
-                name="/clear", description="Clear conversation history"
-            ),
-            "/model": SlashCommand(
-                name="/model",
-                description="Change model",
-                arg_completer=lambda: available_models,
-            ),
-            "/agent": SlashCommand(
-                name="/agent",
-                description="Change agent",
-                arg_completer=lambda: available_agents,
-            ),
-        }
+    def register(self, command: SlashCommand):
+        self._commands[command.name] = command
 
     def get_all_commands(self) -> list[str]:
         """Returns a list of all command names."""

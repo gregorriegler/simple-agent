@@ -18,6 +18,17 @@ from simple_agent.application.events import UserPromptRequestedEvent
 from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.session import Session, SessionArgs
 from simple_agent.application.session_storage import NoOpSessionStorage
+from simple_agent.application.slash_command_registry import (
+    SlashCommand,
+    SlashCommandRegistry,
+)
+from simple_agent.application.slash_commands import (
+    clear_handler,
+    create_agent_handler,
+    exit_handler,
+    model_handler,
+    quit_handler,
+)
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
@@ -107,6 +118,49 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
 
     project_tree = FileSystemProjectTree(Path(cwd))
 
+    slash_command_registry = SlashCommandRegistry()
+    slash_command_registry.register(
+        SlashCommand(
+            name="/clear",
+            description="Clear conversation history",
+            handler=clear_handler,
+        )
+    )
+    slash_command_registry.register(
+        SlashCommand(
+            name="/quit",
+            description="Quit the application",
+            handler=quit_handler,
+        )
+    )
+    slash_command_registry.register(
+        SlashCommand(
+            name="/exit",
+            description="Quit the application",
+            handler=exit_handler,
+        )
+    )
+
+    available_models = llm_provider.get_available_models()
+    slash_command_registry.register(
+        SlashCommand(
+            name="/model",
+            description="Change model",
+            handler=model_handler,
+            arg_completer=lambda: available_models,
+        )
+    )
+
+    available_agents = agent_library.list_agent_types()
+    slash_command_registry.register(
+        SlashCommand(
+            name="/agent",
+            description="Change agent",
+            handler=create_agent_handler(available_agents),
+            arg_completer=lambda: available_agents,
+        )
+    )
+
     session = Session(
         event_bus=event_bus,
         session_storage=session_storage,
@@ -116,13 +170,14 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
         todo_cleanup=todo_cleanup,
         llm_provider=llm_provider,
         project_tree=project_tree,
+        slash_command_registry=slash_command_registry,
     )
 
     starting_agent_id = agent_library.starting_agent_id().with_root(Path(cwd))
     textual_app = TextualApp(
         textual_user_input,
         starting_agent_id,
-        available_models=llm_provider.get_available_models(),
+        slash_command_registry=slash_command_registry,
     )
     subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
     if event_subscriber:
@@ -175,6 +230,7 @@ def print_system_prompt_command(user_config, cwd, args):
         DummyUserInput(),
         StubLLMProvider.dummy(),
         FileSystemProjectTree(Path(cwd)),
+        SlashCommandRegistry(),
     )
     agent_definition = agent_library._starting_agent_definition()
     agent_id = AgentId("Agent", root=Path(cwd))

@@ -39,7 +39,7 @@ class Agent:
         user_input: Input,
         event_bus: EventBus,
         context: Messages,
-        available_agents: list[str] | None = None,
+        slash_command_registry: SlashCommandRegistry | None = None,
     ):
         self.agent_id = agent_id
         self.agent_name = agent_name
@@ -50,11 +50,7 @@ class Agent:
         self.event_bus = event_bus
         self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
         self.context: Messages = context
-        self.available_agents = available_agents
-        self.slash_command_registry = SlashCommandRegistry(
-            available_models=llm_provider.get_available_models(),
-            available_agents=available_agents,
-        )
+        self.slash_command_registry = slash_command_registry or SlashCommandRegistry()
 
     async def start(self):
         self._notify_agent_started()
@@ -113,42 +109,31 @@ class Agent:
 
     async def _handle_slash_command(self, prompt: str):
         """Handle slash commands using the registry."""
-        if prompt == "/clear":
-            self.context.clear()
-            self.event_bus.publish(SessionClearedEvent(self.agent_id))
-        elif prompt.startswith("/model"):
-            parts = prompt.split()
-            if len(parts) < 2:
-                await self._notify_error_occured("Usage: /model <model-name>")
-            else:
-                new_model = parts[1]
-                old_model = self.llm.model
-                try:
-                    self.llm = self.llm_provider.get(new_model)
-                    self.event_bus.publish(
-                        ModelChangedEvent(self.agent_id, old_model, new_model)
-                    )
-                except Exception as e:
-                    await self._notify_error_occured(str(e))
-        elif prompt.startswith("/agent"):
-            return await self._handle_agent_command(prompt)
+        command_name = prompt.split()[0]
+        command = self.slash_command_registry.get_command(command_name)
+        if command:
+            args = prompt[len(command_name) :].strip()
+            return await command.handler(args, self)
 
-    async def _handle_agent_command(self, prompt: str):
-        if not self.available_agents:
-            await self._notify_error_occured("Agent switching is not available.")
-            return
+    async def update_model(self, new_model: str):
+        old_model = self.llm.model
+        try:
+            self.llm = self.llm_provider.get(new_model)
+            self.event_bus.publish(
+                ModelChangedEvent(self.agent_id, old_model, new_model)
+            )
+        except Exception as e:
+            await self.notify_error(str(e))
 
-        parts = prompt.split()
-        if len(parts) < 2:
-            await self._notify_error_occured("Usage: /agent <agent-type>")
-            return
+    async def clear_session(self):
+        self.context.clear()
+        self.event_bus.publish(SessionClearedEvent(self.agent_id))
 
-        agent_type = parts[1]
-        if agent_type not in self.available_agents:
-            await self._notify_error_occured(f"Unknown agent type: {agent_type}")
-            return
+    def quit(self):
+        self.user_input.user_input.close()
 
-        return AgentSwitch(agent_type)
+    async def notify_error(self, message: str):
+        self.event_bus.publish(ErrorEvent(self.agent_id, message))
 
     async def run_tool_loop(self):
         try:
@@ -228,7 +213,7 @@ class Agent:
         self.event_bus.publish(SessionEndedEvent(self.agent_id))
 
     async def _notify_error_occured(self, e):
-        self.event_bus.publish(ErrorEvent(self.agent_id, str(e)))
+        await self.notify_error(str(e))
 
     async def _notify_session_interrupted(self):
         self.event_bus.publish(SessionInterruptedEvent(self.agent_id))

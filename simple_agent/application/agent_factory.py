@@ -9,6 +9,7 @@ from simple_agent.application.input import Input
 from simple_agent.application.llm import LLMProvider, Messages
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.session_storage import SessionStorage
+from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.tool_library_factory import (
@@ -28,6 +29,7 @@ class AgentFactory:
         user_input: UserInput,
         llm_provider: LLMProvider,
         project_tree: ProjectTree,
+        slash_command_registry: SlashCommandRegistry,
     ):
         self._event_bus = event_bus
         self._session_storage = session_storage
@@ -37,6 +39,7 @@ class AgentFactory:
         self._agent_suffixer = AgentIdSuffixer()
         self._llm_provider = llm_provider
         self._project_tree = project_tree
+        self._slash_command_registry = slash_command_registry
 
     @property
     def event_bus(self) -> EventBus:
@@ -105,5 +108,5 @@ class AgentFactory:
             self.create_input(initial_message),
             self._event_bus,
             messages,
-            available_agents=self._agent_library.list_agent_types(),
+            slash_command_registry=self._slash_command_registry,
         )
