@@ -92,4 +92,8 @@ class AgentFactory:
             self.create_input(initial_message),
             self._event_bus,
             messages,
+            agent_library=self._agent_library,
+            tool_library_factory=self._tool_library_factory,
+            project_tree=self._project_tree,
+            subagent_spawner=spawner,
         )

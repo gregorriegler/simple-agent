@@ -12,9 +12,15 @@ class SlashCommand:
 
 
 class SlashCommandRegistry:
-    def __init__(self, available_models: list[str] | None = None):
+    def __init__(
+        self,
+        available_models: list[str] | None = None,
+        available_agents: list[str] | None = None,
+    ):
         if available_models is None:
             available_models = list(ModelInfo.KNOWN_MODELS.keys())
+        if available_agents is None:
+            available_agents = []
 
         self._commands = {
             "/clear": SlashCommand(
@@ -24,6 +30,11 @@ class SlashCommandRegistry:
                 name="/model",
                 description="Change model",
                 arg_completer=lambda: available_models,
+            ),
+            "/agent": SlashCommand(
+                name="/agent",
+                description="Change agent",
+                arg_completer=lambda: available_agents,
             ),
         }
 

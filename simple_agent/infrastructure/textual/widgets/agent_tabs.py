@@ -5,6 +5,7 @@ from textual.widgets import TabbedContent, TabPane
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
+    AgentChangedEvent,
     AgentStartedEvent,
     AssistantRespondedEvent,
     AssistantSaidEvent,
@@ -221,6 +222,22 @@ class AgentTabs(TabbedContent):
             self._agent_models[agent_id] = event.new_model
             title = self._tab_title_for(agent_id, event.new_model, 0, 0)
             self.update_tab_title(agent_id, title)
+        elif isinstance(event, AgentChangedEvent):
+            if event.agent_definition:
+                agent_name = event.agent_definition.agent_name()
+                model = event.agent_definition.model()
+                if agent_name:
+                    self._agent_names[agent_id] = agent_name
+                if model:
+                    self._agent_models[agent_id] = model
+
+                title = self._tab_title_for(
+                    agent_id,
+                    self._agent_models.get(agent_id, ""),
+                    0,
+                    self._agent_max_tokens.get(agent_id, 0),
+                )
+                self.update_tab_title(agent_id, title)
 
     def _ensure_agent_tab_exists(
         self, agent_id: AgentId, agent_name: str | None, model: str
