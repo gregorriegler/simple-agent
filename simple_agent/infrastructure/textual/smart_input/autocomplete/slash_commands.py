@@ -77,17 +77,16 @@ class SlashCommandArgumentTrigger(AutocompleteTrigger):
                 return True
             return False
 
-        # If we have parts[1], we are in the argument section.
-        # But wait, CursorAndLine.word logic separates by space.
-        # If I type "/model ", word is "" (empty string after space).
-        # If I type "/model gpt", word is "gpt".
-
-        # We need to make sure the cursor is NOT in the first word (the command itself).
         first_space_index = line.find(" ")
         if first_space_index == -1:
             return False
 
         if cursor_and_line.cursor.col > first_space_index:
+            text_after_command = line[
+                first_space_index + 1 : cursor_and_line.cursor.col
+            ]
+            if " " in text_after_command:
+                return False
             return True
 
         return False
