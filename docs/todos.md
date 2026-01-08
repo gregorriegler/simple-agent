@@ -1,12 +1,12 @@
 # NOW
-- linter
-- agent slash command
+- command pattern
 
 # NEXT
 - proper session storage
 - async subagents
 - coverage drilldown slow because redoing the whole thing
 - the subagent tool description need to allow for a subscription per agent, so we can explain that a test-writer will only ever write a single test
+- agent slash command
 
 # LATER
 - rag for code
