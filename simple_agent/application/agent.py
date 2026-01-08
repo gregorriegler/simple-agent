@@ -19,7 +19,8 @@ from .events import (
 )
 from .input import Input
 from .llm import LLM, LLMProvider, Messages
-from .slash_command_registry import SlashCommandRegistry
+from .slash_command_registry import CommandParseError, SlashCommandRegistry
+from .slash_commands import ClearCommand, ModelCommand, SlashCommandVisitor
 from .tool_library import MessageAndParsedTools, ToolLibrary
 from .tool_results import SingleToolResult, ToolResult, ToolResultStatus
 from .tools_executor import ToolsExecutor
@@ -27,7 +28,7 @@ from .tools_executor import ToolsExecutor
 logger = get_logger(__name__)
 
 
-class Agent:
+class Agent(SlashCommandVisitor):
     def __init__(
         self,
         agent_id: AgentId,
@@ -101,24 +102,25 @@ class Agent:
         return command_name in all_commands
 
     async def _handle_slash_command(self, prompt: str):
-        """Handle slash commands using the registry."""
-        if prompt == "/clear":
-            self.context.clear()
-            self.event_bus.publish(SessionClearedEvent(self.agent_id))
-        elif prompt.startswith("/model"):
-            parts = prompt.split()
-            if len(parts) < 2:
-                await self._notify_error_occured("Usage: /model <model-name>")
-            else:
-                new_model = parts[1]
-                old_model = self.llm.model
-                try:
-                    self.llm = self.llm_provider.get(new_model)
-                    self.event_bus.publish(
-                        ModelChangedEvent(self.agent_id, old_model, new_model)
-                    )
-                except Exception as e:
-                    await self._notify_error_occured(str(e))
+        try:
+            command = self.slash_command_registry.parse(prompt)
+            await command.accept(self)
+        except CommandParseError as e:
+            await self._notify_error_occured(str(e))
+
+    async def clear_conversation(self, command: ClearCommand) -> None:
+        self.context.clear()
+        self.event_bus.publish(SessionClearedEvent(self.agent_id))
+
+    async def change_model(self, command: ModelCommand) -> None:
+        old_model = self.llm.model
+        try:
+            self.llm = self.llm_provider.get(command.model_name)
+            self.event_bus.publish(
+                ModelChangedEvent(self.agent_id, old_model, command.model_name)
+            )
+        except Exception as e:
+            await self._notify_error_occured(str(e))
 
     async def run_tool_loop(self):
         try:

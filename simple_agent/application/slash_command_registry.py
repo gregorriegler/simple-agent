@@ -1,14 +1,15 @@
 from collections.abc import Callable
-from dataclasses import dataclass
 
 from simple_agent.application.model_info import ModelInfo
+from simple_agent.application.slash_commands import (
+    ClearCommand,
+    ModelCommand,
+    SlashCommand,
+)
 
 
-@dataclass
-class SlashCommand:
-    name: str
-    description: str
-    arg_completer: Callable[[], list[str]] | None = None
+class CommandParseError(Exception):
+    pass
 
 
 class SlashCommandRegistry:
@@ -16,34 +17,64 @@ class SlashCommandRegistry:
         if available_models is None:
             available_models = list(ModelInfo.KNOWN_MODELS.keys())
 
-        self._commands = {
-            "/clear": SlashCommand(
-                name="/clear", description="Clear conversation history"
-            ),
-            "/model": SlashCommand(
-                name="/model",
-                description="Change model",
-                arg_completer=lambda: available_models,
-            ),
+        self._available_models = available_models
+        self._commands: dict[str, type[SlashCommand]] = {
+            "/clear": ClearCommand,
+            "/model": ModelCommand,
+        }
+        self._arg_completers: dict[str, Callable[[], list[str]]] = {
+            "/model": lambda: available_models,
         }
 
     def get_all_commands(self) -> list[str]:
-        """Returns a list of all command names."""
         return list(self._commands.keys())
 
-    def get_matching_commands(self, prefix: str) -> list[SlashCommand]:
-        """Returns commands that match the given prefix."""
+    def get_matching_commands(self, prefix: str) -> list[tuple[str, str]]:
         if prefix == "/":
-            # Return all commands when only "/" is typed
-            return list(self._commands.values())
+            return [
+                (name, self._get_command_instance(cmd_class).description)
+                for name, cmd_class in self._commands.items()
+            ]
 
         matching = []
-        for name, cmd in self._commands.items():
+        for name, cmd_class in self._commands.items():
             if name.startswith(prefix):
-                matching.append(cmd)
+                matching.append(
+                    (name, self._get_command_instance(cmd_class).description)
+                )
 
         return matching
 
-    def get_command(self, name: str) -> SlashCommand | None:
-        """Returns a command by name, or None if not found."""
-        return self._commands.get(name)
+    def get_command(self, name: str) -> tuple[str, str] | None:
+        cmd_class = self._commands.get(name)
+        if cmd_class:
+            instance = self._get_command_instance(cmd_class)
+            return (instance.name, instance.description)
+        return None
+
+    def get_arg_completer(self, command_name: str) -> Callable[[], list[str]] | None:
+        return self._arg_completers.get(command_name)
+
+    def parse(self, command_line: str) -> SlashCommand:
+        parts = command_line.split()
+        if not parts:
+            raise CommandParseError("Empty command")
+
+        command_name = parts[0]
+        args = parts[1:]
+
+        if command_name == "/clear":
+            if args:
+                raise CommandParseError("/clear does not take arguments")
+            return ClearCommand()
+        elif command_name == "/model":
+            if len(args) != 1:
+                raise CommandParseError("Usage: /model <model-name>")
+            return ModelCommand(args[0])
+        else:
+            raise CommandParseError(f"Unknown command: {command_name}")
+
+    def _get_command_instance(self, cmd_class: type[SlashCommand]) -> SlashCommand:
+        if cmd_class == ModelCommand:
+            return ModelCommand("dummy")
+        return cmd_class()

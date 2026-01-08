@@ -1,5 +1,3 @@
-from typing import Any
-
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.textual.smart_input.autocomplete import (
     AutocompleteTrigger,
@@ -12,15 +10,16 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete i
 
 
 class SlashCommandSuggestion:
-    def __init__(self, command: Any):
-        self.command = command
+    def __init__(self, name: str, description: str):
+        self.name = name
+        self.description = description
 
     @property
     def display_text(self) -> str:
-        return f"{self.command.name} - {self.command.description}"
+        return f"{self.name} - {self.description}"
 
     def to_completion_result(self) -> CompletionResult:
-        return CompletionResult(text=self.command.name + " ")
+        return CompletionResult(text=self.name + " ")
 
 
 class SlashAtStartOfLineTrigger(AutocompleteTrigger):
@@ -39,7 +38,9 @@ class SlashCommandProvider:
     async def suggest(self, cursor_and_line: CursorAndLine) -> SuggestionList:
         query = cursor_and_line.word
         commands = self.registry.get_matching_commands(query)
-        return SuggestionList([SlashCommandSuggestion(cmd) for cmd in commands])
+        return SuggestionList(
+            [SlashCommandSuggestion(name, desc) for name, desc in commands]
+        )
 
 
 class SlashCommandArgSuggestion:
@@ -102,10 +103,14 @@ class SlashCommandArgumentProvider:
         command_name = parts[0]
 
         command = self.registry.get_command(command_name)
-        if not command or not command.arg_completer:
+        if not command:
             return SuggestionList([])
 
-        candidates = command.arg_completer()
+        arg_completer = self.registry.get_arg_completer(command_name)
+        if not arg_completer:
+            return SuggestionList([])
+
+        candidates = arg_completer()
         query = cursor_and_line.word
 
         filtered = [

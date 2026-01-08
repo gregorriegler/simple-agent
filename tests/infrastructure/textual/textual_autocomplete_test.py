@@ -6,10 +6,7 @@ import pytest
 from textual.geometry import Offset, Size
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.slash_command_registry import (
-    SlashCommand,
-    SlashCommandRegistry,
-)
+from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.smart_input.autocomplete import (
     CompletionResult,
@@ -151,8 +148,9 @@ def test_get_autocomplete_suggestions_for_slash():
     suggestions = registry.get_matching_commands("/")
 
     assert len(suggestions) == 2
-    assert any(cmd.name == "/clear" for cmd in suggestions)
-    assert any(cmd.name == "/model" for cmd in suggestions)
+    names = [name for name, _ in suggestions]
+    assert "/clear" in names
+    assert "/model" in names
 
 
 def test_get_autocomplete_suggestions_for_partial():
@@ -161,7 +159,7 @@ def test_get_autocomplete_suggestions_for_partial():
     suggestions = registry.get_matching_commands("/m")
 
     assert len(suggestions) == 1
-    assert suggestions[0].name == "/model"
+    assert suggestions[0][0] == "/model"
 
 
 def test_no_suggestions_for_regular_text():
@@ -556,13 +554,23 @@ async def test_submittable_text_area_ctrl_enter(app: TextualApp):
 
 @pytest.mark.asyncio
 async def test_slash_command_argument_suggestions_appear():
+    from simple_agent.application.slash_commands import SlashCommand as BaseSlashCommand
+
+    class TestCommand(BaseSlashCommand):
+        @property
+        def name(self) -> str:
+            return "/test"
+
+        @property
+        def description(self) -> str:
+            return "Test command"
+
+        async def accept(self, visitor) -> None:
+            pass
+
     registry = SlashCommandRegistry()
-    # Mocking arg_completer for a test command
-    registry._commands["/test"] = SlashCommand(
-        name="/test",
-        description="Test command",
-        arg_completer=lambda: ["option1", "option2", "other"],
-    )
+    registry._commands["/test"] = TestCommand
+    registry._arg_completers["/test"] = lambda: ["option1", "option2", "other"]
     provider = CompositeSuggestionProvider(
         [
             TriggeredSuggestionProvider(
@@ -590,12 +598,23 @@ async def test_slash_command_argument_suggestions_appear():
 
 @pytest.mark.asyncio
 async def test_slash_command_argument_filtering():
+    from simple_agent.application.slash_commands import SlashCommand as BaseSlashCommand
+
+    class TestCommand(BaseSlashCommand):
+        @property
+        def name(self) -> str:
+            return "/test"
+
+        @property
+        def description(self) -> str:
+            return "Test command"
+
+        async def accept(self, visitor) -> None:
+            pass
+
     registry = SlashCommandRegistry()
-    registry._commands["/test"] = SlashCommand(
-        name="/test",
-        description="Test command",
-        arg_completer=lambda: ["option1", "option2", "other"],
-    )
+    registry._commands["/test"] = TestCommand
+    registry._arg_completers["/test"] = lambda: ["option1", "option2", "other"]
     provider = CompositeSuggestionProvider(
         [
             TriggeredSuggestionProvider(
