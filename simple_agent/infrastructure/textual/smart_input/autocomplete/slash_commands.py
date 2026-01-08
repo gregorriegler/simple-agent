@@ -82,9 +82,16 @@ class SlashCommandArgumentTrigger(AutocompleteTrigger):
             return False
 
         if cursor_and_line.cursor.col > first_space_index:
-            # We are in the argument section. The first space separates the command.
-            # We only want to trigger for the first argument.
-            # Any space after the first separator means we've moved past the first argument.
+            text_before_cursor = line[: cursor_and_line.cursor.col]
+
+            # If the cursor is immediately after a space, and that's not the first space
+            # after the command, then we've finished the argument.
+            if (
+                text_before_cursor.endswith(" ")
+                and cursor_and_line.cursor.col > first_space_index + 1
+            ):
+                return False
+
             text_after_separator = line[
                 first_space_index + 1 : cursor_and_line.cursor.col
             ]
