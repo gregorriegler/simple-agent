@@ -52,7 +52,7 @@ class SlashCommandArgSuggestion:
         return self.argument
 
     def to_completion_result(self) -> CompletionResult:
-        return CompletionResult(text=self.argument)
+        return CompletionResult(text=self.argument + " ")
 
 
 class SlashCommandArgumentTrigger(AutocompleteTrigger):
@@ -82,11 +82,15 @@ class SlashCommandArgumentTrigger(AutocompleteTrigger):
             return False
 
         if cursor_and_line.cursor.col > first_space_index:
-            text_after_command = line[
+            # We are in the argument section. The first space separates the command.
+            # We only want to trigger for the first argument.
+            # Any space after the first separator means we've moved past the first argument.
+            text_after_separator = line[
                 first_space_index + 1 : cursor_and_line.cursor.col
             ]
-            if " " in text_after_command:
+            if " " in text_after_separator:
                 return False
+
             return True
 
         return False
