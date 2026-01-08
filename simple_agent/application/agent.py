@@ -167,7 +167,7 @@ class Agent(SlashCommandVisitor):
         if response.usage and response.usage.input_token_limit:
             max_tokens = response.usage.input_token_limit
 
-        self.context.assistant_says(answer)
+        self.context.assistant_says(answer, metadata=response.provider_metadata)
         self.event_bus.publish(
             AssistantRespondedEvent(
                 self.agent_id,

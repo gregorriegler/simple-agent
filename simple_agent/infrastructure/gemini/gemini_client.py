@@ -65,6 +65,9 @@ class GeminiLLM(LLM):
 
         data = {
             "contents": gemini_contents,
+            "generationConfig": {
+                "thinkingConfig": {"include_thoughts": True}
+            },
         }
 
         headers = {
@@ -142,7 +145,12 @@ class GeminiLLM(LLM):
             else None,
         )
 
-        return LLMResponse(content=text_content, model=model, usage=usage)
+        return LLMResponse(
+            content=text_content,
+            model=model,
+            usage=usage,
+            provider_metadata={"gemini_parts": parts},
+        )
 
     def _convert_messages_to_gemini_format(self, messages: ChatMessages) -> list[dict]:
         """
@@ -171,7 +179,15 @@ class GeminiLLM(LLM):
 
                 gemini_contents.append({"role": "user", "parts": [{"text": content}]})
             elif role == "assistant":
-                gemini_contents.append({"role": "model", "parts": [{"text": content}]})
+                metadata = message.get("metadata", {})
+                if metadata and "gemini_parts" in metadata:
+                    gemini_contents.append(
+                        {"role": "model", "parts": metadata["gemini_parts"]}
+                    )
+                else:
+                    gemini_contents.append(
+                        {"role": "model", "parts": [{"text": content}]}
+                    )
 
         return gemini_contents
 

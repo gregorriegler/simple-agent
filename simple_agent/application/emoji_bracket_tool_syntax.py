@@ -165,12 +165,22 @@ class EmojiBracketToolSyntax(ToolSyntax):
                 # No more tool calls found
                 if not first_tool_found:
                     message = text
+                else:
+                    # Capture remaining text after last tool
+                    remaining = text[pos:]
+                    if remaining:
+                        message += remaining
                 break
 
-            # Capture message before first tool call
+            # Capture message before tool call
             if not first_tool_found:
                 message = text[:start_idx].rstrip()
                 first_tool_found = True
+            else:
+                # Capture text between tool calls
+                between_text = text[pos:start_idx]
+                if between_text:
+                    message += between_text
 
             # Find closing bracket for header - check for self-closing first
             header_start = start_idx + len(current_start_marker)

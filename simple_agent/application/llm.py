@@ -1,8 +1,8 @@
 from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Any, Protocol
 
-ChatMessage = dict[str, str]
+ChatMessage = dict[str, Any]
 ChatMessages = list[ChatMessage]
 
 
@@ -19,6 +19,7 @@ class LLMResponse:
     content: str
     model: str = ""
     usage: TokenUsage | None = None
+    provider_metadata: dict[str, Any] | None = None
 
     def __post_init__(self):
         if self.usage is None:
@@ -47,15 +48,18 @@ class Messages:
         self._messages: ChatMessages = list(messages) if messages is not None else []
         self.seed_system_prompt(system_prompt)
 
-    def user_says(self, content: str):
-        self.add("user", content)
+    def user_says(self, content: str, metadata: dict[str, Any] | None = None):
+        self.add("user", content, metadata)
 
-    def assistant_says(self, content: str):
-        self.add("assistant", content)
+    def assistant_says(self, content: str, metadata: dict[str, Any] | None = None):
+        self.add("assistant", content, metadata)
 
-    def add(self, role: str, content: str):
+    def add(self, role: str, content: str, metadata: dict[str, Any] | None = None):
         if content:
-            self._messages.append({"role": role, "content": content})
+            message: ChatMessage = {"role": role, "content": content}
+            if metadata:
+                message["metadata"] = metadata
+            self._messages.append(message)
 
     def seed_system_prompt(self, content: str | None):
         if not content:

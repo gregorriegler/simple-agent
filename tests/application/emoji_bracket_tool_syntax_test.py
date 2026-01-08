@@ -254,7 +254,8 @@ Both files have been defined."""
 
         result = syntax.parse(text)
 
-        assert result.message == "I will create two files for you."
+        assert "I will create two files for you." in result.message
+        assert "Both files have been defined." in result.message
         assert len(result.tool_calls) == 2
         assert result.tool_calls[0].name == "create-file"
         assert result.tool_calls[1].name == "create-file"
@@ -273,7 +274,8 @@ Hope that helps!"""
 
         result = syntax.parse(text)
 
-        assert result.message == "Here is your file:"
+        assert "Here is your file:" in result.message
+        assert "Hope that helps!" in result.message
         assert len(result.tool_calls) == 1
         assert result.tool_calls[0].name == "create-file"
 
@@ -286,7 +288,7 @@ Hope that helps!"""
 
         result = syntax.parse(text)
 
-        assert result.message == ""
+        assert "Hope that helps!" in result.message
         assert len(result.tool_calls) == 1
 
     def test_handles_tool_call_not_at_line_start(self):
@@ -298,6 +300,23 @@ Hope that helps!"""
         # According to spec, tool blocks can appear anywhere, not just at line start
         assert len(result.tool_calls) == 1
         assert result.tool_calls[0].name == "create-file"
+
+    def test_interleaved_thinking_text_is_preserved(self):
+        syntax = EmojiBracketToolSyntax()
+        text = """Thinking...
+🛠️[tool1 /]
+More thinking...
+🛠️[tool2 /]
+Final thought."""
+
+        result = syntax.parse(text)
+
+        # We expect all text to be captured in message, preserving the content.
+        # Spacing/newlines might vary but the content should be there.
+        assert "Thinking..." in result.message
+        assert "More thinking..." in result.message
+        assert "Final thought." in result.message
+        assert len(result.tool_calls) == 2
 
 
 class TestEmojiBracketNoToolCalls:
