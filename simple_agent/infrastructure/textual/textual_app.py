@@ -128,16 +128,16 @@ class TextualApp(App):
 
     def __init__(
         self,
+        slash_command_registry: SlashCommandRegistry,
         user_input=None,
         root_agent_id: AgentId | None = None,
-        slash_command_registry: SlashCommandRegistry | None = None,
     ):
         super().__init__()
         self.user_input = user_input
         self._root_agent_id = root_agent_id or AgentId("Agent")
         self._session_runner: Callable[[], Coroutine[Any, Any, None]] | None = None
         self._session_task: asyncio.Task | None = None
-        self._slash_command_registry = slash_command_registry or SlashCommandRegistry()
+        self._slash_command_registry = slash_command_registry
         self._file_searcher = NativeFileSearcher()
         self.file_loader = XmlFormattingFileLoader(DiskFileLoader())
 

@@ -175,9 +175,9 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
 
     starting_agent_id = agent_library.starting_agent_id().with_root(Path(cwd))
     textual_app = TextualApp(
+        slash_command_registry,
         textual_user_input,
         starting_agent_id,
-        slash_command_registry=slash_command_registry,
     )
     subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
     if event_subscriber:

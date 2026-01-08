@@ -3,6 +3,7 @@ import asyncio
 import pytest
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 
 
@@ -32,7 +33,7 @@ async def test_action_quit_cancels_session_task():
             raise
 
     user_input = StubUserInput()
-    app = TextualApp(user_input, AgentId("Agent"))
+    app = TextualApp(SlashCommandRegistry(), user_input, AgentId("Agent"))
     app._session_runner = session_runner
 
     async with app.run_test() as pilot:

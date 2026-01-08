@@ -38,3 +38,14 @@ class SlashCommandRegistry:
     def get_command(self, name: str) -> SlashCommand | None:
         """Returns a command by name, or None if not found."""
         return self._commands.get(name)
+
+    def parse(self, text: str) -> tuple[SlashCommand, str] | None:
+        if not text.startswith("/"):
+            return None
+        parts = text.split(" ", 1)
+        command_name = parts[0]
+        command = self.get_command(command_name)
+        if command:
+            args = parts[1] if len(parts) > 1 else ""
+            return command, args.strip()
+        return None

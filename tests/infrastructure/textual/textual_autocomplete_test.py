@@ -65,9 +65,7 @@ def app():
         SlashCommand("/clear", "Clear conversation history", handler=lambda *_: None)
     )
     registry.register(SlashCommand("/model", "Change model", handler=lambda *_: None))
-    return TextualApp(
-        StubUserInput(), AgentId("Agent"), slash_command_registry=registry
-    )
+    return TextualApp(registry, StubUserInput(), AgentId("Agent"))
 
 
 @pytest.mark.asyncio
@@ -84,7 +82,7 @@ async def test_slash_command_registry_available_in_textarea():
     textarea = SmartInput(provider=provider)
 
     # Mount to trigger popup creation
-    app = TextualApp(StubUserInput(), AgentId("Agent"))
+    app = TextualApp(SlashCommandRegistry(), StubUserInput(), AgentId("Agent"))
     async with app.run_test() as pilot:
         await pilot.pause()
         await app.mount(textarea)
@@ -268,7 +266,10 @@ async def test_submit_hides_autocomplete_popup():
     registry.register(
         SlashCommand("/clear", "Clear conversation history", handler=lambda *_: None)
     )
-    app = TextualApp(user_input, AgentId("Agent"), slash_command_registry=registry)
+    app = TextualApp(registry, user_input, AgentId("Agent"))
+    app = TextualApp(registry, user_input, AgentId("Agent"))
+    app = TextualApp(registry, user_input, AgentId("Agent"))
+    app = TextualApp(registry, user_input, AgentId("Agent"))
 
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
@@ -294,7 +295,7 @@ async def test_autocomplete_popup_keeps_initial_x_position():
     registry.register(
         SlashCommand("/clear", "Clear conversation history", handler=lambda *_: None)
     )
-    app = TextualApp(user_input, AgentId("Agent"), slash_command_registry=registry)
+    app = TextualApp(registry, user_input, AgentId("Agent"))
 
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
@@ -326,7 +327,7 @@ async def test_enter_key_selects_autocomplete_when_visible():
     registry.register(
         SlashCommand("/clear", "Clear conversation history", handler=lambda *_: None)
     )
-    app = TextualApp(user_input, AgentId("Agent"), slash_command_registry=registry)
+    app = TextualApp(registry, user_input, AgentId("Agent"))
 
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
@@ -355,7 +356,7 @@ async def test_enter_key_submits_when_autocomplete_not_visible():
     registry.register(
         SlashCommand("/clear", "Clear conversation history", handler=lambda *_: None)
     )
-    app = TextualApp(user_input, AgentId("Agent"), slash_command_registry=registry)
+    app = TextualApp(registry, user_input, AgentId("Agent"))
 
     async with app.run_test() as pilot:
         text_area = app.query_one("#user-input", SmartInput)
@@ -486,7 +487,7 @@ async def test_submittable_text_area_file_search(app: TextualApp):
                 )
                 yield SmartInput(provider=provider, id="user-input")
 
-    test_app = TestApp(StubUserInput(), AgentId("Agent"))
+    test_app = TestApp(SlashCommandRegistry(), StubUserInput(), AgentId("Agent"))
 
     async with test_app.run_test() as pilot:
         text_area = test_app.query_one(SmartInput)

@@ -9,6 +9,7 @@ from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
+from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.tool_library import (
     MessageAndParsedTools,
     ParsedTool,
@@ -71,6 +72,7 @@ async def test_cancel_interrupts_during_llm_call():
         user_input=_make_input_with_message("Hello"),
         event_bus=event_bus,
         context=Messages(system_prompt="system prompt"),
+        slash_command_registry=SlashCommandRegistry(),
     )
 
     start = time.monotonic()
@@ -154,6 +156,7 @@ async def test_cancel_interrupts_during_tool_execution():
         user_input=_make_input_with_message("call the slow tool"),
         event_bus=event_bus,
         context=Messages(system_prompt="system prompt"),
+        slash_command_registry=SlashCommandRegistry(),
     )
 
     start = time.monotonic()

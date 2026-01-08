@@ -2,6 +2,7 @@ import pytest
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import SessionClearedEvent
+from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from simple_agent.infrastructure.textual.widgets.todo_view import TodoView
@@ -11,7 +12,7 @@ from tests.infrastructure.textual.test_utils import MockUserInput
 @pytest.mark.asyncio
 async def test_session_cleared_clears_todos():
     agent_id = AgentId("Agent")
-    app = TextualApp(MockUserInput(), agent_id)
+    app = TextualApp(SlashCommandRegistry(), MockUserInput(), agent_id)
 
     async with app.run_test() as pilot:
         # Mock TodoView to have content

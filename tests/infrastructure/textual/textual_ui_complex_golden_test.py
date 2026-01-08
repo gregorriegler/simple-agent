@@ -16,6 +16,7 @@ from simple_agent.application.events import (
     ToolCancelledEvent,
     ToolResultEvent,
 )
+from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
@@ -49,7 +50,9 @@ async def test_golden_complex_scenarios(tmp_path, monkeypatch):
 
     agent_id = AgentId("Agent", root=tmp_path)
     mock_user_input = MockUserInput()
-    app = TextualApp(user_input=mock_user_input, root_agent_id=agent_id)
+    app = TextualApp(
+        SlashCommandRegistry(), user_input=mock_user_input, root_agent_id=agent_id
+    )
 
     # Disable loading timer
     app.set_interval = noop_set_interval

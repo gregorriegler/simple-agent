@@ -2,6 +2,7 @@ import pytest
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.subscribe_events import subscribe_events
@@ -57,7 +58,7 @@ def textual_harness():
     event_bus = SimpleEventBus()
     session_storage = FakeSessionStorage()
     user_input = FakeUserInput()
-    app = TextualApp(user_input, AgentId("Agent"))
+    app = TextualApp(SlashCommandRegistry(), user_input, AgentId("Agent"))
 
     subscribe_events(event_bus, FakeEventLogger(), FakeTodoCleanup(), app)
 

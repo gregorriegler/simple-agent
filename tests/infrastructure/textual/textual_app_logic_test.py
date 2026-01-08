@@ -9,6 +9,7 @@ from simple_agent.application.events import (
     SessionClearedEvent,
     ToolResultEvent,
 )
+from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
@@ -17,7 +18,7 @@ from tests.infrastructure.textual.test_utils import MockUserInput
 
 @pytest.fixture
 def app():
-    return TextualApp(MockUserInput(), AgentId("Agent"))
+    return TextualApp(SlashCommandRegistry(), MockUserInput(), AgentId("Agent"))
 
 
 @pytest.mark.asyncio

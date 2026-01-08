@@ -39,7 +39,7 @@ class Agent:
         user_input: Input,
         event_bus: EventBus,
         context: Messages,
-        slash_command_registry: SlashCommandRegistry | None = None,
+        slash_command_registry: SlashCommandRegistry,
     ):
         self.agent_id = agent_id
         self.agent_name = agent_name
@@ -50,11 +50,11 @@ class Agent:
         self.event_bus = event_bus
         self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
         self.context: Messages = context
-        self.slash_command_registry = slash_command_registry or SlashCommandRegistry()
+        self.slash_command_registry = slash_command_registry
 
     async def start(self):
-        self._notify_agent_started()
         try:
+            self._notify_agent_started()
             tool_result: ToolResult = SingleToolResult()
 
             while True:
@@ -85,35 +85,21 @@ class Agent:
             await self._notify_user_prompt_requested()
         prompt = await self.user_input.read_async()
 
-        while prompt and self._is_slash_command(prompt):
-            result = await self._handle_slash_command(prompt)
+        parsed = self.slash_command_registry.parse(prompt)
+        while parsed:
+            command, args = parsed
+            result = await command.handler(args, self)
             if isinstance(result, AgentSwitch):
                 return result
 
             await self._notify_user_prompt_requested()
             prompt = await self.user_input.read_async()
+            parsed = self.slash_command_registry.parse(prompt)
 
         if prompt:
             self.context.user_says(prompt)
             await self._notify_user_prompted(prompt)
         return prompt
-
-    def _is_slash_command(self, prompt: str) -> bool:
-        """Check if the prompt is a registered slash command."""
-        if not prompt.startswith("/"):
-            return False
-
-        command_name = prompt.split()[0]
-        all_commands = self.slash_command_registry.get_all_commands()
-        return command_name in all_commands
-
-    async def _handle_slash_command(self, prompt: str):
-        """Handle slash commands using the registry."""
-        command_name = prompt.split()[0]
-        command = self.slash_command_registry.get_command(command_name)
-        if command:
-            args = prompt[len(command_name) :].strip()
-            return await command.handler(args, self)
 
     async def update_model(self, new_model: str):
         old_model = self.llm.model
