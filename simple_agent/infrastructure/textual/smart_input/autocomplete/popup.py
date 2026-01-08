@@ -91,16 +91,17 @@ class AutocompletePopup(Static):
         background: $surface;
         color: $text;
         padding: 0 1;
-        overlay: screen;
+        position: absolute;
         layer: overlay;
         display: none;
     }
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, target_widget=None, **kwargs):
         super().__init__(**kwargs)
         self.suggestion_list: SuggestionList | None = None
         self._seed: CompletionSeed | None = None
+        self._target_widget = target_widget
 
     def show(self, suggestion_list: SuggestionList, seed: CompletionSeed) -> None:
         if suggestion_list:
@@ -127,16 +128,20 @@ class AutocompletePopup(Static):
 
     def close(self) -> None:
         self.suggestion_list = None
-        self.display = False
+        self.styles.display = "none"
+        self.styles.visibility = "hidden"
 
     def accept(self) -> None:
         selection = self.get_completion()
         if selection:
             self.close()
-            self.post_message(self.Selected(selection))
+            if self._target_widget:
+                self._target_widget.post_message(self.Selected(selection))
+            else:
+                self.post_message(self.Selected(selection))
 
     def get_action_for_key(self, key: str) -> Callable[[], None] | None:
-        if not self.display:
+        if self.styles.display == "none":
             return None
 
         if key == "down":
@@ -160,7 +165,8 @@ class AutocompletePopup(Static):
             self.close()
             return
 
-        self.display = True
+        self.styles.display = "block"
+        self.styles.visibility = "visible"
 
         layout = PopupLayout.calculate(
             self.suggestion_list, self._seed, self.screen.size
@@ -168,8 +174,7 @@ class AutocompletePopup(Static):
 
         self.styles.width = layout.width
         self.styles.height = layout.height
-
-        self.absolute_offset = layout.offset
+        self.styles.offset = (layout.offset.x, layout.offset.y)
 
         rendered = Text()
         for index, line in enumerate(layout.lines):
@@ -179,3 +184,4 @@ class AutocompletePopup(Static):
             rendered.append(line, style=style)
 
         super().update(rendered)
+        self.app.refresh(layout=True)

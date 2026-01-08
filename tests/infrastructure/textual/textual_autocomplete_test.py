@@ -286,16 +286,16 @@ async def test_autocomplete_popup_keeps_initial_x_position():
 
         popup = app.query_one(AutocompletePopup)
         assert popup.display
-        assert popup.absolute_offset is not None
-        initial_x = popup.absolute_offset.x
+        assert popup.offset is not None
+        initial_x = popup.offset.x
 
         # Continue typing
         await pilot.press("l")
         await pilot.press("e")
         await pilot.pause()
 
-        assert popup.absolute_offset is not None
-        assert popup.absolute_offset.x == initial_x
+        assert popup.offset is not None
+        assert popup.offset.x == initial_x
 
 
 @pytest.mark.asyncio
@@ -647,3 +647,21 @@ async def test_model_command_integration():
     # Verify at least one known model is present
     model_texts = [s.display_text for s in suggestions.suggestions]
     assert "gpt-5.1-codex" in model_texts
+
+
+@pytest.mark.asyncio
+async def test_popup_mounted_at_app_level():
+    user_input = StubUserInput()
+    app = TextualApp(user_input, AgentId("Agent"))
+
+    async with app.run_test():
+        text_area = app.query_one("#user-input", SmartInput)
+
+        # Verify popup is mounted at screen level, not as child of SmartInput
+        # (app.mount() actually mounts to the app's current screen)
+        assert text_area.popup.parent == app.screen
+        assert text_area.popup.parent != text_area
+
+        # Verify popup can be queried from app
+        popup_from_app = app.query_one(AutocompletePopup)
+        assert popup_from_app == text_area.popup

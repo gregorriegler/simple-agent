@@ -38,12 +38,12 @@ class SmartInput(TextArea):
         super().__init__(id=id, **kwargs)
 
         self.provider = provider
-        self.popup = AutocompletePopup()
+        self.popup = AutocompletePopup(target_widget=self)
 
         self._autocomplete_task: asyncio.Task | None = None
 
     def on_mount(self) -> None:
-        self.mount(self.popup)
+        self.app.mount(self.popup)
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
 
     def get_referenced_files(self) -> set[str]:
@@ -85,6 +85,8 @@ class SmartInput(TextArea):
             return
 
         await super()._on_key(event)
+
+    def on_text_area_changed(self, event: "TextArea.Changed") -> None:
         self.call_after_refresh(self._trigger_autocomplete_check)
 
     def _consume_event(self, event: events.Key) -> None:
