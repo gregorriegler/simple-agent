@@ -1,3 +1,4 @@
+from simple_agent.infrastructure.bedrock.bedrock_client import BedrockClaudeLLM
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.gemini import GeminiLLM, GeminiV1LLM
 from simple_agent.infrastructure.llm import RemoteLLMProvider
@@ -62,3 +63,17 @@ def test_remote_llm_provider_returns_claude_adapter_by_default():
     llm = provider.get()
 
     assert isinstance(llm, ClaudeLLM)
+
+
+def test_remote_llm_provider_returns_bedrock_adapter():
+    model = ModelConfig(
+        name="bedrock",
+        model="claude-3-haiku-20240307-v1:0",
+        adapter="bedrock",
+        api_key="unused",
+    )
+    provider = RemoteLLMProvider(build_user_config(model))
+
+    llm = provider.get()
+
+    assert isinstance(llm, BedrockClaudeLLM)
