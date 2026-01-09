@@ -1,17 +1,27 @@
+from pathlib import Path
 from typing import Protocol
 
+from .agent_id import AgentId
 from .llm import Messages
 
 
 class SessionStorage(Protocol):
-    def load(self) -> Messages: ...
+    def load_messages(self, agent_id: AgentId) -> Messages: ...
 
-    def save(self, messages: Messages) -> None: ...
+    def save_messages(self, agent_id: AgentId, messages: Messages) -> None: ...
+
+    def session_root(self) -> Path: ...
 
 
 class NoOpSessionStorage:
-    def load(self) -> Messages:
+    def __init__(self, root: Path | None = None) -> None:
+        self._root = root or Path.cwd()
+
+    def load_messages(self, agent_id: AgentId) -> Messages:
         return Messages()
 
-    def save(self, messages: Messages) -> None:
+    def save_messages(self, agent_id: AgentId, messages: Messages) -> None:
         return None
+
+    def session_root(self) -> Path:
+        return self._root

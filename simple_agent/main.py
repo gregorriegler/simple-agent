@@ -22,8 +22,8 @@ from simple_agent.application.tool_documentation import generate_tools_documenta
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.infrastructure.event_logger import EventLogger
+from simple_agent.infrastructure.file_session_storage import FileSessionStorage
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
-from simple_agent.infrastructure.json_file_session_storage import JsonFileSessionStorage
 from simple_agent.infrastructure.llm import RemoteLLMProvider
 from simple_agent.infrastructure.non_interactive_user_input import (
     NonInteractiveUserInput,
@@ -87,12 +87,15 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
 
     agent_library = create_agent_library(user_config, args)
 
-    todo_cleanup = FileSystemTodoCleanup()
+    session_storage = FileSessionStorage.create(
+        Path(cwd) / ".simple-agent" / "sessions",
+        continue_session=args.continue_session,
+        cwd=Path(cwd),
+    )
+    todo_cleanup = FileSystemTodoCleanup(session_storage.session_root())
 
     if not args.continue_session:
         todo_cleanup.cleanup_all_todos()
-
-    session_storage = JsonFileSessionStorage(os.path.join(cwd, "claude-session.json"))
 
     event_logger = EventLogger()
     event_bus = SimpleEventBus()
@@ -118,7 +121,9 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
         project_tree=project_tree,
     )
 
-    starting_agent_id = agent_library.starting_agent_id().with_root(Path(cwd))
+    starting_agent_id = agent_library.starting_agent_id().with_root(
+        session_storage.session_root()
+    )
     textual_app = TextualApp(
         textual_user_input,
         starting_agent_id,

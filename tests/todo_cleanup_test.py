@@ -20,7 +20,7 @@ async def test_continued_session_keeps_todo_files(tmp_path, monkeypatch):
     for filename in todo_files:
         Path(filename).write_text(f"content of {filename}")
 
-    cleanup = FileSystemTodoCleanup()
+    cleanup = FileSystemTodoCleanup(tmp_path)
     await (
         SessionTestBed()
         .continuing_session()
@@ -54,7 +54,7 @@ async def test_subagent_cleanup_deletes_subagent_todo(tmp_path, monkeypatch):
 
     monkeypatch.setattr(Path, "write_text", capture_write_text)
 
-    todo_cleanup = SpyFileSystemTodoCleanup()
+    todo_cleanup = SpyFileSystemTodoCleanup(tmp_path)
 
     await (
         SessionTestBed()
@@ -82,8 +82,8 @@ async def test_subagent_cleanup_deletes_subagent_todo(tmp_path, monkeypatch):
 
 
 class SpyFileSystemTodoCleanup(FileSystemTodoCleanup):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, root: Path):
+        super().__init__(root)
         self.cleaned_agents: list[AgentId] = []
 
     def cleanup_todos_for_agent(self, agent_id: AgentId) -> None:

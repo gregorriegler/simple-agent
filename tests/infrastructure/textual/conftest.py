@@ -1,7 +1,10 @@
+from pathlib import Path
+
 import pytest
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.llm import Messages
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.subscribe_events import subscribe_events
@@ -9,11 +12,14 @@ from simple_agent.infrastructure.textual.textual_app import TextualApp
 
 
 class FakeSessionStorage:
-    def load(self):
-        return []
+    def load_messages(self, agent_id):
+        return Messages()
 
-    def save(self, messages):
+    def save_messages(self, agent_id, messages):
         return None
+
+    def session_root(self):
+        return Path(".")
 
 
 class FakeUserInput:
@@ -40,6 +46,9 @@ class FakeEventLogger(EventLogger):
 
 
 class FakeTodoCleanup(FileSystemTodoCleanup):
+    def __init__(self):
+        super().__init__(Path("."))
+
     def cleanup_all_todos(self) -> None:
         return None
 

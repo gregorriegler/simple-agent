@@ -1,7 +1,9 @@
 import json
 import os
 import sys
+from pathlib import Path
 
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.llm import Messages
 from simple_agent.application.session_storage import SessionStorage
 
@@ -10,7 +12,7 @@ class JsonFileSessionStorage(SessionStorage):
     def __init__(self, path):
         self.path = path
 
-    def load(self) -> Messages:
+    def load_messages(self, agent_id: AgentId) -> Messages:
         if not os.path.exists(self.path):
             return Messages()
         try:
@@ -32,7 +34,7 @@ class JsonFileSessionStorage(SessionStorage):
             return Messages(raw_data)
         return Messages()
 
-    def save(self, messages: Messages) -> None:
+    def save_messages(self, agent_id: AgentId, messages: Messages) -> None:
         try:
             with open(self.path, "w", encoding="utf-8") as session_file:
                 json.dump(messages.to_list(), session_file, indent=2)
@@ -41,3 +43,6 @@ class JsonFileSessionStorage(SessionStorage):
                 f"Warning: Could not save session file {self.path}: {error}",
                 file=sys.stderr,
             )
+
+    def session_root(self) -> Path:
+        return Path(self.path).parent

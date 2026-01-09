@@ -69,10 +69,13 @@ class Session:
         if args.continue_session:
             persisted_messages = PersistedMessages(
                 self._session_storage,
-                self._session_storage.load().to_list(),
+                starting_agent_id,
+                self._session_storage.load_messages(starting_agent_id).to_list(),
             )
         else:
-            persisted_messages = PersistedMessages(self._session_storage)
+            persisted_messages = PersistedMessages(
+                self._session_storage, starting_agent_id
+            )
 
         agent_definition = self._agent_library._starting_agent_definition()
         agent = agent_factory.create_agent(
