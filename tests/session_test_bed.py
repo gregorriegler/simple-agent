@@ -38,7 +38,18 @@ class SessionTestResult:
         self.events.assert_event_occured(expected_event, times)
 
     def as_approval_string(self) -> str:
-        return f"# Events\n{self.events.get_events_as_string()}\n\n# Saved messages:\n{self.saved_messages}"
+        return (
+            f"# Events\n{self.events.get_events_as_string()}\n\n"
+            f"# Saved messages:\n{self._format_saved_messages()}"
+        )
+
+    def _format_saved_messages(self) -> str:
+        if not self.saved_messages:
+            return "None"
+        sections = []
+        for agent_id in sorted(self.saved_messages.keys()):
+            sections.append(f"[{agent_id}]\n{self.saved_messages[agent_id]}")
+        return "\n\n".join(sections)
 
 
 class SessionTestBed:

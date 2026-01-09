@@ -32,8 +32,9 @@ async def test_slash_model_command_switches_model():
     result = await session.run()
 
     result.assert_event_occured(ModelChangedEvent(new_model="new-model"), times=1)
-    assert "user: Initial message" in result.saved_messages
-    assert "user: Message with new model" in result.saved_messages
+    saved = result.saved_messages.get("Agent", "")
+    assert "user: Initial message" in saved
+    assert "user: Message with new model" in saved
 
 
 async def test_slash_model_command_completion_uses_configured_models():

@@ -6,6 +6,7 @@ Agent: 🛠️ bash echo hello
        hello
 
 # Saved messages:
+[Agent]
 user: use bash
 assistant: 🛠️ bash echo hello
 user: Result of 🛠️ bash echo hello

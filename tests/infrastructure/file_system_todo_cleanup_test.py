@@ -7,7 +7,7 @@ def test_cleanup_all_todos_removes_todo_files(tmp_path, monkeypatch):
     (tmp_path / ".todos.md").write_text("root", encoding="utf-8")
     (tmp_path / "keep.txt").write_text("keep", encoding="utf-8")
 
-    cleanup = FileSystemTodoCleanup()
+    cleanup = FileSystemTodoCleanup(tmp_path)
 
     cleanup.cleanup_all_todos()
 

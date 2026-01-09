@@ -28,6 +28,7 @@ Agent: user_prompt_requested:
 Agent:         session_ended: 
 
 # Saved messages:
+[Agent]
 system: Test system prompt
 
 
@@ -36,3 +37,21 @@ assistant: 🛠️[subagent orchestrator create another subagent]
 user: Result of 🛠️ subagent orchestrator create another subagent
 I successfully created another subagent
 assistant: 🛠️[complete-task I successfully created a subagent]
+
+[Agent/Orchestrator]
+system: Test system prompt
+
+
+user: create another subagent
+assistant: 🛠️[subagent coding say nested hello]
+user: Result of 🛠️ subagent coding say nested hello
+I successfully said nested hello
+assistant: 🛠️[complete-task I successfully created another subagent]
+
+[Agent/Orchestrator/Coding]
+system: Test system prompt
+
+
+user: say nested hello
+assistant: nested hello
+🛠️[complete-task I successfully said nested hello]

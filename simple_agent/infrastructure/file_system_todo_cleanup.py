@@ -5,13 +5,15 @@ from simple_agent.application.todo_cleanup import TodoCleanup
 
 
 class FileSystemTodoCleanup(TodoCleanup):
+    def __init__(self, root: Path | None = None) -> None:
+        self._root = root or Path.cwd()
+
     def cleanup_all_todos(self) -> None:
-        cwd = Path.cwd()
-        for file_path in cwd.glob(".*.todos.md"):
+        for file_path in self._root.glob(".*.todos.md"):
             if file_path.is_file():
                 file_path.unlink()
 
-        todos_file = cwd / ".todos.md"
+        todos_file = self._root / ".todos.md"
         if todos_file.exists() and todos_file.is_file():
             todos_file.unlink()
 

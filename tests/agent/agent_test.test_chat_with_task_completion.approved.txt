@@ -10,6 +10,7 @@ Agent: user_prompt_requested:
 Agent:         session_ended: 
 
 # Saved messages:
+[Agent]
 system: Test system prompt
 
 

@@ -5,6 +5,7 @@ from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.event_bus import EventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLMProvider, Messages
+from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.subagent_spawner import SubagentSpawner
@@ -56,8 +57,13 @@ class AgentFactory:
             agent_id = parent_agent_id.create_subagent_id(
                 definition.agent_name(), self._agent_suffixer
             )
+            persisted_messages = PersistedMessages(
+                self._session_storage,
+                agent_id,
+                self._session_storage.load_messages(agent_id).to_list(),
+            )
             subagent = self.create_agent(
-                agent_id, definition, task_description, Messages()
+                agent_id, definition, task_description, persisted_messages
             )
             return await subagent.start()
 
