@@ -6,6 +6,8 @@ from simple_agent.application.tool_library import Tool, ToolArguments
 from simple_agent.application.tool_results import ToolResult
 from simple_agent.application.tool_syntax import RawToolCall
 
+TIMEOUT = 60
+
 
 class BaseTool(Tool):
     name = ""
@@ -33,7 +35,7 @@ class BaseTool(Tool):
                 text=True,
                 encoding="utf-8",
                 errors="replace",
-                timeout=30,
+                timeout=TIMEOUT,
                 cwd=cwd,
             )
             elapsed_time = time.time() - start_time
@@ -50,9 +52,9 @@ class BaseTool(Tool):
             }
         except subprocess.TimeoutExpired:
             return {
-                "output": "Command timed out (30s limit)",
+                "output": "Command timed out (" + str(TIMEOUT) + "s limit)",
                 "success": False,
-                "elapsed_time": 30.0,
+                "elapsed_time": TIMEOUT,
             }
         except Exception as e:
             return {"output": f"Error: {str(e)}", "success": False, "elapsed_time": 0.0}
