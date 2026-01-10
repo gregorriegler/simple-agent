@@ -1,5 +1,7 @@
 # NOW
-- command pattern
+- the logs should be per session, so we can debug errors better
+- opus creates end tags in files
+- boto3 freezes ui
 
 # NEXT
 - proper session storage
