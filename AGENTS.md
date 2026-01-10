@@ -32,4 +32,16 @@ In this project we apply strict Test Driven Development.
 - avoid interactive commands such as `git diff`.
   - E.g., use `git --no-pager diff` instead
  
-- apply arlos git commit notation
+# Commit rules
+This project uses Arlos commit notation V1
+Risk-based prefixes (lowercase = safe, uppercase = risky):
+
+f/F - Feature (small/large)
+b/B - Bug fix (small/large)
+r/R/R!! - Refactor (safe/risky/dangerous)
+t - Test (always safe)
+d - Documentation (no code change)
+e - Environment
+
+Example:
+r extract slash command handler
