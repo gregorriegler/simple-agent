@@ -4,7 +4,6 @@ import pytest
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
-from simple_agent.application.llm import Messages
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.subscribe_events import subscribe_events
@@ -12,12 +11,6 @@ from simple_agent.infrastructure.textual.textual_app import TextualApp
 
 
 class FakeSessionStorage:
-    def load_messages(self, agent_id):
-        return Messages()
-
-    def save_messages(self, agent_id, messages):
-        return None
-
     def session_root(self):
         return Path(".")
 

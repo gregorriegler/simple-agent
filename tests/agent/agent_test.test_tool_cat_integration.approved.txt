@@ -12,14 +12,12 @@ Agent:           tool_result: Agent::tool_call::2 summary
 Agent: user_prompt_requested: 
 Agent:         session_ended: 
 
-# Saved messages:
+# Messages:
 [Agent]
-system: Test system prompt
-
-
 user: Test message
 assistant: 🛠️[cat /tmp/test_path/integration_test.txt /]
-user: Result of 🛠️ cat /tmp/test_path/integration_test.txt
-Integration test content
+user: Integration test content
 Line 2
 assistant: 🛠️[complete-task summary /]
+user: summary
+

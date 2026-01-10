@@ -1,4 +1,5 @@
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.event_store import EventStore
 from simple_agent.application.events import (
     AgentFinishedEvent,
     AgentStartedEvent,
@@ -27,6 +28,7 @@ def subscribe_events(
     event_logger: EventLogger,
     todo_cleanup: FileSystemTodoCleanup,
     app: TextualApp | None = None,
+    event_store: EventStore | None = None,
 ):
     event_bus.subscribe(SessionStartedEvent, event_logger.log_event)
     event_bus.subscribe(UserPromptRequestedEvent, event_logger.log_event)
@@ -69,3 +71,12 @@ def subscribe_events(
         event_bus.subscribe(SessionInterruptedEvent, _post_domain_event)
         event_bus.subscribe(ErrorEvent, _post_domain_event)
         event_bus.subscribe(SessionEndedEvent, _post_domain_event)
+
+    if event_store:
+        event_bus.subscribe(UserPromptedEvent, event_store.persist)
+        event_bus.subscribe(AssistantRespondedEvent, event_store.persist)
+        event_bus.subscribe(AgentStartedEvent, event_store.persist)
+        event_bus.subscribe(AgentFinishedEvent, event_store.persist)
+        event_bus.subscribe(ToolResultEvent, event_store.persist)
+        event_bus.subscribe(SessionClearedEvent, event_store.persist)
+        event_bus.subscribe(ModelChangedEvent, event_store.persist)

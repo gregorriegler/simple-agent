@@ -22,6 +22,7 @@ from simple_agent.application.tool_documentation import generate_tools_documenta
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.infrastructure.event_logger import EventLogger
+from simple_agent.infrastructure.file_event_store import FileEventStore
 from simple_agent.infrastructure.file_session_storage import FileSessionStorage
 from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
 from simple_agent.infrastructure.llm import RemoteLLMProvider
@@ -93,6 +94,7 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
         cwd=Path(cwd),
     )
     todo_cleanup = FileSystemTodoCleanup(session_storage.session_root())
+    event_store = FileEventStore(session_storage.session_root())
 
     if not args.continue_session:
         todo_cleanup.cleanup_all_todos()
@@ -112,13 +114,13 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
 
     session = Session(
         event_bus=event_bus,
-        session_storage=session_storage,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
         user_input=textual_user_input,
         todo_cleanup=todo_cleanup,
         llm_provider=llm_provider,
         project_tree=project_tree,
+        event_store=event_store,
     )
 
     starting_agent_id = agent_library.starting_agent_id().with_root(
@@ -129,7 +131,7 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
         starting_agent_id,
         available_models=llm_provider.get_available_models(),
     )
-    subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
+    subscribe_events(event_bus, event_logger, todo_cleanup, textual_app, event_store)
     if event_subscriber:
         event_subscriber(event_bus, textual_app)
 
@@ -171,10 +173,8 @@ def print_system_prompt_command(user_config, cwd, args):
     tool_library_factory = AllToolsFactory(tool_syntax)
     dummy_event_bus = SimpleEventBus()
     agent_library = create_agent_library(user_config, args)
-    session_storage = NoOpSessionStorage()
     agent_factory = AgentFactory(
         dummy_event_bus,
-        session_storage,
         tool_library_factory,
         agent_library,
         DummyUserInput(),

@@ -1,4 +1,5 @@
 import pytest
+from approvaltests import verify
 
 from simple_agent.application.events import ErrorEvent, ModelChangedEvent
 from tests.session_test_bed import SessionTestBed
@@ -31,10 +32,7 @@ async def test_slash_model_command_switches_model():
 
     result = await session.run()
 
-    result.assert_event_occured(ModelChangedEvent(new_model="new-model"), times=1)
-    saved = result.saved_messages.get("Agent", "")
-    assert "user: Initial message" in saved
-    assert "user: Message with new model" in saved
+    verify(result.as_approval_string())
 
 
 async def test_slash_model_command_completion_uses_configured_models():

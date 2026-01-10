@@ -7,10 +7,8 @@ Agent:           tool_called: Agent::tool_call::1 🛠️ cat hello.txt
 Agent:   session_interrupted: 
 Agent:         session_ended: 
 
-# Saved messages:
+# Messages:
 [Agent]
-system: Test system prompt
-
-
 user: Hello
 assistant: 🛠️[cat hello.txt /]
+

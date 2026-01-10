@@ -2,6 +2,7 @@ from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.event_store import EventStore
 from simple_agent.application.events import (
     AgentEvent,
     AgentStartedEvent,
@@ -18,12 +19,12 @@ from simple_agent.application.events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
+from simple_agent.application.events_to_messages import events_to_messages
 from simple_agent.application.llm import ChatMessages, LLMResponse, TokenUsage
 from simple_agent.application.llm_stub import StubLLMProvider, create_llm_stub
 from simple_agent.application.session import Session
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from tests.event_spy import EventSpy
-from tests.session_storage_stub import SessionStorageStub
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
@@ -69,9 +70,28 @@ class CapturingLLM:
 
 
 class SessionTestResult:
-    def __init__(self, event_spy: EventSpy, session_storage):
+    def __init__(self, event_spy: EventSpy):
         self.events = event_spy
-        self.saved_messages = getattr(session_storage, "saved", {})
+
+    def current_messages(self, agent_id: AgentId) -> str:
+        messages = events_to_messages(self.events.get_all_events(), agent_id)
+        return "\n".join(f"{msg['role']}: {msg['content']}" for msg in messages)
+
+    def all_messages(self) -> str:
+        result = ""
+        current_agent = ""
+        for event in self.events.get_all_events():
+            if isinstance(event, UserPromptedEvent):
+                if current_agent != event.agent_id:
+                    current_agent = event.agent_id
+                    result += "[" + str(current_agent) + "]\n"
+                result += "user: " + event.input_text + "\n"
+            elif isinstance(event, ToolResultEvent):
+                result += "user: " + str(event.result) + "\n"
+            elif isinstance(event, AssistantRespondedEvent):
+                result += "assistant: " + event.response + "\n"
+
+        return result
 
     def assert_event_occured(self, expected_event: AgentEvent, times: int = 1):
         self.events.assert_event_occured(expected_event, times)
@@ -79,16 +99,8 @@ class SessionTestResult:
     def as_approval_string(self) -> str:
         return (
             f"# Events\n{self.events.get_events_as_string()}\n\n"
-            f"# Saved messages:\n{self._format_saved_messages()}"
+            f"# Messages:\n{self.all_messages()}\n"
         )
-
-    def _format_saved_messages(self) -> str:
-        if not self.saved_messages:
-            return "None"
-        sections = []
-        for agent_id in sorted(self.saved_messages.keys()):
-            sections.append(f"[{agent_id}]\n{self.saved_messages[agent_id]}")
-        return "\n\n".join(sections)
 
 
 class SessionTestBed:
@@ -108,7 +120,7 @@ class SessionTestBed:
         self._ctrl_c_hits = None
         self._continue_session = False
         self._todo_cleanup = None
-        self._session_storage = None
+        self._event_store: EventStore | None = None
         self._custom_event_subscriptions = []
 
     def with_llm_responses(self, responses: list[str]) -> "SessionTestBed":
@@ -148,8 +160,8 @@ class SessionTestBed:
         self._todo_cleanup = cleanup
         return self
 
-    def with_session_storage(self, storage) -> "SessionTestBed":
-        self._session_storage = storage
+    def with_event_store(self, event_store: EventStore) -> "SessionTestBed":
+        self._event_store = event_store
         return self
 
     def continuing_session(self) -> "SessionTestBed":
@@ -163,9 +175,6 @@ class SessionTestBed:
     async def run(self) -> SessionTestResult:
         event_bus = SimpleEventBus()
         user_input = UserInputStub(inputs=self._user_inputs, escapes=self._escape_hits)
-        session_storage = (
-            self._session_storage if self._session_storage else SessionStorageStub()
-        )
         todo_cleanup = (
             self._todo_cleanup if self._todo_cleanup is not None else _NoOpTodoCleanup()
         )
@@ -202,13 +211,13 @@ class SessionTestBed:
 
         session = Session(
             event_bus=event_bus,
-            session_storage=session_storage,
             tool_library_factory=tool_library_factory,
             agent_library=TestAgentLibrary(),
             user_input=user_input,
             todo_cleanup=todo_cleanup,
             llm_provider=StubLLMProvider.for_testing(self._llm),
             project_tree=DummyProjectTree(),
+            event_store=self._event_store,
         )
 
         await session.run_async(
@@ -218,7 +227,7 @@ class SessionTestBed:
             AgentId("Agent"),
         )
 
-        return SessionTestResult(event_spy, session_storage)
+        return SessionTestResult(event_spy)
 
 
 class TestAgentLibrary:

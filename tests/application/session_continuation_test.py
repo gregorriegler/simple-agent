@@ -1,33 +1,36 @@
 import pytest
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.llm import Messages
-from simple_agent.infrastructure.file_session_storage import FileSessionStorage
+from simple_agent.application.events import (
+    AgentFinishedEvent,
+    AgentStartedEvent,
+    AssistantRespondedEvent,
+    UserPromptedEvent,
+)
+from simple_agent.infrastructure.file_event_store import FileEventStore
 from tests.session_test_bed import CapturingLLM, SessionTestBed
 
 
 @pytest.mark.asyncio
 async def test_continued_session_loads_previous_messages_into_llm(tmp_path):
     agent_id = AgentId("Agent")
-    storage = FileSessionStorage.create(tmp_path, continue_session=False, cwd=tmp_path)
-    storage.save_messages(
-        agent_id,
-        _messages_with(
-            [
-                {"role": "user", "content": "Hello"},
-                {"role": "assistant", "content": "Hi there!"},
-            ]
-        ),
+    event_store = FileEventStore(tmp_path)
+    event_store.persist(UserPromptedEvent(agent_id=agent_id, input_text="Hello"))
+    event_store.persist(
+        AssistantRespondedEvent(
+            agent_id=agent_id,
+            response="Hi there!",
+            model="test-model",
+            max_tokens=100,
+            input_tokens=50,
+        )
     )
 
-    continued_storage = FileSessionStorage.create(
-        tmp_path, continue_session=True, cwd=tmp_path
-    )
     capturing_llm = CapturingLLM()
 
     await (
         SessionTestBed()
-        .with_session_storage(continued_storage)
+        .with_event_store(event_store)
         .with_llm(capturing_llm)
         .continuing_session()
         .with_user_inputs("Continue please")
@@ -43,29 +46,28 @@ async def test_continued_session_restores_subagent_messages(tmp_path):
     parent_id = AgentId("Agent")
     subagent_id = AgentId("Agent/Coding")
 
-    storage = FileSessionStorage.create(tmp_path, continue_session=False, cwd=tmp_path)
-    storage.save_messages(
-        parent_id,
-        _messages_with(
-            [
-                {"role": "user", "content": "Parent task"},
-                {"role": "assistant", "content": "🛠️[subagent coding Do something /]"},
-            ]
-        ),
+    event_store = FileEventStore(tmp_path)
+    event_store.persist(UserPromptedEvent(agent_id=parent_id, input_text="Parent task"))
+    event_store.persist(
+        AssistantRespondedEvent(
+            agent_id=parent_id,
+            response="🛠️[subagent coding Do something /]",
+        )
     )
-    storage.save_messages(
-        subagent_id,
-        _messages_with(
-            [
-                {"role": "user", "content": "Do something"},
-                {"role": "assistant", "content": "Subagent previous work"},
-            ]
-        ),
+    event_store.persist(
+        AgentStartedEvent(agent_id=subagent_id, agent_name="Coding", model="test-model")
     )
+    event_store.persist(
+        UserPromptedEvent(agent_id=subagent_id, input_text="Do something")
+    )
+    event_store.persist(
+        AssistantRespondedEvent(
+            agent_id=subagent_id,
+            response="Subagent previous work",
+        )
+    )
+    event_store.persist(AgentFinishedEvent(agent_id=subagent_id))
 
-    continued_storage = FileSessionStorage.create(
-        tmp_path, continue_session=True, cwd=tmp_path
-    )
     capturing_llm = CapturingLLM()
     capturing_llm.set_responses(
         [
@@ -77,7 +79,7 @@ async def test_continued_session_restores_subagent_messages(tmp_path):
 
     await (
         SessionTestBed()
-        .with_session_storage(continued_storage)
+        .with_event_store(event_store)
         .with_llm(capturing_llm)
         .continuing_session()
         .with_user_inputs("Continue")
@@ -86,7 +88,3 @@ async def test_continued_session_restores_subagent_messages(tmp_path):
 
     assert capturing_llm.call_contained(1, "user", "Do something")
     assert capturing_llm.call_contained(1, "assistant", "Subagent previous work")
-
-
-def _messages_with(raw_messages: list[dict]) -> Messages:
-    return Messages(raw_messages)

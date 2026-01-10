@@ -5,8 +5,6 @@ from simple_agent.application.events import (
     SessionClearedEvent,
     UserPromptRequestedEvent,
 )
-from simple_agent.application.persisted_messages import PersistedMessages
-from tests.session_storage_stub import SessionStorageStub
 from tests.session_test_bed import SessionTestBed
 
 pytestmark = pytest.mark.asyncio
@@ -22,10 +20,10 @@ async def test_slash_clear_command_in_full_session():
     result = await session.run()
 
     result.events.assert_occured(UserPromptRequestedEvent, times=3)
-    saved = result.saved_messages.get("Agent", "")
-    assert "user: After clear" in saved
-    assert "assistant: Response after clear" in saved
-    assert "Initial message" not in saved, "Messages before /clear should be cleared"
+    messages = result.current_messages(AgentId("Agent"))
+    assert "user: After clear" in messages
+    assert "assistant: Response after clear" in messages
+    assert "Initial message" not in messages, "Messages before /clear should be cleared"
     result.events.assert_occured(SessionClearedEvent, times=1)
 
 
@@ -40,18 +38,15 @@ async def test_consecutive_clear_commands():
 
     result.events.assert_occured(UserPromptRequestedEvent, times=4)
     result.events.assert_occured(SessionClearedEvent, times=2)
-    saved = result.saved_messages.get("Agent", "")
-    assert "/clear" not in saved, "/clear should not be sent to LLM"
-    assert "After clears" in saved
+    messages = result.current_messages(AgentId("Agent"))
+    assert "/clear" not in messages, "/clear should not be sent to LLM"
+    assert "After clears" in messages
 
 
 async def test_agent_handles_slash_clear_command():
-    session_storage = SessionStorageStub()
-    messages = PersistedMessages(
-        session_storage,
-        agent_id=AgentId("Agent"),
-        system_prompt="You are a helpful assistant.",
-    )
+    from simple_agent.application.llm import Messages
+
+    messages = Messages(system_prompt="You are a helpful assistant.")
     messages.user_says("Hello agent")
     messages.assistant_says("Hello! How can I help?")
 
@@ -62,4 +57,3 @@ async def test_agent_handles_slash_clear_command():
         "System prompt should be preserved"
     )
     assert messages.to_list()[0]["content"] == "You are a helpful assistant."
-    assert session_storage.saved["Agent"] == "system: You are a helpful assistant."

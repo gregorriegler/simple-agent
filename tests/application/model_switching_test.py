@@ -13,7 +13,6 @@ from simple_agent.application.llm import (
 )
 from simple_agent.application.session import Session
 from simple_agent.application.todo_cleanup import TodoCleanup
-from tests.session_storage_stub import SessionStorageStub
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
@@ -95,7 +94,6 @@ async def test_model_switching_uses_new_llm_instance():
 
     session = Session(
         event_bus=event_bus,
-        session_storage=SessionStorageStub(),
         tool_library_factory=ToolLibraryFactoryStub(
             llm_provider.get("default"),
             inputs=[],

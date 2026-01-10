@@ -3,9 +3,10 @@ from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.event_bus import EventBus
+from simple_agent.application.event_store import EventStore
+from simple_agent.application.events_to_messages import events_to_messages
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLMProvider, Messages
-from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.subagent_spawner import SubagentSpawner
@@ -21,29 +22,25 @@ class AgentFactory:
     def __init__(
         self,
         event_bus: EventBus,
-        session_storage: SessionStorage,
         tool_library_factory: ToolLibraryFactory,
         agent_library: AgentLibrary,
         user_input: UserInput,
         llm_provider: LLMProvider,
         project_tree: ProjectTree,
+        event_store: EventStore | None = None,
     ):
         self._event_bus = event_bus
-        self._session_storage = session_storage
         self._tool_library_factory = tool_library_factory
         self._agent_library = agent_library
         self._user_input = user_input
         self._agent_suffixer = AgentIdSuffixer()
         self._llm_provider = llm_provider
         self._project_tree = project_tree
+        self._event_store = event_store
 
     @property
     def event_bus(self) -> EventBus:
         return self._event_bus
-
-    @property
-    def session_storage(self) -> SessionStorage:
-        return self._session_storage
 
     def create_input(self, initial_message: str | None = None) -> Input:
         inp = Input(self._user_input)
@@ -57,13 +54,14 @@ class AgentFactory:
             agent_id = parent_agent_id.create_subagent_id(
                 definition.agent_name(), self._agent_suffixer
             )
-            persisted_messages = PersistedMessages(
-                self._session_storage,
-                agent_id,
-                self._session_storage.load_messages(agent_id).to_list(),
-            )
+            if self._event_store:
+                events = self._event_store.load_events(agent_id)
+                context = events_to_messages(events, agent_id)
+            else:
+                context = Messages()
+
             subagent = self.create_agent(
-                agent_id, definition, task_description, persisted_messages
+                agent_id, definition, task_description, context
             )
             return await subagent.start()
 

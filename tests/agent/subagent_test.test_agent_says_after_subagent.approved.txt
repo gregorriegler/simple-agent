@@ -19,21 +19,15 @@ Agent:        assistant_said: goodbye
 Agent: user_prompt_requested: 
 Agent:         session_ended: 
 
-# Saved messages:
+# Messages:
 [Agent]
-system: Test system prompt
-
-
 user: Create a subagent that says hello, then say goodbye
 assistant: 🛠️[subagent coding say hello]
-user: Result of 🛠️ subagent coding say hello
-I successfully said hello
-assistant: goodbye
-
 [Agent/Coding]
-system: Test system prompt
-
-
 user: say hello
 assistant: hello
 🛠️[complete-task I successfully said hello]
+user: I successfully said hello
+user: I successfully said hello
+assistant: goodbye
+
