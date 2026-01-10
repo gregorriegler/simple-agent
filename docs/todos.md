@@ -1,7 +1,6 @@
 # NOW
 - the logs should be per session, so we can debug errors better
 - boto3 doesnt give me logs
-- boto3 freezes ui
 
 # NEXT
 - proper session storage
