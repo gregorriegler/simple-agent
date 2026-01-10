@@ -1,31 +1,9 @@
 import pytest
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.llm import (
-    ChatMessages,
-    LLMResponse,
-    Messages,
-    TokenUsage,
-)
+from simple_agent.application.llm import Messages
 from simple_agent.infrastructure.file_session_storage import FileSessionStorage
-from tests.session_test_bed import SessionTestBed
-
-
-class CapturingLLM:
-    def __init__(self):
-        self.captured_messages: list[ChatMessages] = []
-
-    @property
-    def model(self) -> str:
-        return "capturing-model"
-
-    async def call_async(self, messages: ChatMessages) -> LLMResponse:
-        self.captured_messages.append(list(messages))
-        return LLMResponse(
-            content="Done",
-            model=self.model,
-            usage=TokenUsage(0, 0, 0),
-        )
+from tests.session_test_bed import CapturingLLM, SessionTestBed
 
 
 @pytest.mark.asyncio

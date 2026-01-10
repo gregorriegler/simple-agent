@@ -17,7 +17,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
-from simple_agent.application.llm import LLMResponse
+from simple_agent.application.llm import ChatMessages, LLMResponse, TokenUsage
 from simple_agent.application.llm_stub import StubLLMProvider, create_llm_stub
 from simple_agent.application.session import Session
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
@@ -27,6 +27,23 @@ from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
 from tests.user_input_stub import UserInputStub
+
+
+class CapturingLLM:
+    def __init__(self):
+        self.captured_messages: list[ChatMessages] = []
+
+    @property
+    def model(self) -> str:
+        return "capturing-model"
+
+    async def call_async(self, messages: ChatMessages) -> LLMResponse:
+        self.captured_messages.append(list(messages))
+        return LLMResponse(
+            content="Done",
+            model=self.model,
+            usage=TokenUsage(0, 0, 0),
+        )
 
 
 class SessionTestResult:
