@@ -8,6 +8,8 @@ class ModelInfo:
         "claude-sonnet-4-5-20250929": 200_000,
         "claude-opus-4-5-20251101": 200_000,
         "claude-haiku-4-5-20251001": 200_000,
+        "us.anthropic.claude-4-5-opus": 200_000,
+        "us.anthropic.claude-opus-4-5-20251101-v1:0": 200_000,
         # Google Gemini models
         "gemini-2.5-pro": 1_048_576,
         "gemini-3-pro-preview": 1_048_576,
