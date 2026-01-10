@@ -1,6 +1,7 @@
 import asyncio
 import io
 import json
+import logging
 from types import SimpleNamespace
 
 import boto3
@@ -176,6 +177,100 @@ def test_bedrock_claude_client_uses_region_from_base_url(monkeypatch):
     chat = BedrockClaudeLLM(config)
 
     assert chat._client.meta.region_name == "us-west-1"
+
+
+@pytest.mark.asyncio
+async def test_bedrock_claude_logs_requests_and_responses(caplog):
+    caplog.set_level(logging.DEBUG)
+
+    response_data = {
+        "content": [{"text": "assistant response"}],
+        "usage": {"input_tokens": 10, "output_tokens": 20},
+    }
+    system_prompt = "system prompt"
+
+    client = boto3.client(
+        "bedrock-runtime",
+        region_name="us-east-1",
+        aws_access_key_id="test",
+        aws_secret_access_key="test",
+        aws_session_token="test",
+    )
+    stubber = Stubber(client)
+
+    body_bytes = json.dumps(response_data).encode("utf-8")
+    expected_body = json.dumps(
+        {
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 4000,
+            "messages": [{"role": "user", "content": "Hello"}],
+            "system": system_prompt,
+        }
+    )
+
+    stubber.add_response(
+        "invoke_model",
+        {
+            "body": StreamingBody(io.BytesIO(body_bytes), len(body_bytes)),
+            "contentType": "application/json",
+            # removed statusCode
+        },
+        {
+            "modelId": "test-model",
+            "body": expected_body,
+            "contentType": "application/json",
+            "accept": "application/json",
+        },
+    )
+    stubber.activate()
+
+    config = ModelConfig(
+        name="bedrock-claude",
+        model="test-model",
+        adapter="bedrock",
+        api_key="unused",
+        base_url=None,
+        request_timeout=60,
+    )
+    chat = BedrockClaudeLLM(config, client=client)
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": "Hello"},
+    ]
+
+    await chat.call_async(messages)
+
+    # Filter for our logger to avoid botocore noise if any
+    logs = [
+        r.message
+        for r in caplog.records
+        if r.name == "simple_agent.infrastructure.bedrock.bedrock_client"
+    ]
+    full_log = "\n".join(logs)
+
+    expected_request_part = f"""POST https://bedrock-runtime.us-east-1.amazonaws.com/model/test-model/invoke HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+
+{{
+  "anthropic_version": "bedrock-2023-05-31",
+  "max_tokens": 4000,
+  "messages": [
+    {{
+      "role": "user",
+      "content": "Hello"
+    }}
+  ],
+  "system": "system prompt"
+}}"""
+
+    # We expect compact JSON because Content-Type header is missing in the stubbed response metadata
+    expected_response_part = """HTTP/1.1 200 OK
+
+{"content": [{"text": "assistant response"}], "usage": {"input_tokens": 10, "output_tokens": 20}}"""
+
+    assert expected_request_part in full_log
+    assert expected_response_part in full_log
 
 
 def build_config(base_url: str | None = None) -> ModelConfig:

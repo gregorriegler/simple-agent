@@ -61,17 +61,15 @@ class BedrockClaudeLLM(LLM):
 
         response_bytes = await asyncio.to_thread(self._read_response_body, response)
 
-        # Log Response
         status_code = response.get("ResponseMetadata", {}).get("HTTPStatusCode", 200)
         headers = response.get("ResponseMetadata", {}).get("HTTPHeaders", {})
-        # Note: headers from boto3 might be CaseInsensitiveDict or dict, but format_response_args expects dict
 
         logger.debug(
             format_response_args(
                 status_code=status_code,
                 headers=dict(headers),
                 body=response_bytes,
-                reason_phrase="OK" if status_code == 200 else "",  # Approximation
+                reason_phrase="OK" if status_code == 200 else "",
             )
         )
 
@@ -104,14 +102,11 @@ class BedrockClaudeLLM(LLM):
     def _invoke_model(self, data: dict[str, Any]):
         body = json.dumps(data)
 
-        # Log Request
-        # Reconstruct known headers and URL since we don't have access to the actual request object easily without hooks
         endpoint_url = self._client.meta.endpoint_url
         url = f"{endpoint_url}/model/{self._config.model}/invoke"
         headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            # We don't have authorization header here, but that's okay, it's sensitive anyway
         }
 
         logger.debug(
