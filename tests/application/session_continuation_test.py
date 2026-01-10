@@ -1,27 +1,23 @@
 import pytest
 
-from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.llm import (
-    LLM,
     ChatMessages,
-    LLMProvider,
     LLMResponse,
     Messages,
     TokenUsage,
 )
+from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.session import Session
-from simple_agent.application.todo_cleanup import TodoCleanup
 from simple_agent.infrastructure.file_session_storage import FileSessionStorage
-from tests.system_prompt_generator_test import GroundRulesStub
+from tests.session_test_bed import TestAgentLibrary, _NoOpTodoCleanup
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
 from tests.user_input_stub import UserInputStub
 
 
-class CapturingLLM(LLM):
+class CapturingLLM:
     def __init__(self):
         self.captured_messages: list[ChatMessages] = []
 
@@ -36,46 +32,6 @@ class CapturingLLM(LLM):
             model=self.model,
             usage=TokenUsage(0, 0, 0),
         )
-
-
-class CapturingLLMProvider(LLMProvider):
-    def __init__(self, llm: CapturingLLM):
-        self._llm = llm
-
-    def get(self, model_name: str | None = None) -> LLM:
-        return self._llm
-
-    def get_available_models(self) -> list[str]:
-        return ["capturing-model"]
-
-
-class TodoCleanupStub(TodoCleanup):
-    def cleanup_all_todos(self) -> None:
-        pass
-
-    def cleanup_todos_for_agent(self, agent_id: AgentId) -> None:
-        pass
-
-
-class FakeAgentLibrary:
-    def __init__(self):
-        self._definitions = {
-            "agent": AgentDefinition(
-                AgentType("agent"), "---\nname: Agent\n---", GroundRulesStub("Prompt")
-            ),
-        }
-
-    def list_agent_types(self):
-        return list(self._definitions.keys())
-
-    def read_agent_definition(self, agent_type):
-        return self._definitions[agent_type.raw]
-
-    def starting_agent_id(self):
-        return AgentId("Agent")
-
-    def _starting_agent_definition(self):
-        return self._definitions["agent"]
 
 
 @pytest.mark.asyncio
@@ -99,7 +55,7 @@ async def test_continued_session_loads_previous_messages_into_llm(tmp_path):
     )
 
     capturing_llm = CapturingLLM()
-    llm_provider = CapturingLLMProvider(capturing_llm)
+    llm_provider = StubLLMProvider.for_testing(capturing_llm)
 
     user_input = UserInputStub(inputs=["Continue please"], escapes=[False])
 
@@ -109,9 +65,9 @@ async def test_continued_session_loads_previous_messages_into_llm(tmp_path):
         tool_library_factory=ToolLibraryFactoryStub(
             capturing_llm, inputs=[], escapes=[], interrupts=[], event_bus=event_bus
         ),
-        agent_library=FakeAgentLibrary(),
+        agent_library=TestAgentLibrary(),
         user_input=user_input,
-        todo_cleanup=TodoCleanupStub(),
+        todo_cleanup=_NoOpTodoCleanup(),
         llm_provider=llm_provider,
         project_tree=DummyProjectTree(),
     )
