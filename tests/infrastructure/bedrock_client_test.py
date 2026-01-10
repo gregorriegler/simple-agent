@@ -248,21 +248,21 @@ async def test_bedrock_claude_logs_requests_and_responses(caplog):
     ]
     full_log = "\n".join(logs)
 
-    expected_request_part = f"""POST https://bedrock-runtime.us-east-1.amazonaws.com/model/test-model/invoke HTTP/1.1
+    expected_request_part = """POST https://bedrock-runtime.us-east-1.amazonaws.com/model/test-model/invoke HTTP/1.1
 Content-Type: application/json
 Accept: application/json
 
-{{
+{
   "anthropic_version": "bedrock-2023-05-31",
   "max_tokens": 4000,
   "messages": [
-    {{
+    {
       "role": "user",
       "content": "Hello"
-    }}
+    }
   ],
   "system": "system prompt"
-}}"""
+}"""
 
     # We expect compact JSON because Content-Type header is missing in the stubbed response metadata
     expected_response_part = """HTTP/1.1 200 OK
