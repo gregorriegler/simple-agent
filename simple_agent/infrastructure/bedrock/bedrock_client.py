@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import os
 from typing import Any
 
@@ -8,7 +9,13 @@ from botocore.config import Config
 from botocore.exceptions import BotoCoreError, ClientError
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
+from simple_agent.infrastructure.logging_http_client import (
+    format_request_args,
+    format_response_args,
+)
 from simple_agent.infrastructure.model_config import ModelConfig
+
+logger = logging.getLogger(__name__)
 
 _CLIENT_UNSET = object()
 
@@ -53,6 +60,21 @@ class BedrockClaudeLLM(LLM):
             raise BedrockClaudeClientError(f"API request failed: {error}") from error
 
         response_bytes = await asyncio.to_thread(self._read_response_body, response)
+
+        # Log Response
+        status_code = response.get("ResponseMetadata", {}).get("HTTPStatusCode", 200)
+        headers = response.get("ResponseMetadata", {}).get("HTTPHeaders", {})
+        # Note: headers from boto3 might be CaseInsensitiveDict or dict, but format_response_args expects dict
+
+        logger.debug(
+            format_response_args(
+                status_code=status_code,
+                headers=dict(headers),
+                body=response_bytes,
+                reason_phrase="OK" if status_code == 200 else "",  # Approximation
+            )
+        )
+
         response_data = json.loads(response_bytes.decode("utf-8"))
 
         if "content" not in response_data:
@@ -80,9 +102,30 @@ class BedrockClaudeLLM(LLM):
         return LLMResponse(content=content, model=self._config.model, usage=usage)
 
     def _invoke_model(self, data: dict[str, Any]):
+        body = json.dumps(data)
+
+        # Log Request
+        # Reconstruct known headers and URL since we don't have access to the actual request object easily without hooks
+        endpoint_url = self._client.meta.endpoint_url
+        url = f"{endpoint_url}/model/{self._config.model}/invoke"
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            # We don't have authorization header here, but that's okay, it's sensitive anyway
+        }
+
+        logger.debug(
+            format_request_args(
+                method="POST",
+                url=url,
+                headers=headers,
+                body=body,
+            )
+        )
+
         return self._client.invoke_model(
             modelId=self._config.model,
-            body=json.dumps(data),
+            body=body,
             contentType="application/json",
             accept="application/json",
         )
