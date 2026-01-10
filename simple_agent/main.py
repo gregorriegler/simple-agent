@@ -75,9 +75,9 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
     args = parse_args()
     cwd = os.getcwd()
     user_config = UserConfiguration.create_from_args(args, cwd)
-    setup_logging(user_config=user_config)
 
     if args.show_system_prompt:
+        setup_logging(user_config=user_config)
         return print_system_prompt_command(user_config, cwd, args)
 
     if args.non_interactive:
@@ -91,6 +91,10 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
         Path(cwd) / ".simple-agent" / "sessions",
         continue_session=args.continue_session,
         cwd=Path(cwd),
+    )
+    setup_logging(
+        user_config=user_config,
+        log_file=session_storage.session_root() / "session.log",
     )
     todo_cleanup = FileSystemTodoCleanup(session_storage.session_root())
     event_store = FileEventStore(session_storage.session_root())

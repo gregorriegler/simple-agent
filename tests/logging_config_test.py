@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 from simple_agent.infrastructure.user_configuration import UserConfiguration
 from simple_agent.logging_config import setup_logging
@@ -36,3 +37,21 @@ def test_setup_logging_applies_logger_levels(monkeypatch, tmp_path):
     assert logging.getLogger().level == logging.INFO
     assert logging.getLogger("simple_agent").level == logging.DEBUG
     assert logging.getLogger("simple_agent.tools").level == logging.ERROR
+
+
+def test_setup_logging_with_custom_log_file(monkeypatch, tmp_path):
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    monkeypatch.setenv("HOME", str(tmp_path))
+
+    custom_log_file = tmp_path / "session" / "session.log"
+
+    setup_logging(level="DEBUG", log_file=custom_log_file)
+
+    file_handlers = [
+        handler
+        for handler in logging.getLogger().handlers
+        if isinstance(handler, logging.FileHandler)
+    ]
+    assert file_handlers
+    assert Path(file_handlers[0].baseFilename) == custom_log_file
+    assert custom_log_file.parent.exists()

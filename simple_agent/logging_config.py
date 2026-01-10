@@ -5,7 +5,9 @@ from collections.abc import Mapping
 from pathlib import Path
 
 
-def setup_logging(level: str | None = None, user_config=None) -> None:
+def setup_logging(
+    level: str | None = None, user_config=None, log_file: Path | None = None
+) -> None:
     if level is None:
         if user_config:
             level = user_config.log_level()
@@ -18,9 +20,12 @@ def setup_logging(level: str | None = None, user_config=None) -> None:
     if user_config:
         logger_level_names = user_config.logger_levels()
 
-    log_dir = Path.home() / ".simple-agent" / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / "simple-agent.log"
+    if log_file is None:
+        log_dir = Path.home() / ".simple-agent" / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "simple-agent.log"
+    else:
+        log_file.parent.mkdir(parents=True, exist_ok=True)
 
     logging.config.dictConfig(
         _build_logging_config(level, logger_level_names, log_file)
