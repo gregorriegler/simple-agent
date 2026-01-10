@@ -45,6 +45,14 @@ class CapturingLLM:
             usage=TokenUsage(0, 0, 0),
         )
 
+    def first_call_contained(self, role: str, content: str) -> bool:
+        if not self.captured_messages:
+            return False
+        return any(
+            m["role"] == role and content in m["content"]
+            for m in self.captured_messages[0]
+        )
+
 
 class SessionTestResult:
     def __init__(self, event_spy: EventSpy, session_storage):

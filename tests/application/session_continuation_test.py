@@ -36,16 +36,8 @@ async def test_continued_session_loads_previous_messages_into_llm(tmp_path):
         .run()
     )
 
-    assert len(capturing_llm.captured_messages) >= 1
-    first_call_messages = capturing_llm.captured_messages[0]
-
-    user_messages = [m["content"] for m in first_call_messages if m["role"] == "user"]
-    assistant_messages = [
-        m["content"] for m in first_call_messages if m["role"] == "assistant"
-    ]
-
-    assert "Hello" in user_messages
-    assert "Hi there!" in assistant_messages
+    assert capturing_llm.first_call_contained("user", "Hello")
+    assert capturing_llm.first_call_contained("assistant", "Hi there!")
 
 
 def _messages_with(raw_messages: list[dict]) -> Messages:
