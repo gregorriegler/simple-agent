@@ -8,6 +8,7 @@ from approvaltests import set_default_reporter
 from approvaltests.reporters import ReportWithWinMerge
 
 from .approve_sh_reporter import ApproveShReporter
+from .test_helpers import create_all_tools_for_test
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -36,3 +37,9 @@ def configure_approvals():
         set_default_reporter(ApproveShReporter())
     else:
         set_default_reporter(ReportWithWinMerge())
+
+
+@pytest.fixture(scope="session")
+def tool_library():
+    """Session-scoped fixture for tool library to avoid repeated initialization."""
+    return create_all_tools_for_test()

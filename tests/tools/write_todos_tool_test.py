@@ -3,13 +3,12 @@ import textwrap
 import pytest
 from approvaltests import Options, verify
 
-from tests.test_helpers import all_scrubbers, create_all_tools_for_test
+from tests.test_helpers import all_scrubbers
 
-library = create_all_tools_for_test()
 pytestmark = pytest.mark.asyncio
 
 
-async def test_write_todos_creates_markdown_file(tmp_path):
+async def test_write_todos_creates_markdown_file(tmp_path, tool_library):
     command = textwrap.dedent("""
     🛠️[write-todos]
     - [ ] Item 1

@@ -5,9 +5,8 @@ import sys
 
 import pytest
 
-from tests.test_helpers import create_all_tools_for_test, verify_tool
+from tests.test_helpers import verify_tool
 
-library = create_all_tools_for_test()
 pytestmark = pytest.mark.asyncio
 bash_available = True
 
@@ -46,19 +45,20 @@ if not bash_available:
     pytest.skip("bash is not available on this platform", allow_module_level=True)
 
 
-async def test_bash_tool_success_stdout():
-    await verify_tool(library, "🛠️[bash printf 'hello world' /]")
+async def test_bash_tool_success_stdout(tool_library):
+    await verify_tool(tool_library, "🛠️[bash printf 'hello world' /]")
 
 
-async def test_bash_tool_stderr_output():
-    await verify_tool(library, "🛠️[bash printf 'warning' 1>&2 /]")
+async def test_bash_tool_stderr_output(tool_library):
+    await verify_tool(tool_library, "🛠️[bash printf 'warning' 1>&2 /]")
 
 
-async def test_bash_tool_nonzero_exit():
-    await verify_tool(library, "🛠️[bash exit 2 /]")
+async def test_bash_tool_nonzero_exit(tool_library):
+    await verify_tool(tool_library, "🛠️[bash exit 2 /]")
 
 
-async def test_bash_tool_fail_with_stdout_and_stderr():
+async def test_bash_tool_fail_with_stdout_and_stderr(tool_library):
     await verify_tool(
-        library, "🛠️[bash echo 'standard output' && echo 'error output' >&2 && exit 1 /]"
+        tool_library,
+        "🛠️[bash echo 'standard output' && echo 'error output' >&2 && exit 1 /]",
     )

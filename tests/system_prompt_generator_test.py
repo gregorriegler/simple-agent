@@ -12,16 +12,14 @@ from simple_agent.infrastructure.agent_library import (
     BuiltinAgentLibrary,
     FileSystemAgentLibrary,
 )
-from tests.test_helpers import DummyProjectTree, create_all_tools_for_test
+from tests.test_helpers import DummyProjectTree
 
 
-def test_generate_orchestrator_agent_system_prompt():
-    tool_library = create_all_tools_for_test()
+def test_generate_orchestrator_agent_system_prompt(tool_library):
     verify_system_prompt("orchestrator", tool_library)
 
 
-def test_generate_coding_system_prompt():
-    tool_library = create_all_tools_for_test()
+def test_generate_coding_system_prompt(tool_library):
     verify_system_prompt("coding", tool_library)
 
 
