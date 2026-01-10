@@ -5,8 +5,8 @@ from simple_agent.application.todo_cleanup import TodoCleanup
 
 
 class FileSystemTodoCleanup(TodoCleanup):
-    def __init__(self, root: Path | None = None) -> None:
-        self._root = root or Path.cwd()
+    def __init__(self, root: Path) -> None:
+        self._root = root
 
     def cleanup_all_todos(self) -> None:
         for file_path in self._root.glob(".*.todos.md"):

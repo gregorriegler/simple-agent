@@ -69,6 +69,7 @@ def _should_ignore(path: Path, gitignore_patterns) -> bool:
 def _build_tree(
     root_path: Path,
     tree: Tree,
+    *,
     parent,
     gitignore_patterns,
     max_depth=2,
