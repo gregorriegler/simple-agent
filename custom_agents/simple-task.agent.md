@@ -7,6 +7,7 @@ tools:
   - create_file
   - replace_file_content
   - complete_task
+model: gemini-2-5-pro
 ---
 
 {{AGENTS.MD}}
