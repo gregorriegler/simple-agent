@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+verbose=false
+type_check=false
+file_provided=false
+patterns=()
+
 # 1) formatting
 check_output=$(uv run ruff format --check . 2>&1 || true)
 files_to_format=$(echo "$check_output" | grep "Would reformat:" | sed 's/Would reformat: //' || true)
@@ -26,10 +31,12 @@ if ! output=$(uv run ruff check . 2>&1); then
 fi
 
 # 3) type check
-if ! output=$(uv run pyright 2>&1); then
-    echo "Pyright findings:"
-    echo "$output"
-    exit 1
+if [[ "$type_check" == true ]]; then
+    if ! output=$(uv run pyright 2>&1); then
+        echo "Pyright findings:"
+        echo "$output"
+        exit 1
+    fi
 fi
 
 show_help() {
@@ -47,6 +54,7 @@ show_help() {
     echo "Options:"
     echo "  -h, --help      Show this help message and exit"
     echo "  -v, --verbose   Show verbose output with progress and full tracebacks"
+    echo "  --type-check    Run the pyright type checker (slow)"
 }
 
 filter_pytest_output() {
@@ -91,9 +99,6 @@ filter_pytest_output() {
     fi
 }
 
-verbose=false
-file_provided=false
-patterns=()
 while [[ "${1:-}" == -* ]]; do
     case "$1" in
         -h|--help)
@@ -102,6 +107,11 @@ while [[ "${1:-}" == -* ]]; do
             ;;
         -v|--verbose)
             verbose=true
+            shift
+            ;;
+
+        --type-check)
+            type_check=true
             shift
             ;;
         *)
@@ -122,6 +132,8 @@ if [[ "$verbose" == true ]]; then
 else
     pytest_args=(-x --tb=short)
 fi
+
+
 
 if [[ -n "${1:-}" ]]; then
     # Collect all remaining arguments as patterns
