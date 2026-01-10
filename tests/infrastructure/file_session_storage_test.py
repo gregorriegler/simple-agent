@@ -62,3 +62,24 @@ def test_session_manifest_written(tmp_path):
     assert manifest_path.exists()
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert manifest["session_id"] == storage.session_root().name
+
+
+def test_load_messages_returns_empty_for_unknown_agent(tmp_path):
+    storage = FileSessionStorage.create(
+        tmp_path / "sessions",
+        continue_session=False,
+        cwd=tmp_path,
+    )
+    agent_id = AgentId("NeverSaved", root=storage.session_root())
+
+    messages = storage.load_messages(agent_id)
+
+    assert len(messages) == 0
+
+
+def test_continue_session_creates_new_when_no_sessions_exist(tmp_path):
+    base_dir = tmp_path / "sessions"
+
+    storage = FileSessionStorage.create(base_dir, continue_session=True, cwd=tmp_path)
+
+    assert storage.session_root().exists()
