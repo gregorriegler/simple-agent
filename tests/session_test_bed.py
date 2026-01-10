@@ -32,25 +32,38 @@ from tests.user_input_stub import UserInputStub
 class CapturingLLM:
     def __init__(self):
         self.captured_messages: list[ChatMessages] = []
+        self._responses: list[str] = []
+        self._response_index = 0
 
     @property
     def model(self) -> str:
         return "capturing-model"
 
+    def set_responses(self, responses: list[str]) -> None:
+        self._responses = responses
+        self._response_index = 0
+
     async def call_async(self, messages: ChatMessages) -> LLMResponse:
         self.captured_messages.append(list(messages))
+        content = "Done"
+        if self._response_index < len(self._responses):
+            content = self._responses[self._response_index]
+            self._response_index += 1
         return LLMResponse(
-            content="Done",
+            content=content,
             model=self.model,
             usage=TokenUsage(0, 0, 0),
         )
 
     def first_call_contained(self, role: str, content: str) -> bool:
-        if not self.captured_messages:
+        return self.call_contained(0, role, content)
+
+    def call_contained(self, call_index: int, role: str, content: str) -> bool:
+        if call_index >= len(self.captured_messages):
             return False
         return any(
             m["role"] == role and content in m["content"]
-            for m in self.captured_messages[0]
+            for m in self.captured_messages[call_index]
         )
 
 
