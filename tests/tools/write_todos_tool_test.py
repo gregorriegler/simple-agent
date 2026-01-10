@@ -8,7 +8,7 @@ from tests.test_helpers import all_scrubbers
 pytestmark = pytest.mark.asyncio
 
 
-async def test_write_todos_creates_markdown_file(tmp_path, tool_library):
+async def test_write_todos_creates_markdown_file(tmp_path):
     command = textwrap.dedent("""
     🛠️[write-todos]
     - [ ] Item 1
