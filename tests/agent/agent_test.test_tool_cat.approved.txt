@@ -1,5 +1,6 @@
 # Events
 Agent:       session_started: False
+Agent:         agent_started: Agent stub-model
 Agent:         user_prompted: Test message
 Agent:   assistant_responded: 🛠️[cat /tmp/test_path/testfile.txt /] stub-model 0 0
 Agent:           tool_called: Agent::tool_call::1 🛠️ cat /tmp/test_path/testfile.txt

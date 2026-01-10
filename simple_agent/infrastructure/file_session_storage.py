@@ -6,7 +6,7 @@ from uuid import uuid4
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.llm import Messages
-from simple_agent.application.session_storage import SessionStorage
+from simple_agent.application.session_storage import AgentMetadata, SessionStorage
 from simple_agent.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -67,9 +67,58 @@ class FileSessionStorage(SessionStorage):
     def session_root(self) -> Path:
         return self._session_root
 
+    def list_stored_agents(self) -> list[AgentId]:
+        agents_dir = self._session_root / "agents"
+        if not agents_dir.exists():
+            return []
+        agent_ids = []
+        for agent_dir in agents_dir.iterdir():
+            if agent_dir.is_dir() and (agent_dir / "messages.json").exists():
+                raw_id = agent_dir.name.replace("-", "/")
+                agent_ids.append(AgentId(raw_id, root=self._session_root))
+        return sorted(agent_ids, key=lambda a: a.depth())
+
+    def load_metadata(self, agent_id: AgentId) -> AgentMetadata:
+        path = self._metadata_path(agent_id)
+        if not path.exists():
+            return AgentMetadata()
+        try:
+            raw_data = json.loads(path.read_text(encoding="utf-8"))
+            return AgentMetadata(
+                model=raw_data.get("model", ""),
+                max_tokens=raw_data.get("max_tokens", 0),
+                input_tokens=raw_data.get("input_tokens", 0),
+            )
+        except (json.JSONDecodeError, Exception) as error:
+            logger.warning("Could not load metadata file %s: %s", path, error)
+            return AgentMetadata()
+
+    def save_metadata(self, agent_id: AgentId, metadata: AgentMetadata) -> None:
+        path = self._metadata_path(agent_id)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            path.write_text(
+                json.dumps(
+                    {
+                        "model": metadata.model,
+                        "max_tokens": metadata.max_tokens,
+                        "input_tokens": metadata.input_tokens,
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+        except Exception as error:
+            logger.warning("Could not save metadata file %s: %s", path, error)
+
     def _messages_path(self, agent_id: AgentId) -> Path:
         return (
             self._session_root / "agents" / agent_id.for_filesystem() / "messages.json"
+        )
+
+    def _metadata_path(self, agent_id: AgentId) -> Path:
+        return (
+            self._session_root / "agents" / agent_id.for_filesystem() / "metadata.json"
         )
 
     def _ensure_manifest(self) -> None:

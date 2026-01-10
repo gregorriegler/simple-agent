@@ -5,11 +5,12 @@ from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import EventBus
-from simple_agent.application.events import SessionStartedEvent
+from simple_agent.application.events import AssistantRespondedEvent, SessionStartedEvent
+from simple_agent.application.history_replayer import HistoryReplayer
 from simple_agent.application.llm import LLMProvider
 from simple_agent.application.persisted_messages import PersistedMessages
 from simple_agent.application.project_tree import ProjectTree
-from simple_agent.application.session_storage import SessionStorage
+from simple_agent.application.session_storage import AgentMetadata, SessionStorage
 from simple_agent.application.todo_cleanup import TodoCleanup
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from simple_agent.application.user_input import UserInput
@@ -62,11 +63,15 @@ class Session:
             self._project_tree,
         )
 
+        self._subscribe_to_metadata_updates()
+
         self._event_bus.publish(
             SessionStartedEvent(starting_agent_id, args.continue_session)
         )
 
         if args.continue_session:
+            history_replayer = HistoryReplayer(self._event_bus, self._session_storage)
+            history_replayer.replay_all_agents(starting_agent_id)
             persisted_messages = PersistedMessages(
                 self._session_storage,
                 starting_agent_id,
@@ -83,3 +88,16 @@ class Session:
         )
 
         await agent.start()
+
+    def _subscribe_to_metadata_updates(self) -> None:
+        def on_assistant_responded(event: AssistantRespondedEvent) -> None:
+            if event.agent_id is None:
+                return
+            metadata = AgentMetadata(
+                model=event.model,
+                max_tokens=event.max_tokens,
+                input_tokens=event.input_tokens,
+            )
+            self._session_storage.save_metadata(event.agent_id, metadata)
+
+        self._event_bus.subscribe(AssistantRespondedEvent, on_assistant_responded)

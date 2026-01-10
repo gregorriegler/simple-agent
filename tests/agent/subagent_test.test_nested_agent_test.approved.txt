@@ -1,11 +1,14 @@
 # Events
 Agent:       session_started: False
+Agent:         agent_started: Agent stub-model
 Agent:         user_prompted: Create a subagent that creates another subagent
 Agent:   assistant_responded: 🛠️[subagent orchestrator create another subagent] stub-model 0 0
 Agent:           tool_called: Agent::tool_call::1 🛠️ subagent orchestrator create another subagent
+Agent/Orchestrator:         agent_started: Orchestrator stub-model
 Agent/Orchestrator:         user_prompted: create another subagent
 Agent/Orchestrator:   assistant_responded: 🛠️[subagent coding say nested hello] stub-model 0 0
 Agent/Orchestrator:           tool_called: Agent/Orchestrator::tool_call::1 🛠️ subagent coding say nested hello
+Agent/Orchestrator/Coding:         agent_started: Coding stub-model
 Agent/Orchestrator/Coding:         user_prompted: say nested hello
 Agent/Orchestrator/Coding:   assistant_responded: nested hello
 🛠️[complete-task I successfully said nested hello] stub-model 0 0

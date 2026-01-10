@@ -4,6 +4,7 @@ from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
     AgentEvent,
+    AgentStartedEvent,
     AssistantRespondedEvent,
     AssistantSaidEvent,
     ErrorEvent,
@@ -172,6 +173,7 @@ class SessionTestBed:
         event_spy = EventSpy()
         tracked_events = [
             SessionStartedEvent,
+            AgentStartedEvent,
             UserPromptRequestedEvent,
             UserPromptedEvent,
             AssistantSaidEvent,

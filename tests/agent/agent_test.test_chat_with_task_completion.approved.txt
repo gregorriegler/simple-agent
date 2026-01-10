@@ -1,5 +1,6 @@
 # Events
 Agent:       session_started: False
+Agent:         agent_started: Agent stub-model
 Agent:         user_prompted: Say Hello
 Agent:   assistant_responded: Hello!
 🛠️[complete-task I successfully said hello /] stub-model 0 0
