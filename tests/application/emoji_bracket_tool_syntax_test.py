@@ -366,6 +366,11 @@ print("test")
         # Inner 🛠️[ should be treated as plain text in the body
         assert len(result.tool_calls) == 1
         assert "🛠️[another-tool]" in result.tool_calls[0].body
+        assert (
+            result.tool_calls[0].body
+            == """# This code mentions 🛠️[another-tool] but it's not a real tool call
+print("test")"""
+        )
 
 
 class TestEmojiBracketEdgeCases:

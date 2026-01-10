@@ -227,6 +227,8 @@ class EmojiBracketToolSyntax(ToolSyntax):
                 depth = 1
                 end_idx = -1
                 current_end_marker = ""
+                last_end_idx = -1
+                last_end_marker = ""
 
                 while True:
                     next_start_idx, next_start_marker = find_any(
@@ -235,25 +237,33 @@ class EmojiBracketToolSyntax(ToolSyntax):
                     next_end_idx, next_end_marker = find_any(END_MARKERS, search_pos)
 
                     if next_end_idx == -1:
-                        # Missing end marker - best effort: treat rest as body
-                        body = text[after_header:].rstrip()
-                        if body.startswith("\n"):
-                            body = body[1:]
-                        elif body.startswith("\r\n"):
-                            body = body[2:]
-                        tool_calls.append(
-                            RawToolCall(name=tool_name, arguments=arguments, body=body)
-                        )
-                        pos = len(text)
+                        if last_end_idx != -1:
+                            end_idx = last_end_idx
+                            current_end_marker = last_end_marker
+                        else:
+                            # Missing end marker - best effort: treat rest as body
+                            body = text[after_header:].rstrip()
+                            if body.startswith("\n"):
+                                body = body[1:]
+                            elif body.startswith("\r\n"):
+                                body = body[2:]
+                            tool_calls.append(
+                                RawToolCall(
+                                    name=tool_name, arguments=arguments, body=body
+                                )
+                            )
+                            pos = len(text)
                         break
 
                     if next_start_idx != -1 and next_start_idx < next_end_idx:
-                        # Nested start marker - increase depth and continue searching
+                        # Nested start marker - track depth but allow fallback if unclosed
                         depth += 1
                         search_pos = next_start_idx + len(next_start_marker)
                         continue
 
                     depth -= 1
+                    last_end_idx = next_end_idx
+                    last_end_marker = next_end_marker
                     if depth == 0:
                         end_idx = next_end_idx
                         current_end_marker = next_end_marker
