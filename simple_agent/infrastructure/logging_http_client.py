@@ -55,6 +55,57 @@ class LoggingAsyncClient(httpx.AsyncClient):
         return response
 
 
+def format_request_args(
+    method: str,
+    url: str,
+    headers: dict[str, str],
+    body: bytes | str | None,
+    http_version: str = "HTTP/1.1",
+) -> str:
+    lines = [f"{method} {url} {http_version}"]
+    lines.extend(_format_headers(headers))
+
+    content_type = None
+    for k, v in headers.items():
+        if k.lower() == "content-type":
+            content_type = v
+            break
+
+    body_str = _format_body(content_type, body, None)
+    if body_str:
+        lines.append("")
+        lines.append(body_str)
+
+    return "\n" + "\n".join(lines)
+
+
+def format_response_args(
+    status_code: int,
+    headers: dict[str, str],
+    body: bytes | str | None,
+    reason_phrase: str = "",
+    http_version: str = "HTTP/1.1",
+    encoding: str | None = None,
+) -> str:
+    status_line = f"{http_version} {status_code} {reason_phrase}".strip()
+
+    lines = [status_line]
+    lines.extend(_format_headers(headers))
+
+    content_type = None
+    for k, v in headers.items():
+        if k.lower() == "content-type":
+            content_type = v
+            break
+
+    body_str = _format_body(content_type, body, encoding)
+    if body_str:
+        lines.append("")
+        lines.append(body_str)
+
+    return "\n" + "\n".join(lines)
+
+
 def _format_request(request: httpx.Request) -> str:
     http_version = request.extensions.get("http_version", "HTTP/1.1")
     if isinstance(http_version, bytes):
@@ -64,41 +115,36 @@ def _format_request(request: httpx.Request) -> str:
     if not target:
         target = "/"
 
-    lines = [f"{request.method} {target} {http_version}"]
-    lines.extend(_format_headers(request.headers))
-
-    body = _format_body(request.headers.get("content-type"), request.content, None)
-    if body:
-        lines.append("")
-        lines.append(body)
-
-    return "\n" + "\n".join(lines)
+    return format_request_args(
+        method=request.method,
+        url=target,
+        headers=dict(request.headers),
+        body=request.content,
+        http_version=http_version,
+    )
 
 
 def _format_response(response: httpx.Response) -> str:
     http_version = response.http_version or "HTTP/1.1"
     reason = response.reason_phrase or ""
-    status_line = f"{http_version} {response.status_code} {reason}".strip()
 
-    lines = [status_line]
-    lines.extend(_format_headers(response.headers))
-
-    body = _format_body(
-        response.headers.get("content-type"),
-        response.content,
-        getattr(response, "encoding", None),
+    return format_response_args(
+        status_code=response.status_code,
+        headers=dict(response.headers),
+        body=response.content,
+        reason_phrase=reason,
+        http_version=http_version,
+        encoding=getattr(response, "encoding", None),
     )
-    if body:
-        lines.append("")
-        lines.append(body)
-
-    return "\n" + "\n".join(lines)
 
 
-def _format_headers(headers: httpx.Headers) -> Iterable[str]:
+def _format_headers(
+    headers: Iterable[tuple[str, str]] | dict[str, str],
+) -> Iterable[str]:
+    header_items = headers.items() if isinstance(headers, dict) else headers
     return [
         f"{_format_header_name(name)}: {_mask_header_value(name, value)}"
-        for name, value in headers.items()
+        for name, value in header_items
     ]
 
 

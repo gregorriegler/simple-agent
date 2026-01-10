@@ -1,6 +1,7 @@
 import asyncio
 import io
 import json
+from types import SimpleNamespace
 
 import boto3
 import pytest
@@ -81,6 +82,9 @@ async def test_bedrock_claude_chat_runs_in_thread(monkeypatch):
     body_bytes = json.dumps(response_data).encode("utf-8")
 
     class DummyClient:
+        def __init__(self):
+            self.meta = SimpleNamespace(endpoint_url="https://dummy-endpoint")
+
         def invoke_model(self, **_kwargs):
             return {
                 "body": StreamingBody(io.BytesIO(body_bytes), len(body_bytes)),
