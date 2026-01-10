@@ -6,8 +6,8 @@ from simple_agent.application.project_tree import ProjectTree
 
 
 class FileSystemProjectTree(ProjectTree):
-    def __init__(self, root_path: Path | None = None):
-        self._root_path = root_path or Path(".")
+    def __init__(self, root_path: Path):
+        self._root_path = root_path
 
     def render(self, max_depth: int = 2) -> str:
         root_path = self._root_path
@@ -41,7 +41,7 @@ def _read_gitignore(root_path: Path) -> set:
     return patterns
 
 
-def _should_ignore(path: Path, gitignore_patterns=None) -> bool:
+def _should_ignore(path: Path, gitignore_patterns) -> bool:
     name = path.name
 
     if name == ".git":
@@ -69,10 +69,10 @@ def _should_ignore(path: Path, gitignore_patterns=None) -> bool:
 def _build_tree(
     root_path: Path,
     tree: Tree,
-    parent=None,
+    parent,
+    gitignore_patterns,
     max_depth=2,
     current_depth=0,
-    gitignore_patterns=None,
 ):
     if current_depth >= max_depth:
         return
