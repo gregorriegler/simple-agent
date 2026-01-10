@@ -30,9 +30,9 @@ from tests.user_input_stub import UserInputStub
 
 
 class SessionTestResult:
-    def __init__(self, event_spy: EventSpy, session_storage: SessionStorageStub):
+    def __init__(self, event_spy: EventSpy, session_storage):
         self.events = event_spy
-        self.saved_messages = session_storage.saved
+        self.saved_messages = getattr(session_storage, "saved", {})
 
     def assert_event_occured(self, expected_event: AgentEvent, times: int = 1):
         self.events.assert_event_occured(expected_event, times)
@@ -69,6 +69,7 @@ class SessionTestBed:
         self._ctrl_c_hits = None
         self._continue_session = False
         self._todo_cleanup = None
+        self._session_storage = None
         self._custom_event_subscriptions = []
 
     def with_llm_responses(self, responses: list[str]) -> "SessionTestBed":
@@ -108,6 +109,10 @@ class SessionTestBed:
         self._todo_cleanup = cleanup
         return self
 
+    def with_session_storage(self, storage) -> "SessionTestBed":
+        self._session_storage = storage
+        return self
+
     def continuing_session(self) -> "SessionTestBed":
         self._continue_session = True
         return self
@@ -119,7 +124,9 @@ class SessionTestBed:
     async def run(self) -> SessionTestResult:
         event_bus = SimpleEventBus()
         user_input = UserInputStub(inputs=self._user_inputs, escapes=self._escape_hits)
-        session_storage = SessionStorageStub()
+        session_storage = (
+            self._session_storage if self._session_storage else SessionStorageStub()
+        )
         todo_cleanup = (
             self._todo_cleanup if self._todo_cleanup is not None else _NoOpTodoCleanup()
         )
