@@ -22,7 +22,6 @@ class FileSessionStorage(SessionStorage):
         self._base_dir = base_dir
         self._session_root = session_root
         self._metadata = metadata
-        (self._session_root / "agents").mkdir(parents=True, exist_ok=True)
         self._ensure_manifest()
 
     @classmethod
