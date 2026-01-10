@@ -45,3 +45,5 @@ e - Environment
 
 Example:
 r extract slash command handler
+
+CRITICAL: The tests have to pass before committing.
