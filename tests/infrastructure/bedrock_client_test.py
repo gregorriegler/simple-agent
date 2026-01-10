@@ -1,3 +1,4 @@
+import asyncio
 import io
 import json
 
@@ -69,6 +70,37 @@ async def test_bedrock_claude_chat_returns_content_text():
     assert result.usage.input_tokens == 10
     assert result.usage.output_tokens == 20
     assert result.usage.total_tokens == 30
+
+
+@pytest.mark.asyncio
+async def test_bedrock_claude_chat_runs_in_thread(monkeypatch):
+    response_data = {
+        "content": [{"text": "assistant response"}],
+        "usage": {"input_tokens": 1, "output_tokens": 2},
+    }
+    body_bytes = json.dumps(response_data).encode("utf-8")
+
+    class DummyClient:
+        def invoke_model(self, **_kwargs):
+            return {
+                "body": StreamingBody(io.BytesIO(body_bytes), len(body_bytes)),
+                "contentType": "application/json",
+            }
+
+    called = {"to_thread": 0}
+
+    async def fake_to_thread(func, *args, **kwargs):
+        called["to_thread"] += 1
+        return func(*args, **kwargs)
+
+    monkeypatch.setattr(asyncio, "to_thread", fake_to_thread)
+
+    chat = BedrockClaudeLLM(build_config(), client=DummyClient())
+
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert result.content == "assistant response"
+    assert called["to_thread"] >= 1
 
 
 @pytest.mark.asyncio

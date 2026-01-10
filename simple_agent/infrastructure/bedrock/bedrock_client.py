@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 from typing import Any
@@ -47,16 +48,12 @@ class BedrockClaudeLLM(LLM):
         }
 
         try:
-            response = self._client.invoke_model(
-                modelId=self._config.model,
-                body=json.dumps(data),
-                contentType="application/json",
-                accept="application/json",
-            )
+            response = await asyncio.to_thread(self._invoke_model, data)
         except (BotoCoreError, ClientError) as error:
             raise BedrockClaudeClientError(f"API request failed: {error}") from error
 
-        response_data = json.loads(response["body"].read().decode("utf-8"))
+        response_bytes = await asyncio.to_thread(self._read_response_body, response)
+        response_data = json.loads(response_bytes.decode("utf-8"))
 
         if "content" not in response_data:
             raise BedrockClaudeClientError("API response missing 'content' field")
@@ -81,6 +78,17 @@ class BedrockClaudeLLM(LLM):
         )
 
         return LLMResponse(content=content, model=self._config.model, usage=usage)
+
+    def _invoke_model(self, data: dict[str, Any]):
+        return self._client.invoke_model(
+            modelId=self._config.model,
+            body=json.dumps(data),
+            contentType="application/json",
+            accept="application/json",
+        )
+
+    def _read_response_body(self, response: dict[str, Any]) -> bytes:
+        return response["body"].read()
 
     def _build_client(self):
         base_url = self._config.base_url
