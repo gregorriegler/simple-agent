@@ -1,5 +1,4 @@
 import json
-import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -8,6 +7,9 @@ from uuid import uuid4
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.llm import Messages
 from simple_agent.application.session_storage import SessionStorage
+from simple_agent.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -45,16 +47,10 @@ class FileSessionStorage(SessionStorage):
         try:
             raw_data = json.loads(path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as error:
-            print(
-                f"Warning: Could not load session file {path}: {error}",
-                file=sys.stderr,
-            )
+            logger.warning("Could not load session file %s: %s", path, error)
             return Messages()
         except Exception as error:
-            print(
-                f"Warning: Could not load session file {path}: {error}",
-                file=sys.stderr,
-            )
+            logger.warning("Could not load session file %s: %s", path, error)
             return Messages()
         if isinstance(raw_data, list):
             return Messages(raw_data)
@@ -66,10 +62,7 @@ class FileSessionStorage(SessionStorage):
         try:
             path.write_text(json.dumps(messages.to_list(), indent=2), encoding="utf-8")
         except Exception as error:
-            print(
-                f"Warning: Could not save session file {path}: {error}",
-                file=sys.stderr,
-            )
+            logger.warning("Could not save session file %s: %s", path, error)
 
     def session_root(self) -> Path:
         return self._session_root
