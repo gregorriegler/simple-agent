@@ -4,7 +4,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
-from simple_agent.application.agent_id import AgentId
 from simple_agent.application.session_storage import SessionStorage
 from simple_agent.logging_config import get_logger
 
@@ -41,20 +40,6 @@ class FileSessionStorage(SessionStorage):
 
     def session_root(self) -> Path:
         return self._session_root
-
-    def list_stored_agents(self) -> list[AgentId]:
-        # This is now less useful since we use events,
-        # but keep it for compatibility with whatever might use it.
-        # We should probably list agents from the events log instead.
-        from simple_agent.infrastructure.file_event_store import FileEventStore
-
-        store = FileEventStore(self._session_root)
-        events = store.load_all_events()
-        agent_ids = set()
-        for event in events:
-            if event.agent_id:
-                agent_ids.add(event.agent_id)
-        return sorted(list(agent_ids), key=lambda a: a.depth())
 
     def _ensure_manifest(self) -> None:
         manifest_path = self._session_root / "manifest.json"

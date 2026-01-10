@@ -16,9 +16,6 @@ class FileReference:
     def to_text(self) -> str:
         return f"{self.PREFIX}{self.path}{self.SUFFIX}"
 
-    def is_in(self, text: str) -> bool:
-        return self.to_text() in text
-
     def load_content(self, loader: FileLoader) -> str | None:
         return loader.read_file(self.path)
 
@@ -45,10 +42,6 @@ class FileReferences:
 
     def clear(self) -> None:
         self._references.clear()
-
-    def filter_active_in(self, text: str) -> "FileReferences":
-        active_refs = {ref for ref in self._references if ref.is_in(text)}
-        return FileReferences(active_refs)
 
     def __iter__(self) -> Iterator[FileReference]:
         return iter(self._references)

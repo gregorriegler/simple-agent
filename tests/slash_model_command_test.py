@@ -1,7 +1,7 @@
 import pytest
 from approvaltests import verify
 
-from simple_agent.application.events import ErrorEvent, ModelChangedEvent
+from simple_agent.application.events import ErrorEvent
 from tests.session_test_bed import SessionTestBed
 
 pytestmark = pytest.mark.asyncio

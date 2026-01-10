@@ -37,9 +37,6 @@ async def test_submit_input_includes_referenced_files(textual_harness, tmp_path)
 
         assert f"Check this [📦{test_file_path}]" in submission
         assert expected_context in submission
-
-        # Verify references are cleared
-        assert len(text_area.get_referenced_files()) == 0
         assert text_area.text == ""
 
 
@@ -67,6 +64,3 @@ async def test_submit_input_ignores_unreferenced_files(textual_harness, tmp_path
         submission = user_input.submissions[0]
         assert "Just text without file" in submission
         assert "<file_context" not in submission
-
-        # References should be cleared on submit
-        assert len(text_area.get_referenced_files()) == 0

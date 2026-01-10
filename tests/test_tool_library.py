@@ -30,8 +30,6 @@ class ToolLibraryStub(AllTools):
         tool_keys: list[str] | None = None,
         agent_types: AgentTypes | None = None,
     ):
-        from simple_agent.application.session_storage import NoOpSessionStorage
-
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
         actual_tool_context = tool_context
         actual_spawner: SubagentSpawner | None = spawner
@@ -42,10 +40,8 @@ class ToolLibraryStub(AllTools):
             tool_syntax = EmojiBracketToolSyntax()
             tool_library_factory = AllToolsFactory(tool_syntax)
             agent_library = BuiltinAgentLibrary()
-            session_storage = NoOpSessionStorage()
             agent_factory = AgentFactory(
                 event_bus=actual_event_bus,
-                session_storage=session_storage,
                 tool_library_factory=tool_library_factory,
                 agent_library=agent_library,
                 user_input=UserInputStub(inputs=inputs, escapes=escapes),

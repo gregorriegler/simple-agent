@@ -11,7 +11,6 @@ from simple_agent.application.events_to_messages import events_to_messages
 from simple_agent.application.history_replayer import HistoryReplayer
 from simple_agent.application.llm import LLMProvider, Messages
 from simple_agent.application.project_tree import ProjectTree
-from simple_agent.application.session_storage import SessionStorage
 from simple_agent.application.todo_cleanup import TodoCleanup
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from simple_agent.application.user_input import UserInput

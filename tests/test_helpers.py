@@ -21,23 +21,20 @@ def create_all_tools_for_test():
     )
     from simple_agent.application.event_bus import SimpleEventBus
     from simple_agent.application.llm_stub import StubLLMProvider
-    from simple_agent.application.session_storage import NoOpSessionStorage
     from simple_agent.application.tool_library_factory import ToolContext
     from simple_agent.tools.all_tools import AllToolsFactory
 
     event_bus = SimpleEventBus()
-    session_storage = NoOpSessionStorage()
     tool_syntax = EmojiBracketToolSyntax()
     tool_library_factory = AllToolsFactory(tool_syntax)
     agent_library = BuiltinAgentLibrary()
     agent_factory = AgentFactory(
-        event_bus,
-        session_storage,
-        tool_library_factory,
-        agent_library,
-        UserInputStub(),
-        StubLLMProvider.dummy(),
-        DummyProjectTree(),
+        event_bus=event_bus,
+        tool_library_factory=tool_library_factory,
+        agent_library=agent_library,
+        user_input=UserInputStub(),
+        llm_provider=StubLLMProvider.dummy(),
+        project_tree=DummyProjectTree(),
     )
 
     agent_id = AgentId("Agent")

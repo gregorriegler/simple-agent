@@ -9,7 +9,6 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete i
     CompletionResult,
     Cursor,
     CursorAndLine,
-    FileReferences,
     SuggestionProvider,
 )
 from simple_agent.infrastructure.textual.smart_input.autocomplete.popup import (
@@ -45,9 +44,6 @@ class SmartInput(TextArea):
     def on_mount(self) -> None:
         self.app.mount(self.popup)
         self.border_subtitle = "Enter to submit, Ctrl+Enter for newline"
-
-    def get_referenced_files(self) -> set[str]:
-        return {ref.path for ref in FileReferences.from_text(self.text)}
 
     def submit(self) -> None:
         result = CompletionResult(self.text)
@@ -86,7 +82,7 @@ class SmartInput(TextArea):
 
         await super()._on_key(event)
 
-    def on_text_area_changed(self, event: "TextArea.Changed") -> None:
+    def on_text_area_changed(self) -> None:
         self.call_after_refresh(self._trigger_autocomplete_check)
 
     def _consume_event(self, event: events.Key) -> None:

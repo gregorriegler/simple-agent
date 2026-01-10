@@ -53,9 +53,6 @@ async def test_submit_includes_referenced_file_content(tmp_path):
         assert "Hello World" in submitted_text
         assert "</file_context>" in submitted_text
 
-        # Verify references are cleared
-        assert len(text_area.get_referenced_files()) == 0
-
 
 @pytest.mark.asyncio
 async def test_submit_ignores_removed_file_references(tmp_path):
