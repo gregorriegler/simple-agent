@@ -7,6 +7,7 @@ from simple_agent.application.events import (
     AssistantRespondedEvent,
     ModelChangedEvent,
     SessionClearedEvent,
+    SessionStartedEvent,
     ToolResultEvent,
     UserPromptedEvent,
 )
@@ -57,6 +58,12 @@ class EventSerializer:
                 "type": "SessionClearedEvent",
                 "agent_id": agent_id_raw,
             }
+        elif isinstance(event, SessionStartedEvent):
+            return {
+                "type": "SessionStartedEvent",
+                "agent_id": agent_id_raw,
+                "is_continuation": event.is_continuation,
+            }
         elif isinstance(event, ModelChangedEvent):
             return {
                 "type": "ModelChangedEvent",
@@ -102,6 +109,11 @@ class EventSerializer:
             )
         elif event_type == "SessionClearedEvent":
             return SessionClearedEvent(agent_id=agent_id)
+        elif event_type == "SessionStartedEvent":
+            return SessionStartedEvent(
+                agent_id=agent_id,
+                is_continuation=data.get("is_continuation", False),
+            )
         elif event_type == "ModelChangedEvent":
             return ModelChangedEvent(
                 agent_id=agent_id,

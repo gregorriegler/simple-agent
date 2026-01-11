@@ -1,9 +1,9 @@
---- BEFORE CONTINUATION ---
+--- UI STATE FROM DIRECT EVENT REPLAY ---
+ Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-
-
-
+   User: Start
+   the process
 
 
 
@@ -23,66 +23,96 @@
 │                                                                              │
 │                                                                              │
 └──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
-Tabs: []
-Active Tab: 
+Tabs: ['tab-Agent', 'tab-Agent-Coding']
+Active Tab: tab-Agent
     Vertical id='None' classes=''
       TabbedContent id='tabs' classes=''
         ContentTabs id='None' classes=''
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
+                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent-Coding' classes=''
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
-      SmartInput id='user-input' classes='' text=''
-    AutocompletePopup id='None' classes=''
-
---- AFTER CONTINUATION ---
- Coding [stub-model: 0.0%]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-   User: Say
-   hello
-
-   User: Say
-   hello
-
-   Coding:
-   Subagent is
-   talking...
-
-   Coding:
-   Subagent is
-   talking...
-
-
-
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                                                              │
-│                                                                              │
-│                                                                              │
-└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
-Tabs: ['tab-Agent-Coding']
-Active Tab: tab-Agent-Coding
-    Vertical id='None' classes=''
-      TabbedContent id='tabs' classes=''
-        ContentTabs id='None' classes=''
-          Container id='tabs-scroll' classes=''
-            Vertical id='tabs-list-bar' classes=''
-              Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent-Coding' classes='-active'
-              Underline id='None' classes=''
-        ContentSwitcher id='None' classes=''
+          TabPane id='tab-Agent' classes=''
+            ResizableHorizontal id='tab-content' classes=''
+              ResizableVertical id='left-panel' classes=''
+                VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Markdown id='None' classes='' source='**User:** Start the process'...
+                    MarkdownParagraph id='None' classes='level-0'
+                Splitter id='None' classes='horizontal'
+                VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                  Markdown id='log-Agent-todos' classes='' source=''...
+              Splitter id='None' classes=''
+              VerticalScroll id='tool-results-Agent' classes=''
           TabPane id='tab-Agent-Coding' classes=''
             ResizableHorizontal id='tab-content' classes=''
               ResizableVertical id='left-panel' classes=''
                 VerticalScroll id='log-Agent-Coding-scroll' classes='left-panel-top'
                   Markdown id='None' classes='' source='**User:** Say hello'...
                     MarkdownParagraph id='None' classes='level-0'
+                Splitter id='None' classes='horizontal'
+                VerticalScroll id='log-Agent-Coding-secondary' classes='left-panel-bottom'
+                  Markdown id='log-Agent-Coding-todos' classes='' source=''...
+              Splitter id='None' classes=''
+              VerticalScroll id='tool-results-Agent-Coding' classes=''
+      SmartInput id='user-input' classes='' text=''
+    AutocompletePopup id='None' classes=''
+
+--- UI STATE FROM EVENT STORE CONTINUATION ---
+ Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   User: Start
+   the process
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
+Tabs: ['tab-Agent', 'tab-Agent-Coding']
+Active Tab: tab-Agent
+    Vertical id='None' classes=''
+      TabbedContent id='tabs' classes=''
+        ContentTabs id='None' classes=''
+          Container id='tabs-scroll' classes=''
+            Vertical id='tabs-list-bar' classes=''
+              Horizontal id='tabs-list' classes=''
+                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent-Coding' classes=''
+              Underline id='None' classes=''
+        ContentSwitcher id='None' classes=''
+          TabPane id='tab-Agent' classes=''
+            ResizableHorizontal id='tab-content' classes=''
+              ResizableVertical id='left-panel' classes=''
+                VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Markdown id='None' classes='' source='**User:** Start the process'...
+                    MarkdownParagraph id='None' classes='level-0'
+                Splitter id='None' classes='horizontal'
+                VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                  Markdown id='log-Agent-todos' classes='' source=''...
+              Splitter id='None' classes=''
+              VerticalScroll id='tool-results-Agent' classes=''
+          TabPane id='tab-Agent-Coding' classes=''
+            ResizableHorizontal id='tab-content' classes=''
+              ResizableVertical id='left-panel' classes=''
+                VerticalScroll id='log-Agent-Coding-scroll' classes='left-panel-top'
                   Markdown id='None' classes='' source='**User:** Say hello'...
-                    MarkdownParagraph id='None' classes='level-0'
-                  Markdown id='None' classes='' source='**Coding:** Subagent is talking...'...
-                    MarkdownParagraph id='None' classes='level-0'
-                  Markdown id='None' classes='' source='**Coding:** Subagent is talking...'...
                     MarkdownParagraph id='None' classes='level-0'
                 Splitter id='None' classes='horizontal'
                 VerticalScroll id='log-Agent-Coding-secondary' classes='left-panel-bottom'

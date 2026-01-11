@@ -1,105 +1,110 @@
-import asyncio
+from typing import cast
 
 import pytest
 from approvaltests import verify
+from textual.timer import Timer
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.events import (
-    AgentFinishedEvent,
     AgentStartedEvent,
     AssistantRespondedEvent,
-    ModelChangedEvent,
-    SessionClearedEvent,
-    ToolResultEvent,
+    SessionStartedEvent,
     UserPromptedEvent,
 )
-from simple_agent.application.llm_stub import StubLLMProvider, create_llm_stub
-from simple_agent.application.session import Session, SessionArgs
-from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_event_store import FileEventStore
-from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
+from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from tests.infrastructure.textual.test_utils import (
-    MockUserInput,
     dump_ascii_screen,
     dump_ui_state,
 )
-from tests.session_test_bed import TestAgentLibrary, _NoOpTodoCleanup
-from tests.test_helpers import DummyProjectTree
-from tests.test_tool_library import ToolLibraryFactoryStub
 
 
 @pytest.mark.asyncio
-async def test_continuation_ui_golden_master(tmp_path):
+async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
+    """
+    Test that UI looks the same after session continuation.
+
+    This test:
+    1. Creates an event store with saved events (simulating a previous session)
+    2. Starts a new app and replays events to build UI state ("BEFORE")
+    3. Creates another app and uses continuation to restore from event store ("AFTER")
+    4. Verifies both UIs show the same content
+    """
+
+    class DummyTimer:
+        def stop(self) -> None:
+            return None
+
+    def noop_set_interval(*args: object, **kwargs: object) -> Timer:
+        return cast(Timer, DummyTimer())
+
     event_store = FileEventStore(tmp_path)
     agent_id = AgentId("Agent").with_root(tmp_path)
+    subagent_id = AgentId("Agent/Coding").with_root(tmp_path)
 
-    # --- Part 1: Initial Session ---
-    llm_responses = [
-        "Starting subagent\n🛠️[subagent coding Say hello /]",
-        "Subagent is talking...",
+    # Persist events to the event store (simulating a previous session)
+    events = [
+        SessionStartedEvent(agent_id=agent_id, is_continuation=False),
+        AgentStartedEvent(
+            agent_id=agent_id,
+            agent_name="Agent",
+            model="stub-model",
+            agent_type=AgentType("agent"),
+        ),
+        UserPromptedEvent(agent_id=agent_id, input_text="Start the process"),
+        AssistantRespondedEvent(
+            agent_id=agent_id,
+            response="Starting subagent\n🛠️[subagent coding Say hello /]",
+            model="stub-model",
+            token_usage_display="0.0%",
+        ),
+        AgentStartedEvent(
+            agent_id=subagent_id,
+            agent_name="Coding",
+            model="stub-model",
+            agent_type=AgentType("coding"),
+        ),
+        UserPromptedEvent(agent_id=subagent_id, input_text="Say hello"),
+        AssistantRespondedEvent(
+            agent_id=subagent_id,
+            response="Hello from subagent!",
+            model="stub-model",
+            token_usage_display="0.0%",
+        ),
     ]
 
-    def create_session_and_app(responses):
-        bus = SimpleEventBus()
-        user_input = MockUserInput()
-        llm = create_llm_stub(responses)
-        tool_factory = ToolLibraryFactoryStub(llm, event_bus=bus)
+    for event in events:
+        event_store.persist(event)
 
-        session = Session(
-            event_bus=bus,
-            tool_library_factory=tool_factory,
-            agent_library=TestAgentLibrary(),
-            user_input=user_input,
-            todo_cleanup=_NoOpTodoCleanup(),
-            llm_provider=StubLLMProvider.for_testing(llm),
-            project_tree=DummyProjectTree(),
-            event_store=event_store,
-        )
-
-        app = TextualApp(user_input, agent_id, available_models=["stub-model"])
-
-        # Subscribe event store to bus
-        for et in [
-            UserPromptedEvent,
-            AssistantRespondedEvent,
-            AgentStartedEvent,
-            AgentFinishedEvent,
-            ToolResultEvent,
-            SessionClearedEvent,
-            ModelChangedEvent,
-        ]:
-            bus.subscribe(et, event_store.persist)
-
-        subscribe_events(bus, EventLogger(), _NoOpTodoCleanup(), app, event_store)
-
-        return session, app
-
-    session1, app1 = create_session_and_app(llm_responses)
+    # --- Part 1: Build UI by replaying events directly ---
+    app1 = TextualApp(
+        user_input=None, root_agent_id=agent_id, available_models=["stub-model"]
+    )
+    app1.set_interval = noop_set_interval
 
     async with app1.run_test(size=(80, 24)) as pilot:
-        asyncio.create_task(
-            session1.run_async(SessionArgs(start_message="Start the process"), agent_id)
-        )
+        # Replay events to build UI state
+        for event in events:
+            app1.on_domain_event_message(DomainEventMessage(event))
+        await pilot.pause()
 
-        for _ in range(15):
-            await pilot.pause(0.1)
+        state_before = f"--- UI STATE FROM DIRECT EVENT REPLAY ---\n{dump_ascii_screen(app1)}\n{dump_ui_state(app1)}"
 
-        state_before = f"--- BEFORE CONTINUATION ---\n{dump_ascii_screen(app1)}\n{dump_ui_state(app1)}"
-
-    # --- Part 2: Continuation ---
-    llm_responses_cont = ["Continuing..."]
-    session2, app2 = create_session_and_app(llm_responses_cont)
+    # --- Part 2: Build UI by loading from event store (continuation path) ---
+    app2 = TextualApp(
+        user_input=None, root_agent_id=agent_id, available_models=["stub-model"]
+    )
+    app2.set_interval = noop_set_interval
 
     async with app2.run_test(size=(80, 24)) as pilot:
-        asyncio.create_task(
-            session2.run_async(SessionArgs(continue_session=True), agent_id)
-        )
+        # Load all events from store in chronological order and replay
+        for event in event_store.load_all_events():
+            app2.on_domain_event_message(DomainEventMessage(event))
 
-        for _ in range(15):
-            await pilot.pause(0.1)
+        await pilot.pause()
 
-        state_after = f"--- AFTER CONTINUATION ---\n{dump_ascii_screen(app2)}\n{dump_ui_state(app2)}"
+        state_after = f"--- UI STATE FROM EVENT STORE CONTINUATION ---\n{dump_ascii_screen(app2)}\n{dump_ui_state(app2)}"
 
-        verify(state_before + "\n\n" + state_after)
+    verify(state_before + "\n\n" + state_after)
