@@ -3,6 +3,7 @@
 
 # NEXT
 - proper session storage
+- ❌ Error: API response missing 'parts' field
 - async subagents
 - the subagent tool description need to allow for a subscription per agent, so we can explain that a test-writer will only ever write a single test
 - agent slash command
