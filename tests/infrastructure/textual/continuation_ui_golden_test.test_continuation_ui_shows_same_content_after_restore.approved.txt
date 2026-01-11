@@ -1,12 +1,12 @@
 --- UI STATE FROM DIRECT EVENT REPLAY ---
  Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-   User: Start
+                     ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+   User: Start         ▼ Reading test.txt
    the process
-
-
-
+                         ╭─────────────────────────────────────────────────────╮
+                         │ Content of test.txt                                 │
+                         ╰─────────────────────────────────────────────────────╯
 
 
 
@@ -46,6 +46,10 @@ Active Tab: tab-Agent
                   Markdown id='log-Agent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
+                Collapsible id='None' classes='' title='Reading test.txt' collapsed=False
+                  CollapsibleTitle id='None' classes=''
+                  Contents id='None' classes=''
+                    TextArea id='None' classes='tool-result tool-result-success' text='Content of test.txt'
           TabPane id='tab-Agent-Coding' classes=''
             ResizableHorizontal id='tab-content' classes=''
               ResizableVertical id='left-panel' classes=''
@@ -63,12 +67,12 @@ Active Tab: tab-Agent
 --- UI STATE FROM EVENT STORE CONTINUATION ---
  Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-   User: Start
+                     ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+   User: Start         ▼ Reading test.txt
    the process
-
-
-
+                         ╭─────────────────────────────────────────────────────╮
+                         │ Content of test.txt                                 │
+                         ╰─────────────────────────────────────────────────────╯
 
 
 
@@ -108,6 +112,10 @@ Active Tab: tab-Agent
                   Markdown id='log-Agent-todos' classes='' source=''...
               Splitter id='None' classes=''
               VerticalScroll id='tool-results-Agent' classes=''
+                Collapsible id='None' classes='' title='Reading test.txt' collapsed=False
+                  CollapsibleTitle id='None' classes=''
+                  Contents id='None' classes=''
+                    TextArea id='None' classes='tool-result tool-result-success' text='Content of test.txt'
           TabPane id='tab-Agent-Coding' classes=''
             ResizableHorizontal id='tab-content' classes=''
               ResizableVertical id='left-panel' classes=''

@@ -8,10 +8,12 @@ from simple_agent.application.events import (
     ModelChangedEvent,
     SessionClearedEvent,
     SessionStartedEvent,
+    ToolCalledEvent,
     ToolResultEvent,
     UserPromptedEvent,
 )
-from simple_agent.application.tool_results import SingleToolResult
+from simple_agent.application.tool_library import ParsedTool, RawToolCall
+from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
 
 
 class EventSerializer:
@@ -46,12 +48,34 @@ class EventSerializer:
                 "type": "AgentFinishedEvent",
                 "agent_id": agent_id_raw,
             }
+        elif isinstance(event, ToolCalledEvent):
+            return {
+                "type": "ToolCalledEvent",
+                "agent_id": agent_id_raw,
+                "call_id": event.call_id,
+                "tool_name": event.tool.name if event.tool else "",
+                "tool_arguments": event.tool.arguments if event.tool else "",
+                "tool_body": event.tool.body if event.tool else "",
+            }
         elif isinstance(event, ToolResultEvent):
+            status = "success"
+            if event.result:
+                if event.result.cancelled:
+                    status = "cancelled"
+                elif not event.result.success:
+                    status = "failure"
+
             return {
                 "type": "ToolResultEvent",
                 "agent_id": agent_id_raw,
                 "call_id": event.call_id,
                 "result_message": event.result.message if event.result else "",
+                "display_title": event.result.display_title if event.result else "",
+                "display_body": event.result.display_body if event.result else "",
+                "display_language": event.result.display_language
+                if event.result
+                else "",
+                "status": status,
             }
         elif isinstance(event, SessionClearedEvent):
             return {
@@ -101,11 +125,33 @@ class EventSerializer:
             )
         elif event_type == "AgentFinishedEvent":
             return AgentFinishedEvent(agent_id=agent_id)
+        elif event_type == "ToolCalledEvent":
+            tool_name = data.get("tool_name", "")
+            tool_args = data.get("tool_arguments", "")
+            tool_body = data.get("tool_body", "")
+            tool = ParsedTool(RawToolCall(tool_name, tool_args, tool_body), None)
+            return ToolCalledEvent(
+                agent_id=agent_id,
+                call_id=data.get("call_id", ""),
+                tool=tool,
+            )
         elif event_type == "ToolResultEvent":
+            status_str = data.get("status", "success")
+            try:
+                status = ToolResultStatus(status_str)
+            except ValueError:
+                status = ToolResultStatus.SUCCESS
+
             return ToolResultEvent(
                 agent_id=agent_id,
                 call_id=data.get("call_id", ""),
-                result=SingleToolResult(message=data.get("result_message", "")),
+                result=SingleToolResult(
+                    message=data.get("result_message", ""),
+                    display_title=data.get("display_title", ""),
+                    display_body=data.get("display_body", ""),
+                    display_language=data.get("display_language", ""),
+                    status=status,
+                ),
             )
         elif event_type == "SessionClearedEvent":
             return SessionClearedEvent(agent_id=agent_id)
