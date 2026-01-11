@@ -72,13 +72,12 @@ class Agent(SlashCommandVisitor):
                     await self._notify_session_interrupted()
                     continue
 
-            self._notify_session_ended()
             return tool_result
         except (EOFError, KeyboardInterrupt):
-            self._notify_session_ended()
             return SingleToolResult()
         finally:
             self._notify_agent_finished()
+            self._notify_session_ended()
 
     async def user_prompts(self):
         if not self.user_input.has_stacked_messages():

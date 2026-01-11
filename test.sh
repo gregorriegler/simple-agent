@@ -130,7 +130,7 @@ test_target="tests/"
 if [[ "$verbose" == true ]]; then
     pytest_args=(-v)
 else
-    pytest_args=(-x --tb=short)
+    pytest_args=(--tb=short)
 fi
 
 

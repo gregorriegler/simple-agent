@@ -8,6 +8,7 @@ Agent:        assistant_said: Hello!
 Agent:           tool_called: Agent::tool_call::1 🛠️ complete-task I successfully said hello
 Agent:           tool_result: Agent::tool_call::1 I successfully said hello
 Agent: user_prompt_requested: 
+Agent:        agent_finished: 
 Agent:         session_ended: 
 
 # Messages:

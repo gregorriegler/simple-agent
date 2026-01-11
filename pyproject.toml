@@ -48,6 +48,7 @@ dev = [
 
 [project.scripts]
 agent = "simple_agent.main:main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["simple_agent"]
 

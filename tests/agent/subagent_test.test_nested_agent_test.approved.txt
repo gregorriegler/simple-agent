@@ -16,18 +16,21 @@ Agent/Orchestrator/Coding:        assistant_said: nested hello
 Agent/Orchestrator/Coding:           tool_called: Agent/Orchestrator/Coding::tool_call::1 🛠️ complete-task I successfully said nested hello
 Agent/Orchestrator/Coding:           tool_result: Agent/Orchestrator/Coding::tool_call::1 I successfully said nested hello
 Agent/Orchestrator/Coding: user_prompt_requested: 
+Agent/Orchestrator/Coding:        agent_finished: 
 Agent/Orchestrator/Coding:         session_ended: 
 Agent/Orchestrator:           tool_result: Agent/Orchestrator::tool_call::1 I successfully said nested hello
 Agent/Orchestrator:   assistant_responded: 🛠️[complete-task I successfully created another subagent] stub-model 0.0%
 Agent/Orchestrator:           tool_called: Agent/Orchestrator::tool_call::2 🛠️ complete-task I successfully created another subagent
 Agent/Orchestrator:           tool_result: Agent/Orchestrator::tool_call::2 I successfully created another subagent
 Agent/Orchestrator: user_prompt_requested: 
+Agent/Orchestrator:        agent_finished: 
 Agent/Orchestrator:         session_ended: 
 Agent:           tool_result: Agent::tool_call::1 I successfully created another subagent
 Agent:   assistant_responded: 🛠️[complete-task I successfully created a subagent] stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::2 🛠️ complete-task I successfully created a subagent
 Agent:           tool_result: Agent::tool_call::2 I successfully created a subagent
 Agent: user_prompt_requested: 
+Agent:        agent_finished: 
 Agent:         session_ended: 
 
 # Messages:

@@ -19,6 +19,7 @@ Agent:   assistant_responded: 🛠️[complete-task summary /] stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::3 🛠️ complete-task summary
 Agent:           tool_result: Agent::tool_call::3 summary
 Agent: user_prompt_requested: 
+Agent:        agent_finished: 
 Agent:         session_ended: 
 
 # Messages:

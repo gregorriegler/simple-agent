@@ -11,6 +11,7 @@ Agent:         user_prompted: Message with new model
 Agent:   assistant_responded: Response 2 stub-model 0.0%
 Agent:        assistant_said: Response 2
 Agent: user_prompt_requested: 
+Agent:        agent_finished: 
 Agent:         session_ended: 
 
 # Messages:

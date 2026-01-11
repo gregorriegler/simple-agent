@@ -5,6 +5,7 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.event_store import EventStore
 from simple_agent.application.events import (
     AgentEvent,
+    AgentFinishedEvent,
     AgentStartedEvent,
     AssistantRespondedEvent,
     AssistantSaidEvent,
@@ -189,6 +190,7 @@ class SessionTestBed:
             AssistantRespondedEvent,
             ToolCalledEvent,
             ToolResultEvent,
+            AgentFinishedEvent,
             SessionClearedEvent,
             SessionInterruptedEvent,
             SessionEndedEvent,
@@ -200,6 +202,15 @@ class SessionTestBed:
 
         for event_type, handler in self._custom_event_subscriptions:
             event_bus.subscribe(event_type, handler)
+
+        if self._event_store:
+            event_bus.subscribe(UserPromptedEvent, self._event_store.persist)
+            event_bus.subscribe(AssistantRespondedEvent, self._event_store.persist)
+            event_bus.subscribe(AgentStartedEvent, self._event_store.persist)
+            event_bus.subscribe(AgentFinishedEvent, self._event_store.persist)
+            event_bus.subscribe(ToolResultEvent, self._event_store.persist)
+            event_bus.subscribe(SessionClearedEvent, self._event_store.persist)
+            event_bus.subscribe(ModelChangedEvent, self._event_store.persist)
 
         tool_library_factory = ToolLibraryFactoryStub(
             self._llm,

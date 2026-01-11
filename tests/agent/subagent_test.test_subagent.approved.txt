@@ -12,6 +12,7 @@ Agent/Coding:        assistant_said: hello
 Agent/Coding:           tool_called: Agent/Coding::tool_call::1 🛠️ complete-task I successfully said hello
 Agent/Coding:           tool_result: Agent/Coding::tool_call::1 I successfully said hello
 Agent/Coding: user_prompt_requested: 
+Agent/Coding:        agent_finished: 
 Agent/Coding:         session_ended: 
 Agent:           tool_result: Agent::tool_call::1 I successfully said hello
 Agent:   assistant_responded: hello
@@ -20,6 +21,7 @@ Agent:        assistant_said: hello
 Agent:           tool_called: Agent::tool_call::2 🛠️ complete-task I successfully said hello
 Agent:           tool_result: Agent::tool_call::2 I successfully said hello
 Agent: user_prompt_requested: 
+Agent:        agent_finished: 
 Agent:         session_ended: 
 
 # Messages:
