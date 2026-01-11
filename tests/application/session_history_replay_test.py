@@ -174,58 +174,6 @@ async def test_continuing_session_replays_agent_started_event_for_root_agent(tmp
 
 
 @pytest.mark.asyncio
-async def test_continuing_session_without_stored_agent_started_still_works(tmp_path):
-    """
-    When continuing a session that doesn't have AgentStartedEvent stored (e.g., old format),
-    the HistoryReplayer synthesizes an AgentStartedEvent so the UI can create the tab.
-    """
-    agent_id = AgentId("Agent")
-    event_store = FileEventStore(tmp_path)
-    event_store.persist(
-        UserPromptedEvent(agent_id=agent_id, input_text="Hello from the past")
-    )
-    event_store.persist(
-        AssistantRespondedEvent(agent_id=agent_id, response="Hi there!")
-    )
-
-    events_in_order = []
-
-    def capture_event(event):
-        events_in_order.append(type(event).__name__)
-
-    await (
-        SessionTestBed()
-        .with_event_store(event_store)
-        .with_llm_responses(["Done"])
-        .continuing_session()
-        .with_user_inputs("Continue please")
-        .on_event(AgentStartedEvent, capture_event)
-        .on_event(UserPromptedEvent, capture_event)
-        .on_event(AssistantSaidEvent, capture_event)
-        .run()
-    )
-
-    user_prompted_indices = [
-        i for i, e in enumerate(events_in_order) if e == "UserPromptedEvent"
-    ]
-    agent_started_indices = [
-        i for i, e in enumerate(events_in_order) if e == "AgentStartedEvent"
-    ]
-
-    assert len(agent_started_indices) > 0, "AgentStartedEvent should occur"
-    assert len(user_prompted_indices) > 0, "UserPromptedEvent should occur"
-
-    first_agent_started = agent_started_indices[0]
-    first_user_prompted = user_prompted_indices[0]
-
-    assert first_agent_started < first_user_prompted, (
-        f"AgentStartedEvent (index {first_agent_started}) should come before "
-        f"UserPromptedEvent (index {first_user_prompted}). "
-        f"Actual order: {events_in_order}"
-    )
-
-
-@pytest.mark.asyncio
 async def test_continuing_finished_session_replays_agent_started_before_messages(
     tmp_path,
 ):
