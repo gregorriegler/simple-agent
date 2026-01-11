@@ -153,3 +153,23 @@ async def test_submit_input_sends_user_input(textual_harness):
 
         assert user_input.submissions == ["Hello"]
         assert text_area.text == ""
+
+
+@pytest.mark.asyncio
+async def test_agent_started_creates_tab_with_model_in_title(textual_harness):
+    event_bus, _, _, app = textual_harness
+    agent_id = AgentId("Agent")
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+
+        event_bus.publish(AgentStartedEvent(agent_id, "MyAgent", "test-model"))
+        await pilot.pause()
+
+        tabs = app.query_one("#tabs")
+        tab_id, _, _ = app.panel_ids_for(agent_id)
+        tab = tabs.get_tab(tab_id)
+        print(
+            f"DEBUG: tab.label={tab.label!r}, _agent_names={tabs._agent_names}, _agent_models={tabs._agent_models}"
+        )
+        assert str(tab.label) == "MyAgent [test-model]"

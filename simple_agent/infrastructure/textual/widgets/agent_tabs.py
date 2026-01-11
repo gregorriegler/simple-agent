@@ -1,5 +1,6 @@
 import logging
 
+from rich.markup import escape
 from textual.css.query import NoMatches
 from textual.widgets import TabbedContent, TabPane
 
@@ -71,7 +72,7 @@ class AgentTabs(TabbedContent):
         agent_name = tab_title.split(" [")[0] if " [" in tab_title else tab_title
         self._agent_names[agent_id] = agent_name
 
-        new_tab = TabPane(tab_title, id=tab_id)
+        new_tab = TabPane(escape(tab_title), id=tab_id)
         new_tab.compose_add_child(
             self.create_agent_container(log_id, tool_results_id, agent_id)
         )
@@ -94,7 +95,7 @@ class AgentTabs(TabbedContent):
         try:
             tab = self.get_tab(tab_id)
             if tab:
-                tab.label = title
+                tab.label = escape(title)
         except (NoMatches, Exception):
             pass
 
