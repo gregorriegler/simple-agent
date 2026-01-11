@@ -10,8 +10,12 @@ from simple_agent.application.events import (
     AgentStartedEvent,
     AssistantRespondedEvent,
     SessionStartedEvent,
+    ToolCalledEvent,
+    ToolResultEvent,
     UserPromptedEvent,
 )
+from simple_agent.application.tool_library import ParsedTool, RawToolCall
+from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.file_event_store import FileEventStore
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
@@ -54,6 +58,24 @@ async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
             agent_type=AgentType("agent"),
         ),
         UserPromptedEvent(agent_id=agent_id, input_text="Start the process"),
+        AssistantRespondedEvent(
+            agent_id=agent_id,
+            response="Thinking...",
+            model="stub-model",
+            token_usage_display="0.0%",
+        ),
+        ToolCalledEvent(
+            agent_id=agent_id,
+            call_id="call-1",
+            tool=ParsedTool(RawToolCall("read_file", "test.txt"), None),
+        ),
+        ToolResultEvent(
+            agent_id=agent_id,
+            call_id="call-1",
+            result=SingleToolResult(
+                "Content of test.txt", display_title="Reading test.txt"
+            ),
+        ),
         AssistantRespondedEvent(
             agent_id=agent_id,
             response="Starting subagent\n🛠️[subagent coding Say hello /]",
