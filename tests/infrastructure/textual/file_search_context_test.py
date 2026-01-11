@@ -1,7 +1,7 @@
 import pytest
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.events import UserPromptedEvent
+from simple_agent.application.events import AgentStartedEvent, UserPromptedEvent
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
@@ -121,6 +121,13 @@ async def test_user_prompted_event_display_compaction():
     async with app.run_test() as pilot:
         # Simulate UserPromptedEvent with context
         agent_id = AgentId("Agent")
+
+        # Create the agent tab first
+        app.on_domain_event_message(
+            DomainEventMessage(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        )
+        await pilot.pause()
+
         # This simulates "Check this [📦main.py]" followed by the appended context
         full_text = 'Check this [📦main.py]\n<file_context path="main.py">\nLots of content...\n</file_context>'
         event = UserPromptedEvent(agent_id=agent_id, input_text=full_text)

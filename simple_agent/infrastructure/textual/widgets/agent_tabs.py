@@ -35,24 +35,11 @@ class AgentTabs(TabbedContent):
         super().__init__(**kwargs)
         self._root_agent_id = root_agent_id
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
-        self._agent_names: dict[AgentId, str] = {
-            self._root_agent_id: self._root_agent_id.raw
-        }
+        self._agent_names: dict[AgentId, str] = {}
         self._agent_workspaces: dict[str, AgentWorkspace] = {}
         self._tool_results_to_agent: dict[str, AgentId] = {}
-        self._agent_models: dict[AgentId, str] = {self._root_agent_id: ""}
-        self._agent_token_display: dict[AgentId, str] = {self._root_agent_id: ""}
-
-    def on_mount(self) -> None:
-        tab_id, log_id, tool_results_id = self.panel_ids_for(self._root_agent_id)
-        # We construct the TabPane manually
-        new_tab = TabPane(self._root_agent_id.raw, id=tab_id)
-        # And add the AgentWorkspace to it
-        new_tab.compose_add_child(
-            self.create_agent_container(log_id, tool_results_id, self._root_agent_id)
-        )
-        # Then add the pane to self (TabbedContent)
-        self.add_pane(new_tab)
+        self._agent_models: dict[AgentId, str] = {}
+        self._agent_token_display: dict[AgentId, str] = {}
 
     @staticmethod
     def panel_ids_for(agent_id: AgentId) -> tuple[str, str, str]:

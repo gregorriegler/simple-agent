@@ -4,6 +4,7 @@ from textual.widgets import Markdown, TextArea
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
+    AgentStartedEvent,
     AssistantSaidEvent,
     SessionStartedEvent,
     ToolCalledEvent,
@@ -49,6 +50,8 @@ async def test_session_start_message_is_logged(textual_harness):
     async with app.run_test() as pilot:
         await pilot.pause()
 
+        event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        await pilot.pause()
         event_bus.publish(SessionStartedEvent(agent_id, False))
         await pilot.pause()
 
@@ -63,6 +66,8 @@ async def test_user_prompt_requested_message_is_logged(textual_harness):
     async with app.run_test() as pilot:
         await pilot.pause()
 
+        event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        await pilot.pause()
         event_bus.publish(UserPromptRequestedEvent(agent_id))
         await pilot.pause()
 
@@ -80,6 +85,8 @@ async def test_user_prompted_file_context_is_compacted(textual_harness):
     async with app.run_test() as pilot:
         await pilot.pause()
 
+        event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        await pilot.pause()
         event_bus.publish(UserPromptedEvent(agent_id, input_text))
         await pilot.pause()
 
@@ -96,6 +103,8 @@ async def test_assistant_message_is_logged(textual_harness):
     async with app.run_test() as pilot:
         await pilot.pause()
 
+        event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        await pilot.pause()
         event_bus.publish(AssistantSaidEvent(agent_id, "Hello"))
         await pilot.pause()
 
@@ -111,6 +120,8 @@ async def test_tool_call_and_result_are_tracked(textual_harness):
     async with app.run_test() as pilot:
         await pilot.pause()
 
+        event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        await pilot.pause()
         event_bus.publish(ToolCalledEvent(agent_id, call_id, StubTool()))
         await pilot.pause()
 

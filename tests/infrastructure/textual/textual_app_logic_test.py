@@ -5,6 +5,7 @@ from textual.widgets import TabbedContent
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
+    AgentStartedEvent,
     AssistantSaidEvent,
     SessionClearedEvent,
     ToolResultEvent,
@@ -28,6 +29,10 @@ async def test_switch_tabs_cycles_between_root_and_subagent(app: TextualApp):
     async with app.run_test() as pilot:
         await pilot.pause()
 
+        app.on_domain_event_message(
+            DomainEventMessage(AgentStartedEvent(root_agent, "Agent", "dummy-model"))
+        )
+        await pilot.pause()
         app.add_subagent_tab(subagent, "Sub")
         await pilot.pause()
 
@@ -75,6 +80,12 @@ async def test_textual_app_clear_panels(app: TextualApp):
     async with app.run_test() as pilot:
         agent_id = AgentId("Agent")
         _, log_id, _ = app.panel_ids_for(agent_id)
+
+        # Create the tab first
+        app.on_domain_event_message(
+            DomainEventMessage(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        )
+        await pilot.pause()
 
         # Add content via event
         app.on_domain_event_message(
