@@ -167,17 +167,24 @@ class Agent(SlashCommandVisitor):
         if response.usage and response.usage.input_token_limit:
             max_tokens = response.usage.input_token_limit
 
+        token_usage_display = self._format_token_usage(input_tokens, max_tokens)
         self.context.assistant_says(answer)
         self.event_bus.publish(
             AssistantRespondedEvent(
                 self.agent_id,
                 answer,
                 model=model,
-                max_tokens=max_tokens,
-                input_tokens=input_tokens,
+                token_usage_display=token_usage_display,
             )
         )
         return self.tools.parse_message_and_tools(answer)
+
+    @staticmethod
+    def _format_token_usage(input_tokens: int, max_tokens: int) -> str:
+        if max_tokens == 0:
+            return "0.0%"
+        percentage = (input_tokens / max_tokens) * 100
+        return f"{percentage:.1f}%"
 
     def _notify_agent_started(self):
         self.event_bus.publish(

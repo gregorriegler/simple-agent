@@ -21,8 +21,7 @@ async def test_continued_session_loads_previous_messages_into_llm(tmp_path):
             agent_id=agent_id,
             response="Hi there!",
             model="test-model",
-            max_tokens=100,
-            input_tokens=50,
+            token_usage_display="50.0%",
         )
     )
 

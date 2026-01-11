@@ -47,8 +47,7 @@ class TestEventSerializer:
             agent_id=AgentId("Agent"),
             response="Hi there!",
             model="claude-sonnet-4-20250514",
-            max_tokens=200000,
-            input_tokens=150,
+            token_usage_display="0.1%",
         )
 
         result = EventSerializer.to_dict(event)
@@ -58,8 +57,7 @@ class TestEventSerializer:
             "agent_id": "Agent",
             "response": "Hi there!",
             "model": "claude-sonnet-4-20250514",
-            "max_tokens": 200000,
-            "input_tokens": 150,
+            "token_usage_display": "0.1%",
         }
 
     def test_deserialize_assistant_responded_event(self):
@@ -68,8 +66,7 @@ class TestEventSerializer:
             "agent_id": "Agent",
             "response": "Hi there!",
             "model": "claude-sonnet-4-20250514",
-            "max_tokens": 200000,
-            "input_tokens": 150,
+            "token_usage_display": "0.1%",
         }
 
         result = EventSerializer.from_dict(data)
@@ -78,8 +75,7 @@ class TestEventSerializer:
         assert result.agent_id == AgentId("Agent")
         assert result.response == "Hi there!"
         assert result.model == "claude-sonnet-4-20250514"
-        assert result.max_tokens == 200000
-        assert result.input_tokens == 150
+        assert result.token_usage_display == "0.1%"
 
     def test_serialize_agent_started_event(self):
         event = AgentStartedEvent(
@@ -224,8 +220,7 @@ class TestEventSerializer:
                 agent_id=AgentId("Agent"),
                 response="Response",
                 model="model",
-                max_tokens=100,
-                input_tokens=50,
+                token_usage_display="50.0%",
             ),
             AgentStartedEvent(
                 agent_id=AgentId("Agent/Sub"), agent_name="Sub", model="model"

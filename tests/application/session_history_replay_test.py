@@ -115,7 +115,7 @@ async def test_continuing_session_replays_subagent_history(tmp_path):
 
 @pytest.mark.asyncio
 async def test_continuing_session_restores_token_metadata(tmp_path):
-    """When continuing a session, token usage metadata should be restored."""
+    """When continuing a session, token usage display should be restored."""
     agent_id = AgentId("Agent")
     event_store = FileEventStore(tmp_path)
     event_store.persist(UserPromptedEvent(agent_id=agent_id, input_text="Hello"))
@@ -124,8 +124,7 @@ async def test_continuing_session_restores_token_metadata(tmp_path):
             agent_id=agent_id,
             response="Hi there!",
             model="claude-3-sonnet",
-            max_tokens=200000,
-            input_tokens=1500,
+            token_usage_display="0.8%",
         )
     )
 
@@ -146,7 +145,6 @@ async def test_continuing_session_restores_token_metadata(tmp_path):
             agent_id=agent_id,
             response="Hi there!",
             model="claude-3-sonnet",
-            max_tokens=200000,
-            input_tokens=1500,
+            token_usage_display="0.8%",
         )
     )

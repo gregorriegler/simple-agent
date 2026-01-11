@@ -2,11 +2,11 @@
 Agent:       session_started: False
 Agent:         agent_started: Agent stub-model
 Agent:         user_prompted: Hello
-Agent:   assistant_responded: Assistant response stub-model 0 0
+Agent:   assistant_responded: Assistant response stub-model 0.0%
 Agent:        assistant_said: Assistant response
 Agent: user_prompt_requested: 
 Agent:         user_prompted: Follow-up message
-Agent:   assistant_responded: Assistant response stub-model 0 0
+Agent:   assistant_responded: Assistant response stub-model 0.0%
 Agent:        assistant_said: Assistant response
 Agent: user_prompt_requested: 
 Agent:         session_ended: 

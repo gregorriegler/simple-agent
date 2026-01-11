@@ -30,8 +30,7 @@ class TestEventsToMessages:
                 agent_id=agent_id,
                 response="Hi there!",
                 model="test-model",
-                max_tokens=100,
-                input_tokens=50,
+                token_usage_display="50.0%",
             )
         ]
 

@@ -29,8 +29,7 @@ class EventSerializer:
                 "agent_id": agent_id_raw,
                 "response": event.response,
                 "model": event.model,
-                "max_tokens": event.max_tokens,
-                "input_tokens": event.input_tokens,
+                "token_usage_display": event.token_usage_display,
             }
         elif isinstance(event, AgentStartedEvent):
             return {
@@ -81,8 +80,7 @@ class EventSerializer:
                 agent_id=agent_id,
                 response=data.get("response", ""),
                 model=data.get("model", ""),
-                max_tokens=data.get("max_tokens", 0),
-                input_tokens=data.get("input_tokens", 0),
+                token_usage_display=data.get("token_usage_display", ""),
             )
         elif event_type == "AgentStartedEvent":
             return AgentStartedEvent(

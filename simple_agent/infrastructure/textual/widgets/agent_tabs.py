@@ -41,7 +41,7 @@ class AgentTabs(TabbedContent):
         self._agent_workspaces: dict[str, AgentWorkspace] = {}
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._agent_models: dict[AgentId, str] = {self._root_agent_id: ""}
-        self._agent_max_tokens: dict[AgentId, int] = {self._root_agent_id: 0}
+        self._agent_token_display: dict[AgentId, str] = {self._root_agent_id: ""}
 
     def on_mount(self) -> None:
         tab_id, log_id, tool_results_id = self.panel_ids_for(self._root_agent_id)
@@ -212,14 +212,15 @@ class AgentTabs(TabbedContent):
                 workspace.write_message(f"\n**❌ Error: {event.message}**")
         elif isinstance(event, AssistantRespondedEvent):
             self._agent_models[agent_id] = event.model
-            self._agent_max_tokens[agent_id] = event.max_tokens
+            self._agent_token_display[agent_id] = event.token_usage_display
             title = self._tab_title_for(
-                agent_id, event.model, event.input_tokens, event.max_tokens
+                agent_id, event.model, event.token_usage_display
             )
             self.update_tab_title(agent_id, title)
         elif isinstance(event, ModelChangedEvent):
             self._agent_models[agent_id] = event.new_model
-            title = self._tab_title_for(agent_id, event.new_model, 0, 0)
+            token_display = self._agent_token_display.get(agent_id, "")
+            title = self._tab_title_for(agent_id, event.new_model, token_display)
             self.update_tab_title(agent_id, title)
 
     def _ensure_agent_tab_exists(
@@ -233,30 +234,26 @@ class AgentTabs(TabbedContent):
             self._agent_models[agent_id] = model
         if self.has_agent_tab(agent_id):
             if model:
-                title = self._tab_title_for(
-                    agent_id, model, 0, self._agent_max_tokens.get(agent_id, 0)
-                )
+                token_display = self._agent_token_display.get(agent_id, "")
+                title = self._tab_title_for(agent_id, model, token_display)
                 self.update_tab_title(agent_id, title)
             return
-        tab_title = self._tab_title_for(agent_id, model, 0, 0)
+        tab_title = self._tab_title_for(agent_id, model, "")
         self.add_subagent_tab(agent_id, tab_title)
 
-    def _tab_title_for(
-        self, agent_id: AgentId, model: str, input_tokens: int, max_tokens: int
-    ) -> str:
+    def _tab_title_for(self, agent_id: AgentId, model: str, token_display: str) -> str:
         base_title = self._agent_names.get(agent_id, str(agent_id))
 
         if not model:
             return base_title
 
-        if max_tokens == 0:
-            return f"{base_title} [{model}: 0.0%]"
+        if not token_display:
+            return f"{base_title} [{model}]"
 
-        percentage = (input_tokens / max_tokens) * 100
-        return f"{base_title} [{model}: {percentage:.1f}%]"
+        return f"{base_title} [{model}: {token_display}]"
 
     def _reset_agent_token_usage(self, agent_id: AgentId) -> None:
         model = self._agent_models.get(agent_id, "")
-        max_tokens = self._agent_max_tokens.get(agent_id, 0)
-        title = self._tab_title_for(agent_id, model, 0, max_tokens)
+        self._agent_token_display[agent_id] = ""
+        title = self._tab_title_for(agent_id, model, "")
         self.update_tab_title(agent_id, title)

@@ -2,12 +2,12 @@
 Agent:       session_started: False
 Agent:         agent_started: Agent stub-model
 Agent:         user_prompted: Create a subagent that says hello
-Agent:   assistant_responded: 🛠️[subagent coding say hello] stub-model 0 0
+Agent:   assistant_responded: 🛠️[subagent coding say hello] stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::1 🛠️ subagent coding say hello
 Agent/Coding:         agent_started: Coding stub-model
 Agent/Coding:         user_prompted: say hello
 Agent/Coding:   assistant_responded: hello
-🛠️[complete-task I successfully said hello] stub-model 0 0
+🛠️[complete-task I successfully said hello] stub-model 0.0%
 Agent/Coding:        assistant_said: hello
 Agent/Coding:           tool_called: Agent/Coding::tool_call::1 🛠️ complete-task I successfully said hello
 Agent/Coding:           tool_result: Agent/Coding::tool_call::1 I successfully said hello
@@ -15,7 +15,7 @@ Agent/Coding: user_prompt_requested:
 Agent/Coding:         session_ended: 
 Agent:           tool_result: Agent::tool_call::1 I successfully said hello
 Agent:   assistant_responded: hello
-🛠️[complete-task I successfully said hello] stub-model 0 0
+🛠️[complete-task I successfully said hello] stub-model 0.0%
 Agent:        assistant_said: hello
 Agent:           tool_called: Agent::tool_call::2 🛠️ complete-task I successfully said hello
 Agent:           tool_result: Agent::tool_call::2 I successfully said hello

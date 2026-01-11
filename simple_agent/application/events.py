@@ -74,8 +74,7 @@ class AssistantRespondedEvent(AgentEvent):
     event_name: ClassVar[str] = "assistant_responded"
     response: str = ""
     model: str = ""
-    max_tokens: int = 0
-    input_tokens: int = 0
+    token_usage_display: str = ""
 
 
 @dataclass

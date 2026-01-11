@@ -83,7 +83,7 @@ Active Tab: tab-SubAgent
     AutocompletePopup id='None' classes=''
 
 --- Step: SubAgent Started (ASCII UI) ---
- Agent  SubAgent [gpt-4: 0.0%]
+ Agent  SubAgent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
@@ -145,7 +145,7 @@ Active Tab: tab-SubAgent
     AutocompletePopup id='None' classes=''
 
 --- Step: SubAgent Spoke (ASCII UI) ---
- Agent  SubAgent [gpt-4: 0.0%]
+ Agent  SubAgent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
    SubAgent:
