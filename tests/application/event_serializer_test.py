@@ -1,6 +1,7 @@
 import pytest
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_serializer import EventSerializer
 from simple_agent.application.events import (
     AgentFinishedEvent,
@@ -82,7 +83,7 @@ class TestEventSerializer:
             agent_id=AgentId("Agent/Coding"),
             agent_name="Coding",
             model="claude-sonnet-4-20250514",
-            agent_type="coding",
+            agent_type=AgentType("coding"),
         )
 
         result = EventSerializer.to_dict(event)
@@ -226,7 +227,10 @@ class TestEventSerializer:
                 token_usage_display="50.0%",
             ),
             AgentStartedEvent(
-                agent_id=AgentId("Agent/Sub"), agent_name="Sub", model="model"
+                agent_id=AgentId("Agent/Sub"),
+                agent_name="Sub",
+                model="model",
+                agent_type=AgentType("coding"),
             ),
             AgentFinishedEvent(agent_id=AgentId("Agent/Sub")),
             ToolResultEvent(

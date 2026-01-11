@@ -83,7 +83,7 @@ class Session:
             agent_definition,
             args.start_message,
             context,
-            agent_definition.agent_type.raw,
+            agent_definition.agent_type,
         )
 
         for event in unfinished_subagents:

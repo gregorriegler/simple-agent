@@ -1,6 +1,7 @@
 import pytest
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.events import (
     AgentFinishedEvent,
     AgentStartedEvent,
@@ -23,7 +24,12 @@ async def test_continuing_session_replays_finished_subagent_start_event(tmp_path
     event_store = FileEventStore(tmp_path)
     # Root agent
     event_store.persist(
-        AgentStartedEvent(agent_id=parent_id, agent_name="Agent", model="test-model")
+        AgentStartedEvent(
+            agent_id=parent_id,
+            agent_name="Agent",
+            model="test-model",
+            agent_type=AgentType("orchestrator"),
+        )
     )
     event_store.persist(UserPromptedEvent(agent_id=parent_id, input_text="Start sub"))
     event_store.persist(
@@ -38,7 +44,7 @@ async def test_continuing_session_replays_finished_subagent_start_event(tmp_path
             agent_id=subagent_id,
             agent_name="Sub",
             model="test-model",
-            agent_type="coding",
+            agent_type=AgentType("coding"),
         )
     )
     event_store.persist(

@@ -3,6 +3,7 @@ import asyncio
 from simple_agent.logging_config import get_logger
 
 from .agent_id import AgentId
+from .agent_type import AgentType
 from .event_bus import EventBus
 from .events import (
     AgentFinishedEvent,
@@ -39,7 +40,7 @@ class Agent(SlashCommandVisitor):
         user_input: Input,
         event_bus: EventBus,
         context: Messages,
-        agent_type: str = "",
+        agent_type: AgentType | None = None,
     ):
         self.agent_id = agent_id
         self.agent_name = agent_name
@@ -191,7 +192,10 @@ class Agent(SlashCommandVisitor):
     def _notify_agent_started(self):
         self.event_bus.publish(
             AgentStartedEvent(
-                self.agent_id, self.agent_name, self.llm.model, self.agent_type
+                self.agent_id,
+                self.agent_name,
+                self.llm.model,
+                self.agent_type,
             )
         )
 

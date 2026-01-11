@@ -1,6 +1,7 @@
 import pytest
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.events import (
     AgentFinishedEvent,
     AgentStartedEvent,
@@ -85,7 +86,7 @@ async def test_continuing_session_replays_subagent_history(tmp_path):
             agent_id=subagent_id,
             agent_name="Coding",
             model="test-model",
-            agent_type="coding",
+            agent_type=AgentType("coding"),
         )
     )
     event_store.persist(

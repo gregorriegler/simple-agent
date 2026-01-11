@@ -1,4 +1,5 @@
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.events import (
     AgentEvent,
     AgentFinishedEvent,
@@ -37,7 +38,7 @@ class EventSerializer:
                 "agent_id": agent_id_raw,
                 "agent_name": event.agent_name,
                 "model": event.model,
-                "agent_type": event.agent_type,
+                "agent_type": event.agent_type.raw if event.agent_type else "",
             }
         elif isinstance(event, AgentFinishedEvent):
             return {
@@ -84,11 +85,12 @@ class EventSerializer:
                 token_usage_display=data.get("token_usage_display", ""),
             )
         elif event_type == "AgentStartedEvent":
+            agent_type_str = data.get("agent_type", "")
             return AgentStartedEvent(
                 agent_id=agent_id,
                 agent_name=data.get("agent_name", ""),
                 model=data.get("model", ""),
-                agent_type=data.get("agent_type", ""),
+                agent_type=AgentType(agent_type_str) if agent_type_str else None,
             )
         elif event_type == "AgentFinishedEvent":
             return AgentFinishedEvent(agent_id=agent_id)

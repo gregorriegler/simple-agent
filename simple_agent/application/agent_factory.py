@@ -67,8 +67,10 @@ class AgentFactory:
 
         return spawn
 
-    def create_agent_from_history(self, agent_id: AgentId, agent_type: str) -> Agent:
-        definition = self._agent_library.read_agent_definition(AgentType(agent_type))
+    def create_agent_from_history(
+        self, agent_id: AgentId, agent_type: AgentType
+    ) -> Agent:
+        definition = self._agent_library.read_agent_definition(agent_type)
         if self._event_store:
             events = self._event_store.load_events(agent_id)
             context = events_to_messages(events, agent_id)
@@ -83,7 +85,7 @@ class AgentFactory:
         definition,
         initial_message: str | None,
         messages: Messages,
-        agent_type: str = "",
+        agent_type: AgentType | None = None,
     ) -> Agent:
         tool_context = ToolContext(definition.tool_keys(), agent_id)
         spawner = self.create_spawner(agent_id)

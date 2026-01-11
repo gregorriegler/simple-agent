@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Any, ClassVar
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.tool_results import ToolResult
 
 
@@ -87,7 +88,7 @@ class AgentStartedEvent(AgentEvent):
     event_name: ClassVar[str] = "agent_started"
     agent_name: str = ""
     model: str = ""
-    agent_type: str = ""
+    agent_type: AgentType | None = None
 
 
 @dataclass
