@@ -1,3 +1,4 @@
+import asyncio
 from dataclasses import dataclass
 
 from simple_agent.application.agent_factory import AgentFactory
@@ -67,9 +68,10 @@ class Session:
             SessionStartedEvent(starting_agent_id, args.continue_session)
         )
 
+        unfinished_subagents = []
         if args.continue_session and self._event_store:
             history_replayer = HistoryReplayer(self._event_bus, self._event_store)
-            history_replayer.replay_all_agents(starting_agent_id)
+            unfinished_subagents = history_replayer.replay_all_agents(starting_agent_id)
             events = self._event_store.load_events(starting_agent_id)
             context = events_to_messages(events, starting_agent_id)
         else:
@@ -77,7 +79,17 @@ class Session:
 
         agent_definition = self._agent_library._starting_agent_definition()
         agent = agent_factory.create_agent(
-            starting_agent_id, agent_definition, args.start_message, context
+            starting_agent_id,
+            agent_definition,
+            args.start_message,
+            context,
+            agent_definition.agent_type.raw,
         )
+
+        for event in unfinished_subagents:
+            subagent = agent_factory.create_agent_from_history(
+                event.agent_id, event.agent_type
+            )
+            asyncio.create_task(subagent.start())
 
         await agent.start()

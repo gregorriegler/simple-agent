@@ -37,6 +37,7 @@ class EventSerializer:
                 "agent_id": agent_id_raw,
                 "agent_name": event.agent_name,
                 "model": event.model,
+                "agent_type": event.agent_type,
             }
         elif isinstance(event, AgentFinishedEvent):
             return {
@@ -87,6 +88,7 @@ class EventSerializer:
                 agent_id=agent_id,
                 agent_name=data.get("agent_name", ""),
                 model=data.get("model", ""),
+                agent_type=data.get("agent_type", ""),
             )
         elif event_type == "AgentFinishedEvent":
             return AgentFinishedEvent(agent_id=agent_id)

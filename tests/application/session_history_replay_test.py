@@ -81,7 +81,12 @@ async def test_continuing_session_replays_subagent_history(tmp_path):
         )
     )
     event_store.persist(
-        AgentStartedEvent(agent_id=subagent_id, agent_name="Coding", model="test-model")
+        AgentStartedEvent(
+            agent_id=subagent_id,
+            agent_name="Coding",
+            model="test-model",
+            agent_type="coding",
+        )
     )
     event_store.persist(
         UserPromptedEvent(agent_id=subagent_id, input_text="Subagent task")

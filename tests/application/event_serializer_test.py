@@ -82,6 +82,7 @@ class TestEventSerializer:
             agent_id=AgentId("Agent/Coding"),
             agent_name="Coding",
             model="claude-sonnet-4-20250514",
+            agent_type="coding",
         )
 
         result = EventSerializer.to_dict(event)
@@ -91,6 +92,7 @@ class TestEventSerializer:
             "agent_id": "Agent/Coding",
             "agent_name": "Coding",
             "model": "claude-sonnet-4-20250514",
+            "agent_type": "coding",
         }
 
     def test_deserialize_agent_started_event(self):
@@ -99,6 +101,7 @@ class TestEventSerializer:
             "agent_id": "Agent/Coding",
             "agent_name": "Coding",
             "model": "claude-sonnet-4-20250514",
+            "agent_type": "coding",
         }
 
         result = EventSerializer.from_dict(data)

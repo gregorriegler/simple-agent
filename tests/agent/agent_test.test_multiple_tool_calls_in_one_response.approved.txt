@@ -1,6 +1,6 @@
 # Events
 Agent:       session_started: False
-Agent:         agent_started: Agent stub-model
+Agent:         agent_started: Agent stub-model agent
 Agent:         user_prompted: Test message
 Agent:   assistant_responded: I will list the files and then read one.
 🛠️[ls /tmp/test_path /]🛠️[cat /tmp/test_path/file2.py /] stub-model 0.0%

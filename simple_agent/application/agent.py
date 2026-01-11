@@ -39,9 +39,11 @@ class Agent(SlashCommandVisitor):
         user_input: Input,
         event_bus: EventBus,
         context: Messages,
+        agent_type: str = "",
     ):
         self.agent_id = agent_id
         self.agent_name = agent_name
+        self.agent_type = agent_type
         self.llm_provider = llm_provider
         self.llm: LLM = llm_provider.get(model_name)
         self.tools = tools
@@ -188,7 +190,9 @@ class Agent(SlashCommandVisitor):
 
     def _notify_agent_started(self):
         self.event_bus.publish(
-            AgentStartedEvent(self.agent_id, self.agent_name, self.llm.model)
+            AgentStartedEvent(
+                self.agent_id, self.agent_name, self.llm.model, self.agent_type
+            )
         )
 
     async def _notify_user_prompt_requested(self):

@@ -1,6 +1,6 @@
 # Events
 Agent:       session_started: False
-Agent:         agent_started: Agent stub-model
+Agent:         agent_started: Agent stub-model agent
 Agent:         user_prompted: Hello
 Agent:   assistant_responded: Hello! How can I help you? stub-model 0.0%
 Agent:        assistant_said: Hello! How can I help you?

@@ -14,27 +14,17 @@ class HistoryReplayer:
         self._event_bus = event_bus
         self._event_store = event_store
 
-    def replay_all_agents(self, starting_agent_id: AgentId) -> None:
+    def replay_all_agents(self, starting_agent_id: AgentId) -> list[AgentStartedEvent]:
+        """Replay events and return list of unfinished subagent start events that need to be re-spawned."""
         events = self._event_store.load_all_events()
         finished_agents = set()
-        agents_with_start_event = set()
+        start_events = {}
 
         for event in events:
             if isinstance(event, AgentFinishedEvent):
                 finished_agents.add(event.agent_id)
             elif isinstance(event, AgentStartedEvent):
-                agents_with_start_event.add(event.agent_id)
-
-        # # Synthesize AgentStartedEvent for starting agent if not present in history
-        # # This ensures the UI creates the tab before replaying messages
-        # if starting_agent_id not in agents_with_start_event:
-        #     self._event_bus.publish(
-        #         AgentStartedEvent(
-        #             agent_id=starting_agent_id,
-        #             agent_name=str(starting_agent_id),
-        #             model="",
-        #         )
-        #     )
+                start_events[event.agent_id] = event
 
         for event in events:
             if (
@@ -48,3 +38,10 @@ class HistoryReplayer:
                     AssistantSaidEvent(agent_id=event.agent_id, message=event.response)
                 )
             self._event_bus.publish(event)
+
+        unfinished_subagents = [
+            event
+            for agent_id, event in start_events.items()
+            if agent_id not in finished_agents and agent_id != starting_agent_id
+        ]
+        return unfinished_subagents

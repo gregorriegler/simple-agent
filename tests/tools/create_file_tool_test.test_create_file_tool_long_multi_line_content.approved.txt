@@ -1,0 +1,13 @@
+Command:
+🛠️[create-file b]Starting subagent
+🛠️[subagent coding Do the task /]bla🛠️[subagent coding Do the task /]more text🛠️[/end]
+
+Result:
+Created file: b with content
+
+File created: b
+File content:
+--- FILE CONTENT START ---
+Starting subagent
+🛠️[subagent coding Do the task /]bla🛠️[subagent coding Do the task /]more text🛠️[/end]
+--- FILE CONTENT END ---
