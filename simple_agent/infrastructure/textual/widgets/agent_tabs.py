@@ -226,7 +226,8 @@ class AgentTabs(TabbedContent):
                 title = self._tab_title_for(agent_id, model, token_display)
                 self.update_tab_title(agent_id, title)
             return
-        tab_title = self._tab_title_for(agent_id, model, "")
+        initial_token_display = "0.0%" if model else ""
+        tab_title = self._tab_title_for(agent_id, model, initial_token_display)
         self.add_subagent_tab(agent_id, tab_title)
 
     def _tab_title_for(self, agent_id: AgentId, model: str, token_display: str) -> str:
