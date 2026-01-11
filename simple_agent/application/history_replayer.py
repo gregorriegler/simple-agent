@@ -27,12 +27,6 @@ class HistoryReplayer:
                 start_events[event.agent_id] = event
 
         for event in events:
-            if (
-                isinstance(event, AgentStartedEvent)
-                and event.agent_id in finished_agents
-                and event.agent_id != starting_agent_id
-            ):
-                continue
             if isinstance(event, AssistantRespondedEvent):
                 self._event_bus.publish(
                     AssistantSaidEvent(agent_id=event.agent_id, message=event.response)
