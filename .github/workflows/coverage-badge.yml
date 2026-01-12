@@ -37,5 +37,5 @@ jobs:
       - name: Commit coverage badge
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: update coverage and LoC badges"
+          commit_message: "a update coverage and LoC badges"
           file_pattern: docs/coverage.svg docs/loc.svg
