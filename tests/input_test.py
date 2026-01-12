@@ -1,5 +1,6 @@
 import pytest
 
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.input import Input
 
 pytestmark = pytest.mark.asyncio
@@ -10,7 +11,7 @@ class UserInputStub:
         self.value = value
         self.calls = 0
 
-    async def read_async(self):
+    async def read_async(self, agent_id):
         self.calls += 1
         return self.value
 
@@ -23,7 +24,7 @@ class UserInputStub:
 
 async def test_input_uses_display_input_when_stack_empty():
     user_input_port = UserInputStub("user input")
-    feed = Input(user_input_port)
+    feed = Input(user_input_port, AgentId("Agent"))
 
     result = await feed.read_async()
 
@@ -33,7 +34,7 @@ async def test_input_uses_display_input_when_stack_empty():
 
 async def test_input_returns_stacked_message_before_display():
     user_input_port = UserInputStub("user input")
-    feed = Input(user_input_port)
+    feed = Input(user_input_port, AgentId("Agent"))
     feed.stack("stacked")
 
     result = await feed.read_async()
@@ -44,7 +45,7 @@ async def test_input_returns_stacked_message_before_display():
 
 async def test_multiple_stacked_messages_returned_in_lifo_order():
     user_input_port = UserInputStub("user input")
-    feed = Input(user_input_port)
+    feed = Input(user_input_port, AgentId("Agent"))
     feed.stack("first")
     feed.stack("second")
     feed.stack("third")
@@ -57,7 +58,7 @@ async def test_multiple_stacked_messages_returned_in_lifo_order():
 
 async def test_has_stacked_messages_returns_correct_boolean():
     user_input_port = UserInputStub("user input")
-    feed = Input(user_input_port)
+    feed = Input(user_input_port, AgentId("Agent"))
 
     assert not feed.has_stacked_messages()
 
@@ -70,7 +71,7 @@ async def test_has_stacked_messages_returns_correct_boolean():
 
 async def test_mixing_stacked_and_user_input_reads():
     user_input_port = UserInputStub("user input")
-    feed = Input(user_input_port)
+    feed = Input(user_input_port, AgentId("Agent"))
     feed.stack("stacked1")
     feed.stack("stacked2")
 

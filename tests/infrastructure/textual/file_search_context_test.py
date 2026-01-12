@@ -11,13 +11,13 @@ class StubUserInput:
     def __init__(self) -> None:
         self.inputs = []
 
-    def submit_input(self, content: str) -> None:
-        self.inputs.append(content)
+    def submit_input(self, agent_id: AgentId, content: str) -> None:
+        self.inputs.append((agent_id, content))
 
     def close(self) -> None:
         pass
 
-    async def read_async(self) -> str:
+    async def read_async(self, agent_id: AgentId) -> str:
         return ""
 
     def escape_requested(self) -> bool:
@@ -31,10 +31,15 @@ async def test_submit_includes_referenced_file_content(tmp_path):
     dummy_file.write_text("Hello World", encoding="utf-8")
 
     user_input = StubUserInput()
+    agent_id = AgentId("Agent")
     app = TextualApp(user_input)
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SmartInput)
+        app.on_domain_event_message(
+            DomainEventMessage(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        )
+        await pilot.pause()
+        text_area = app.query_one("#user-input-Agent", SmartInput)
 
         # Simulate typing and selecting file
         file_path_str = str(dummy_file)
@@ -46,8 +51,9 @@ async def test_submit_includes_referenced_file_content(tmp_path):
 
         # Assert
         assert len(user_input.inputs) == 1
-        submitted_text = user_input.inputs[0]
+        submitted_agent, submitted_text = user_input.inputs[0]
 
+        assert submitted_agent == agent_id
         assert f"Check this [📦{file_path_str}]" in submitted_text
         assert f'<file_context path="{file_path_str}">' in submitted_text
         assert "Hello World" in submitted_text
@@ -61,10 +67,15 @@ async def test_submit_ignores_removed_file_references(tmp_path):
     dummy_file.write_text("Should Not Appear", encoding="utf-8")
 
     user_input = StubUserInput()
+    agent_id = AgentId("Agent")
     app = TextualApp(user_input)
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SmartInput)
+        app.on_domain_event_message(
+            DomainEventMessage(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        )
+        await pilot.pause()
+        text_area = app.query_one("#user-input-Agent", SmartInput)
 
         # Simulate selecting file but then deleting it from text
         text_area.text = "I deleted the file ref"
@@ -75,8 +86,9 @@ async def test_submit_ignores_removed_file_references(tmp_path):
 
         # Assert
         assert len(user_input.inputs) == 1
-        submitted_text = user_input.inputs[0]
+        submitted_agent, submitted_text = user_input.inputs[0]
 
+        assert submitted_agent == agent_id
         assert "I deleted the file ref" in submitted_text
         assert "Should Not Appear" not in submitted_text
 
@@ -88,10 +100,15 @@ async def test_submit_ignores_corrupted_marker(tmp_path):
     dummy_file.write_text("Should Not Appear", encoding="utf-8")
 
     user_input = StubUserInput()
+    agent_id = AgentId("Agent")
     app = TextualApp(user_input)
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SmartInput)
+        app.on_domain_event_message(
+            DomainEventMessage(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        )
+        await pilot.pause()
+        text_area = app.query_one("#user-input-Agent", SmartInput)
 
         # Simulate selecting file but then deleting the closing bracket
         file_path_str = str(dummy_file)
@@ -104,8 +121,9 @@ async def test_submit_ignores_corrupted_marker(tmp_path):
 
         # Assert
         assert len(user_input.inputs) == 1
-        submitted_text = user_input.inputs[0]
+        submitted_agent, submitted_text = user_input.inputs[0]
 
+        assert submitted_agent == agent_id
         # The text remains as typed
         assert f"Check this [📦{file_path_str}" in submitted_text
         # But content is NOT attached

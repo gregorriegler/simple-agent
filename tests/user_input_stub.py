@@ -1,3 +1,4 @@
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.user_input import UserInput
 
 
@@ -7,7 +8,7 @@ class UserInputStub(UserInput):
         self._escapes = list(escapes) if escapes is not None else []
         self._last_escape = False
 
-    async def read_async(self) -> str:
+    async def read_async(self, agent_id: AgentId) -> str:
         if not self._inputs:
             return ""
         value = self._inputs.pop(0)

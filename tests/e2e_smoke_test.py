@@ -81,7 +81,7 @@ async def test_golden_master_agent_stub(monkeypatch, tmp_path):
                 break
 
         captured.append(get_screen_content())
-        app.user_input.submit_input("")
+        app.user_input.submit_input(app._root_agent_id, "")
 
     await main_async(on_user_prompt_requested=on_user_prompt_requested)
 

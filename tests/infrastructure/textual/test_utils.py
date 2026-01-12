@@ -3,6 +3,7 @@ import io
 from rich.console import Console
 from textual.widgets import Collapsible, Markdown, Static, TabbedContent, TextArea
 
+from simple_agent.application.agent_id import AgentId
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 
 
@@ -10,14 +11,14 @@ class MockUserInput:
     def __init__(self):
         self.submitted_content = []
 
-    async def read_async(self) -> str:
+    async def read_async(self, agent_id: AgentId) -> str:
         return ""
 
     def escape_requested(self) -> bool:
         return False
 
-    def submit_input(self, content: str) -> None:
-        self.submitted_content.append(content)
+    def submit_input(self, agent_id: AgentId, content: str) -> None:
+        self.submitted_content.append((agent_id, content))
 
     def close(self) -> None:
         pass

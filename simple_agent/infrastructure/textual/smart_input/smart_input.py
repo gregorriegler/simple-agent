@@ -21,9 +21,14 @@ logger = logging.getLogger(__name__)
 
 class SmartInput(TextArea):
     class Submitted(Message):
-        def __init__(self, result: CompletionResult):
+        def __init__(self, result: CompletionResult, source: "SmartInput"):
             self.result = result
+            self._source = source
             super().__init__()
+
+        @property
+        def control(self) -> "SmartInput":
+            return self._source
 
     DEFAULT_CSS = """
     SmartInput {
@@ -48,7 +53,7 @@ class SmartInput(TextArea):
     def submit(self) -> None:
         result = CompletionResult(self.text)
 
-        self.post_message(self.Submitted(result))
+        self.post_message(self.Submitted(result, self))
 
         self.clear()
         self._close_autocomplete()

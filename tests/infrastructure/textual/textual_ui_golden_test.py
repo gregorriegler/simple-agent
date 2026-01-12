@@ -84,7 +84,7 @@ async def test_golden_happy_path_flow(tmp_path, monkeypatch):
 
         # 3. User prompts "Hello"
         # Drive the UI properly: Focus input, Type "Hello", Press Enter
-        await pilot.click("#user-input")
+        await pilot.click("#user-input-Agent")
         await pilot.press(*list("Hello"))
         await pilot.press("enter")
         await pilot.pause()

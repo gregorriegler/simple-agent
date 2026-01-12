@@ -45,8 +45,10 @@ class AgentFactory:
     def event_bus(self) -> EventBus:
         return self._event_bus
 
-    def create_input(self, initial_message: str | None = None) -> Input:
-        inp = Input(self._user_input)
+    def create_input(
+        self, agent_id: AgentId, initial_message: str | None = None
+    ) -> Input:
+        inp = Input(self._user_input, agent_id)
         if initial_message:
             inp.stack(initial_message)
         return inp
@@ -113,7 +115,7 @@ class AgentFactory:
             tools,
             self._llm_provider,
             definition.model(),
-            self.create_input(initial_message),
+            self.create_input(agent_id, initial_message),
             self._event_bus,
             messages,
             agent_type=agent_type,

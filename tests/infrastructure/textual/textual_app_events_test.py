@@ -140,19 +140,44 @@ async def test_tool_call_and_result_are_tracked(textual_harness):
 
 @pytest.mark.asyncio
 async def test_submit_input_sends_user_input(textual_harness):
-    _, _, user_input, app = textual_harness
+    event_bus, _, user_input, app = textual_harness
+    agent_id = AgentId("Agent")
 
     async with app.run_test() as pilot:
         await pilot.pause()
-        text_area = app.query_one("#user-input", TextArea)
+        event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        await pilot.pause()
+        text_area = app.query_one("#user-input-Agent", TextArea)
 
         text_area.text = "Hello"
 
         app.action_submit_input()
         await pilot.pause()
 
-        assert user_input.submissions == ["Hello"]
+        assert user_input.submissions == [(agent_id, "Hello")]
         assert text_area.text == ""
+
+
+@pytest.mark.asyncio
+async def test_submit_input_routes_to_active_agent_tab(textual_harness):
+    event_bus, _, user_input, app = textual_harness
+    root_agent = AgentId("Agent")
+    subagent = AgentId("Agent/Sub")
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        event_bus.publish(AgentStartedEvent(root_agent, "Agent", "dummy-model"))
+        await pilot.pause()
+        event_bus.publish(AgentStartedEvent(subagent, "Sub", "dummy-model"))
+        await pilot.pause()
+
+        text_area = app.query_one("#user-input-Agent-Sub", TextArea)
+        text_area.text = "Hello subagent"
+
+        app.action_submit_input()
+        await pilot.pause()
+
+        assert user_input.submissions[-1] == (subagent, "Hello subagent")
 
 
 @pytest.mark.asyncio

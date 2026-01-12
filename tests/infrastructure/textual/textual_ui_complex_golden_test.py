@@ -191,7 +191,7 @@ new line
 
         # --- Scenario: File Context Submission ---
         # We simulate typing a file reference.
-        text_area = app.query_one("#user-input", TextArea)
+        text_area = app.query_one("#user-input-Agent", TextArea)
 
         file_path_str = str(dummy_file.absolute())
         marker = f"[📦{file_path_str}]"
@@ -203,7 +203,8 @@ new line
 
         # Verify Mock Input
         assert len(mock_user_input.submitted_content) == 1
-        submitted = mock_user_input.submitted_content[0]
+        submitted_agent, submitted = mock_user_input.submitted_content[0]
+        assert submitted_agent == agent_id
         assert "Look at this file: " in submitted
         assert f'<file_context path="{file_path_str}">' in submitted
         assert "This is file content." in submitted

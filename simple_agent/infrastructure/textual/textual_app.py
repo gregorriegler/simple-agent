@@ -12,6 +12,7 @@ from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
+    CompletionResult,
     CompositeSuggestionProvider,
     TriggeredSuggestionProvider,
 )
@@ -110,7 +111,7 @@ class TextualApp(App):
         margin-bottom: 1;
     }
 
-    #user-input {
+    .user-input {
         height: 5;
         min-height: 3;
         max-height: 10;
@@ -168,12 +169,10 @@ class TextualApp(App):
             ]
         )
         with Vertical():
-            yield AgentTabs(self._root_agent_id, id="tabs")
-            yield SmartInput(provider=provider, id="user-input")
+            yield AgentTabs(self._root_agent_id, input_provider=provider, id="tabs")
 
     async def on_mount(self) -> None:
-        smart_input = self.query_one(SmartInput)
-        smart_input.focus()
+        self.query_one(AgentTabs).focus_active_input()
         if self._session_runner:
             self._session_task = asyncio.create_task(self._run_session())
 
@@ -215,12 +214,23 @@ class TextualApp(App):
         self.query_one(AgentTabs).switch_tab(1)
 
     def action_submit_input(self) -> None:
-        self.query_one(SmartInput).submit()
+        active_input = self.query_one(AgentTabs).active_input()
+        if active_input:
+            active_input.submit()
 
     def on_smart_input_submitted(self, event: SmartInput.Submitted) -> None:
-        if self.user_input:
-            expanded_content = event.result.expand(self.file_loader)
-            self.user_input.submit_input(expanded_content)
+        if not self.user_input:
+            return
+        if not isinstance(event.result, CompletionResult):
+            return
+        sender = event.control
+        if not isinstance(sender, SmartInput):
+            return
+        agent_id = self.query_one(AgentTabs).agent_id_for_input(sender)
+        if agent_id is None:
+            return
+        expanded_content = event.result.expand(self.file_loader)
+        self.user_input.submit_input(agent_id, expanded_content)
 
     def add_subagent_tab(self, agent_id: AgentId, tab_title: str) -> tuple[str, str]:
         return self.query_one(AgentTabs).add_subagent_tab(agent_id, tab_title)

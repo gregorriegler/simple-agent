@@ -1,5 +1,6 @@
 import pytest
 
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.user_input import DummyUserInput
 
 pytestmark = pytest.mark.asyncio
@@ -8,7 +9,7 @@ pytestmark = pytest.mark.asyncio
 async def test_dummy_user_input_returns_empty_prompt_and_no_escape_request():
     user_input = DummyUserInput()
 
-    assert await user_input.read_async() == ""
+    assert await user_input.read_async(AgentId("Agent")) == ""
     assert user_input.escape_requested() is False
 
 

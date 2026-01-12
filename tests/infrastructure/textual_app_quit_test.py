@@ -10,7 +10,7 @@ class StubUserInput:
     def __init__(self) -> None:
         self.closed = False
 
-    async def read_async(self) -> str:
+    async def read_async(self, agent_id: AgentId) -> str:
         return ""
 
     def escape_requested(self) -> bool:

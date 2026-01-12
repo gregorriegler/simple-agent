@@ -20,14 +20,14 @@ class FakeUserInput:
         self.submissions = []
         self.closed = False
 
-    async def read_async(self) -> str:
+    async def read_async(self, agent_id: AgentId) -> str:
         return ""
 
     def escape_requested(self) -> bool:
         return False
 
-    def submit_input(self, content: str) -> None:
-        self.submissions.append(content)
+    def submit_input(self, agent_id: AgentId, content: str) -> None:
+        self.submissions.append((agent_id, content))
 
     def close(self) -> None:
         self.closed = True

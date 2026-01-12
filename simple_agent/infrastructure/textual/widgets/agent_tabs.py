@@ -1,6 +1,7 @@
 import logging
 
 from rich.markup import escape
+from textual.containers import Vertical
 from textual.css.query import NoMatches
 from textual.widgets import TabbedContent, TabPane
 
@@ -21,6 +22,10 @@ from simple_agent.application.events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
+from simple_agent.infrastructure.textual.smart_input import SmartInput
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
+    SuggestionProvider,
+)
 from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 
 logger = logging.getLogger(__name__)
@@ -32,15 +37,27 @@ class AgentTabs(TabbedContent):
     Each tab contains an AgentWorkspace.
     """
 
-    def __init__(self, root_agent_id: AgentId, **kwargs):
+    def __init__(
+        self, root_agent_id: AgentId, input_provider: SuggestionProvider, **kwargs
+    ):
         super().__init__(**kwargs)
         self._root_agent_id = root_agent_id
+        self._input_provider = input_provider
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
+        self._agent_tab_ids: dict[AgentId, str] = {}
+        self._tab_ids_to_agent: dict[str, AgentId] = {}
         self._agent_names: dict[AgentId, str] = {}
         self._agent_workspaces: dict[str, AgentWorkspace] = {}
+        self._agent_inputs: dict[AgentId, SmartInput] = {}
+        self._input_ids_to_agent: dict[str, AgentId] = {}
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._agent_models: dict[AgentId, str] = {}
         self._agent_token_display: dict[AgentId, str] = {}
+
+    def on_mount(self) -> None:
+        if not self.has_agent_tab(self._root_agent_id):
+            tab_title = self._tab_title_for(self._root_agent_id, "", "")
+            self.add_subagent_tab(self._root_agent_id, tab_title)
 
     @staticmethod
     def panel_ids_for(agent_id: AgentId) -> tuple[str, str, str]:
@@ -58,10 +75,17 @@ class AgentTabs(TabbedContent):
             id="tab-content",
         )
 
+        input_id = f"user-input-{agent_id.for_ui()}"
+        user_input = SmartInput(
+            provider=self._input_provider, id=input_id, classes="user-input"
+        )
+
         self._agent_workspaces[str(agent_id)] = workspace
+        self._agent_inputs[agent_id] = user_input
+        self._input_ids_to_agent[input_id] = agent_id
         self._agent_panel_ids[agent_id] = (log_id, tool_results_id)
         self._tool_results_to_agent[tool_results_id] = agent_id
-        return workspace
+        return Vertical(workspace, user_input, id=f"tab-container-{agent_id.for_ui()}")
 
     def has_agent_tab(self, agent_id: AgentId) -> bool:
         return agent_id in self._agent_panel_ids
@@ -77,8 +101,11 @@ class AgentTabs(TabbedContent):
             self.create_agent_container(log_id, tool_results_id, agent_id)
         )
 
+        self._agent_tab_ids[agent_id] = tab_id
+        self._tab_ids_to_agent[tab_id] = agent_id
         self.add_pane(new_tab)
         self.active = tab_id
+        self.focus_active_input()
         return log_id, tool_results_id
 
     def remove_subagent_tab(self, agent_id: AgentId) -> None:
@@ -87,6 +114,11 @@ class AgentTabs(TabbedContent):
         panel_ids = self._agent_panel_ids.pop(agent_id, None)
         if panel_ids:
             self._tool_results_to_agent.pop(tool_results_id, None)
+        input_widget = self._agent_inputs.pop(agent_id, None)
+        if input_widget and input_widget.id:
+            self._input_ids_to_agent.pop(input_widget.id, None)
+        self._tab_ids_to_agent.pop(tab_id, None)
+        self._agent_tab_ids.pop(agent_id, None)
         self._agent_names.pop(agent_id, None)
         self._agent_workspaces.pop(str(agent_id), None)
 
@@ -110,6 +142,23 @@ class AgentTabs(TabbedContent):
         new_tab_id = tab_panes[new_index].id
         if new_tab_id:
             self.active = new_tab_id
+            self.focus_active_input()
+
+    def focus_active_input(self) -> None:
+        active_input = self.active_input()
+        if active_input:
+            active_input.focus()
+
+    def active_input(self) -> SmartInput | None:
+        agent_id = self._tab_ids_to_agent.get(self.active)
+        if agent_id is None:
+            return None
+        return self._agent_inputs.get(agent_id)
+
+    def agent_id_for_input(self, user_input: SmartInput) -> AgentId | None:
+        if user_input.id is None:
+            return None
+        return self._input_ids_to_agent.get(user_input.id)
 
     def handle_event(self, event) -> None:
         agent_id = getattr(event, "agent_id", None)
@@ -223,6 +272,9 @@ class AgentTabs(TabbedContent):
         if self.has_agent_tab(agent_id):
             if model:
                 token_display = self._agent_token_display.get(agent_id, "")
+                if not token_display:
+                    token_display = "0.0%"
+                    self._agent_token_display[agent_id] = token_display
                 title = self._tab_title_for(agent_id, model, token_display)
                 self.update_tab_title(agent_id, title)
             return
