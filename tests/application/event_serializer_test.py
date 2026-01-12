@@ -137,7 +137,12 @@ class TestEventSerializer:
         event = ToolResultEvent(
             agent_id=AgentId("Agent"),
             call_id="call-123",
-            result=SingleToolResult(message="Tool output here"),
+            result=SingleToolResult(
+                message="Tool output here",
+                display_title="Tool Title",
+                display_body="Tool Body",
+                display_language="python",
+            ),
         )
 
         result = EventSerializer.to_dict(event)
@@ -147,6 +152,10 @@ class TestEventSerializer:
             "agent_id": "Agent",
             "call_id": "call-123",
             "result_message": "Tool output here",
+            "display_title": "Tool Title",
+            "display_body": "Tool Body",
+            "display_language": "python",
+            "status": "success",
         }
 
     def test_deserialize_tool_result_event(self):
@@ -155,6 +164,10 @@ class TestEventSerializer:
             "agent_id": "Agent",
             "call_id": "call-123",
             "result_message": "Tool output here",
+            "display_title": "Tool Title",
+            "display_body": "Tool Body",
+            "display_language": "python",
+            "status": "success",
         }
 
         result = EventSerializer.from_dict(data)
@@ -164,6 +177,10 @@ class TestEventSerializer:
         assert result.call_id == "call-123"
         assert result.result is not None
         assert result.result.message == "Tool output here"
+        assert result.result.display_title == "Tool Title"
+        assert result.result.display_body == "Tool Body"
+        assert result.result.display_language == "python"
+        assert result.result.success is True
 
     def test_serialize_session_cleared_event(self):
         event = SessionClearedEvent(agent_id=AgentId("Agent"))
