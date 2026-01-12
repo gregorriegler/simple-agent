@@ -40,6 +40,17 @@ async def test_agent_says_after_subagent():
     )
 
 
+async def test_async_subagent():
+    await verify_chat(
+        ["Create an async subagent that says hello", "\n"],
+        [
+            "🛠️[subagent coding say hello --async]",
+            "Subagent started",
+            "hello\n🛠️[complete-task I successfully said hello]",
+        ],
+    )
+
+
 async def verify_chat(inputs, answers):
     message, *remaining_inputs = inputs
 

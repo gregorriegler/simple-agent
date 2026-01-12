@@ -1,3 +1,5 @@
+import asyncio
+
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.agent_library import AgentLibrary
@@ -15,6 +17,7 @@ from simple_agent.application.tool_library_factory import (
     ToolContext,
     ToolLibraryFactory,
 )
+from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.application.user_input import UserInput
 
 
@@ -49,7 +52,7 @@ class AgentFactory:
         return inp
 
     def create_spawner(self, parent_agent_id: AgentId) -> SubagentSpawner:
-        async def spawn(agent_type, task_description):
+        async def spawn(agent_type, task_description, is_async=False):
             definition = self._agent_library.read_agent_definition(agent_type)
             agent_id = parent_agent_id.create_subagent_id(
                 definition.agent_name(), self._agent_suffixer
@@ -63,7 +66,11 @@ class AgentFactory:
             subagent = self.create_agent(
                 agent_id, definition, task_description, context, agent_type
             )
-            return await subagent.start()
+            if is_async:
+                asyncio.create_task(subagent.start())
+                return SingleToolResult("Subagent started")
+            else:
+                return await subagent.start()
 
         return spawn
 

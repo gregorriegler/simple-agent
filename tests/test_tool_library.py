@@ -29,6 +29,7 @@ class ToolLibraryStub(AllTools):
         spawner=None,
         tool_keys: list[str] | None = None,
         agent_types: AgentTypes | None = None,
+        agent_library=None,
     ):
         actual_event_bus = event_bus if event_bus is not None else SimpleEventBus()
         actual_tool_context = tool_context
@@ -39,11 +40,10 @@ class ToolLibraryStub(AllTools):
         if actual_tool_context is None:
             tool_syntax = EmojiBracketToolSyntax()
             tool_library_factory = AllToolsFactory(tool_syntax)
-            agent_library = BuiltinAgentLibrary()
             agent_factory = AgentFactory(
                 event_bus=actual_event_bus,
                 tool_library_factory=tool_library_factory,
-                agent_library=agent_library,
+                agent_library=agent_library or BuiltinAgentLibrary(),
                 user_input=UserInputStub(inputs=inputs, escapes=escapes),
                 llm_provider=StubLLMProvider.for_testing(llm),
                 project_tree=DummyProjectTree(),
@@ -94,6 +94,7 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
         interrupts=None,
         event_bus=None,
         all_displays=None,
+        agent_library=None,
     ):
         self._llm = llm
         self._inputs = inputs
@@ -101,6 +102,7 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
         self._interrupts = interrupts
         self._event_bus = event_bus
         self._all_displays = all_displays
+        self._agent_library = agent_library or BuiltinAgentLibrary()
 
     def create(
         self,
@@ -117,4 +119,5 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
             tool_context=tool_context,
             spawner=spawner,
             agent_types=agent_types,
+            agent_library=self._agent_library,
         )

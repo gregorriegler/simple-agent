@@ -7,5 +7,5 @@ from simple_agent.application.tool_results import ToolResult
 
 class SubagentSpawner(Protocol):
     def __call__(
-        self, agent_type: AgentType, task_description: str
+        self, agent_type: AgentType, task_description: str, is_async: bool = False
     ) -> Awaitable[ToolResult]: ...

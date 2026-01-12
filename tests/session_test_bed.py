@@ -1,3 +1,5 @@
+import asyncio
+
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_type import AgentType
@@ -212,18 +214,21 @@ class SessionTestBed:
             event_bus.subscribe(SessionClearedEvent, self._event_store.persist)
             event_bus.subscribe(ModelChangedEvent, self._event_store.persist)
 
+        agent_library = TestAgentLibrary()
+
         tool_library_factory = ToolLibraryFactoryStub(
             self._llm,
             inputs=self._user_inputs,
             escapes=self._escape_hits,
             interrupts=[self._ctrl_c_hits],
             event_bus=event_bus,
+            agent_library=agent_library,
         )
 
         session = Session(
             event_bus=event_bus,
             tool_library_factory=tool_library_factory,
-            agent_library=TestAgentLibrary(),
+            agent_library=agent_library,
             user_input=user_input,
             todo_cleanup=todo_cleanup,
             llm_provider=StubLLMProvider.for_testing(self._llm),
@@ -231,12 +236,17 @@ class SessionTestBed:
             event_store=self._event_store,
         )
 
-        await session.run_async(
-            create_session_args(
-                self._continue_session, start_message=self._start_message
-            ),
-            AgentId("Agent"),
+        asyncio.create_task(
+            session.run_async(
+                create_session_args(
+                    self._continue_session, start_message=self._start_message
+                ),
+                AgentId("Agent"),
+            )
         )
+
+        tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+        await asyncio.gather(*tasks)
 
         return SessionTestResult(event_spy)
 

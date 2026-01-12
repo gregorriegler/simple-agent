@@ -24,6 +24,12 @@ class SubagentTool(BaseTool):
                 required=True,
                 description="Detailed description of the task for the subagent to perform",
             ),
+            ToolArgument(
+                name="--async",
+                type="bool",
+                required=False,
+                description="Run the subagent asynchronously, returning immediately without waiting for it to finish.",
+            ),
         ]
     )
     examples = [
@@ -51,7 +57,13 @@ class SubagentTool(BaseTool):
                 "STDERR: subagent: missing arguments", status=ToolResultStatus.FAILURE
             )
 
-        parts = args.strip().split(None, 1)
+        parts = args.strip().split(None)
+        is_async = "--async" in parts
+        if is_async:
+            parts.remove("--async")
+
+        agent_type_str = parts[0]
+        task_description = " ".join(parts[1:])
 
         if len(parts) < 2:
             return SingleToolResult(
@@ -60,11 +72,11 @@ class SubagentTool(BaseTool):
             )
 
         agent_type_str = parts[0]
-        task_description = parts[1]
+        task_description = " ".join(parts[1:])
 
         try:
             result = await self._spawn_subagent(
-                AgentType(agent_type_str), task_description
+                AgentType(agent_type_str), task_description, is_async
             )
             status = (
                 ToolResultStatus.SUCCESS if result.success else ToolResultStatus.FAILURE

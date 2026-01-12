@@ -1,0 +1,35 @@
+# Events
+Agent:       session_started: False
+Agent:         agent_started: Agent stub-model agent
+Agent:         user_prompted: Create an async subagent that says hello
+Agent:   assistant_responded: 🛠️[subagent coding say hello --async] stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::1 🛠️ subagent coding say hello --async
+Agent:           tool_result: Agent::tool_call::1 Subagent started
+Agent:   assistant_responded: Subagent started stub-model 0.0%
+Agent:        assistant_said: Subagent started
+Agent: user_prompt_requested: 
+Agent:        agent_finished: 
+Agent:         session_ended: 
+Agent/Coding:         agent_started: Coding stub-model coding
+Agent/Coding:         user_prompted: say hello
+Agent/Coding:   assistant_responded: hello
+🛠️[complete-task I successfully said hello] stub-model 0.0%
+Agent/Coding:        assistant_said: hello
+Agent/Coding:           tool_called: Agent/Coding::tool_call::1 🛠️ complete-task I successfully said hello
+Agent/Coding:           tool_result: Agent/Coding::tool_call::1 I successfully said hello
+Agent/Coding: user_prompt_requested: 
+Agent/Coding:        agent_finished: 
+Agent/Coding:         session_ended: 
+
+# Messages:
+[Agent]
+user: Create an async subagent that says hello
+assistant: 🛠️[subagent coding say hello --async]
+user: Subagent started
+assistant: Subagent started
+[Agent/Coding]
+user: say hello
+assistant: hello
+🛠️[complete-task I successfully said hello]
+user: I successfully said hello
+
