@@ -21,6 +21,9 @@ from simple_agent.application.events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
+    SuggestionProvider,
+)
 from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 
 logger = logging.getLogger(__name__)
@@ -32,9 +35,15 @@ class AgentTabs(TabbedContent):
     Each tab contains an AgentWorkspace.
     """
 
-    def __init__(self, root_agent_id: AgentId, **kwargs):
+    def __init__(
+        self,
+        root_agent_id: AgentId,
+        suggestion_provider: SuggestionProvider,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self._root_agent_id = root_agent_id
+        self._suggestion_provider = suggestion_provider
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
         self._agent_names: dict[AgentId, str] = {}
         self._agent_workspaces: dict[str, AgentWorkspace] = {}
@@ -55,6 +64,7 @@ class AgentTabs(TabbedContent):
             agent_id=agent_id,
             log_id=log_id,
             tool_results_id=tool_results_id,
+            suggestion_provider=self._suggestion_provider,
             id="tab-content",
         )
 
@@ -110,6 +120,19 @@ class AgentTabs(TabbedContent):
         new_tab_id = tab_panes[new_index].id
         if new_tab_id:
             self.active = new_tab_id
+
+    def on_tabbed_content_tab_activated(
+        self, event: TabbedContent.TabActivated
+    ) -> None:
+        self.focus_active_input()
+
+    def focus_active_input(self) -> None:
+        try:
+            active_pane = self.get_pane(self.active)
+            workspace = active_pane.query_one(AgentWorkspace)
+            workspace.smart_input.focus()
+        except (NoMatches, Exception):
+            pass
 
     def handle_event(self, event) -> None:
         agent_id = getattr(event, "agent_id", None)
@@ -229,6 +252,12 @@ class AgentTabs(TabbedContent):
         initial_token_display = "0.0%" if model else ""
         tab_title = self._tab_title_for(agent_id, model, initial_token_display)
         self.add_subagent_tab(agent_id, tab_title)
+
+    def on_mount(self) -> None:
+        # Create the root agent tab if it doesn't exist.
+        # This is necessary because the initial SessionStartedEvent might be missed or handled
+        # before the widget is fully mounted/ready, or simply to ensure the UI is ready.
+        self._ensure_agent_tab_exists(self._root_agent_id, None, None)
 
     def _tab_title_for(self, agent_id: AgentId, model: str, token_display: str) -> str:
         base_title = self._agent_names.get(agent_id, str(agent_id))

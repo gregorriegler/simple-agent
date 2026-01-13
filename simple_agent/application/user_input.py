@@ -1,8 +1,10 @@
 from typing import Protocol
 
+from simple_agent.application.agent_id import AgentId
+
 
 class UserInput(Protocol):
-    async def read_async(self) -> str: ...
+    async def read_async(self, agent_id: AgentId | None = None) -> str: ...
 
     def escape_requested(self) -> bool: ...
 
@@ -10,7 +12,7 @@ class UserInput(Protocol):
 
 
 class DummyUserInput(UserInput):
-    async def read_async(self) -> str:
+    async def read_async(self, agent_id: AgentId | None = None) -> str:
         return ""
 
     def escape_requested(self) -> bool:

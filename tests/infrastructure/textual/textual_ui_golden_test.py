@@ -84,7 +84,12 @@ async def test_golden_happy_path_flow(tmp_path, monkeypatch):
 
         # 3. User prompts "Hello"
         # Drive the UI properly: Focus input, Type "Hello", Press Enter
-        await pilot.click("#user-input")
+        # Input is now inside the active tab. We target it by class or ID.
+        # ID is dynamic (e.g. input-Agent). Using class is safer or deriving ID.
+        # input_id = f"input-{agent_id.for_ui()}"
+        # But we can also query SmartInput directly as there is one visible.
+        smart_input = app.query_one(".smart-input")
+        await pilot.click(smart_input)
         await pilot.press(*list("Hello"))
         await pilot.press("enter")
         await pilot.pause()

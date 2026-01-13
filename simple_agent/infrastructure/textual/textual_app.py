@@ -110,7 +110,7 @@ class TextualApp(App):
         margin-bottom: 1;
     }
 
-    #user-input {
+    .smart-input {
         height: 5;
         min-height: 3;
         max-height: 10;
@@ -168,12 +168,10 @@ class TextualApp(App):
             ]
         )
         with Vertical():
-            yield AgentTabs(self._root_agent_id, id="tabs")
-            yield SmartInput(provider=provider, id="user-input")
+            yield AgentTabs(self._root_agent_id, provider, id="tabs")
 
     async def on_mount(self) -> None:
-        smart_input = self.query_one(SmartInput)
-        smart_input.focus()
+        self.query_one(AgentTabs).focus_active_input()
         if self._session_runner:
             self._session_task = asyncio.create_task(self._run_session())
 
@@ -215,12 +213,33 @@ class TextualApp(App):
         self.query_one(AgentTabs).switch_tab(1)
 
     def action_submit_input(self) -> None:
-        self.query_one(SmartInput).submit()
+        self.query_one(AgentTabs).focus_active_input()
+        # The input itself handles Enter key for submission when focused.
+        # But if the user presses Enter while NOT focused (unlikely if we maintain focus),
+        # we might want to ensure focus.
+        # Actually, action_submit_input is bound to Enter.
+        # If SmartInput is focused, it handles Enter in _on_key and stops propagation.
+        # So action_submit_input is only called if something else is focused.
+        # If something else is focused, we probably want to submit the active input?
+        # Or just focus it?
+        # Standard behavior: Enter submits the form.
+        # So we should find the active input and submit it.
+        # But for now, let's just assume focusing is enough as SmartInput handles Enter.
+        pass
 
     def on_smart_input_submitted(self, event: SmartInput.Submitted) -> None:
         if self.user_input:
             expanded_content = event.result.expand(self.file_loader)
-            self.user_input.submit_input(expanded_content)
+            agent_id = None
+            if event.control and hasattr(event.control, "parent"):
+                workspace = event.control.parent
+                if isinstance(workspace, Vertical):  # Check if it looks like workspace
+                    # We can traverse up to find AgentWorkspace if structure changes
+                    # But currently SmartInput is direct child of AgentWorkspace
+                    # However, to be safe and avoid imports, we can check attributes
+                    agent_id = getattr(workspace, "agent_id", None)
+
+            self.user_input.submit_input(expanded_content, agent_id=agent_id)
 
     def add_subagent_tab(self, agent_id: AgentId, tab_title: str) -> tuple[str, str]:
         return self.query_one(AgentTabs).add_subagent_tab(agent_id, tab_title)

@@ -82,12 +82,12 @@ class Agent(SlashCommandVisitor):
     async def user_prompts(self):
         if not self.user_input.has_stacked_messages():
             await self._notify_user_prompt_requested()
-        prompt = await self.user_input.read_async()
+        prompt = await self.user_input.read_async(agent_id=self.agent_id)
 
         while prompt and self._is_slash_command(prompt):
             await self._handle_slash_command(prompt)
             await self._notify_user_prompt_requested()
-            prompt = await self.user_input.read_async()
+            prompt = await self.user_input.read_async(agent_id=self.agent_id)
 
         if prompt:
             self.context.user_says(prompt)
