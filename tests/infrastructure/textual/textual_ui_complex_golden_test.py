@@ -3,7 +3,7 @@ from typing import cast
 import pytest
 from approvaltests import verify
 from textual.timer import Timer
-from textual.widgets import Collapsible, TextArea
+from textual.widgets import Collapsible
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
@@ -191,7 +191,8 @@ new line
 
         # --- Scenario: File Context Submission ---
         # We simulate typing a file reference.
-        text_area = app.query_one("#user-input", TextArea)
+        text_area = app.active_input()
+        assert text_area is not None
 
         file_path_str = str(dummy_file.absolute())
         marker = f"[📦{file_path_str}]"

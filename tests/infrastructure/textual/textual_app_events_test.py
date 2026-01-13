@@ -15,6 +15,7 @@ from simple_agent.application.events import (
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
+from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 from tests.infrastructure.textual.conftest import StubTool
 
@@ -144,7 +145,8 @@ async def test_submit_input_sends_user_input(textual_harness):
 
     async with app.run_test() as pilot:
         await pilot.pause()
-        text_area = app.query_one("#user-input", TextArea)
+        text_area = app.active_input()
+        assert text_area is not None
 
         text_area.text = "Hello"
 
@@ -170,3 +172,45 @@ async def test_agent_started_creates_tab_with_model_in_title(textual_harness):
         tab_id, _, _ = app.panel_ids_for(agent_id)
         tab = tabs.get_tab(tab_id)
         assert str(tab.label) == "MyAgent [test-model: 0.0%]"
+
+
+@pytest.mark.asyncio
+async def test_each_tab_has_own_input(textual_harness):
+    event_bus, _, user_input, app = textual_harness
+    root_agent_id = AgentId("Agent")
+    sub_agent_id = AgentId("SubAgent")
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+
+        event_bus.publish(AgentStartedEvent(root_agent_id, "Agent", "dummy-model"))
+        await pilot.pause()
+
+        event_bus.publish(AgentStartedEvent(sub_agent_id, "SubAgent", "dummy-model"))
+        await pilot.pause()
+
+        tabs = app.query_one(AgentTabs)
+        root_input = app.input_for(root_agent_id)
+        sub_input = app.active_input()
+
+        assert root_input is not None
+        assert sub_input is not None
+
+        root_input.text = "root message"
+        sub_input.text = "sub message"
+
+        app.action_submit_input()
+        await pilot.pause()
+
+        assert user_input.submissions == ["sub message"]
+        assert sub_input.text == ""
+        assert root_input.text == "root message"
+
+        tabs.switch_tab(-1)
+        await pilot.pause()
+
+        app.action_submit_input()
+        await pilot.pause()
+
+        assert user_input.submissions == ["sub message", "root message"]
+        assert root_input.text == ""

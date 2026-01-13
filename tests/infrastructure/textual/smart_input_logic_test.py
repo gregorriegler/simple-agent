@@ -1,7 +1,5 @@
 import pytest
 
-from simple_agent.infrastructure.textual.smart_input import SmartInput
-
 
 @pytest.mark.asyncio
 async def test_submit_input_includes_referenced_files(textual_harness, tmp_path):
@@ -18,7 +16,8 @@ async def test_submit_input_includes_referenced_files(textual_harness, tmp_path)
 
     async with app.run_test() as pilot:
         await pilot.pause()
-        text_area = app.query_one("#user-input", SmartInput)
+        text_area = app.active_input()
+        assert text_area is not None
 
         # 1. User types text including the file marker
         text_area.text = f"Check this [📦{test_file_path}]"
@@ -54,7 +53,8 @@ async def test_submit_input_ignores_unreferenced_files(textual_harness, tmp_path
 
     async with app.run_test() as pilot:
         await pilot.pause()
-        text_area = app.query_one("#user-input", SmartInput)
+        text_area = app.active_input()
+        assert text_area is not None
 
         text_area.text = "Just text without file"
 

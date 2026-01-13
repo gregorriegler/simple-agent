@@ -110,7 +110,7 @@ class TextualApp(App):
         margin-bottom: 1;
     }
 
-    #user-input {
+    .user-input {
         height: 5;
         min-height: 3;
         max-height: 10;
@@ -150,6 +150,16 @@ class TextualApp(App):
     def panel_ids_for(agent_id: AgentId) -> tuple[str, str, str]:
         return AgentTabs.panel_ids_for(agent_id)
 
+    @staticmethod
+    def input_id_for(agent_id: AgentId) -> str:
+        return AgentTabs.input_id_for(agent_id)
+
+    def input_for(self, agent_id: AgentId) -> SmartInput | None:
+        return self.query_one(AgentTabs).input_for(agent_id)
+
+    def active_input(self) -> SmartInput | None:
+        return self.query_one(AgentTabs).active_input()
+
     def compose(self) -> ComposeResult:
         provider = CompositeSuggestionProvider(
             [
@@ -168,12 +178,12 @@ class TextualApp(App):
             ]
         )
         with Vertical():
-            yield AgentTabs(self._root_agent_id, id="tabs")
-            yield SmartInput(provider=provider, id="user-input")
+            yield AgentTabs(self._root_agent_id, provider, id="tabs")
 
     async def on_mount(self) -> None:
-        smart_input = self.query_one(SmartInput)
-        smart_input.focus()
+        smart_input = self.active_input()
+        if smart_input:
+            smart_input.focus()
         if self._session_runner:
             self._session_task = asyncio.create_task(self._run_session())
 
@@ -215,7 +225,9 @@ class TextualApp(App):
         self.query_one(AgentTabs).switch_tab(1)
 
     def action_submit_input(self) -> None:
-        self.query_one(SmartInput).submit()
+        smart_input = self.active_input()
+        if smart_input:
+            smart_input.submit()
 
     def on_smart_input_submitted(self, event: SmartInput.Submitted) -> None:
         if self.user_input:

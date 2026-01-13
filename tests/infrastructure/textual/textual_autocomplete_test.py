@@ -252,7 +252,8 @@ async def test_submit_hides_autocomplete_popup():
     app = TextualApp(user_input, AgentId("Agent"))
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SmartInput)
+        text_area = app.active_input()
+        assert text_area is not None
 
         text_area.focus()
         await pilot.press("/")
@@ -274,7 +275,8 @@ async def test_autocomplete_popup_keeps_initial_x_position():
     app = TextualApp(user_input, AgentId("Agent"))
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SmartInput)
+        text_area = app.active_input()
+        assert text_area is not None
         text_area.focus()
 
         # Type to show popup
@@ -302,7 +304,8 @@ async def test_enter_key_selects_autocomplete_when_visible():
     app = TextualApp(user_input, AgentId("Agent"))
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SmartInput)
+        text_area = app.active_input()
+        assert text_area is not None
         text_area.focus()
 
         await pilot.press("/")
@@ -327,7 +330,8 @@ async def test_enter_key_submits_when_autocomplete_not_visible():
     app = TextualApp(user_input, AgentId("Agent"))
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SmartInput)
+        text_area = app.active_input()
+        assert text_area is not None
         text_area.focus()
 
         # Type "hello"
@@ -402,7 +406,8 @@ async def test_autocomplete_popup_hide(app: TextualApp):
 @pytest.mark.asyncio
 async def test_submittable_text_area_slash_commands(app: TextualApp):
     async with app.run_test() as pilot:
-        text_area = app.query_one(SmartInput)
+        text_area = app.active_input()
+        assert text_area is not None
 
         text_area.focus()
         await pilot.press("/")
@@ -441,24 +446,22 @@ async def test_submittable_text_area_file_search(app: TextualApp):
 
             from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
 
+            provider = CompositeSuggestionProvider(
+                [
+                    TriggeredSuggestionProvider(
+                        trigger=AtSymbolTrigger(),
+                        provider=FileSearchProvider(mock_searcher),
+                    )
+                ]
+            )
             with Vertical():
-                yield AgentTabs(self._root_agent_id, id="tabs")
-
-                # Inject our custom provider
-                provider = CompositeSuggestionProvider(
-                    [
-                        TriggeredSuggestionProvider(
-                            trigger=AtSymbolTrigger(),
-                            provider=FileSearchProvider(mock_searcher),
-                        )
-                    ]
-                )
-                yield SmartInput(provider=provider, id="user-input")
+                yield AgentTabs(self._root_agent_id, provider, id="tabs")
 
     test_app = TestApp(StubUserInput(), AgentId("Agent"))
 
     async with test_app.run_test() as pilot:
-        text_area = test_app.query_one(SmartInput)
+        text_area = test_app.active_input()
+        assert text_area is not None
         text_area.focus()
 
         await pilot.press("s")
@@ -488,7 +491,8 @@ async def test_submittable_text_area_file_search(app: TextualApp):
 @pytest.mark.asyncio
 async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
     async with app.run_test() as pilot:
-        text_area = app.query_one(SmartInput)
+        text_area = app.active_input()
+        assert text_area is not None
         text_area.focus()
 
         # Trigger popup
@@ -524,7 +528,8 @@ async def test_submittable_text_area_keyboard_interactions(app: TextualApp):
 @pytest.mark.asyncio
 async def test_submittable_text_area_shift_enter(app: TextualApp):
     async with app.run_test() as pilot:
-        text_area = app.query_one(SmartInput)
+        text_area = app.active_input()
+        assert text_area is not None
         text_area.focus()
         text_area.text = "line1"
         text_area.move_cursor((0, 5))
@@ -541,7 +546,8 @@ async def test_submittable_text_area_shift_enter(app: TextualApp):
 @pytest.mark.asyncio
 async def test_submittable_text_area_ctrl_enter(app: TextualApp):
     async with app.run_test() as pilot:
-        text_area = app.query_one(SmartInput)
+        text_area = app.active_input()
+        assert text_area is not None
         text_area.focus()
         text_area.text = "line1"
         text_area.move_cursor((0, 5))
@@ -674,7 +680,8 @@ async def test_popup_mounted_at_app_level():
     app = TextualApp(user_input, AgentId("Agent"))
 
     async with app.run_test():
-        text_area = app.query_one("#user-input", SmartInput)
+        text_area = app.active_input()
+        assert text_area is not None
 
         # Verify popup is mounted at screen level, not as child of SmartInput
         # (app.mount() actually mounts to the app's current screen)

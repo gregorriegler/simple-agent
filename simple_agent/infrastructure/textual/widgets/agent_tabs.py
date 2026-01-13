@@ -1,6 +1,7 @@
 import logging
 
 from rich.markup import escape
+from textual.containers import Vertical
 from textual.css.query import NoMatches
 from textual.widgets import TabbedContent, TabPane
 
@@ -21,6 +22,10 @@ from simple_agent.application.events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
+from simple_agent.infrastructure.textual.smart_input import SmartInput
+from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
+    SuggestionProvider,
+)
 from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 
 logger = logging.getLogger(__name__)
@@ -32,15 +37,25 @@ class AgentTabs(TabbedContent):
     Each tab contains an AgentWorkspace.
     """
 
-    def __init__(self, root_agent_id: AgentId, **kwargs):
+    def __init__(
+        self, root_agent_id: AgentId, input_provider: SuggestionProvider, **kwargs
+    ):
         super().__init__(**kwargs)
         self._root_agent_id = root_agent_id
+        self._input_provider = input_provider
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
         self._agent_names: dict[AgentId, str] = {}
         self._agent_workspaces: dict[str, AgentWorkspace] = {}
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._agent_models: dict[AgentId, str] = {}
         self._agent_token_display: dict[AgentId, str] = {}
+        self._agent_inputs: dict[AgentId, SmartInput] = {}
+        self._tab_id_to_agent: dict[str, AgentId] = {}
+        self._input_id_to_agent: dict[str, AgentId] = {}
+
+    def on_mount(self) -> None:
+        if not self.has_agent_tab(self._root_agent_id):
+            self.add_subagent_tab(self._root_agent_id, str(self._root_agent_id))
 
     @staticmethod
     def panel_ids_for(agent_id: AgentId) -> tuple[str, str, str]:
@@ -50,6 +65,11 @@ class AgentTabs(TabbedContent):
         tool_results_id = f"tool-results-{sanitized}"
         return tab_id, log_id, tool_results_id
 
+    @staticmethod
+    def input_id_for(agent_id: AgentId) -> str:
+        sanitized = agent_id.for_ui()
+        return f"user-input-{sanitized}"
+
     def create_agent_container(self, log_id, tool_results_id, agent_id):
         workspace = AgentWorkspace(
             agent_id=agent_id,
@@ -57,11 +77,19 @@ class AgentTabs(TabbedContent):
             tool_results_id=tool_results_id,
             id="tab-content",
         )
+        smart_input = SmartInput(
+            provider=self._input_provider,
+            id=self.input_id_for(agent_id),
+            classes="user-input",
+        )
 
         self._agent_workspaces[str(agent_id)] = workspace
         self._agent_panel_ids[agent_id] = (log_id, tool_results_id)
         self._tool_results_to_agent[tool_results_id] = agent_id
-        return workspace
+        self._agent_inputs[agent_id] = smart_input
+        if smart_input.id:
+            self._input_id_to_agent[smart_input.id] = agent_id
+        return Vertical(workspace, smart_input)
 
     def has_agent_tab(self, agent_id: AgentId) -> bool:
         return agent_id in self._agent_panel_ids
@@ -79,6 +107,7 @@ class AgentTabs(TabbedContent):
 
         self.add_pane(new_tab)
         self.active = tab_id
+        self._tab_id_to_agent[tab_id] = agent_id
         return log_id, tool_results_id
 
     def remove_subagent_tab(self, agent_id: AgentId) -> None:
@@ -89,6 +118,29 @@ class AgentTabs(TabbedContent):
             self._tool_results_to_agent.pop(tool_results_id, None)
         self._agent_names.pop(agent_id, None)
         self._agent_workspaces.pop(str(agent_id), None)
+        self._agent_inputs.pop(agent_id, None)
+        self._tab_id_to_agent.pop(tab_id, None)
+        self._input_id_to_agent = {
+            input_id: mapped_agent
+            for input_id, mapped_agent in self._input_id_to_agent.items()
+            if mapped_agent != agent_id
+        }
+
+    def input_for(self, agent_id: AgentId) -> SmartInput | None:
+        return self._agent_inputs.get(agent_id)
+
+    def active_input(self) -> SmartInput | None:
+        if not self.active:
+            return None
+        agent_id = self._tab_id_to_agent.get(self.active)
+        if not agent_id:
+            return None
+        return self._agent_inputs.get(agent_id)
+
+    def agent_for_input(self, input_widget: SmartInput) -> AgentId | None:
+        if not input_widget.id:
+            return None
+        return self._input_id_to_agent.get(input_widget.id)
 
     def update_tab_title(self, agent_id: AgentId, title: str) -> None:
         tab_id, _, _ = self.panel_ids_for(agent_id)
@@ -223,6 +275,9 @@ class AgentTabs(TabbedContent):
         if self.has_agent_tab(agent_id):
             if model:
                 token_display = self._agent_token_display.get(agent_id, "")
+                if not token_display:
+                    token_display = "0.0%"
+                    self._agent_token_display[agent_id] = token_display
                 title = self._tab_title_for(agent_id, model, token_display)
                 self.update_tab_title(agent_id, title)
             return
