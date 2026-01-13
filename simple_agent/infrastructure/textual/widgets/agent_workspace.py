@@ -1,22 +1,33 @@
+from textual.containers import Vertical
+
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_results import ToolResult
 from simple_agent.infrastructure.textual.resizable_container import (
     ResizableHorizontal,
     ResizableVertical,
 )
+from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.widgets.chat_log import ChatLog
 from simple_agent.infrastructure.textual.widgets.todo_view import TodoView
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 
 
-class AgentWorkspace(ResizableHorizontal):
+class AgentWorkspace(Vertical):
     """
     A compound widget that displays the 3-pane layout for an agent:
     - Left Panel: Chat history (top) and Todo list (bottom)
     - Right Panel: Tool execution log
+    - Bottom Panel: Smart Input (User Input)
     """
 
-    def __init__(self, agent_id: AgentId, log_id: str, tool_results_id: str, **kwargs):
+    def __init__(
+        self,
+        suggestion_provider,
+        agent_id: AgentId,
+        log_id: str,
+        tool_results_id: str,
+        **kwargs,
+    ):
         self.chat_log = ChatLog(id=f"{log_id}-scroll", classes="left-panel-top")
         self.todo_view = TodoView(
             agent_id,
@@ -32,7 +43,15 @@ class AgentWorkspace(ResizableHorizontal):
 
         self.tool_log = ToolLog(id=tool_results_id)
 
-        super().__init__(self.left_panel, self.tool_log, **kwargs)
+        # Split view contains the main content (chat + tools)
+        self.split_view = ResizableHorizontal(
+            self.left_panel, self.tool_log, id="split-view"
+        )
+
+        # Smart input for this specific agent
+        self.smart_input = SmartInput(provider=suggestion_provider, id="user-input")
+
+        super().__init__(self.split_view, self.smart_input, **kwargs)
 
     def refresh_todos(self) -> None:
         self.todo_view.refresh_content()

@@ -142,6 +142,7 @@ class TextualApp(App):
         )
         self._file_searcher = NativeFileSearcher()
         self.file_loader = XmlFormattingFileLoader(DiskFileLoader())
+        self._suggestion_provider = self._create_suggestion_provider()
 
     def has_agent_tab(self, agent_id: AgentId) -> bool:
         return self.query_one(AgentTabs).has_agent_tab(agent_id)
@@ -150,8 +151,8 @@ class TextualApp(App):
     def panel_ids_for(agent_id: AgentId) -> tuple[str, str, str]:
         return AgentTabs.panel_ids_for(agent_id)
 
-    def compose(self) -> ComposeResult:
-        provider = CompositeSuggestionProvider(
+    def _create_suggestion_provider(self):
+        return CompositeSuggestionProvider(
             [
                 TriggeredSuggestionProvider(
                     trigger=SlashAtStartOfLineTrigger(),
@@ -167,13 +168,22 @@ class TextualApp(App):
                 ),
             ]
         )
+
+    def compose(self) -> ComposeResult:
         with Vertical():
-            yield AgentTabs(self._root_agent_id, id="tabs")
-            yield SmartInput(provider=provider, id="user-input")
+            yield AgentTabs(self._suggestion_provider, self._root_agent_id, id="tabs")
 
     async def on_mount(self) -> None:
-        smart_input = self.query_one(SmartInput)
-        smart_input.focus()
+        # Focus the smart input of the active tab
+        # AgentTabs is mounted, and it should have created the initial tab/workspace
+        try:
+            tabs = self.query_one(AgentTabs)
+            workspace = tabs.active_workspace
+            if workspace and workspace.smart_input:
+                workspace.smart_input.focus()
+        except Exception as e:
+            logger.warning("Could not focus smart input on mount: %s", e)
+
         if self._session_runner:
             self._session_task = asyncio.create_task(self._run_session())
 
@@ -215,7 +225,14 @@ class TextualApp(App):
         self.query_one(AgentTabs).switch_tab(1)
 
     def action_submit_input(self) -> None:
-        self.query_one(SmartInput).submit()
+        """Called when Enter is pressed and handled by binding."""
+        # Find active smart input
+        try:
+            workspace = self.query_one(AgentTabs).active_workspace
+            if workspace and workspace.smart_input:
+                workspace.smart_input.submit()
+        except Exception:
+            pass
 
     def on_smart_input_submitted(self, event: SmartInput.Submitted) -> None:
         if self.user_input:

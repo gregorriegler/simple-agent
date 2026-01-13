@@ -37,12 +37,20 @@ async def test_switch_tabs_cycles_between_root_and_subagent(app: TextualApp):
         await pilot.pause()
 
         tabs = app.query_one("#tabs", TabbedContent)
+        # Adding a tab does not switch to it if one is already active (root is active)
+        # So we expect it to still be root
+        assert tabs.active == app.panel_ids_for(root_agent)[0]
+
+        app.action_next_tab()
+        await pilot.pause()
         assert tabs.active == app.panel_ids_for(subagent)[0]
 
         app.action_next_tab()
+        await pilot.pause()
         assert tabs.active == app.panel_ids_for(root_agent)[0]
 
         app.action_previous_tab()
+        await pilot.pause()
         assert tabs.active == app.panel_ids_for(subagent)[0]
 
 
