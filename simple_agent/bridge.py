@@ -94,7 +94,7 @@ async def on_user_prompt_requested(app: TextualApp):
             print(f"Bridge: Processing input: {content}")
 
             if content == "/exit":
-                app.exit()
+                await app.action_quit()
                 return
 
             app.user_input.submit_input(content)
