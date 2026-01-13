@@ -119,6 +119,7 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
     starting_agent_id = agent_library.starting_agent_id().with_root(
         session_storage.session_root()
     )
+    agent_task_manager = AgentTaskManager()
     session = Session(
         starting_agent_id,
         event_bus=event_bus,
@@ -129,8 +130,8 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
         llm_provider=llm_provider,
         project_tree=project_tree,
         event_store=event_store,
+        agent_task_manager=agent_task_manager,
     )
-    agent_task_manager = AgentTaskManager()
     textual_app = TextualApp(
         textual_user_input,
         starting_agent_id,

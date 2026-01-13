@@ -3,6 +3,7 @@ import asyncio
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.agent_library import AgentLibrary
+from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.event_bus import EventBus
@@ -31,6 +32,7 @@ class AgentFactory:
         llm_provider: LLMProvider,
         project_tree: ProjectTree,
         event_store: EventStore | None = None,
+        agent_task_manager: AgentTaskManager | None = None,
     ):
         self._event_bus = event_bus
         self._tool_library_factory = tool_library_factory
@@ -40,6 +42,7 @@ class AgentFactory:
         self._llm_provider = llm_provider
         self._project_tree = project_tree
         self._event_store = event_store
+        self._agent_task_manager = agent_task_manager
 
     @property
     def event_bus(self) -> EventBus:
@@ -67,7 +70,10 @@ class AgentFactory:
                 agent_id, definition, task_description, context, agent_type
             )
             if is_async:
-                asyncio.create_task(subagent.start())
+                if self._agent_task_manager:
+                    self._agent_task_manager.start_task(agent_id, subagent.start())
+                else:
+                    asyncio.create_task(subagent.start())
                 return SingleToolResult("Subagent started")
             else:
                 return await subagent.start()

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
+from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import EventBus
 from simple_agent.application.event_store import EventStore
@@ -40,6 +41,7 @@ class Session:
         llm_provider: LLMProvider,
         project_tree: ProjectTree,
         event_store: EventStore | None = None,
+        agent_task_manager: AgentTaskManager | None = None,
     ):
         self._starting_agent_id = starting_agent_id
         self._event_bus = event_bus
@@ -50,6 +52,7 @@ class Session:
         self._llm_provider = llm_provider
         self._project_tree = project_tree
         self._event_store = event_store
+        self._agent_task_manager = agent_task_manager
 
     async def run_async(
         self,
@@ -63,6 +66,7 @@ class Session:
             self._llm_provider,
             self._project_tree,
             event_store=self._event_store,
+            agent_task_manager=self._agent_task_manager,
         )
 
         self._event_bus.publish(
