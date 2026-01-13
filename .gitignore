@@ -72,3 +72,6 @@ htmlcov/
 *.onnx
 *.onnx.json
 /.simple-agent/
+
+# Bridge I/O
+bridge/
