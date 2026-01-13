@@ -2,8 +2,10 @@ import pytest
 
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.event_store import NoOpEventStore
 from simple_agent.application.llm import (
     LLM,
     ChatMessages,
@@ -108,6 +110,8 @@ async def test_model_switching_uses_new_llm_instance():
         todo_cleanup=TodoCleanupStub(),
         llm_provider=llm_provider,
         project_tree=DummyProjectTree(),
+        agent_task_manager=AgentTaskManager(),
+        event_store=NoOpEventStore(),
     )
 
     # Run

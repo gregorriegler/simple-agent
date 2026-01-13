@@ -2,9 +2,10 @@ import asyncio
 
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
-from simple_agent.application.event_store import EventStore
+from simple_agent.application.event_store import EventStore, NoOpEventStore
 from simple_agent.application.events import (
     AgentEvent,
     AgentFinishedEvent,
@@ -226,6 +227,8 @@ class SessionTestBed:
         )
 
         root_agent_id = AgentId("Agent")
+        agent_task_manager = AgentTaskManager()
+        event_store = self._event_store or NoOpEventStore()
         session = Session(
             root_agent_id,
             event_bus=event_bus,
@@ -235,7 +238,8 @@ class SessionTestBed:
             todo_cleanup=todo_cleanup,
             llm_provider=StubLLMProvider.for_testing(self._llm),
             project_tree=DummyProjectTree(),
-            event_store=self._event_store,
+            event_store=event_store,
+            agent_task_manager=agent_task_manager,
         )
 
         asyncio.create_task(

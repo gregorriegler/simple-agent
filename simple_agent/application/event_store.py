@@ -10,3 +10,14 @@ class EventStore(Protocol):
     def load_events(self, agent_id: AgentId | None = None) -> list[AgentEvent]: ...
 
     def load_all_events(self) -> list[AgentEvent]: ...
+
+
+class NoOpEventStore:
+    def persist(self, event: AgentEvent) -> None:
+        pass
+
+    def load_events(self, agent_id: AgentId | None = None) -> list[AgentEvent]:
+        return []
+
+    def load_all_events(self) -> list[AgentEvent]:
+        return []

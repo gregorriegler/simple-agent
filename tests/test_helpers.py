@@ -4,26 +4,26 @@ from contextlib import contextmanager
 from approvaltests import Options, verify
 from approvaltests.scrubbers.scrubbers import combine_scrubbers, create_regex_scrubber
 
+from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_types import AgentTypes
+from simple_agent.application.emoji_bracket_tool_syntax import (
+    EmojiBracketToolSyntax,
+)
+from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.event_store import NoOpEventStore
+from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.session import SessionArgs
 from simple_agent.application.system_prompt import AgentPrompt
+from simple_agent.application.tool_library_factory import ToolContext
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
-from simple_agent.tools.all_tools import AllTools
+from simple_agent.tools.all_tools import AllTools, AllToolsFactory
 from tests.user_input_stub import UserInputStub
 
 
 def create_all_tools_for_test():
-    from simple_agent.application.agent_factory import AgentFactory
-    from simple_agent.application.emoji_bracket_tool_syntax import (
-        EmojiBracketToolSyntax,
-    )
-    from simple_agent.application.event_bus import SimpleEventBus
-    from simple_agent.application.llm_stub import StubLLMProvider
-    from simple_agent.application.tool_library_factory import ToolContext
-    from simple_agent.tools.all_tools import AllToolsFactory
-
     event_bus = SimpleEventBus()
     tool_syntax = EmojiBracketToolSyntax()
     tool_library_factory = AllToolsFactory(tool_syntax)
@@ -35,6 +35,8 @@ def create_all_tools_for_test():
         user_input=UserInputStub(),
         llm_provider=StubLLMProvider.dummy(),
         project_tree=DummyProjectTree(),
+        event_store=NoOpEventStore(),
+        agent_task_manager=AgentTaskManager(),
     )
 
     agent_id = AgentId("Agent")

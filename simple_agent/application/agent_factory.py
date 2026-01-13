@@ -1,5 +1,3 @@
-import asyncio
-
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.agent_library import AgentLibrary
@@ -31,8 +29,8 @@ class AgentFactory:
         user_input: UserInput,
         llm_provider: LLMProvider,
         project_tree: ProjectTree,
-        event_store: EventStore | None = None,
-        agent_task_manager: AgentTaskManager | None = None,
+        event_store: EventStore,
+        agent_task_manager: AgentTaskManager,
     ):
         self._event_bus = event_bus
         self._tool_library_factory = tool_library_factory
@@ -60,20 +58,14 @@ class AgentFactory:
             agent_id = parent_agent_id.create_subagent_id(
                 definition.agent_name(), self._agent_suffixer
             )
-            if self._event_store:
-                events = self._event_store.load_events(agent_id)
-                context = events_to_messages(events, agent_id)
-            else:
-                context = Messages()
+            events = self._event_store.load_events(agent_id)
+            context = events_to_messages(events, agent_id)
 
             subagent = self.create_agent(
                 agent_id, definition, task_description, context, agent_type
             )
             if is_async:
-                if self._agent_task_manager:
-                    self._agent_task_manager.start_task(agent_id, subagent.start())
-                else:
-                    asyncio.create_task(subagent.start())
+                self._agent_task_manager.start_task(agent_id, subagent.start())
                 return SingleToolResult("Subagent started")
             else:
                 return await subagent.start()
@@ -84,11 +76,8 @@ class AgentFactory:
         self, agent_id: AgentId, agent_type: AgentType
     ) -> Agent:
         definition = self._agent_library.read_agent_definition(agent_type)
-        if self._event_store:
-            events = self._event_store.load_events(agent_id)
-            context = events_to_messages(events, agent_id)
-        else:
-            context = Messages()
+        events = self._event_store.load_events(agent_id)
+        context = events_to_messages(events, agent_id)
 
         return self.create_agent(agent_id, definition, None, context, agent_type)
 

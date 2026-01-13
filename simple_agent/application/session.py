@@ -40,8 +40,8 @@ class Session:
         todo_cleanup: TodoCleanup,
         llm_provider: LLMProvider,
         project_tree: ProjectTree,
-        event_store: EventStore | None = None,
-        agent_task_manager: AgentTaskManager | None = None,
+        event_store: EventStore,
+        agent_task_manager: AgentTaskManager,
     ):
         self._starting_agent_id = starting_agent_id
         self._event_bus = event_bus
@@ -74,7 +74,7 @@ class Session:
         )
 
         unfinished_subagents = []
-        if args.continue_session and self._event_store:
+        if args.continue_session:
             history_replayer = HistoryReplayer(self._event_bus, self._event_store)
             unfinished_subagents = history_replayer.replay_all_agents(
                 self._starting_agent_id

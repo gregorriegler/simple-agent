@@ -15,10 +15,12 @@ from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.event_store import NoOpEventStore
 from simple_agent.application.events import UserPromptRequestedEvent
 from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.session import Session, SessionArgs
 from simple_agent.application.tool_documentation import generate_tools_documentation
+from simple_agent.application.tool_library_factory import ToolContext
 from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.infrastructure.event_logger import EventLogger
@@ -174,8 +176,6 @@ async def main_async(on_user_prompt_requested=None):
 
 
 def print_system_prompt_command(user_config, cwd, args):
-    from simple_agent.application.tool_library_factory import ToolContext
-
     tool_syntax = EmojiBracketToolSyntax()
     tool_library_factory = AllToolsFactory(tool_syntax)
     dummy_event_bus = SimpleEventBus()
@@ -187,6 +187,8 @@ def print_system_prompt_command(user_config, cwd, args):
         DummyUserInput(),
         StubLLMProvider.dummy(),
         FileSystemProjectTree(Path(cwd)),
+        event_store=NoOpEventStore(),
+        agent_task_manager=AgentTaskManager(),
     )
     agent_definition = agent_library._starting_agent_definition()
     agent_id = AgentId("Agent", root=Path(cwd))
