@@ -10,6 +10,7 @@ from typing import Any, Protocol, cast
 
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
@@ -129,9 +130,11 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
     starting_agent_id = agent_library.starting_agent_id().with_root(
         session_storage.session_root()
     )
+    agent_task_manager = AgentTaskManager()
     textual_app = TextualApp(
         textual_user_input,
         starting_agent_id,
+        agent_task_manager=agent_task_manager,
         available_models=llm_provider.get_available_models(),
     )
     subscribe_events(event_bus, event_logger, todo_cleanup, textual_app, event_store)

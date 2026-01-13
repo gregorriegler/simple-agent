@@ -38,7 +38,7 @@ async def test_action_quit_cancels_session_task():
     async with app.run_test() as pilot:
         object.__setattr__(app, "_pilot", pilot)
         await pilot.pause()
-        session_task = app._session_task
+        session_task = app.agent_task_manager._tasks[app._root_agent_id]
         assert session_task is not None
 
         await app.action_quit()

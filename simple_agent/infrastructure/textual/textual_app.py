@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from collections.abc import Callable, Coroutine
 from typing import Any
@@ -8,6 +7,7 @@ from textual.app import App, ComposeResult
 from textual.containers import Vertical
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.smart_input import SmartInput
@@ -129,13 +129,14 @@ class TextualApp(App):
         self,
         user_input=None,
         root_agent_id: AgentId | None = None,
+        agent_task_manager: AgentTaskManager | None = None,
         available_models: list[str] | None = None,
     ):
         super().__init__()
         self.user_input = user_input
         self._root_agent_id = root_agent_id or AgentId("Agent")
+        self.agent_task_manager = agent_task_manager or AgentTaskManager()
         self._session_runner: Callable[[], Coroutine[Any, Any, None]] | None = None
-        self._session_task: asyncio.Task | None = None
         self._slash_command_registry = SlashCommandRegistry(
             available_models=available_models
         )
@@ -184,7 +185,7 @@ class TextualApp(App):
             logger.warning("Could not focus smart input on mount: %s", e)
 
         if self._session_runner:
-            self._session_task = asyncio.create_task(self._run_session())
+            self.agent_task_manager.start_task(self._root_agent_id, self._run_session())
 
     async def _run_session(self) -> None:
         """Run the session and exit the app when done."""
@@ -202,8 +203,13 @@ class TextualApp(App):
 
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
-            if self._session_task and not self._session_task.done():
-                self._session_task.cancel()
+            try:
+                workspace = self.query_one(AgentTabs).active_workspace
+                if workspace:
+                    self.agent_task_manager.cancel_task(workspace.agent_id)
+            except Exception:
+                # Fallback to canceling root if tabs not ready or other error
+                self.agent_task_manager.cancel_task(self._root_agent_id)
             event.prevent_default()
             return
         # Enter is now handled by SubmittableTextArea
@@ -213,8 +219,7 @@ class TextualApp(App):
         """Ensure Ctrl+C / Ctrl+Q stop the agent, not just the UI."""
         if self.user_input:
             self.user_input.close()
-        if self._session_task and not self._session_task.done():
-            self._session_task.cancel()
+        self.agent_task_manager.cancel_all_tasks()
         self.exit()
 
     def action_previous_tab(self) -> None:

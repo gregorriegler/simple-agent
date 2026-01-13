@@ -28,6 +28,7 @@ class AgentWorkspace(Vertical):
         tool_results_id: str,
         **kwargs,
     ):
+        self.agent_id = agent_id
         self.chat_log = ChatLog(id=f"{log_id}-scroll", classes="left-panel-top")
         self.todo_view = TodoView(
             agent_id,
