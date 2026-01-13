@@ -115,7 +115,6 @@ class TextualApp(App):
         min-height: 3;
         max-height: 10;
         border: solid $primary;
-        dock: bottom;
     }
 
     #input-hint {
