@@ -127,15 +127,15 @@ class TextualApp(App):
 
     def __init__(
         self,
-        user_input=None,
-        root_agent_id: AgentId | None = None,
-        agent_task_manager: AgentTaskManager | None = None,
+        user_input,
+        root_agent_id: AgentId,
+        agent_task_manager: AgentTaskManager,
         available_models: list[str] | None = None,
     ):
         super().__init__()
         self.user_input = user_input
-        self._root_agent_id = root_agent_id or AgentId("Agent")
-        self.agent_task_manager = agent_task_manager or AgentTaskManager()
+        self._root_agent_id = root_agent_id
+        self.agent_task_manager = agent_task_manager
         self._session_runner: Callable[[], Coroutine[Any, Any, None]] | None = None
         self._slash_command_registry = SlashCommandRegistry(
             available_models=available_models

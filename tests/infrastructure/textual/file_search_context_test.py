@@ -1,8 +1,8 @@
 import pytest
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.events import AgentStartedEvent, UserPromptedEvent
-from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 
@@ -31,10 +31,17 @@ async def test_submit_includes_referenced_file_content(tmp_path):
     dummy_file.write_text("Hello World", encoding="utf-8")
 
     user_input = StubUserInput()
-    app = TextualApp(user_input)
+    app = TextualApp(
+        user_input, AgentId("Agent"), agent_task_manager=AgentTaskManager()
+    )
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SmartInput)
+        # Note: The query for "#user-input" is wrong.
+        # It's inside a workspace, so we need a more specific query
+        from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+
+        workspace = app.query_one(AgentTabs).active_workspace
+        text_area = workspace.smart_input
 
         # Simulate typing and selecting file
         file_path_str = str(dummy_file)
@@ -61,10 +68,15 @@ async def test_submit_ignores_removed_file_references(tmp_path):
     dummy_file.write_text("Should Not Appear", encoding="utf-8")
 
     user_input = StubUserInput()
-    app = TextualApp(user_input)
+    app = TextualApp(
+        user_input, AgentId("Agent"), agent_task_manager=AgentTaskManager()
+    )
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SmartInput)
+        from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+
+        workspace = app.query_one(AgentTabs).active_workspace
+        text_area = workspace.smart_input
 
         # Simulate selecting file but then deleting it from text
         text_area.text = "I deleted the file ref"
@@ -88,10 +100,15 @@ async def test_submit_ignores_corrupted_marker(tmp_path):
     dummy_file.write_text("Should Not Appear", encoding="utf-8")
 
     user_input = StubUserInput()
-    app = TextualApp(user_input)
+    app = TextualApp(
+        user_input, AgentId("Agent"), agent_task_manager=AgentTaskManager()
+    )
 
     async with app.run_test() as pilot:
-        text_area = app.query_one("#user-input", SmartInput)
+        from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+
+        workspace = app.query_one(AgentTabs).active_workspace
+        text_area = workspace.smart_input
 
         # Simulate selecting file but then deleting the closing bracket
         file_path_str = str(dummy_file)
@@ -116,7 +133,9 @@ async def test_submit_ignores_corrupted_marker(tmp_path):
 @pytest.mark.asyncio
 async def test_user_prompted_event_display_compaction():
     user_input = StubUserInput()
-    app = TextualApp(user_input)
+    app = TextualApp(
+        user_input, AgentId("Agent"), agent_task_manager=AgentTaskManager()
+    )
 
     async with app.run_test() as pilot:
         # Simulate UserPromptedEvent with context

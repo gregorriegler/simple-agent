@@ -5,6 +5,7 @@ from approvaltests import verify
 from textual.timer import Timer
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.events import (
     AssistantSaidEvent,
     SessionStartedEvent,
@@ -45,7 +46,11 @@ async def test_golden_happy_path_flow(tmp_path, monkeypatch):
     monkeypatch.setattr(ToolLog, "set_interval", noop_set_interval)
 
     agent_id = AgentId("Agent", root=tmp_path)
-    app = TextualApp(user_input=None, root_agent_id=agent_id)
+    app = TextualApp(
+        user_input=None,
+        root_agent_id=agent_id,
+        agent_task_manager=AgentTaskManager(),
+    )
 
     # Disable loading timer to avoid non-determinism
     # We can mock set_interval on the app or just ensure we don't wait for it

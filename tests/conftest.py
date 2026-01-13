@@ -43,3 +43,11 @@ def configure_approvals():
 def tool_library():
     """Session-scoped fixture for tool library to avoid repeated initialization."""
     return create_all_tools_for_test()
+
+
+@pytest.fixture
+def agent_task_manager():
+    """Fixture to provide an AgentTaskManager instance."""
+    from simple_agent.application.agent_task_manager import AgentTaskManager
+
+    return AgentTaskManager()

@@ -5,6 +5,7 @@ from approvaltests import verify
 from textual.timer import Timer
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.events import (
     AgentStartedEvent,
@@ -102,7 +103,10 @@ async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
 
     # --- Part 1: Build UI by replaying events directly ---
     app1 = TextualApp(
-        user_input=None, root_agent_id=agent_id, available_models=["stub-model"]
+        user_input=None,
+        root_agent_id=agent_id,
+        agent_task_manager=AgentTaskManager(),
+        available_models=["stub-model"],
     )
     app1.set_interval = noop_set_interval
 
@@ -116,7 +120,10 @@ async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
 
     # --- Part 2: Build UI by loading from event store (continuation path) ---
     app2 = TextualApp(
-        user_input=None, root_agent_id=agent_id, available_models=["stub-model"]
+        user_input=None,
+        root_agent_id=agent_id,
+        agent_task_manager=AgentTaskManager(),
+        available_models=["stub-model"],
     )
     app2.set_interval = noop_set_interval
 

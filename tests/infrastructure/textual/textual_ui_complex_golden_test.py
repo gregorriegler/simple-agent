@@ -6,6 +6,7 @@ from textual.timer import Timer
 from textual.widgets import Collapsible, TextArea
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.events import (
     AgentStartedEvent,
     AssistantSaidEvent,
@@ -49,7 +50,11 @@ async def test_golden_complex_scenarios(tmp_path, monkeypatch):
 
     agent_id = AgentId("Agent", root=tmp_path)
     mock_user_input = MockUserInput()
-    app = TextualApp(user_input=mock_user_input, root_agent_id=agent_id)
+    app = TextualApp(
+        user_input=mock_user_input,
+        root_agent_id=agent_id,
+        agent_task_manager=AgentTaskManager(),
+    )
 
     # Disable loading timer
     app.set_interval = noop_set_interval

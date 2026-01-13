@@ -17,8 +17,8 @@ from tests.infrastructure.textual.test_utils import MockUserInput
 
 
 @pytest.fixture
-def app():
-    return TextualApp(MockUserInput(), AgentId("Agent"))
+def app(agent_task_manager):
+    return TextualApp(MockUserInput(), AgentId("Agent"), agent_task_manager)
 
 
 @pytest.mark.asyncio
