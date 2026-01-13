@@ -32,8 +32,9 @@ class AgentTabs(TabbedContent):
     Each tab contains an AgentWorkspace.
     """
 
-    def __init__(self, root_agent_id: AgentId, **kwargs):
+    def __init__(self, suggestion_provider, root_agent_id: AgentId, **kwargs):
         super().__init__(**kwargs)
+        self._suggestion_provider = suggestion_provider
         self._root_agent_id = root_agent_id
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
         self._agent_names: dict[AgentId, str] = {}
@@ -41,6 +42,23 @@ class AgentTabs(TabbedContent):
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._agent_models: dict[AgentId, str] = {}
         self._agent_token_display: dict[AgentId, str] = {}
+
+    def on_mount(self) -> None:
+        self._ensure_agent_tab_exists(self._root_agent_id, None, None)
+
+    @property
+    def active_workspace(self) -> AgentWorkspace | None:
+        """Returns the AgentWorkspace of the currently active tab."""
+        # Find active tab pane
+        try:
+            active_pane_id = self.active
+            if not active_pane_id:
+                return None
+            active_pane = self.get_pane(active_pane_id)
+            # The workspace is the first child of the pane
+            return active_pane.query_one(AgentWorkspace)
+        except NoMatches:
+            return None
 
     @staticmethod
     def panel_ids_for(agent_id: AgentId) -> tuple[str, str, str]:
@@ -52,6 +70,7 @@ class AgentTabs(TabbedContent):
 
     def create_agent_container(self, log_id, tool_results_id, agent_id):
         workspace = AgentWorkspace(
+            suggestion_provider=self._suggestion_provider,
             agent_id=agent_id,
             log_id=log_id,
             tool_results_id=tool_results_id,
@@ -78,7 +97,12 @@ class AgentTabs(TabbedContent):
         )
 
         self.add_pane(new_tab)
-        self.active = tab_id
+
+        # When adding the first tab or explicit switch logic, ensure we track it
+        # Note: TabbedContent auto-activates the first tab added if none are active.
+        if not self.active:
+            self.active = tab_id
+
         return log_id, tool_results_id
 
     def remove_subagent_tab(self, agent_id: AgentId) -> None:
@@ -110,6 +134,10 @@ class AgentTabs(TabbedContent):
         new_tab_id = tab_panes[new_index].id
         if new_tab_id:
             self.active = new_tab_id
+            # Also focus the input in the new tab
+            workspace = self.active_workspace
+            if workspace and workspace.smart_input:
+                workspace.smart_input.focus()
 
     def handle_event(self, event) -> None:
         agent_id = getattr(event, "agent_id", None)
