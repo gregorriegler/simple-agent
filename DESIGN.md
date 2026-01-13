@@ -4,96 +4,72 @@
 The goal is to move the `SmartInput` widget from the global application scope into each `AgentWorkspace` (tab). This ensures that input is visually associated with a specific agent and functionally routed to that agent, resolving the ambiguity of "which agent am I talking to?".
 
 ## 2. Problem Analysis
-Currently, `TextualApp` creates a single `SmartInput` instance that is shared across all agent tabs.
+Currently, `TextualApp` creates a single `SmartInput` instance and a single `TextualUserInput` (queue) that is shared across all agent tabs.
 - **Visual Ambiguity**: It is not visually distinct which agent the input belongs to.
-- **Functional Ambiguity**: Input submission goes to a global queue in `TextualUserInput`. If multiple agents are running (e.g., main agent waiting for sub-agent), input typed in the "Main Agent" tab could theoretically be consumed by the "Sub Agent" if the system isn't careful, or vice versa. The user expectation is that input in Tab A goes to Agent A.
+- **Functional Ambiguity (Cross-Talk)**: Input is submitted to a single global queue. If multiple agents are running (e.g., a main agent and a sub-agent), input typed in the "Main Agent" tab could be consumed by the "Sub Agent" (or vice versa) because they both read from the same source.
+- **Requirement**: Input submitted in Tab A must *only* be received by Agent A. Input submitted in Tab B must *only* be received by Agent B.
 
 ## 3. Proposed Design
 
 ### 3.1. Frontend (UI Structure)
 
 #### 3.1.1. `AgentWorkspace` Restructuring
-The `AgentWorkspace` widget will be refactored to contain the input field.
-- **Inheritance Change**: `AgentWorkspace` currently inherits from `ResizableHorizontal`. It will be changed to inherit from `Vertical` (or `Widget` with vertical layout) to accommodate the vertical stacking of the main content area (split view) and the input area.
-- **Composition**:
+The `AgentWorkspace` widget will be refactored to contain its own `SmartInput` instance.
+- **Composition**: The `AgentWorkspace` will stack the split view (Chat + Tools) and the `SmartInput` vertically.
   ```python
   class AgentWorkspace(Vertical):
       def compose(self):
-          # The split view (Chat + Tools)
+          # The split view
           with ResizableHorizontal(id="workspace-split"):
                yield self.left_panel
                yield self.tool_log
-          # The input field
+          # The dedicated input field
           yield self.smart_input
   ```
-- **Styling**: The `SmartInput` inside the workspace will retain the `dock: bottom` (or similar flex layout) to sit at the bottom of the tab.
 
-#### 3.1.2. `AgentTabs` Updates
-- `AgentTabs` is responsible for creating `AgentWorkspace`. It must now pass the necessary dependencies for `SmartInput` (specifically the `SuggestionProvider`) to `AgentWorkspace`.
+#### 3.1.2. `TextualApp` & `AgentTabs` Updates
+- **Remove Global Input**: The single `SmartInput` in `TextualApp` is removed.
+- **Event Handling**: `TextualApp` listens for `SmartInput.Submitted` events bubbling up from `AgentWorkspace`.
+  - The event source allows identifying the `agent_id`.
+  - `TextualApp` uses this ID to route the text to the correct backend channel.
 
-#### 3.1.3. `TextualApp` Updates
-- **Remove Global Input**: The single `SmartInput` in `TextualApp.compose` will be removed.
-- **Event Handling**: `TextualApp` listens for `SmartInput.Submitted`. Since there are multiple inputs now, it must identify the source.
-  - The event will bubble up from the specific `AgentWorkspace`.
-  - `TextualApp` can determine the `agent_id` from the `AgentWorkspace` that triggered the event.
-  - It will then call `self.user_input.submit_input(content, agent_id)`.
+### 3.2. Backend (Input Routing via Factory)
 
-### 3.2. Backend (Input Routing)
+Instead of a complex "multiplexing" protocol, we will use a **Factory Pattern** to provide each Agent with its own dedicated `UserInput` instance. This creates multiple independent channels rather than one shared channel.
 
-#### 3.2.1. `MultiplexedUserInput` Protocol
-We will introduce a new protocol (or extend the existing concept) to support targeted reading/writing.
-- Define `MultiplexedUserInput(Protocol)`:
-  ```python
-  class MultiplexedUserInput(UserInput):
-      async def read_for_agent(self, agent_id: AgentId) -> str: ...
-      def submit_input(self, text: str, agent_id: AgentId) -> None: ...
-  ```
+#### 3.2.1. `UserInputFactory` Protocol
+We introduce a factory protocol in the application layer to decouple Agent creation from input mechanism details.
+```python
+class UserInputFactory(Protocol):
+    def create_user_input(self, agent_id: AgentId) -> UserInput: ...
+```
 
-#### 3.2.2. `TextualUserInput` Implementation
-- `TextualUserInput` will implement `MultiplexedUserInput`.
-- It will maintain a dictionary of queues: `self.queues: dict[AgentId, Queue]`.
-- `submit_input(text, agent_id)` will push to the specific agent's queue.
-- `read_for_agent(agent_id)` will await the specific agent's queue.
+#### 3.2.2. `TextualUserInputFactory` Implementation
+In the infrastructure layer, we implement this factory to manage `TextualUserInput` instances.
+- **Registry**: It maintains a `dict[AgentId, TextualUserInput]`.
+- **Creation**: `create_user_input(agent_id)` creates a new `TextualUserInput` (which wraps a simple `Queue`), stores it in the registry, and returns it.
+- **Access**: `TextualApp` uses the registry to find the correct `UserInput` instance when the UI submits text for a specific agent.
 
-#### 3.2.3. `ScopedUserInput` Adapter
-- A new adapter class `ScopedUserInput` will be created.
-- It wraps a `MultiplexedUserInput` (the shared instance) and an `agent_id`.
-- It implements the standard `UserInput` protocol (`read_async`).
-  ```python
-  class ScopedUserInput(UserInput):
-      def __init__(self, base: MultiplexedUserInput, agent_id: AgentId): ...
-      async def read_async(self) -> str:
-          return await self.base.read_for_agent(self.agent_id)
-  ```
-
-#### 3.2.4. `AgentFactory` Integration
-- When creating an `Agent`, `AgentFactory` will wrap the global `user_input` in a `ScopedUserInput` (if the global input supports multiplexing).
-- This ensures the `Agent` (application logic) remains unchanged but unknowingly reads from its dedicated channel.
+#### 3.2.3. `AgentFactory` Refactoring
+- **Dependency Change**: `AgentFactory` will accept `UserInputFactory` instead of a single `UserInput` object.
+- **Logic**: When creating an agent (or sub-agent), it calls `self.user_input_factory.create_user_input(agent_id)` to provision a dedicated input channel for that agent.
 
 ## 4. Implementation Plan
 
 1.  **Backend Core**:
-    *   Define `MultiplexedUserInput` protocol in `simple_agent/application/user_input.py`.
-    *   Implement `MultiplexedUserInput` in `TextualUserInput`.
-    *   Create `ScopedUserInput` in `simple_agent/application/scoped_user_input.py`.
-    *   Update `AgentFactory` to apply scoping.
+    *   Define `UserInputFactory` protocol in `simple_agent/application/user_input_factory.py`.
+    *   Refactor `AgentFactory` to use `UserInputFactory`.
+    *   Update `Session` to accept `UserInputFactory`.
 
-2.  **Frontend Layout**:
-    *   Refactor `AgentWorkspace` to be a `Vertical` container holding the `ResizableHorizontal` split and `SmartInput`.
-    *   Update `AgentTabs` to pass `SuggestionProvider` to `AgentWorkspace`.
-    *   Update `TextualApp` to create `SuggestionProvider` and pass it to tabs, but remove global `SmartInput`.
+2.  **Infrastructure**:
+    *   Implement `TextualUserInputFactory` in `simple_agent/infrastructure/textual/textual_user_input_factory.py`.
+    *   Update `TextualApp` to initialize the factory and pass it to the Session.
+    *   Update `TextualApp` logic: When `on_smart_input_submitted` occurs, look up the `agent_id`'s input channel via the factory and submit the text.
 
-3.  **Frontend Logic**:
-    *   Update `TextualApp.on_smart_input_submitted` to extract `agent_id` from the event source and call `submit_input(text, agent_id)`.
-    *   Ensure focus is managed correctly when switching tabs (focus the input of the active tab).
+3.  **Frontend Layout**:
+    *   Move `SmartInput` inside `AgentWorkspace`.
+    *   Pass `SuggestionProvider` dependencies down to `AgentWorkspace` (via `AgentTabs`).
 
-4.  **Cleanup & Verification**:
-    *   Update CSS for scoped input fields.
-    *   Fix tests (`AgentWorkspace` tests, `TextualApp` tests, Golden Masters).
-
-## 5. Verification
-- **Manual Verification**: Run the app, open multiple tabs. Type in Tab A, verify Agent A gets it. Switch to Tab B, type, verify Agent B gets it.
-- **Automated Tests**:
-  - Unit tests for `TextualUserInput` multi-queue logic.
-  - Unit tests for `ScopedUserInput`.
-  - Integration tests ensuring `AgentWorkspace` renders correctly and events propagate.
+4.  **Verification**:
+    *   Verify that typing in Agent A's tab does not trigger input in Agent B's reading loop.
+    *   Verify that multiple agents can exist with independent input states.
