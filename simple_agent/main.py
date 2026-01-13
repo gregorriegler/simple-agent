@@ -116,7 +116,11 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
 
     project_tree = FileSystemProjectTree(Path(cwd))
 
+    starting_agent_id = agent_library.starting_agent_id().with_root(
+        session_storage.session_root()
+    )
     session = Session(
+        starting_agent_id,
         event_bus=event_bus,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
@@ -125,10 +129,6 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
         llm_provider=llm_provider,
         project_tree=project_tree,
         event_store=event_store,
-    )
-
-    starting_agent_id = agent_library.starting_agent_id().with_root(
-        session_storage.session_root()
     )
     agent_task_manager = AgentTaskManager()
     textual_app = TextualApp(
@@ -142,7 +142,7 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
         event_subscriber(event_bus, textual_app)
 
     async def run_session():
-        await session.run_async(args, starting_agent_id)
+        await session.run_async(args)
 
     return await run_strategy.run(textual_app, run_session)
 

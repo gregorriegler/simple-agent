@@ -225,7 +225,9 @@ class SessionTestBed:
             agent_library=agent_library,
         )
 
+        root_agent_id = AgentId("Agent")
         session = Session(
+            root_agent_id,
             event_bus=event_bus,
             tool_library_factory=tool_library_factory,
             agent_library=agent_library,
@@ -240,8 +242,7 @@ class SessionTestBed:
             session.run_async(
                 create_session_args(
                     self._continue_session, start_message=self._start_message
-                ),
-                AgentId("Agent"),
+                )
             )
         )
 

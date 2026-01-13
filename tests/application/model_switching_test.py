@@ -92,7 +92,9 @@ async def test_model_switching_uses_new_llm_instance():
         escapes=[False, False, False],
     )
 
+    starting_agent_id = AgentId("Agent")
     session = Session(
+        starting_agent_id,
         event_bus=event_bus,
         tool_library_factory=ToolLibraryFactoryStub(
             llm_provider.get("default"),
@@ -109,9 +111,7 @@ async def test_model_switching_uses_new_llm_instance():
     )
 
     # Run
-    await session.run_async(
-        create_session_args(False, start_message="Start"), AgentId("Agent")
-    )
+    await session.run_async(create_session_args(False, start_message="Start"))
 
     # Verify
     default_llm = llm_provider.llms.get("default")

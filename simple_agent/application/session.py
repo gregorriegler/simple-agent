@@ -31,6 +31,7 @@ class SessionArgs:
 class Session:
     def __init__(
         self,
+        starting_agent_id: AgentId,
         event_bus: EventBus,
         tool_library_factory: ToolLibraryFactory,
         agent_library: AgentLibrary,
@@ -40,6 +41,7 @@ class Session:
         project_tree: ProjectTree,
         event_store: EventStore | None = None,
     ):
+        self._starting_agent_id = starting_agent_id
         self._event_bus = event_bus
         self._tool_library_factory = tool_library_factory
         self._agent_library = agent_library
@@ -52,7 +54,6 @@ class Session:
     async def run_async(
         self,
         args: SessionArgs,
-        starting_agent_id: AgentId,
     ):
         agent_factory = AgentFactory(
             self._event_bus,
@@ -65,21 +66,23 @@ class Session:
         )
 
         self._event_bus.publish(
-            SessionStartedEvent(starting_agent_id, args.continue_session)
+            SessionStartedEvent(self._starting_agent_id, args.continue_session)
         )
 
         unfinished_subagents = []
         if args.continue_session and self._event_store:
             history_replayer = HistoryReplayer(self._event_bus, self._event_store)
-            unfinished_subagents = history_replayer.replay_all_agents(starting_agent_id)
-            events = self._event_store.load_events(starting_agent_id)
-            context = events_to_messages(events, starting_agent_id)
+            unfinished_subagents = history_replayer.replay_all_agents(
+                self._starting_agent_id
+            )
+            events = self._event_store.load_events(self._starting_agent_id)
+            context = events_to_messages(events, self._starting_agent_id)
         else:
             context = Messages()
 
         agent_definition = self._agent_library._starting_agent_definition()
         agent = agent_factory.create_agent(
-            starting_agent_id,
+            self._starting_agent_id,
             agent_definition,
             args.start_message,
             context,
