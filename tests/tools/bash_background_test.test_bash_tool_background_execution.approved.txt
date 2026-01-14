@@ -1,0 +1,5 @@
+Command:
+🛠️[bash sleep 1 & /]
+
+Result:
+✅ Process started in background with PID: [PID]

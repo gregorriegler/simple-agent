@@ -265,7 +265,7 @@ Signal task completion with a summary of what was accomplished
 -
 
 ## bash tool
-Execute bash commands. Tip: Avoid grep, but use ripgrep (the rg command) for search.
+Execute bash commands. Tip: Avoid grep, but use ripgrep (the rg command) for search. To run a command in the background, end it with an ampersand (&).
 
 ### Usage:
 🛠️[bash {command} /]
@@ -301,6 +301,15 @@ hello world
 
 Let me list the files in detail.
 🛠️[bash ls -la /]
+
+-
+
+To start a long-running process in the background:
+🛠️[bash sleep 10 & /]
+
+Then you will receive a result:
+Result of 🛠️ bash sleep 10 &
+✅ Process started in background with PID: 12345
 
 -
 
