@@ -175,6 +175,14 @@ start = "orchestrator"
 ./coverage.sh --badge       # update the coverage badge
 ```
 
+## Bridge 
+
+The bridge allows agents to interact with simple-agent end to end via the file system. 
+It captures the TUI state into a Markdown file and reads your input from a text file. 
+This is useful for building custom integrations or observing the agent without a terminal.
+
+See the [Bridge Documentation](docs/bridge.md) for details.
+
 ## Text-to-Speech setup
 
 The `say.py` script requires a Piper TTS voice model to function. Download the required model:
