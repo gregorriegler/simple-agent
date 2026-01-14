@@ -10,7 +10,7 @@ from rich.syntax import Syntax
 from textual.widgets import Collapsible, Markdown, Static, TextArea
 
 # Ensure project root is in path
-project_root = Path(__file__).resolve().parent.parent
+project_root = Path(__file__).resolve().parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
