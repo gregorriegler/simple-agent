@@ -58,3 +58,22 @@ async def test_search_ignores_nested_gitignore(temp_project):
     # NativeFileSearcher currently only reads root .gitignore (based on implementation)
     # This test documents that behavior or ensures it works if we upgrade it.
     pass
+
+
+@pytest.fixture
+def bridge_project(tmp_path):
+    """Creates a project to test ambiguous gitignore patterns."""
+    (tmp_path / ".gitignore").write_text("bridge/\n")
+    (tmp_path / "bridge.py").touch()
+    bridge_dir = tmp_path / "bridge"
+    bridge_dir.mkdir()
+    (bridge_dir / "file.txt").touch()
+    return tmp_path
+
+
+@pytest.mark.asyncio
+async def test_search_handles_directory_vs_file_ambiguity(bridge_project):
+    searcher = NativeFileSearcher(root_path=bridge_project)
+    results = await searcher.search("")  # search for everything
+    assert "bridge.py" in results, "'bridge.py' should not be ignored"
+    assert "bridge/file.txt" not in results, "'bridge/file.txt' should be ignored"

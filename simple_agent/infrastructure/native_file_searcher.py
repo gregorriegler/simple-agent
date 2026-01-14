@@ -65,8 +65,9 @@ class NativeFileSearcher(FileSearcher):
 
     def _should_ignore(self, path: Path) -> bool:
         name = path.name
+        path_parts = set(path.parts)
 
-        if name == ".git":
+        if name == ".git" or ".git" in path_parts:
             return True
 
         # Ignore hidden files/dirs (except .gitignore)
@@ -86,9 +87,7 @@ class NativeFileSearcher(FileSearcher):
                 elif pattern == name:
                     return True
                 # Handle path segments
-                elif "/" not in pattern and pattern in str(path):
-                    # This is a bit aggressive (matches substrings anywhere),
-                    # but matches the previous logic.
+                elif "/" not in pattern and pattern in path_parts:
                     return True
 
         return False
