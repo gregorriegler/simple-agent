@@ -74,7 +74,9 @@ class TestTextualRunStrategy(TextualRunStrategy):
         return textual_app
 
 
-async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
+async def _run_main(
+    run_strategy: TextualRunStrategy, event_subscriber=None, llm_provider=None
+):
     args = parse_args()
     cwd = os.getcwd()
     user_config = UserConfiguration.create_from_args(args, cwd)
@@ -111,10 +113,11 @@ async def _run_main(run_strategy: TextualRunStrategy, event_subscriber=None):
     tool_syntax = EmojiBracketToolSyntax()
     tool_library_factory = AllToolsFactory(tool_syntax)
 
-    if args.stub_llm:
-        llm_provider = StubLLMProvider()
-    else:
-        llm_provider = RemoteLLMProvider(user_config)
+    if llm_provider is None:
+        if args.stub_llm:
+            llm_provider = StubLLMProvider()
+        else:
+            llm_provider = RemoteLLMProvider(user_config)
 
     project_tree = FileSystemProjectTree(Path(cwd))
 
@@ -158,7 +161,7 @@ def main():
         sys.exit(1)
 
 
-async def main_async(on_user_prompt_requested=None):
+async def main_async(on_user_prompt_requested=None, llm_provider=None):
     on_prompt = on_user_prompt_requested
 
     def subscribe_prompt(event_bus, textual_app):
@@ -172,7 +175,9 @@ async def main_async(on_user_prompt_requested=None):
 
         event_bus.subscribe(UserPromptRequestedEvent, on_prompt_wrapper)
 
-    return await _run_main(TestTextualRunStrategy(), subscribe_prompt)
+    return await _run_main(
+        TestTextualRunStrategy(), subscribe_prompt, llm_provider=llm_provider
+    )
 
 
 def print_system_prompt_command(user_config, cwd, args):

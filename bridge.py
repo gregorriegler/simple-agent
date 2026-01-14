@@ -15,6 +15,7 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 # ruff: noqa: E402
+from simple_agent.application.llm import LLM, LLMResponse, TokenUsage
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
 from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
@@ -27,7 +28,57 @@ STATUS_FILE = BRIDGE_DIR / "status"
 INPUT_FILE = INBOX / "message.txt"
 STATE_FILE = OUTBOX / "state.md"
 
+LLM_PROMPT_FILE = OUTBOX / "llm_prompt.md"
+LLM_RESPONSE_FILE = INBOX / "llm_response.txt"
+
 _updater_task = None
+
+
+class FileControlledLLM(LLM):
+    def __init__(self, model_name: str = "controlled-model"):
+        self._model_name = model_name
+
+    @property
+    def model(self) -> str:
+        return self._model_name
+
+    async def call_async(self, messages: list[dict]) -> LLMResponse:
+        # Write the prompt/context to a file for the controller
+        prompt_content = "# LLM Prompt\n\n"
+        for msg in messages:
+            role = msg.get("role", "unknown").capitalize()
+            content = msg.get("content", "")
+            prompt_content += f"## {role}\n{content}\n\n"
+
+        with open(LLM_PROMPT_FILE, "w", encoding="utf-8") as f:
+            f.write(prompt_content)
+
+        print(f"Bridge: LLM waiting for response in {LLM_RESPONSE_FILE}...")
+
+        # Wait for the response file
+        while True:
+            if LLM_RESPONSE_FILE.exists():
+                content = LLM_RESPONSE_FILE.read_text(encoding="utf-8").strip()
+                LLM_RESPONSE_FILE.unlink()
+                if LLM_PROMPT_FILE.exists():
+                    LLM_PROMPT_FILE.unlink()
+
+                print(f"Bridge: LLM received response: {content[:50]}...")
+                return LLMResponse(
+                    content=content, model=self._model_name, usage=TokenUsage(0, 0, 0)
+                )
+            await asyncio.sleep(0.2)
+
+
+class FileControlledLLMProvider:
+    def __init__(self, model_name: str = "controlled-model"):
+        self._llm = FileControlledLLM(model_name)
+
+    def get(self, model_name: str | None = None) -> LLM:
+        return self._llm
+
+    def get_available_models(self) -> list[str]:
+        return [self._llm.model]
 
 
 def setup_bridge():
@@ -193,10 +244,44 @@ async def background_updater(app: TextualApp):
         await asyncio.sleep(0.5)
 
 
+async def input_poller(app: TextualApp):
+    """Periodically checks for user input in the background."""
+    while True:
+        if INPUT_FILE.exists():
+            content = INPUT_FILE.read_text(encoding="utf-8").strip()
+            INPUT_FILE.unlink()
+
+            print(f"Bridge: Received input: {content}")
+
+            if content == "/exit":
+                await app.action_quit()
+                return
+
+            if content == "/cancel":
+                try:
+                    tabs = app.query_one(AgentTabs)
+                    workspace = tabs.active_workspace
+                    if workspace:
+                        app.agent_task_manager.cancel_task(workspace.agent_id)
+                except Exception as e:
+                    print(f"Bridge: Error canceling task: {e}")
+                continue
+
+            app.user_input.submit_input(content)
+
+            # Briefly change status to PROCESSING if we were WAITING
+            if STATUS_FILE.exists() and STATUS_FILE.read_text().strip() == "WAITING":
+                with open(STATUS_FILE, "w", encoding="utf-8") as f:
+                    f.write("PROCESSING")
+
+        await asyncio.sleep(0.2)
+
+
 async def on_user_prompt_requested(app: TextualApp):
     global _updater_task
     if _updater_task is None:
         _updater_task = asyncio.create_task(background_updater(app))
+        asyncio.create_task(input_poller(app))
 
     # The UI needs a moment to 'settle' and paint after the prompt is enabled.
     await asyncio.sleep(0.1)
@@ -209,23 +294,11 @@ async def on_user_prompt_requested(app: TextualApp):
 
     print(f"Bridge: Waiting for input in {INPUT_FILE}...")
 
+    # Now we just wait until the status changes back to PROCESSING
+    # which will happen when input_poller processes a message
     while True:
-        if INPUT_FILE.exists():
-            content = INPUT_FILE.read_text(encoding="utf-8").strip()
-            INPUT_FILE.unlink()
-
-            with open(STATUS_FILE, "w", encoding="utf-8") as f:
-                f.write("PROCESSING")
-
-            print(f"Bridge: Processing input: {content}")
-
-            if content == "/exit":
-                await app.action_quit()
-                return
-
-            app.user_input.submit_input(content)
+        if STATUS_FILE.exists() and STATUS_FILE.read_text().strip() == "PROCESSING":
             break
-
         await asyncio.sleep(0.2)
 
 
@@ -233,12 +306,22 @@ if __name__ == "__main__":
     setup_bridge()
     print("Bridge started. Waiting for app...")
 
+    llm_provider = None
+    if "--control" in sys.argv:
+        print("Bridge: Control mode enabled. LLM responses must be provided manually.")
+        llm_provider = FileControlledLLMProvider()
+        sys.argv.remove("--control")
+
     # We pass arguments via sys.argv if needed, but for now defaults are fine
-    # To use stub: sys.argv.append("--stub")
     if "--stub" not in sys.argv:
         sys.argv.append("--stub")  # Default to stub for safety/testing
 
     try:
-        asyncio.run(main_async(on_user_prompt_requested=on_user_prompt_requested))
+        asyncio.run(
+            main_async(
+                on_user_prompt_requested=on_user_prompt_requested,
+                llm_provider=llm_provider,
+            )
+        )
     except Exception as e:
         print(f"Bridge error: {e}")

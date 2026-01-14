@@ -20,6 +20,16 @@ When the bridge is running, it creates a `bridge/` directory:
 - `bridge/status`: Contains the current status of the bridge (`WAITING` when it needs input, `PROCESSING` when the agent is working).
 - `bridge/inbox/message.txt`: The input file where you write your prompts.
 
+### Control Mode (Optional)
+
+If you run the bridge with the `--control` flag:
+```bash
+uv run bridge.py --control
+```
+The bridge will also wait for manual LLM responses:
+- `bridge/outbox/llm_prompt.md`: Contains the full conversation history sent to the LLM.
+- `bridge/inbox/llm_response.txt`: Where you provide the agent's next response (including tool calls).
+
 ## Interaction Flow
 
 1. **Monitor Progress**: Open `bridge/outbox/state.md` in a Markdown-capable viewer (or just a text editor) to watch the agent work.
