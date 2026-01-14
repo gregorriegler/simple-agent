@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import asyncio
-import json
-import os
+import io
 import sys
 import time
 from pathlib import Path
@@ -26,7 +25,7 @@ INBOX = BRIDGE_DIR / "inbox"
 OUTBOX = BRIDGE_DIR / "outbox"
 STATUS_FILE = BRIDGE_DIR / "status"
 INPUT_FILE = INBOX / "message.txt"
-STATE_FILE = OUTBOX / "state.json"
+STATE_FILE = OUTBOX / "state.md"
 
 
 def setup_bridge():
@@ -40,18 +39,19 @@ def setup_bridge():
 
 
 def get_screen_content(app: TextualApp) -> str:
+    """Captures the Textual screen as a plain text string."""
+    string_io = io.StringIO()
     console = Console(
-        record=True,
+        file=string_io,
+        force_terminal=False,
         width=120,
         height=40,
-        force_terminal=False,
-        file=open(os.devnull, "w"),
         legacy_windows=False,
         safe_box=False,
+        record=False,  # No need to record, we capture from the file
     )
-    # Render the screen to the console
     console.print(app.screen._compositor)
-    return console.export_text()
+    return string_io.getvalue()
 
 
 def get_structured_state(app: TextualApp) -> dict:
@@ -84,7 +84,11 @@ def get_structured_state(app: TextualApp) -> dict:
             tool_entries = []
             for collapsible in workspace.tool_log.children:
                 if isinstance(collapsible, Collapsible):
-                    entry = {"title": str(collapsible.title), "content": "", "collapsed": collapsible.collapsed}
+                    entry = {
+                        "title": str(collapsible.title),
+                        "content": "",
+                        "collapsed": collapsible.collapsed,
+                    }
                     # Inspect content
                     # ToolLog adds a TextArea or Static(Syntax) inside the collapsible
                     # But Collapsible wraps content in a Container (Contents)
@@ -117,21 +121,69 @@ def get_structured_state(app: TextualApp) -> dict:
     return state
 
 
+def format_state_as_markdown(screen_content: str, structured_data: dict) -> str:
+    """Formats the application state as a Markdown string."""
+    md_content = []
+    md_content.append("# Agent State")
+    md_content.append(f"Timestamp: {time.time()}\n")
+
+    md_content.append("## Screen\n")
+    md_content.append("```text")
+    md_content.append(screen_content)
+    md_content.append("```\n")
+
+    md_content.append("## Data\n")
+    if structured_data.get("agent_id"):
+        md_content.append("### Agent Info")
+        md_content.append(f"- **ID**: {structured_data['agent_id']}")
+        md_content.append(f"- **Name**: {structured_data['agent_name']}\n")
+
+    if structured_data.get("chat_history"):
+        md_content.append("### Chat History")
+        for msg in structured_data["chat_history"]:
+            md_content.append("---\n" + msg)
+        md_content.append("\n")
+
+    if structured_data.get("tool_log"):
+        md_content.append("### Tool Log")
+        for entry in structured_data["tool_log"]:
+            collapsed_str = " (collapsed)" if entry["collapsed"] else ""
+            md_content.append(f"#### `{entry['title']}`{collapsed_str}")
+            if not entry["collapsed"] and entry["content"]:
+                md_content.append("```")
+                md_content.append(entry["content"])
+                md_content.append("```")
+        md_content.append("\n")
+
+    if structured_data.get("todos"):
+        md_content.append("### TODOs")
+        md_content.append(structured_data["todos"])
+        md_content.append("\n")
+
+    if "input" in structured_data and structured_data.get("input"):
+        md_content.append("### Current Input")
+        md_content.append("```")
+        md_content.append(structured_data["input"])
+        md_content.append("```")
+        md_content.append("\n")
+
+    return "\n".join(md_content)
+
+
 async def on_user_prompt_requested(app: TextualApp):
-    # Stabilize screen
-    await app._pilot.pause(0.5)
+    # The UI needs a moment to 'settle' and paint after the prompt is enabled.
+    # wait_for_idle() hangs, suggesting the app never becomes truly idle when
+    # waiting for input. A small, non-blocking sleep is a pragmatic way to
+    # allow the event loop to process paint messages before we capture the screen.
+    await asyncio.sleep(0.1)
 
     screen_content = get_screen_content(app)
     structured_data = get_structured_state(app)
 
-    state = {
-        "screen": screen_content,
-        "data": structured_data,
-        "timestamp": time.time(),
-    }
+    markdown_output = format_state_as_markdown(screen_content, structured_data)
 
     with open(STATE_FILE, "w", encoding="utf-8") as f:
-        json.dump(state, f, indent=2)
+        f.write(markdown_output)
 
     with open(STATUS_FILE, "w", encoding="utf-8") as f:
         f.write("WAITING")
@@ -155,7 +207,7 @@ async def on_user_prompt_requested(app: TextualApp):
             app.user_input.submit_input(content)
             break
 
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.2)
 
 
 if __name__ == "__main__":
