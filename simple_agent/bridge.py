@@ -7,6 +7,8 @@ import time
 from pathlib import Path
 
 from rich.console import Console
+from rich.syntax import Syntax
+from textual.widgets import Collapsible, Markdown, Static, TextArea
 
 # Ensure project root is in path
 project_root = Path(__file__).resolve().parent.parent
@@ -52,19 +54,67 @@ def get_screen_content(app: TextualApp) -> str:
     return console.export_text()
 
 
-def get_chat_history(app: TextualApp) -> list[str]:
+def get_structured_state(app: TextualApp) -> dict:
+    state = {
+        "agent_id": None,
+        "agent_name": None,
+        "chat_history": [],
+        "tool_log": [],
+        "todos": "",
+        "input": "",
+    }
+
     try:
         tabs = app.query_one(AgentTabs)
         workspace = tabs.active_workspace
         if workspace and isinstance(workspace, AgentWorkspace):
-            # Inspect internal state of ChatLog if possible, or just screen scrape
-            # Since ChatLog uses Markdown widgets, getting raw text is a bit tricky
-            # But the user asked for interaction. Screen content is usually enough.
-            # We will try to extract messages if we can, but screen export is safer.
-            return []
+            state["agent_id"] = str(workspace.agent_id)
+            state["agent_name"] = tabs._agent_names.get(
+                workspace.agent_id, str(workspace.agent_id)
+            )
+
+            # Chat History
+            chat_messages = []
+            for child in workspace.chat_log.children:
+                if isinstance(child, Markdown):
+                    chat_messages.append(child.source)
+            state["chat_history"] = chat_messages
+
+            # Tool Log
+            tool_entries = []
+            for collapsible in workspace.tool_log.children:
+                if isinstance(collapsible, Collapsible):
+                    entry = {"title": str(collapsible.title), "content": "", "collapsed": collapsible.collapsed}
+                    # Inspect content
+                    # ToolLog adds a TextArea or Static(Syntax) inside the collapsible
+                    # But Collapsible wraps content in a Container (Contents)
+                    try:
+                        contents = collapsible.query_one(Collapsible.Contents)
+                        # The actual content widget is inside Contents
+                        if contents.children:
+                            widget = contents.children[0]
+                            if isinstance(widget, TextArea):
+                                entry["content"] = widget.text
+                            elif isinstance(widget, Static) and isinstance(
+                                widget.renderable, Syntax
+                            ):
+                                entry["content"] = widget.renderable.code
+                    except Exception:
+                        pass
+                    tool_entries.append(entry)
+            state["tool_log"] = tool_entries
+
+            # Todo
+            state["todos"] = workspace.todo_view.content
+
+            # Input
+            if workspace.smart_input:
+                state["input"] = workspace.smart_input.value
+
     except Exception:
         pass
-    return []
+
+    return state
 
 
 async def on_user_prompt_requested(app: TextualApp):
@@ -72,8 +122,13 @@ async def on_user_prompt_requested(app: TextualApp):
     await app._pilot.pause(0.5)
 
     screen_content = get_screen_content(app)
+    structured_data = get_structured_state(app)
 
-    state = {"screen": screen_content, "timestamp": time.time()}
+    state = {
+        "screen": screen_content,
+        "data": structured_data,
+        "timestamp": time.time(),
+    }
 
     with open(STATE_FILE, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2)
