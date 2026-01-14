@@ -33,7 +33,7 @@ def configure_approvals():
         "1",
         "t",
     )
-    if use_approve_sh_reporter:
+    if use_approve_sh_reporter or sys.platform != "win32":
         set_default_reporter(ApproveShReporter())
     else:
         set_default_reporter(ReportWithWinMerge())
