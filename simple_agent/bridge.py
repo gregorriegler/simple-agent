@@ -27,6 +27,8 @@ STATUS_FILE = BRIDGE_DIR / "status"
 INPUT_FILE = INBOX / "message.txt"
 STATE_FILE = OUTBOX / "state.md"
 
+_updater_task = None
+
 
 def setup_bridge():
     if BRIDGE_DIR.exists():
@@ -170,20 +172,37 @@ def format_state_as_markdown(screen_content: str, structured_data: dict) -> str:
     return "\n".join(md_content)
 
 
+def update_state_file(app: TextualApp):
+    """Captures the current state and writes it to the state file."""
+    try:
+        screen_content = get_screen_content(app)
+        structured_data = get_structured_state(app)
+        markdown_output = format_state_as_markdown(screen_content, structured_data)
+
+        with open(STATE_FILE, "w", encoding="utf-8") as f:
+            f.write(markdown_output)
+    except Exception as e:
+        # Avoid crashing the background task
+        print(f"Bridge error during update: {e}")
+
+
+async def background_updater(app: TextualApp):
+    """Periodically updates the state file in the background."""
+    while True:
+        update_state_file(app)
+        await asyncio.sleep(0.5)
+
+
 async def on_user_prompt_requested(app: TextualApp):
+    global _updater_task
+    if _updater_task is None:
+        _updater_task = asyncio.create_task(background_updater(app))
+
     # The UI needs a moment to 'settle' and paint after the prompt is enabled.
-    # wait_for_idle() hangs, suggesting the app never becomes truly idle when
-    # waiting for input. A small, non-blocking sleep is a pragmatic way to
-    # allow the event loop to process paint messages before we capture the screen.
     await asyncio.sleep(0.1)
 
-    screen_content = get_screen_content(app)
-    structured_data = get_structured_state(app)
-
-    markdown_output = format_state_as_markdown(screen_content, structured_data)
-
-    with open(STATE_FILE, "w", encoding="utf-8") as f:
-        f.write(markdown_output)
+    # Initial update for this prompt request
+    update_state_file(app)
 
     with open(STATUS_FILE, "w", encoding="utf-8") as f:
         f.write("WAITING")
