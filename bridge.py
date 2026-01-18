@@ -54,7 +54,7 @@ class FileControlledLLM(LLM):
             f.write(prompt_content)
 
         print(f"Bridge: LLM waiting for response in {LLM_RESPONSE_FILE}...")
-        
+
         with open(STATUS_FILE, "w", encoding="utf-8") as f:
             f.write("WAITING_FOR_LLM_RESPONSE")
 
@@ -317,10 +317,6 @@ if __name__ == "__main__":
         print("Bridge: Control mode enabled. LLM responses must be provided manually.")
         llm_provider = FileControlledLLMProvider()
         sys.argv.remove("--control")
-
-    # We pass arguments via sys.argv if needed, but for now defaults are fine
-    if "--stub" not in sys.argv:
-        sys.argv.append("--stub")  # Default to stub for safety/testing
 
     try:
         asyncio.run(
