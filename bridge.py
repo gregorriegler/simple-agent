@@ -54,6 +54,9 @@ class FileControlledLLM(LLM):
             f.write(prompt_content)
 
         print(f"Bridge: LLM waiting for response in {LLM_RESPONSE_FILE}...")
+        
+        with open(STATUS_FILE, "w", encoding="utf-8") as f:
+            f.write("WAITING_FOR_LLM_RESPONSE")
 
         # Wait for the response file
         while True:
@@ -269,10 +272,13 @@ async def input_poller(app: TextualApp):
 
             app.user_input.submit_input(content)
 
-            # Briefly change status to PROCESSING if we were WAITING
-            if STATUS_FILE.exists() and STATUS_FILE.read_text().strip() == "WAITING":
+            # Briefly change status to AGENT_IS_THINKING if we were waiting
+            if (
+                STATUS_FILE.exists()
+                and STATUS_FILE.read_text().strip() == "WAITING_FOR_USER_INPUT"
+            ):
                 with open(STATUS_FILE, "w", encoding="utf-8") as f:
-                    f.write("PROCESSING")
+                    f.write("AGENT_IS_THINKING")
 
         await asyncio.sleep(0.2)
 
@@ -290,14 +296,14 @@ async def on_user_prompt_requested(app: TextualApp):
     update_state_file(app)
 
     with open(STATUS_FILE, "w", encoding="utf-8") as f:
-        f.write("WAITING")
+        f.write("WAITING_FOR_USER_INPUT")
 
     print(f"Bridge: Waiting for input in {INPUT_FILE}...")
 
     # Now we just wait until the status changes back to PROCESSING
     # which will happen when input_poller processes a message
     while True:
-        if STATUS_FILE.exists() and STATUS_FILE.read_text().strip() == "PROCESSING":
+        if STATUS_FILE.exists() and STATUS_FILE.read_text().strip() != "WAITING_FOR_USER_INPUT":
             break
         await asyncio.sleep(0.2)
 
