@@ -312,11 +312,8 @@ if __name__ == "__main__":
     setup_bridge()
     print("Bridge started. Waiting for app...")
 
-    llm_provider = None
-    if "--control" in sys.argv:
-        print("Bridge: Control mode enabled. LLM responses must be provided manually.")
-        llm_provider = FileControlledLLMProvider()
-        sys.argv.remove("--control")
+    print("Bridge: LLM responses must be provided manually via bridge/inbox/llm_response.txt.")
+    llm_provider = FileControlledLLMProvider()
 
     try:
         asyncio.run(
