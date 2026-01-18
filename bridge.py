@@ -24,7 +24,7 @@ from simple_agent.main import main_async
 BRIDGE_DIR = Path("bridge")
 INBOX = BRIDGE_DIR / "inbox"
 OUTBOX = BRIDGE_DIR / "outbox"
-STATUS_FILE = BRIDGE_DIR / "status"
+
 INPUT_FILE = INBOX / "message.txt"
 STATE_FILE = OUTBOX / "state.md"
 
@@ -55,8 +55,7 @@ class FileControlledLLM(LLM):
 
         print(f"Bridge: LLM waiting for response in {LLM_RESPONSE_FILE}...")
 
-        with open(STATUS_FILE, "w", encoding="utf-8") as f:
-            f.write("WAITING_FOR_LLM_RESPONSE")
+
 
         # Wait for the response file
         while True:
@@ -111,7 +110,21 @@ def get_screen_content(app: TextualApp) -> str:
 
 
 def get_structured_state(app: TextualApp) -> dict:
+    # This is the corrected version of the function
+    status = "WAITING_FOR_USER_INPUT"  # Default
+    if LLM_PROMPT_FILE.exists():
+        status = "WAITING_FOR_LLM_RESPONSE"
+    else:
+        try:
+            tabs = app.query_one(AgentTabs)
+            workspace = tabs.active_workspace
+            if workspace and workspace.smart_input and not workspace.smart_input.disabled:
+                status = "WAITING_FOR_USER_INPUT"
+        except Exception:
+            pass
+
     state = {
+        "status": status,
         "agent_id": None,
         "agent_name": None,
         "chat_history": [],
@@ -128,52 +141,32 @@ def get_structured_state(app: TextualApp) -> dict:
             state["agent_name"] = tabs._agent_names.get(
                 workspace.agent_id, str(workspace.agent_id)
             )
-
-            # Chat History
             chat_messages = []
             for child in workspace.chat_log.children:
                 if isinstance(child, Markdown):
                     chat_messages.append(child.source)
             state["chat_history"] = chat_messages
-
-            # Tool Log
             tool_entries = []
             for collapsible in workspace.tool_log.children:
                 if isinstance(collapsible, Collapsible):
-                    entry = {
-                        "title": str(collapsible.title),
-                        "content": "",
-                        "collapsed": collapsible.collapsed,
-                    }
-                    # Inspect content
-                    # ToolLog adds a TextArea or Static(Syntax) inside the collapsible
-                    # But Collapsible wraps content in a Container (Contents)
+                    entry = {"title": str(collapsible.title), "content": "", "collapsed": collapsible.collapsed}
                     try:
                         contents = collapsible.query_one(Collapsible.Contents)
-                        # The actual content widget is inside Contents
                         if contents.children:
                             widget = contents.children[0]
                             if isinstance(widget, TextArea):
                                 entry["content"] = widget.text
-                            elif isinstance(widget, Static) and isinstance(
-                                widget.renderable, Syntax
-                            ):
+                            elif isinstance(widget, Static) and isinstance(widget.renderable, Syntax):
                                 entry["content"] = widget.renderable.code
                     except Exception:
                         pass
                     tool_entries.append(entry)
             state["tool_log"] = tool_entries
-
-            # Todo
             state["todos"] = workspace.todo_view.content
-
-            # Input
             if workspace.smart_input:
                 state["input"] = workspace.smart_input.value
-
     except Exception:
         pass
-
     return state
 
 
@@ -181,7 +174,9 @@ def format_state_as_markdown(screen_content: str, structured_data: dict) -> str:
     """Formats the application state as a Markdown string."""
     md_content = []
     md_content.append("# Agent State")
-    md_content.append(f"Timestamp: {time.time()}\n")
+    md_content.append(f"Timestamp: {time.time()}")
+
+    md_content.append(f"**Status**: `{structured_data.get('status', 'UNKNOWN')}`\n")
 
     md_content.append("## Screen\n")
     md_content.append("```text")
@@ -228,6 +223,8 @@ def format_state_as_markdown(screen_content: str, structured_data: dict) -> str:
 
 def update_state_file(app: TextualApp):
     """Captures the current state and writes it to the state file."""
+    if not app or not app.is_running or not app.screen:
+        return  # App is not ready yet
     try:
         screen_content = get_screen_content(app)
         structured_data = get_structured_state(app)
@@ -273,12 +270,7 @@ async def input_poller(app: TextualApp):
             app.user_input.submit_input(content)
 
             # Briefly change status to AGENT_IS_THINKING if we were waiting
-            if (
-                STATUS_FILE.exists()
-                and STATUS_FILE.read_text().strip() == "WAITING_FOR_USER_INPUT"
-            ):
-                with open(STATUS_FILE, "w", encoding="utf-8") as f:
-                    f.write("AGENT_IS_THINKING")
+
 
         await asyncio.sleep(0.2)
 
@@ -295,17 +287,13 @@ async def on_user_prompt_requested(app: TextualApp):
     # Initial update for this prompt request
     update_state_file(app)
 
-    with open(STATUS_FILE, "w", encoding="utf-8") as f:
-        f.write("WAITING_FOR_USER_INPUT")
+
 
     print(f"Bridge: Waiting for input in {INPUT_FILE}...")
 
     # Now we just wait until the status changes back to PROCESSING
     # which will happen when input_poller processes a message
-    while True:
-        if STATUS_FILE.exists() and STATUS_FILE.read_text().strip() != "WAITING_FOR_USER_INPUT":
-            break
-        await asyncio.sleep(0.2)
+
 
 
 if __name__ == "__main__":
