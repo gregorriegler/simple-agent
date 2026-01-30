@@ -1,5 +1,4 @@
 import pytest
-from textual.widgets import TabbedContent
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import AgentStartedEvent
@@ -7,6 +6,7 @@ from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
 from tests.infrastructure.textual.test_utils import MockUserInput
+
 
 @pytest.fixture
 def app(agent_task_manager):
