@@ -7,6 +7,7 @@ from pathlib import Path
 
 from rich.console import Console
 from rich.syntax import Syntax
+from textual import events  # noqa: F401
 from textual.widgets import Collapsible, Markdown, Static, TextArea
 
 # Ensure project root is in path
@@ -54,8 +55,6 @@ class FileControlledLLM(LLM):
             f.write(prompt_content)
 
         print(f"Bridge: LLM waiting for response in {LLM_RESPONSE_FILE}...")
-
-
 
         # Wait for the response file
         while True:
@@ -118,7 +117,11 @@ def get_structured_state(app: TextualApp) -> dict:
         try:
             tabs = app.query_one(AgentTabs)
             workspace = tabs.active_workspace
-            if workspace and workspace.smart_input and not workspace.smart_input.disabled:
+            if (
+                workspace
+                and workspace.smart_input
+                and not workspace.smart_input.disabled
+            ):
                 status = "WAITING_FOR_USER_INPUT"
         except Exception:
             pass
@@ -149,14 +152,20 @@ def get_structured_state(app: TextualApp) -> dict:
             tool_entries = []
             for collapsible in workspace.tool_log.children:
                 if isinstance(collapsible, Collapsible):
-                    entry = {"title": str(collapsible.title), "content": "", "collapsed": collapsible.collapsed}
+                    entry = {
+                        "title": str(collapsible.title),
+                        "content": "",
+                        "collapsed": collapsible.collapsed,
+                    }
                     try:
                         contents = collapsible.query_one(Collapsible.Contents)
                         if contents.children:
                             widget = contents.children[0]
                             if isinstance(widget, TextArea):
                                 entry["content"] = widget.text
-                            elif isinstance(widget, Static) and isinstance(widget.renderable, Syntax):
+                            elif isinstance(widget, Static) and isinstance(
+                                widget.renderable, Syntax
+                            ):
                                 entry["content"] = widget.renderable.code
                     except Exception:
                         pass
@@ -244,34 +253,43 @@ async def background_updater(app: TextualApp):
         await asyncio.sleep(0.5)
 
 
+async def process_input(app: TextualApp):
+    """Processes a single input file if it exists."""
+    if INPUT_FILE.exists():
+        content = INPUT_FILE.read_text(encoding="utf-8").strip()
+        INPUT_FILE.unlink()
+
+        print(f"Bridge: Received input: {content}")
+
+        if content == "/exit":
+            await app.action_quit()
+            return
+
+        if content == "/cancel":
+            try:
+                tabs = app.query_one(AgentTabs)
+                workspace = tabs.active_workspace
+                if workspace:
+                    app.agent_task_manager.cancel_task(workspace.agent_id)
+            except Exception as e:
+                print(f"Bridge: Error canceling task: {e}")
+            return
+
+        if content.startswith("/key "):
+            key = content[5:].strip()
+            if key:
+                # If key is a single character, treat it as the character too
+                char = key if len(key) == 1 else None
+                app.post_message(events.Key(key=key, character=char))
+            return
+
+        app.user_input.submit_input(content)
+
+
 async def input_poller(app: TextualApp):
     """Periodically checks for user input in the background."""
     while True:
-        if INPUT_FILE.exists():
-            content = INPUT_FILE.read_text(encoding="utf-8").strip()
-            INPUT_FILE.unlink()
-
-            print(f"Bridge: Received input: {content}")
-
-            if content == "/exit":
-                await app.action_quit()
-                return
-
-            if content == "/cancel":
-                try:
-                    tabs = app.query_one(AgentTabs)
-                    workspace = tabs.active_workspace
-                    if workspace:
-                        app.agent_task_manager.cancel_task(workspace.agent_id)
-                except Exception as e:
-                    print(f"Bridge: Error canceling task: {e}")
-                continue
-
-            app.user_input.submit_input(content)
-
-            # Briefly change status to AGENT_IS_THINKING if we were waiting
-
-
+        await process_input(app)
         await asyncio.sleep(0.2)
 
 
@@ -287,20 +305,19 @@ async def on_user_prompt_requested(app: TextualApp):
     # Initial update for this prompt request
     update_state_file(app)
 
-
-
     print(f"Bridge: Waiting for input in {INPUT_FILE}...")
 
     # Now we just wait until the status changes back to PROCESSING
     # which will happen when input_poller processes a message
 
 
-
 if __name__ == "__main__":
     setup_bridge()
     print("Bridge started. Waiting for app...")
 
-    print("Bridge: LLM responses must be provided manually via bridge/inbox/llm_response.txt.")
+    print(
+        "Bridge: LLM responses must be provided manually via bridge/inbox/llm_response.txt."
+    )
     llm_provider = FileControlledLLMProvider()
 
     try:
