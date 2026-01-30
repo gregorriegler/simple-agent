@@ -49,6 +49,10 @@ class TextualApp(App):
     BINDINGS = [
         ("alt+left", "previous_tab", "Previous Tab"),
         ("alt+right", "next_tab", "Next Tab"),
+        ("alt+up", "previous_tab", "Previous Tab"),
+        ("alt+down", "next_tab", "Next Tab"),
+        ("ctrl+page_up", "previous_tab", "Previous Tab"),
+        ("ctrl+page_down", "next_tab", "Next Tab"),
         ("ctrl+c", "quit", "Quit"),
         ("ctrl+q", "quit", "Quit"),
         ("enter", "submit_input", "Submit"),

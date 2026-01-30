@@ -33,6 +33,13 @@ class SmartInput(TextArea):
     }
     """
 
+    BINDINGS = [
+        ("alt+left", "previous_tab", "Previous Tab"),
+        ("alt+right", "next_tab", "Next Tab"),
+        ("alt+up", "previous_tab", "Previous Tab"),
+        ("alt+down", "next_tab", "Next Tab"),
+    ]
+
     def __init__(self, provider: SuggestionProvider, id: str | None = None, **kwargs):
         super().__init__(id=id, **kwargs)
 
