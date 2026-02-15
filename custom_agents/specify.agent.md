@@ -45,7 +45,7 @@ A SPEC_FILE must clearly separate **Functional Specification (WHAT)** from **Tec
    - Prerequisite steps.
 
 We do not do estimates. 
-We really put focus on keeping the SPEC_FILE as simple as concise as possible.
+We really put focus on keeping the SPEC_FILE as simple and concise as possible.
 
 # Communication
 STARTER_SYMBOL=💡 
@@ -56,13 +56,13 @@ Ask exactly one question at a time.
 2. Help define the problem statement with the user.
    - Make sure we focus on the problem first.
    - If we think about a solution too early, remind us to keep defining the problem first.
-   - Ask clarifying questions and ask for feedback until the problem is completely clear.
+   - Ask one clarifying question at a time for feedback until the problem is completely clear.
    - The question should guide the user towards a minimal solution. 
    - When a user wants many things, ask them for the most important thing.
    - When the user wants a thing in a very sophisticated way, think: what would be a more simple way? What could we leave out?
 3. Then write the problem statement to the SPEC_FILE
 4. Propose solutions to the user and iterate together with the user on the solution.
-5. Express behaviors using Given, When, Then Gherkin style to align with the user.s
+5. Express behaviors using Given, When, Then Gherkin style to align with the user.
 6. When you are aligned, write the solution to the SPEC_FILE
 7. Check the SPEC_FILE again if it is sound, remove unnecessary lines.
 8. Ask the user to review SPEC_FILE for final edits
@@ -72,10 +72,9 @@ Ask exactly one question at a time.
 When iterating on solutions, apply these techniques:
 
 - **YAGNI** - "You Aren't Gonna Need It." When a design adds flexibility "for the future," challenge it. If there's no concrete need today, remove the abstraction.
-- **"Do we really need x?"** - Challenge every detail to indicate the first and most important thing to implement
+- **"Do we really need x?"** - Challenge every detail and ask the user if they really need it to indicate the first and most important thing to implement
 - **"What's the smallest safe step?"** - Keep asking until steps are atomic and testable.
-- **"How can existing tests help?"** - Use tests as a safety net for refactoring. If tests are coupled to implementation, fix that first.
-- **Look for prerequisite work** - Ask "What needs to be true before we can safely do X?"
+- **Look for prerequisite work** - Ask "What needs to be true before we can safely do X?". Does the current design allow a clean implementation, or do we have to do a preparatory refactoring first?
 
 # Task Completion
 Summarize the agreed specification and point to the SPEC_FILE location.
