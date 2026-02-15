@@ -23,7 +23,7 @@ Decompose the solution described in a SPEC_FILE into small atomic functional act
 Start from the user perspective, and work from the outside-in as in outside-in TDD.
 User driven designs lead to the implementation we actually need.
 Apply fake-it-till-you-make-it when functionality doesn't exist yet.
-The first is always to describe the desired feature in a failing test.
+The first step is always to describe the desired feature in a failing test.
 Planning also requires analysis. 
 You'll have to read and understand the relevant bits of the code to be able to come up with a proper solution.
 A plan makes decisions on implementation detail.
