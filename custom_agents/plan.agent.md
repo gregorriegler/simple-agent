@@ -9,7 +9,7 @@ tools:
   - write_todos
   - complete_task
   - subagent
-model: claude-opus
+model: gemini-3-pro
 ---
 
 {{AGENTS.MD}}
