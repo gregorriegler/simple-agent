@@ -1,9 +1,11 @@
 from simple_agent.application.agent import Agent
+from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.agent_types import AgentTypes
+from simple_agent.application.brain import Brain
 from simple_agent.application.event_bus import EventBus
 from simple_agent.application.event_store import EventStore
 from simple_agent.application.events_to_messages import events_to_messages
@@ -84,11 +86,27 @@ class AgentFactory:
     def create_agent(
         self,
         agent_id: AgentId,
-        definition,
+        definition: AgentDefinition,
         initial_message: str | None,
         messages: Messages,
         agent_type: AgentType | None = None,
     ) -> Agent:
+        brain = self._build_brain(agent_id, definition)
+        messages.seed_system_prompt(brain.system_prompt)
+
+        return Agent(
+            agent_id,
+            brain.name,
+            brain.tools,
+            self._llm_provider,
+            brain.model_name,
+            self.create_input(initial_message),
+            self._event_bus,
+            messages,
+            agent_type=agent_type,
+        )
+
+    def _build_brain(self, agent_id: AgentId, definition: AgentDefinition) -> Brain:
         tool_context = ToolContext(definition.tool_keys(), agent_id)
         spawner = self.create_spawner(agent_id)
         tools = self._tool_library_factory.create(
@@ -100,16 +118,9 @@ class AgentFactory:
         system_prompt = definition.prompt().render(
             tools_documentation, self._project_tree
         )
-        messages.seed_system_prompt(system_prompt)
-
-        return Agent(
-            agent_id,
-            definition.agent_name(),
-            tools,
-            self._llm_provider,
-            definition.model(),
-            self.create_input(initial_message),
-            self._event_bus,
-            messages,
-            agent_type=agent_type,
+        return Brain(
+            name=definition.agent_name(),
+            system_prompt=system_prompt,
+            tools=tools,
+            model_name=definition.model(),
         )
