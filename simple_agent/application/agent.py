@@ -4,6 +4,7 @@ from simple_agent.logging_config import get_logger
 
 from .agent_id import AgentId
 from .agent_type import AgentType
+from .brain import Brain
 from .event_bus import EventBus
 from .events import (
     AgentFinishedEvent,
@@ -55,6 +56,13 @@ class Agent(SlashCommandVisitor):
         self.slash_command_registry = SlashCommandRegistry(
             available_models=llm_provider.get_available_models()
         )
+
+    def update_brain(self, brain: Brain) -> None:
+        self.agent_name = brain.name
+        self.llm = self.llm_provider.get(brain.model_name)
+        self.tools = brain.tools
+        self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
+        self.context.seed_system_prompt(brain.system_prompt)
 
     async def start(self):
         self._notify_agent_started()
