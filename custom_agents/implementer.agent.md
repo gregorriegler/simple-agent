@@ -26,8 +26,15 @@ Implement planned work in small, verifiable increments with strict quality gates
 2. Classify the step:
    - Refactoring only: do not write a failing test.
    - Behavior change: write a failing test first (TDD).
-3. Run the full test suite.
-4. Review for ambiguity, redundancy, or parallel behavior paths.
+3. If any test was added or changed in this step:
+   - Create a subagent that follows `custom_agents/test-reviewer.agent.md`.
+   - Let it review the new/changed tests.
+   - Apply the feedback, or explicitly document why feedback is deferred.
+   - Do not continue to the next step until review feedback is handled.
+4. Run the full test suite using `./test.sh` only.
+   - Never run a subset as the primary gate.
+   - Do not commit unless the full suite passes.
+5. Review for ambiguity, redundancy, or parallel behavior paths.
 
 ## If The Step Is Clean
 1. Commit the implementation step.
