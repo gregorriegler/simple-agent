@@ -1,4 +1,5 @@
 import asyncio
+from typing import Protocol
 
 from simple_agent.logging_config import get_logger
 
@@ -22,12 +23,21 @@ from .events import (
 from .input import Input
 from .llm import LLM, LLMProvider, Messages
 from .slash_command_registry import CommandParseError, SlashCommandRegistry
-from .slash_commands import ClearCommand, ModelCommand, SlashCommandVisitor
+from .slash_commands import (
+    AgentCommand,
+    ClearCommand,
+    ModelCommand,
+    SlashCommandVisitor,
+)
 from .tool_library import MessageAndParsedTools, ToolLibrary
 from .tool_results import SingleToolResult, ToolResult, ToolResultStatus
 from .tools_executor import ToolsExecutor
 
 logger = get_logger(__name__)
+
+
+class BrainFactory(Protocol):
+    def build_brain(self, agent_id: AgentId, agent_type: AgentType) -> Brain: ...
 
 
 class Agent(SlashCommandVisitor):
@@ -42,6 +52,8 @@ class Agent(SlashCommandVisitor):
         event_bus: EventBus,
         context: Messages,
         agent_type: AgentType | None = None,
+        available_agents: list[str] | None = None,
+        brain_factory: BrainFactory | None = None,
     ):
         self.agent_id = agent_id
         self.agent_name = agent_name
@@ -53,8 +65,10 @@ class Agent(SlashCommandVisitor):
         self.event_bus = event_bus
         self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
         self.context: Messages = context
+        self.brain_factory = brain_factory
         self.slash_command_registry = SlashCommandRegistry(
-            available_models=llm_provider.get_available_models()
+            available_models=llm_provider.get_available_models(),
+            available_agents=available_agents,
         )
 
     def update_brain(self, brain: Brain) -> None:
@@ -129,6 +143,18 @@ class Agent(SlashCommandVisitor):
             self.event_bus.publish(
                 ModelChangedEvent(self.agent_id, old_model, command.model_name)
             )
+        except Exception as e:
+            await self._notify_error_occured(str(e))
+
+    async def visit_agent_command(self, command: AgentCommand) -> None:
+        if self.brain_factory is None:
+            await self._notify_error_occured("Agent switching is not available")
+            return
+        try:
+            brain = self.brain_factory.build_brain(
+                self.agent_id, AgentType(command.agent_name)
+            )
+            self.update_brain(brain)
         except Exception as e:
             await self._notify_error_occured(str(e))
 

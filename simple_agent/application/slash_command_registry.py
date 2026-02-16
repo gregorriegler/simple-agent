@@ -2,6 +2,7 @@ from collections.abc import Callable
 
 from simple_agent.application.model_info import ModelInfo
 from simple_agent.application.slash_commands import (
+    AgentCommand,
     ClearCommand,
     ModelCommand,
     SlashCommand,
@@ -13,11 +14,16 @@ class CommandParseError(Exception):
 
 
 class SlashCommandRegistry:
-    def __init__(self, available_models: list[str] | None = None):
+    def __init__(
+        self,
+        available_models: list[str] | None = None,
+        available_agents: list[str] | None = None,
+    ):
         if available_models is None:
             available_models = list(ModelInfo.KNOWN_MODELS.keys())
 
         self._available_models = available_models
+        self._available_agents = available_agents
         self._commands: dict[str, type[SlashCommand]] = {
             "/clear": ClearCommand,
             "/model": ModelCommand,
@@ -25,6 +31,9 @@ class SlashCommandRegistry:
         self._arg_completers: dict[str, Callable[[], list[str]]] = {
             "/model": lambda: available_models,
         }
+        if available_agents is not None:
+            self._commands["/agent"] = AgentCommand
+            self._arg_completers["/agent"] = lambda: available_agents
 
     def get_all_commands(self) -> list[str]:
         return list(self._commands.keys())
@@ -71,10 +80,18 @@ class SlashCommandRegistry:
             if len(args) != 1:
                 raise CommandParseError("Usage: /model <model-name>")
             return ModelCommand(args[0])
+        elif command_name == "/agent":
+            if len(args) != 1:
+                raise CommandParseError("Usage: /agent <agent-name>")
+            if self._available_agents is None or args[0] not in self._available_agents:
+                raise CommandParseError(f"Unknown agent: {args[0]}")
+            return AgentCommand(args[0])
         else:
             raise CommandParseError(f"Unknown command: {command_name}")
 
     def _get_command_instance(self, cmd_class: type[SlashCommand]) -> SlashCommand:
         if cmd_class == ModelCommand:
             return ModelCommand("dummy")
+        if cmd_class == AgentCommand:
+            return AgentCommand("dummy")
         return cmd_class()

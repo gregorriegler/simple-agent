@@ -46,6 +46,25 @@ class ModelCommand(SlashCommand):
         await visitor.change_model(self)
 
 
+class AgentCommand(SlashCommand):
+    def __init__(self, agent_name: str):
+        self.agent_name = agent_name
+
+    @property
+    def name(self) -> str:
+        return "/agent"
+
+    @property
+    def description(self) -> str:
+        return "Change agent"
+
+    async def accept(self, visitor: "SlashCommandVisitor") -> None:
+        visit_agent_command = getattr(visitor, "visit_agent_command", None)
+        if visit_agent_command is None:
+            raise NotImplementedError("Agent command handling is not implemented")
+        await visit_agent_command(self)
+
+
 class SlashCommandVisitor(ABC):
     @abstractmethod
     async def clear_conversation(self, command: ClearCommand) -> None:

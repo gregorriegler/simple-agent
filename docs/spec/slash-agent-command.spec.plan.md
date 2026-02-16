@@ -72,12 +72,12 @@ We will apply "Safe Refactoring" first by introducing the `Brain` concept withou
     - Parsing `/agent developer`.
     - Execution calling `factory.build_brain` and `agent.update_brain`.
     - Handling invalid agent names.
-- [ ] Add a public brain-loading method in `AgentFactory` only when this step needs it (e.g. `build_brain(agent_id, agent_type)`), implemented via `read_agent_definition + _build_brain`.
+- [x] Add a public brain-loading method in `AgentFactory` only when this step needs it (e.g. `build_brain(agent_id, agent_type)`), implemented via `read_agent_definition + _build_brain`.
 - [ ] Update `simple_agent/application/slash_commands.py`:
     - Add `AgentCommand` dataclass.
     - Add `visit_agent_command` to `SlashCommandVisitor` interface.
-- [ ] Update `simple_agent/application/slash_command_registry.py` to register `/agent`.
-- [ ] Implement the command handler in `simple_agent/simple_agent/application/slash_command_executor.py` (or main loop handler).
+- [x] Update `simple_agent/application/slash_command_registry.py` to register `/agent`.
+- [x] Implement the command handler in `simple_agent/simple_agent/application/slash_command_executor.py` (or main loop handler).
     - Note: This might require injecting `AgentFactory` into the command handler context if not already present.
 
 ### 4. UI Feedback: Events

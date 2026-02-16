@@ -104,7 +104,13 @@ class AgentFactory:
             self._event_bus,
             messages,
             agent_type=agent_type,
+            available_agents=self._agent_library.list_agent_types(),
+            brain_factory=self,
         )
+
+    def build_brain(self, agent_id: AgentId, agent_type: AgentType) -> Brain:
+        definition = self._agent_library.read_agent_definition(agent_type)
+        return self._build_brain(agent_id, definition)
 
     def _build_brain(self, agent_id: AgentId, definition: AgentDefinition) -> Brain:
         tool_context = ToolContext(definition.tool_keys(), agent_id)
