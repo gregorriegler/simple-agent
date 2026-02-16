@@ -35,15 +35,14 @@ Implement planned work in small, verifiable increments with strict quality gates
    - Do not continue to the next step until `TEST_REVIEW` is handled.
 4. Run the full test suite using `bash test.sh` only.
    - Never run a subset as the primary gate.
-   - Do not commit unless the full suite passes.
+   - Do not run `COMMIT` unless the full suite passes.
 5. **Mandatory Review Gate (cannot be skipped):** Review the completed step for ambiguity, redundancy, or parallel behavior paths.
    - This review is required before any commit and before starting the next step.
    - If this review is not explicitly completed, stop and do the review first.
 
 ## If The Step Is Clean
 1. Confirm in writing that the Mandatory Review Gate passed.
-2. Update the PLAN_FILE immediately: check off every completed item in that step before committing.
-3. Commit the implementation step.
+2. Run `COMMIT`.
 4. Continue with the next planned step.
 
 ## If A Design Issue Is Found
@@ -60,9 +59,8 @@ For every planned step, complete in this exact order:
 2. Run `TEST_REVIEW` for changed tests (if any), and handle feedback.
 3. Run full `bash test.sh`.
 4. Mandatory Review Gate.
-5. Update PLAN_FILE checkboxes for all completed items in the step.
-6. Commit.
-7. Then move to the next step.
+5. Run `COMMIT`.
+6. Then move to the next step.
 
 ## TEST_REVIEW
 `TEST_REVIEW` is the mandatory test-quality gate for every environment whenever a step adds or changes tests.
@@ -83,5 +81,12 @@ For every planned step, complete in this exact order:
 - Example prompt:
   - `Act as custom_agents/test-reviewer.agent.md. Review only <changed test files> against their production files. Output findings in the specified format; if clean, say clean briefly.`
 - Record reviewer output in progress notes before any production-code edit for that micro-cycle.
+
+## COMMIT
+`COMMIT` is the mandatory finalization gate after a clean step.
+
+### What It Means
+- First: check off all plan items achieved in the current step.
+- Then: create the commit.
 
 {{AGENTS.MD}}
