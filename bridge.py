@@ -55,8 +55,6 @@ class FileControlledLLM(LLM):
 
         print(f"Bridge: LLM waiting for response in {LLM_RESPONSE_FILE}...")
 
-
-
         # Wait for the response file
         while True:
             if LLM_RESPONSE_FILE.exists():
