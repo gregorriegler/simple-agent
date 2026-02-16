@@ -118,7 +118,11 @@ def get_structured_state(app: TextualApp) -> dict:
         try:
             tabs = app.query_one(AgentTabs)
             workspace = tabs.active_workspace
-            if workspace and workspace.smart_input and not workspace.smart_input.disabled:
+            if (
+                workspace
+                and workspace.smart_input
+                and not workspace.smart_input.disabled
+            ):
                 status = "WAITING_FOR_USER_INPUT"
         except Exception:
             pass
@@ -149,14 +153,20 @@ def get_structured_state(app: TextualApp) -> dict:
             tool_entries = []
             for collapsible in workspace.tool_log.children:
                 if isinstance(collapsible, Collapsible):
-                    entry = {"title": str(collapsible.title), "content": "", "collapsed": collapsible.collapsed}
+                    entry = {
+                        "title": str(collapsible.title),
+                        "content": "",
+                        "collapsed": collapsible.collapsed,
+                    }
                     try:
                         contents = collapsible.query_one(Collapsible.Contents)
                         if contents.children:
                             widget = contents.children[0]
                             if isinstance(widget, TextArea):
                                 entry["content"] = widget.text
-                            elif isinstance(widget, Static) and isinstance(widget.renderable, Syntax):
+                            elif isinstance(widget, Static) and isinstance(
+                                widget.renderable, Syntax
+                            ):
                                 entry["content"] = widget.renderable.code
                     except Exception:
                         pass
@@ -271,7 +281,6 @@ async def input_poller(app: TextualApp):
 
             # Briefly change status to AGENT_IS_THINKING if we were waiting
 
-
         await asyncio.sleep(0.2)
 
 
@@ -287,20 +296,19 @@ async def on_user_prompt_requested(app: TextualApp):
     # Initial update for this prompt request
     update_state_file(app)
 
-
-
     print(f"Bridge: Waiting for input in {INPUT_FILE}...")
 
     # Now we just wait until the status changes back to PROCESSING
     # which will happen when input_poller processes a message
 
 
-
 if __name__ == "__main__":
     setup_bridge()
     print("Bridge started. Waiting for app...")
 
-    print("Bridge: LLM responses must be provided manually via bridge/inbox/llm_response.txt.")
+    print(
+        "Bridge: LLM responses must be provided manually via bridge/inbox/llm_response.txt."
+    )
     llm_provider = FileControlledLLMProvider()
 
     try:
