@@ -19,7 +19,7 @@ classDiagram
         + name: str
         + system_prompt: str
         + tools: list
-        + llm: LLM
+        + model_name: str
     }
 
     class AgentFactory {
@@ -45,9 +45,10 @@ We will apply "Safe Refactoring" first by introducing the `Brain` concept withou
 
 ### 1. Preparation: Extract Brain
 **Goal**: Decouple "defining configuration" from "instantiating Agent".
-- [ ] Create `simple_agent/application/brain.py` with `Brain` dataclass (name, system_prompt, tools, llm).
+- [ ] Create `simple_agent/application/brain.py` with `Brain` dataclass (name, system_prompt, tools, model_name).
 - [ ] Refactor `AgentFactory` to use a private `_build_brain(agent_name) -> Brain` method.
 - [ ] Update `AgentFactory.create_agent` to use `_build_brain` then instantiate `Agent`.
+- [ ] Keep `Agent` construction single-path (`llm_provider + model_name`); do not add an optional runtime `llm` override.
 - [ ] **Verification**: Run existing tests to ensure no regression.
 
 ### 2. Domain Logic: Agent Switching
