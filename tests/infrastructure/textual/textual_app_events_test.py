@@ -4,6 +4,7 @@ from textual.widgets import Markdown, TextArea
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
+    AgentChangedEvent,
     AgentStartedEvent,
     AssistantSaidEvent,
     SessionStartedEvent,
@@ -178,3 +179,28 @@ async def test_agent_started_creates_tab_with_model_in_title(textual_harness):
         # But our implementation might show "MyAgent [test-model]" if token usage is empty string.
         # Since I am updating the implementation to respect the test expectation:
         assert str(tab.label) == "MyAgent [test-model]"
+
+
+@pytest.mark.asyncio
+async def test_agent_changed_event_updates_tab_title(textual_harness):
+    event_bus, _, _, app = textual_harness
+    agent_id = AgentId("Agent")
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+
+        event_bus.publish(AgentStartedEvent(agent_id, "MyAgent", "test-model"))
+        await pilot.pause()
+        event_bus.publish(
+            AgentChangedEvent(
+                agent_id=agent_id,
+                old_name="MyAgent",
+                new_name="Developer",
+            )
+        )
+        await pilot.pause()
+
+        tabs = app.query_one("#tabs")
+        tab_id, _, _ = app.panel_ids_for(agent_id)
+        tab = tabs.get_tab(tab_id)
+        assert str(tab.label) == "Developer [test-model]"

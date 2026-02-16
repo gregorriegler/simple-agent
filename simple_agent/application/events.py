@@ -102,3 +102,10 @@ class ModelChangedEvent(AgentEvent):
     event_name: ClassVar[str] = "model_changed"
     old_model: str = ""
     new_model: str = ""
+
+
+@dataclass
+class AgentChangedEvent(AgentEvent):
+    event_name: ClassVar[str] = "agent_changed"
+    old_name: str = ""
+    new_name: str = ""

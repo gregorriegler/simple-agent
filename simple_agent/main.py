@@ -142,6 +142,7 @@ async def _run_main(
         starting_agent_id,
         agent_task_manager=agent_task_manager,
         available_models=llm_provider.get_available_models(),
+        available_agents=agent_library.list_agent_types(),
     )
     subscribe_events(event_bus, event_logger, todo_cleanup, textual_app, event_store)
     if event_subscriber:

@@ -8,6 +8,7 @@ from .agent_type import AgentType
 from .brain import Brain
 from .event_bus import EventBus
 from .events import (
+    AgentChangedEvent,
     AgentFinishedEvent,
     AgentStartedEvent,
     AssistantRespondedEvent,
@@ -72,11 +73,15 @@ class Agent(SlashCommandVisitor):
         )
 
     def update_brain(self, brain: Brain) -> None:
+        old_name = self.agent_name
         self.agent_name = brain.name
         self.llm = self.llm_provider.get(brain.model_name)
         self.tools = brain.tools
         self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
         self.context.seed_system_prompt(brain.system_prompt)
+        self.event_bus.publish(
+            AgentChangedEvent(self.agent_id, old_name=old_name, new_name=brain.name)
+        )
 
     async def start(self):
         self._notify_agent_started()

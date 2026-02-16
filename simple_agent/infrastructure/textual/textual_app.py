@@ -131,6 +131,7 @@ class TextualApp(App):
         root_agent_id: AgentId,
         agent_task_manager: AgentTaskManager,
         available_models: list[str] | None = None,
+        available_agents: list[str] | None = None,
     ):
         super().__init__()
         self.user_input = user_input
@@ -138,7 +139,8 @@ class TextualApp(App):
         self.agent_task_manager = agent_task_manager
         self._session_runner: Callable[[], Coroutine[Any, Any, None]] | None = None
         self._slash_command_registry = SlashCommandRegistry(
-            available_models=available_models
+            available_models=available_models,
+            available_agents=available_agents,
         )
         self._file_searcher = NativeFileSearcher()
         self.file_loader = XmlFormattingFileLoader(DiskFileLoader())

@@ -4,11 +4,13 @@ from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.brain import Brain
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.events import AgentChangedEvent
 from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
 from simple_agent.application.user_input import DummyUserInput
 from tests.agent.agent_interrupts_immediately_test import EmptyToolLibrary
 from tests.application.model_switching_test import MockLLMProvider
+from tests.event_spy import EventSpy
 
 
 @pytest.mark.asyncio
@@ -47,3 +49,39 @@ async def test_agent_runtime_switch_updates_brain_configuration():
         {"role": "user", "content": "Keep this history"},
     ]
     assert actual == expected
+
+
+@pytest.mark.asyncio
+async def test_agent_runtime_switch_publishes_agent_changed_event():
+    provider = MockLLMProvider()
+    old_tools = EmptyToolLibrary()
+    new_tools = EmptyToolLibrary()
+    event_bus = SimpleEventBus()
+    event_spy = EventSpy()
+    event_bus.subscribe(AgentChangedEvent, event_spy.record_event)
+    agent_id = AgentId("Agent")
+    agent = Agent(
+        agent_id=agent_id,
+        agent_name="Old Agent",
+        tools=old_tools,
+        llm_provider=provider,
+        model_name="default-model",
+        user_input=Input(DummyUserInput()),
+        event_bus=event_bus,
+        context=Messages(system_prompt="old system prompt"),
+    )
+
+    new_brain = Brain(
+        name="New Agent",
+        system_prompt="new system prompt",
+        tools=new_tools,
+        model_name="new-model",
+    )
+
+    agent.update_brain(new_brain)
+
+    actual = event_spy.get_events(AgentChangedEvent)
+    assert len(actual) == 1
+    assert actual[0].agent_id == agent_id
+    assert actual[0].old_name == "Old Agent"
+    assert actual[0].new_name == "New Agent"

@@ -170,6 +170,30 @@ def test_no_suggestions_for_regular_text():
     assert len(suggestions) == 0
 
 
+@pytest.mark.asyncio
+async def test_textual_app_registers_agent_slash_command(agent_task_manager):
+    app = TextualApp(
+        StubUserInput(),
+        AgentId("Agent"),
+        agent_task_manager,
+        available_agents=["developer"],
+    )
+
+    async with app.run_test() as pilot:
+        from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+
+        workspace = app.query_one(AgentTabs).active_workspace
+        text_area = workspace.smart_input
+        text_area.focus()
+
+        await pilot.press("/")
+        await pilot.pause()
+
+        popup = app.query_one(AutocompletePopup)
+        assert popup.display is True
+        assert "/agent - Change agent" in str(popup.render())
+
+
 def test_autocomplete_position_prefers_below_cursor():
     screen_size = Size(80, 24)
     cursor_offset = Offset(10, 10)

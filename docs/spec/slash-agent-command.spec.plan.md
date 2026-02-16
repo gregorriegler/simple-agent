@@ -82,14 +82,14 @@ We will apply "Safe Refactoring" first by introducing the `Brain` concept withou
 
 ### 4. UI Feedback: Events
 **Goal**: Notify the UI that the agent identity changed.
-- [ ] Define `AgentChangedEvent` in `simple_agent/application/events.py`.
-- [ ] Trigger this event inside `Agent.update_brain`.
-- [ ] Update `simple_agent/infrastructure/textual/app.py` or relevant widget to subscribe to `AgentChangedEvent` and update the displayed Agent Name.
+- [x] Define `AgentChangedEvent` in `simple_agent/application/events.py`.
+- [x] Trigger this event inside `Agent.update_brain`.
+- [x] Update `simple_agent/infrastructure/textual/app.py` or relevant widget to subscribe to `AgentChangedEvent` and update the displayed Agent Name.
 
 ### 5. UX: Autocomplete
 **Goal**: Help users find agents.
-- [ ] Update `simple_agent/infrastructure/textual/smart_input/autocomplete/slash_commands.py`.
-- [ ] Add logic to list available agent files from the `custom_agents` directory (or wherever `AgentFactory` looks).
+- [x] Update `simple_agent/infrastructure/textual/smart_input/autocomplete/slash_commands.py` (no code change required; it already uses registry-provided command metadata and arg completers).
+- [x] Add logic to list available agent files from the `custom_agents` directory (or wherever `AgentFactory` looks).
 
 ## Links
 - Spec: [docs/spec/slash-agent-command.spec.md](docs/spec/slash-agent-command.spec.md)
