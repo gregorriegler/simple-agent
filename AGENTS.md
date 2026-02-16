@@ -22,12 +22,12 @@ In this project we apply strict Test Driven Development.
 - This is a bash environment, using uv.
 - For testing use pytest.
 - Avoid excessive code comments.
-- Always us the `./test.sh` script to run the tests
-  - `./test.sh` - Runs all tests
-  - `./test.sh test_foo.py` - Run a specific test file
-  - `./test.sh test_foo` - Run tests matching a pattern
-  - `./test.sh -v` - Verbose mode with full tracebacks
-  - `./test.sh -h` - Show help
+- Always us the `bash test.sh` script to run the tests
+  - `bash test.sh` - Runs all tests
+  - `bash test.sh test_foo.py` - Run a specific test file
+  - `bash test.sh test_foo` - Run tests matching a pattern
+  - `bash test.sh -v` - Verbose mode with full tracebacks
+  - `bash test.sh -h` - Show help
 
 - avoid interactive commands such as `git diff`.
   - E.g., use `git --no-pager diff` instead
