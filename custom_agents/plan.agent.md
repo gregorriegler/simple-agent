@@ -12,8 +12,6 @@ tools:
 model: gemini-3-pro
 ---
 
-{{AGENTS.MD}}
-
 {{DYNAMIC_TOOLS_PLACEHOLDER}}
 
 STARTER_SYMBOL=📝
