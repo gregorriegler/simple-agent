@@ -40,8 +40,9 @@ Implement planned work in small, verifiable increments with strict quality gates
 
 ## If The Step Is Clean
 1. Confirm in writing that the Mandatory Review Gate passed.
-2. Commit the implementation step.
-3. Continue with the next planned step.
+2. Update the PLAN_FILE immediately: check off every completed item in that step before committing.
+3. Commit the implementation step.
+4. Continue with the next planned step.
 
 ## If A Design Issue Is Found
 1. Name the design problem clearly.
@@ -57,7 +58,8 @@ For every planned step, complete in this exact order:
 2. Test-review changed tests (if any), and handle feedback.
 3. Run full `./test.sh`.
 4. Mandatory Review Gate.
-5. Commit.
-6. Then move to the next step.
+5. Update PLAN_FILE checkboxes for all completed items in the step.
+6. Commit.
+7. Then move to the next step.
 
 {{AGENTS.MD}}
