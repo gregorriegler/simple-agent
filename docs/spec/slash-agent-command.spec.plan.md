@@ -43,10 +43,17 @@ We will apply "Safe Refactoring" first by introducing the `Brain` concept withou
 
 ## Steps
 
+### 0. Prerequisite Refactor: Single Typed Brain Seam
+**Goal**: Prevent parallel runtime-assembly paths before feature work.
+- [ ] Introduce a typed internal seam in `AgentFactory`: `_build_brain(agent_id: AgentId, definition: AgentDefinition) -> Brain`.
+- [ ] Keep `create_agent(...)` as the only public construction path in this step.
+- [ ] Do not introduce a second public brain-construction API yet.
+- [ ] **Verification**: Run full `./test.sh`.
+
 ### 1. Preparation: Extract Brain
 **Goal**: Decouple "defining configuration" from "instantiating Agent".
 - [ ] Create `simple_agent/application/brain.py` with `Brain` dataclass (name, system_prompt, tools, model_name).
-- [ ] Refactor `AgentFactory` to use a private `_build_brain(agent_name) -> Brain` method.
+- [ ] Refactor `AgentFactory` to use the private typed `_build_brain(agent_id, definition) -> Brain` method.
 - [ ] Update `AgentFactory.create_agent` to use `_build_brain` then instantiate `Agent`.
 - [ ] Keep `Agent` construction single-path (`llm_provider + model_name`); do not add an optional runtime `llm` override.
 - [ ] **Verification**: Run existing tests to ensure no regression.
@@ -65,6 +72,7 @@ We will apply "Safe Refactoring" first by introducing the `Brain` concept withou
     - Parsing `/agent developer`.
     - Execution calling `factory.build_brain` and `agent.update_brain`.
     - Handling invalid agent names.
+- [ ] Add a public brain-loading method in `AgentFactory` only when this step needs it (e.g. `build_brain(agent_id, agent_type)`), implemented via `read_agent_definition + _build_brain`.
 - [ ] Update `simple_agent/application/slash_commands.py`:
     - Add `AgentCommand` dataclass.
     - Add `visit_agent_command` to `SlashCommandVisitor` interface.
