@@ -45,26 +45,26 @@ We will apply "Safe Refactoring" first by introducing the `Brain` concept withou
 
 ### 0. Prerequisite Refactor: Single Typed Brain Seam
 **Goal**: Prevent parallel runtime-assembly paths before feature work.
-- [ ] Introduce a typed internal seam in `AgentFactory`: `_build_brain(agent_id: AgentId, definition: AgentDefinition) -> Brain`.
-- [ ] Keep `create_agent(...)` as the only public construction path in this step.
-- [ ] Do not introduce a second public brain-construction API yet.
-- [ ] **Verification**: Run full `./test.sh`.
+- [x] Introduce a typed internal seam in `AgentFactory`: `_build_brain(agent_id: AgentId, definition: AgentDefinition) -> Brain`.
+- [x] Keep `create_agent(...)` as the only public construction path in this step.
+- [x] Do not introduce a second public brain-construction API yet.
+- [x] **Verification**: Run full `./test.sh`.
 
 ### 1. Preparation: Extract Brain
 **Goal**: Decouple "defining configuration" from "instantiating Agent".
-- [ ] Create `simple_agent/application/brain.py` with `Brain` dataclass (name, system_prompt, tools, model_name).
-- [ ] Refactor `AgentFactory` to use the private typed `_build_brain(agent_id, definition) -> Brain` method.
-- [ ] Update `AgentFactory.create_agent` to use `_build_brain` then instantiate `Agent`.
-- [ ] Keep `Agent` construction single-path (`llm_provider + model_name`); do not add an optional runtime `llm` override.
-- [ ] **Verification**: Run existing tests to ensure no regression.
+- [x] Create `simple_agent/application/brain.py` with `Brain` dataclass (name, system_prompt, tools, model_name).
+- [x] Refactor `AgentFactory` to use the private typed `_build_brain(agent_id, definition) -> Brain` method.
+- [x] Update `AgentFactory.create_agent` to use `_build_brain` then instantiate `Agent`.
+- [x] Keep `Agent` construction single-path (`llm_provider + model_name`); do not add an optional runtime `llm` override.
+- [x] **Verification**: Run existing tests to ensure no regression.
 
 ### 2. Domain Logic: Agent Switching
 **Goal**: Allow an Agent instance to update its own brain.
-- [ ] Create a test case in `tests/application/agent_test.py` simulating a runtime switch (check system prompt change).
-- [ ] Add method `Agent.update_brain(self, runtime: Brain)` to `simple_agent/application/agent.py`.
+- [x] Create a test case in `tests/application/agent_test.py` simulating a runtime switch (check system prompt change).
+- [x] Add method `Agent.update_brain(self, runtime: Brain)` to `simple_agent/application/agent.py`.
     - Update `self._name`, `self._system_prompt`, `self._llm`, `self._tools`.
     - (Optional) Clear `self._tool_executor` if it's cached.
-- [ ] **Verification**: The test passes.
+- [x] **Verification**: The test passes.
 
 ### 3. Application Logic: The Slash Command
 **Goal**: Wire the `/agent` command to the logic.
