@@ -68,12 +68,12 @@ We will apply "Safe Refactoring" first by introducing the `Brain` concept withou
 
 ### 3. Application Logic: The Slash Command
 **Goal**: Wire the `/agent` command to the logic.
-- [ ] Create test `tests/slash_agent_command_test.py` covering:
+- [x] Create test `tests/slash_agent_command_test.py` covering:
     - Parsing `/agent developer`.
     - Execution calling `factory.build_brain` and `agent.update_brain`.
     - Handling invalid agent names.
 - [x] Add a public brain-loading method in `AgentFactory` only when this step needs it (e.g. `build_brain(agent_id, agent_type)`), implemented via `read_agent_definition + _build_brain`.
-- [ ] Update `simple_agent/application/slash_commands.py`:
+- [x] Update `simple_agent/application/slash_commands.py`:
     - Add `AgentCommand` dataclass.
     - Add `visit_agent_command` to `SlashCommandVisitor` interface.
 - [x] Update `simple_agent/application/slash_command_registry.py` to register `/agent`.

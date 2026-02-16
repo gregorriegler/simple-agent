@@ -59,10 +59,7 @@ class AgentCommand(SlashCommand):
         return "Change agent"
 
     async def accept(self, visitor: "SlashCommandVisitor") -> None:
-        visit_agent_command = getattr(visitor, "visit_agent_command", None)
-        if visit_agent_command is None:
-            raise NotImplementedError("Agent command handling is not implemented")
-        await visit_agent_command(self)
+        await visitor.visit_agent_command(self)
 
 
 class SlashCommandVisitor(ABC):
@@ -72,4 +69,8 @@ class SlashCommandVisitor(ABC):
 
     @abstractmethod
     async def change_model(self, command: ModelCommand) -> None:
+        pass
+
+    @abstractmethod
+    async def visit_agent_command(self, command: AgentCommand) -> None:
         pass

@@ -1,15 +1,24 @@
+from unittest.mock import AsyncMock, Mock
+
 import pytest
 
+from simple_agent.application.agent import Agent
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_type import AgentType
+from simple_agent.application.brain import Brain
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.event_store import NoOpEventStore
 from simple_agent.application.events import AssistantRespondedEvent
+from simple_agent.application.llm import Messages
 from simple_agent.application.session import Session
-from simple_agent.application.slash_command_registry import SlashCommandRegistry
+from simple_agent.application.slash_command_registry import (
+    CommandParseError,
+    SlashCommandRegistry,
+)
 from simple_agent.application.slash_commands import AgentCommand
+from simple_agent.application.tool_results import SingleToolResult
 from tests.application.model_switching_test import (
     FakeAgentLibrary,
     MockLLMProvider,
@@ -41,6 +50,47 @@ async def test_slash_agent_command_parses_agent_name():
 
     assert isinstance(actual, AgentCommand)
     assert actual.agent_name == "developer"
+
+
+async def test_slash_agent_command_rejects_unknown_agent_name():
+    registry = SlashCommandRegistry(available_agents=["developer", "review"])
+
+    with pytest.raises(CommandParseError, match="Unknown agent: unknown"):
+        registry.parse("/agent unknown")
+
+
+async def test_agent_command_switches_to_requested_agent_brain():
+    llm_provider = MockLLMProvider()
+    initial_tools = Mock()
+    initial_tools.execute_parsed_tool = AsyncMock(return_value=SingleToolResult())
+    switched_tools = Mock()
+    switched_tools.execute_parsed_tool = AsyncMock(return_value=SingleToolResult())
+    brain_factory = Mock()
+    next_brain = Brain(
+        name="Developer",
+        system_prompt="New prompt",
+        tools=switched_tools,
+        model_name="new-model",
+    )
+    brain_factory.build_brain.return_value = next_brain
+
+    agent = Agent(
+        agent_id=AgentId("Agent"),
+        agent_name="Agent",
+        tools=initial_tools,
+        llm_provider=llm_provider,
+        model_name="default-model",
+        user_input=UserInputStub([], []),
+        event_bus=SimpleEventBus(),
+        context=Messages(),
+        brain_factory=brain_factory,
+    )
+
+    await agent.visit_agent_command(AgentCommand("developer"))
+
+    assert agent.agent_name == "Developer"
+    assert agent.llm.model == "new-model"
+    assert agent.tools is switched_tools
 
 
 async def test_agent_command_switches_model_for_follow_up_prompt():
