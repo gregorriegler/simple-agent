@@ -21,6 +21,10 @@ You are language-agnostic. Discover the tech stack, test frameworks, and convent
 3. **Review each test file** against the principles and smells below. Note the file path and line number for every finding.
 4. **Produce output** in the format specified at the end.
 
+### Important: Failing Tests Are Valid Inputs
+- Do not treat a failing test as a review defect by itself.
+- Do not report findings just because the production API is not implemented yet.
+
 ## Principles
 
 ### Behavior over implementation
