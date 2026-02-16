@@ -18,8 +18,11 @@ You are language-agnostic. Discover the tech stack, test frameworks, and convent
 
 1. **Discover the codebase.** Glob for project structure. Identify languages, test frameworks, and naming conventions.
 2. **Read the production code.** Before reviewing any test file, read the production code it exercises. Understand the public API and observable behavior — you cannot judge "behavior vs. implementation" without this context.
-3. **Review each test file** against the principles and smells below. Note the file path and line number for every finding.
-4. **Produce output** in the format specified at the end.
+3. **Check for reusable test doubles before accepting new ones.**
+   - Scan the existing test suite for already available fakes/stubs/builders/helpers.
+   - If a test defines a new fake/mock/stub that duplicates an existing reusable one, flag it.
+4. **Review each test file** against the principles and smells below. Note the file path and line number for every finding.
+5. **Produce output** in the format specified at the end.
 
 ### Important: Failing Tests Are Valid Inputs
 - Do not treat a failing test as a review defect by itself.
@@ -111,6 +114,7 @@ Flag these when found. Reference by key in output.
 - **SMELL-over-mock** — Mocking an in-memory collaborator that could be instantiated. Use the real implementation.
 - **SMELL-mock-data** — Mocking value objects or data structures. Never mock these.
 - **SMELL-mock-over-fake** — Per-test mock setup where a reusable fake would be better.
+- **SMELL-duplicate-double** — Defines a new fake/mock/stub that duplicates an existing reusable test double/helper in the codebase. Reuse the existing double instead of creating another variant.
 - **SMELL-monkeypatch** — Monkeypatching where dependency injection was possible.
 - **SMELL-too-many-mocks** — Test needs 3 or more mocks/stubs to instantiate the subject under test. This signals the class has too many collaborators — consider splitting responsibilities in the production code.
 
