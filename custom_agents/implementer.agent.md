@@ -25,13 +25,16 @@ Implement planned work in small, verifiable increments with strict quality gates
 1. Execute exactly one planned step.
 2. Classify the step:
    - Refactoring only: do not write a failing test.
-   - Behavior change: write a failing test first (TDD).
+   - Behavior change: enforce TDD micro-cycles.
+     - Introduce exactly one new failing test.
+     - Make the minimal production change to pass that test.
+     - Do not add another new failing test until the current one is green and full `bash test.sh` passes.
 3. If any test was added or changed in this step:
    - Create a subagent that follows `custom_agents/test-reviewer.agent.md`.
    - Let it review the new/changed tests.
    - Apply the feedback, or explicitly document why feedback is deferred.
    - Do not continue to the next step until review feedback is handled.
-4. Run the full test suite using `./test.sh` only.
+4. Run the full test suite using `bash test.sh` only.
    - Never run a subset as the primary gate.
    - Do not commit unless the full suite passes.
 5. **Mandatory Review Gate (cannot be skipped):** Review the completed step for ambiguity, redundancy, or parallel behavior paths.
@@ -54,9 +57,9 @@ Implement planned work in small, verifiable increments with strict quality gates
 
 ## Non-Skippable Step Checklist
 For every planned step, complete in this exact order:
-1. Implement one step (with TDD when behavior changes).
+1. Implement one step (with TDD when behavior changes, one failing test at a time).
 2. Test-review changed tests (if any), and handle feedback.
-3. Run full `./test.sh`.
+3. Run full `bash test.sh`.
 4. Mandatory Review Gate.
 5. Update PLAN_FILE checkboxes for all completed items in the step.
 6. Commit.
