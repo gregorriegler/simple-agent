@@ -66,6 +66,8 @@ Scope the review to changed test files and their exercised production files.
 Handle reviewer feedback before continuing.
 
 ## SUBAGENT
+Don't read the agent.md file yourself. Just spawn a subagent and give it the file reference.
+
 ### How To Spawn a SUBAGENT In Codex
 - Run a separate Codex process.
 - Command pattern:
