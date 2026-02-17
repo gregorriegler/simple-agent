@@ -8,7 +8,7 @@ from simple_agent.application.slash_commands import (
 )
 
 
-class RecordingSlashCommandVisitor(SlashCommandVisitor):
+class SlashCommandVisitorSpy(SlashCommandVisitor):
     """Test visitor that records which methods were called."""
 
     def __init__(self):
@@ -25,9 +25,8 @@ class RecordingSlashCommandVisitor(SlashCommandVisitor):
         return None
 
 
-@pytest.mark.asyncio
 async def test_clear_command_accepts_visitor():
-    visitor = RecordingSlashCommandVisitor()
+    visitor = SlashCommandVisitorSpy()
     command = ClearCommand()
 
     await command.accept(visitor)
@@ -35,9 +34,8 @@ async def test_clear_command_accepts_visitor():
     assert visitor.cleared is True
 
 
-@pytest.mark.asyncio
 async def test_model_command_accepts_visitor():
-    visitor = RecordingSlashCommandVisitor()
+    visitor = SlashCommandVisitorSpy()
     command = ModelCommand("gpt-4")
 
     await command.accept(visitor)

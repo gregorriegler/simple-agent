@@ -52,8 +52,8 @@ agent = "simple_agent.main:main"
 [tool.hatch.build.targets.wheel]
 packages = ["simple_agent"]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest",
     "approvaltests",
     "pytest-approvaltests",
