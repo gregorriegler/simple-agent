@@ -22,6 +22,8 @@ Implement planned work in small, verifiable increments with strict quality gates
 
 ## Workflow Steps
 ### **Step 1**: Pick the first item from the plan and classify it. It can be either a REFACTOR or a BEHAVIOR_CHANGE.
+Sometimes the writing of a Test is explicitly planned. 
+In that case we consider this item a part of a `BEHAVIOR_CHANGE`.
 
 ### **Step 2 in case of REFACTOR**
 There's no need to write a failing test.
