@@ -74,11 +74,16 @@ class Agent(SlashCommandVisitor):
 
     def update_brain(self, brain: Brain) -> None:
         old_name = self.agent_name
+        old_model = self.llm.model
         self.agent_name = brain.name
         self.llm = self.llm_provider.get(brain.model_name)
         self.tools = brain.tools
         self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
         self.context.seed_system_prompt(brain.system_prompt)
+        if old_model != brain.model_name:
+            self.event_bus.publish(
+                ModelChangedEvent(self.agent_id, old_model, brain.model_name)
+            )
         self.event_bus.publish(
             AgentChangedEvent(self.agent_id, old_name=old_name, new_name=brain.name)
         )

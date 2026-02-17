@@ -93,8 +93,8 @@ We will apply "Safe Refactoring" first by introducing the `Brain` concept withou
 
 ### 6. Bugfix: Keep Model UI In Sync On `/agent` Switch
 **Goal**: Ensure changing agent updates model state and tab model label immediately.
-- [ ] Update `simple_agent/application/agent.py` so `update_brain(...)` emits `ModelChangedEvent` when `self.llm` is replaced with a different model.
-- [ ] Ensure event emission order is deterministic for UI consumers (`ModelChangedEvent` and `AgentChangedEvent`) and document the intended order in the test assertion.
+- [x] Update `simple_agent/application/agent.py` so `update_brain(...)` emits `ModelChangedEvent` when `self.llm` is replaced with a different model.
+- [x] Ensure event emission order is deterministic for UI consumers (`ModelChangedEvent` and `AgentChangedEvent`) and document the intended order in the test assertion.
 - [ ] Update `simple_agent/infrastructure/textual/widgets/agent_tabs.py` handling if needed so model label refreshes immediately when `/agent` triggers model change.
 - [ ] Verify end-to-end behavior manually in the UI: after `/agent <name>`, tab title reflects both new agent name and new model label.
 
