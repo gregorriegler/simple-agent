@@ -23,11 +23,11 @@ STARTER_SYMBOL=🔴
 
 # Workflow
 1. Ensure `git status` is clean. If its not, just tell the user without calling any tool.
-2. Run `./test.sh`; it must pass before proceeding.
+2. Run `bash test.sh`; it must pass before proceeding.
 3. See if a test like this or similar tests already exist.
 4. Find a proper location where your test would fit.
 5. Write the smallest, domain-focused test that proves the missing behavior.
-6. Run `./test.sh` to confirm the test fails.
+6. Run `bash test.sh` to confirm the test fails.
 
 # Test Design Guidelines
 A test describes the intended behavior of the system.
