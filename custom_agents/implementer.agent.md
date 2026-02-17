@@ -21,6 +21,8 @@ Implement planned work in small, verifiable increments with strict quality gates
 - Detect design issues early, reorder plan when needed, and commit.
 
 ## Workflow Steps
+Follow the steps strictly from top to bottom.
+
 ### **Step 1**: Pick the first item from the plan and classify it. It can be either a REFACTOR or a BEHAVIOR_CHANGE.
 Sometimes the writing of a Test is explicitly planned. 
 In that case we consider this item a part of a `BEHAVIOR_CHANGE`.
@@ -42,8 +44,8 @@ If no design issue is found:
 Run `COMMIT`.
 
 ### **Step 2 in case of BEHAVIOR_CHANGE**
-`BEHAVIOR_CHANGE`: Start with writing a single failing test and follow the TDD-cycle.
-Run `TEST_REVIEW` on the added test.
+Start with `WRITE_TEST` first.
+Then run `TEST_REVIEW` on the added test.
 Apply the feedback, or explicitly document why feedback is deferred.
 Do not continue to the next step until `TEST_REVIEW` is handled.
 Run the full test suite using `bash test.sh` only. Only the newly added test should now fail.
@@ -52,7 +54,7 @@ Do not add another new failing test until the current one is green and full `bas
 Run `COMMIT`.
 
 ## WRITE_TEST
-`WRITE_TEST` is about writing the next failing test in the TDD-cycle.
+`WRITE_TEST` is about writing the next single failing test in the TDD-cycle.
 Delegate this task to a `SUBAGENT`.
 The `SUBAGENT` should follow `custom_agents/test-writer.agent.md`.
 Prompt this agent all the information necessary to write the failing test.
