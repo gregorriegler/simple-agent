@@ -64,6 +64,7 @@ Prompt this agent all the information necessary to write the failing test.
 To do it run a reviewer `SUBAGENT` that follows `custom_agents/test-reviewer.agent.md`.
 Scope the review to changed test files and their exercised production files.
 Handle reviewer feedback before continuing.
+All findings, regardless of severity, must be fixed before proceeding; defer only as a last resort, and only with a written rationale.
 
 ## SUBAGENT
 Don't read the agent.md file yourself. Just spawn a subagent and give it the file reference.
