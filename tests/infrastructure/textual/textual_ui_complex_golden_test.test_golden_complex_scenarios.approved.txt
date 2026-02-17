@@ -43,11 +43,11 @@ Active Tab: tab-Agent
 
 
 
-
-
-
-
-
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 
 --- Step: SubAgent Started (Widget Tree) ---
 Tabs: ['tab-Agent', 'tab-SubAgent']

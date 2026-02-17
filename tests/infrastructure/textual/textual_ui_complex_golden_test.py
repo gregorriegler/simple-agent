@@ -74,6 +74,7 @@ async def test_golden_complex_scenarios(tmp_path, monkeypatch):
     dummy_file.write_text("This is file content.", encoding="utf-8")
 
     async with app.run_test(size=(80, 24)) as pilot:
+        await pilot.pause()
         capture_step("Initial State")
 
         # --- Scenario: Subagents ---
