@@ -81,10 +81,9 @@ async def test_agent_runtime_switch_publishes_agent_changed_event():
     agent.update_brain(new_brain)
 
     actual = event_spy.get_events(AgentChangedEvent)
-    assert len(actual) == 1
-    assert actual[0].agent_id == agent_id
-    assert actual[0].old_name == "Old Agent"
-    assert actual[0].new_name == "New Agent"
+    assert actual == [
+        AgentChangedEvent(agent_id, old_name="Old Agent", new_name="New Agent")
+    ]
 
 
 @pytest.mark.asyncio
@@ -115,17 +114,8 @@ async def test_agent_runtime_switch_publishes_model_changed_before_agent_changed
 
     agent.update_brain(new_brain)
 
-    ordered_relevant_events = [
-        event
-        for event in event_spy.get_all_events()
-        if isinstance(event, (ModelChangedEvent, AgentChangedEvent))
+    actual = event_spy.get_all_events()
+    assert actual == [
+        ModelChangedEvent(agent_id, old_model="default-model", new_model="new-model"),
+        AgentChangedEvent(agent_id, old_name="Old Agent", new_name="New Agent"),
     ]
-    assert len(ordered_relevant_events) == 2
-    assert isinstance(ordered_relevant_events[0], ModelChangedEvent)
-    assert ordered_relevant_events[0].agent_id == agent_id
-    assert ordered_relevant_events[0].old_model == "default-model"
-    assert ordered_relevant_events[0].new_model == "new-model"
-    assert isinstance(ordered_relevant_events[1], AgentChangedEvent)
-    assert ordered_relevant_events[1].agent_id == agent_id
-    assert ordered_relevant_events[1].old_name == "Old Agent"
-    assert ordered_relevant_events[1].new_name == "New Agent"
