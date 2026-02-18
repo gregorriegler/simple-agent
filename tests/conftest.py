@@ -5,7 +5,10 @@ import sys
 
 import pytest
 from approvaltests import set_default_reporter
-from approvaltests.reporters import ReportWithWinMerge
+try:
+    from approvaltests.reporters import ReportWithWinMerge
+except ImportError:
+    ReportWithWinMerge = None
 
 from .approve_sh_reporter import ApproveShReporter
 from .test_helpers import create_all_tools_for_test
@@ -35,7 +38,7 @@ def configure_approvals():
     )
     if use_approve_sh_reporter or sys.platform != "win32":
         set_default_reporter(ApproveShReporter())
-    else:
+    elif ReportWithWinMerge:
         set_default_reporter(ReportWithWinMerge())
 
 
