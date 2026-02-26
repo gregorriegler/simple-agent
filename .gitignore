@@ -75,3 +75,4 @@ htmlcov/
 
 # Bridge I/O
 bridge/
+.python-version

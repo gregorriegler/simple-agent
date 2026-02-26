@@ -5,6 +5,7 @@ import sys
 
 import pytest
 from approvaltests import set_default_reporter
+
 try:
     from approvaltests.reporters import ReportWithWinMerge
 except ImportError:
