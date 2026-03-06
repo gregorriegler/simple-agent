@@ -119,6 +119,7 @@ Flag these when found. Reference by key in output.
 - **SMELL-too-many-mocks** — Test needs 3 or more mocks/stubs to instantiate the subject under test. This signals the class has too many collaborators — consider splitting responsibilities in the production code.
 
 **Assertions**
+- **SMELL-missing-assert** — Test contains no assertions or verifications. A test must verify an observable outcome to provide value.
 - **SMELL-tautology** — Test outcome is predetermined by its own setup, independent of production code. Litmus test: would this test still pass if all production code were deleted? Common forms: mock returns X then assert X with no real code in between, `assertTrue(true)`, `assertNotNull(new Object())`, verifying framework behavior instead of application behavior.
 - **SMELL-spy-on-internals** — Assertions on internal method calls, private state, or execution order. Assert on observable outcomes only.
 - **SMELL-over-specified-verify** — Verify with exact call counts (`times(1)`), call ordering (`InOrder`), or `verifyNoMoreInteractions`. A behavior-preserving refactoring should not break the test. Simple `verify(mock).method()` for side effects is fine.
