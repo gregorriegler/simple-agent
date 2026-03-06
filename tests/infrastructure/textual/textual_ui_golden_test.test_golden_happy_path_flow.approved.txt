@@ -253,7 +253,7 @@ Active Tab: tab-Agent
                   Collapsible id='None' classes='' title="search_files(query='test')" collapsed=False
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
-                      TextArea id='None' classes='tool-call' text='In Progress ⠇'
+                      TextArea id='None' classes='tool-call' text=''
               SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
 
@@ -263,9 +263,9 @@ Active Tab: tab-Agent
                      ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
    Starting new        ▼ search_files(query='test')
    session
-                         ▊▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎
-   Waiting for           ▊ In Progress ⠇                                       ▎
-   user input...         ▊▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎
+
+   Waiting for                                  ● ● ● ● ●
+   user input...
 
    User: Hello
 

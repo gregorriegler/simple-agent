@@ -1,4 +1,5 @@
 import asyncio
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from simple_agent.application.agent_factory import AgentFactory
@@ -42,6 +43,7 @@ class Session:
         project_tree: ProjectTree,
         event_store: EventStore,
         agent_task_manager: AgentTaskManager,
+        on_replay_complete: Callable[[], None] | None = None,
     ):
         self._starting_agent_id = starting_agent_id
         self._event_bus = event_bus
@@ -53,6 +55,7 @@ class Session:
         self._project_tree = project_tree
         self._event_store = event_store
         self._agent_task_manager = agent_task_manager
+        self._on_replay_complete = on_replay_complete
 
     async def run_async(
         self,
@@ -76,13 +79,16 @@ class Session:
         unfinished_subagents = []
         if args.continue_session:
             history_replayer = HistoryReplayer(self._event_bus, self._event_store)
-            unfinished_subagents = history_replayer.replay_all_agents(
+            unfinished_subagents = await history_replayer.replay_all_agents_async(
                 self._starting_agent_id
             )
             events = self._event_store.load_events(self._starting_agent_id)
             context = events_to_messages(events, self._starting_agent_id)
         else:
             context = Messages()
+
+        if self._on_replay_complete:
+            self._on_replay_complete()
 
         agent_definition = self._agent_library._starting_agent_definition()
         agent = agent_factory.create_agent(

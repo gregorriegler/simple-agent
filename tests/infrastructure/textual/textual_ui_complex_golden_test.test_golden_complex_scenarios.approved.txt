@@ -370,7 +370,7 @@ Active Tab: tab-Agent
                   Collapsible id='None' classes='' title='write_todos()' collapsed=False
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
-                      TextArea id='None' classes='tool-call' text='In Progress ⠇'
+                      TextArea id='None' classes='tool-call' text=''
               SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
@@ -381,9 +381,9 @@ Active Tab: tab-Agent
                      ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
    ❌ Error:           ▼ write_todos()
    Something went
-   wrong                 ▊▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎
-                         ▊ In Progress ⠇                                       ▎
-   [Session              ▊▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎
+   wrong
+                                                ● ● ● ● ●
+   [Session
    interrupted by
    user]
 
@@ -430,7 +430,7 @@ Active Tab: tab-Agent
                   Collapsible id='None' classes='-collapsed' title='write_todos()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
-                      TextArea id='None' classes='tool-call' text='In Progress ⠇'
+                      TextArea id='None' classes='tool-call' text=''
                   Collapsible id='None' classes='' title='apply_diff()' collapsed=False
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
@@ -494,7 +494,7 @@ Active Tab: tab-Agent
                   Collapsible id='None' classes='-collapsed' title='write_todos()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
-                      TextArea id='None' classes='tool-call' text='In Progress ⠇'
+                      TextArea id='None' classes='tool-call' text=''
                   Collapsible id='None' classes='-collapsed' title='apply_diff()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
@@ -562,7 +562,7 @@ Active Tab: tab-Agent
                   Collapsible id='None' classes='-collapsed' title='write_todos()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
-                      TextArea id='None' classes='tool-call' text='In Progress ⠇'
+                      TextArea id='None' classes='tool-call' text=''
                   Collapsible id='None' classes='-collapsed' title='apply_diff()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''

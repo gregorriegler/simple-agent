@@ -29,7 +29,6 @@ def subscribe_events(
     event_logger: EventLogger,
     todo_cleanup: FileSystemTodoCleanup,
     app: TextualApp | None = None,
-    event_store: EventStore | None = None,
 ):
     event_bus.subscribe(SessionStartedEvent, event_logger.log_event)
     event_bus.subscribe(UserPromptRequestedEvent, event_logger.log_event)
@@ -42,6 +41,7 @@ def subscribe_events(
     event_bus.subscribe(SessionEndedEvent, event_logger.log_event)
     event_bus.subscribe(AgentStartedEvent, event_logger.log_event)
     event_bus.subscribe(AgentChangedEvent, event_logger.log_event)
+
     event_bus.subscribe(
         AgentFinishedEvent,
         lambda event: todo_cleanup.cleanup_todos_for_agent(event.agent_id)
@@ -54,6 +54,7 @@ def subscribe_events(
         if event.agent_id
         else None,
     )
+
     if app:
 
         def _post_domain_event(event):
@@ -75,12 +76,22 @@ def subscribe_events(
         event_bus.subscribe(ErrorEvent, _post_domain_event)
         event_bus.subscribe(SessionEndedEvent, _post_domain_event)
 
-    if event_store:
-        event_bus.subscribe(UserPromptedEvent, event_store.persist)
-        event_bus.subscribe(AssistantRespondedEvent, event_store.persist)
-        event_bus.subscribe(AgentStartedEvent, event_store.persist)
-        event_bus.subscribe(AgentFinishedEvent, event_store.persist)
-        event_bus.subscribe(ToolResultEvent, event_store.persist)
-        event_bus.subscribe(SessionClearedEvent, event_store.persist)
-        event_bus.subscribe(ModelChangedEvent, event_store.persist)
-        event_bus.subscribe(AgentChangedEvent, event_store.persist)
+
+def subscribe_persistence(
+    event_bus: SimpleEventBus,
+    event_store: EventStore,
+):
+    """Subscribe event persistence. Call this AFTER replay to avoid re-persisting replayed events."""
+    event_bus.subscribe(UserPromptedEvent, event_store.persist)
+    event_bus.subscribe(AssistantRespondedEvent, event_store.persist)
+    event_bus.subscribe(AssistantSaidEvent, event_store.persist)
+    event_bus.subscribe(ToolCalledEvent, event_store.persist)
+    event_bus.subscribe(ToolResultEvent, event_store.persist)
+    event_bus.subscribe(ToolCancelledEvent, event_store.persist)
+    event_bus.subscribe(AgentStartedEvent, event_store.persist)
+    event_bus.subscribe(AgentFinishedEvent, event_store.persist)
+    event_bus.subscribe(SessionClearedEvent, event_store.persist)
+    event_bus.subscribe(ModelChangedEvent, event_store.persist)
+    event_bus.subscribe(AgentChangedEvent, event_store.persist)
+    event_bus.subscribe(SessionInterruptedEvent, event_store.persist)
+    event_bus.subscribe(ErrorEvent, event_store.persist)

@@ -32,7 +32,10 @@ from simple_agent.infrastructure.non_interactive_user_input import (
     NonInteractiveUserInput,
 )
 from simple_agent.infrastructure.project_tree import FileSystemProjectTree
-from simple_agent.infrastructure.subscribe_events import subscribe_events
+from simple_agent.infrastructure.subscribe_events import (
+    subscribe_events,
+    subscribe_persistence,
+)
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
 from simple_agent.infrastructure.user_configuration import (
@@ -136,6 +139,7 @@ async def _run_main(
         project_tree=project_tree,
         event_store=event_store,
         agent_task_manager=agent_task_manager,
+        on_replay_complete=lambda: subscribe_persistence(event_bus, event_store),
     )
     textual_app = TextualApp(
         textual_user_input,
@@ -144,7 +148,7 @@ async def _run_main(
         available_models=llm_provider.get_available_models(),
         available_agents=agent_library.list_agent_types(),
     )
-    subscribe_events(event_bus, event_logger, todo_cleanup, textual_app, event_store)
+    subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
     if event_subscriber:
         event_subscriber(event_bus, textual_app)
 

@@ -1,14 +1,19 @@
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.events import (
+    AgentChangedEvent,
     AgentEvent,
     AgentFinishedEvent,
     AgentStartedEvent,
     AssistantRespondedEvent,
+    AssistantSaidEvent,
+    ErrorEvent,
     ModelChangedEvent,
     SessionClearedEvent,
+    SessionInterruptedEvent,
     SessionStartedEvent,
     ToolCalledEvent,
+    ToolCancelledEvent,
     ToolResultEvent,
     UserPromptedEvent,
 )
@@ -34,6 +39,12 @@ class EventSerializer:
                 "response": event.response,
                 "model": event.model,
                 "token_usage_display": event.token_usage_display,
+            }
+        elif isinstance(event, AssistantSaidEvent):
+            return {
+                "type": "AssistantSaidEvent",
+                "agent_id": agent_id_raw,
+                "message": event.message,
             }
         elif isinstance(event, AgentStartedEvent):
             return {
@@ -77,6 +88,12 @@ class EventSerializer:
                 else "",
                 "status": status,
             }
+        elif isinstance(event, ToolCancelledEvent):
+            return {
+                "type": "ToolCancelledEvent",
+                "agent_id": agent_id_raw,
+                "call_id": event.call_id,
+            }
         elif isinstance(event, SessionClearedEvent):
             return {
                 "type": "SessionClearedEvent",
@@ -94,6 +111,24 @@ class EventSerializer:
                 "agent_id": agent_id_raw,
                 "old_model": event.old_model,
                 "new_model": event.new_model,
+            }
+        elif isinstance(event, AgentChangedEvent):
+            return {
+                "type": "AgentChangedEvent",
+                "agent_id": agent_id_raw,
+                "old_name": event.old_name,
+                "new_name": event.new_name,
+            }
+        elif isinstance(event, SessionInterruptedEvent):
+            return {
+                "type": "SessionInterruptedEvent",
+                "agent_id": agent_id_raw,
+            }
+        elif isinstance(event, ErrorEvent):
+            return {
+                "type": "ErrorEvent",
+                "agent_id": agent_id_raw,
+                "message": event.message,
             }
         else:
             raise ValueError(f"Unknown event type: {type(event).__name__}")
@@ -114,6 +149,11 @@ class EventSerializer:
                 response=data.get("response", ""),
                 model=data.get("model", ""),
                 token_usage_display=data.get("token_usage_display", ""),
+            )
+        elif event_type == "AssistantSaidEvent":
+            return AssistantSaidEvent(
+                agent_id=agent_id,
+                message=data.get("message", ""),
             )
         elif event_type == "AgentStartedEvent":
             agent_type_str = data.get("agent_type", "")
@@ -153,6 +193,11 @@ class EventSerializer:
                     status=status,
                 ),
             )
+        elif event_type == "ToolCancelledEvent":
+            return ToolCancelledEvent(
+                agent_id=agent_id,
+                call_id=data.get("call_id", ""),
+            )
         elif event_type == "SessionClearedEvent":
             return SessionClearedEvent(agent_id=agent_id)
         elif event_type == "SessionStartedEvent":
@@ -165,6 +210,19 @@ class EventSerializer:
                 agent_id=agent_id,
                 old_model=data.get("old_model", ""),
                 new_model=data.get("new_model", ""),
+            )
+        elif event_type == "AgentChangedEvent":
+            return AgentChangedEvent(
+                agent_id=agent_id,
+                old_name=data.get("old_name", ""),
+                new_name=data.get("new_name", ""),
+            )
+        elif event_type == "SessionInterruptedEvent":
+            return SessionInterruptedEvent(agent_id=agent_id)
+        elif event_type == "ErrorEvent":
+            return ErrorEvent(
+                agent_id=agent_id,
+                message=data.get("message", ""),
             )
         else:
             raise ValueError(f"Unknown event type: {event_type}")
