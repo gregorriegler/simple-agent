@@ -65,7 +65,7 @@ Then open `http://<host>:8000` in your browser.
 Create a `.simple-agent.toml` file either in your home directory or in the directory where you run the agent. Values from the current directory override those from `~`.
 
 ```toml
-[model]
+[models]
 default = "claude"  # Which model configuration to use by default
 
 [models.claude]
@@ -74,14 +74,14 @@ adapter = "claude"
 api_key = "${ANTHROPIC_API_KEY}"  # Or use a literal API key
 ```
 
-The `[model]` section specifies which model to use by default. Define one or more models under `[models.*]` sections. API keys can reference environment variables using `${VAR_NAME}` syntax.
+The `[models]` section specifies which model to use by default. Define one or more models under `[models.*]` sections. API keys can reference environment variables using `${VAR_NAME}` syntax.
 
 ### Multiple models
 
 You can define multiple model configurations and switch between them:
 
 ```toml
-[model]
+[models]
 default = "claude"
 
 [models.claude]
