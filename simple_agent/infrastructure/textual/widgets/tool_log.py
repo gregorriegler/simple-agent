@@ -27,7 +27,11 @@ class ToolLog(VerticalScroll):
             collapsible.collapsed = True
 
         text_area = TextArea(
-            "", read_only=True, language="markdown", classes="tool-call"
+            "",
+            read_only=True,
+            language="markdown",
+            show_cursor=False,
+            classes="tool-call",
         )
         text_area.styles.height = 3
 

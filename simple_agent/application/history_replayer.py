@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from collections import deque
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
@@ -41,11 +42,11 @@ class HistoryReplayer:
             isinstance(e, (AssistantSaidEvent, ToolCalledEvent)) for e in events
         )
 
-        results_by_agent = {}
+        results_by_agent: dict[AgentId, deque[ToolResultEvent]] = {}
         if not has_granular:
             for e in events:
                 if isinstance(e, ToolResultEvent):
-                    results_by_agent.setdefault(e.agent_id, []).append(e)
+                    results_by_agent.setdefault(e.agent_id, deque()).append(e)
 
         for i, event in enumerate(events):
             if isinstance(event, AgentFinishedEvent):
@@ -85,7 +86,7 @@ class HistoryReplayer:
             for i, raw_call in enumerate(parsed.tool_calls):
                 tool = ParsedTool(raw_call, None)
                 if results:
-                    res_event = results.pop(0)
+                    res_event = results.popleft()
                     self._event_bus.publish(
                         ToolCalledEvent(
                             agent_id=event.agent_id,
@@ -103,5 +104,7 @@ class HistoryReplayer:
                     )
         except Exception:
             logger.warning(
-                "Failed to recover legacy response for agent %s", event.agent_id
+                "Failed to recover legacy response for agent %s",
+                event.agent_id,
+                exc_info=True,
             )
