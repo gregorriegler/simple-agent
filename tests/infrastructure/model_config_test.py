@@ -81,8 +81,8 @@ def test_model_config_from_dict_raises_on_invalid_timeout():
 
 def test_models_registry_from_config_builds_registry():
     config = {
+        "model": {"default": "claude"},
         "models": {
-            "default": "claude",
             "claude": {
                 "model": "claude-sonnet-4",
                 "adapter": "claude",
@@ -104,6 +104,7 @@ def test_models_registry_from_config_builds_registry():
 
 def test_models_registry_from_config_requires_default_model():
     config = {
+        "model": {},
         "models": {
             "claude": {
                 "model": "claude-sonnet-4",
@@ -113,12 +114,12 @@ def test_models_registry_from_config_requires_default_model():
         },
     }
 
-    with pytest.raises(ValueError, match="models.default"):
+    with pytest.raises(ValueError, match="model.default"):
         ModelsRegistry.from_config(config)
 
 
 def test_models_registry_from_config_requires_models_section():
-    config = {}
+    config = {"model": {"default": "claude"}}
 
     with pytest.raises(ValueError, match="models' section"):
         ModelsRegistry.from_config(config)
@@ -126,8 +127,8 @@ def test_models_registry_from_config_requires_models_section():
 
 def test_models_registry_from_config_requires_default_in_models():
     config = {
+        "model": {"default": "claude"},
         "models": {
-            "default": "claude",
             "openai": {
                 "model": "gpt-4",
                 "adapter": "openai",

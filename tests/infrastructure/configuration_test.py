@@ -16,7 +16,7 @@ def test_resolve_api_key_replaces_env_placeholder(monkeypatch, tmp_path):
     config_path = tmp_path / ".simple-agent.toml"
     config_path.write_text(
         """
-[models]
+[model]
 default = "primary"
 
 [models.primary]
@@ -37,7 +37,7 @@ def test_resolve_api_key_raises_when_env_missing(monkeypatch, tmp_path):
     config_path = tmp_path / ".simple-agent.toml"
     config_path.write_text(
         """
-[models]
+[model]
 default = "primary"
 
 [models.primary]
@@ -67,7 +67,7 @@ def test_resolve_api_key_returns_literal_when_not_placeholder(monkeypatch, tmp_p
     config_path = tmp_path / ".simple-agent.toml"
     config_path.write_text(
         """
-[models]
+[model]
 default = "primary"
 
 [models.primary]
@@ -88,7 +88,7 @@ def test_resolve_app_dir_placeholder_in_agents_path(monkeypatch, tmp_path):
     config_path = tmp_path / ".simple-agent.toml"
     config_path.write_text(
         """
-[models]
+[model]
 default = "primary"
 
 [models.primary]

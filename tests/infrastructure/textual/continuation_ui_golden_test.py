@@ -106,6 +106,7 @@ async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
     )
 
     async with app1.run_test(size=(80, 24)) as pilot:
+        await pilot.pause()
         for event in events:
             app1.on_domain_event_message(DomainEventMessage(event))
         await pilot.pause()
@@ -123,6 +124,7 @@ async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
     subscribe_events(event_bus, FakeEventLogger(), FakeTodoCleanup(), app2)
 
     async with app2.run_test(size=(80, 24)) as pilot:
+        await pilot.pause()
         replayer = HistoryReplayer(event_bus, event_store)
         await replayer.replay_all_agents_async(agent_id)
         await pilot.pause()
@@ -192,6 +194,7 @@ async def test_continuation_tool_result_is_last_event(tmp_path):
     )
 
     async with app1.run_test(size=(80, 24)) as pilot:
+        await pilot.pause()
         for event in events:
             app1.on_domain_event_message(DomainEventMessage(event))
         await pilot.pause()
@@ -209,6 +212,7 @@ async def test_continuation_tool_result_is_last_event(tmp_path):
     subscribe_events(event_bus, FakeEventLogger(), FakeTodoCleanup(), app2)
 
     async with app2.run_test(size=(80, 24)) as pilot:
+        await pilot.pause()
         replayer = HistoryReplayer(event_bus, event_store)
         await replayer.replay_all_agents_async(agent_id)
         await pilot.pause()

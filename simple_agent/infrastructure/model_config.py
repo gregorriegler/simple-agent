@@ -64,19 +64,21 @@ class ModelsRegistry:
 
     @staticmethod
     def from_config(config: Mapping[str, Any]) -> "ModelsRegistry":
+        model_section = config.get("model")
+        if not isinstance(model_section, Mapping):
+            raise ValueError("missing required 'model' section in configuration")
+
+        default_name = model_section.get("default")
+        if not default_name:
+            raise ValueError("missing required 'model.default' value in configuration")
+        default_name = str(default_name)
+
         models_section = config.get("models")
         if not isinstance(models_section, Mapping) or not models_section:
             raise ValueError("missing required 'models' section in configuration")
 
-        default_name = models_section.get("default")
-        if not default_name:
-            raise ValueError("missing required 'models.default' value in configuration")
-        default_name = str(default_name)
-
         models_dict = {}
         for model_name, model_config in models_section.items():
-            if model_name == "default":
-                continue
             if isinstance(model_config, Mapping):
                 models_dict[str(model_name)] = ModelConfig.from_dict(
                     str(model_name), model_config

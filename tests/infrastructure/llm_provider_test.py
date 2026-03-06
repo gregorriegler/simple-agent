@@ -9,8 +9,8 @@ from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 def build_user_config(model_config: ModelConfig) -> UserConfiguration:
     config = {
+        "model": {"default": model_config.name},
         "models": {
-            "default": model_config.name,
             model_config.name: {
                 "model": model_config.model,
                 "adapter": model_config.adapter,

@@ -1,4 +1,4 @@
-[models]
+[model]
 default = "claude"
 
 [models.claude]
