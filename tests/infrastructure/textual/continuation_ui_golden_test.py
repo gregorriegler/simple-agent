@@ -109,6 +109,7 @@ async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
         await pilot.pause()
         for event in events:
             app1.on_domain_event_message(DomainEventMessage(event))
+        await app1.workers.wait_for_complete()
         await pilot.pause()
 
         state_before = f"--- UI STATE FROM DIRECT EVENT REPLAY ---\n{dump_ascii_screen(app1)}\n{dump_ui_state(app1)}"
@@ -127,6 +128,7 @@ async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
         await pilot.pause()
         replayer = HistoryReplayer(event_bus, event_store)
         await replayer.replay_all_agents_async(agent_id)
+        await app2.workers.wait_for_complete()
         await pilot.pause()
 
         state_after = f"--- UI STATE FROM EVENT STORE CONTINUATION ---\n{dump_ascii_screen(app2)}\n{dump_ui_state(app2)}"
@@ -197,6 +199,7 @@ async def test_continuation_tool_result_is_last_event(tmp_path):
         await pilot.pause()
         for event in events:
             app1.on_domain_event_message(DomainEventMessage(event))
+        await app1.workers.wait_for_complete()
         await pilot.pause()
 
         state_before = f"--- UI STATE FROM DIRECT EVENT REPLAY ---\n{dump_ascii_screen(app1)}\n{dump_ui_state(app1)}"
@@ -215,6 +218,7 @@ async def test_continuation_tool_result_is_last_event(tmp_path):
         await pilot.pause()
         replayer = HistoryReplayer(event_bus, event_store)
         await replayer.replay_all_agents_async(agent_id)
+        await app2.workers.wait_for_complete()
         await pilot.pause()
 
         state_after = f"--- UI STATE FROM EVENT STORE CONTINUATION ---\n{dump_ascii_screen(app2)}\n{dump_ui_state(app2)}"
