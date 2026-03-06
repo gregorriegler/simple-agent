@@ -154,7 +154,8 @@ async def test_submit_input_sends_user_input(textual_harness):
         text_area.text = "Hello"
 
         app.action_submit_input()
-        await pilot.pause()
+        await app.workers.wait_for_complete()
+        await pilot.pause(0.1)
 
         assert user_input.submissions == ["Hello"]
         assert text_area.text == ""
