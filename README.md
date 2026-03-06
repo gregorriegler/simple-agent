@@ -13,6 +13,8 @@ Simple Agent aims to be a simple, transparent, general-purpose agent TUI.
 ## Features
 
 - Transparency: observe every tool call and agent decision with ease
+- Tab-based multi-agent TUI: view and manage multiple agents side by side
+- Session continuation: pause and resume sessions with `--continue`
 - Markdown-driven subagents: build modular agents from simple markdown files
 - Token-efficient tool calling: optimized tool execution to reduce overhead
 - CLI-first design: built for command-line use, with optional non-interactive mode
@@ -20,42 +22,26 @@ Simple Agent aims to be a simple, transparent, general-purpose agent TUI.
 
 ## Installation and Usage
 
-### Quick install (recommended)
-```bash
-./install.sh
-```
-
-### Usage method 1: shell wrapper (recommended for development)
-```bash
-./agent.sh "your message here"
-./agent.sh --agent <agent-type>  # defines the starting agent
-./agent.sh --continue            # continue previous session
-./agent.sh --user-interface console
-./agent.sh --system-prompt       # print rendered system prompt
-./agent.sh --stub                # run against the built-in LLM stub
-./agent.sh --non-interactive     # suppress interactive prompts
-```
-
-### Usage method 2: invoke the script with uv
-```bash
-uv run --project . --script simple_agent/main.py "your message here"
-uv run --project . --script simple_agent/main.py --help
-```
-
-### Install globally with uv
+### Install globally (recommended)
 ```bash
 uv tool install .
 agent "your message here"
+agent --agent <agent-type>  # defines the starting agent
+agent --continue            # continue previous session
+agent --system-prompt       # print rendered system prompt
+agent --non-interactive     # suppress interactive prompts
+agent --help                # show all options
 ```
 
-### Examples
-```bash
-# Start an interactive session using the default textual UI
-./agent.sh "say hello"
+### Slash commands
 
-# Run in the console UI and continue the previous session
-./agent.sh --user-interface console --continue
-```
+During a session, type these in the input prompt:
+
+- `/clear` — clear conversation history
+- `/model <name>` — switch to a different model
+- `/agent <name>` — switch to a different agent
+- `@<filename>` — attach a file to your message
+
 
 ## Run in a browser (Docker)
 
