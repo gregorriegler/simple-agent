@@ -239,12 +239,6 @@ foo
 bar
 🛠️[/end]
 
-🛠️[replace-file-content test.txt nth:2]
-old_value = 1
-@@@
-new_value = 2
-🛠️[/end]
-
 ## complete-task tool
 Signal task completion with a summary of what was accomplished
 
