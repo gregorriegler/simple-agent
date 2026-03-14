@@ -104,7 +104,6 @@ class ReplaceFileContentTool(BaseTool):
             "result": "Successfully replaced content in test.txt",
         },
         "🛠️[replace-file-content test.txt all]\nfoo\n@@@\nbar\n🛠️[/end]",
-        "🛠️[replace-file-content test.txt nth:2]\nold_value = 1\n@@@\nnew_value = 2\n🛠️[/end]",
     ]
 
     async def execute(self, raw_call):
@@ -207,9 +206,7 @@ class ReplaceFileContentTool(BaseTool):
         if len(parts) > 2:
             return None, "Too many arguments for replace-file-content"
 
-        if replace_mode not in ["single", "all"] and not replace_mode.startswith(
-            "nth:"
-        ):
+        if replace_mode not in ["single", "all"]:
             return None, f"Invalid replace_mode: {replace_mode}"
 
         parsed, error = self._parse_replace_body(body)
