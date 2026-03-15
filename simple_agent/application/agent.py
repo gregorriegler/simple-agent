@@ -140,7 +140,7 @@ class Agent(SlashCommandVisitor):
             command = self.slash_command_registry.parse(prompt)
             await command.accept(self)
         except CommandParseError as e:
-            await self._notify_error_occured(str(e))
+            await self._notify_error_occurred(str(e))
 
     async def clear_conversation(self, command: ClearCommand) -> None:
         self.context.clear()
@@ -154,11 +154,11 @@ class Agent(SlashCommandVisitor):
                 ModelChangedEvent(self.agent_id, old_model, command.model_name)
             )
         except Exception as e:
-            await self._notify_error_occured(str(e))
+            await self._notify_error_occurred(str(e))
 
     async def visit_agent_command(self, command: AgentCommand) -> None:
         if self.brain_factory is None:
-            await self._notify_error_occured("Agent switching is not available")
+            await self._notify_error_occurred("Agent switching is not available")
             return
         try:
             brain = self.brain_factory.build_brain(
@@ -166,7 +166,7 @@ class Agent(SlashCommandVisitor):
             )
             self.update_brain(brain)
         except Exception as e:
-            await self._notify_error_occured(str(e))
+            await self._notify_error_occurred(str(e))
 
     async def run_tool_loop(self):
         try:
@@ -191,7 +191,7 @@ class Agent(SlashCommandVisitor):
             await self._notify_session_interrupted()
             raise
         except Exception as e:
-            await self._notify_error_occured(e)
+            await self._notify_error_occurred(e)
             return SingleToolResult(
                 message=str(e),
                 status=ToolResultStatus.FAILURE,
@@ -257,7 +257,7 @@ class Agent(SlashCommandVisitor):
     def _notify_session_ended(self):
         self.event_bus.publish(SessionEndedEvent(self.agent_id))
 
-    async def _notify_error_occured(self, e):
+    async def _notify_error_occurred(self, e):
         self.event_bus.publish(ErrorEvent(self.agent_id, str(e)))
 
     async def _notify_session_interrupted(self):
