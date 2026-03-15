@@ -25,7 +25,8 @@ async def test_submit_input_includes_referenced_files(textual_harness, tmp_path)
 
         # 2. Submit
         app.action_submit_input()
-        await pilot.pause()
+        for _ in range(3):
+            await pilot.pause()
 
         # 3. Verify submission
         assert len(user_input.submissions) == 1
@@ -59,7 +60,8 @@ async def test_submit_input_ignores_unreferenced_files(textual_harness, tmp_path
         text_area.text = "Just text without file"
 
         app.action_submit_input()
-        await pilot.pause()
+        for _ in range(3):
+            await pilot.pause()
 
         submission = user_input.submissions[0]
         assert "Just text without file" in submission
