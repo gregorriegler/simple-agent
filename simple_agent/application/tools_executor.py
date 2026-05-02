@@ -1,6 +1,5 @@
 import asyncio
 
-from .agent_event_publisher import AgentEventPublisher
 from .agent_id import AgentId
 from .event_bus import EventBus
 from .events import ToolCalledEvent, ToolCancelledEvent, ToolResultEvent
@@ -11,7 +10,7 @@ from .tool_results import ManyToolsResult, ToolResult
 class ToolsExecutor:
     def __init__(self, library: ToolLibrary, event_bus: EventBus, agent_id: AgentId):
         self._library = library
-        self._publisher = AgentEventPublisher(agent_id, event_bus)
+        self._event_bus = event_bus
         self._agent_id = agent_id
         self._tool_call_counter = 0
 
@@ -32,13 +31,13 @@ class ToolsExecutor:
     async def _execute(self, tool: ParsedTool) -> ToolResult:
         self._tool_call_counter += 1
         call_id = f"{self._agent_id}::tool_call::{self._tool_call_counter}"
-        self._publisher.publish(ToolCalledEvent(call_id=call_id, tool=tool))
+        self._event_bus.publish(ToolCalledEvent(self._agent_id, call_id, tool))
         try:
             tool_result = await self._library.execute_parsed_tool(tool)
-            self._publisher.publish(
-                ToolResultEvent(call_id=call_id, result=tool_result)
+            self._event_bus.publish(
+                ToolResultEvent(self._agent_id, call_id, tool_result)
             )
             return tool_result
         except asyncio.CancelledError:
-            self._publisher.publish(ToolCancelledEvent(call_id=call_id))
+            self._event_bus.publish(ToolCancelledEvent(self._agent_id, call_id))
             raise
