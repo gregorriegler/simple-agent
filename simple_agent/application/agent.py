@@ -3,6 +3,7 @@ from typing import Protocol
 
 from simple_agent.logging_config import get_logger
 
+from .agent_event_publisher import AgentEventPublisher
 from .agent_id import AgentId
 from .agent_type import AgentType
 from .brain import Brain
@@ -64,6 +65,7 @@ class Agent(SlashCommandVisitor):
         self.tools = tools
         self.user_input = user_input
         self.event_bus = event_bus
+        self._publisher = AgentEventPublisher(agent_id, event_bus)
         self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
         self.context: Messages = context
         self.brain_factory = brain_factory
@@ -81,15 +83,21 @@ class Agent(SlashCommandVisitor):
         self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
         self.context.seed_system_prompt(brain.system_prompt)
         if old_model != brain.model_name:
-            self.event_bus.publish(
-                ModelChangedEvent(self.agent_id, old_model, brain.model_name)
+            self._publisher.publish(
+                ModelChangedEvent(old_model=old_model, new_model=brain.model_name)
             )
-        self.event_bus.publish(
-            AgentChangedEvent(self.agent_id, old_name=old_name, new_name=brain.name)
+        self._publisher.publish(
+            AgentChangedEvent(old_name=old_name, new_name=brain.name)
         )
 
     async def start(self):
-        self._notify_agent_started()
+        self._publisher.publish(
+            AgentStartedEvent(
+                agent_name=self.agent_name,
+                model=self.llm.model,
+                agent_type=self.agent_type,
+            )
+        )
         try:
             tool_result: ToolResult = SingleToolResult()
 
@@ -101,29 +109,29 @@ class Agent(SlashCommandVisitor):
                     tool_result = await self.run_tool_loop()
                 except asyncio.CancelledError:
                     # ESC pressed - interrupt current operation but continue session
-                    await self._notify_session_interrupted()
+                    self._publisher.publish(SessionInterruptedEvent())
                     continue
 
             return tool_result
         except (EOFError, KeyboardInterrupt):
             return SingleToolResult()
         finally:
-            self._notify_agent_finished()
-            self._notify_session_ended()
+            self._publisher.publish(AgentFinishedEvent())
+            self._publisher.publish(SessionEndedEvent())
 
     async def user_prompts(self):
         if not self.user_input.has_stacked_messages():
-            await self._notify_user_prompt_requested()
+            self._publisher.publish(UserPromptRequestedEvent())
         prompt = await self.user_input.read_async()
 
         while prompt and self._is_slash_command(prompt):
             await self._handle_slash_command(prompt)
-            await self._notify_user_prompt_requested()
+            self._publisher.publish(UserPromptRequestedEvent())
             prompt = await self.user_input.read_async()
 
         if prompt:
             self.context.user_says(prompt)
-            await self._notify_user_prompted(prompt)
+            self._publisher.publish(UserPromptedEvent(input_text=prompt))
         return prompt
 
     def _is_slash_command(self, prompt: str) -> bool:
@@ -140,25 +148,27 @@ class Agent(SlashCommandVisitor):
             command = self.slash_command_registry.parse(prompt)
             await command.accept(self)
         except CommandParseError as e:
-            await self._notify_error_occurred(str(e))
+            self._publisher.publish(ErrorEvent(message=str(e)))
 
     async def clear_conversation(self, command: ClearCommand) -> None:
         self.context.clear()
-        self.event_bus.publish(SessionClearedEvent(self.agent_id))
+        self._publisher.publish(SessionClearedEvent())
 
     async def change_model(self, command: ModelCommand) -> None:
         old_model = self.llm.model
         try:
             self.llm = self.llm_provider.get(command.model_name)
-            self.event_bus.publish(
-                ModelChangedEvent(self.agent_id, old_model, command.model_name)
+            self._publisher.publish(
+                ModelChangedEvent(old_model=old_model, new_model=command.model_name)
             )
         except Exception as e:
-            await self._notify_error_occurred(str(e))
+            self._publisher.publish(ErrorEvent(message=str(e)))
 
     async def visit_agent_command(self, command: AgentCommand) -> None:
         if self.brain_factory is None:
-            await self._notify_error_occurred("Agent switching is not available")
+            self._publisher.publish(
+                ErrorEvent(message="Agent switching is not available")
+            )
             return
         try:
             brain = self.brain_factory.build_brain(
@@ -166,7 +176,7 @@ class Agent(SlashCommandVisitor):
             )
             self.update_brain(brain)
         except Exception as e:
-            await self._notify_error_occurred(str(e))
+            self._publisher.publish(ErrorEvent(message=str(e)))
 
     async def run_tool_loop(self):
         try:
@@ -176,7 +186,7 @@ class Agent(SlashCommandVisitor):
                 message = response.message
                 tools = response.tools
                 if message:
-                    await self._notify_assistant_said(message)
+                    self._publisher.publish(AssistantSaidEvent(message=message))
 
                 if not tools:
                     break
@@ -188,10 +198,10 @@ class Agent(SlashCommandVisitor):
         except asyncio.CancelledError:
             raise
         except KeyboardInterrupt:
-            await self._notify_session_interrupted()
+            self._publisher.publish(SessionInterruptedEvent())
             raise
         except Exception as e:
-            await self._notify_error_occurred(e)
+            self._publisher.publish(ErrorEvent(message=str(e)))
             return SingleToolResult(
                 message=str(e),
                 status=ToolResultStatus.FAILURE,
@@ -215,10 +225,9 @@ class Agent(SlashCommandVisitor):
 
         token_usage_display = self._format_token_usage(input_tokens, max_tokens)
         self.context.assistant_says(answer)
-        self.event_bus.publish(
+        self._publisher.publish(
             AssistantRespondedEvent(
-                self.agent_id,
-                answer,
+                response=answer,
                 model=model,
                 token_usage_display=token_usage_display,
             )
@@ -231,34 +240,3 @@ class Agent(SlashCommandVisitor):
             return "0.0%"
         percentage = (input_tokens / max_tokens) * 100
         return f"{percentage:.1f}%"
-
-    def _notify_agent_started(self):
-        self.event_bus.publish(
-            AgentStartedEvent(
-                self.agent_id,
-                self.agent_name,
-                self.llm.model,
-                self.agent_type,
-            )
-        )
-
-    async def _notify_user_prompt_requested(self):
-        self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
-
-    async def _notify_user_prompted(self, prompt):
-        self.event_bus.publish(UserPromptedEvent(self.agent_id, prompt))
-
-    async def _notify_assistant_said(self, message):
-        self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
-
-    def _notify_agent_finished(self):
-        self.event_bus.publish(AgentFinishedEvent(self.agent_id))
-
-    def _notify_session_ended(self):
-        self.event_bus.publish(SessionEndedEvent(self.agent_id))
-
-    async def _notify_error_occurred(self, e):
-        self.event_bus.publish(ErrorEvent(self.agent_id, str(e)))
-
-    async def _notify_session_interrupted(self):
-        self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
