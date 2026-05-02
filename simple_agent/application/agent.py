@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import replace
 from typing import Protocol
 
 from simple_agent.logging_config import get_logger
@@ -22,7 +23,7 @@ from .events import (
     UserPromptRequestedEvent,
 )
 from .input import Input
-from .llm import LLM, LLMProvider, Messages
+from .llm import LLMProvider, Messages
 from .slash_command_registry import CommandParseError, SlashCommandRegistry
 from .slash_commands import (
     AgentCommand,
@@ -30,7 +31,7 @@ from .slash_commands import (
     ModelCommand,
     SlashCommandVisitor,
 )
-from .tool_library import MessageAndParsedTools, ToolLibrary
+from .tool_library import MessageAndParsedTools
 from .tool_results import SingleToolResult, ToolResult, ToolResultStatus
 from .tools_executor import ToolsExecutor
 
@@ -45,10 +46,8 @@ class Agent(SlashCommandVisitor):
     def __init__(
         self,
         agent_id: AgentId,
-        agent_name: str,
-        tools: ToolLibrary,
+        brain: Brain,
         llm_provider: LLMProvider,
-        model_name: str,
         user_input: Input,
         event_bus: EventBus,
         context: Messages,
@@ -57,14 +56,12 @@ class Agent(SlashCommandVisitor):
         brain_factory: BrainFactory | None = None,
     ):
         self.agent_id = agent_id
-        self.agent_name = agent_name
+        self.brain = brain
         self.agent_type = agent_type
         self.llm_provider = llm_provider
-        self.llm: LLM = llm_provider.get(model_name)
-        self.tools = tools
         self.user_input = user_input
         self.event_bus = event_bus
-        self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
+        self.tools_executor = ToolsExecutor(brain.tools, event_bus, agent_id)
         self.context: Messages = context
         self.brain_factory = brain_factory
         self.slash_command_registry = SlashCommandRegistry(
@@ -73,16 +70,14 @@ class Agent(SlashCommandVisitor):
         )
 
     def update_brain(self, brain: Brain) -> None:
-        old_name = self.agent_name
-        old_model = self.llm.model
-        self.agent_name = brain.name
-        self.llm = self.llm_provider.get(brain.model_name)
-        self.tools = brain.tools
-        self.tools_executor = ToolsExecutor(self.tools, self.event_bus, self.agent_id)
+        old_name = self.brain.name
+        old_model = self.brain.llm.model
+        self.brain = brain
+        self.tools_executor = ToolsExecutor(brain.tools, self.event_bus, self.agent_id)
         self.context.seed_system_prompt(brain.system_prompt)
-        if old_model != brain.model_name:
+        if old_model != brain.llm.model:
             self.event_bus.publish(
-                ModelChangedEvent(self.agent_id, old_model, brain.model_name)
+                ModelChangedEvent(self.agent_id, old_model, brain.llm.model)
             )
         self.event_bus.publish(
             AgentChangedEvent(self.agent_id, old_name=old_name, new_name=brain.name)
@@ -91,7 +86,10 @@ class Agent(SlashCommandVisitor):
     async def start(self):
         self.event_bus.publish(
             AgentStartedEvent(
-                self.agent_id, self.agent_name, self.llm.model, self.agent_type
+                self.agent_id,
+                self.brain.name,
+                self.brain.llm.model,
+                self.agent_type,
             )
         )
         try:
@@ -151,9 +149,10 @@ class Agent(SlashCommandVisitor):
         self.event_bus.publish(SessionClearedEvent(self.agent_id))
 
     async def change_model(self, command: ModelCommand) -> None:
-        old_model = self.llm.model
+        old_model = self.brain.llm.model
         try:
-            self.llm = self.llm_provider.get(command.model_name)
+            new_llm = self.llm_provider.get(command.model_name)
+            self.brain = replace(self.brain, llm=new_llm)
             self.event_bus.publish(
                 ModelChangedEvent(self.agent_id, old_model, command.model_name)
             )
@@ -207,7 +206,7 @@ class Agent(SlashCommandVisitor):
     async def llm_responds(self) -> MessageAndParsedTools:
         from simple_agent.application.model_info import ModelInfo
 
-        response = await self.llm.call_async(self.context.to_list())
+        response = await self.brain.llm.call_async(self.context.to_list())
         answer = response.content
         model = response.model
 
@@ -229,7 +228,7 @@ class Agent(SlashCommandVisitor):
                 token_usage_display=token_usage_display,
             )
         )
-        return self.tools.parse_message_and_tools(answer)
+        return self.brain.tools.parse_message_and_tools(answer)
 
     @staticmethod
     def _format_token_usage(input_tokens: int, max_tokens: int) -> str:

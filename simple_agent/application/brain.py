@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from simple_agent.application.llm import LLM
 from simple_agent.application.tool_library import ToolLibrary
 
 
@@ -7,5 +8,5 @@ from simple_agent.application.tool_library import ToolLibrary
 class Brain:
     name: str
     system_prompt: str
+    llm: LLM
     tools: ToolLibrary
-    model_name: str | None

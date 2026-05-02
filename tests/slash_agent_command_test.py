@@ -69,17 +69,20 @@ async def test_agent_command_switches_to_requested_agent_brain():
     next_brain = Brain(
         name="Developer",
         system_prompt="New prompt",
+        llm=llm_provider.get("new-model"),
         tools=switched_tools,
-        model_name="new-model",
     )
     brain_factory.build_brain.return_value = next_brain
 
     agent = Agent(
         agent_id=AgentId("Agent"),
-        agent_name="Agent",
-        tools=initial_tools,
+        brain=Brain(
+            name="Agent",
+            system_prompt="",
+            llm=llm_provider.get("default-model"),
+            tools=initial_tools,
+        ),
         llm_provider=llm_provider,
-        model_name="default-model",
         user_input=UserInputStub([], []),
         event_bus=SimpleEventBus(),
         context=Messages(),
@@ -88,9 +91,9 @@ async def test_agent_command_switches_to_requested_agent_brain():
 
     await agent.visit_agent_command(AgentCommand("developer"))
 
-    assert agent.agent_name == "Developer"
-    assert agent.llm.model == "new-model"
-    assert agent.tools is switched_tools
+    assert agent.brain.name == "Developer"
+    assert agent.brain.llm.model == "new-model"
+    assert agent.brain.tools is switched_tools
 
 
 async def test_agent_command_switches_model_for_follow_up_prompt():

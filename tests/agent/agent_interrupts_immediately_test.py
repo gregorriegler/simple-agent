@@ -6,6 +6,7 @@ import pytest
 
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.brain import Brain
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
@@ -64,10 +65,13 @@ async def test_cancel_interrupts_during_llm_call():
 
     agent = Agent(
         agent_id=AgentId("test"),
-        agent_name="Test Agent",
-        tools=EmptyToolLibrary(),
+        brain=Brain(
+            name="Test Agent",
+            system_prompt="system prompt",
+            llm=llm,
+            tools=EmptyToolLibrary(),
+        ),
         llm_provider=llm_provider,
-        model_name="slow-model",
         user_input=_make_input_with_message("Hello"),
         event_bus=event_bus,
         context=Messages(system_prompt="system prompt"),
@@ -147,10 +151,13 @@ async def test_cancel_interrupts_during_tool_execution():
 
     agent = Agent(
         agent_id=AgentId("test"),
-        agent_name="Test Agent",
-        tools=tool_library,
+        brain=Brain(
+            name="Test Agent",
+            system_prompt="system prompt",
+            llm=llm,
+            tools=tool_library,
+        ),
         llm_provider=llm_provider,
-        model_name="tool-calling-model",
         user_input=_make_input_with_message("call the slow tool"),
         event_bus=event_bus,
         context=Messages(system_prompt="system prompt"),

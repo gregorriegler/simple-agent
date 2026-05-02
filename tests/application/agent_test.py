@@ -13,6 +13,15 @@ from tests.application.model_switching_test import MockLLMProvider
 from tests.event_spy import EventSpy
 
 
+def _brain(provider, name, system_prompt, tools, model):
+    return Brain(
+        name=name,
+        system_prompt=system_prompt,
+        llm=provider.get(model),
+        tools=tools,
+    )
+
+
 @pytest.mark.asyncio
 async def test_agent_runtime_switch_updates_brain_configuration():
     provider = MockLLMProvider()
@@ -22,27 +31,24 @@ async def test_agent_runtime_switch_updates_brain_configuration():
     context.user_says("Keep this history")
     agent = Agent(
         agent_id=AgentId("Agent"),
-        agent_name="Old Agent",
-        tools=old_tools,
+        brain=_brain(
+            provider, "Old Agent", "old system prompt", old_tools, "default-model"
+        ),
         llm_provider=provider,
-        model_name="default-model",
         user_input=Input(DummyUserInput()),
         event_bus=SimpleEventBus(),
         context=context,
     )
 
-    new_brain = Brain(
-        name="New Agent",
-        system_prompt="new system prompt",
-        tools=new_tools,
-        model_name="new-model",
+    new_brain = _brain(
+        provider, "New Agent", "new system prompt", new_tools, "new-model"
     )
 
     agent.update_brain(new_brain)
 
-    assert agent.agent_name == "New Agent"
-    assert agent.llm.model == "new-model"
-    assert agent.tools is new_tools
+    assert agent.brain.name == "New Agent"
+    assert agent.brain.llm.model == "new-model"
+    assert agent.brain.tools is new_tools
     actual = agent.context.to_list()
     expected = [
         {"role": "system", "content": "new system prompt"},
@@ -62,20 +68,17 @@ async def test_agent_runtime_switch_publishes_agent_changed_event():
     agent_id = AgentId("Agent")
     agent = Agent(
         agent_id=agent_id,
-        agent_name="Old Agent",
-        tools=old_tools,
+        brain=_brain(
+            provider, "Old Agent", "old system prompt", old_tools, "default-model"
+        ),
         llm_provider=provider,
-        model_name="default-model",
         user_input=Input(DummyUserInput()),
         event_bus=event_bus,
         context=Messages(system_prompt="old system prompt"),
     )
 
-    new_brain = Brain(
-        name="New Agent",
-        system_prompt="new system prompt",
-        tools=new_tools,
-        model_name="new-model",
+    new_brain = _brain(
+        provider, "New Agent", "new system prompt", new_tools, "new-model"
     )
 
     agent.update_brain(new_brain)
@@ -96,20 +99,21 @@ async def test_agent_runtime_switch_publishes_model_changed_before_agent_changed
     agent_id = AgentId("Agent")
     agent = Agent(
         agent_id=agent_id,
-        agent_name="Old Agent",
-        tools=EmptyToolLibrary(),
+        brain=_brain(
+            provider,
+            "Old Agent",
+            "old system prompt",
+            EmptyToolLibrary(),
+            "default-model",
+        ),
         llm_provider=provider,
-        model_name="default-model",
         user_input=Input(DummyUserInput()),
         event_bus=event_bus,
         context=Messages(system_prompt="old system prompt"),
     )
 
-    new_brain = Brain(
-        name="New Agent",
-        system_prompt="new system prompt",
-        tools=EmptyToolLibrary(),
-        model_name="new-model",
+    new_brain = _brain(
+        provider, "New Agent", "new system prompt", EmptyToolLibrary(), "new-model"
     )
 
     agent.update_brain(new_brain)
