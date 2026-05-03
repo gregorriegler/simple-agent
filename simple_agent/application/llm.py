@@ -2,6 +2,8 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Protocol
 
+from .model_info import ModelInfo
+
 ChatMessage = dict[str, str]
 ChatMessages = list[ChatMessage]
 
@@ -23,6 +25,16 @@ class LLMResponse:
     def __post_init__(self):
         if self.usage is None:
             self.usage = TokenUsage()
+
+    def token_usage_display(self) -> str:
+        input_tokens = self.usage.input_tokens if self.usage else 0
+        max_tokens = ModelInfo.get_context_window(self.model)
+        if self.usage and self.usage.input_token_limit:
+            max_tokens = self.usage.input_token_limit
+        if max_tokens == 0:
+            return "0.0%"
+        percentage = (input_tokens / max_tokens) * 100
+        return f"{percentage:.1f}%"
 
 
 class LLM(Protocol):

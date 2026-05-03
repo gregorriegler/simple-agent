@@ -204,31 +204,15 @@ class Agent(SlashCommandVisitor):
             )
 
     async def llm_responds(self) -> MessageAndParsedTools:
-        from simple_agent.application.model_info import ModelInfo
-
         response, parsed = await self.brain.respond(self.context.to_list())
         answer = response.content
-
-        input_tokens = response.usage.input_tokens if response.usage else 0
-        max_tokens = ModelInfo.get_context_window(response.model)
-        if response.usage and response.usage.input_token_limit:
-            max_tokens = response.usage.input_token_limit
-
-        token_usage_display = self._format_token_usage(input_tokens, max_tokens)
         self.context.assistant_says(answer)
         self.event_bus.publish(
             AssistantRespondedEvent(
                 self.agent_id,
                 answer,
                 model=response.model,
-                token_usage_display=token_usage_display,
+                token_usage_display=response.token_usage_display(),
             )
         )
         return parsed
-
-    @staticmethod
-    def _format_token_usage(input_tokens: int, max_tokens: int) -> str:
-        if max_tokens == 0:
-            return "0.0%"
-        percentage = (input_tokens / max_tokens) * 100
-        return f"{percentage:.1f}%"
