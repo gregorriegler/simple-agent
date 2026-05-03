@@ -95,14 +95,12 @@ class AgentFactory:
         messages.seed_system_prompt(brain.system_prompt)
 
         return Agent(
-            agent_id,
-            brain.name,
-            brain.tools,
-            self._llm_provider,
-            brain.model_name,
-            self.create_input(initial_message),
-            self._event_bus,
-            messages,
+            agent_id=agent_id,
+            brain=brain,
+            llm_provider=self._llm_provider,
+            user_input=self.create_input(initial_message),
+            event_bus=self._event_bus,
+            context=messages,
             agent_type=agent_type,
             available_agents=self._agent_library.list_agent_types(),
             brain_factory=self,
@@ -127,6 +125,6 @@ class AgentFactory:
         return Brain(
             name=definition.agent_name(),
             system_prompt=system_prompt,
+            llm=self._llm_provider.get(definition.model()),
             tools=tools,
-            model_name=definition.model(),
         )

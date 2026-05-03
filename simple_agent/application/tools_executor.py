@@ -31,20 +31,13 @@ class ToolsExecutor:
     async def _execute(self, tool: ParsedTool) -> ToolResult:
         self._tool_call_counter += 1
         call_id = f"{self._agent_id}::tool_call::{self._tool_call_counter}"
-        await self._notify_tool_called(call_id, tool)
+        self._event_bus.publish(ToolCalledEvent(self._agent_id, call_id, tool))
         try:
             tool_result = await self._library.execute_parsed_tool(tool)
-            await self._notify_tool_finished(call_id, tool_result)
+            self._event_bus.publish(
+                ToolResultEvent(self._agent_id, call_id, tool_result)
+            )
             return tool_result
         except asyncio.CancelledError:
-            await self._notify_tool_cancelled(call_id)
+            self._event_bus.publish(ToolCancelledEvent(self._agent_id, call_id))
             raise
-
-    async def _notify_tool_called(self, call_id, tool):
-        self._event_bus.publish(ToolCalledEvent(self._agent_id, call_id, tool))
-
-    async def _notify_tool_cancelled(self, call_id):
-        self._event_bus.publish(ToolCancelledEvent(self._agent_id, call_id))
-
-    async def _notify_tool_finished(self, call_id, tool_result):
-        self._event_bus.publish(ToolResultEvent(self._agent_id, call_id, tool_result))
