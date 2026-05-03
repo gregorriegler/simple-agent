@@ -206,15 +206,11 @@ class Agent(SlashCommandVisitor):
     async def llm_responds(self) -> MessageAndParsedTools:
         from simple_agent.application.model_info import ModelInfo
 
-        response = await self.brain.llm.call_async(self.context.to_list())
+        response, parsed = await self.brain.respond(self.context.to_list())
         answer = response.content
-        model = response.model
 
-        input_tokens = 0
-        if response.usage:
-            input_tokens = response.usage.input_tokens
-
-        max_tokens = ModelInfo.get_context_window(model)
+        input_tokens = response.usage.input_tokens if response.usage else 0
+        max_tokens = ModelInfo.get_context_window(response.model)
         if response.usage and response.usage.input_token_limit:
             max_tokens = response.usage.input_token_limit
 
@@ -224,11 +220,11 @@ class Agent(SlashCommandVisitor):
             AssistantRespondedEvent(
                 self.agent_id,
                 answer,
-                model=model,
+                model=response.model,
                 token_usage_display=token_usage_display,
             )
         )
-        return self.brain.tools.parse_message_and_tools(answer)
+        return parsed
 
     @staticmethod
     def _format_token_usage(input_tokens: int, max_tokens: int) -> str:
