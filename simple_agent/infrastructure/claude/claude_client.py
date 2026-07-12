@@ -59,7 +59,7 @@ class ClaudeLLM(LLM):
             ) as client:
                 response = await client.post(url, headers=headers, json=data)
             response.raise_for_status()
-        except httpx.RequestError as error:
+        except (httpx.RequestError, httpx.HTTPStatusError) as error:
             raise ClaudeClientError(f"API request failed: {error}") from error
 
         response_data = response.json()
