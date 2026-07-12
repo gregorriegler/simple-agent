@@ -158,6 +158,28 @@ async def test_gemini_v1_chat_raises_error_when_request_fails():
     assert "API request failed" in str(error.value)
 
 
+@pytest.mark.asyncio
+async def test_gemini_v1_chat_sends_api_key_as_header():
+    response_data = {
+        "candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]
+    }
+    captured = {}
+
+    def handler(request):
+        if "generateContent" in str(request.url):
+            captured["url"] = str(request.url)
+            captured["headers"] = request.headers
+        return httpx.Response(200, json=response_data)
+
+    transport = httpx.MockTransport(handler)
+    chat = GeminiV1LLM(build_config(), transport=transport)
+
+    await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert captured["headers"]["x-goog-api-key"] == "test-api-key"
+    assert "key=test-api-key" not in captured["url"]
+
+
 def test_gemini_v1_chat_raises_error_when_adapter_is_not_gemini_v1():
     config = build_config(adapter="openai")
 
