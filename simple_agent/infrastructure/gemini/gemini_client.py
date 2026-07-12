@@ -11,12 +11,18 @@ class GeminiClientError(Exception):
 
 
 class GeminiLLM(LLM):
+    client_label = "Gemini client"
+    adapter_name = "gemini"
+    default_base_url = "https://generativelanguage.googleapis.com/v1beta"
+    error_class: type[Exception] = GeminiClientError
+    max_retries = 5
+
     def __init__(
         self, config: ModelConfig, transport: httpx.AsyncBaseTransport | None = None
     ):
         self._config = config
         self._transport = transport
-        self._ensure_gemini_adapter()
+        self._ensure_adapter()
         self._input_token_limit = None
 
     async def _get_input_token_limit(self) -> int | None:
@@ -25,9 +31,7 @@ class GeminiLLM(LLM):
 
         api_key = self._config.api_key
         model = self._config.model
-        base_url = (
-            self._config.base_url or "https://generativelanguage.googleapis.com/v1beta"
-        )
+        base_url = self._base_url()
         url = f"{base_url.rstrip('/')}/models/{model}?key={api_key}"
 
         try:
@@ -54,20 +58,12 @@ class GeminiLLM(LLM):
         api_key = self._config.api_key
         model = self._config.model
 
-        base_url = (
-            self._config.base_url or "https://generativelanguage.googleapis.com/v1beta"
-        )
-        url = f"{base_url.rstrip('/')}/models/{model}:generateContent?key={api_key}"
+        url, headers = self._generate_content_request(self._base_url(), model, api_key)
 
-        # Convert messages to Gemini format
         gemini_contents = self._convert_messages_to_gemini_format(messages)
 
         data = {
             "contents": gemini_contents,
-        }
-
-        headers = {
-            "Content-Type": "application/json",
         }
 
         response = await post_with_retry(
@@ -75,38 +71,34 @@ class GeminiLLM(LLM):
             headers=headers,
             json=data,
             timeout=self._config.request_timeout,
-            error_class=GeminiClientError,
+            error_class=self.error_class,
             transport=self._transport,
-            max_retries=5,
+            max_retries=self.max_retries,
         )
 
         response_data = response.json()
 
-        # Handle error responses
         if "error" in response_data:
             error_message = response_data["error"].get("message", "Unknown error")
             error_code = response_data["error"].get("code", "")
-            raise GeminiClientError(f"Gemini API error [{error_code}]: {error_message}")
+            raise self.error_class(f"Gemini API error [{error_code}]: {error_message}")
 
-        # Extract response text
         candidates = response_data.get("candidates")
         if not candidates:
-            raise GeminiClientError("API response missing 'candidates' field")
+            raise self.error_class("API response missing 'candidates' field")
 
         first_candidate = candidates[0]
         content = first_candidate.get("content")
         if content is None:
-            raise GeminiClientError("API response missing 'content' field")
+            raise self.error_class("API response missing 'content' field")
 
         parts = content.get("parts")
         if not parts:
-            raise GeminiClientError("API response missing 'parts' field")
+            raise self.error_class("API response missing 'parts' field")
 
-        # Concatenate all text parts
         text_parts = [part.get("text", "") for part in parts if "text" in part]
         text_content = "".join(text_parts)
 
-        # Gemini usage data extraction (if available, otherwise 0)
         usage_metadata = response_data.get("usageMetadata", {})
         input_token_limit = await self._get_input_token_limit()
 
@@ -120,6 +112,15 @@ class GeminiLLM(LLM):
         )
 
         return LLMResponse(content=text_content, model=model, usage=usage)
+
+    def _base_url(self) -> str:
+        return self._config.base_url or self.default_base_url
+
+    def _generate_content_request(
+        self, base_url: str, model: str, api_key: str
+    ) -> tuple[str, dict[str, str]]:
+        url = f"{base_url.rstrip('/')}/models/{model}:generateContent?key={api_key}"
+        return url, {"Content-Type": "application/json"}
 
     def _convert_messages_to_gemini_format(self, messages: ChatMessages) -> list[dict]:
         """
@@ -138,10 +139,8 @@ class GeminiLLM(LLM):
             content = message.get("content", "")
 
             if role == "system":
-                # Store system prompt to prepend to first user message
                 system_prompt = content
             elif role == "user":
-                # Prepend system prompt if it exists
                 if system_prompt:
                     content = f"{system_prompt}\n\n{content}"
                     system_prompt = None
@@ -152,8 +151,9 @@ class GeminiLLM(LLM):
 
         return gemini_contents
 
-    def _ensure_gemini_adapter(self) -> None:
-        if self._config.adapter != "gemini":
-            raise GeminiClientError(
-                "Configured adapter is not 'gemini'; cannot use Gemini client"
+    def _ensure_adapter(self) -> None:
+        if self._config.adapter != self.adapter_name:
+            raise self.error_class(
+                f"Configured adapter is not '{self.adapter_name}'; "
+                f"cannot use {self.client_label}"
             )
