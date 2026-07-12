@@ -3,7 +3,7 @@ import logging
 import httpx
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
-from simple_agent.infrastructure.logging_http_client import LoggingAsyncClient
+from simple_agent.infrastructure.llm_http import post_with_retry
 from simple_agent.infrastructure.model_config import ModelConfig
 
 logger = logging.getLogger(__name__)
@@ -51,16 +51,14 @@ class ClaudeLLM(LLM):
             **({"system": system_prompt} if system_prompt else {}),
         }
 
-        timeout = self._config.request_timeout
-
-        try:
-            async with LoggingAsyncClient(
-                timeout=timeout, transport=self._transport
-            ) as client:
-                response = await client.post(url, headers=headers, json=data)
-            response.raise_for_status()
-        except httpx.RequestError as error:
-            raise ClaudeClientError(f"API request failed: {error}") from error
+        response = await post_with_retry(
+            url,
+            headers=headers,
+            json=data,
+            timeout=self._config.request_timeout,
+            error_class=ClaudeClientError,
+            transport=self._transport,
+        )
 
         response_data = response.json()
 
