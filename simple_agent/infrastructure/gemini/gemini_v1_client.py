@@ -10,7 +10,6 @@ class GeminiV1LLM(GeminiLLM):
     adapter_name = "gemini_v1"
     default_base_url = "https://generativelanguage.googleapis.com/v1"
     error_class = GeminiV1ClientError
-    max_retries = 0
 
     def _generate_content_request(
         self, base_url: str, model: str, api_key: str

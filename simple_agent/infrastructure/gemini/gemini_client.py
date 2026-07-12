@@ -15,7 +15,6 @@ class GeminiLLM(LLM):
     adapter_name = "gemini"
     default_base_url = "https://generativelanguage.googleapis.com/v1beta"
     error_class: type[Exception] = GeminiClientError
-    max_retries = 5
 
     def __init__(
         self, config: ModelConfig, transport: httpx.AsyncBaseTransport | None = None
@@ -73,7 +72,6 @@ class GeminiLLM(LLM):
             timeout=self._config.request_timeout,
             error_class=self.error_class,
             transport=self._transport,
-            max_retries=self.max_retries,
         )
 
         response_data = response.json()

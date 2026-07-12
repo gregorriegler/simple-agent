@@ -13,7 +13,7 @@ async def post_with_retry(
     timeout: float,
     error_class: type[Exception],
     transport: httpx.AsyncBaseTransport | None = None,
-    max_retries: int = 0,
+    max_retries: int = 5,
     retry_delay: float = 2,
 ) -> httpx.Response:
     for attempt in range(max_retries + 1):
