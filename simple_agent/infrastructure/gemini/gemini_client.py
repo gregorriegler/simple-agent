@@ -1,8 +1,7 @@
-import asyncio
-
 import httpx
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
+from simple_agent.infrastructure.llm_http import post_with_retry
 from simple_agent.infrastructure.logging_http_client import LoggingAsyncClient
 from simple_agent.infrastructure.model_config import ModelConfig
 
@@ -71,37 +70,15 @@ class GeminiLLM(LLM):
             "Content-Type": "application/json",
         }
 
-        timeout = self._config.request_timeout
-        max_retries = 5
-        retry_delay = 2
-
-        response: httpx.Response | None = None
-        for attempt in range(max_retries + 1):
-            try:
-                async with LoggingAsyncClient(
-                    timeout=timeout, transport=self._transport
-                ) as client:
-                    response = await client.post(url, headers=headers, json=data)
-
-                response.raise_for_status()
-                break
-            except (httpx.RequestError, httpx.HTTPStatusError) as error:
-                should_retry = attempt < max_retries and (
-                    isinstance(error, httpx.TimeoutException)
-                    or (
-                        isinstance(error, httpx.HTTPStatusError)
-                        and error.response.status_code == 500
-                    )
-                )
-
-                if should_retry:
-                    await asyncio.sleep(retry_delay)
-                    continue
-
-                raise GeminiClientError(f"API request failed: {error}") from error
-
-        if response is None:
-            raise GeminiClientError("API request failed: no response")
+        response = await post_with_retry(
+            url,
+            headers=headers,
+            json=data,
+            timeout=self._config.request_timeout,
+            error_class=GeminiClientError,
+            transport=self._transport,
+            max_retries=5,
+        )
 
         response_data = response.json()
 
