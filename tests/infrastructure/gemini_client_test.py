@@ -172,11 +172,14 @@ async def test_gemini_chat_sends_api_key_as_query_param():
         return httpx.Response(200, json=response_data)
 
     transport = httpx.MockTransport(handler)
-    chat = GeminiLLM(build_config(), transport=transport)
+    chat = GeminiLLM(build_config(base_url=None), transport=transport)
 
     await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert "key=test-api-key" in captured["url"]
+    assert captured["url"] == (
+        "https://generativelanguage.googleapis.com/v1beta"
+        "/models/test-model:generateContent?key=test-api-key"
+    )
     assert "x-goog-api-key" not in captured["headers"]
 
 
