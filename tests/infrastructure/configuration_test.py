@@ -105,3 +105,26 @@ path = "${APP_DIR}/custom_agents"
 
     app_dir = str(Path(user_configuration.__file__).resolve().parents[2])
     assert user_config.agents_candidate_directories() == [f"{app_dir}/custom_agents"]
+
+
+def test_resolve_api_key_uses_value_from_env_file(monkeypatch, tmp_path):
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.delenv("ENV_FILE_API_KEY", raising=False)
+    (tmp_path / ".env").write_text("ENV_FILE_API_KEY=key-from-env-file\n")
+    config_path = tmp_path / ".simple-agent.toml"
+    config_path.write_text(
+        """
+[model]
+default = "primary"
+
+[models.primary]
+model = "test-model"
+adapter = "test-adapter"
+api_key = "${ENV_FILE_API_KEY}"
+""".lstrip()
+    )
+
+    user_config = UserConfiguration.load_from_config_file(str(tmp_path))
+
+    assert user_config.models_registry().get(None).api_key == "key-from-env-file"

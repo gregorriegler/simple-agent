@@ -76,6 +76,19 @@ api_key = "${ANTHROPIC_API_KEY}"  # Or use a literal API key
 
 The `[model]` section specifies which model to use by default. Define one or more models under `[models.*]` sections. API keys can reference environment variables using `${VAR_NAME}` syntax.
 
+### Environment variables and `.env` files
+
+On startup the agent loads `.env` files — first `~/.env`, then `.env` in the current
+directory, which takes precedence. Real environment variables always win over values
+from a `.env` file, and the loaded values are available to `${VAR_NAME}` placeholders
+in `.simple-agent.toml` as well as to commands the agent runs.
+
+```dotenv
+# .env
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
+```
+
 ### Multiple models
 
 You can define multiple model configurations and switch between them:
