@@ -29,7 +29,7 @@ def parse_env_file(content: str) -> dict[str, str]:
 def _read_env_file(path: str) -> dict[str, str]:
     if not os.path.isfile(path):
         return {}
-    with open(path, encoding="utf-8") as handle:
+    with open(path, encoding="utf-8-sig") as handle:
         return parse_env_file(handle.read())
 
 

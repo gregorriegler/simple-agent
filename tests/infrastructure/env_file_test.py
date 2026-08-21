@@ -112,3 +112,14 @@ def test_load_env_files_is_noop_without_files(monkeypatch, tmp_path):
     monkeypatch.setenv("USERPROFILE", str(tmp_path / "home"))
 
     assert load_env_files(str(tmp_path)) == {}
+
+
+def test_load_env_files_ignores_byte_order_mark(monkeypatch, tmp_path):
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path / "home"))
+    monkeypatch.delenv("BOM_KEY", raising=False)
+    (tmp_path / ".env").write_text("BOM_KEY=value\n", encoding="utf-8-sig")
+
+    load_env_files(str(tmp_path))
+
+    assert os.environ["BOM_KEY"] == "value"
