@@ -7,9 +7,9 @@ from simple_agent.infrastructure.claude.claude_client import (
     ClaudeClientError,
     ClaudeLLM,
 )
-from simple_agent.infrastructure.gemini.gemini_v1_client import (
-    GeminiV1ClientError,
-    GeminiV1LLM,
+from simple_agent.infrastructure.gemini.gemini_client import (
+    GeminiClientError,
+    GeminiLLM,
 )
 from simple_agent.infrastructure.model_config import ModelConfig
 from simple_agent.infrastructure.openai.openai_client import (
@@ -33,11 +33,19 @@ CLIENTS = [
         id="openai",
     ),
     pytest.param(
-        GeminiV1LLM,
-        GeminiV1ClientError,
-        "gemini_v1",
-        {"candidates": [{"content": {"parts": [{"text": "success"}]}}]},
-        id="gemini_v1",
+        GeminiLLM,
+        GeminiClientError,
+        "gemini",
+        {
+            "status": "completed",
+            "steps": [
+                {
+                    "type": "model_output",
+                    "content": [{"type": "text", "text": "success"}],
+                }
+            ],
+        },
+        id="gemini",
     ),
 ]
 
@@ -77,8 +85,6 @@ async def test_client_retries_transient_500(
     post_count = 0
 
     def handler(request):
-        if request.method == "GET":
-            return httpx.Response(200, json={"inputTokenLimit": 0})
         nonlocal post_count
         post_count += 1
         if post_count < 3:
