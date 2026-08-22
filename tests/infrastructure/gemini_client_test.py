@@ -161,13 +161,14 @@ async def test_gemini_chat_concatenates_text_of_trailing_model_output_steps():
 
 
 @pytest.mark.asyncio
-async def test_gemini_chat_ignores_non_text_content():
+async def test_gemini_chat_keeps_text_surrounding_non_text_content():
     response_data = {
         "status": "completed",
         "steps": [
             {
                 "type": "model_output",
                 "content": [
+                    {"type": "text", "text": "this is "},
                     {"type": "image", "data": "BASE64", "mime_type": "image/png"},
                     {"type": "text", "text": "a picture"},
                 ],
@@ -178,7 +179,7 @@ async def test_gemini_chat_ignores_non_text_content():
 
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert result.content == "a picture"
+    assert result.content == "this is a picture"
 
 
 @pytest.mark.asyncio
@@ -207,7 +208,7 @@ async def test_gemini_chat_raises_error_when_steps_missing():
     with pytest.raises(GeminiClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert str(error.value) == "API response missing 'steps' field"
+    assert str(error.value) == "API response has no steps"
 
 
 @pytest.mark.asyncio
@@ -245,6 +246,17 @@ async def test_gemini_chat_surfaces_api_error_body():
 
 
 @pytest.mark.asyncio
+async def test_gemini_chat_reports_error_code_when_there_is_no_message():
+    response_data = {"status": "failed", "errors": [{"code": "quota/exhausted"}]}
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
+
+    with pytest.raises(GeminiClientError) as error:
+        await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert str(error.value) == "Gemini interaction failed: quota/exhausted"
+
+
+@pytest.mark.asyncio
 async def test_gemini_chat_raises_error_when_interaction_failed():
     response_data = {
         "status": "failed",
@@ -255,7 +267,7 @@ async def test_gemini_chat_raises_error_when_interaction_failed():
     with pytest.raises(GeminiClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert str(error.value) == "Gemini interaction failed: Resource exhausted"
+    assert str(error.value) == "Gemini interaction failed: quota: Resource exhausted"
 
 
 @pytest.mark.asyncio

@@ -45,7 +45,26 @@ async def post_with_retry(
 
 
 def _response_details(error: Exception) -> str:
+    """
+    Quote the API error envelope of a failed response.
+
+    Only the recognized envelope is quoted: an error body from a proxy or
+    gateway can echo the request, credentials included, and this ends up in
+    the session log.
+    """
     if not isinstance(error, httpx.HTTPStatusError):
         return ""
-    body = error.response.text.strip()
-    return f" - {body[:500]}" if body else ""
+
+    try:
+        body = error.response.json()
+    except ValueError:
+        return ""
+
+    api_error = body.get("error") if isinstance(body, dict) else None
+    if not isinstance(api_error, dict):
+        return ""
+
+    label = api_error.get("status") or api_error.get("type") or api_error.get("code")
+    message = api_error.get("message")
+    details = ": ".join(str(part) for part in (label, message) if part)
+    return f" - {details[:500]}" if details else ""
