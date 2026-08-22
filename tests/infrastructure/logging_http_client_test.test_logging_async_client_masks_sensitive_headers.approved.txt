@@ -7,6 +7,7 @@ Connection: keep-alive
 User-Agent: python-httpx/0.28.1
 Authorization: ****
 X-Api-Key: ****
+X-Goog-Api-Key: ****
 X-Test-Header: test-value
 Content-Length: 15
 Content-Type: application/json

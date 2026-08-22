@@ -79,6 +79,7 @@ async def test_logging_async_client_masks_sensitive_headers(caplog):
                 headers={
                     "Authorization": "Bearer secret-token",
                     "X-Api-Key": "secret-key",
+                    "X-Goog-Api-Key": "secret-google-key",
                     "X-Test-Header": "test-value",
                 },
             )
