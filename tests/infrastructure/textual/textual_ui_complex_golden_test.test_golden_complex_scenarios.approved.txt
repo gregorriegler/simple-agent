@@ -367,7 +367,7 @@ Active Tab: tab-Agent
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
-                  Collapsible id='None' classes='' title='write_todos()' collapsed=False
+                  Collapsible id='None' classes='' title='🛠️ write_todos()' collapsed=False
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
@@ -378,7 +378,7 @@ Active Tab: tab-Agent
 --- Step: Tool Call (Suppressed) (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                      ▼ write_todos()
+                      ▼ 🛠️ write_todos()
    ❌ Error:         ╭─────────────────────────────────────────────────────────╮
    Something went    │                        ● ● ● ● ●                        │
    wrong             ╰─────────────────────────────────────────────────────────╯
@@ -427,11 +427,11 @@ Active Tab: tab-Agent
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
-                  Collapsible id='None' classes='-collapsed' title='write_todos()' collapsed=True
+                  Collapsible id='None' classes='-collapsed' title='🛠️ write_todos()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
-                  Collapsible id='None' classes='tool-status-success' title='✅ apply_diff()' collapsed=False
+                  Collapsible id='None' classes='tool-status-success' title='🛠️ apply_diff()' collapsed=False
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       Static id='None' classes='tool-result tool-result-success'
@@ -442,8 +442,8 @@ Active Tab: tab-Agent
 --- Step: Tool Result (Diff) (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                      ▶ write_todos()
-   ❌ Error:         ▌ ▼ ✅ apply_diff()
+                      ▶ 🛠️ write_todos()
+   ❌ Error:         ▌ ▼ 🛠️ apply_diff()
    Something went    ╭─────────────────────────────────────────────────────────╮
    wrong             │<<<<<<< SEARCH                                           │
                      │old line                                                 │
@@ -491,15 +491,15 @@ Active Tab: tab-Agent
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
-                  Collapsible id='None' classes='-collapsed' title='write_todos()' collapsed=True
+                  Collapsible id='None' classes='-collapsed' title='🛠️ write_todos()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
-                  Collapsible id='None' classes='-collapsed tool-status-success' title='✅ apply_diff()' collapsed=True
+                  Collapsible id='None' classes='-collapsed tool-status-success' title='🛠️ apply_diff()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       Static id='None' classes='tool-result tool-result-success'
-                  Collapsible id='None' classes='tool-status-cancelled' title='🚫 long_running() (Cancelled)' collapsed=False
+                  Collapsible id='None' classes='tool-status-cancelled' title='🛠️ long_running() (Cancelled)' collapsed=False
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
@@ -510,9 +510,9 @@ Active Tab: tab-Agent
 --- Step: Tool Cancelled (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                      ▶ write_todos()
-   ❌ Error:         ▌ ▶ ✅ apply_diff()
-   Something went    ▌ ▼ 🚫 long_running() (Cancelled)
+                      ▶ 🛠️ write_todos()
+   ❌ Error:         ▌ ▶ 🛠️ apply_diff()
+   Something went    ▌ ▼ 🛠️ long_running() (Cancelled)
    wrong             ╭─────────────────────────────────────────────────────────╮
                      │ Cancelled                                               │
    [Session          ╰─────────────────────────────────────────────────────────╯
@@ -559,15 +559,15 @@ Active Tab: tab-Agent
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
-                  Collapsible id='None' classes='-collapsed' title='write_todos()' collapsed=True
+                  Collapsible id='None' classes='-collapsed' title='🛠️ write_todos()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
-                  Collapsible id='None' classes='-collapsed tool-status-success' title='✅ apply_diff()' collapsed=True
+                  Collapsible id='None' classes='-collapsed tool-status-success' title='🛠️ apply_diff()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       Static id='None' classes='tool-result tool-result-success'
-                  Collapsible id='None' classes='tool-status-cancelled' title='🚫 long_running() (Cancelled)' collapsed=False
+                  Collapsible id='None' classes='tool-status-cancelled' title='🛠️ long_running() (Cancelled)' collapsed=False
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
@@ -578,9 +578,9 @@ Active Tab: tab-Agent
 --- Step: File Context Submitted (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                      ▶ write_todos()
-   ❌ Error:         ▌ ▶ ✅ apply_diff()
-   Something went    ▌ ▼ 🚫 long_running() (Cancelled)
+                      ▶ 🛠️ write_todos()
+   ❌ Error:         ▌ ▶ 🛠️ apply_diff()
+   Something went    ▌ ▼ 🛠️ long_running() (Cancelled)
    wrong             ╭─────────────────────────────────────────────────────────╮
                      │ Cancelled                                               │
    [Session          ╰─────────────────────────────────────────────────────────╯

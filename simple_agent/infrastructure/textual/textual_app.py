@@ -131,17 +131,14 @@ class TextualApp(App):
     }
 
     ToolCollapsible.tool-status-success > CollapsibleTitle {
-        background: $success 12%;
         border-left: outer $success;
     }
 
     ToolCollapsible.tool-status-error > CollapsibleTitle {
-        background: $error 15%;
         border-left: outer $error;
     }
 
     ToolCollapsible.tool-status-cancelled > CollapsibleTitle {
-        background: $warning 12%;
         border-left: outer $warning;
     }
 

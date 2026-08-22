@@ -13,12 +13,37 @@ from simple_agent.application.tool_results import ToolResult
 logger = logging.getLogger(__name__)
 
 
-def _format_tool_title(title: str, status_emoji: str) -> str:
-    for prefix in ("🛠️", "🛠", "✅", "❌", "🚫"):
+TOOL_EMOJIS = {
+    "bash": "💲",
+    "cat": "📄",
+    "ls": "📁",
+    "create-file": "📝",
+    "replace-file-content": "📝",
+    "subagent": "🤖",
+    "complete-task": "🏁",
+    "write-todos": "📋",
+}
+DEFAULT_TOOL_EMOJI = "🛠️"
+_STATUS_EMOJIS = ("🛠️", "🛠", "✅", "❌", "🚫")
+_TITLE_EMOJIS = _STATUS_EMOJIS + tuple(TOOL_EMOJIS.values())
+
+
+def _strip_title_emoji(title: str) -> str:
+    for prefix in _TITLE_EMOJIS:
         if title.startswith(prefix):
-            title = title[len(prefix) :].lstrip()
-            break
-    return f"{status_emoji} {title}"
+            return title[len(prefix) :].lstrip()
+    return title
+
+
+def _tool_emoji_for(message: str) -> str:
+    first_line = message.splitlines()[0] if message else ""
+    parts = _strip_title_emoji(first_line).split(None, 1)
+    tool_name = parts[0] if parts else ""
+    return TOOL_EMOJIS.get(tool_name, DEFAULT_TOOL_EMOJI)
+
+
+def _format_tool_title(title: str, emoji: str) -> str:
+    return f"{emoji} {_strip_title_emoji(title)}"
 
 
 class ToolCollapsible(Collapsible):
@@ -36,7 +61,7 @@ class ToolCollapsible(Collapsible):
         )
 
         match = re.match(r"^(\S+)\s+(.*)$", raw_label)
-        if match and any(e in match.group(1) for e in ("🛠", "✅", "❌", "🚫")):
+        if match and any(e in match.group(1) for e in _TITLE_EMOJIS):
             prefix_line1 = f"{symbol} {match.group(1)} "
             body_text = match.group(2)
         else:
@@ -62,6 +87,9 @@ class ToolCollapsible(Collapsible):
                 formatted.append(line)
 
         title_widget.update(formatted)
+
+    def on_mount(self) -> None:
+        self.call_after_refresh(self._update_indented_title)
 
     def on_resize(self) -> None:
         if self.is_mounted:
@@ -104,6 +132,7 @@ class ToolLog(VerticalScroll):
         text_area.styles.height = 3
 
         title = message.splitlines()[0] if message else "Tool Call"
+        title = _format_tool_title(title, _tool_emoji_for(message))
         collapsible = ToolCollapsible(text_area, title=title, collapsed=False)
         self._collapsibles.append(collapsible)
         self._pending_tool_calls[call_id] = (message, text_area, collapsible)
@@ -144,7 +173,9 @@ class ToolLog(VerticalScroll):
             self.add_tool_call(call_id, result.display_title or "Recovered Tool Call")
             self._cancel_deferred_loading(call_id)
 
-        _, text_area, call_collapsible = self._pending_tool_calls.pop(call_id)
+        orig_message, text_area, call_collapsible = self._pending_tool_calls.pop(
+            call_id
+        )
         message = result.display_body or result.message or "No output"
         language = result.display_language or "python"
         classes = (
@@ -183,7 +214,6 @@ class ToolLog(VerticalScroll):
                 text_area.add_class(cls)
             text_area.styles.height = min((len(message.splitlines()) or 1) + 2, 30)
 
-        status_emoji = "🚫" if result.cancelled else ("✅" if result.success else "❌")
         status_class = (
             "tool-status-cancelled"
             if result.cancelled
@@ -194,7 +224,9 @@ class ToolLog(VerticalScroll):
         )
         call_collapsible.add_class(status_class)
         base_title = result.display_title or call_collapsible.title
-        call_collapsible.title = _format_tool_title(base_title, status_emoji)
+        call_collapsible.title = _format_tool_title(
+            base_title, _tool_emoji_for(orig_message)
+        )
 
         if self.is_mounted:
             self.scroll_end(animate=False)
@@ -224,7 +256,9 @@ class ToolLog(VerticalScroll):
         )
         call_collapsible.add_class("tool-status-cancelled")
         title = title_source.splitlines()[0] if title_source else "Tool Call"
-        call_collapsible.title = f"{_format_tool_title(title, '🚫')} (Cancelled)"
+        call_collapsible.title = (
+            f"{_format_tool_title(title, _tool_emoji_for(title_source))} (Cancelled)"
+        )
 
         if self.is_mounted:
             self.scroll_end(animate=False)
