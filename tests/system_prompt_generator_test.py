@@ -7,7 +7,10 @@ from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.ground_rules import GroundRules
 from simple_agent.application.system_prompt import AgentPrompt
-from simple_agent.application.tool_documentation import generate_tools_documentation
+from simple_agent.application.tool_documentation import (
+    generate_tools_documentation,
+    tools_documentation,
+)
 from simple_agent.infrastructure.agent_library import (
     BuiltinAgentLibrary,
     FileSystemAgentLibrary,
@@ -88,6 +91,20 @@ def test_extract_tool_keys_from_prompt(
     result = extract_tool_keys(agent_type_obj, agent_library)
 
     assert result == expected_keys
+
+
+def test_native_tool_syntax_yields_no_system_prompt_tool_docs(tool_library):
+    result = tools_documentation("native", tool_library.tools, tool_library.tool_syntax)
+
+    assert result == ""
+
+
+def test_emoji_tool_syntax_generates_the_emoji_docs(tool_library):
+    result = tools_documentation("emoji", tool_library.tools, tool_library.tool_syntax)
+
+    assert result == generate_tools_documentation(
+        tool_library.tools, tool_library.tool_syntax
+    )
 
 
 def test_render_removes_placeholder_when_no_agents_content():

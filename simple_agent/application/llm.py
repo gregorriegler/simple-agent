@@ -48,6 +48,8 @@ class LLMProvider(Protocol):
 
     def get_available_models(self) -> list[str]: ...
 
+    def tool_syntax(self, model_name: str | None = None) -> str: ...
+
 
 class Messages:
     def __init__(

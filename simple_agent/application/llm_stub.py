@@ -78,3 +78,6 @@ class StubLLMProvider:
 
     def get_available_models(self) -> list[str]:
         return [self._llm.model]
+
+    def tool_syntax(self, model_name: str | None = None) -> str:
+        return "emoji"

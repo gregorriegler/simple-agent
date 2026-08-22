@@ -14,6 +14,9 @@ class RemoteLLMProvider:
     def get_available_models(self) -> list[str]:
         return list(self._registry.models.keys())
 
+    def tool_syntax(self, model_name: str | None = None) -> str:
+        return self._registry.get(model_name).tool_syntax
+
     def get(
         self, model_name: str | None = None, tools: list[Tool] | None = None
     ) -> LLM:

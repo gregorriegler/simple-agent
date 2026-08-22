@@ -72,6 +72,19 @@ def test_native_gemini_receives_the_tools():
     assert llm._tools == tools
 
 
+def test_provider_reports_configured_tool_syntax():
+    model = ModelConfig(
+        name="gemini",
+        model="gemini-3-flash",
+        adapter="gemini",
+        api_key="key",
+        tool_syntax="native",
+    )
+    provider = RemoteLLMProvider(build_user_config(model))
+
+    assert provider.tool_syntax() == "native"
+
+
 def test_emoji_gemini_ignores_the_tools():
     model = ModelConfig(
         name="gemini", model="gemini-3-flash", adapter="gemini", api_key="key"

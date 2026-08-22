@@ -21,6 +21,19 @@ class _MockTool:
         return SingleToolResult("", status=ToolResultStatus.SUCCESS)
 
 
+def tools_documentation(syntax_name: str, tools, tool_syntax: ToolSyntax) -> str:
+    """
+    The tool documentation for the system prompt.
+
+    Native tool-calling declares tools to the model through the request, so no
+    textual tool documentation belongs in the prompt; every other syntax
+    documents its tools as text.
+    """
+    if syntax_name == "native":
+        return ""
+    return generate_tools_documentation(tools, tool_syntax)
+
+
 def generate_tools_documentation(tools, tool_syntax: ToolSyntax) -> str:
     # Generate syntax examples
     syntax_examples = _generate_syntax_examples(tool_syntax)
