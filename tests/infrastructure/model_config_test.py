@@ -53,6 +53,27 @@ def test_model_config_from_dict_requires_model_field():
         ModelConfig.from_dict("claude", {"adapter": "claude", "api_key": "key"})
 
 
+def test_model_config_from_dict_hints_at_unquoted_dotted_key():
+    config = {"7-flash": {"model": "x", "adapter": "gemini", "api_key": "key"}}
+
+    with pytest.raises(ValueError) as excinfo:
+        ModelConfig.from_dict("gemini-3", config)
+
+    message = str(excinfo.value)
+    assert 'model key "gemini-3.7-flash"' in message
+    assert 'quote it as [models."gemini-3.7-flash"]' in message
+    assert "is missing required field" not in message
+
+
+def test_model_config_from_dict_hints_reconstruct_full_multi_dot_key():
+    config = {"7": {"9-flash": {"model": "x", "adapter": "g", "api_key": "k"}}}
+
+    with pytest.raises(
+        ValueError, match='quote it as \\[models."gemini-3.7.9-flash"\\]'
+    ):
+        ModelConfig.from_dict("gemini-3", config)
+
+
 def test_model_config_from_dict_normalizes_adapter_and_timeout():
     config = {
         "model": "claude-sonnet-4",

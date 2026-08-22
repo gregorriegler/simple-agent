@@ -78,7 +78,10 @@ class UserConfiguration:
         return AgentType(DEFAULT_STARTING_AGENT_TYPE)
 
     def models_registry(self) -> ModelsRegistry:
-        return ModelsRegistry.from_config(self._config)
+        try:
+            return ModelsRegistry.from_config(self._config)
+        except ValueError as error:
+            raise ConfigurationError(str(error)) from error
 
     def log_level(self) -> str:
         log_section = self._config.get("log")

@@ -1,4 +1,9 @@
-from simple_agent.infrastructure.user_configuration import UserConfiguration
+import pytest
+
+from simple_agent.infrastructure.user_configuration import (
+    ConfigurationError,
+    UserConfiguration,
+)
 
 
 def test_logger_levels_returns_empty_dict_when_no_loggers_section():
@@ -63,6 +68,19 @@ def test_agents_path_returns_value_from_config(tmp_path):
     user_config = UserConfiguration({"agents": {"path": "./agents"}}, tmp_path)
 
     assert user_config.agents_candidate_directories() == [str(tmp_path / "agents")]
+
+
+def test_models_registry_raises_configuration_error_on_invalid_model():
+    config = {
+        "model": {"default": "gemini-3"},
+        "models": {
+            "gemini-3": {"adapter": "gemini", "api_key": "key"},
+        },
+    }
+    user_config = UserConfiguration(config)
+
+    with pytest.raises(ConfigurationError, match="missing required field 'model'"):
+        user_config.models_registry()
 
 
 def test_log_level_defaults_to_info():

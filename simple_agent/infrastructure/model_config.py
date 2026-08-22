@@ -16,6 +16,28 @@ class ModelConfig:
     def from_dict(name: str, config: Mapping[str, Any]) -> "ModelConfig":
         model = config.get("model") or config.get("name")
         if not model:
+            parts = [name]
+            current: Any = config
+            while isinstance(current, Mapping):
+                nested = next(
+                    (
+                        key
+                        for key, value in current.items()
+                        if isinstance(value, Mapping)
+                    ),
+                    None,
+                )
+                if nested is None:
+                    break
+                parts.append(nested)
+                current = current[nested]
+            if len(parts) > 1:
+                suggested = ".".join(parts)
+                raise ValueError(
+                    f'model key "{suggested}" contains dots, which TOML reads as '
+                    f"nested table separators, so it was not loaded as a single "
+                    f'model; quote it as [models."{suggested}"]'
+                )
             raise ValueError(f"model '{name}' is missing required field 'model'")
 
         adapter = config.get("adapter")
