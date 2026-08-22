@@ -1,13 +1,25 @@
 import json
+from types import SimpleNamespace
 
 import httpx
 import pytest
 
+from simple_agent.application.tool_library import ToolArgument, ToolArguments
 from simple_agent.infrastructure.gemini.gemini_client import (
     GeminiClientError,
     GeminiLLM,
 )
 from simple_agent.infrastructure.model_config import ModelConfig
+
+
+def bash_tool():
+    return SimpleNamespace(
+        name="bash",
+        description="Execute bash commands",
+        arguments=ToolArguments(
+            header=[ToolArgument(name="command", description="The command")]
+        ),
+    )
 
 
 def interaction(*texts: str) -> dict:
@@ -438,3 +450,75 @@ def build_config(
         base_url=base_url,
         request_timeout=60,
     )
+
+
+@pytest.mark.asyncio
+async def test_gemini_declares_tools_natively_when_provided():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(),
+        tools=[bash_tool()],
+        transport=responding_with(interaction("ok"), captured),
+    )
+
+    await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert captured["body"]["tools"] == [
+        {
+            "function_declarations": [
+                {
+                    "name": "bash",
+                    "description": "Execute bash commands",
+                    "parameters": {
+                        "type": "OBJECT",
+                        "properties": {
+                            "command": {"type": "STRING", "description": "The command"}
+                        },
+                        "required": ["command"],
+                    },
+                }
+            ]
+        }
+    ]
+    assert "generation_config" not in captured["body"]
+
+
+@pytest.mark.asyncio
+async def test_gemini_reads_function_call_into_tool_calls():
+    response_data = {
+        "status": "completed",
+        "steps": [
+            {"type": "model_output", "content": [{"type": "text", "text": "on it"}]},
+            {
+                "type": "function_call",
+                "name": "bash",
+                "arguments": {"command": "ls -la"},
+            },
+        ],
+    }
+    chat = GeminiLLM(
+        build_config(), tools=[bash_tool()], transport=responding_with(response_data)
+    )
+
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert result.content == "on it"
+    assert [(c.name, c.arguments) for c in result.tool_calls] == [("bash", "ls -la")]
+
+
+@pytest.mark.asyncio
+async def test_gemini_allows_empty_text_when_the_model_only_calls_a_function():
+    response_data = {
+        "status": "completed",
+        "steps": [
+            {"type": "function_call", "name": "bash", "arguments": {"command": "pwd"}}
+        ],
+    }
+    chat = GeminiLLM(
+        build_config(), tools=[bash_tool()], transport=responding_with(response_data)
+    )
+
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert result.content == ""
+    assert [c.arguments for c in result.tool_calls] == ["pwd"]

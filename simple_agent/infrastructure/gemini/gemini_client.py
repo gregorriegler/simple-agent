@@ -1,6 +1,11 @@
 import httpx
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
+from simple_agent.application.tool_library import Tool
+from simple_agent.infrastructure.gemini.gemini_tools import (
+    to_function_declarations,
+    to_raw_tool_calls,
+)
 from simple_agent.infrastructure.llm_http import post_with_retry
 from simple_agent.infrastructure.model_config import ModelConfig
 
@@ -19,9 +24,13 @@ class GeminiLLM(LLM):
     error_class: type[Exception] = GeminiClientError
 
     def __init__(
-        self, config: ModelConfig, transport: httpx.AsyncBaseTransport | None = None
+        self,
+        config: ModelConfig,
+        tools: list[Tool] | None = None,
+        transport: httpx.AsyncBaseTransport | None = None,
     ):
         self._config = config
+        self._tools = tools or []
         self._transport = transport
         self._ensure_adapter()
 
@@ -46,8 +55,14 @@ class GeminiLLM(LLM):
         interaction = response.json()
         self._raise_on_error(interaction)
 
+        steps = interaction.get("steps")
+        if not steps:
+            raise self.error_class("API response has no steps")
+        tool_calls = to_raw_tool_calls(steps, self._tools)
+
         return LLMResponse(
-            content=self._output_text(interaction),
+            content=self._output_text(interaction, tool_calls),
+            tool_calls=tool_calls,
             model=interaction.get("model") or self._config.model,
             usage=self._usage(interaction),
         )
@@ -62,8 +77,13 @@ class GeminiLLM(LLM):
             "model": self._config.model,
             "input": steps,
             "store": False,
-            "generation_config": {"tool_choice": "none"},
         }
+        if self._tools:
+            request["tools"] = [
+                {"function_declarations": to_function_declarations(self._tools)}
+            ]
+        else:
+            request["generation_config"] = {"tool_choice": "none"}
         if system_instruction:
             request["system_instruction"] = system_instruction
         return request
@@ -111,7 +131,7 @@ class GeminiLLM(LLM):
                 return ": ".join(details)
         return "no error message"
 
-    def _output_text(self, interaction: dict) -> str:
+    def _output_text(self, interaction: dict, tool_calls: list) -> str:
         """
         Collect the text of the trailing run of 'model_output' steps.
 
@@ -120,9 +140,7 @@ class GeminiLLM(LLM):
         the SDK we keep text that surrounds non-text content rather than
         stopping at it, since this client only ever asks for text.
         """
-        steps = interaction.get("steps")
-        if not steps:
-            raise self.error_class("API response has no steps")
+        steps = interaction.get("steps") or []
 
         texts: list[str] = []
         output_error = None
@@ -141,7 +159,7 @@ class GeminiLLM(LLM):
                     texts.append(content.get("text", ""))
 
         text = "".join(reversed(texts))
-        if not text:
+        if not text and not tool_calls:
             self._raise_output_error(output_error)
         return text
 
