@@ -12,6 +12,7 @@ class RawToolCall:
     name: str
     arguments: str
     body: str = ""
+    thought_signature: str = ""
 
     def header(self) -> str:
         if self.arguments:

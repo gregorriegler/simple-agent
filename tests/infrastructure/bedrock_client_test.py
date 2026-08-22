@@ -66,7 +66,7 @@ async def test_bedrock_claude_chat_returns_content_text():
 
     result = await chat.call_async(messages)
 
-    assert result.content == "assistant response"
+    assert result.answer == "assistant response"
     assert result.model == "test-model"
     assert result.usage is not None
     assert result.usage.input_tokens == 10
@@ -104,7 +104,7 @@ async def test_bedrock_claude_chat_runs_in_thread(monkeypatch):
 
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert result.content == "assistant response"
+    assert result.answer == "assistant response"
     assert called["to_thread"] >= 1
 
 

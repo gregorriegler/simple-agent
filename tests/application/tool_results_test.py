@@ -34,6 +34,23 @@ def test_many_tools_result_exposes_last_result_display_fields():
     assert results.display_language == "text"
 
 
+def test_many_tools_result_exposes_per_tool_name_and_output():
+    results = ManyToolsResult()
+    results.add(
+        ParsedTool(RawToolCall(name="bash", arguments="ls"), DummyTool()),
+        SingleToolResult(message="a.txt"),
+    )
+    results.add(
+        ParsedTool(RawToolCall(name="cat", arguments="a.txt"), DummyTool()),
+        SingleToolResult(message="hello"),
+    )
+
+    assert [(call.name, output) for call, output in results.tool_results] == [
+        ("bash", "a.txt"),
+        ("cat", "hello"),
+    ]
+
+
 def test_many_tools_result_reports_failure_when_cancelled():
     tool = ParsedTool(RawToolCall(name="dummy", arguments=""), DummyTool())
     results = ManyToolsResult()

@@ -31,7 +31,6 @@ from .slash_commands import (
     ModelCommand,
     SlashCommandVisitor,
 )
-from .tool_library import MessageAndParsedTools
 from .tool_results import SingleToolResult, ToolResult, ToolResultStatus
 from .tools_executor import ToolsExecutor
 
@@ -179,17 +178,32 @@ class Agent(SlashCommandVisitor):
         try:
             tool_result: ToolResult = SingleToolResult()
             while tool_result.do_continue():
-                response = await self.llm_responds()
-                message = response.message
-                tools = response.tools
-                if message:
-                    self.event_bus.publish(AssistantSaidEvent(self.agent_id, message))
+                response = await self.brain.respond(self.context.to_list())
+                if response.answer or response.tool_calls:
+                    self.context.assistant_turn(response.answer, response.tool_calls)
+                self.event_bus.publish(
+                    AssistantRespondedEvent(
+                        self.agent_id,
+                        response.answer,
+                        model=response.model,
+                        token_usage_display=response.token_usage_display(),
+                    )
+                )
 
-                if not tools:
+                if response.message:
+                    self.event_bus.publish(
+                        AssistantSaidEvent(self.agent_id, response.message)
+                    )
+
+                parsed = self.brain.tools.resolve_tool_calls(
+                    response.tool_calls, response.message
+                )
+                if not parsed.tools:
                     break
 
-                tool_result = await self.tools_executor.execute_tools(tools)
-                self.context.user_says(tool_result.message)
+                tool_result = await self.tools_executor.execute_tools(parsed.tools)
+                for call, output in tool_result.tool_results:
+                    self.context.tool_result(call, output)
 
             return tool_result
         except asyncio.CancelledError:
@@ -204,17 +218,3 @@ class Agent(SlashCommandVisitor):
                 status=ToolResultStatus.FAILURE,
                 completes=True,
             )
-
-    async def llm_responds(self) -> MessageAndParsedTools:
-        response, parsed = await self.brain.respond(self.context.to_list())
-        answer = response.content
-        self.context.assistant_says(answer)
-        self.event_bus.publish(
-            AssistantRespondedEvent(
-                self.agent_id,
-                answer,
-                model=response.model,
-                token_usage_display=response.token_usage_display(),
-            )
-        )
-        return parsed

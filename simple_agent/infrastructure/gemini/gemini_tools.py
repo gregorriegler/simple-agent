@@ -28,11 +28,33 @@ def _property(arg: ToolArgument) -> dict:
 
 def to_raw_tool_calls(steps: list[dict], tools: list[Tool]) -> list[RawToolCall]:
     tools_by_name = {tool.name: tool for tool in tools}
-    return [
-        _raw_tool_call(step, tools_by_name.get(step.get("name")))
-        for step in steps
-        if step.get("type") == "function_call"
-    ]
+    calls: list[RawToolCall] = []
+    pending_signature = ""
+    for step in steps:
+        step_type = step.get("type")
+        if step_type == "thought":
+            pending_signature = step.get("signature", "")
+        elif step_type == "function_call":
+            call = _raw_tool_call(step, tools_by_name.get(step.get("name")))
+            call.thought_signature = pending_signature
+            pending_signature = ""
+            calls.append(call)
+    return calls
+
+
+def to_native_arguments(raw_call: RawToolCall, tool: Tool | None) -> dict:
+    """Reconstruct a native argument dict from a positional RawToolCall."""
+    if tool is None:
+        return {}
+    header = list(tool.arguments.header)
+    arguments: dict = {}
+    if header:
+        values = raw_call.arguments.split(None, len(header) - 1)
+        for arg, value in zip(header, values, strict=False):
+            arguments[arg.name] = value
+    if tool.arguments.body and raw_call.body:
+        arguments[tool.arguments.body.name] = raw_call.body
+    return arguments
 
 
 def _raw_tool_call(step: dict, tool: Tool | None) -> RawToolCall:

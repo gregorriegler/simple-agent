@@ -18,14 +18,17 @@ class TokenUsage:
 
 @dataclass
 class LLMResponse:
-    content: str
+    answer: str
     tool_calls: list[RawToolCall] = field(default_factory=list)
+    message: str | None = None
     model: str = ""
     usage: TokenUsage | None = None
 
     def __post_init__(self):
         if self.usage is None:
             self.usage = TokenUsage()
+        if self.message is None:
+            self.message = self.answer
 
     def token_usage_display(self) -> str:
         input_tokens = self.usage.input_tokens if self.usage else 0
@@ -65,6 +68,14 @@ class Messages:
 
     def assistant_says(self, content: str):
         self.add("assistant", content)
+
+    def assistant_turn(self, content: str, tool_calls: list) -> None:
+        self._messages.append(
+            {"role": "assistant", "content": content, "tool_calls": tool_calls}
+        )
+
+    def tool_result(self, call, output: str) -> None:
+        self._messages.append({"role": "tool", "call": call, "content": output})
 
     def add(self, role: str, content: str):
         if content:

@@ -1,9 +1,12 @@
 import httpx
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
+from simple_agent.application.text_messages import to_text_messages
+from simple_agent.application.text_response import emoji_response
 from simple_agent.application.tool_library import Tool
 from simple_agent.infrastructure.gemini.gemini_tools import (
     to_function_declarations,
+    to_native_arguments,
     to_raw_tool_calls,
 )
 from simple_agent.infrastructure.llm_http import post_with_retry
@@ -59,12 +62,14 @@ class GeminiLLM(LLM):
         if not steps:
             raise self.error_class("API response has no steps")
         tool_calls = to_raw_tool_calls(steps, self._tools)
+        content = self._output_text(interaction, tool_calls)
+        model = interaction.get("model") or self._config.model
+        usage = self._usage(interaction)
 
+        if not self._tools:
+            return emoji_response(content, model, usage)
         return LLMResponse(
-            content=self._output_text(interaction, tool_calls),
-            tool_calls=tool_calls,
-            model=interaction.get("model") or self._config.model,
-            usage=self._usage(interaction),
+            answer=content, tool_calls=tool_calls, model=model, usage=usage
         )
 
     def _interactions_url(self) -> str:
@@ -94,13 +99,18 @@ class GeminiLLM(LLM):
         messages become 'user_input' steps and assistant messages become
         'model_output' steps.
         """
+        if not self._tools:
+            messages = to_text_messages(messages)
+
         system_prompts = []
         steps = []
+        tools_by_name = {tool.name: tool for tool in self._tools}
+        call_index = 0
+        result_index = 0
 
         for message in messages:
             role = message.get("role", "")
             content = message.get("content", "")
-
             tool_calls = message.get("tool_calls") or []
 
             if role == "system":
@@ -110,28 +120,46 @@ class GeminiLLM(LLM):
             elif role == "assistant":
                 if content or not tool_calls:
                     steps.append(self._step("model_output", content))
-                steps.extend(self._function_call_step(call) for call in tool_calls)
+                for raw_call in tool_calls:
+                    call_index += 1
+                    if raw_call.thought_signature:
+                        steps.append(
+                            {
+                                "type": "thought",
+                                "signature": raw_call.thought_signature,
+                            }
+                        )
+                    steps.append(
+                        self._function_call_step(
+                            f"call_{call_index}",
+                            raw_call,
+                            tools_by_name.get(raw_call.name),
+                        )
+                    )
             elif role == "tool":
-                steps.append(self._function_result_step(message, content))
+                result_index += 1
+                steps.append(
+                    self._function_result_step(f"call_{result_index}", message, content)
+                )
 
         return "\n\n".join(system_prompts), steps
 
     def _step(self, step_type: str, text: str) -> dict:
         return {"type": step_type, "content": [{"type": "text", "text": text}]}
 
-    def _function_call_step(self, call: dict) -> dict:
+    def _function_call_step(self, call_id: str, raw_call, tool) -> dict:
         return {
             "type": "function_call",
-            "id": call.get("id"),
-            "name": call.get("name"),
-            "arguments": call.get("arguments") or {},
+            "id": call_id,
+            "name": raw_call.name,
+            "arguments": to_native_arguments(raw_call, tool),
         }
 
-    def _function_result_step(self, message: dict, output: str) -> dict:
+    def _function_result_step(self, call_id: str, message: dict, output: str) -> dict:
         return {
             "type": "function_result",
-            "call_id": message.get("call_id"),
-            "name": message.get("name"),
+            "call_id": call_id,
+            "name": message["call"].name,
             "result": [{"type": "text", "text": output}],
         }
 

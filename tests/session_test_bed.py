@@ -27,6 +27,7 @@ from simple_agent.application.events_to_messages import events_to_messages
 from simple_agent.application.llm import ChatMessages, LLMResponse, TokenUsage
 from simple_agent.application.llm_stub import StubLLMProvider, create_llm_stub
 from simple_agent.application.session import Session
+from simple_agent.application.text_response import emoji_response
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from tests.event_spy import EventSpy
 from tests.system_prompt_generator_test import GroundRulesStub
@@ -55,11 +56,7 @@ class CapturingLLM:
         if self._response_index < len(self._responses):
             content = self._responses[self._response_index]
             self._response_index += 1
-        return LLMResponse(
-            content=content,
-            model=self.model,
-            usage=TokenUsage(0, 0, 0),
-        )
+        return emoji_response(content, self.model, TokenUsage(0, 0, 0))
 
     def first_call_contained(self, role: str, content: str) -> bool:
         return self.call_contained(0, role, content)
@@ -115,7 +112,7 @@ class SessionTestBed:
                 return "default-model"
 
             async def call_async(self, messages):
-                return LLMResponse(content="")
+                return LLMResponse(answer="")
 
         self._llm = DefaultLLM()
         self._user_inputs = ["\n"]

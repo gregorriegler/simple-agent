@@ -4,7 +4,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
-    from .tool_library import ParsedTool
+    from .tool_library import ParsedTool, RawToolCall
 
 
 class ToolResultStatus(str, Enum):
@@ -106,6 +106,10 @@ class ManyToolsResult(ToolResult):
             if result.do_continue()
         ]
         return "\n\n".join(parts)
+
+    @property
+    def tool_results(self) -> list[tuple[RawToolCall, str]]:
+        return [(tool.raw_call, str(result)) for tool, result in self._entries]
 
     @property
     def success(self) -> bool:

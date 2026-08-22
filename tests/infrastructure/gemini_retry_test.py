@@ -45,7 +45,7 @@ async def test_gemini_retries_on_500():
     with patch("asyncio.sleep", return_value=None):
         result = await client.call_async([{"role": "user", "content": "hello"}])
 
-    assert result.content == "success"
+    assert result.answer == "success"
     assert call_count == 3
 
 
@@ -65,7 +65,7 @@ async def test_gemini_retries_on_timeout():
     with patch("asyncio.sleep", return_value=None):
         result = await client.call_async([{"role": "user", "content": "hello"}])
 
-    assert result.content == "success"
+    assert result.answer == "success"
     assert call_count == 2
 
 

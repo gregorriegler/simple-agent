@@ -27,7 +27,7 @@ async def test_openai_client_sends_correct_request():
 
     result = await client.call_async(messages)
 
-    assert result.content == "assistant response"
+    assert result.answer == "assistant response"
     assert result.model == "test-openai-model"
     assert result.usage is not None
     assert result.usage.input_tokens == 10

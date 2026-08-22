@@ -157,6 +157,24 @@ def test_ignores_non_function_call_steps():
     assert calls == []
 
 
+def test_captures_the_preceding_thought_signature_on_the_call():
+    bash = tool(
+        "bash",
+        "",
+        ToolArguments(header=[ToolArgument(name="command", description="")]),
+    )
+
+    calls = to_raw_tool_calls(
+        [
+            {"type": "thought", "signature": "SIG"},
+            function_call("bash", {"command": "ls"}),
+        ],
+        [bash],
+    )
+
+    assert calls[0].thought_signature == "SIG"
+
+
 def test_reads_multiple_function_calls():
     bash = tool(
         "bash",

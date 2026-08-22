@@ -4,7 +4,11 @@ from types import SimpleNamespace
 import httpx
 import pytest
 
-from simple_agent.application.tool_library import ToolArgument, ToolArguments
+from simple_agent.application.tool_library import (
+    RawToolCall,
+    ToolArgument,
+    ToolArguments,
+)
 from simple_agent.infrastructure.gemini.gemini_client import (
     GeminiClientError,
     GeminiLLM,
@@ -52,7 +56,7 @@ async def test_gemini_chat_returns_text_from_model_output_step():
 
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert result.content == "hi"
+    assert result.answer == "hi"
     assert result.model == "test-model"
 
 
@@ -182,7 +186,7 @@ async def test_gemini_chat_concatenates_text_of_trailing_model_output_steps():
 
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert result.content == "First part. Second part."
+    assert result.answer == "First part. Second part."
 
 
 @pytest.mark.asyncio
@@ -204,7 +208,7 @@ async def test_gemini_chat_keeps_text_surrounding_non_text_content():
 
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert result.content == "this is a picture"
+    assert result.answer == "this is a picture"
 
 
 @pytest.mark.asyncio
@@ -344,7 +348,7 @@ async def test_gemini_chat_skips_trailing_steps_that_are_not_model_output():
 
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert result.content == "the answer"
+    assert result.answer == "the answer"
 
 
 @pytest.mark.asyncio
@@ -367,7 +371,7 @@ async def test_gemini_chat_stops_at_echoed_user_input_step():
 
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert result.content == "this turn"
+    assert result.answer == "this turn"
 
 
 @pytest.mark.asyncio
@@ -382,7 +386,7 @@ async def test_gemini_chat_returns_truncated_text_when_interaction_is_incomplete
 
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert result.content == "cut off"
+    assert result.answer == "cut off"
 
 
 @pytest.mark.asyncio
@@ -421,7 +425,7 @@ async def test_gemini_chat_prefers_model_output_text_over_step_error():
 
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert result.content == "partial answer"
+    assert result.answer == "partial answer"
 
 
 @pytest.mark.asyncio
@@ -499,7 +503,7 @@ async def test_gemini_reads_function_call_into_tool_calls():
 
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert result.content == "on it"
+    assert result.answer == "on it"
     assert [(c.name, c.arguments) for c in result.tool_calls] == [("bash", "ls -la")]
 
 
@@ -517,7 +521,7 @@ async def test_gemini_allows_empty_text_when_the_model_only_calls_a_function():
 
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert result.content == ""
+    assert result.answer == ""
     assert [c.arguments for c in result.tool_calls] == ["pwd"]
 
 
@@ -534,11 +538,13 @@ async def test_gemini_replays_a_prior_tool_call_as_a_function_call_step():
         {
             "role": "assistant",
             "content": "on it",
-            "tool_calls": [
-                {"id": "call_1", "name": "bash", "arguments": {"command": "ls"}}
-            ],
+            "tool_calls": [RawToolCall(name="bash", arguments="ls")],
         },
-        {"role": "tool", "call_id": "call_1", "name": "bash", "content": "a.txt"},
+        {
+            "role": "tool",
+            "call": RawToolCall(name="bash", arguments="ls"),
+            "content": "a.txt",
+        },
     ]
 
     await chat.call_async(messages)
@@ -546,6 +552,48 @@ async def test_gemini_replays_a_prior_tool_call_as_a_function_call_step():
     assert captured["body"]["input"] == [
         {"type": "user_input", "content": [{"type": "text", "text": "list files"}]},
         {"type": "model_output", "content": [{"type": "text", "text": "on it"}]},
+        {
+            "type": "function_call",
+            "id": "call_1",
+            "name": "bash",
+            "arguments": {"command": "ls"},
+        },
+        {
+            "type": "function_result",
+            "call_id": "call_1",
+            "name": "bash",
+            "result": [{"type": "text", "text": "a.txt"}],
+        },
+    ]
+
+
+@pytest.mark.asyncio
+async def test_gemini_replays_the_thought_signature_before_the_function_call():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(),
+        tools=[bash_tool()],
+        transport=responding_with(interaction("done"), captured),
+    )
+    messages = [
+        {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+                RawToolCall(name="bash", arguments="ls", thought_signature="SIG")
+            ],
+        },
+        {
+            "role": "tool",
+            "call": RawToolCall(name="bash", arguments="ls"),
+            "content": "a.txt",
+        },
+    ]
+
+    await chat.call_async(messages)
+
+    assert captured["body"]["input"] == [
+        {"type": "thought", "signature": "SIG"},
         {
             "type": "function_call",
             "id": "call_1",
@@ -573,9 +621,7 @@ async def test_gemini_omits_empty_model_output_before_a_tool_call():
         {
             "role": "assistant",
             "content": "",
-            "tool_calls": [
-                {"id": "call_1", "name": "bash", "arguments": {"command": "ls"}}
-            ],
+            "tool_calls": [RawToolCall(name="bash", arguments="ls")],
         },
     ]
 
@@ -605,5 +651,5 @@ async def test_gemini_treats_requires_action_as_a_tool_call_turn():
 
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert result.content == ""
+    assert result.answer == ""
     assert [c.arguments for c in result.tool_calls] == ["ls"]

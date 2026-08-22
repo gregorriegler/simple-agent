@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from .llm import LLM, ChatMessages, LLMResponse, TokenUsage
+from .text_response import emoji_response
 
 
 class StubLLM:
@@ -24,9 +25,7 @@ class StubLLM:
         if self._index < len(self._responses):
             content = self._responses[self._index]
             self._index += 1
-        return LLMResponse(
-            content=content, model=self._model_name, usage=TokenUsage(0, 0, 0)
-        )
+        return emoji_response(content, self._model_name, TokenUsage(0, 0, 0))
 
 
 def create_llm_stub(responses: Sequence[str], *, default: str = "") -> LLM:
@@ -60,7 +59,7 @@ class StubLLMProvider:
                 return "dummy"
 
             async def call_async(self, messages):
-                return LLMResponse(content="", model="dummy", usage=TokenUsage())
+                return LLMResponse(answer="", model="dummy", usage=TokenUsage())
 
         return cls.for_testing(DummyLLM())
 

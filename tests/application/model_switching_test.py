@@ -33,7 +33,7 @@ class MockLLM(LLM):
     async def call_async(self, messages: ChatMessages) -> LLMResponse:
         self.calls.append(messages)
         return LLMResponse(
-            content=f"Response from {self._model_name}",
+            answer=f"Response from {self._model_name}",
             model=self._model_name,
             usage=TokenUsage(0, 0, 0),
         )

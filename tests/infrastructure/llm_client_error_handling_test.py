@@ -97,7 +97,7 @@ async def test_client_retries_transient_500(
     with patch("asyncio.sleep", return_value=None):
         result = await client.call_async([{"role": "user", "content": "Hello"}])
 
-    assert result.content == "success"
+    assert result.answer == "success"
     assert post_count == 3
 
 

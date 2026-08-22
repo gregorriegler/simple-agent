@@ -9,6 +9,8 @@ from botocore.config import Config
 from botocore.exceptions import BotoCoreError, ClientError
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
+from simple_agent.application.text_messages import to_text_messages
+from simple_agent.application.text_response import emoji_response
 from simple_agent.infrastructure.logging_http_client import (
     format_request_args,
     format_response_args,
@@ -40,7 +42,7 @@ class BedrockClaudeLLM(LLM):
         return await self._call_async(messages)
 
     async def _call_async(self, messages: ChatMessages) -> LLMResponse:
-        payload_messages = list(messages)
+        payload_messages = to_text_messages(messages)
         system_prompt = (
             payload_messages.pop(0).get("content", "")
             if payload_messages and payload_messages[0].get("role") == "system"
@@ -97,7 +99,7 @@ class BedrockClaudeLLM(LLM):
             total_tokens=input_tokens + output_tokens,
         )
 
-        return LLMResponse(content=content, model=self._config.model, usage=usage)
+        return emoji_response(content, self._config.model, usage)
 
     def _invoke_model(self, data: dict[str, Any]):
         body = json.dumps(data)

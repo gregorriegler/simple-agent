@@ -1,8 +1,9 @@
 from simple_agent.application.llm import LLMResponse, Messages
+from simple_agent.application.tool_library import RawToolCall
 
 
 def test_llm_response_defaults_usage():
-    response = LLMResponse(content="Hello")
+    response = LLMResponse(answer="Hello")
 
     assert response.usage is not None
     assert response.usage.total_tokens == 0
@@ -30,3 +31,36 @@ def test_messages_ignores_empty_user_message():
     messages.user_says("")
 
     assert len(messages) == 0
+
+
+def test_messages_records_an_assistant_turn_with_its_tool_calls():
+    messages = Messages()
+    calls = [RawToolCall(name="bash", arguments="ls")]
+
+    messages.assistant_turn("on it", calls)
+
+    assert messages.to_list() == [
+        {"role": "assistant", "content": "on it", "tool_calls": calls}
+    ]
+
+
+def test_messages_records_an_assistant_tool_call_turn_with_empty_text():
+    messages = Messages()
+    calls = [RawToolCall(name="bash", arguments="ls")]
+
+    messages.assistant_turn("", calls)
+
+    assert messages.to_list() == [
+        {"role": "assistant", "content": "", "tool_calls": calls}
+    ]
+
+
+def test_messages_records_a_tool_result_turn():
+    messages = Messages()
+    call = RawToolCall(name="bash", arguments="ls")
+
+    messages.tool_result(call, "a.txt\nb.txt")
+
+    assert messages.to_list() == [
+        {"role": "tool", "call": call, "content": "a.txt\nb.txt"}
+    ]

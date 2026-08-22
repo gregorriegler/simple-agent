@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse
-from simple_agent.application.tool_library import MessageAndParsedTools, ToolLibrary
+from simple_agent.application.tool_library import ToolLibrary
 
 
 @dataclass
@@ -11,12 +11,5 @@ class Brain:
     llm: LLM
     tools: ToolLibrary
 
-    async def respond(
-        self, messages: ChatMessages
-    ) -> tuple[LLMResponse, MessageAndParsedTools]:
-        response = await self.llm.call_async(messages)
-        if response.tool_calls:
-            return response, self.tools.resolve_tool_calls(
-                response.tool_calls, response.content
-            )
-        return response, self.tools.parse_message_and_tools(response.content)
+    async def respond(self, messages: ChatMessages) -> LLMResponse:
+        return await self.llm.call_async(messages)
