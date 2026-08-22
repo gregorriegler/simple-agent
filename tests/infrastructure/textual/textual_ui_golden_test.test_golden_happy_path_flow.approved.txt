@@ -313,7 +313,7 @@ Active Tab: tab-Agent
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
-                  Collapsible id='None' classes='' title='Search Results' collapsed=False
+                  Collapsible id='None' classes='' title='✅ Search Results' collapsed=False
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-result tool-result-success' text='Found 1 file.'
@@ -323,7 +323,7 @@ Active Tab: tab-Agent
 --- Step: Tool Result (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                      ▼ Search Results
+                      ▼ ✅ Search Results
    Starting new      ╭─────────────────────────────────────────────────────────╮
    session           │ Found 1 file.                                           │
                      ╰─────────────────────────────────────────────────────────╯

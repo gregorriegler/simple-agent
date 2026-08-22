@@ -10,6 +10,14 @@ from simple_agent.application.tool_results import ToolResult
 logger = logging.getLogger(__name__)
 
 
+def _format_tool_title(title: str, status_emoji: str) -> str:
+    for prefix in ("🛠️", "🛠", "✅", "❌", "🚫"):
+        if title.startswith(prefix):
+            title = title[len(prefix) :].lstrip()
+            break
+    return f"{status_emoji} {title}"
+
+
 class ToolLog(VerticalScroll):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -115,8 +123,9 @@ class ToolLog(VerticalScroll):
                 text_area.add_class(cls)
             text_area.styles.height = min((len(message.splitlines()) or 1) + 2, 30)
 
-        if result.display_title:
-            call_collapsible.title = result.display_title
+        status_emoji = "🚫" if result.cancelled else ("✅" if result.success else "❌")
+        base_title = result.display_title or call_collapsible.title
+        call_collapsible.title = _format_tool_title(base_title, status_emoji)
 
         if self.is_mounted:
             self.scroll_end(animate=False)
@@ -142,7 +151,7 @@ class ToolLog(VerticalScroll):
         text_area.styles.height = 3
 
         title = title_source.splitlines()[0] if title_source else "Tool Call"
-        call_collapsible.title = f"{title} (Cancelled)"
+        call_collapsible.title = f"{_format_tool_title(title, '🚫')} (Cancelled)"
 
         if self.is_mounted:
             self.scroll_end(animate=False)

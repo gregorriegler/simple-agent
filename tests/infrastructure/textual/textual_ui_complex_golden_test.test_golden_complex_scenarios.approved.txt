@@ -431,7 +431,7 @@ Active Tab: tab-Agent
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
-                  Collapsible id='None' classes='' title='apply_diff()' collapsed=False
+                  Collapsible id='None' classes='' title='✅ apply_diff()' collapsed=False
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       Static id='None' classes='tool-result tool-result-success'
@@ -443,7 +443,7 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                       ▶ write_todos()
-   ❌ Error:          ▼ apply_diff()
+   ❌ Error:          ▼ ✅ apply_diff()
    Something went    ╭─────────────────────────────────────────────────────────╮
    wrong             │<<<<<<< SEARCH                                           │
                      │old line                                                 │
@@ -495,11 +495,11 @@ Active Tab: tab-Agent
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
-                  Collapsible id='None' classes='-collapsed' title='apply_diff()' collapsed=True
+                  Collapsible id='None' classes='-collapsed' title='✅ apply_diff()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       Static id='None' classes='tool-result tool-result-success'
-                  Collapsible id='None' classes='' title='long_running() (Cancelled)' collapsed=False
+                  Collapsible id='None' classes='' title='🚫 long_running() (Cancelled)' collapsed=False
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
@@ -511,8 +511,8 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                       ▶ write_todos()
-   ❌ Error:          ▶ apply_diff()
-   Something went     ▼ long_running() (Cancelled)
+   ❌ Error:          ▶ ✅ apply_diff()
+   Something went     ▼ 🚫 long_running() (Cancelled)
    wrong             ╭─────────────────────────────────────────────────────────╮
                      │ Cancelled                                               │
    [Session          ╰─────────────────────────────────────────────────────────╯
@@ -563,11 +563,11 @@ Active Tab: tab-Agent
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
-                  Collapsible id='None' classes='-collapsed' title='apply_diff()' collapsed=True
+                  Collapsible id='None' classes='-collapsed' title='✅ apply_diff()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       Static id='None' classes='tool-result tool-result-success'
-                  Collapsible id='None' classes='' title='long_running() (Cancelled)' collapsed=False
+                  Collapsible id='None' classes='' title='🚫 long_running() (Cancelled)' collapsed=False
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
@@ -579,8 +579,8 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                       ▶ write_todos()
-   ❌ Error:          ▶ apply_diff()
-   Something went     ▼ long_running() (Cancelled)
+   ❌ Error:          ▶ ✅ apply_diff()
+   Something went     ▼ 🚫 long_running() (Cancelled)
    wrong             ╭─────────────────────────────────────────────────────────╮
                      │ Cancelled                                               │
    [Session          ╰─────────────────────────────────────────────────────────╯
