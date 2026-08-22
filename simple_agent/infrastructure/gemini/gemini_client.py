@@ -79,9 +79,7 @@ class GeminiLLM(LLM):
             "store": False,
         }
         if self._tools:
-            request["tools"] = [
-                {"function_declarations": to_function_declarations(self._tools)}
-            ]
+            request["tools"] = to_function_declarations(self._tools)
         else:
             request["generation_config"] = {"tool_choice": "none"}
         if system_instruction:

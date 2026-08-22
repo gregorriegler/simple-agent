@@ -465,19 +465,16 @@ async def test_gemini_declares_tools_natively_when_provided():
 
     assert captured["body"]["tools"] == [
         {
-            "function_declarations": [
-                {
-                    "name": "bash",
-                    "description": "Execute bash commands",
-                    "parameters": {
-                        "type": "OBJECT",
-                        "properties": {
-                            "command": {"type": "STRING", "description": "The command"}
-                        },
-                        "required": ["command"],
-                    },
-                }
-            ]
+            "type": "function",
+            "name": "bash",
+            "description": "Execute bash commands",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "command": {"type": "string", "description": "The command"}
+                },
+                "required": ["command"],
+            },
         }
     ]
     assert "generation_config" not in captured["body"]

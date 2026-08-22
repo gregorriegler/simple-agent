@@ -32,13 +32,14 @@ def test_maps_a_tool_with_a_required_argument():
 
     assert to_function_declarations([bash]) == [
         {
+            "type": "function",
             "name": "bash",
             "description": "Execute bash commands",
             "parameters": {
-                "type": "OBJECT",
+                "type": "object",
                 "properties": {
                     "command": {
-                        "type": "STRING",
+                        "type": "string",
                         "description": "The bash command to execute",
                     }
                 },
@@ -78,14 +79,14 @@ def test_body_argument_is_included_as_a_property():
 
     properties = to_function_declarations([create_file])[0]["parameters"]["properties"]
 
-    assert properties["content"] == {"type": "STRING", "description": "File body"}
+    assert properties["content"] == {"type": "string", "description": "File body"}
 
 
 def test_tool_without_arguments_has_empty_properties():
     ls = tool("ls", "List directory", ToolArguments())
 
     assert to_function_declarations([ls])[0]["parameters"] == {
-        "type": "OBJECT",
+        "type": "object",
         "properties": {},
         "required": [],
     }

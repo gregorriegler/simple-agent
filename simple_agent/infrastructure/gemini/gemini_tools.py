@@ -1,11 +1,6 @@
 from simple_agent.application.tool_library import RawToolCall, Tool, ToolArgument
 
-_TYPE_MAP = {
-    "string": "STRING",
-    "integer": "INTEGER",
-    "number": "NUMBER",
-    "boolean": "BOOLEAN",
-}
+_TYPES = {"string", "integer", "number", "boolean"}
 
 
 def to_function_declarations(tools: list[Tool]) -> list[dict]:
@@ -15,10 +10,11 @@ def to_function_declarations(tools: list[Tool]) -> list[dict]:
 def _declaration(tool: Tool) -> dict:
     arguments = list(tool.arguments.all)
     return {
+        "type": "function",
         "name": tool.name,
         "description": tool.description,
         "parameters": {
-            "type": "OBJECT",
+            "type": "object",
             "properties": {arg.name: _property(arg) for arg in arguments},
             "required": [arg.name for arg in arguments if arg.required],
         },
@@ -26,7 +22,8 @@ def _declaration(tool: Tool) -> dict:
 
 
 def _property(arg: ToolArgument) -> dict:
-    return {"type": _TYPE_MAP.get(arg.type, "STRING"), "description": arg.description}
+    arg_type = arg.type if arg.type in _TYPES else "string"
+    return {"type": arg_type, "description": arg.description}
 
 
 def to_raw_tool_calls(steps: list[dict], tools: list[Tool]) -> list[RawToolCall]:
