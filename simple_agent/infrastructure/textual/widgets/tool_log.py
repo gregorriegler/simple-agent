@@ -184,6 +184,15 @@ class ToolLog(VerticalScroll):
             text_area.styles.height = min((len(message.splitlines()) or 1) + 2, 30)
 
         status_emoji = "🚫" if result.cancelled else ("✅" if result.success else "❌")
+        status_class = (
+            "tool-status-cancelled"
+            if result.cancelled
+            else ("tool-status-success" if result.success else "tool-status-error")
+        )
+        call_collapsible.remove_class(
+            "tool-status-success", "tool-status-error", "tool-status-cancelled"
+        )
+        call_collapsible.add_class(status_class)
         base_title = result.display_title or call_collapsible.title
         call_collapsible.title = _format_tool_title(base_title, status_emoji)
 
@@ -210,6 +219,10 @@ class ToolLog(VerticalScroll):
         text_area.add_class("tool-result-error")
         text_area.styles.height = 3
 
+        call_collapsible.remove_class(
+            "tool-status-success", "tool-status-error", "tool-status-cancelled"
+        )
+        call_collapsible.add_class("tool-status-cancelled")
         title = title_source.splitlines()[0] if title_source else "Tool Call"
         call_collapsible.title = f"{_format_tool_title(title, '🚫')} (Cancelled)"
 

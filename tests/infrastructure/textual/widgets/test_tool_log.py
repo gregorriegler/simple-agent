@@ -6,6 +6,13 @@ from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 
 
 class ToolLogApp(App):
+    CSS = """
+    CollapsibleTitle {
+        width: 100%;
+        height: auto;
+    }
+    """
+
     def compose(self) -> ComposeResult:
         yield ToolLog(id="tool-log")
 
@@ -23,6 +30,7 @@ async def test_tool_log_success_replaces_tool_emoji_with_check():
         tool_log.add_tool_result("call-1", result)
 
         assert tool_log._collapsibles[-1].title == "✅ bash sleep 3"
+        assert tool_log._collapsibles[-1].has_class("tool-status-success")
 
 
 @pytest.mark.asyncio
@@ -38,6 +46,7 @@ async def test_tool_log_failure_replaces_tool_emoji_with_cross():
         tool_log.add_tool_result("call-1", result)
 
         assert tool_log._collapsibles[-1].title == "❌ cat missing.txt"
+        assert tool_log._collapsibles[-1].has_class("tool-status-error")
 
 
 @pytest.mark.asyncio
@@ -50,6 +59,7 @@ async def test_tool_log_cancelled_replaces_tool_emoji_with_prohibited_and_cancel
         tool_log.add_tool_cancelled("call-1")
 
         assert tool_log._collapsibles[-1].title == "🚫 bash sleep 10 (Cancelled)"
+        assert tool_log._collapsibles[-1].has_class("tool-status-cancelled")
 
 
 @pytest.mark.asyncio
@@ -67,6 +77,7 @@ async def test_tool_log_with_custom_display_title():
         tool_log.add_tool_result("call-1", result)
 
         assert tool_log._collapsibles[-1].title == "✅ Search Results"
+        assert tool_log._collapsibles[-1].has_class("tool-status-success")
 
 
 @pytest.mark.asyncio
@@ -85,4 +96,4 @@ async def test_tool_log_wrapped_title_has_hanging_indent():
         # Line 0 starts with '▼ 🛠️ '
         assert lines[0].startswith("▼ 🛠️ ")
         # Line 1 starts with hanging indent (aligned with bash text after '▼ 🛠️ ')
-        assert lines[1].startswith("    multiple lines")
+        assert lines[1].startswith("    with lots of arguments")
