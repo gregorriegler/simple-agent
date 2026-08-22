@@ -125,7 +125,7 @@ tools:
   - bash
   - cat
   - edit_file
-model: gemini-3.7-flash
+model: gemini
 ---
 
 You are a marketing-focused assistant who writes short, punchy summaries.
