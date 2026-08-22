@@ -1,12 +1,12 @@
 --- UI STATE FROM DIRECT EVENT REPLAY ---
  Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-   Starting new        ▼ Reading test.txt
-   session
-                         ╭─────────────────────────────────────────────────────╮
-   User: Start           │ Content of test.txt                                 │
-   the process           ╰─────────────────────────────────────────────────────╯
+                      ▼ Reading test.txt
+   Starting new      ╭─────────────────────────────────────────────────────────╮
+   session           │ Content of test.txt                                     │
+                     ╰─────────────────────────────────────────────────────────╯
+   User: Start
+   the process
 
 
 
@@ -73,12 +73,12 @@ Active Tab: tab-Agent
 --- UI STATE FROM EVENT STORE CONTINUATION ---
  Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-   Starting new        ▼ Reading test.txt
-   session
-                         ╭─────────────────────────────────────────────────────╮
-   User: Start           │ Content of test.txt                                 │
-   the process           ╰─────────────────────────────────────────────────────╯
+                      ▼ Reading test.txt
+   Starting new      ╭─────────────────────────────────────────────────────────╮
+   session           │ Content of test.txt                                     │
+                     ╰─────────────────────────────────────────────────────────╯
+   User: Start
+   the process
 
 
 

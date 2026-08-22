@@ -1,6 +1,6 @@
 import pytest
 from textual.containers import VerticalScroll
-from textual.widgets import Markdown, TextArea
+from textual.widgets import Collapsible, Markdown, TextArea
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
@@ -35,7 +35,9 @@ def _latest_tool_text_area(app: TextualApp, agent_id: AgentId) -> TextArea:
 
 
 @pytest.mark.asyncio
-async def test_tool_call_loading_indicator_has_border(textual_harness):
+async def test_tool_call_loading_indicator_has_border_and_transparent_background(
+    textual_harness,
+):
     event_bus, _, _, app = textual_harness
     agent_id = AgentId("Agent")
     call_id = "test-call-id"
@@ -50,6 +52,30 @@ async def test_tool_call_loading_indicator_has_border(textual_harness):
         text_area = _latest_tool_text_area(app, agent_id)
         assert text_area._cover_widget is not None
         assert text_area._cover_widget.styles.border.top[0] == "round"
+        assert text_area._cover_widget.styles.background.is_transparent
+
+
+@pytest.mark.asyncio
+async def test_tool_call_collapsible_content_starts_at_left_edge(textual_harness):
+    event_bus, _, _, app = textual_harness
+    agent_id = AgentId("Agent")
+    call_id = "test-call-id"
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        await pilot.pause()
+        event_bus.publish(ToolCalledEvent(agent_id, call_id, StubTool()))
+        await pilot.pause()
+
+        _, _, tool_results_id = app.panel_ids_for(agent_id)
+        tool_log = app.query_one(f"#{tool_results_id}", ToolLog)
+        collapsible = tool_log._collapsibles[-1]
+        contents = collapsible.query_one(Collapsible.Contents)
+
+        assert collapsible.styles.padding.left == 0
+        assert contents.styles.padding.left == 0
+        assert collapsible.styles.border.top[0] in ("", "none")
 
 
 @pytest.mark.asyncio

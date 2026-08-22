@@ -1,14 +1,14 @@
  Orchestrator [stub-model: 0.0%]  Orchestrator [stub-model: 0.0%]  Coding [stub-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-   User: Hello,        ▼ 🛠️ subagent orchestrator Run bash echo hello world and t
-   world!                                                                       
-                         ▊▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎
-   Orchestrator:         ▊ In Progress ⠙                                       ▎
-   Starting task         ▊▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎
+   Starting new        ▼ 🛠️ subagent orchestrator Run bash echo hello world and t
+   session                                                                      
+                         ╭─────────────────────────────────────────────────────╮
+   User: Hello,          │                      ● ● ● ● ●                      │
+   world!                ╰─────────────────────────────────────────────────────╯
                                                                                 
-                                                                                
-                                                                                
+   Orchestrator:                                                                
+   Starting task                                                                
                                                                                 
                                                                                 
                                                                                 

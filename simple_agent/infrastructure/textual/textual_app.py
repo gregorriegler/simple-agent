@@ -107,11 +107,22 @@ class TextualApp(App):
 
     LoadingIndicator {
         border: round $primary;
+        background: transparent;
     }
 
     Pretty {
         border: round $primary;
         margin-bottom: 1;
+    }
+
+    Collapsible {
+        padding: 0;
+        border-top: none;
+    }
+
+
+    Collapsible > Contents {
+        padding: 0;
     }
 
     #user-input {
