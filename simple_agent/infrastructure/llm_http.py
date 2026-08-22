@@ -37,6 +37,15 @@ async def post_with_retry(
                 await asyncio.sleep(retry_delay)
                 continue
 
-            raise error_class(f"API request failed: {error}") from error
+            raise error_class(
+                f"API request failed: {error}{_response_details(error)}"
+            ) from error
 
     raise error_class("API request failed: no response")
+
+
+def _response_details(error: Exception) -> str:
+    if not isinstance(error, httpx.HTTPStatusError):
+        return ""
+    body = error.response.text.strip()
+    return f" - {body[:500]}" if body else ""

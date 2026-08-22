@@ -5,6 +5,7 @@ from simple_agent.infrastructure.llm_http import post_with_retry
 from simple_agent.infrastructure.model_config import ModelConfig
 
 API_REVISION = "2026-05-20"
+SUCCESS_STATUSES = ("completed", "incomplete")
 
 
 class GeminiClientError(Exception):
@@ -94,14 +95,8 @@ class GeminiLLM(LLM):
         return {"type": step_type, "content": [{"type": "text", "text": text}]}
 
     def _raise_on_error(self, interaction: dict) -> None:
-        if "error" in interaction:
-            error = interaction["error"]
-            code = error.get("code", "")
-            message = error.get("message", "Unknown error")
-            raise self.error_class(f"Gemini API error [{code}]: {message}")
-
         status = interaction.get("status")
-        if status != "completed":
+        if status not in SUCCESS_STATUSES:
             raise self.error_class(
                 f"Gemini interaction {status}: {self._error_message(interaction)}"
             )
@@ -114,28 +109,51 @@ class GeminiLLM(LLM):
         return "no error message"
 
     def _output_text(self, interaction: dict) -> str:
+        """
+        Collect the text of the trailing run of 'model_output' steps.
+
+        Steps of other types are skipped until the run starts, mirroring how
+        the Gemini SDK derives an interaction's output text. The echoed input
+        of an earlier turn ends the run.
+        """
         steps = interaction.get("steps")
         if not steps:
             raise self.error_class("API response missing 'steps' field")
 
-        texts = []
+        texts: list[str] = []
+        output_error = None
         for step in reversed(steps):
-            if step.get("type") != "model_output":
+            step_type = step.get("type")
+            if step_type == "user_input":
                 break
+            if step_type != "model_output":
+                if texts:
+                    break
+                continue
+
+            output_error = output_error or step.get("error")
             for content in reversed(step.get("content") or []):
                 if content.get("type") == "text":
                     texts.append(content.get("text", ""))
 
-        if not texts:
-            raise self.error_class("API response contains no model output text")
+        text = "".join(reversed(texts))
+        if not text:
+            self._raise_output_error(output_error)
+        return text
 
-        return "".join(reversed(texts))
+    def _raise_output_error(self, output_error: dict | None) -> None:
+        if output_error:
+            code = output_error.get("code", "")
+            message = output_error.get("message", "Unknown error")
+            raise self.error_class(f"Gemini model output error [{code}]: {message}")
+        raise self.error_class("API response contains no model output text")
 
     def _usage(self, interaction: dict) -> TokenUsage:
         usage = interaction.get("usage") or {}
         return TokenUsage(
             input_tokens=usage.get("total_input_tokens", 0),
-            output_tokens=usage.get("total_output_tokens", 0),
+            output_tokens=usage.get("total_output_tokens", 0)
+            + usage.get("total_thought_tokens", 0),
             total_tokens=usage.get("total_tokens", 0),
         )
 
