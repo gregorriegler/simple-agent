@@ -10,7 +10,7 @@ from simple_agent.infrastructure.llm_http import post_with_retry
 from simple_agent.infrastructure.model_config import ModelConfig
 
 API_REVISION = "2026-05-20"
-SUCCESS_STATUSES = ("completed", "incomplete")
+SUCCESS_STATUSES = ("completed", "incomplete", "requires_action")
 
 
 class GeminiClientError(Exception):

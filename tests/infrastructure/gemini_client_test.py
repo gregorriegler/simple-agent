@@ -589,3 +589,21 @@ async def test_gemini_omits_empty_model_output_before_a_tool_call():
             "arguments": {"command": "ls"},
         }
     ]
+
+
+@pytest.mark.asyncio
+async def test_gemini_treats_requires_action_as_a_tool_call_turn():
+    response_data = {
+        "status": "requires_action",
+        "steps": [
+            {"type": "function_call", "name": "bash", "arguments": {"command": "ls"}}
+        ],
+    }
+    chat = GeminiLLM(
+        build_config(), tools=[bash_tool()], transport=responding_with(response_data)
+    )
+
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert result.content == ""
+    assert [c.arguments for c in result.tool_calls] == ["ls"]
