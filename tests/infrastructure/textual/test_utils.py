@@ -44,6 +44,8 @@ def dump_ui_state(app: TextualApp) -> str:
             class_name = "TabbedContent"
         elif class_name in ("TodoView", "ChatLog", "ToolLog"):
             class_name = "VerticalScroll"
+        elif class_name == "ToolCollapsible":
+            class_name = "Collapsible"
 
         info = f"{indent}{class_name} id='{widget.id}' classes='{' '.join(classes)}'"
 

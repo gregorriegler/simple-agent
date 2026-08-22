@@ -67,3 +67,22 @@ async def test_tool_log_with_custom_display_title():
         tool_log.add_tool_result("call-1", result)
 
         assert tool_log._collapsibles[-1].title == "✅ Search Results"
+
+
+@pytest.mark.asyncio
+async def test_tool_log_wrapped_title_has_hanging_indent():
+    app = ToolLogApp()
+    long_command = "🛠️ bash sleep 3 && echo 'this is a very long command with lots of arguments and options that will wrap to multiple lines'"
+    async with app.run_test(size=(60, 15)) as pilot:
+        tool_log = app.query_one("#tool-log", ToolLog)
+        tool_log.add_tool_call("call-1", long_command)
+        await pilot.pause()
+
+        collapsible = tool_log._collapsibles[-1]
+        title_content = collapsible._title.render()
+        lines = title_content.plain.splitlines()
+        assert len(lines) > 1
+        # Line 0 starts with '▼ 🛠️ '
+        assert lines[0].startswith("▼ 🛠️ ")
+        # Line 1 starts with hanging indent (aligned with bash text after '▼ 🛠️ ')
+        assert lines[1].startswith("    multiple lines")

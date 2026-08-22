@@ -1,6 +1,9 @@
 import logging
+import re
 
+from rich.cells import cell_len
 from rich.syntax import Syntax
+from rich.text import Text
 from textual.containers import VerticalScroll
 from textual.css.query import NoMatches
 from textual.widgets import Collapsible, Static, TextArea
@@ -16,6 +19,63 @@ def _format_tool_title(title: str, status_emoji: str) -> str:
             title = title[len(prefix) :].lstrip()
             break
     return f"{status_emoji} {title}"
+
+
+class ToolCollapsible(Collapsible):
+    def _update_indented_title(self) -> None:
+        title_widget = self._title
+        symbol = (
+            title_widget.collapsed_symbol
+            if title_widget.collapsed
+            else title_widget.expanded_symbol
+        )
+        raw_label = (
+            title_widget.label.plain
+            if hasattr(title_widget.label, "plain")
+            else str(title_widget.label)
+        )
+
+        match = re.match(r"^(\S+)\s+(.*)$", raw_label)
+        if match and any(e in match.group(1) for e in ("🛠", "✅", "❌", "🚫")):
+            prefix_line1 = f"{symbol} {match.group(1)} "
+            body_text = match.group(2)
+        else:
+            prefix_line1 = f"{symbol} "
+            body_text = raw_label
+
+        indent = cell_len(prefix_line1)
+        width = title_widget.size.width - 2
+        if width <= 0:
+            width = 56
+        wrap_width = max(width - indent, 10)
+
+        console = self.app.console if self.app else None
+        wrapped_lines = Text(body_text).wrap(console, wrap_width)
+
+        formatted = Text()
+        for i, line in enumerate(wrapped_lines):
+            if i == 0:
+                formatted.append(prefix_line1)
+                formatted.append(line)
+            else:
+                formatted.append("\n" + (" " * indent))
+                formatted.append(line)
+
+        title_widget.update(formatted)
+
+    def on_resize(self) -> None:
+        if self.is_mounted:
+            self._update_indented_title()
+
+    def _watch_collapsed(self, collapsed: bool) -> None:
+        super()._watch_collapsed(collapsed)
+        if self.is_mounted:
+            self._update_indented_title()
+
+    def _watch_title(self, title: str) -> None:
+        super()._watch_title(title)
+        if self.is_mounted:
+            self._update_indented_title()
 
 
 class ToolLog(VerticalScroll):
@@ -44,7 +104,7 @@ class ToolLog(VerticalScroll):
         text_area.styles.height = 3
 
         title = message.splitlines()[0] if message else "Tool Call"
-        collapsible = Collapsible(text_area, title=title, collapsed=False)
+        collapsible = ToolCollapsible(text_area, title=title, collapsed=False)
         self._collapsibles.append(collapsible)
         self._pending_tool_calls[call_id] = (message, text_area, collapsible)
 
