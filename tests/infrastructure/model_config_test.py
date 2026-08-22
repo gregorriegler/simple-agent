@@ -88,6 +88,27 @@ def test_model_config_from_dict_normalizes_adapter_and_timeout():
     assert model.request_timeout == 30
 
 
+def test_model_config_from_dict_defaults_tool_syntax_to_emoji():
+    config = {"model": "claude-sonnet-4", "adapter": "claude", "api_key": "key"}
+
+    model = ModelConfig.from_dict("claude", config)
+
+    assert model.tool_syntax == "emoji"
+
+
+def test_model_config_from_dict_reads_native_tool_syntax():
+    config = {
+        "model": "gemini-3-flash",
+        "adapter": "gemini",
+        "api_key": "key",
+        "tool_syntax": "Native",
+    }
+
+    model = ModelConfig.from_dict("gemini-3", config)
+
+    assert model.tool_syntax == "native"
+
+
 def test_model_config_from_dict_raises_on_invalid_timeout():
     config = {
         "model": "claude-sonnet-4",

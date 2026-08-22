@@ -11,6 +11,7 @@ class ModelConfig:
     api_key: str
     base_url: str | None = None
     request_timeout: int = 60
+    tool_syntax: str = "emoji"
 
     @staticmethod
     def from_dict(name: str, config: Mapping[str, Any]) -> "ModelConfig":
@@ -63,6 +64,8 @@ class ModelConfig:
                 f"model '{name}' has non-integer 'request_timeout': {timeout!r}"
             ) from err
 
+        tool_syntax = str(config.get("tool_syntax", "emoji")).strip().lower()
+
         return ModelConfig(
             name=name,
             model=str(model),
@@ -70,6 +73,7 @@ class ModelConfig:
             api_key=api_key,
             base_url=base_url,
             request_timeout=request_timeout,
+            tool_syntax=tool_syntax,
         )
 
 

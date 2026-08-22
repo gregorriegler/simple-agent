@@ -73,7 +73,7 @@ class StubLLMProvider:
     def __init__(self):
         self._llm = _create_default_stub_llm()
 
-    def get(self, model_name: str | None = None) -> LLM:
+    def get(self, model_name: str | None = None, tools: list | None = None) -> LLM:
         return self._llm
 
     def get_available_models(self) -> list[str]:

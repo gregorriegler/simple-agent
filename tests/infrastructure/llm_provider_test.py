@@ -17,6 +17,7 @@ def build_user_config(model_config: ModelConfig) -> UserConfiguration:
                 "api_key": model_config.api_key,
                 "base_url": model_config.base_url,
                 "request_timeout": model_config.request_timeout,
+                "tool_syntax": model_config.tool_syntax,
             }
         },
     }
@@ -52,6 +53,34 @@ def test_remote_llm_provider_returns_claude_adapter_by_default():
     llm = provider.get()
 
     assert isinstance(llm, ClaudeLLM)
+
+
+def test_native_gemini_receives_the_tools():
+    model = ModelConfig(
+        name="gemini",
+        model="gemini-3-flash",
+        adapter="gemini",
+        api_key="key",
+        tool_syntax="native",
+    )
+    provider = RemoteLLMProvider(build_user_config(model))
+    tools = ["tool-a", "tool-b"]
+
+    llm = provider.get(tools=tools)
+
+    assert isinstance(llm, GeminiLLM)
+    assert llm._tools == tools
+
+
+def test_emoji_gemini_ignores_the_tools():
+    model = ModelConfig(
+        name="gemini", model="gemini-3-flash", adapter="gemini", api_key="key"
+    )
+    provider = RemoteLLMProvider(build_user_config(model))
+
+    llm = provider.get(tools=["tool-a"])
+
+    assert llm._tools == []
 
 
 def test_remote_llm_provider_returns_bedrock_adapter():

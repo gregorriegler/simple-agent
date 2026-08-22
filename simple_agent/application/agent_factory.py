@@ -125,6 +125,6 @@ class AgentFactory:
         return Brain(
             name=definition.agent_name(),
             system_prompt=system_prompt,
-            llm=self._llm_provider.get(definition.model()),
+            llm=self._llm_provider.get(definition.model(), tools=tools.tools),
             tools=tools,
         )

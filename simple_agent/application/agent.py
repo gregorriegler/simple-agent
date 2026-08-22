@@ -151,7 +151,9 @@ class Agent(SlashCommandVisitor):
     async def change_model(self, command: ModelCommand) -> None:
         old_model = self.brain.llm.model
         try:
-            new_llm = self.llm_provider.get(command.model_name)
+            new_llm = self.llm_provider.get(
+                command.model_name, tools=self.brain.tools.tools
+            )
             self.brain = replace(self.brain, llm=new_llm)
             self.event_bus.publish(
                 ModelChangedEvent(self.agent_id, old_model, command.model_name)

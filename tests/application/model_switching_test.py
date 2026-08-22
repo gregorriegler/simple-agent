@@ -43,7 +43,7 @@ class MockLLMProvider(LLMProvider):
     def __init__(self):
         self.llms = {}
 
-    def get(self, model_name: str | None = None) -> LLM:
+    def get(self, model_name: str | None = None, tools: list | None = None) -> LLM:
         name = model_name or "default"
         if name not in self.llms:
             self.llms[name] = MockLLM(name)
