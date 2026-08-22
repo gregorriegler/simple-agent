@@ -522,3 +522,73 @@ async def test_gemini_allows_empty_text_when_the_model_only_calls_a_function():
 
     assert result.content == ""
     assert [c.arguments for c in result.tool_calls] == ["pwd"]
+
+
+@pytest.mark.asyncio
+async def test_gemini_replays_a_prior_tool_call_as_a_function_call_step():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(),
+        tools=[bash_tool()],
+        transport=responding_with(interaction("done"), captured),
+    )
+    messages = [
+        {"role": "user", "content": "list files"},
+        {
+            "role": "assistant",
+            "content": "on it",
+            "tool_calls": [
+                {"id": "call_1", "name": "bash", "arguments": {"command": "ls"}}
+            ],
+        },
+        {"role": "tool", "call_id": "call_1", "name": "bash", "content": "a.txt"},
+    ]
+
+    await chat.call_async(messages)
+
+    assert captured["body"]["input"] == [
+        {"type": "user_input", "content": [{"type": "text", "text": "list files"}]},
+        {"type": "model_output", "content": [{"type": "text", "text": "on it"}]},
+        {
+            "type": "function_call",
+            "id": "call_1",
+            "name": "bash",
+            "arguments": {"command": "ls"},
+        },
+        {
+            "type": "function_result",
+            "call_id": "call_1",
+            "name": "bash",
+            "result": [{"type": "text", "text": "a.txt"}],
+        },
+    ]
+
+
+@pytest.mark.asyncio
+async def test_gemini_omits_empty_model_output_before_a_tool_call():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(),
+        tools=[bash_tool()],
+        transport=responding_with(interaction("done"), captured),
+    )
+    messages = [
+        {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+                {"id": "call_1", "name": "bash", "arguments": {"command": "ls"}}
+            ],
+        },
+    ]
+
+    await chat.call_async(messages)
+
+    assert captured["body"]["input"] == [
+        {
+            "type": "function_call",
+            "id": "call_1",
+            "name": "bash",
+            "arguments": {"command": "ls"},
+        }
+    ]

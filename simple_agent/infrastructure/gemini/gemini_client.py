@@ -103,17 +103,39 @@ class GeminiLLM(LLM):
             role = message.get("role", "")
             content = message.get("content", "")
 
+            tool_calls = message.get("tool_calls") or []
+
             if role == "system":
                 system_prompts.append(content)
             elif role == "user":
                 steps.append(self._step("user_input", content))
             elif role == "assistant":
-                steps.append(self._step("model_output", content))
+                if content or not tool_calls:
+                    steps.append(self._step("model_output", content))
+                steps.extend(self._function_call_step(call) for call in tool_calls)
+            elif role == "tool":
+                steps.append(self._function_result_step(message, content))
 
         return "\n\n".join(system_prompts), steps
 
     def _step(self, step_type: str, text: str) -> dict:
         return {"type": step_type, "content": [{"type": "text", "text": text}]}
+
+    def _function_call_step(self, call: dict) -> dict:
+        return {
+            "type": "function_call",
+            "id": call.get("id"),
+            "name": call.get("name"),
+            "arguments": call.get("arguments") or {},
+        }
+
+    def _function_result_step(self, message: dict, output: str) -> dict:
+        return {
+            "type": "function_result",
+            "call_id": message.get("call_id"),
+            "name": message.get("name"),
+            "result": [{"type": "text", "text": output}],
+        }
 
     def _raise_on_error(self, interaction: dict) -> None:
         status = interaction.get("status")
