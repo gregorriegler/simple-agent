@@ -35,6 +35,24 @@ def _latest_tool_text_area(app: TextualApp, agent_id: AgentId) -> TextArea:
 
 
 @pytest.mark.asyncio
+async def test_tool_call_loading_indicator_has_border(textual_harness):
+    event_bus, _, _, app = textual_harness
+    agent_id = AgentId("Agent")
+    call_id = "test-call-id"
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        await pilot.pause()
+        event_bus.publish(ToolCalledEvent(agent_id, call_id, StubTool()))
+        await pilot.pause()
+
+        text_area = _latest_tool_text_area(app, agent_id)
+        assert text_area._cover_widget is not None
+        assert text_area._cover_widget.styles.border.top[0] == "round"
+
+
+@pytest.mark.asyncio
 async def test_domain_event_message_wraps_event():
     event = SessionStartedEvent(AgentId("Agent"), False)
 

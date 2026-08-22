@@ -105,6 +105,10 @@ class TextualApp(App):
         border: round $success;
     }
 
+    LoadingIndicator {
+        border: round $primary;
+    }
+
     Pretty {
         border: round $primary;
         margin-bottom: 1;

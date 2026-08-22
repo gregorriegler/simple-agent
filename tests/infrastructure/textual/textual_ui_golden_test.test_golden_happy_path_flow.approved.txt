@@ -263,9 +263,9 @@ Active Tab: tab-Agent
                      ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
    Starting new        ▼ search_files(query='test')
    session
-
-   Waiting for                                  ● ● ● ● ●
-   user input...
+                         ╭─────────────────────────────────────────────────────╮
+   Waiting for           │                      ● ● ● ● ●                      │
+   user input...         ╰─────────────────────────────────────────────────────╯
 
    User: Hello
 
