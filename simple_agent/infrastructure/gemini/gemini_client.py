@@ -103,22 +103,25 @@ class GeminiLLM(LLM):
 
     def _error_message(self, interaction: dict) -> str:
         for error in interaction.get("errors") or []:
-            message = error.get("message")
-            if message:
-                return message
+            details = [
+                str(part) for part in (error.get("code"), error.get("message")) if part
+            ]
+            if details:
+                return ": ".join(details)
         return "no error message"
 
     def _output_text(self, interaction: dict) -> str:
         """
         Collect the text of the trailing run of 'model_output' steps.
 
-        Steps of other types are skipped until the run starts, mirroring how
-        the Gemini SDK derives an interaction's output text. The echoed input
-        of an earlier turn ends the run.
+        Steps of other types are skipped until the run starts and the echoed
+        input of an earlier turn ends the run, as in the Gemini SDK. Unlike
+        the SDK we keep text that surrounds non-text content rather than
+        stopping at it, since this client only ever asks for text.
         """
         steps = interaction.get("steps")
         if not steps:
-            raise self.error_class("API response missing 'steps' field")
+            raise self.error_class("API response has no steps")
 
         texts: list[str] = []
         output_error = None
@@ -152,8 +155,8 @@ class GeminiLLM(LLM):
         usage = interaction.get("usage") or {}
         return TokenUsage(
             input_tokens=usage.get("total_input_tokens", 0),
-            output_tokens=usage.get("total_output_tokens", 0)
-            + usage.get("total_thought_tokens", 0),
+            output_tokens=(usage.get("total_output_tokens") or 0)
+            + (usage.get("total_thought_tokens") or 0),
             total_tokens=usage.get("total_tokens", 0),
         )
 
