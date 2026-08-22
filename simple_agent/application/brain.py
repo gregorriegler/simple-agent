@@ -15,4 +15,8 @@ class Brain:
         self, messages: ChatMessages
     ) -> tuple[LLMResponse, MessageAndParsedTools]:
         response = await self.llm.call_async(messages)
+        if response.tool_calls:
+            return response, self.tools.resolve_tool_calls(
+                response.tool_calls, response.content
+            )
         return response, self.tools.parse_message_and_tools(response.content)

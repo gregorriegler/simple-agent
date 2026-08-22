@@ -1,8 +1,9 @@
 from collections.abc import Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol
 
 from .model_info import ModelInfo
+from .tool_library import RawToolCall
 
 ChatMessage = dict[str, str]
 ChatMessages = list[ChatMessage]
@@ -18,6 +19,7 @@ class TokenUsage:
 @dataclass
 class LLMResponse:
     content: str
+    tool_calls: list[RawToolCall] = field(default_factory=list)
     model: str = ""
     usage: TokenUsage | None = None
 
