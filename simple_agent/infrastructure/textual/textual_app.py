@@ -125,6 +125,11 @@ class TextualApp(App):
         padding: 0;
     }
 
+    CollapsibleTitle {
+        width: 100%;
+        height: auto;
+    }
+
     #user-input {
         height: 5;
         min-height: 3;

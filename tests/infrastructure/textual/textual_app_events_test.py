@@ -79,6 +79,34 @@ async def test_tool_call_collapsible_content_starts_at_left_edge(textual_harness
 
 
 @pytest.mark.asyncio
+async def test_tool_call_collapsible_title_takes_full_width_for_word_wrap(
+    textual_harness,
+):
+    event_bus, _, _, app = textual_harness
+    agent_id = AgentId("Agent")
+    call_id = "test-call-id"
+
+    class LongTitleTool:
+        def header(self) -> str:
+            return "🛠️ bash " + "long_argument " * 20
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        await pilot.pause()
+        event_bus.publish(ToolCalledEvent(agent_id, call_id, LongTitleTool()))
+        await pilot.pause()
+
+        _, _, tool_results_id = app.panel_ids_for(agent_id)
+        tool_log = app.query_one(f"#{tool_results_id}", ToolLog)
+        collapsible = tool_log._collapsibles[-1]
+        title_widget = collapsible._title
+
+        assert title_widget.styles.width.value == 100.0
+        assert title_widget.size.height > 1
+
+
+@pytest.mark.asyncio
 async def test_domain_event_message_wraps_event():
     event = SessionStartedEvent(AgentId("Agent"), False)
 
