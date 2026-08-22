@@ -6,6 +6,7 @@ from typing import Any, Self
 
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.session import SessionArgs
+from simple_agent.infrastructure.env_file import load_env_files
 from simple_agent.infrastructure.model_config import ModelsRegistry
 
 DEFAULT_STARTING_AGENT_TYPE = "orchestrator"
@@ -29,6 +30,7 @@ class UserConfiguration:
 
     @classmethod
     def load_from_config_file(cls, cwd: str) -> Self:
+        load_env_files(cwd)
         config, found = _load_configuration_sources(cwd=cwd)
 
         if not found:
