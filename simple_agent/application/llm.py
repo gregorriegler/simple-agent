@@ -13,7 +13,6 @@ class TokenUsage:
     input_tokens: int = 0
     output_tokens: int = 0
     total_tokens: int = 0
-    input_token_limit: int | None = None
 
 
 @dataclass
@@ -29,8 +28,6 @@ class LLMResponse:
     def token_usage_display(self) -> str:
         input_tokens = self.usage.input_tokens if self.usage else 0
         max_tokens = ModelInfo.get_context_window(self.model)
-        if self.usage and self.usage.input_token_limit:
-            max_tokens = self.usage.input_token_limit
         if max_tokens == 0:
             return "0.0%"
         percentage = (input_tokens / max_tokens) * 100

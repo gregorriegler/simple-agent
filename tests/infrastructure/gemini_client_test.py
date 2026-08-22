@@ -1,3 +1,5 @@
+import json
+
 import httpx
 import pytest
 
@@ -8,140 +10,274 @@ from simple_agent.infrastructure.gemini.gemini_client import (
 from simple_agent.infrastructure.model_config import ModelConfig
 
 
-@pytest.mark.asyncio
-async def test_gemini_chat_returns_text_from_parts():
-    response_data = {
-        "candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]
+def interaction(*texts: str) -> dict:
+    return {
+        "id": "interactions/123",
+        "status": "completed",
+        "steps": [
+            {
+                "type": "model_output",
+                "content": [{"type": "text", "text": text} for text in texts],
+            }
+        ],
     }
 
-    transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, json=response_data)
-    )
 
-    chat = GeminiLLM(build_config(), transport=transport)
-    messages = [{"role": "user", "content": "Hello"}]
+def responding_with(response_data: dict, captured: dict | None = None):
+    def handler(request):
+        if captured is not None:
+            captured["url"] = str(request.url)
+            captured["headers"] = request.headers
+            captured["body"] = json.loads(request.content)
+        return httpx.Response(200, json=response_data)
 
-    result = await chat.call_async(messages)
+    return httpx.MockTransport(handler)
 
-    assert result.content == "assistant response"
+
+@pytest.mark.asyncio
+async def test_gemini_chat_returns_text_from_model_output_step():
+    chat = GeminiLLM(build_config(), transport=responding_with(interaction("hi")))
+
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert result.content == "hi"
     assert result.model == "test-model"
 
 
 @pytest.mark.asyncio
-async def test_gemini_chat_handles_system_prompt():
-    response_data = {
-        "candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]
-    }
+async def test_gemini_chat_reports_model_from_response():
+    response_data = interaction("hi") | {"model": "gemini-3.7-flash"}
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
-    transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, json=response_data)
-    )
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    chat = GeminiLLM(build_config(), transport=transport)
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant"},
-        {"role": "user", "content": "Hello"},
-    ]
-
-    result = await chat.call_async(messages)
-
-    assert result.content == "assistant response"
+    assert result.model == "gemini-3.7-flash"
 
 
 @pytest.mark.asyncio
-async def test_gemini_chat_converts_assistant_to_model_role():
-    response_data = {
-        "candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]
-    }
-
-    transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, json=response_data)
+async def test_gemini_chat_posts_to_interactions_endpoint_with_api_key_header():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(base_url=None),
+        transport=responding_with(interaction("hi"), captured),
     )
 
-    chat = GeminiLLM(build_config(), transport=transport)
+    await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert (
+        captured["url"]
+        == "https://generativelanguage.googleapis.com/v1beta/interactions"
+    )
+    assert captured["headers"]["x-goog-api-key"] == "test-api-key"
+    assert captured["headers"]["Api-Revision"] == "2026-05-20"
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_converts_messages_to_interaction_steps():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(), transport=responding_with(interaction("hi"), captured)
+    )
     messages = [
+        {"role": "system", "content": "You are a helpful assistant"},
         {"role": "user", "content": "Hello"},
         {"role": "assistant", "content": "Hi there!"},
         {"role": "user", "content": "How are you?"},
     ]
 
-    result = await chat.call_async(messages)
+    await chat.call_async(messages)
 
-    assert result.content == "assistant response"
+    assert captured["body"] == {
+        "model": "test-model",
+        "store": False,
+        "system_instruction": "You are a helpful assistant",
+        "input": [
+            {"type": "user_input", "content": [{"type": "text", "text": "Hello"}]},
+            {
+                "type": "model_output",
+                "content": [{"type": "text", "text": "Hi there!"}],
+            },
+            {
+                "type": "user_input",
+                "content": [{"type": "text", "text": "How are you?"}],
+            },
+        ],
+    }
 
 
 @pytest.mark.asyncio
-async def test_gemini_chat_concatenates_multiple_text_parts():
-    response_data = {
-        "candidates": [
-            {"content": {"parts": [{"text": "First part. "}, {"text": "Second part."}]}}
-        ]
-    }
+async def test_gemini_chat_joins_multiple_system_messages():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(), transport=responding_with(interaction("hi"), captured)
+    )
+    messages = [
+        {"role": "system", "content": "First rule"},
+        {"role": "system", "content": "Second rule"},
+        {"role": "user", "content": "Hello"},
+    ]
 
-    transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, json=response_data)
+    await chat.call_async(messages)
+
+    assert captured["body"]["system_instruction"] == "First rule\n\nSecond rule"
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_omits_system_instruction_when_absent():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(), transport=responding_with(interaction("hi"), captured)
     )
 
-    chat = GeminiLLM(build_config(), transport=transport)
+    await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert "system_instruction" not in captured["body"]
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_concatenates_text_of_trailing_model_output_steps():
+    response_data = {
+        "status": "completed",
+        "steps": [
+            {"type": "thought", "signature": "opaque"},
+            {
+                "type": "model_output",
+                "content": [{"type": "text", "text": "First part. "}],
+            },
+            {
+                "type": "model_output",
+                "content": [
+                    {"type": "text", "text": "Second "},
+                    {"type": "text", "text": "part."},
+                ],
+            },
+        ],
+    }
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
+
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
     assert result.content == "First part. Second part."
 
 
 @pytest.mark.asyncio
-async def test_gemini_chat_raises_error_when_candidates_missing():
-    transport = httpx.MockTransport(lambda request: httpx.Response(200, json={}))
+async def test_gemini_chat_keeps_text_surrounding_non_text_content():
+    response_data = {
+        "status": "completed",
+        "steps": [
+            {
+                "type": "model_output",
+                "content": [
+                    {"type": "text", "text": "this is "},
+                    {"type": "image", "data": "BASE64", "mime_type": "image/png"},
+                    {"type": "text", "text": "a picture"},
+                ],
+            }
+        ],
+    }
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
-    chat = GeminiLLM(build_config(), transport=transport)
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    with pytest.raises(GeminiClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
-
-    assert str(error.value) == "API response missing 'candidates' field"
-
-
-@pytest.mark.asyncio
-async def test_gemini_chat_raises_error_when_content_missing():
-    transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, json={"candidates": [{}]})
-    )
-
-    chat = GeminiLLM(build_config(), transport=transport)
-
-    with pytest.raises(GeminiClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
-
-    assert str(error.value) == "API response missing 'content' field"
+    assert result.content == "this is a picture"
 
 
 @pytest.mark.asyncio
-async def test_gemini_chat_raises_error_when_parts_missing():
-    transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, json={"candidates": [{"content": {}}]})
-    )
+async def test_gemini_chat_reports_token_usage():
+    response_data = interaction("hi") | {
+        "usage": {
+            "total_input_tokens": 100,
+            "total_output_tokens": 20,
+            "total_thought_tokens": 10,
+            "total_tokens": 130,
+        }
+    }
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
-    chat = GeminiLLM(build_config(), transport=transport)
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    with pytest.raises(GeminiClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
-
-    assert str(error.value) == "API response missing 'parts' field"
+    assert result.usage.input_tokens == 100
+    assert result.usage.output_tokens == 30
+    assert result.usage.total_tokens == 130
 
 
 @pytest.mark.asyncio
-async def test_gemini_chat_raises_error_on_api_error_response():
-    transport = httpx.MockTransport(
-        lambda request: httpx.Response(
-            200, json={"error": {"code": 400, "message": "Invalid API key"}}
-        )
-    )
+async def test_gemini_chat_raises_error_when_steps_missing():
+    chat = GeminiLLM(build_config(), transport=responding_with({"status": "completed"}))
 
+    with pytest.raises(GeminiClientError) as error:
+        await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert str(error.value) == "API response has no steps"
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_raises_error_when_model_output_has_no_text():
+    response_data = {
+        "status": "completed",
+        "steps": [{"type": "model_output", "content": []}],
+    }
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
+
+    with pytest.raises(GeminiClientError) as error:
+        await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert str(error.value) == "API response contains no model output text"
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_surfaces_api_error_body():
+    error_body = {
+        "error": {
+            "code": 400,
+            "message": "API key not valid",
+            "status": "INVALID_ARGUMENT",
+        }
+    }
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(400, json=error_body)
+    )
     chat = GeminiLLM(build_config(), transport=transport)
 
     with pytest.raises(GeminiClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert str(error.value) == "Gemini API error [400]: Invalid API key"
+    assert "API key not valid" in str(error.value)
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_reports_error_code_when_there_is_no_message():
+    response_data = {"status": "failed", "errors": [{"code": "quota/exhausted"}]}
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
+
+    with pytest.raises(GeminiClientError) as error:
+        await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert str(error.value) == "Gemini interaction failed: quota/exhausted"
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_raises_error_when_interaction_failed():
+    response_data = {
+        "status": "failed",
+        "errors": [{"code": "quota", "message": "Resource exhausted"}],
+    }
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
+
+    with pytest.raises(GeminiClientError) as error:
+        await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert str(error.value) == "Gemini interaction failed: quota: Resource exhausted"
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_raises_error_when_interaction_is_not_completed():
+    chat = GeminiLLM(build_config(), transport=responding_with({"status": "cancelled"}))
+
+    with pytest.raises(GeminiClientError) as error:
+        await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert str(error.value) == "Gemini interaction cancelled: no error message"
 
 
 @pytest.mark.asyncio
@@ -149,8 +285,7 @@ async def test_gemini_chat_raises_error_when_request_fails():
     def handler(request):
         raise httpx.ConnectError("Connection failed", request=request)
 
-    transport = httpx.MockTransport(handler)
-    chat = GeminiLLM(build_config(), transport=transport)
+    chat = GeminiLLM(build_config(), transport=httpx.MockTransport(handler))
 
     with pytest.raises(GeminiClientError) as error:
         await chat.call_async([{"role": "user", "content": "Hello"}])
@@ -158,41 +293,124 @@ async def test_gemini_chat_raises_error_when_request_fails():
     assert "API request failed" in str(error.value)
 
 
-@pytest.mark.asyncio
-async def test_gemini_chat_sends_api_key_as_query_param():
-    response_data = {
-        "candidates": [{"content": {"parts": [{"text": "assistant response"}]}}]
-    }
-    captured = {}
-
-    def handler(request):
-        if "generateContent" in str(request.url):
-            captured["url"] = str(request.url)
-            captured["headers"] = request.headers
-        return httpx.Response(200, json=response_data)
-
-    transport = httpx.MockTransport(handler)
-    chat = GeminiLLM(build_config(base_url=None), transport=transport)
-
-    await chat.call_async([{"role": "user", "content": "Hello"}])
-
-    assert captured["url"] == (
-        "https://generativelanguage.googleapis.com/v1beta"
-        "/models/test-model:generateContent?key=test-api-key"
-    )
-    assert "x-goog-api-key" not in captured["headers"]
-
-
 def test_gemini_chat_raises_error_when_adapter_is_not_gemini():
-    config = build_config(adapter="openai")
-
     with pytest.raises(GeminiClientError) as error:
-        GeminiLLM(config)
+        GeminiLLM(build_config(adapter="openai"))
 
     assert (
         str(error.value)
         == "Configured adapter is not 'gemini'; cannot use Gemini client"
     )
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_skips_trailing_steps_that_are_not_model_output():
+    response_data = {
+        "status": "completed",
+        "steps": [
+            {
+                "type": "model_output",
+                "content": [{"type": "text", "text": "the answer"}],
+            },
+            {"type": "thought", "signature": "opaque"},
+        ],
+    }
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
+
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert result.content == "the answer"
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_stops_at_echoed_user_input_step():
+    response_data = {
+        "status": "completed",
+        "steps": [
+            {
+                "type": "model_output",
+                "content": [{"type": "text", "text": "earlier turn"}],
+            },
+            {"type": "user_input", "content": [{"type": "text", "text": "Hello"}]},
+            {
+                "type": "model_output",
+                "content": [{"type": "text", "text": "this turn"}],
+            },
+        ],
+    }
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
+
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert result.content == "this turn"
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_returns_truncated_text_when_interaction_is_incomplete():
+    response_data = {
+        "status": "incomplete",
+        "steps": [
+            {"type": "model_output", "content": [{"type": "text", "text": "cut off"}]}
+        ],
+    }
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
+
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert result.content == "cut off"
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_raises_model_output_error_when_there_is_no_text():
+    response_data = {
+        "status": "completed",
+        "steps": [
+            {
+                "type": "model_output",
+                "content": [],
+                "error": {"code": 9, "message": "Recitation checked"},
+            }
+        ],
+    }
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
+
+    with pytest.raises(GeminiClientError) as error:
+        await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert str(error.value) == "Gemini model output error [9]: Recitation checked"
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_prefers_model_output_text_over_step_error():
+    response_data = {
+        "status": "completed",
+        "steps": [
+            {
+                "type": "model_output",
+                "content": [{"type": "text", "text": "partial answer"}],
+                "error": {"code": 9, "message": "Recitation checked"},
+            }
+        ],
+    }
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
+
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert result.content == "partial answer"
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_raises_error_when_model_output_text_is_empty():
+    response_data = {
+        "status": "completed",
+        "steps": [{"type": "model_output", "content": [{"type": "text", "text": ""}]}],
+    }
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
+
+    with pytest.raises(GeminiClientError) as error:
+        await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert str(error.value) == "API response contains no model output text"
 
 
 def build_config(

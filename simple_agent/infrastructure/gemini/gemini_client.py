@@ -2,8 +2,10 @@ import httpx
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
 from simple_agent.infrastructure.llm_http import post_with_retry
-from simple_agent.infrastructure.logging_http_client import LoggingAsyncClient
 from simple_agent.infrastructure.model_config import ModelConfig
+
+API_REVISION = "2026-05-20"
+SUCCESS_STATUSES = ("completed", "incomplete")
 
 
 class GeminiClientError(Exception):
@@ -22,132 +24,141 @@ class GeminiLLM(LLM):
         self._config = config
         self._transport = transport
         self._ensure_adapter()
-        self._input_token_limit = None
-
-    async def _get_input_token_limit(self) -> int | None:
-        if self._input_token_limit is not None:
-            return self._input_token_limit
-
-        api_key = self._config.api_key
-        model = self._config.model
-        base_url = self._base_url()
-        url = f"{base_url.rstrip('/')}/models/{model}?key={api_key}"
-
-        try:
-            async with LoggingAsyncClient(
-                timeout=10, transport=self._transport
-            ) as client:
-                response = await client.get(url)
-                response.raise_for_status()
-                data = response.json()
-                self._input_token_limit = int(data.get("inputTokenLimit", 0))
-        except Exception:
-            self._input_token_limit = 0
-
-        return self._input_token_limit
 
     @property
     def model(self) -> str:
         return self._config.model
 
     async def call_async(self, messages: ChatMessages) -> LLMResponse:
-        return await self._call_async(messages)
-
-    async def _call_async(self, messages: ChatMessages) -> LLMResponse:
-        api_key = self._config.api_key
-        model = self._config.model
-
-        url, headers = self._generate_content_request(self._base_url(), model, api_key)
-
-        gemini_contents = self._convert_messages_to_gemini_format(messages)
-
-        data = {
-            "contents": gemini_contents,
-        }
-
         response = await post_with_retry(
-            url,
-            headers=headers,
-            json=data,
+            self._interactions_url(),
+            headers={
+                "Content-Type": "application/json",
+                "x-goog-api-key": self._config.api_key,
+                "Api-Revision": API_REVISION,
+            },
+            json=self._build_request(messages),
             timeout=self._config.request_timeout,
             error_class=self.error_class,
             transport=self._transport,
         )
 
-        response_data = response.json()
+        interaction = response.json()
+        self._raise_on_error(interaction)
 
-        if "error" in response_data:
-            error_message = response_data["error"].get("message", "Unknown error")
-            error_code = response_data["error"].get("code", "")
-            raise self.error_class(f"Gemini API error [{error_code}]: {error_message}")
-
-        candidates = response_data.get("candidates")
-        if not candidates:
-            raise self.error_class("API response missing 'candidates' field")
-
-        first_candidate = candidates[0]
-        content = first_candidate.get("content")
-        if content is None:
-            raise self.error_class("API response missing 'content' field")
-
-        parts = content.get("parts")
-        if not parts:
-            raise self.error_class("API response missing 'parts' field")
-
-        text_parts = [part.get("text", "") for part in parts if "text" in part]
-        text_content = "".join(text_parts)
-
-        usage_metadata = response_data.get("usageMetadata", {})
-        input_token_limit = await self._get_input_token_limit()
-
-        usage = TokenUsage(
-            input_tokens=usage_metadata.get("promptTokenCount", 0),
-            output_tokens=usage_metadata.get("candidatesTokenCount", 0),
-            total_tokens=usage_metadata.get("totalTokenCount", 0),
-            input_token_limit=input_token_limit
-            if input_token_limit and input_token_limit > 0
-            else None,
+        return LLMResponse(
+            content=self._output_text(interaction),
+            model=interaction.get("model") or self._config.model,
+            usage=self._usage(interaction),
         )
 
-        return LLMResponse(content=text_content, model=model, usage=usage)
+    def _interactions_url(self) -> str:
+        base_url = self._config.base_url or self.default_base_url
+        return f"{base_url.rstrip('/')}/interactions"
 
-    def _base_url(self) -> str:
-        return self._config.base_url or self.default_base_url
+    def _build_request(self, messages: ChatMessages) -> dict:
+        system_instruction, steps = self._convert_messages(messages)
+        request = {
+            "model": self._config.model,
+            "input": steps,
+            "store": False,
+        }
+        if system_instruction:
+            request["system_instruction"] = system_instruction
+        return request
 
-    def _generate_content_request(
-        self, base_url: str, model: str, api_key: str
-    ) -> tuple[str, dict[str, str]]:
-        url = f"{base_url.rstrip('/')}/models/{model}:generateContent?key={api_key}"
-        return url, {"Content-Type": "application/json"}
-
-    def _convert_messages_to_gemini_format(self, messages: ChatMessages) -> list[dict]:
+    def _convert_messages(self, messages: ChatMessages) -> tuple[str, list[dict]]:
         """
-        Convert standard chat messages to Gemini API format.
+        Convert standard chat messages to Interactions API input steps.
 
-        Gemini expects:
-        - 'user' role for user messages
-        - 'model' role for assistant messages
-        - System messages are not directly supported, so we prepend them to the first user message
+        System messages become the interaction's system_instruction, user
+        messages become 'user_input' steps and assistant messages become
+        'model_output' steps.
         """
-        gemini_contents = []
-        system_prompt = None
+        system_prompts = []
+        steps = []
 
         for message in messages:
             role = message.get("role", "")
             content = message.get("content", "")
 
             if role == "system":
-                system_prompt = content
+                system_prompts.append(content)
             elif role == "user":
-                if system_prompt:
-                    content = f"{system_prompt}\n\n{content}"
-                    system_prompt = None
-
-                gemini_contents.append({"role": "user", "parts": [{"text": content}]})
+                steps.append(self._step("user_input", content))
             elif role == "assistant":
-                gemini_contents.append({"role": "model", "parts": [{"text": content}]})
+                steps.append(self._step("model_output", content))
 
-        return gemini_contents
+        return "\n\n".join(system_prompts), steps
+
+    def _step(self, step_type: str, text: str) -> dict:
+        return {"type": step_type, "content": [{"type": "text", "text": text}]}
+
+    def _raise_on_error(self, interaction: dict) -> None:
+        status = interaction.get("status")
+        if status not in SUCCESS_STATUSES:
+            raise self.error_class(
+                f"Gemini interaction {status}: {self._error_message(interaction)}"
+            )
+
+    def _error_message(self, interaction: dict) -> str:
+        for error in interaction.get("errors") or []:
+            details = [
+                str(part) for part in (error.get("code"), error.get("message")) if part
+            ]
+            if details:
+                return ": ".join(details)
+        return "no error message"
+
+    def _output_text(self, interaction: dict) -> str:
+        """
+        Collect the text of the trailing run of 'model_output' steps.
+
+        Steps of other types are skipped until the run starts and the echoed
+        input of an earlier turn ends the run, as in the Gemini SDK. Unlike
+        the SDK we keep text that surrounds non-text content rather than
+        stopping at it, since this client only ever asks for text.
+        """
+        steps = interaction.get("steps")
+        if not steps:
+            raise self.error_class("API response has no steps")
+
+        texts: list[str] = []
+        output_error = None
+        for step in reversed(steps):
+            step_type = step.get("type")
+            if step_type == "user_input":
+                break
+            if step_type != "model_output":
+                if texts:
+                    break
+                continue
+
+            output_error = output_error or step.get("error")
+            for content in reversed(step.get("content") or []):
+                if content.get("type") == "text":
+                    texts.append(content.get("text", ""))
+
+        text = "".join(reversed(texts))
+        if not text:
+            self._raise_output_error(output_error)
+        return text
+
+    def _raise_output_error(self, output_error: dict | None) -> None:
+        if output_error:
+            code = output_error.get("code", "")
+            message = output_error.get("message", "Unknown error")
+            raise self.error_class(f"Gemini model output error [{code}]: {message}")
+        raise self.error_class("API response contains no model output text")
+
+    def _usage(self, interaction: dict) -> TokenUsage:
+        usage = interaction.get("usage") or {}
+        return TokenUsage(
+            input_tokens=usage.get("total_input_tokens", 0),
+            output_tokens=(usage.get("total_output_tokens") or 0)
+            + (usage.get("total_thought_tokens") or 0),
+            total_tokens=usage.get("total_tokens", 0),
+        )
 
     def _ensure_adapter(self) -> None:
         if self._config.adapter != self.adapter_name:

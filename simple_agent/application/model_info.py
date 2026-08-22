@@ -11,8 +11,16 @@ class ModelInfo:
         "us.anthropic.claude-4-5-opus": 200_000,
         "us.anthropic.claude-opus-4-5-20251101-v1:0": 200_000,
         # Google Gemini models
-        "gemini-2.5-pro": 1_048_576,
-        "gemini-3-pro-preview": 1_048_576,
+        "gemini-3.7-flash": 1_048_576,
+        "gemini-3.6-flash": 1_048_576,
+        "gemini-3.5-flash": 1_048_576,
+        "gemini-3.5-flash-lite": 1_048_576,
+        "gemini-3.1-pro-preview": 1_048_576,
+        "gemini-3.1-flash-lite": 1_048_576,
+        "gemini-3-flash-preview": 1_048_576,
+        "gemini-pro-latest": 1_048_576,
+        "gemini-flash-latest": 1_048_576,
+        "gemini-flash-lite-latest": 1_048_576,
     }
 
     @staticmethod

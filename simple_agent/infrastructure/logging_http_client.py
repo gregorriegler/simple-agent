@@ -7,7 +7,7 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
-SENSITIVE_HEADERS = {"authorization", "x-api-key"}
+SENSITIVE_HEADERS = {"authorization", "x-api-key", "x-goog-api-key"}
 
 
 class LoggingAsyncClient(httpx.AsyncClient):
