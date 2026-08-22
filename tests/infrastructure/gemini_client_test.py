@@ -90,6 +90,7 @@ async def test_gemini_chat_converts_messages_to_interaction_steps():
     assert captured["body"] == {
         "model": "test-model",
         "store": False,
+        "generation_config": {"tool_choice": "none"},
         "system_instruction": "You are a helpful assistant",
         "input": [
             {"type": "user_input", "content": [{"type": "text", "text": "Hello"}]},
@@ -132,6 +133,18 @@ async def test_gemini_chat_omits_system_instruction_when_absent():
     await chat.call_async([{"role": "user", "content": "Hello"}])
 
     assert "system_instruction" not in captured["body"]
+
+
+@pytest.mark.asyncio
+async def test_gemini_chat_forbids_native_function_calls():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(), transport=responding_with(interaction("hi"), captured)
+    )
+
+    await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert captured["body"]["generation_config"] == {"tool_choice": "none"}
 
 
 @pytest.mark.asyncio

@@ -62,6 +62,7 @@ class GeminiLLM(LLM):
             "model": self._config.model,
             "input": steps,
             "store": False,
+            "generation_config": {"tool_choice": "none"},
         }
         if system_instruction:
             request["system_instruction"] = system_instruction
