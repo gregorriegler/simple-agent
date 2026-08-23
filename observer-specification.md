@@ -52,16 +52,17 @@ New application-layer objects, all independent of infrastructure:
   `UserInput` already holds what the UI has typed; both learned to `drain()`
   instead (see §2).
 - `CheckpointDetector` — subscribes to `ToolResultEvent`, owns the in-flight gate.
-- `ChangeTracker` (port) — touched paths, diff, version markers since the last
-  checkpoint.
+- `ChangeReporter` (port) — reports the current diff of the working directory.
+  It keeps no state: an earlier draft accumulated touched paths per checkpoint,
+  which was dropped (see §4).
 - `SuggestionMailbox` — holds suggestions between checkpoints, applies the
   staleness filter.
 - `ObserverLibrary` — resolves observer names to definitions.
 
 New infrastructure:
 
-- `GitChangeTracker` — implements `ChangeTracker` via
-  `git --no-pager diff -- <paths>`.
+- `GitChangeReporter` — implements `ChangeReporter` via `git --no-pager diff`,
+  plus one `git diff --no-index /dev/null <path>` per untracked file.
 - ~~`IntentView`~~ — not built as a separate widget; `TodoView` renders the
   intent above the todos (see §1).
 
@@ -242,15 +243,36 @@ the mechanism to a project convention, so it is not the default.
 
 ---
 
-## 4. Change tracking
+## 4. Change reporting
 
-Between checkpoints, touched paths accumulate. At a checkpoint:
+**Status: `ChangeReporter` port and `GitChangeReporter` built; version markers
+not yet.**
 
-- **Diff** — `git --no-pager diff` restricted to those paths. When the working
-  directory is not a git repository, fall back to full file contents.
-- **Version marker** — `sha256` of each touched file's current content. This
-  works whether or not anything has been committed, which a commit SHA would
-  not.
+- **Diff** — `git --no-pager diff` over the whole working directory, plus one
+  `git diff --no-index /dev/null <path>` for every untracked file. The untracked
+  pass is not optional: `create-file` produces a file git does not know about,
+  so a plain diff shows nothing for exactly the case observers most need.
+  Outside a git repository the diff is empty; observers can still read files
+  through their own tools.
+- **Version marker** — `sha256` of the target file's current content. This works
+  whether or not anything has been committed, which a commit SHA would not.
+
+### Why no touched paths
+
+An earlier version had the detector accumulate the paths of files written since
+the last checkpoint, and restricted the diff to them. It was dropped: a path
+taken from a write tool's arguments is a guess about what the tool did, and it
+misses everything `bash` changes. Either the tools report their own changes
+truthfully, or the diff speaks for itself — a half-story in between is worse
+than both.
+
+The whole-tree diff also sees `bash`, `mv`, and anything else that touched the
+working directory, which the path list never could.
+
+If a list of changed files is needed later — the staleness filter of §6 needs a
+file to hash — it can be derived from the diff headers, or projected from the
+event log (`ToolCalledEvent` carries the arguments), rather than tracked as
+state.
 
 ---
 
@@ -317,7 +339,7 @@ moved elsewhere. Detecting that would require comparing intent against the diff
 1. Intent slot — ✅ tool, file storage and UI panel; ⬜ staleness nag
 2. Mid-loop message queue — ✅
 3. Checkpoint detector — ✅
-4. Change tracking — diff and version markers — next
+4. Change reporting — ✅ diff; ⬜ version markers
 5. Observers — library, read-only whitelist, async spawn, suggestion format
 6. Staleness filter
 
