@@ -28,10 +28,10 @@ async def test_create_file_in_nonexistent_directory(tmp_path, tool_library):
 async def test_create_file_already_exists(tmp_path, tool_library):
     with temp_directory(tmp_path):
         tool = tool_library.parse_message_and_tools("🛠️[create-file existing.txt /]")
-        await tool_library.execute_parsed_tool(tool.tools[0])
+        await tool_library.execute_tool_call(tool.tools[0])
 
         tool = tool_library.parse_message_and_tools("🛠️[create-file existing.txt /]")
-        result = await tool_library.execute_parsed_tool(tool.tools[0])
+        result = await tool_library.execute_tool_call(tool.tools[0])
         assert (
             "already exists" in result.message.lower()
             or "exists" in result.message.lower()
@@ -80,7 +80,7 @@ Third Line
 async def verify_create_tool(tool_library, command, expected_filename, tmp_path):
     with temp_directory(tmp_path):
         tool = tool_library.parse_message_and_tools(command)
-        result = await tool_library.execute_parsed_tool(tool.tools[0])
+        result = await tool_library.execute_tool_call(tool.tools[0])
 
         with open(expected_filename, encoding="utf-8") as f:
             actual_content = f.read()

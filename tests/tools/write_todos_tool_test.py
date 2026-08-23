@@ -38,7 +38,7 @@ async def test_write_todos_creates_markdown_file(tmp_path):
     library = factory.create(tool_context, dummy_spawner, AgentTypes([]))
 
     tool = library.parse_message_and_tools(command)
-    result = await library.execute_parsed_tool(tool.tools[0])
+    result = await library.execute_tool_call(tool.tools[0])
 
     # The file should be at tmp_path / .Agent.todos.md
     content = (tmp_path / ".Agent.todos.md").read_text(encoding="utf-8")

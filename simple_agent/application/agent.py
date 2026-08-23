@@ -201,7 +201,7 @@ class Agent(SlashCommandVisitor):
                 if not parsed.tools:
                     break
 
-                tool_result = await self.tools_executor.execute_tools(parsed.tools)
+                tool_result = await self.tools_executor.execute_tool_calls(parsed.tools)
                 for call, output in tool_result.tool_results:
                     self.context.tool_result(call, output)
 

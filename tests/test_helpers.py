@@ -180,7 +180,7 @@ def all_scrubbers():
 
 async def verify_tool(library, command):
     tool = library.parse_message_and_tools(command)
-    result = await library.execute_parsed_tool(tool.tools[0])
+    result = await library.execute_tool_call(tool.tools[0])
     verify(
         f"Command:\n{command}\n\nResult:\n{result}",
         options=Options().with_scrubber(all_scrubbers()),
