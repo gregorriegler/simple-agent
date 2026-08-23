@@ -15,6 +15,7 @@ from simple_agent.application.tool_syntax import ToolSyntax
 
 from .bash_tool import BashTool
 from .cat_tool import CatTool
+from .communicate_intent_tool import CommunicateIntentTool
 from .complete_task_tool import CompleteTaskTool
 from .create_file_tool import CreateFileTool
 from .ls_tool import LsTool
@@ -52,6 +53,9 @@ class AllTools(ToolLibrary):
             "create_file": lambda: CreateFileTool(),
             "replace_file_content": lambda: ReplaceFileContentTool(),
             "complete_task": lambda: CompleteTaskTool(),
+            "communicate_intent": lambda: CommunicateIntentTool(
+                str(self.tool_context.agent_id.intent_filename())
+            ),
             "bash": lambda: BashTool(),
             "subagent": lambda: SubagentTool(self._spawner, self._agent_types),
         }

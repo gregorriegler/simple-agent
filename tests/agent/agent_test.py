@@ -79,6 +79,17 @@ async def test_tool_ls_integration(tmp_path):
     )
 
 
+async def test_tool_communicate_intent(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    await verify_chat(
+        ["Test message", "\n"],
+        [
+            "🛠️[communicate-intent]\nExtract the tool syntax parser\n🛠️[/end]",
+            "🛠️[complete-task summary /]",
+        ],
+    )
+
+
 async def test_multiple_tool_calls_in_one_response(tmp_path):
     directory_path, _, temp_file, _, _ = create_temp_directory_structure(tmp_path)
     await verify_chat(

@@ -1,6 +1,7 @@
 .simple-agent.toml
 .*.todos.md
 .todos.md
+.*.intent.md
 
 # Python
 __pycache__/

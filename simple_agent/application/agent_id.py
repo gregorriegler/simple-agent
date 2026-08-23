@@ -46,6 +46,10 @@ class AgentId:
         root = self._root or Path(".")
         return root / f".{self.for_filesystem()}.todos.md"
 
+    def intent_filename(self) -> Path:
+        root = self._root or Path(".")
+        return root / f".{self.for_filesystem()}.intent.md"
+
     def for_ui(self) -> str:
         return self.for_filesystem()
 

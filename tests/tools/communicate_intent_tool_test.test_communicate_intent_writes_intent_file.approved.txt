@@ -1,0 +1,12 @@
+Command:
+🛠️[communicate-intent]
+Extract the tool syntax parser
+🛠️[/end]
+
+Result:
+Intent: Extract the tool syntax parser
+
+File content:
+--- FILE CONTENT START ---
+Extract the tool syntax parser
+--- FILE CONTENT END ---

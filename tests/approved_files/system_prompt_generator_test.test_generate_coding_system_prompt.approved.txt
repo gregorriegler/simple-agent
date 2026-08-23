@@ -263,6 +263,29 @@ Signal task completion with a summary of what was accomplished
 
 -
 
+## communicate-intent tool
+Communicate what you are currently trying to achieve. This is state, not a log: a new call overwrites the previous intent. Call it when your goal changes, not on every step.
+
+### Usage:
+🛠️[communicate-intent]
+{content}
+🛠️[/end]
+
+### Arguments:
+ - intent: string (required) - A single short sentence describing the current goal
+
+### Examples:
+
+🛠️[communicate-intent]
+Extract the tool syntax parser
+🛠️[/end]
+
+Then you will receive a result:
+Result of 🛠️ communicate-intent
+Intent: Extract the tool syntax parser
+
+-
+
 ## bash tool
 Execute bash commands. Tip: Avoid grep, but use ripgrep (the rg command) for search. To run a command in the background, end it with an ampersand (&).
 
