@@ -367,7 +367,7 @@ Active Tab: tab-Agent
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
-                  Collapsible id='None' classes='' title='🛠️ write_todos()' collapsed=False
+                  Collapsible id='None' classes='tool-status-running' title='🛠️ write_todos()' collapsed=False
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
@@ -378,7 +378,7 @@ Active Tab: tab-Agent
 --- Step: Tool Call (Suppressed) (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                      ▼ 🛠️ write_todos()
+                     ▌ ▼ 🛠️ write_todos()
    ❌ Error:         ╭─────────────────────────────────────────────────────────╮
    Something went    │                        ● ● ● ● ●                        │
    wrong             ╰─────────────────────────────────────────────────────────╯
@@ -427,7 +427,7 @@ Active Tab: tab-Agent
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
-                  Collapsible id='None' classes='-collapsed' title='🛠️ write_todos()' collapsed=True
+                  Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
@@ -442,7 +442,7 @@ Active Tab: tab-Agent
 --- Step: Tool Result (Diff) (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                      ▶ 🛠️ write_todos()
+                     ▌ ▶ 🛠️ write_todos()
    ❌ Error:         ▌ ▼ 🛠️ apply_diff()
    Something went    ╭─────────────────────────────────────────────────────────╮
    wrong             │<<<<<<< SEARCH                                           │
@@ -491,7 +491,7 @@ Active Tab: tab-Agent
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
-                  Collapsible id='None' classes='-collapsed' title='🛠️ write_todos()' collapsed=True
+                  Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
@@ -510,7 +510,7 @@ Active Tab: tab-Agent
 --- Step: Tool Cancelled (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                      ▶ 🛠️ write_todos()
+                     ▌ ▶ 🛠️ write_todos()
    ❌ Error:         ▌ ▶ 🛠️ apply_diff()
    Something went    ▌ ▼ 🛠️ long_running() (Cancelled)
    wrong             ╭─────────────────────────────────────────────────────────╮
@@ -559,7 +559,7 @@ Active Tab: tab-Agent
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
-                  Collapsible id='None' classes='-collapsed' title='🛠️ write_todos()' collapsed=True
+                  Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
@@ -578,7 +578,7 @@ Active Tab: tab-Agent
 --- Step: File Context Submitted (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                      ▶ 🛠️ write_todos()
+                     ▌ ▶ 🛠️ write_todos()
    ❌ Error:         ▌ ▶ 🛠️ apply_diff()
    Something went    ▌ ▼ 🛠️ long_running() (Cancelled)
    wrong             ╭─────────────────────────────────────────────────────────╮

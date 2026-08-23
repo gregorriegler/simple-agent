@@ -130,6 +130,10 @@ class TextualApp(App):
         height: auto;
     }
 
+    ToolCollapsible.tool-status-running > CollapsibleTitle {
+        border-left: outer $primary;
+    }
+
     ToolCollapsible.tool-status-success > CollapsibleTitle {
         border-left: outer $success;
     }

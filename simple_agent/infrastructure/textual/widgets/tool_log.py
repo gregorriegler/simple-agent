@@ -89,6 +89,7 @@ class ToolCollapsible(Collapsible):
         title_widget.update(formatted)
 
     def on_mount(self) -> None:
+        self._update_indented_title()
         self.call_after_refresh(self._update_indented_title)
 
     def on_resize(self) -> None:
@@ -133,7 +134,12 @@ class ToolLog(VerticalScroll):
 
         title = message.splitlines()[0] if message else "Tool Call"
         title = _format_tool_title(title, _tool_emoji_for(message))
-        collapsible = ToolCollapsible(text_area, title=title, collapsed=False)
+        collapsible = ToolCollapsible(
+            text_area,
+            title=title,
+            collapsed=False,
+            classes="tool-status-running",
+        )
         self._collapsibles.append(collapsible)
         self._pending_tool_calls[call_id] = (message, text_area, collapsible)
 
@@ -220,7 +226,10 @@ class ToolLog(VerticalScroll):
             else ("tool-status-success" if result.success else "tool-status-error")
         )
         call_collapsible.remove_class(
-            "tool-status-success", "tool-status-error", "tool-status-cancelled"
+            "tool-status-running",
+            "tool-status-success",
+            "tool-status-error",
+            "tool-status-cancelled",
         )
         call_collapsible.add_class(status_class)
         base_title = result.display_title or call_collapsible.title
@@ -252,7 +261,10 @@ class ToolLog(VerticalScroll):
         text_area.styles.height = 3
 
         call_collapsible.remove_class(
-            "tool-status-success", "tool-status-error", "tool-status-cancelled"
+            "tool-status-running",
+            "tool-status-success",
+            "tool-status-error",
+            "tool-status-cancelled",
         )
         call_collapsible.add_class("tool-status-cancelled")
         title = title_source.splitlines()[0] if title_source else "Tool Call"

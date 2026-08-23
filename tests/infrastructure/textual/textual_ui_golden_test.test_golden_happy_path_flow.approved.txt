@@ -250,7 +250,7 @@ Active Tab: tab-Agent
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
-                  Collapsible id='None' classes='' title="🛠️ search_files(query='test')" collapsed=False
+                  Collapsible id='None' classes='tool-status-running' title="🛠️ search_files(query='test')" collapsed=False
                     CollapsibleTitle id='None' classes=''
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
@@ -260,7 +260,7 @@ Active Tab: tab-Agent
 --- Step: Tool Called (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                      ▼ 🛠️ search_files(query='test')
+                     ▌ ▼ 🛠️ search_files(query='test')
    Starting new      ╭─────────────────────────────────────────────────────────╮
    session           │                        ● ● ● ● ●                        │
                      ╰─────────────────────────────────────────────────────────╯

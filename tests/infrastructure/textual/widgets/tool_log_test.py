@@ -18,6 +18,17 @@ class ToolLogApp(App):
 
 
 @pytest.mark.asyncio
+async def test_a_running_tool_call_has_the_running_status_class():
+    app = ToolLogApp()
+    async with app.run_test():
+        tool_log = app.query_one("#tool-log", ToolLog)
+
+        tool_log.add_tool_call("call-1", "🛠️ bash sleep 3")
+
+        assert tool_log._collapsibles[-1].has_class("tool-status-running")
+
+
+@pytest.mark.asyncio
 async def test_tool_log_success_retains_tool_emoji_with_success_border():
     app = ToolLogApp()
     async with app.run_test():
