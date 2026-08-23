@@ -226,7 +226,7 @@ Signal task completion with a summary of what was accomplished
 -
 
 ## communicate-intent tool
-Communicate what you are currently trying to achieve. This is state, not a log: a new call overwrites the previous intent. Call it when your goal changes, not on every step.
+State what you are currently pursuing, so an observer watching you knows what you are trying to achieve. It may be understanding a request, investigating a failure, or implementing a feature - not a step, and not a tool call. Say it whenever it changes.
 
 ### Usage:
 🛠️[communicate-intent]

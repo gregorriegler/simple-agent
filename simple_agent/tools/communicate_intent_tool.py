@@ -9,9 +9,10 @@ from .base_tool import BaseTool
 class CommunicateIntentTool(BaseTool):
     name = "communicate-intent"
     description = (
-        "Communicate what you are currently trying to achieve. "
-        "This is state, not a log: a new call overwrites the previous intent. "
-        "Call it when your goal changes, not on every step."
+        "State what you are currently pursuing, so an observer watching you "
+        "knows what you are trying to achieve. It may be understanding a "
+        "request, investigating a failure, or implementing a feature - "
+        "not a step, and not a tool call. Say it whenever it changes."
     )
     arguments = ToolArguments(
         header=[],
