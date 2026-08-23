@@ -207,7 +207,7 @@ ignored for now, on the assumption that nobody does it.
 
 ## 3. Checkpoint detector
 
-**Status: built — not yet wired into the application.**
+**Status: built and wired into `Session`.**
 
 `CheckpointDetector` subscribes to `ToolResultEvent`. Fires on successful results from tools that
 mutate files (`create_file`, `replace_file_content`), and only when no observer
@@ -220,10 +220,15 @@ detector also subscribes to `ToolCalledEvent` and remembers the name per call id
 Adding the call to the result event would have been the alternative; it would
 have changed the persisted event schema for a lookup that costs one dict.
 
-The gate is released by `round_finished()`, called by whatever runs the observer
-round. Until such a consumer exists the detector is deliberately **not wired**
-into `main.py`: with nobody releasing the gate it would latch after the first
-write.
+The gate is opened by the consumer, not by the detector: whatever runs the
+observer round calls `round_started()` and later `round_finished()`. Latching on
+publication was the first version, but with no consumer yet it would have
+latched after the first write of every session. Explicit `round_started()` means
+that until observers exist every write is a checkpoint, which is the honest
+behaviour of a round with nothing in it.
+
+`Session` constructs the detector, so it is live wherever a session runs and is
+covered end-to-end in `tests/agent/checkpoint_test.py`.
 
 `bash` is deliberately excluded for now. It can mutate files, but knowing
 *which* files means parsing the command; catching it reliably would mean
@@ -311,7 +316,7 @@ moved elsewhere. Detecting that would require comparing intent against the diff
 
 1. Intent slot — ✅ tool, file storage and UI panel; ⬜ staleness nag
 2. Mid-loop message queue — ✅
-3. Checkpoint detector — ✅ detector and gate; ⬜ wiring (waits for a consumer)
+3. Checkpoint detector — ✅
 4. Change tracking — diff and version markers — next
 5. Observers — library, read-only whitelist, async spawn, suggestion format
 6. Staleness filter
