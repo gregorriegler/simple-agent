@@ -27,7 +27,7 @@ class RawToolCall:
         return f"🛠️ {self.name}"
 
 
-class ParsedTool:
+class ToolCall:
     def __init__(self, raw_call, tool_instance):
         self.raw_call = raw_call
         self.tool_instance = tool_instance
@@ -44,21 +44,18 @@ class ParsedTool:
     def body(self):
         return self.raw_call.body
 
-    def header(self):
-        return self.raw_call.header()
-
     def __str__(self):
         return self.raw_call.__str__()
 
 
 @dataclass
-class MessageAndParsedTools:
+class AssistantTurn:
     message: str
-    tools: list[ParsedTool]
+    tool_calls: list[ToolCall]
 
     def __iter__(self):
         yield self.message
-        yield self.tools
+        yield self.tool_calls
 
 
 @dataclass
@@ -125,10 +122,10 @@ class ToolLibrary(Protocol):
     tools: list[Tool]
     tool_syntax: "ToolSyntax"
 
-    def parse_message_and_tools(self, text: str) -> MessageAndParsedTools: ...
+    def parse_and_resolve(self, text: str) -> AssistantTurn: ...
 
     def resolve_tool_calls(
         self, tool_calls: list[RawToolCall], message: str
-    ) -> MessageAndParsedTools: ...
+    ) -> AssistantTurn: ...
 
-    async def execute_parsed_tool(self, parsed_tool: ParsedTool) -> ToolResult: ...
+    async def execute_tool_call(self, tool_call: ToolCall) -> ToolResult: ...

@@ -8,10 +8,10 @@ from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import ToolCalledEvent, ToolResultEvent
 from simple_agent.application.tool_library import (
-    MessageAndParsedTools,
-    ParsedTool,
+    AssistantTurn,
     RawToolCall,
     Tool,
+    ToolCall,
     ToolLibrary,
 )
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
@@ -25,11 +25,11 @@ class ToolLibraryStub(ToolLibrary):
         self.tools: list[Tool] = []
         self.tool_syntax: ToolSyntax = Mock()
 
-    def parse_message_and_tools(self, text: str) -> MessageAndParsedTools:
-        return MessageAndParsedTools(text, [])
+    def parse_and_resolve(self, text: str) -> AssistantTurn:
+        return AssistantTurn(text, [])
 
-    async def execute_parsed_tool(self, parsed_tool):
-        return await parsed_tool.tool_instance.execute(parsed_tool.raw_call)
+    async def execute_tool_call(self, tool_call):
+        return await tool_call.tool_instance.execute(tool_call.raw_call)
 
 
 class BlockingSlowTool:
@@ -56,7 +56,7 @@ async def test_tool_called_event_published_before_tool_completes():
     event_bus.subscribe(ToolResultEvent, lambda event: result_event.set())
 
     tool = BlockingSlowTool(delay_seconds=0.1)
-    parsed_tool = ParsedTool(RawToolCall(name="blocking", arguments=""), tool)
+    tool_call = ToolCall(RawToolCall(name="blocking", arguments=""), tool)
 
     executor = ToolsExecutor(
         library=ToolLibraryStub(),
@@ -64,7 +64,7 @@ async def test_tool_called_event_published_before_tool_completes():
         agent_id=AgentId("test"),
     )
 
-    task = asyncio.create_task(executor.execute_tools([parsed_tool]))
+    task = asyncio.create_task(executor.execute_tool_calls([tool_call]))
     await asyncio.sleep(0)
     assert called_event.is_set() is True
     assert result_event.is_set() is False

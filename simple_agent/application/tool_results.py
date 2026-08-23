@@ -4,7 +4,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
-    from .tool_library import ParsedTool, RawToolCall
+    from .tool_library import RawToolCall, ToolCall
 
 
 class ToolResultStatus(str, Enum):
@@ -94,22 +94,24 @@ class SingleToolResult(ToolResult):
 
 class ManyToolsResult(ToolResult):
     def __init__(self):
-        self._entries: list[tuple[ParsedTool, ToolResult]] = []
+        self._entries: list[tuple[ToolCall, ToolResult]] = []
         self._last_result: ToolResult = SingleToolResult()
-        self._cancelled_tool: ParsedTool | None = None
+        self._cancelled_tool_call: ToolCall | None = None
 
     @property
     def message(self) -> str:
         parts = [
-            f"Result of {tool}\n{result}"
-            for tool, result in self._entries
+            f"Result of {tool_call}\n{result}"
+            for tool_call, result in self._entries
             if result.do_continue()
         ]
         return "\n\n".join(parts)
 
     @property
     def tool_results(self) -> list[tuple[RawToolCall, str]]:
-        return [(tool.raw_call, str(result)) for tool, result in self._entries]
+        return [
+            (tool_call.raw_call, str(result)) for tool_call, result in self._entries
+        ]
 
     @property
     def success(self) -> bool:
@@ -119,7 +121,7 @@ class ManyToolsResult(ToolResult):
 
     @property
     def cancelled(self) -> bool:
-        return self._cancelled_tool is not None
+        return self._cancelled_tool_call is not None
 
     @property
     def display_title(self) -> str:
@@ -139,9 +141,9 @@ class ManyToolsResult(ToolResult):
     def __str__(self) -> str:
         return str(self._last_result)
 
-    def add(self, tool: ParsedTool, result: ToolResult) -> None:
-        self._entries.append((tool, result))
+    def add(self, tool_call: ToolCall, result: ToolResult) -> None:
+        self._entries.append((tool_call, result))
         self._last_result = result
 
-    def mark_cancelled(self, tool: ParsedTool) -> None:
-        self._cancelled_tool = tool
+    def mark_cancelled(self, tool_call: ToolCall) -> None:
+        self._cancelled_tool_call = tool_call

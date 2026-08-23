@@ -62,9 +62,9 @@ async def test_slash_agent_command_rejects_unknown_agent_name():
 async def test_agent_command_switches_to_requested_agent_brain():
     llm_provider = MockLLMProvider()
     initial_tools = Mock()
-    initial_tools.execute_parsed_tool = AsyncMock(return_value=SingleToolResult())
+    initial_tools.execute_tool_call = AsyncMock(return_value=SingleToolResult())
     switched_tools = Mock()
-    switched_tools.execute_parsed_tool = AsyncMock(return_value=SingleToolResult())
+    switched_tools.execute_tool_call = AsyncMock(return_value=SingleToolResult())
     brain_factory = Mock()
     next_brain = Brain(
         name="Developer",

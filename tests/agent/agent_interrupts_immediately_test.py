@@ -11,10 +11,10 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
 from simple_agent.application.tool_library import (
-    MessageAndParsedTools,
-    ParsedTool,
+    AssistantTurn,
     RawToolCall,
     Tool,
+    ToolCall,
 )
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.application.tool_syntax import ToolSyntax
@@ -47,10 +47,10 @@ class EmptyToolLibrary:
         self.tools: list[Tool] = []
         self.tool_syntax: ToolSyntax = Mock()
 
-    def parse_message_and_tools(self, text: str) -> MessageAndParsedTools:
-        return MessageAndParsedTools(text, [])
+    def parse_and_resolve(self, text: str) -> AssistantTurn:
+        return AssistantTurn(text, [])
 
-    async def execute_parsed_tool(self, parsed_tool: ParsedTool):
+    async def execute_tool_call(self, tool_call: ToolCall):
         return SingleToolResult()
 
 
@@ -127,13 +127,13 @@ class ToolCallingToolLibrary:
         self.tools: list[Tool] = []
         self.tool_syntax: ToolSyntax = Mock()
 
-    def parse_message_and_tools(self, text: str) -> MessageAndParsedTools:
+    def parse_and_resolve(self, text: str) -> AssistantTurn:
         if "<tool>slow_tool</tool>" in text:
             tool_call = RawToolCall(name="slow_tool", arguments="", body="")
-            return MessageAndParsedTools("", [ParsedTool(tool_call, self._slow_tool)])
-        return MessageAndParsedTools(text, [])
+            return AssistantTurn("", [ToolCall(tool_call, self._slow_tool)])
+        return AssistantTurn(text, [])
 
-    async def execute_parsed_tool(self, parsed_tool: ParsedTool):
+    async def execute_tool_call(self, tool_call: ToolCall):
         return await self._slow_tool()
 
 

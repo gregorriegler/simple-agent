@@ -1,4 +1,4 @@
-from simple_agent.application.tool_library import ParsedTool, RawToolCall
+from simple_agent.application.tool_library import RawToolCall, ToolCall
 from simple_agent.application.tool_results import (
     ManyToolsResult,
     SingleToolResult,
@@ -18,7 +18,7 @@ def test_single_tool_result_cancelled_when_status_cancelled():
 
 
 def test_many_tools_result_exposes_last_result_display_fields():
-    tool = ParsedTool(RawToolCall(name="dummy", arguments=""), DummyTool())
+    tool = ToolCall(RawToolCall(name="dummy", arguments=""), DummyTool())
     inner_result = SingleToolResult(
         message="done",
         display_title="Title",
@@ -37,11 +37,11 @@ def test_many_tools_result_exposes_last_result_display_fields():
 def test_many_tools_result_exposes_per_tool_name_and_output():
     results = ManyToolsResult()
     results.add(
-        ParsedTool(RawToolCall(name="bash", arguments="ls"), DummyTool()),
+        ToolCall(RawToolCall(name="bash", arguments="ls"), DummyTool()),
         SingleToolResult(message="a.txt"),
     )
     results.add(
-        ParsedTool(RawToolCall(name="cat", arguments="a.txt"), DummyTool()),
+        ToolCall(RawToolCall(name="cat", arguments="a.txt"), DummyTool()),
         SingleToolResult(message="hello"),
     )
 
@@ -52,7 +52,7 @@ def test_many_tools_result_exposes_per_tool_name_and_output():
 
 
 def test_many_tools_result_reports_failure_when_cancelled():
-    tool = ParsedTool(RawToolCall(name="dummy", arguments=""), DummyTool())
+    tool = ToolCall(RawToolCall(name="dummy", arguments=""), DummyTool())
     results = ManyToolsResult()
     results.add(tool, SingleToolResult())
 

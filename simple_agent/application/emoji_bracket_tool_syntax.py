@@ -1,7 +1,7 @@
 from typing import Any
 
 from simple_agent.application.tool_library import RawToolCall, Tool, ToolArgument
-from simple_agent.application.tool_syntax import ParsedMessage, ToolSyntax
+from simple_agent.application.tool_syntax import RawAssistantTurn, ToolSyntax
 
 
 class EmojiBracketToolSyntax(ToolSyntax):
@@ -134,7 +134,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
 
         return "\n".join(output_lines)
 
-    def parse(self, text: str) -> ParsedMessage:
+    def parse(self, text: str) -> RawAssistantTurn:
         # Markers can appear with or without variation selector (U+FE0F)
         # 🛠️ is U+1F6E0 U+FE0F
         # 🛠 is U+1F6E0
@@ -287,4 +287,4 @@ class EmojiBracketToolSyntax(ToolSyntax):
                     # Continue after end marker
                     pos = end_idx + len(current_end_marker)
 
-        return ParsedMessage(message=message, tool_calls=tool_calls)
+        return RawAssistantTurn(message=message, tool_calls=tool_calls)

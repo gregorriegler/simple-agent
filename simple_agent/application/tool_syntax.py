@@ -5,7 +5,7 @@ from simple_agent.application.tool_library import RawToolCall, Tool
 
 
 @dataclass
-class ParsedMessage:
+class RawAssistantTurn:
     message: str
     tool_calls: list[RawToolCall]
 
@@ -15,4 +15,4 @@ class ToolSyntax(Protocol):
 
     def _format_example(self, example: object, tool: Tool) -> str: ...
 
-    def parse(self, text: str) -> ParsedMessage: ...
+    def parse(self, text: str) -> RawAssistantTurn: ...

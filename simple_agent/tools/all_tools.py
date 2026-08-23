@@ -1,9 +1,9 @@
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library import (
-    MessageAndParsedTools,
-    ParsedTool,
+    AssistantTurn,
     Tool,
+    ToolCall,
     ToolLibrary,
 )
 from simple_agent.application.tool_library_factory import (
@@ -68,27 +68,27 @@ class AllTools(ToolLibrary):
                     tools.append(tool)
         return tools
 
-    def parse_message_and_tools(self, text) -> MessageAndParsedTools:
-        parsed = parse_tool_calls(text, self.tool_syntax)
+    def parse_and_resolve(self, text) -> AssistantTurn:
+        raw_turn = parse_tool_calls(text, self.tool_syntax)
         return self.resolve_tool_calls(
-            parsed.tool_calls, parsed.message, fallback_message=text
+            raw_turn.tool_calls, raw_turn.message, fallback_message=text
         )
 
     def resolve_tool_calls(
         self, tool_calls, message, fallback_message=None
-    ) -> MessageAndParsedTools:
-        tools = []
+    ) -> AssistantTurn:
+        resolved = []
         for raw_call in tool_calls:
             tool_instance = self.tool_dict.get(raw_call.name)
             if not tool_instance:
                 unbound = fallback_message if fallback_message is not None else message
-                return MessageAndParsedTools(message=unbound, tools=[])
-            tools.append(ParsedTool(raw_call, tool_instance))
+                return AssistantTurn(message=unbound, tool_calls=[])
+            resolved.append(ToolCall(raw_call, tool_instance))
 
-        return MessageAndParsedTools(message=message, tools=tools)
+        return AssistantTurn(message=message, tool_calls=resolved)
 
-    async def execute_parsed_tool(self, parsed_tool):
-        return await parsed_tool.tool_instance.execute(parsed_tool.raw_call)
+    async def execute_tool_call(self, tool_call):
+        return await tool_call.tool_instance.execute(tool_call.raw_call)
 
     def _discover_dynamic_tools(self):
         return []

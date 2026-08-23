@@ -16,7 +16,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
 )
 from simple_agent.application.history_replayer import HistoryReplayer
-from simple_agent.application.tool_library import ParsedTool, RawToolCall
+from simple_agent.application.tool_library import RawToolCall
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.file_event_store import FileEventStore
 from simple_agent.infrastructure.subscribe_events import subscribe_events
@@ -64,7 +64,7 @@ async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
         ToolCalledEvent(
             agent_id=agent_id,
             call_id="call-1",
-            tool=ParsedTool(RawToolCall("read_file", "test.txt"), None),
+            call=RawToolCall("read_file", "test.txt"),
         ),
         ToolResultEvent(
             agent_id=agent_id,
@@ -165,7 +165,7 @@ async def test_continuation_tool_result_is_last_event(tmp_path):
         ToolCalledEvent(
             agent_id=agent_id,
             call_id="Agent::tool_call::1",
-            tool=ParsedTool(RawToolCall("bash", "sleep 5"), None),
+            call=RawToolCall("bash", "sleep 5"),
         ),
         ToolResultEvent(
             agent_id=agent_id,
