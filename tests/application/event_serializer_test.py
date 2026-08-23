@@ -9,9 +9,11 @@ from simple_agent.application.events import (
     AssistantRespondedEvent,
     ModelChangedEvent,
     SessionClearedEvent,
+    ToolCalledEvent,
     ToolResultEvent,
     UserPromptedEvent,
 )
+from simple_agent.application.tool_library import ParsedTool, RawToolCall
 from simple_agent.application.tool_results import SingleToolResult
 
 
@@ -286,3 +288,38 @@ class TestEventSerializer:
 
         with pytest.raises(ValueError, match="Unknown event type"):
             EventSerializer.from_dict(data)
+
+    def test_serialize_tool_called_event(self):
+        event = ToolCalledEvent(
+            agent_id=AgentId("Agent"),
+            call_id="Agent::tool_call::1",
+            tool=ParsedTool(RawToolCall("bash", "ls -la", "body text"), None),
+        )
+
+        result = EventSerializer.to_dict(event)
+
+        assert result == {
+            "type": "ToolCalledEvent",
+            "agent_id": "Agent",
+            "call_id": "Agent::tool_call::1",
+            "tool_name": "bash",
+            "tool_arguments": "ls -la",
+            "tool_body": "body text",
+        }
+
+    def test_deserialize_tool_called_event(self):
+        data = {
+            "type": "ToolCalledEvent",
+            "agent_id": "Agent",
+            "call_id": "Agent::tool_call::1",
+            "tool_name": "bash",
+            "tool_arguments": "ls -la",
+            "tool_body": "body text",
+        }
+
+        result = EventSerializer.from_dict(data)
+
+        assert result.call_id == "Agent::tool_call::1"
+        assert result.tool.name == "bash"
+        assert result.tool.arguments == "ls -la"
+        assert result.tool.body == "body text"
