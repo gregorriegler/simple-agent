@@ -12,6 +12,9 @@ class CheckpointDetector:
         event_bus.subscribe(ToolCalledEvent, self._remember_call)
         event_bus.subscribe(ToolResultEvent, self._check_for_checkpoint)
 
+    def round_started(self) -> None:
+        self._round_in_flight = True
+
     def round_finished(self) -> None:
         self._round_in_flight = False
 
@@ -27,5 +30,4 @@ class CheckpointDetector:
             return
         if self._round_in_flight:
             return
-        self._round_in_flight = True
         self._event_bus.publish(CheckpointReachedEvent(event.agent_id))
