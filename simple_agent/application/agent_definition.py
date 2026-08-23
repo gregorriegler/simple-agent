@@ -30,6 +30,10 @@ class AgentDefinition:
         metadata, _ = self._load()
         return self._read_tool_keys(metadata.get("tools"))
 
+    def observers(self) -> list[str]:
+        metadata, _ = self._load()
+        return self._read_tool_keys(metadata.get("observers"))
+
     def model(self) -> str | None:
         metadata, _ = self._load()
         model_value = metadata.get("model")

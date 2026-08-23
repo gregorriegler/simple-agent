@@ -148,3 +148,28 @@ def test_parse_front_matter_with_prefix():
     )
     assert agent_definition.agent_name() == "prefixed"
     assert agent_definition.prompt().template == "  Body"
+
+
+def test_observers_are_read_from_front_matter():
+    content = """---
+name: helper
+observers: [naming, error-handling]
+---
+You are a helper."""
+    agent_definition = AgentDefinition(
+        AgentType("assistant"), content, StubGroundRules("rules")
+    )
+
+    assert agent_definition.observers() == ["naming", "error-handling"]
+
+
+def test_an_agent_without_observers_is_unobserved():
+    content = """---
+name: helper
+---
+You are a helper."""
+    agent_definition = AgentDefinition(
+        AgentType("assistant"), content, StubGroundRules("rules")
+    )
+
+    assert agent_definition.observers() == []
