@@ -52,7 +52,7 @@ class ToolCall:
 
 
 @dataclass
-class ResolvedMessage:
+class AssistantTurn:
     message: str
     tool_calls: list[ToolCall]
 
@@ -125,10 +125,10 @@ class ToolLibrary(Protocol):
     tools: list[Tool]
     tool_syntax: "ToolSyntax"
 
-    def parse_and_resolve(self, text: str) -> ResolvedMessage: ...
+    def parse_and_resolve(self, text: str) -> AssistantTurn: ...
 
     def resolve_tool_calls(
         self, tool_calls: list[RawToolCall], message: str
-    ) -> ResolvedMessage: ...
+    ) -> AssistantTurn: ...
 
     async def execute_tool_call(self, tool_call: ToolCall) -> ToolResult: ...

@@ -8,8 +8,8 @@ from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import ToolCalledEvent, ToolResultEvent
 from simple_agent.application.tool_library import (
+    AssistantTurn,
     RawToolCall,
-    ResolvedMessage,
     Tool,
     ToolCall,
     ToolLibrary,
@@ -25,8 +25,8 @@ class ToolLibraryStub(ToolLibrary):
         self.tools: list[Tool] = []
         self.tool_syntax: ToolSyntax = Mock()
 
-    def parse_and_resolve(self, text: str) -> ResolvedMessage:
-        return ResolvedMessage(text, [])
+    def parse_and_resolve(self, text: str) -> AssistantTurn:
+        return AssistantTurn(text, [])
 
     async def execute_tool_call(self, tool_call):
         return await tool_call.tool_instance.execute(tool_call.raw_call)

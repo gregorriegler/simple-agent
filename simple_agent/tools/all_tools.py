@@ -1,7 +1,7 @@
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library import (
-    ResolvedMessage,
+    AssistantTurn,
     Tool,
     ToolCall,
     ToolLibrary,
@@ -68,7 +68,7 @@ class AllTools(ToolLibrary):
                     tools.append(tool)
         return tools
 
-    def parse_and_resolve(self, text) -> ResolvedMessage:
+    def parse_and_resolve(self, text) -> AssistantTurn:
         parsed = parse_tool_calls(text, self.tool_syntax)
         return self.resolve_tool_calls(
             parsed.tool_calls, parsed.message, fallback_message=text
@@ -76,16 +76,16 @@ class AllTools(ToolLibrary):
 
     def resolve_tool_calls(
         self, tool_calls, message, fallback_message=None
-    ) -> ResolvedMessage:
+    ) -> AssistantTurn:
         resolved = []
         for raw_call in tool_calls:
             tool_instance = self.tool_dict.get(raw_call.name)
             if not tool_instance:
                 unbound = fallback_message if fallback_message is not None else message
-                return ResolvedMessage(message=unbound, tool_calls=[])
+                return AssistantTurn(message=unbound, tool_calls=[])
             resolved.append(ToolCall(raw_call, tool_instance))
 
-        return ResolvedMessage(message=message, tool_calls=resolved)
+        return AssistantTurn(message=message, tool_calls=resolved)
 
     async def execute_tool_call(self, tool_call):
         return await tool_call.tool_instance.execute(tool_call.raw_call)
