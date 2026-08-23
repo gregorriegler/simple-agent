@@ -266,7 +266,7 @@ Signal task completion with a summary of what was accomplished
 -
 
 ## communicate-intent tool
-State what you are currently pursuing, so an observer watching you knows what you are trying to achieve. It may be understanding a request, investigating a failure, or implementing a feature - not a step, and not a tool call. Say it whenever it changes.
+State your current overarching goal (e.g. implementing a feature, investigating a failure, or fixing a bug) so an observer knows what you are working toward. Do NOT call this for individual steps, tool executions, running tests, or committing changes. Only call it when the high-level pursuit changes.
 
 ### Usage:
 🛠️[communicate-intent]
