@@ -34,6 +34,11 @@ class ToolResultEvent(AgentEvent):
 
 
 @dataclass
+class CheckpointReachedEvent(AgentEvent):
+    event_name: ClassVar[str] = "checkpoint_reached"
+
+
+@dataclass
 class ToolCancelledEvent(AgentEvent):
     event_name: ClassVar[str] = "tool_cancelled"
     call_id: str = ""
