@@ -26,14 +26,17 @@ from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_event_store import FileEventStore
+from simple_agent.infrastructure.file_intent import FileIntent
 from simple_agent.infrastructure.file_session_storage import FileSessionStorage
 from simple_agent.infrastructure.file_system_agent_state_cleanup import (
     FileSystemAgentStateCleanup,
 )
+from simple_agent.infrastructure.git_change_reporter import GitChangeReporter
 from simple_agent.infrastructure.llm import RemoteLLMProvider
 from simple_agent.infrastructure.non_interactive_user_input import (
     NonInteractiveUserInput,
 )
+from simple_agent.infrastructure.observer_library import create_observer_library
 from simple_agent.infrastructure.project_tree import FileSystemProjectTree
 from simple_agent.infrastructure.subscribe_events import (
     subscribe_events,
@@ -141,6 +144,9 @@ async def _run_main(
         event_store=event_store,
         agent_task_manager=agent_task_manager,
         on_replay_complete=lambda: subscribe_persistence(event_bus, event_store),
+        observer_library=create_observer_library(user_config),
+        change_reporter=GitChangeReporter(Path(cwd)),
+        intent=FileIntent(starting_agent_id),
     )
     textual_app = TextualApp(
         user_input,

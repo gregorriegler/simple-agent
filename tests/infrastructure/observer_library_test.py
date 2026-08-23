@@ -1,6 +1,10 @@
 import pytest
 
-from simple_agent.infrastructure.observer_library import FileSystemObserverLibrary
+from simple_agent.infrastructure.observer_library import (
+    FileSystemObserverLibrary,
+    create_observer_library,
+)
+from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 NAMING_OBSERVER = """---
 name: Naming
@@ -45,3 +49,19 @@ def test_an_unknown_observer_is_reported(observers_directory):
 
     with pytest.raises(FileNotFoundError, match="missing"):
         library.read_observer_definition("missing")
+
+
+def test_observers_live_next_to_the_agents(tmp_path, observers_directory):
+    user_config = UserConfiguration({"agents": {"path": str(observers_directory)}})
+
+    library = create_observer_library(user_config)
+
+    assert library.list_observers() == ["error-handling", "naming"]
+
+
+def test_no_observers_configured(tmp_path):
+    user_config = UserConfiguration({}, str(tmp_path))
+
+    library = create_observer_library(user_config)
+
+    assert library.list_observers() == []

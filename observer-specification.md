@@ -278,6 +278,10 @@ state.
 
 ## 5. Observers
 
+**Status: built and wired.** `main.py` passes an observer library, a
+`GitChangeReporter` and a `FileIntent` to the session; an agent without an
+`observers:` key is unobserved, so nothing changes for existing agents.
+
 Selected in the main agent's front matter:
 
     observers: [naming, error-handling]
@@ -287,15 +291,39 @@ Resolved against `*.observer.md` files by `ObserverLibrary`, mirroring
 
 **Read-only is enforced in code, not trusted from the file.** An observer's
 declared tool keys are intersected with a hardcoded whitelist (`ls`, `cat`), so
-a mis-authored definition cannot grant `bash` or a write tool.
+a mis-authored definition cannot grant `bash` or a write tool. An observer that
+declares no tools gets the whitelist, not everything — an empty tool list means
+*all tools* to `AllTools`, which would have handed a forgetful observer file
+`bash`.
 
 Each observer receives, as its task description, the context packet of §4:
 intent, diff, version markers. It may read further files through its whitelisted
 tools.
 
-Observers report through `complete-task` in a fixed structure carrying the §7
-fields: concern, target file and symbol, version marker, proposed change,
-reason.
+### Observers are long-lived
+
+An observer is not spawned per checkpoint. It is created on the first checkpoint
+it is needed for and then *kept*: each later checkpoint is a new prompt to the
+same agent, which therefore remembers what it already said. `Observers` closes
+them when the observed agent finishes.
+
+The packet arrives through an `ObserverInput` — an `asyncio.Queue` behind the
+`UserInput` port. It deliberately does **not** implement `drain()`: the mid-loop
+drain of §2 would fold later checkpoints into the observation currently running,
+and they would never be judged on their own.
+
+### Reporting: the suggest tool
+
+Observers propose through a dedicated `suggest` tool, and end their turn with
+`complete-task`. The distinction matters: an observer that finds nothing wrong
+completes without suggesting, and the agent is never disturbed. Keying delivery
+off the completion instead would have made "this name is fine" indistinguishable
+from a proposal. `suggest` is observer-only — it is excluded from the default
+tool set, so ordinary agents never see it.
+
+Delivery is a `stack()` into the observed agent's `Input`, which
+`run_tool_loop` already drains every iteration (§2). A suggestion therefore
+lands between two of the agent's own tool calls, not after it goes idle.
 
 ---
 
@@ -340,8 +368,9 @@ moved elsewhere. Detecting that would require comparing intent against the diff
 2. Mid-loop message queue — ✅
 3. Checkpoint detector — ✅
 4. Change reporting — ✅ diff; ⬜ version markers
-5. Observers — library, read-only whitelist, async spawn, suggestion format
-6. Staleness filter
+5. Observers — ✅ library, read-only whitelist, long-lived spawn, suggest tool,
+   delivery, `main.py` wiring
+6. Staleness filter — deferred; the version markers of §4 are unbuilt
 
 The first two ship value before any observer exists, which also means the
 injection point gets exercised before anything depends on it.

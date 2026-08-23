@@ -5,6 +5,7 @@ from simple_agent.application.agent_type import AgentType
 from simple_agent.application.ground_rules import GroundRules
 from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.infrastructure.agents_md_ground_rules import AgentsMdGroundRules
+from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 OBSERVER_SUFFIX = ".observer.md"
 
@@ -35,3 +36,13 @@ class FileSystemObserverLibrary:
                 f"Observer '{name}' not found in {self._directory}"
             ) from error
         return ObserverDefinition(AgentType(name), content, self._ground_rules)
+
+
+def create_observer_library(
+    user_config: UserConfiguration,
+) -> FileSystemObserverLibrary:
+    for directory in user_config.agents_candidate_directories():
+        library = FileSystemObserverLibrary(directory)
+        if library.list_observers():
+            return library
+    return FileSystemObserverLibrary(user_config.agents_candidate_directories()[0])
