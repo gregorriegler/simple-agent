@@ -35,12 +35,12 @@ async def test_failed_write_reaches_no_checkpoint(tmp_path, monkeypatch):
 
 
 async def verify_checkpoints(answers):
-    result = (
-        await SessionTestBed()
-        .with_llm_responses(answers)
-        .with_user_inputs("Test message", "\n")
-        .run()
-    )
+    session = SessionTestBed()
+    session.with_llm_responses(answers)
+    session.with_user_inputs("Test message", "\n")
+
+    result = await session.run()
+
     verify(
         result.as_approval_string(), options=Options().with_scrubber(all_scrubbers())
     )

@@ -6,6 +6,7 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_task_manager import AgentTaskManager
+from simple_agent.application.change_reporter import ChangeReporter
 from simple_agent.application.checkpoint_detector import CheckpointDetector
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import EventBus
@@ -13,7 +14,11 @@ from simple_agent.application.event_store import EventStore
 from simple_agent.application.events import SessionStartedEvent
 from simple_agent.application.events_to_messages import events_to_messages
 from simple_agent.application.history_replayer import HistoryReplayer
+from simple_agent.application.input import Input
 from simple_agent.application.llm import LLMProvider, Messages
+from simple_agent.application.observer_factory import ObserverFactory
+from simple_agent.application.observer_library import ObserverLibrary
+from simple_agent.application.observers import Observers
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from simple_agent.application.user_input import UserInput
@@ -43,6 +48,8 @@ class Session:
         event_store: EventStore,
         agent_task_manager: AgentTaskManager,
         on_replay_complete: Callable[[], None] | None = None,
+        observer_library: ObserverLibrary | None = None,
+        change_reporter: ChangeReporter | None = None,
     ):
         self._starting_agent_id = starting_agent_id
         self._event_bus = event_bus
@@ -54,7 +61,31 @@ class Session:
         self._event_store = event_store
         self._agent_task_manager = agent_task_manager
         self._on_replay_complete = on_replay_complete
+        self._observer_library = observer_library
+        self._change_reporter = change_reporter
         self._checkpoint_detector = CheckpointDetector(event_bus)
+
+    def _observe(
+        self, agent_factory: AgentFactory, agent_definition, agent_input: Input
+    ) -> None:
+        if not self._observer_library or not self._change_reporter:
+            return
+        names = agent_definition.observers()
+        if not names:
+            return
+        Observers(
+            self._event_bus,
+            self._starting_agent_id,
+            names,
+            self._change_reporter,
+            ObserverFactory(
+                agent_factory,
+                self._observer_library,
+                self._agent_task_manager,
+                self._starting_agent_id,
+            ),
+            agent_input,
+        )
 
     async def run_async(
         self,
@@ -90,13 +121,17 @@ class Session:
             self._on_replay_complete()
 
         agent_definition = self._agent_library._starting_agent_definition()
+        agent_input = agent_factory.create_input(args.start_message)
         agent = agent_factory.create_agent(
             self._starting_agent_id,
             agent_definition,
-            args.start_message,
+            None,
             context,
             agent_definition.agent_type,
+            user_input=agent_input,
         )
+
+        self._observe(agent_factory, agent_definition, agent_input)
 
         for event in unfinished_subagents:
             subagent = agent_factory.create_agent_from_history(

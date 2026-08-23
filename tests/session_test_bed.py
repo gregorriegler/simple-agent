@@ -26,7 +26,8 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.events_to_messages import events_to_messages
 from simple_agent.application.llm import ChatMessages, LLMResponse, TokenUsage
-from simple_agent.application.llm_stub import StubLLMProvider, create_llm_stub
+from simple_agent.application.llm_stub import create_llm_stub
+from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.application.session import Session
 from simple_agent.application.text_response import emoji_response
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
@@ -124,6 +125,9 @@ class SessionTestBed:
         self._continue_session = False
         self._event_store: EventStore | None = None
         self._custom_event_subscriptions = []
+        self._observers: list[str] = []
+        self._diffs = ["a production diff"]
+        self._observer_llm = create_llm_stub([], default="🛠️[complete-task nothing /]")
 
     def with_llm_responses(self, responses: list[str]) -> "SessionTestBed":
         self._llm = create_llm_stub(responses)
@@ -166,6 +170,15 @@ class SessionTestBed:
 
     def with_event_store(self, event_store: EventStore) -> "SessionTestBed":
         self._event_store = event_store
+        return self
+
+    def observed_by(self, observers: list[str], *diffs: str) -> "SessionTestBed":
+        self._observers = observers
+        self._diffs = list(diffs) or self._diffs
+        return self
+
+    def with_observer_responses(self, responses: list[str]) -> "SessionTestBed":
+        self._observer_llm = create_llm_stub(responses)
         return self
 
     def continuing_session(self) -> "SessionTestBed":
@@ -217,7 +230,7 @@ class SessionTestBed:
             event_bus.subscribe(SessionClearedEvent, self._event_store.persist)
             event_bus.subscribe(ModelChangedEvent, self._event_store.persist)
 
-        agent_library = TestAgentLibrary()
+        agent_library = TestAgentLibrary(self._observers)
 
         tool_library_factory = ToolLibraryFactoryStub(
             self._llm,
@@ -237,10 +250,12 @@ class SessionTestBed:
             tool_library_factory=tool_library_factory,
             agent_library=agent_library,
             user_input=user_input,
-            llm_provider=StubLLMProvider.for_testing(self._llm),
+            llm_provider=TestLLMProvider(self._llm, self._observer_llm),
             project_tree=DummyProjectTree(),
             event_store=event_store,
             agent_task_manager=agent_task_manager,
+            observer_library=TestObserverLibrary(),
+            change_reporter=ChangeReporterStub(self._diffs),
         )
 
         asyncio.create_task(
@@ -251,19 +266,67 @@ class SessionTestBed:
             )
         )
 
-        tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
-        await asyncio.gather(*tasks)
+        while True:
+            tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+            if not tasks:
+                break
+            await asyncio.gather(*tasks)
 
         return SessionTestResult(event_spy)
 
 
+class ChangeReporterStub:
+    def __init__(self, diffs: list[str]):
+        self._diffs = list(diffs)
+
+    def diff(self) -> str:
+        if len(self._diffs) > 1:
+            return self._diffs.pop(0)
+        return self._diffs[0]
+
+
+OBSERVER_MODEL = "observer-model"
+
+
+class TestLLMProvider:
+    def __init__(self, agent_llm, observer_llm):
+        self._agent_llm = agent_llm
+        self._observer_llm = observer_llm
+
+    def get(self, model_name: str | None = None, tools: list | None = None):
+        if model_name == OBSERVER_MODEL:
+            return self._observer_llm
+        return self._agent_llm
+
+    def get_available_models(self) -> list[str]:
+        return [self._agent_llm.model]
+
+    def tool_syntax(self, model_name: str | None = None) -> str:
+        return "emoji"
+
+
+class TestObserverLibrary:
+    def read_observer_definition(self, name: str) -> ObserverDefinition:
+        return ObserverDefinition(
+            AgentType(name),
+            f"---\n"
+            f"name: {name.capitalize()}\n"
+            f"tools: [cat]\n"
+            f"model: {OBSERVER_MODEL}\n"
+            f"---\n"
+            f"Watch the {name}.",
+            GroundRulesStub("Test system prompt"),
+        )
+
+
 class TestAgentLibrary:
-    def __init__(self):
+    def __init__(self, observers: list[str] | None = None):
         self._definitions = {
             "agent": AgentDefinition(
                 AgentType("agent"),
-                """---
+                f"""---
 name: Agent
+observers: {observers or []}
 ---""",
                 GroundRulesStub("Test system prompt"),
             ),
