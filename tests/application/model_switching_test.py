@@ -14,7 +14,6 @@ from simple_agent.application.llm import (
     TokenUsage,
 )
 from simple_agent.application.session import Session
-from simple_agent.application.todo_cleanup import TodoCleanup
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
@@ -54,14 +53,6 @@ class MockLLMProvider(LLMProvider):
 
     def tool_syntax(self, model_name: str | None = None) -> str:
         return "emoji"
-
-
-class TodoCleanupStub(TodoCleanup):
-    def cleanup_all_todos(self) -> None:
-        return None
-
-    def cleanup_todos_for_agent(self, agent_id: AgentId) -> None:
-        return None
 
 
 class FakeAgentLibrary:
@@ -110,7 +101,6 @@ async def test_model_switching_uses_new_llm_instance():
         ),
         agent_library=FakeAgentLibrary(),
         user_input=user_input,
-        todo_cleanup=TodoCleanupStub(),
         llm_provider=llm_provider,
         project_tree=DummyProjectTree(),
         agent_task_manager=AgentTaskManager(),

@@ -14,7 +14,6 @@ from simple_agent.application.events_to_messages import events_to_messages
 from simple_agent.application.history_replayer import HistoryReplayer
 from simple_agent.application.llm import LLMProvider, Messages
 from simple_agent.application.project_tree import ProjectTree
-from simple_agent.application.todo_cleanup import TodoCleanup
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from simple_agent.application.user_input import UserInput
 
@@ -38,7 +37,6 @@ class Session:
         tool_library_factory: ToolLibraryFactory,
         agent_library: AgentLibrary,
         user_input: UserInput,
-        todo_cleanup: TodoCleanup,
         llm_provider: LLMProvider,
         project_tree: ProjectTree,
         event_store: EventStore,
@@ -50,7 +48,6 @@ class Session:
         self._tool_library_factory = tool_library_factory
         self._agent_library = agent_library
         self._user_input = user_input
-        self._todo_cleanup = todo_cleanup
         self._llm_provider = llm_provider
         self._project_tree = project_tree
         self._event_store = event_store

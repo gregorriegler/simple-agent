@@ -120,7 +120,6 @@ class SessionTestBed:
         self._escape_hits = None
         self._ctrl_c_hits = None
         self._continue_session = False
-        self._todo_cleanup = None
         self._event_store: EventStore | None = None
         self._custom_event_subscriptions = []
 
@@ -157,10 +156,6 @@ class SessionTestBed:
         self._ctrl_c_hits = hits
         return self
 
-    def with_todo_cleanup(self, cleanup) -> "SessionTestBed":
-        self._todo_cleanup = cleanup
-        return self
-
     def with_event_store(self, event_store: EventStore) -> "SessionTestBed":
         self._event_store = event_store
         return self
@@ -176,9 +171,6 @@ class SessionTestBed:
     async def run(self) -> SessionTestResult:
         event_bus = SimpleEventBus()
         user_input = UserInputStub(inputs=self._user_inputs, escapes=self._escape_hits)
-        todo_cleanup = (
-            self._todo_cleanup if self._todo_cleanup is not None else _NoOpTodoCleanup()
-        )
 
         event_spy = EventSpy()
         tracked_events = [
@@ -232,7 +224,6 @@ class SessionTestBed:
             tool_library_factory=tool_library_factory,
             agent_library=agent_library,
             user_input=user_input,
-            todo_cleanup=todo_cleanup,
             llm_provider=StubLLMProvider.for_testing(self._llm),
             project_tree=DummyProjectTree(),
             event_store=event_store,
@@ -290,11 +281,3 @@ name: Orchestrator
 
     def _starting_agent_definition(self) -> AgentDefinition:
         return self._definitions["agent"]
-
-
-class _NoOpTodoCleanup:
-    def cleanup_all_todos(self) -> None:
-        return None
-
-    def cleanup_todos_for_agent(self, agent_id: AgentId) -> None:
-        return None

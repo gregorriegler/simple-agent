@@ -24,7 +24,6 @@ async def test_continued_session_keeps_todo_files(tmp_path, monkeypatch):
     await (
         SessionTestBed()
         .continuing_session()
-        .with_todo_cleanup(cleanup)
         .on_event(
             AgentFinishedEvent,
             lambda e: cleanup.cleanup_todos_for_agent(e.agent_id)
@@ -66,7 +65,6 @@ async def test_subagent_cleanup_deletes_subagent_todo(tmp_path, monkeypatch):
                 "🛠️[complete-task Root finished]",
             ]
         )
-        .with_todo_cleanup(todo_cleanup)
         .on_event(
             AgentFinishedEvent,
             lambda e: todo_cleanup.cleanup_todos_for_agent(e.agent_id)

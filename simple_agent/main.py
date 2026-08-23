@@ -134,7 +134,6 @@ async def _run_main(
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
         user_input=textual_user_input,
-        todo_cleanup=todo_cleanup,
         llm_provider=llm_provider,
         project_tree=project_tree,
         event_store=event_store,

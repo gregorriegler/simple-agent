@@ -22,7 +22,6 @@ from simple_agent.application.tool_results import SingleToolResult
 from tests.application.model_switching_test import (
     FakeAgentLibrary,
     MockLLMProvider,
-    TodoCleanupStub,
 )
 from tests.event_spy import EventSpy
 from tests.system_prompt_generator_test import GroundRulesStub
@@ -120,7 +119,6 @@ async def test_agent_command_switches_model_for_follow_up_prompt():
         ),
         agent_library=agent_library,
         user_input=user_input,
-        todo_cleanup=TodoCleanupStub(),
         llm_provider=llm_provider,
         project_tree=DummyProjectTree(),
         event_store=NoOpEventStore(),
