@@ -90,6 +90,7 @@ class AgentFactory:
         initial_message: str | None,
         messages: Messages,
         agent_type: AgentType | None = None,
+        user_input: Input | None = None,
     ) -> Agent:
         brain = self._build_brain(agent_id, definition)
         messages.seed_system_prompt(brain.system_prompt)
@@ -98,7 +99,7 @@ class AgentFactory:
             agent_id=agent_id,
             brain=brain,
             llm_provider=self._llm_provider,
-            user_input=self.create_input(initial_message),
+            user_input=user_input or self.create_input(initial_message),
             event_bus=self._event_bus,
             context=messages,
             agent_type=agent_type,
