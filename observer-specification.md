@@ -207,11 +207,23 @@ ignored for now, on the assumption that nobody does it.
 
 ## 3. Checkpoint detector
 
-Subscribes to `ToolResultEvent`. Fires on successful results from tools that
+**Status: built — not yet wired into the application.**
+
+`CheckpointDetector` subscribes to `ToolResultEvent`. Fires on successful results from tools that
 mutate files (`create_file`, `replace_file_content`), and only when no observer
 round is in flight. Publishes `CheckpointReachedEvent`.
 
 Reads (`cat`, `ls`) produce no new state and are ignored.
+
+`ToolResultEvent` carries only a `call_id`, not the tool that produced it, so the
+detector also subscribes to `ToolCalledEvent` and remembers the name per call id.
+Adding the call to the result event would have been the alternative; it would
+have changed the persisted event schema for a lookup that costs one dict.
+
+The gate is released by `round_finished()`, called by whatever runs the observer
+round. Until such a consumer exists the detector is deliberately **not wired**
+into `main.py`: with nobody releasing the gate it would latch after the first
+write.
 
 `bash` is deliberately excluded for now. It can mutate files, but knowing
 *which* files means parsing the command; catching it reliably would mean
@@ -299,8 +311,8 @@ moved elsewhere. Detecting that would require comparing intent against the diff
 
 1. Intent slot — ✅ tool, file storage and UI panel; ⬜ staleness nag
 2. Mid-loop message queue — ✅
-3. Checkpoint detector — next
-4. Change tracking — diff and version markers
+3. Checkpoint detector — ✅ detector and gate; ⬜ wiring (waits for a consumer)
+4. Change tracking — diff and version markers — next
 5. Observers — library, read-only whitelist, async spawn, suggestion format
 6. Staleness filter
 
