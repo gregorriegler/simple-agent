@@ -4,6 +4,7 @@ import os
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.ground_rules import GroundRules
 from simple_agent.application.observer_definition import ObserverDefinition
+from simple_agent.infrastructure.agent_library import agent_definitions_directory
 from simple_agent.infrastructure.agents_md_ground_rules import AgentsMdGroundRules
 from simple_agent.infrastructure.user_configuration import UserConfiguration
 
@@ -41,8 +42,4 @@ class FileSystemObserverLibrary:
 def create_observer_library(
     user_config: UserConfiguration,
 ) -> FileSystemObserverLibrary:
-    for directory in user_config.agents_candidate_directories():
-        library = FileSystemObserverLibrary(directory)
-        if library.list_observers():
-            return library
-    return FileSystemObserverLibrary(user_config.agents_candidate_directories()[0])
+    return FileSystemObserverLibrary(agent_definitions_directory(user_config))

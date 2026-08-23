@@ -18,6 +18,8 @@ from simple_agent.infrastructure.agents_md_ground_rules import AgentsMdGroundRul
 from simple_agent.infrastructure.configuration import get_starting_agent
 from simple_agent.infrastructure.user_configuration import UserConfiguration
 
+BUILTIN_AGENT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 class FileSystemAgentLibrary(AgentLibrary):
     def __init__(self, directory: str, starting_agent_type: AgentType | None = None):
@@ -116,6 +118,13 @@ class BuiltinAgentLibrary:
         pattern = os.path.join(package_root, "*.agent.md")
         names = [os.path.basename(path) for path in glob.glob(pattern)]
         return sorted(agent_type_from_filename(name) for name in names)
+
+
+def agent_definitions_directory(user_config: UserConfiguration) -> str:
+    for directory in user_config.agents_candidate_directories():
+        if FileSystemAgentLibrary(directory).has_any():
+            return directory
+    return BUILTIN_AGENT_DIRECTORY
 
 
 def create_agent_library(

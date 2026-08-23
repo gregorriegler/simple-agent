@@ -59,9 +59,9 @@ def test_observers_live_next_to_the_agents(tmp_path, observers_directory):
     assert library.list_observers() == ["error-handling", "naming"]
 
 
-def test_no_observers_configured(tmp_path):
+def test_the_builtin_observers_are_found_without_configuration(tmp_path):
     user_config = UserConfiguration({}, str(tmp_path))
 
     library = create_observer_library(user_config)
 
-    assert library.list_observers() == []
+    assert "naming" in library.list_observers()
