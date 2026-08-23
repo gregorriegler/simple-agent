@@ -6,6 +6,7 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_task_manager import AgentTaskManager
+from simple_agent.application.checkpoint_detector import CheckpointDetector
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import EventBus
 from simple_agent.application.event_store import EventStore
@@ -53,6 +54,7 @@ class Session:
         self._event_store = event_store
         self._agent_task_manager = agent_task_manager
         self._on_replay_complete = on_replay_complete
+        self._checkpoint_detector = CheckpointDetector(event_bus)
 
     async def run_async(
         self,
