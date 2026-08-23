@@ -56,3 +56,26 @@ def test_no_checkpoint_for_reading_tools():
     call_tool(event_bus, "cat")
 
     assert len(checkpoints) == 0
+
+
+def test_no_checkpoint_while_a_round_is_in_flight():
+    event_bus = SimpleEventBus()
+    CheckpointDetector(event_bus)
+    checkpoints = CheckpointSpy(event_bus)
+
+    call_tool(event_bus, "create-file", call_id="call-1")
+    call_tool(event_bus, "create-file", call_id="call-2")
+
+    assert len(checkpoints) == 1
+
+
+def test_checkpoints_again_once_the_round_finished():
+    event_bus = SimpleEventBus()
+    detector = CheckpointDetector(event_bus)
+    checkpoints = CheckpointSpy(event_bus)
+
+    call_tool(event_bus, "create-file", call_id="call-1")
+    detector.round_finished()
+    call_tool(event_bus, "create-file", call_id="call-2")
+
+    assert len(checkpoints) == 2
