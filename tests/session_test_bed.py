@@ -31,6 +31,7 @@ from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.application.session import Session
 from simple_agent.application.text_response import emoji_response
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
+from simple_agent.infrastructure.file_intent import FileIntent
 from tests.event_spy import EventSpy
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
@@ -256,6 +257,7 @@ class SessionTestBed:
             agent_task_manager=agent_task_manager,
             observer_library=TestObserverLibrary(),
             change_reporter=ChangeReporterStub(self._diffs),
+            intent=FileIntent(root_agent_id),
         )
 
         asyncio.create_task(

@@ -46,7 +46,17 @@ class ObserverFactoryStub:
         return observer
 
 
-def observers_of(event_bus, names, change_reporter, factory, agent_input=None):
+class IntentStub:
+    def __init__(self, intent=""):
+        self._intent = intent
+
+    def read(self) -> str:
+        return self._intent
+
+
+def observers_of(
+    event_bus, names, change_reporter, factory, agent_input=None, intent=None
+):
     return Observers(
         event_bus,
         AGENT,
@@ -54,6 +64,7 @@ def observers_of(event_bus, names, change_reporter, factory, agent_input=None):
         change_reporter,
         factory,
         agent_input or Input(DummyUserInput()),
+        intent or IntentStub(),
     )
 
 
@@ -150,3 +161,29 @@ def test_an_observation_without_a_suggestion_does_not_disturb_the_agent():
     )
 
     assert agent_input.drain() == []
+
+
+def test_an_observer_learns_what_the_agent_is_trying_to_do():
+    event_bus = SimpleEventBus()
+    factory = ObserverFactoryStub()
+    observers_of(
+        event_bus,
+        ["naming"],
+        ChangeReporterStub(DIFF),
+        factory,
+        intent=IntentStub("Store the greeting"),
+    )
+
+    event_bus.publish(CheckpointReachedEvent(AGENT))
+
+    assert factory.created[0].observed == [f"Intent: Store the greeting\n\n{DIFF}"]
+
+
+def test_an_observer_sees_the_diff_alone_when_no_intent_was_communicated():
+    event_bus = SimpleEventBus()
+    factory = ObserverFactoryStub()
+    observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory)
+
+    event_bus.publish(CheckpointReachedEvent(AGENT))
+
+    assert factory.created[0].observed == [DIFF]

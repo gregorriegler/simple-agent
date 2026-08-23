@@ -6,6 +6,7 @@ from .change_reporter import ChangeReporter
 from .event_bus import EventBus
 from .events import AgentFinishedEvent, CheckpointReachedEvent, ToolCalledEvent
 from .input import Input
+from .intent import Intent
 
 SUGGEST_TOOL = "suggest"
 
@@ -27,12 +28,14 @@ class Observers:
         change_reporter: ChangeReporter,
         create_observer: Callable[[str], Observer],
         agent_input: Input,
+        intent: Intent,
     ):
         self._agent_id = agent_id
         self._names = names
         self._change_reporter = change_reporter
         self._create_observer = create_observer
         self._agent_input = agent_input
+        self._intent = intent
         self._observers: dict[str, Observer] = {}
         event_bus.subscribe(CheckpointReachedEvent, self._observe)
         event_bus.subscribe(AgentFinishedEvent, self._close)
@@ -44,8 +47,9 @@ class Observers:
         diff = self._change_reporter.diff()
         if not diff:
             return
+        packet = self._packet(diff)
         for name in self._names:
-            self._observer(name).observe(diff)
+            self._observer(name).observe(packet)
 
     def _deliver(self, event: ToolCalledEvent) -> None:
         if not event.call or event.call.name != SUGGEST_TOOL:
@@ -61,6 +65,12 @@ class Observers:
             return
         for observer in self._observers.values():
             observer.close()
+
+    def _packet(self, diff: str) -> str:
+        intent = self._intent.read()
+        if not intent:
+            return diff
+        return f"Intent: {intent}\n\n{diff}"
 
     def _observer(self, name: str) -> Observer:
         if name not in self._observers:

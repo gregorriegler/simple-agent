@@ -15,6 +15,7 @@ from simple_agent.application.events import SessionStartedEvent
 from simple_agent.application.events_to_messages import events_to_messages
 from simple_agent.application.history_replayer import HistoryReplayer
 from simple_agent.application.input import Input
+from simple_agent.application.intent import Intent, NoIntent
 from simple_agent.application.llm import LLMProvider, Messages
 from simple_agent.application.observer_factory import ObserverFactory
 from simple_agent.application.observer_library import ObserverLibrary
@@ -50,6 +51,7 @@ class Session:
         on_replay_complete: Callable[[], None] | None = None,
         observer_library: ObserverLibrary | None = None,
         change_reporter: ChangeReporter | None = None,
+        intent: Intent | None = None,
     ):
         self._starting_agent_id = starting_agent_id
         self._event_bus = event_bus
@@ -63,6 +65,7 @@ class Session:
         self._on_replay_complete = on_replay_complete
         self._observer_library = observer_library
         self._change_reporter = change_reporter
+        self._intent = intent or NoIntent()
         self._checkpoint_detector = CheckpointDetector(event_bus)
 
     def _observe(
@@ -85,6 +88,7 @@ class Session:
                 self._starting_agent_id,
             ),
             agent_input,
+            self._intent,
         )
 
     async def run_async(
