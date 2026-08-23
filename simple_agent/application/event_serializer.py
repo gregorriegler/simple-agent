@@ -17,7 +17,7 @@ from simple_agent.application.events import (
     ToolResultEvent,
     UserPromptedEvent,
 )
-from simple_agent.application.tool_library import ParsedTool, RawToolCall
+from simple_agent.application.tool_library import RawToolCall
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
 
 
@@ -64,9 +64,9 @@ class EventSerializer:
                 "type": "ToolCalledEvent",
                 "agent_id": agent_id_raw,
                 "call_id": event.call_id,
-                "tool_name": event.tool.name if event.tool else "",
-                "tool_arguments": event.tool.arguments if event.tool else "",
-                "tool_body": event.tool.body if event.tool else "",
+                "tool_name": event.call.name if event.call else "",
+                "tool_arguments": event.call.arguments if event.call else "",
+                "tool_body": event.call.body if event.call else "",
             }
         elif isinstance(event, ToolResultEvent):
             status = "success"
@@ -166,14 +166,14 @@ class EventSerializer:
         elif event_type == "AgentFinishedEvent":
             return AgentFinishedEvent(agent_id=agent_id)
         elif event_type == "ToolCalledEvent":
-            tool_name = data.get("tool_name", "")
-            tool_args = data.get("tool_arguments", "")
-            tool_body = data.get("tool_body", "")
-            tool = ParsedTool(RawToolCall(tool_name, tool_args, tool_body), None)
             return ToolCalledEvent(
                 agent_id=agent_id,
                 call_id=data.get("call_id", ""),
-                tool=tool,
+                call=RawToolCall(
+                    data.get("tool_name", ""),
+                    data.get("tool_arguments", ""),
+                    data.get("tool_body", ""),
+                ),
             )
         elif event_type == "ToolResultEvent":
             status_str = data.get("status", "success")

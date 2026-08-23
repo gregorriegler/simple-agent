@@ -31,7 +31,7 @@ class ToolsExecutor:
     async def _execute(self, tool: ParsedTool) -> ToolResult:
         self._tool_call_counter += 1
         call_id = f"{self._agent_id}::tool_call::{self._tool_call_counter}"
-        self._event_bus.publish(ToolCalledEvent(self._agent_id, call_id, tool))
+        self._event_bus.publish(ToolCalledEvent(self._agent_id, call_id, tool.raw_call))
         try:
             tool_result = await self._library.execute_parsed_tool(tool)
             self._event_bus.publish(

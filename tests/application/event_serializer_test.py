@@ -13,7 +13,7 @@ from simple_agent.application.events import (
     ToolResultEvent,
     UserPromptedEvent,
 )
-from simple_agent.application.tool_library import ParsedTool, RawToolCall
+from simple_agent.application.tool_library import RawToolCall
 from simple_agent.application.tool_results import SingleToolResult
 
 
@@ -293,7 +293,7 @@ class TestEventSerializer:
         event = ToolCalledEvent(
             agent_id=AgentId("Agent"),
             call_id="Agent::tool_call::1",
-            tool=ParsedTool(RawToolCall("bash", "ls -la", "body text"), None),
+            call=RawToolCall("bash", "ls -la", "body text"),
         )
 
         result = EventSerializer.to_dict(event)
@@ -320,6 +320,4 @@ class TestEventSerializer:
         result = EventSerializer.from_dict(data)
 
         assert result.call_id == "Agent::tool_call::1"
-        assert result.tool.name == "bash"
-        assert result.tool.arguments == "ls -la"
-        assert result.tool.body == "body text"
+        assert result.call == RawToolCall("bash", "ls -la", "body text")

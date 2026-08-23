@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_type import AgentType
+from simple_agent.application.tool_library import RawToolCall
 from simple_agent.application.tool_results import ToolResult
 
 
@@ -22,7 +23,7 @@ class AssistantSaidEvent(AgentEvent):
 class ToolCalledEvent(AgentEvent):
     event_name: ClassVar[str] = "tool_called"
     call_id: str = ""
-    tool: Any = None
+    call: RawToolCall | None = None
 
 
 @dataclass

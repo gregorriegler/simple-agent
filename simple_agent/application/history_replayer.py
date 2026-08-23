@@ -14,7 +14,6 @@ from simple_agent.application.events import (
     ToolCalledEvent,
     ToolResultEvent,
 )
-from simple_agent.application.tool_library import ParsedTool
 
 logger = logging.getLogger(__name__)
 
@@ -84,14 +83,13 @@ class HistoryReplayer:
                 )
 
             for i, raw_call in enumerate(parsed.tool_calls):
-                tool = ParsedTool(raw_call, None)
                 if results:
                     res_event = results.popleft()
                     self._event_bus.publish(
                         ToolCalledEvent(
                             agent_id=event.agent_id,
                             call_id=res_event.call_id,
-                            tool=tool,
+                            call=raw_call,
                         )
                     )
                     self._event_bus.publish(res_event)
@@ -99,7 +97,7 @@ class HistoryReplayer:
                     call_id = f"legacy_{event.agent_id.for_ui()}_{i}"
                     self._event_bus.publish(
                         ToolCalledEvent(
-                            agent_id=event.agent_id, call_id=call_id, tool=tool
+                            agent_id=event.agent_id, call_id=call_id, call=raw_call
                         )
                     )
         except Exception:
