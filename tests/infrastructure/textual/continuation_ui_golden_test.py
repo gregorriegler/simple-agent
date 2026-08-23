@@ -22,7 +22,7 @@ from simple_agent.infrastructure.file_event_store import FileEventStore
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
-from tests.infrastructure.textual.conftest import FakeEventLogger, FakeTodoCleanup
+from tests.infrastructure.textual.conftest import FakeAgentStateCleanup, FakeEventLogger
 from tests.infrastructure.textual.test_utils import (
     dump_ascii_screen,
     dump_ui_state,
@@ -121,7 +121,7 @@ async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
         agent_task_manager=AgentTaskManager(),
         available_models=["stub-model"],
     )
-    subscribe_events(event_bus, FakeEventLogger(), FakeTodoCleanup(), app2)
+    subscribe_events(event_bus, FakeEventLogger(), FakeAgentStateCleanup(), app2)
 
     async with app2.run_test(size=(80, 24)) as pilot:
         replayer = HistoryReplayer(event_bus, event_store)
@@ -209,7 +209,7 @@ async def test_continuation_tool_result_is_last_event(tmp_path):
         agent_task_manager=AgentTaskManager(),
         available_models=["stub-model"],
     )
-    subscribe_events(event_bus, FakeEventLogger(), FakeTodoCleanup(), app2)
+    subscribe_events(event_bus, FakeEventLogger(), FakeAgentStateCleanup(), app2)
 
     async with app2.run_test(size=(80, 24)) as pilot:
         replayer = HistoryReplayer(event_bus, event_store)

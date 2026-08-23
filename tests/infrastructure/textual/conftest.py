@@ -6,7 +6,9 @@ from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.infrastructure.event_logger import EventLogger
-from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
+from simple_agent.infrastructure.file_system_agent_state_cleanup import (
+    FileSystemAgentStateCleanup,
+)
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 
@@ -39,14 +41,14 @@ class FakeEventLogger(EventLogger):
         return None
 
 
-class FakeTodoCleanup(FileSystemTodoCleanup):
+class FakeAgentStateCleanup(FileSystemAgentStateCleanup):
     def __init__(self):
         super().__init__(Path("."))
 
-    def cleanup_all_todos(self) -> None:
+    def cleanup_all(self) -> None:
         return None
 
-    def cleanup_todos_for_agent(self, agent_id) -> None:
+    def cleanup_for_agent(self, agent_id) -> None:
         return None
 
 
@@ -64,6 +66,6 @@ def textual_harness():
         user_input, AgentId("Agent"), agent_task_manager=AgentTaskManager()
     )
 
-    subscribe_events(event_bus, FakeEventLogger(), FakeTodoCleanup(), app)
+    subscribe_events(event_bus, FakeEventLogger(), FakeAgentStateCleanup(), app)
 
     return event_bus, session_storage, user_input, app

@@ -26,7 +26,9 @@ from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_event_store import FileEventStore
 from simple_agent.infrastructure.file_session_storage import FileSessionStorage
-from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
+from simple_agent.infrastructure.file_system_agent_state_cleanup import (
+    FileSystemAgentStateCleanup,
+)
 from simple_agent.infrastructure.llm import RemoteLLMProvider
 from simple_agent.infrastructure.non_interactive_user_input import (
     NonInteractiveUserInput,
@@ -104,11 +106,11 @@ async def _run_main(
         user_config=user_config,
         log_file=session_storage.session_root() / "session.log",
     )
-    todo_cleanup = FileSystemTodoCleanup(session_storage.session_root())
+    agent_state_cleanup = FileSystemAgentStateCleanup(session_storage.session_root())
     event_store = FileEventStore(session_storage.session_root())
 
     if not args.continue_session:
-        todo_cleanup.cleanup_all_todos()
+        agent_state_cleanup.cleanup_all()
 
     event_logger = EventLogger()
     event_bus = SimpleEventBus()
@@ -147,7 +149,7 @@ async def _run_main(
         available_models=llm_provider.get_available_models(),
         available_agents=agent_library.list_agent_types(),
     )
-    subscribe_events(event_bus, event_logger, todo_cleanup, textual_app)
+    subscribe_events(event_bus, event_logger, agent_state_cleanup, textual_app)
     if event_subscriber:
         event_subscriber(event_bus, textual_app)
 

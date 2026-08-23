@@ -19,7 +19,9 @@ from simple_agent.application.events import (
     UserPromptRequestedEvent,
 )
 from simple_agent.infrastructure.event_logger import EventLogger
-from simple_agent.infrastructure.file_system_todo_cleanup import FileSystemTodoCleanup
+from simple_agent.infrastructure.file_system_agent_state_cleanup import (
+    FileSystemAgentStateCleanup,
+)
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 
@@ -27,7 +29,7 @@ from simple_agent.infrastructure.textual.textual_messages import DomainEventMess
 def subscribe_events(
     event_bus: SimpleEventBus,
     event_logger: EventLogger,
-    todo_cleanup: FileSystemTodoCleanup,
+    agent_state_cleanup: FileSystemAgentStateCleanup,
     app: TextualApp | None = None,
 ):
     event_bus.subscribe(SessionStartedEvent, event_logger.log_event)
@@ -44,13 +46,13 @@ def subscribe_events(
 
     event_bus.subscribe(
         AgentFinishedEvent,
-        lambda event: todo_cleanup.cleanup_todos_for_agent(event.agent_id)
+        lambda event: agent_state_cleanup.cleanup_for_agent(event.agent_id)
         if event.agent_id and event.agent_id.has_parent()
         else None,
     )
     event_bus.subscribe(
         SessionClearedEvent,
-        lambda event: todo_cleanup.cleanup_todos_for_agent(event.agent_id)
+        lambda event: agent_state_cleanup.cleanup_for_agent(event.agent_id)
         if event.agent_id
         else None,
     )
