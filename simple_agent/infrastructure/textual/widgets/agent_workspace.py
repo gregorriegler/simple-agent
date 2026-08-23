@@ -2,6 +2,7 @@ from textual.containers import Vertical
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_results import ToolResult
+from simple_agent.infrastructure.file_intent import FileIntent
 from simple_agent.infrastructure.textual.resizable_container import (
     ResizableHorizontal,
     ResizableVertical,
@@ -32,6 +33,7 @@ class AgentWorkspace(Vertical):
         self.chat_log = ChatLog(id=f"{log_id}-scroll", classes="left-panel-top")
         self.todo_view = TodoView(
             agent_id,
+            FileIntent(agent_id),
             markdown_id=f"{log_id}-todos",
             id=f"{log_id}-secondary",
             classes="left-panel-bottom",

@@ -5,12 +5,14 @@ from textual.css.query import NoMatches
 from textual.widgets import Markdown
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.intent import Intent
 
 
 class TodoView(VerticalScroll):
-    def __init__(self, agent_id: AgentId, markdown_id: str, **kwargs):
+    def __init__(self, agent_id: AgentId, intent: Intent, markdown_id: str, **kwargs):
         super().__init__(**kwargs)
         self.agent_id = agent_id
+        self.intent = intent
         self.markdown_id = markdown_id
         self.content = ""
         self.load_content()
@@ -19,7 +21,7 @@ class TodoView(VerticalScroll):
         yield Markdown(self.content, id=self.markdown_id)
 
     def load_content(self) -> str:
-        intent = self._read(self.agent_id.intent_filename())
+        intent = self.intent.read()
         todos = self._read(self.agent_id.todo_filename())
         sections = [f"**Intent:** {intent}" if intent else "", todos]
         self.content = "\n\n".join(section for section in sections if section)
