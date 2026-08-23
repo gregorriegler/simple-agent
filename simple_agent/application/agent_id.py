@@ -1,5 +1,19 @@
 from pathlib import Path
 
+TODO_SUFFIX = "todos.md"
+INTENT_SUFFIX = "intent.md"
+STATE_FILE_SUFFIXES = (TODO_SUFFIX, INTENT_SUFFIX)
+
+
+STATE_FILE_PATTERN = ".{name}.{suffix}"
+
+
+def state_file_globs() -> list[str]:
+    return [
+        STATE_FILE_PATTERN.format(name="*", suffix=suffix)
+        for suffix in STATE_FILE_SUFFIXES
+    ]
+
 
 class AgentId:
     def __init__(self, raw_id: str, root: Path | None = None):
@@ -43,12 +57,19 @@ class AgentId:
         return self._raw_id.replace("/", "-").replace("\\", "-").replace(" ", "-")
 
     def todo_filename(self) -> Path:
-        root = self._root or Path(".")
-        return root / f".{self.for_filesystem()}.todos.md"
+        return self.state_filename(TODO_SUFFIX)
 
     def intent_filename(self) -> Path:
+        return self.state_filename(INTENT_SUFFIX)
+
+    def state_filename(self, suffix: str) -> Path:
         root = self._root or Path(".")
-        return root / f".{self.for_filesystem()}.intent.md"
+        return root / STATE_FILE_PATTERN.format(
+            name=self.for_filesystem(), suffix=suffix
+        )
+
+    def state_filenames(self) -> list[Path]:
+        return [self.state_filename(suffix) for suffix in STATE_FILE_SUFFIXES]
 
     def for_ui(self) -> str:
         return self.for_filesystem()
