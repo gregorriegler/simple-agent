@@ -19,4 +19,6 @@ class CheckpointDetector:
         tool_name = self._called_tools.pop(event.call_id, None)
         if tool_name not in MUTATING_TOOLS:
             return
+        if not event.result or not event.result.success:
+            return
         self._event_bus.publish(CheckpointReachedEvent(event.agent_id))
