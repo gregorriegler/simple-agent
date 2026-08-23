@@ -12,11 +12,11 @@ Simple Agent aims to be a simple, transparent, general-purpose agent TUI.
 
 ## Features
 
+- Real-time observers: attach independent observer agents (e.g. naming, code quality) that monitor changes and provide immediate feedback
 - Transparency: observe every tool call and agent decision with ease
 - Tab-based multi-agent TUI: view and manage multiple agents side by side
 - Session continuation: pause and resume sessions with `--continue`
 - Markdown-driven subagents: build modular agents from simple markdown files
-- Token-efficient tool calling: optimized tool execution to reduce overhead
 - CLI-first design: built for command-line use, with optional non-interactive mode
 - API integration: works with OpenAI, Anthropic, and Google Gemini APIs
 
@@ -154,6 +154,22 @@ To change which agent starts first, set it via the `[agents]` section:
 [agents]
 start = "orchestrator"
 ```
+
+### Observers
+
+Observers are specialized agents (`*.observer.md`) that watch an agent's diffs and intent in real-time, providing targeted suggestions (e.g. naming conventions, consistency, architectural rules) without directly modifying code.
+
+You can attach observers to any agent in its frontmatter:
+
+```markdown
+---
+name: Coding
+tools: bash, cat, ls, create_file, replace_file_content
+observers: [naming]
+---
+```
+
+Observer definition files are discovered from the same directories as agent definitions (built-in package and configured custom agent directory).
 
 ## Development
 
