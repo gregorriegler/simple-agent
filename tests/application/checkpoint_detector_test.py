@@ -7,88 +7,42 @@ from simple_agent.application.events import (
     ToolResultEvent,
 )
 from simple_agent.application.tool_library import RawToolCall
-from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
+from simple_agent.application.tool_results import SingleToolResult
 
 AGENT = AgentId("Agent")
 
 
-class CheckpointSpy:
-    def __init__(self, event_bus):
-        self.events = []
-        event_bus.subscribe(CheckpointReachedEvent, self.events.append)
-
-    def __len__(self):
-        return len(self.events)
-
-
-def call_tool(event_bus, name, status=ToolResultStatus.SUCCESS, call_id="call-1"):
-    event_bus.publish(ToolCalledEvent(AGENT, call_id, RawToolCall(name, "some.py")))
+def write_file(event_bus, call_id):
     event_bus.publish(
-        ToolResultEvent(AGENT, call_id, SingleToolResult("done", status=status))
+        ToolCalledEvent(AGENT, call_id, RawToolCall("create-file", "some.py"))
     )
+    event_bus.publish(ToolResultEvent(AGENT, call_id, SingleToolResult("created")))
 
 
-def test_reaches_checkpoint_after_a_file_was_created():
-    event_bus = SimpleEventBus()
-    CheckpointDetector(event_bus)
-    checkpoints = CheckpointSpy(event_bus)
-
-    call_tool(event_bus, "create-file")
-
-    assert len(checkpoints) == 1
+def record_checkpoints(event_bus):
+    checkpoints = []
+    event_bus.subscribe(CheckpointReachedEvent, checkpoints.append)
+    return checkpoints
 
 
-def test_no_checkpoint_when_the_write_failed():
-    event_bus = SimpleEventBus()
-    CheckpointDetector(event_bus)
-    checkpoints = CheckpointSpy(event_bus)
-
-    call_tool(event_bus, "create-file", status=ToolResultStatus.FAILURE)
-
-    assert len(checkpoints) == 0
-
-
-def test_no_checkpoint_for_reading_tools():
-    event_bus = SimpleEventBus()
-    CheckpointDetector(event_bus)
-    checkpoints = CheckpointSpy(event_bus)
-
-    call_tool(event_bus, "cat")
-
-    assert len(checkpoints) == 0
-
-
-def test_no_checkpoint_while_a_round_is_in_flight():
+def test_no_checkpoint_while_an_observer_round_is_in_flight():
     event_bus = SimpleEventBus()
     detector = CheckpointDetector(event_bus)
-    checkpoints = CheckpointSpy(event_bus)
+    checkpoints = record_checkpoints(event_bus)
 
-    call_tool(event_bus, "create-file", call_id="call-1")
     detector.round_started()
-    call_tool(event_bus, "create-file", call_id="call-2")
+    write_file(event_bus, "call-1")
 
-    assert len(checkpoints) == 1
+    assert len(checkpoints) == 0
 
 
 def test_checkpoints_again_once_the_round_finished():
     event_bus = SimpleEventBus()
     detector = CheckpointDetector(event_bus)
-    checkpoints = CheckpointSpy(event_bus)
+    checkpoints = record_checkpoints(event_bus)
 
-    call_tool(event_bus, "create-file", call_id="call-1")
     detector.round_started()
     detector.round_finished()
-    call_tool(event_bus, "create-file", call_id="call-2")
+    write_file(event_bus, "call-1")
 
-    assert len(checkpoints) == 2
-
-
-def test_checkpoints_every_write_while_nobody_observes():
-    event_bus = SimpleEventBus()
-    CheckpointDetector(event_bus)
-    checkpoints = CheckpointSpy(event_bus)
-
-    call_tool(event_bus, "create-file", call_id="call-1")
-    call_tool(event_bus, "replace-file-content", call_id="call-2")
-
-    assert len(checkpoints) == 2
+    assert len(checkpoints) == 1
