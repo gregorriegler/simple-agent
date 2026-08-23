@@ -44,9 +44,6 @@ class ToolCall:
     def body(self):
         return self.raw_call.body
 
-    def header(self):
-        return self.raw_call.header()
-
     def __str__(self):
         return self.raw_call.__str__()
 
