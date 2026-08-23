@@ -21,7 +21,10 @@ from .create_file_tool import CreateFileTool
 from .ls_tool import LsTool
 from .replace_file_content_tool import ReplaceFileContentTool
 from .subagent_tool import SubagentTool
+from .suggest_tool import SuggestTool
 from .write_todos_tool import WriteTodosTool
+
+OBSERVER_ONLY_TOOLS = ("suggest",)
 
 
 class AllTools(ToolLibrary):
@@ -56,12 +59,17 @@ class AllTools(ToolLibrary):
             "communicate_intent": lambda: CommunicateIntentTool(
                 str(self.tool_context.agent_id.intent_filename())
             ),
+            "suggest": lambda: SuggestTool(),
             "bash": lambda: BashTool(),
             "subagent": lambda: SubagentTool(self._spawner, self._agent_types),
         }
 
         if not self.tool_keys:
-            tools = [factory() for factory in tool_map.values()]
+            tools = [
+                factory()
+                for key, factory in tool_map.items()
+                if key not in OBSERVER_ONLY_TOOLS
+            ]
             return [tool for tool in tools if tool is not None]
 
         tools = []

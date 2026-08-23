@@ -1,0 +1,7 @@
+Command:
+🛠️[suggest]
+
+🛠️[/end]
+
+Result:
+No suggestion provided

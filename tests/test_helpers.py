@@ -23,7 +23,7 @@ from simple_agent.tools.all_tools import AllTools, AllToolsFactory
 from tests.user_input_stub import UserInputStub
 
 
-def create_all_tools_for_test():
+def create_all_tools_for_test(tool_keys: list[str] | None = None):
     event_bus = SimpleEventBus()
     tool_syntax = EmojiBracketToolSyntax()
     tool_library_factory = AllToolsFactory(tool_syntax)
@@ -40,7 +40,7 @@ def create_all_tools_for_test():
     )
 
     agent_id = AgentId("Agent")
-    tool_context = ToolContext([], agent_id)
+    tool_context = ToolContext(tool_keys or [], agent_id)
 
     spawner = agent_factory.create_spawner(agent_id)
 

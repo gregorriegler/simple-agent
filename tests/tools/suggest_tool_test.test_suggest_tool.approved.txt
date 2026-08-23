@@ -1,0 +1,7 @@
+Command:
+🛠️[suggest]
+data1.txt says nothing about its content
+🛠️[/end]
+
+Result:
+Suggested: data1.txt says nothing about its content

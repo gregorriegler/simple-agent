@@ -37,7 +37,7 @@ def test_an_observer_may_only_read(observers_directory):
 
     observer = library.read_observer_definition("naming")
 
-    assert observer.tool_keys() == ["cat"]
+    assert observer.tool_keys() == ["cat", "suggest", "complete_task"]
 
 
 def test_an_unknown_observer_is_reported(observers_directory):
