@@ -17,8 +17,8 @@ async def verify_edit_tool(tool_library, setup_file, setup_content, command, tmp
 
         initial_file_info = f"Initial file: {setup_file}\nInitial content:\n--- INITIAL CONTENT START ---\n{setup_content}\n--- INITIAL CONTENT END ---"
 
-        tool = tool_library.parse_message_and_tools(command)
-        result = await tool_library.execute_tool_call(tool.tools[0])
+        resolved = tool_library.parse_and_resolve(command)
+        result = await tool_library.execute_tool_call(resolved.tool_calls[0])
         with open(setup_file, encoding="utf-8") as f:
             actual_content = f.read()
         final_file_info = f"File after edit: {setup_file}\nFinal content:\n--- FINAL CONTENT START ---\n{actual_content}\n--- FINAL CONTENT END ---"

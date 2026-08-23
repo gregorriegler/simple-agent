@@ -198,10 +198,12 @@ class Agent(SlashCommandVisitor):
                 parsed = self.brain.tools.resolve_tool_calls(
                     response.tool_calls, response.message
                 )
-                if not parsed.tools:
+                if not parsed.tool_calls:
                     break
 
-                tool_result = await self.tools_executor.execute_tool_calls(parsed.tools)
+                tool_result = await self.tools_executor.execute_tool_calls(
+                    parsed.tool_calls
+                )
                 for call, output in tool_result.tool_results:
                     self.context.tool_result(call, output)
 

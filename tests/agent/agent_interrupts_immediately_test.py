@@ -11,8 +11,8 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
 from simple_agent.application.tool_library import (
-    MessageAndParsedTools,
     RawToolCall,
+    ResolvedMessage,
     Tool,
     ToolCall,
 )
@@ -47,8 +47,8 @@ class EmptyToolLibrary:
         self.tools: list[Tool] = []
         self.tool_syntax: ToolSyntax = Mock()
 
-    def parse_message_and_tools(self, text: str) -> MessageAndParsedTools:
-        return MessageAndParsedTools(text, [])
+    def parse_and_resolve(self, text: str) -> ResolvedMessage:
+        return ResolvedMessage(text, [])
 
     async def execute_tool_call(self, tool_call: ToolCall):
         return SingleToolResult()
@@ -127,11 +127,11 @@ class ToolCallingToolLibrary:
         self.tools: list[Tool] = []
         self.tool_syntax: ToolSyntax = Mock()
 
-    def parse_message_and_tools(self, text: str) -> MessageAndParsedTools:
+    def parse_and_resolve(self, text: str) -> ResolvedMessage:
         if "<tool>slow_tool</tool>" in text:
             tool_call = RawToolCall(name="slow_tool", arguments="", body="")
-            return MessageAndParsedTools("", [ToolCall(tool_call, self._slow_tool)])
-        return MessageAndParsedTools(text, [])
+            return ResolvedMessage("", [ToolCall(tool_call, self._slow_tool)])
+        return ResolvedMessage(text, [])
 
     async def execute_tool_call(self, tool_call: ToolCall):
         return await self._slow_tool()

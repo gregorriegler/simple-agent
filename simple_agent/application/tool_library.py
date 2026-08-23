@@ -52,13 +52,13 @@ class ToolCall:
 
 
 @dataclass
-class MessageAndParsedTools:
+class ResolvedMessage:
     message: str
-    tools: list[ToolCall]
+    tool_calls: list[ToolCall]
 
     def __iter__(self):
         yield self.message
-        yield self.tools
+        yield self.tool_calls
 
 
 @dataclass
@@ -125,10 +125,10 @@ class ToolLibrary(Protocol):
     tools: list[Tool]
     tool_syntax: "ToolSyntax"
 
-    def parse_message_and_tools(self, text: str) -> MessageAndParsedTools: ...
+    def parse_and_resolve(self, text: str) -> ResolvedMessage: ...
 
     def resolve_tool_calls(
         self, tool_calls: list[RawToolCall], message: str
-    ) -> MessageAndParsedTools: ...
+    ) -> ResolvedMessage: ...
 
     async def execute_tool_call(self, tool_call: ToolCall) -> ToolResult: ...
