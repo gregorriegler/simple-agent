@@ -1,6 +1,7 @@
 import asyncio
 
 import pytest
+
 from simple_agent.application.observer_input import ObserverInput
 
 pytestmark = pytest.mark.asyncio
