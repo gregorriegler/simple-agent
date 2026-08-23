@@ -28,11 +28,11 @@ class AgentDefinition:
 
     def tool_keys(self):
         metadata, _ = self._load()
-        return self._read_tool_keys(metadata.get("tools"))
+        return self._read_names(metadata.get("tools"))
 
     def observers(self) -> list[str]:
         metadata, _ = self._load()
-        return self._read_tool_keys(metadata.get("observers"))
+        return self._read_names(metadata.get("observers"))
 
     def model(self) -> str | None:
         metadata, _ = self._load()
@@ -105,17 +105,17 @@ class AgentDefinition:
         return {}
 
     @staticmethod
-    def _read_tool_keys(raw_tools: Any) -> list[str]:
-        if raw_tools is None:
+    def _read_names(raw_value: Any) -> list[str]:
+        if raw_value is None:
             return []
 
-        if isinstance(raw_tools, str):
-            parts = [item.strip() for item in raw_tools.split(",")]
+        if isinstance(raw_value, str):
+            parts = [item.strip() for item in raw_value.split(",")]
             return [item for item in parts if item]
 
-        if isinstance(raw_tools, list):
+        if isinstance(raw_value, list):
             normalized = []
-            for item in raw_tools:
+            for item in raw_value:
                 if isinstance(item, str):
                     stripped = item.strip()
                     if stripped:
