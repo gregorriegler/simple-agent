@@ -6,9 +6,10 @@ pytestmark = pytest.mark.asyncio
 
 
 class UserInputStub:
-    def __init__(self, value="input"):
+    def __init__(self, value="input", pending=None):
         self.value = value
         self.calls = 0
+        self.pending = list(pending) if pending else []
 
     async def read_async(self):
         self.calls += 1
@@ -19,6 +20,10 @@ class UserInputStub:
 
     def close(self) -> None:
         pass
+
+    def drain(self):
+        pending, self.pending = self.pending, []
+        return pending
 
 
 async def test_input_uses_display_input_when_stack_empty():
@@ -85,3 +90,22 @@ async def test_mixing_stacked_and_user_input_reads():
 
     assert await feed.read_async() == "user input"
     assert user_input_port.calls == 2
+
+
+async def test_drain_returns_stacked_and_pending_messages_in_fifo_order():
+    user_input_port = UserInputStub("user input", pending=["typed while working"])
+    feed = Input(user_input_port)
+    feed.stack("stacked")
+
+    assert feed.drain() == ["stacked", "typed while working"]
+
+
+async def test_drain_empties_the_queue():
+    user_input_port = UserInputStub("user input", pending=["typed"])
+    feed = Input(user_input_port)
+    feed.stack("stacked")
+
+    feed.drain()
+
+    assert feed.drain() == []
+    assert not feed.has_stacked_messages()

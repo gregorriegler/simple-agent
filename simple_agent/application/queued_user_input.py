@@ -1,10 +1,10 @@
 import asyncio
 from queue import Empty, Queue
 
-from simple_agent.application.user_input import UserInput
+from .user_input import UserInput
 
 
-class TextualUserInput(UserInput):
+class QueuedUserInput(UserInput):
     def __init__(self):
         self.input_queue: Queue[str] = Queue()
         self.escape_flag = False
@@ -17,6 +17,14 @@ class TextualUserInput(UserInput):
             except Empty:
                 await asyncio.sleep(0.05)
         return ""
+
+    def drain(self) -> list[str]:
+        pending: list[str] = []
+        while True:
+            try:
+                pending.append(self.input_queue.get_nowait())
+            except Empty:
+                return pending
 
     def submit_input(self, message: str):
         self.escape_flag = False

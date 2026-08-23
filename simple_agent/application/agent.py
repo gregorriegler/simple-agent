@@ -174,6 +174,11 @@ class Agent(SlashCommandVisitor):
         except Exception as e:
             self.event_bus.publish(ErrorEvent(self.agent_id, str(e)))
 
+    def _append_pending_user_messages(self) -> None:
+        for message in self.user_input.drain():
+            self.context.user_says(message)
+            self.event_bus.publish(UserPromptedEvent(self.agent_id, message))
+
     async def run_tool_loop(self):
         try:
             tool_result: ToolResult = SingleToolResult()
@@ -206,6 +211,7 @@ class Agent(SlashCommandVisitor):
                 )
                 for call, output in tool_result.tool_results:
                     self.context.tool_result(call, output)
+                self._append_pending_user_messages()
 
             return tool_result
         except asyncio.CancelledError:

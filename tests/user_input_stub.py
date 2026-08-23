@@ -2,10 +2,17 @@ from simple_agent.application.user_input import UserInput
 
 
 class UserInputStub(UserInput):
-    def __init__(self, inputs=None, escapes=None):
+    def __init__(self, inputs=None, escapes=None, typed_while_working=None):
         self._inputs = list(inputs) if inputs is not None else [""]
         self._escapes = list(escapes) if escapes is not None else []
+        self._typed_while_working = (
+            list(typed_while_working) if typed_while_working is not None else []
+        )
         self._last_escape = False
+
+    def drain(self) -> list[str]:
+        typed, self._typed_while_working = self._typed_while_working, []
+        return typed
 
     async def read_async(self) -> str:
         if not self._inputs:

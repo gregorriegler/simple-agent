@@ -18,6 +18,7 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.event_store import NoOpEventStore
 from simple_agent.application.events import UserPromptRequestedEvent
 from simple_agent.application.llm_stub import StubLLMProvider
+from simple_agent.application.queued_user_input import QueuedUserInput
 from simple_agent.application.session import Session, SessionArgs
 from simple_agent.application.tool_documentation import generate_tools_documentation
 from simple_agent.application.tool_library_factory import ToolContext
@@ -39,7 +40,6 @@ from simple_agent.infrastructure.subscribe_events import (
     subscribe_persistence,
 )
 from simple_agent.infrastructure.textual.textual_app import TextualApp
-from simple_agent.infrastructure.textual.textual_user_input import TextualUserInput
 from simple_agent.infrastructure.user_configuration import (
     ConfigurationError,
     UserConfiguration,
@@ -91,9 +91,9 @@ async def _run_main(
         return print_system_prompt_command(user_config, cwd, args)
 
     if args.non_interactive:
-        textual_user_input = NonInteractiveUserInput()
+        user_input = NonInteractiveUserInput()
     else:
-        textual_user_input = TextualUserInput()
+        user_input = QueuedUserInput()
 
     agent_library = create_agent_library(user_config, args)
 
@@ -135,7 +135,7 @@ async def _run_main(
         event_bus=event_bus,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        user_input=textual_user_input,
+        user_input=user_input,
         llm_provider=llm_provider,
         project_tree=project_tree,
         event_store=event_store,
@@ -143,7 +143,7 @@ async def _run_main(
         on_replay_complete=lambda: subscribe_persistence(event_bus, event_store),
     )
     textual_app = TextualApp(
-        textual_user_input,
+        user_input,
         starting_agent_id,
         agent_task_manager=agent_task_manager,
         available_models=llm_provider.get_available_models(),

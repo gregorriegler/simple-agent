@@ -12,6 +12,10 @@ class Input:
     def has_stacked_messages(self) -> bool:
         return bool(self._stack)
 
+    def drain(self) -> list[str]:
+        stacked, self._stack = self._stack, []
+        return stacked + self.user_input.drain()
+
     async def read_async(self) -> str:
         if self._stack:
             return self._stack.pop()

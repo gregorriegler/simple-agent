@@ -118,6 +118,7 @@ class SessionTestBed:
         self._user_inputs = ["\n"]
         self._start_message = "test message"
         self._escape_hits = None
+        self._typed_while_working = None
         self._ctrl_c_hits = None
         self._continue_session = False
         self._event_store: EventStore | None = None
@@ -148,6 +149,12 @@ class SessionTestBed:
         self._user_inputs = list(remaining) if remaining else ["\n"]
         return self
 
+    def with_messages_typed_while_working(
+        self, messages: list[str]
+    ) -> "SessionTestBed":
+        self._typed_while_working = messages
+        return self
+
     def with_escape_hits(self, hits: list[bool]) -> "SessionTestBed":
         self._escape_hits = hits
         return self
@@ -170,7 +177,11 @@ class SessionTestBed:
 
     async def run(self) -> SessionTestResult:
         event_bus = SimpleEventBus()
-        user_input = UserInputStub(inputs=self._user_inputs, escapes=self._escape_hits)
+        user_input = UserInputStub(
+            inputs=self._user_inputs,
+            escapes=self._escape_hits,
+            typed_while_working=self._typed_while_working,
+        )
 
         event_spy = EventSpy()
         tracked_events = [
