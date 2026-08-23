@@ -19,12 +19,16 @@ class TodoView(VerticalScroll):
         yield Markdown(self.content, id=self.markdown_id)
 
     def load_content(self) -> str:
-        path = Path(self.agent_id.todo_filename())
-        if not path.exists():
-            self.content = ""
-        else:
-            self.content = path.read_text(encoding="utf-8").strip()
+        intent = self._read(self.agent_id.intent_filename())
+        todos = self._read(self.agent_id.todo_filename())
+        sections = [f"**Intent:** {intent}" if intent else "", todos]
+        self.content = "\n\n".join(section for section in sections if section)
         return self.content
+
+    def _read(self, path: Path) -> str:
+        if not path.exists():
+            return ""
+        return path.read_text(encoding="utf-8").strip()
 
     def refresh_content(self) -> None:
         content = self.load_content()
