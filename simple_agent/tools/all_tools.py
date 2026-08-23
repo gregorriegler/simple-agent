@@ -69,9 +69,9 @@ class AllTools(ToolLibrary):
         return tools
 
     def parse_and_resolve(self, text) -> AssistantTurn:
-        parsed = parse_tool_calls(text, self.tool_syntax)
+        raw_turn = parse_tool_calls(text, self.tool_syntax)
         return self.resolve_tool_calls(
-            parsed.tool_calls, parsed.message, fallback_message=text
+            raw_turn.tool_calls, raw_turn.message, fallback_message=text
         )
 
     def resolve_tool_calls(

@@ -76,13 +76,15 @@ class HistoryReplayer:
 
     def _recover_legacy_assistant_response(self, event, results):
         try:
-            parsed = self._tool_syntax.parse(event.response)
-            if parsed.message:
+            raw_turn = self._tool_syntax.parse(event.response)
+            if raw_turn.message:
                 self._event_bus.publish(
-                    AssistantSaidEvent(agent_id=event.agent_id, message=parsed.message)
+                    AssistantSaidEvent(
+                        agent_id=event.agent_id, message=raw_turn.message
+                    )
                 )
 
-            for i, raw_call in enumerate(parsed.tool_calls):
+            for i, raw_call in enumerate(raw_turn.tool_calls):
                 if results:
                     res_event = results.popleft()
                     self._event_bus.publish(

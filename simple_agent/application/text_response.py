@@ -12,11 +12,11 @@ def emoji_response(content: str, model: str, usage: TokenUsage | None) -> LLMRes
     structured tool_calls and the surrounding prose becomes the message,
     while content keeps the raw text for history and round-trip.
     """
-    parsed = _SYNTAX.parse(content)
+    raw_turn = _SYNTAX.parse(content)
     return LLMResponse(
         answer=content,
-        tool_calls=parsed.tool_calls,
-        message=parsed.message,
+        tool_calls=raw_turn.tool_calls,
+        message=raw_turn.message,
         model=model,
         usage=usage,
     )
