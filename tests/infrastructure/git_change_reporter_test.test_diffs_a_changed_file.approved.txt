@@ -1,0 +1,7 @@
+diff --git a/greeting.txt b/greeting.txt
+index [HASH]..[HASH] 100644
+--- a/greeting.txt
++++ b/greeting.txt
+@@ -1 +1 @@
+-Hello
++Hello again

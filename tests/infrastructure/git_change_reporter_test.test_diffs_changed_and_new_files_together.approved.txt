@@ -1,0 +1,14 @@
+diff --git a/greeting.txt b/greeting.txt
+index [HASH]..[HASH] 100644
+--- a/greeting.txt
++++ b/greeting.txt
+@@ -1 +1 @@
+-Hello
++Hello again
+diff --git a/fresh.txt b/fresh.txt
+new file mode 100644
+index [HASH]..[HASH]
+--- /dev/null
++++ b/fresh.txt
+@@ -0,0 +1 @@
++Brand new
