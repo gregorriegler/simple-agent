@@ -11,9 +11,10 @@ class CommunicateIntentTool(BaseTool):
     description = (
         "State your current overarching goal (e.g. implementing a feature, "
         "investigating a failure, or fixing a bug) so an observer knows what "
-        "you are working toward. Do NOT call this for individual steps, tool "
-        "executions, running tests, or committing changes. Only call it when "
-        "the high-level pursuit changes."
+        "you are working toward and why. Always include the high-level purpose "
+        "('so that...'). Do NOT call this for individual steps, tool executions, "
+        "running tests, or committing changes. Only call it when the high-level "
+        "pursuit changes."
     )
     arguments = ToolArguments(
         header=[],
@@ -21,13 +22,13 @@ class CommunicateIntentTool(BaseTool):
             name="intent",
             type="string",
             required=True,
-            description="A single short sentence describing the current goal",
+            description="A single short sentence describing the current goal and its purpose (e.g. '<Objective> so that <purpose>')",
         ),
     )
     examples = [
         {
-            "intent": "Extract the tool syntax parser",
-            "result": "Intent: Extract the tool syntax parser",
+            "intent": "Extract the tool syntax parser so that agent logic is decoupled from protocol serialization",
+            "result": "Intent: Extract the tool syntax parser so that agent logic is decoupled from protocol serialization",
         }
     ]
 

@@ -16,6 +16,8 @@ Be brief.
 # Communicate Your Intent
 Call `communicate-intent` with what you are pursuing, in your own words, as
 soon as you take it up. Call it again when you move on to something else.
+- Always state the high-level objective and its purpose (e.g. `<Objective> so that <purpose>`).
+- Never state low-level execution steps (e.g. do not say "run test.sh", "search files", or "read line X").
 
 # Behavioral and Structural Changes
 Never mix behavioral and structural changes.
