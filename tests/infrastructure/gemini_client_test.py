@@ -653,3 +653,46 @@ async def test_gemini_treats_requires_action_as_a_tool_call_turn():
 
     assert result.answer == ""
     assert [c.arguments for c in result.tool_calls] == ["ls"]
+
+
+@pytest.mark.asyncio
+async def test_gemini_starts_a_model_turn_with_text_and_a_call_with_the_thought():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(),
+        tools=[bash_tool()],
+        transport=responding_with(interaction("done"), captured),
+    )
+    messages = [
+        {
+            "role": "assistant",
+            "content": "listing now",
+            "tool_calls": [
+                RawToolCall(name="bash", arguments="ls", thought_signature="SIG")
+            ],
+        },
+        {
+            "role": "tool",
+            "call": RawToolCall(name="bash", arguments="ls"),
+            "content": "a.txt",
+        },
+    ]
+
+    await chat.call_async(messages)
+
+    assert captured["body"]["input"] == [
+        {"type": "thought", "signature": "SIG"},
+        {"type": "model_output", "content": [{"type": "text", "text": "listing now"}]},
+        {
+            "type": "function_call",
+            "id": "call_1",
+            "name": "bash",
+            "arguments": {"command": "ls"},
+        },
+        {
+            "type": "function_result",
+            "call_id": "call_1",
+            "name": "bash",
+            "result": [{"type": "text", "text": "a.txt"}],
+        },
+    ]

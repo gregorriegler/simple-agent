@@ -118,24 +118,21 @@ class GeminiLLM(LLM):
             elif role == "user":
                 steps.append(self._step("user_input", content))
             elif role == "assistant":
+                turn = []
                 if content or not tool_calls:
-                    steps.append(self._step("model_output", content))
+                    turn.append(self._step("model_output", content))
                 for raw_call in tool_calls:
                     call_index += 1
                     if raw_call.thought_signature:
-                        steps.append(
-                            {
-                                "type": "thought",
-                                "signature": raw_call.thought_signature,
-                            }
-                        )
-                    steps.append(
+                        turn.append(self._thought_step(raw_call.thought_signature))
+                    turn.append(
                         self._function_call_step(
                             f"call_{call_index}",
                             raw_call,
                             tools_by_name.get(raw_call.name),
                         )
                     )
+                steps.extend(self._thought_first(turn))
             elif role == "tool":
                 result_index += 1
                 steps.append(
@@ -143,6 +140,19 @@ class GeminiLLM(LLM):
                 )
 
         return "\n\n".join(system_prompts), steps
+
+    def _thought_step(self, signature: str) -> dict:
+        return {"type": "thought", "signature": signature}
+
+    def _thought_first(self, turn: list[dict]) -> list[dict]:
+        """
+        Thinking models reject a model turn that carries a thought summary
+        without starting on a thought block, so lead with the first one.
+        """
+        for position, step in enumerate(turn):
+            if step["type"] == "thought":
+                return [step, *turn[:position], *turn[position + 1 :]]
+        return turn
 
     def _step(self, step_type: str, text: str) -> dict:
         return {"type": step_type, "content": [{"type": "text", "text": text}]}
