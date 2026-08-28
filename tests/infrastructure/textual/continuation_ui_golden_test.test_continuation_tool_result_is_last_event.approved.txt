@@ -2,9 +2,9 @@
  Agent [stub-model: 0.4%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▌ ▼ 💲 bash sleep 5
-   User: run bash    ╭─────────────────────────────────────────────────────────╮
-   sleep 5           │ Exit code 0 (5.017s elapsed)                            │
-                     ╰─────────────────────────────────────────────────────────╯
+   User: run bash    ▌╭────────────────────────────────────────────────────────╮
+   sleep 5           ▌│ Exit code 0 (5.017s elapsed)                           │
+                     ▌╰────────────────────────────────────────────────────────╯
    Agent: Done.
 
 
@@ -31,7 +31,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent [stub-model: 0.4%]'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -40,16 +40,16 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='**User:** run bash sleep 5'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='User: run bash sleep 5'
                     Markdown id='None' classes='' source='**Agent:** Done.'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Agent: Done.'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
                   Collapsible id='None' classes='tool-status-success' title='💲 bash sleep 5' collapsed=False
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▼ 💲 bash sleep 5'
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-result tool-result-success' text='Exit code 0 (5.017s elapsed)'
               SmartInput id='user-input' classes='' text=''
@@ -59,9 +59,9 @@ Active Tab: tab-Agent
  Agent [stub-model: 0.4%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▌ ▼ 💲 bash sleep 5
-   User: run bash    ╭─────────────────────────────────────────────────────────╮
-   sleep 5           │ Exit code 0 (5.017s elapsed)                            │
-                     ╰─────────────────────────────────────────────────────────╯
+   User: run bash    ▌╭────────────────────────────────────────────────────────╮
+   sleep 5           ▌│ Exit code 0 (5.017s elapsed)                           │
+                     ▌╰────────────────────────────────────────────────────────╯
    Agent: Done.
 
 
@@ -88,7 +88,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent [stub-model: 0.4%]'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -97,16 +97,16 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='**User:** run bash sleep 5'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='User: run bash sleep 5'
                     Markdown id='None' classes='' source='**Agent:** Done.'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Agent: Done.'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
                   Collapsible id='None' classes='tool-status-success' title='💲 bash sleep 5' collapsed=False
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▼ 💲 bash sleep 5'
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-result tool-result-success' text='Exit code 0 (5.017s elapsed)'
               SmartInput id='user-input' classes='' text=''

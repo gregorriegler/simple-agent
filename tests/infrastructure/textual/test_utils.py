@@ -61,7 +61,9 @@ def dump_ui_state(app: TextualApp) -> str:
             info += f" title={repr(widget.title)} collapsed={widget.collapsed}"
 
         if isinstance(widget, Static) and not isinstance(widget, (Markdown, TextArea)):
-            renderable = getattr(widget, "renderable", None)
+            renderable = getattr(widget, "renderable", None) or getattr(
+                widget, "content", None
+            )
             if renderable is not None and hasattr(renderable, "plain"):
                 info += f" content={repr(renderable.plain)}"
 

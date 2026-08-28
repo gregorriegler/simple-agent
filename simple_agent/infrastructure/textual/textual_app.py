@@ -97,6 +97,12 @@ class TextualApp(App):
         background: $surface;
     }
 
+    .thought {
+        color: $text-muted;
+        text-style: italic;
+        height: auto;
+    }
+
     .tool-result-error {
         border: round $error;
     }
@@ -130,20 +136,29 @@ class TextualApp(App):
         height: auto;
     }
 
-    ToolCollapsible.tool-status-running > CollapsibleTitle {
+    ToolCollapsible.tool-status-running > CollapsibleTitle,
+    ToolCollapsible.tool-status-running > Contents {
         border-left: outer $primary;
     }
 
-    ToolCollapsible.tool-status-success > CollapsibleTitle {
+    ToolCollapsible.tool-status-success > CollapsibleTitle,
+    ToolCollapsible.tool-status-success > Contents {
         border-left: outer $success;
     }
 
-    ToolCollapsible.tool-status-error > CollapsibleTitle {
+    ToolCollapsible.tool-status-error > CollapsibleTitle,
+    ToolCollapsible.tool-status-error > Contents {
         border-left: outer $error;
     }
 
-    ToolCollapsible.tool-status-cancelled > CollapsibleTitle {
+    ToolCollapsible.tool-status-cancelled > CollapsibleTitle,
+    ToolCollapsible.tool-status-cancelled > Contents {
         border-left: outer $warning;
+    }
+
+    ToolCollapsible.thought > CollapsibleTitle,
+    ToolCollapsible.thought > Contents {
+        border-left: outer $success;
     }
 
     #user-input {

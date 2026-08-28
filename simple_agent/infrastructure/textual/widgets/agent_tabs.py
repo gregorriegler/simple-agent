@@ -10,6 +10,7 @@ from simple_agent.application.events import (
     AgentStartedEvent,
     AssistantRespondedEvent,
     AssistantSaidEvent,
+    AssistantThoughtEvent,
     ErrorEvent,
     ModelChangedEvent,
     SessionClearedEvent,
@@ -173,6 +174,14 @@ class AgentTabs(TabbedContent):
                 logger.warning(
                     "Could not find workspace for agent %s to add assistant message",
                     agent_id,
+                )
+        elif isinstance(event, AssistantThoughtEvent):
+            workspace = self._agent_workspaces.get(str(agent_id))
+            if workspace:
+                workspace.on_thought(event.thought)
+            else:
+                logger.warning(
+                    "Could not find workspace for agent %s to write thought", agent_id
                 )
         elif isinstance(event, ToolCalledEvent):
             workspace = self._agent_workspaces.get(str(agent_id))

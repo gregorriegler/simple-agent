@@ -2,9 +2,9 @@
  Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▌ ▼ 🛠️ Reading test.txt
-   Starting new      ╭─────────────────────────────────────────────────────────╮
-   session           │ Content of test.txt                                     │
-                     ╰─────────────────────────────────────────────────────────╯
+   Starting new      ▌╭────────────────────────────────────────────────────────╮
+   session           ▌│ Content of test.txt                                    │
+                     ▌╰────────────────────────────────────────────────────────╯
    User: Start
    the process
 
@@ -31,8 +31,8 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
-                ContentTab id='--content-tab-tab-Agent-Coding' classes=''
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent [stub-model: 0.0%]'
+                ContentTab id='--content-tab-tab-Agent-Coding' classes='' content='Coding [stub-model: 0.0%]'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -41,16 +41,16 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
                     Markdown id='None' classes='' source='**User:** Start the process'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='User: Start the process'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
                   Collapsible id='None' classes='tool-status-success' title='🛠️ Reading test.txt' collapsed=False
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▼ 🛠️ Reading test.txt'
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-result tool-result-success' text='Content of test.txt'
               SmartInput id='user-input' classes='' text=''
@@ -60,7 +60,7 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-Coding-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='**User:** Say hello'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='User: Say hello'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-Coding-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-Coding-todos' classes='' source=''...
@@ -74,9 +74,9 @@ Active Tab: tab-Agent
  Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▌ ▼ 🛠️ Reading test.txt
-   Starting new      ╭─────────────────────────────────────────────────────────╮
-   session           │ Content of test.txt                                     │
-                     ╰─────────────────────────────────────────────────────────╯
+   Starting new      ▌╭────────────────────────────────────────────────────────╮
+   session           ▌│ Content of test.txt                                    │
+                     ▌╰────────────────────────────────────────────────────────╯
    User: Start
    the process
 
@@ -103,8 +103,8 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
-                ContentTab id='--content-tab-tab-Agent-Coding' classes=''
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent [stub-model: 0.0%]'
+                ContentTab id='--content-tab-tab-Agent-Coding' classes='' content='Coding [stub-model: 0.0%]'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -113,16 +113,16 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
                     Markdown id='None' classes='' source='**User:** Start the process'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='User: Start the process'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
                   Collapsible id='None' classes='tool-status-success' title='🛠️ Reading test.txt' collapsed=False
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▼ 🛠️ Reading test.txt'
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-result tool-result-success' text='Content of test.txt'
               SmartInput id='user-input' classes='' text=''
@@ -132,7 +132,7 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-Coding-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='**User:** Say hello'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='User: Say hello'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-Coding-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-Coding-todos' classes='' source=''...

@@ -1,0 +1,31 @@
+Tabs: ['tab-Agent']
+Active Tab: tab-Agent
+    Vertical id='None' classes=''
+      TabbedContent id='tabs' classes=''
+        ContentTabs id='None' classes=''
+          Container id='tabs-scroll' classes=''
+            Vertical id='tabs-list-bar' classes=''
+              Horizontal id='tabs-list' classes=''
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent [dummy-model]'
+              Underline id='None' classes=''
+        ContentSwitcher id='None' classes=''
+          TabPane id='tab-Agent' classes=''
+            ResizableHorizontal id='tab-content' classes=''
+              ResizableHorizontal id='split-view' classes=''
+                ResizableVertical id='left-panel' classes=''
+                  VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Splitter id='None' classes='horizontal'
+                  VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                    Markdown id='log-Agent-todos' classes='' source=''...
+                Splitter id='None' classes=''
+                VerticalScroll id='tool-results-Agent' classes=''
+                  Collapsible id='None' classes='-collapsed thought' title='🧠 thought' collapsed=True
+                    CollapsibleTitle id='None' classes='' content='▶ 🧠 thought'
+                    Contents id='None' classes=''
+                      Static id='None' classes='thought' content='The file is small, I will read it whole.'
+                  Collapsible id='None' classes='tool-status-running' title='🛠️ Tool Call' collapsed=False
+                    CollapsibleTitle id='None' classes='' content='▼ 🛠️ Tool Call'
+                    Contents id='None' classes=''
+                      TextArea id='None' classes='tool-call' text=''
+              SmartInput id='user-input' classes='' text=''
+    AutocompletePopup id='None' classes=''

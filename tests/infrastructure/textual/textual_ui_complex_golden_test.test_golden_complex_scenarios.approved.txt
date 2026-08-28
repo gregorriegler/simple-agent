@@ -7,7 +7,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -58,8 +58,8 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
-                ContentTab id='--content-tab-tab-SubAgent' classes=''
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
+                ContentTab id='--content-tab-tab-SubAgent' classes='' content='SubAgent [gpt-4: 0.0%]'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -122,8 +122,8 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
-                ContentTab id='--content-tab-tab-SubAgent' classes=''
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
+                ContentTab id='--content-tab-tab-SubAgent' classes='' content='SubAgent [gpt-4: 0.0%]'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -143,7 +143,7 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-SubAgent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='**SubAgent:** Hello from SubAgent'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='SubAgent: Hello from SubAgent'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-SubAgent-secondary' classes='left-panel-bottom'
                     Markdown id='log-SubAgent-todos' classes='' source=''...
@@ -188,7 +188,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -240,7 +240,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -249,7 +249,7 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -294,7 +294,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -303,9 +303,9 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
                     Markdown id='None' classes='' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -350,7 +350,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -359,16 +359,16 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
                     Markdown id='None' classes='' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
                   Collapsible id='None' classes='tool-status-running' title='🛠️ write_todos()' collapsed=False
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▼ 🛠️ write_todos()'
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
               SmartInput id='user-input' classes='' text=''
@@ -379,9 +379,9 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▌ ▼ 🛠️ write_todos()
-   ❌ Error:         ╭─────────────────────────────────────────────────────────╮
-   Something went    │                        ● ● ● ● ●                        │
-   wrong             ╰─────────────────────────────────────────────────────────╯
+   ❌ Error:         ▌╭────────────────────────────────────────────────────────╮
+   Something went    ▌│                       ● ● ● ● ●                        │
+   wrong             ▌╰────────────────────────────────────────────────────────╯
 
    [Session
    interrupted by
@@ -410,7 +410,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -419,20 +419,20 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
                     Markdown id='None' classes='' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
                   Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▶ 🛠️ write_todos()'
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
                   Collapsible id='None' classes='tool-status-success' title='🛠️ apply_diff()' collapsed=False
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▼ 🛠️ apply_diff()'
                     Contents id='None' classes=''
                       Static id='None' classes='tool-result tool-result-success'
               SmartInput id='user-input' classes='' text=''
@@ -444,13 +444,13 @@ Active Tab: tab-Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▌ ▶ 🛠️ write_todos()
    ❌ Error:         ▌ ▼ 🛠️ apply_diff()
-   Something went    ╭─────────────────────────────────────────────────────────╮
-   wrong             │<<<<<<< SEARCH                                           │
-                     │old line                                                 │
-   [Session          │=======                                                  │
-   interrupted by    │new line                                                 │
-   user]             │>>>>>>> REPLACE                                          │
-                     ╰─────────────────────────────────────────────────────────╯
+   Something went    ▌╭────────────────────────────────────────────────────────╮
+   wrong             ▌│<<<<<<< SEARCH                                          │
+                     ▌│old line                                                │
+   [Session          ▌│=======                                                 │
+   interrupted by    ▌│new line                                                │
+   user]             ▌│>>>>>>> REPLACE                                         │
+                     ▌╰────────────────────────────────────────────────────────╯
 
 
 
@@ -474,7 +474,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -483,24 +483,24 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
                     Markdown id='None' classes='' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
                   Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▶ 🛠️ write_todos()'
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
                   Collapsible id='None' classes='-collapsed tool-status-success' title='🛠️ apply_diff()' collapsed=True
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▶ 🛠️ apply_diff()'
                     Contents id='None' classes=''
                       Static id='None' classes='tool-result tool-result-success'
                   Collapsible id='None' classes='tool-status-cancelled' title='🛠️ long_running() (Cancelled)' collapsed=False
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▼ 🛠️ long_running() (Cancelled)'
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
               SmartInput id='user-input' classes='' text=''
@@ -513,9 +513,9 @@ Active Tab: tab-Agent
                      ▌ ▶ 🛠️ write_todos()
    ❌ Error:         ▌ ▶ 🛠️ apply_diff()
    Something went    ▌ ▼ 🛠️ long_running() (Cancelled)
-   wrong             ╭─────────────────────────────────────────────────────────╮
-                     │ Cancelled                                               │
-   [Session          ╰─────────────────────────────────────────────────────────╯
+   wrong             ▌╭────────────────────────────────────────────────────────╮
+                     ▌│ Cancelled                                              │
+   [Session          ▌╰────────────────────────────────────────────────────────╯
    interrupted by
    user]
 
@@ -542,7 +542,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -551,24 +551,24 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
                     Markdown id='None' classes='' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
                   Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▶ 🛠️ write_todos()'
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
                   Collapsible id='None' classes='-collapsed tool-status-success' title='🛠️ apply_diff()' collapsed=True
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▶ 🛠️ apply_diff()'
                     Contents id='None' classes=''
                       Static id='None' classes='tool-result tool-result-success'
                   Collapsible id='None' classes='tool-status-cancelled' title='🛠️ long_running() (Cancelled)' collapsed=False
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▼ 🛠️ long_running() (Cancelled)'
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
               SmartInput id='user-input' classes='' text=''
@@ -581,9 +581,9 @@ Active Tab: tab-Agent
                      ▌ ▶ 🛠️ write_todos()
    ❌ Error:         ▌ ▶ 🛠️ apply_diff()
    Something went    ▌ ▼ 🛠️ long_running() (Cancelled)
-   wrong             ╭─────────────────────────────────────────────────────────╮
-                     │ Cancelled                                               │
-   [Session          ╰─────────────────────────────────────────────────────────╯
+   wrong             ▌╭────────────────────────────────────────────────────────╮
+                     ▌│ Cancelled                                              │
+   [Session          ▌╰────────────────────────────────────────────────────────╯
    interrupted by
    user]
 

@@ -7,7 +7,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -16,7 +16,7 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -60,7 +60,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -69,9 +69,9 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
                     Markdown id='None' classes='' source='\nWaiting for user input...'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -115,7 +115,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -124,9 +124,9 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
                     Markdown id='None' classes='' source='\nWaiting for user input...'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -170,7 +170,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -179,13 +179,13 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
                     Markdown id='None' classes='' source='\nWaiting for user input...'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
                     Markdown id='None' classes='' source='**User:** Hello'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='User: Hello'
                     Markdown id='None' classes='' source='**Agent:** Hi there!'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Agent: Hi there!'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -229,7 +229,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -238,20 +238,20 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
                     Markdown id='None' classes='' source='\nWaiting for user input...'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
                     Markdown id='None' classes='' source='**User:** Hello'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='User: Hello'
                     Markdown id='None' classes='' source='**Agent:** Hi there!'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Agent: Hi there!'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
                   Collapsible id='None' classes='tool-status-running' title="🛠️ search_files(query='test')" collapsed=False
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content="▼ 🛠️ search_files(query='test')"
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-call' text=''
               SmartInput id='user-input' classes='' text=''
@@ -261,9 +261,9 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▌ ▼ 🛠️ search_files(query='test')
-   Starting new      ╭─────────────────────────────────────────────────────────╮
-   session           │                        ● ● ● ● ●                        │
-                     ╰─────────────────────────────────────────────────────────╯
+   Starting new      ▌╭────────────────────────────────────────────────────────╮
+   session           ▌│                       ● ● ● ● ●                        │
+                     ▌╰────────────────────────────────────────────────────────╯
    Waiting for
    user input...
 
@@ -292,7 +292,7 @@ Active Tab: tab-Agent
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active'
+                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -301,20 +301,20 @@ Active Tab: tab-Agent
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
                     Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
                     Markdown id='None' classes='' source='\nWaiting for user input...'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
                     Markdown id='None' classes='' source='**User:** Hello'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='User: Hello'
                     Markdown id='None' classes='' source='**Agent:** Hi there!'...
-                      MarkdownParagraph id='None' classes='level-0'
+                      MarkdownParagraph id='None' classes='level-0' content='Agent: Hi there!'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
                   Collapsible id='None' classes='tool-status-success' title='🛠️ Search Results' collapsed=False
-                    CollapsibleTitle id='None' classes=''
+                    CollapsibleTitle id='None' classes='' content='▼ 🛠️ Search Results'
                     Contents id='None' classes=''
                       TextArea id='None' classes='tool-result tool-result-success' text='Found 1 file.'
               SmartInput id='user-input' classes='' text=''
@@ -324,9 +324,9 @@ Active Tab: tab-Agent
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▌ ▼ 🛠️ Search Results
-   Starting new      ╭─────────────────────────────────────────────────────────╮
-   session           │ Found 1 file.                                           │
-                     ╰─────────────────────────────────────────────────────────╯
+   Starting new      ▌╭────────────────────────────────────────────────────────╮
+   session           ▌│ Found 1 file.                                          │
+                     ▌╰────────────────────────────────────────────────────────╯
    Waiting for
    user input...
 

@@ -24,8 +24,9 @@ TOOL_EMOJIS = {
     "write-todos": "📋",
 }
 DEFAULT_TOOL_EMOJI = "🛠️"
+THOUGHT_EMOJI = "🧠"
 _STATUS_EMOJIS = ("🛠️", "🛠", "✅", "❌", "🚫")
-_TITLE_EMOJIS = _STATUS_EMOJIS + tuple(TOOL_EMOJIS.values())
+_TITLE_EMOJIS = _STATUS_EMOJIS + tuple(TOOL_EMOJIS.values()) + (THOUGHT_EMOJI,)
 
 
 def _strip_title_emoji(title: str) -> str:
@@ -151,6 +152,22 @@ class ToolLog(VerticalScroll):
         # If add_tool_result arrives before then, no spinner is ever shown.
         self._deferred_loading.add(call_id)
         self.call_later(self._show_loading, call_id)
+
+    def add_thought(self, thought: str) -> None:
+        for collapsible in self._collapsibles:
+            collapsible.collapsed = True
+
+        collapsible = ToolCollapsible(
+            Static(Text(thought), classes="thought"),
+            title=f"{THOUGHT_EMOJI} thought",
+            collapsed=True,
+            classes="thought",
+        )
+        self._collapsibles.append(collapsible)
+
+        if self.is_mounted:
+            self.mount(collapsible)
+            self.scroll_end(animate=False)
 
     def _show_loading(self, call_id: str) -> None:
         if call_id not in self._deferred_loading:

@@ -60,6 +60,9 @@ class AgentWorkspace(Vertical):
         self.todo_view.refresh_content()
         self.left_panel.set_bottom_visibility(self.todo_view.has_content)
 
+    def on_thought(self, thought: str) -> None:
+        self.tool_log.add_thought(thought)
+
     def on_tool_call(self, call_id: str, message: str) -> None:
         self.tool_log.add_tool_call(call_id, message)
 
