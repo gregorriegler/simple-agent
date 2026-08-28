@@ -66,10 +66,16 @@ class GeminiLLM(LLM):
         model = interaction.get("model") or self._config.model
         usage = self._usage(interaction)
 
+        thought = self._thought_summary(steps)
+
         if not self._tools:
-            return emoji_response(content, model, usage)
+            return emoji_response(content, model, usage, thought)
         return LLMResponse(
-            answer=content, tool_calls=tool_calls, model=model, usage=usage
+            answer=content,
+            tool_calls=tool_calls,
+            model=model,
+            usage=usage,
+            thought=thought,
         )
 
     def _interactions_url(self) -> str:
@@ -82,11 +88,12 @@ class GeminiLLM(LLM):
             "model": self._config.model,
             "input": steps,
             "store": False,
+            "generation_config": {"thinking_summaries": "auto"},
         }
         if self._tools:
             request["tools"] = to_function_declarations(self._tools)
         else:
-            request["generation_config"] = {"tool_choice": "none"}
+            request["generation_config"]["tool_choice"] = "none"
         if system_instruction:
             request["system_instruction"] = system_instruction
         return request
@@ -140,6 +147,14 @@ class GeminiLLM(LLM):
                 )
 
         return "\n\n".join(system_prompts), steps
+
+    def _thought_summary(self, steps: list[dict]) -> str:
+        return "".join(
+            part.get("text", "")
+            for step in steps
+            if step.get("type") == "thought"
+            for part in step.get("summary") or []
+        )
 
     def _thought_step(self, signature: str) -> dict:
         return {"type": "thought", "signature": signature}

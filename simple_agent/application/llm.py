@@ -23,6 +23,7 @@ class LLMResponse:
     message: str | None = None
     model: str = ""
     usage: TokenUsage | None = None
+    thought: str = ""
 
     def __post_init__(self):
         if self.usage is None:

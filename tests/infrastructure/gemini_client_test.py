@@ -106,7 +106,7 @@ async def test_gemini_chat_converts_messages_to_interaction_steps():
     assert captured["body"] == {
         "model": "test-model",
         "store": False,
-        "generation_config": {"tool_choice": "none"},
+        "generation_config": {"thinking_summaries": "auto", "tool_choice": "none"},
         "system_instruction": "You are a helpful assistant",
         "input": [
             {"type": "user_input", "content": [{"type": "text", "text": "Hello"}]},
@@ -160,7 +160,10 @@ async def test_gemini_chat_forbids_native_function_calls():
 
     await chat.call_async([{"role": "user", "content": "Hello"}])
 
-    assert captured["body"]["generation_config"] == {"tool_choice": "none"}
+    assert captured["body"]["generation_config"] == {
+        "thinking_summaries": "auto",
+        "tool_choice": "none",
+    }
 
 
 @pytest.mark.asyncio
@@ -481,7 +484,7 @@ async def test_gemini_declares_tools_natively_when_provided():
             },
         }
     ]
-    assert "generation_config" not in captured["body"]
+    assert captured["body"]["generation_config"] == {"thinking_summaries": "auto"}
 
 
 @pytest.mark.asyncio
@@ -696,3 +699,37 @@ async def test_gemini_starts_a_model_turn_with_text_and_a_call_with_the_thought(
             "result": [{"type": "text", "text": "a.txt"}],
         },
     ]
+
+
+@pytest.mark.asyncio
+async def test_gemini_asks_for_thought_summaries():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(),
+        tools=[bash_tool()],
+        transport=responding_with(interaction("hi"), captured),
+    )
+
+    await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert captured["body"]["generation_config"] == {"thinking_summaries": "auto"}
+
+
+@pytest.mark.asyncio
+async def test_gemini_returns_the_thought_summary():
+    response_data = {
+        "status": "completed",
+        "steps": [
+            {
+                "type": "thought",
+                "signature": "opaque",
+                "summary": [{"text": "First I weigh "}, {"text": "the options."}],
+            },
+            {"type": "model_output", "content": [{"type": "text", "text": "hi"}]},
+        ],
+    }
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
+
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert result.thought == "First I weigh the options."

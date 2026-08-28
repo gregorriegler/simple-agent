@@ -4,7 +4,9 @@ from simple_agent.application.llm import LLMResponse, TokenUsage
 _SYNTAX = EmojiBracketToolSyntax()
 
 
-def emoji_response(content: str, model: str, usage: TokenUsage | None) -> LLMResponse:
+def emoji_response(
+    content: str, model: str, usage: TokenUsage | None, thought: str = ""
+) -> LLMResponse:
     """
     Build an LLMResponse from an emoji-protocol text completion.
 
@@ -19,4 +21,5 @@ def emoji_response(content: str, model: str, usage: TokenUsage | None) -> LLMRes
         message=raw_turn.message,
         model=model,
         usage=usage,
+        thought=thought,
     )
