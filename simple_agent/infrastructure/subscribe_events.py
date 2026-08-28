@@ -6,6 +6,7 @@ from simple_agent.application.events import (
     AgentStartedEvent,
     AssistantRespondedEvent,
     AssistantSaidEvent,
+    AssistantThoughtEvent,
     ErrorEvent,
     ModelChangedEvent,
     SessionClearedEvent,
@@ -36,6 +37,7 @@ def subscribe_events(
     event_bus.subscribe(UserPromptRequestedEvent, event_logger.log_event)
     event_bus.subscribe(UserPromptedEvent, event_logger.log_event)
     event_bus.subscribe(AssistantSaidEvent, event_logger.log_event)
+    event_bus.subscribe(AssistantThoughtEvent, event_logger.log_event)
     event_bus.subscribe(ToolCalledEvent, event_logger.log_event)
     event_bus.subscribe(ToolResultEvent, event_logger.log_event)
     event_bus.subscribe(SessionInterruptedEvent, event_logger.log_event)
@@ -69,6 +71,7 @@ def subscribe_events(
         event_bus.subscribe(UserPromptedEvent, _post_domain_event)
         event_bus.subscribe(AssistantSaidEvent, _post_domain_event)
         event_bus.subscribe(AssistantRespondedEvent, _post_domain_event)
+        event_bus.subscribe(AssistantThoughtEvent, _post_domain_event)
         event_bus.subscribe(ModelChangedEvent, _post_domain_event)
         event_bus.subscribe(AgentChangedEvent, _post_domain_event)
         event_bus.subscribe(ToolCalledEvent, _post_domain_event)
@@ -87,6 +90,7 @@ def subscribe_persistence(
     event_bus.subscribe(UserPromptedEvent, event_store.persist)
     event_bus.subscribe(AssistantRespondedEvent, event_store.persist)
     event_bus.subscribe(AssistantSaidEvent, event_store.persist)
+    event_bus.subscribe(AssistantThoughtEvent, event_store.persist)
     event_bus.subscribe(ToolCalledEvent, event_store.persist)
     event_bus.subscribe(ToolResultEvent, event_store.persist)
     event_bus.subscribe(ToolCancelledEvent, event_store.persist)

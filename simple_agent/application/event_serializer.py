@@ -7,6 +7,7 @@ from simple_agent.application.events import (
     AgentStartedEvent,
     AssistantRespondedEvent,
     AssistantSaidEvent,
+    AssistantThoughtEvent,
     ErrorEvent,
     ModelChangedEvent,
     SessionClearedEvent,
@@ -45,6 +46,12 @@ class EventSerializer:
                 "type": "AssistantSaidEvent",
                 "agent_id": agent_id_raw,
                 "message": event.message,
+            }
+        elif isinstance(event, AssistantThoughtEvent):
+            return {
+                "type": "AssistantThoughtEvent",
+                "agent_id": agent_id_raw,
+                "thought": event.thought,
             }
         elif isinstance(event, AgentStartedEvent):
             return {
@@ -154,6 +161,11 @@ class EventSerializer:
             return AssistantSaidEvent(
                 agent_id=agent_id,
                 message=data.get("message", ""),
+            )
+        elif event_type == "AssistantThoughtEvent":
+            return AssistantThoughtEvent(
+                agent_id=agent_id,
+                thought=data.get("thought", ""),
             )
         elif event_type == "AgentStartedEvent":
             agent_type_str = data.get("agent_type", "")

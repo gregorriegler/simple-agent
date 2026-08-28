@@ -7,6 +7,7 @@ from simple_agent.application.events import (
     AgentFinishedEvent,
     AgentStartedEvent,
     AssistantRespondedEvent,
+    AssistantThoughtEvent,
     ModelChangedEvent,
     SessionClearedEvent,
     ToolCalledEvent,
@@ -321,3 +322,33 @@ class TestEventSerializer:
 
         assert result.call_id == "Agent::tool_call::1"
         assert result.call == RawToolCall("bash", "ls -la", "body text")
+
+
+class TestAssistantThoughtEventSerialization:
+    def test_serialize(self):
+        event = AssistantThoughtEvent(
+            agent_id=AgentId("Agent"),
+            thought="I should read the file first.",
+        )
+
+        result = EventSerializer.to_dict(event)
+
+        assert result == {
+            "type": "AssistantThoughtEvent",
+            "agent_id": "Agent",
+            "thought": "I should read the file first.",
+        }
+
+    def test_deserialize(self):
+        data = {
+            "type": "AssistantThoughtEvent",
+            "agent_id": "Agent",
+            "thought": "I should read the file first.",
+        }
+
+        event = EventSerializer.from_dict(data)
+
+        assert event == AssistantThoughtEvent(
+            agent_id=AgentId("Agent"),
+            thought="I should read the file first.",
+        )
