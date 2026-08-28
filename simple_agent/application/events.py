@@ -20,6 +20,12 @@ class AssistantSaidEvent(AgentEvent):
 
 
 @dataclass
+class AssistantThoughtEvent(AgentEvent):
+    event_name: ClassVar[str] = "assistant_thought"
+    thought: str = ""
+
+
+@dataclass
 class ToolCalledEvent(AgentEvent):
     event_name: ClassVar[str] = "tool_called"
     call_id: str = ""

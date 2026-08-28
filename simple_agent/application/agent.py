@@ -14,6 +14,7 @@ from .events import (
     AgentStartedEvent,
     AssistantRespondedEvent,
     AssistantSaidEvent,
+    AssistantThoughtEvent,
     ErrorEvent,
     ModelChangedEvent,
     SessionClearedEvent,
@@ -184,6 +185,10 @@ class Agent(SlashCommandVisitor):
             tool_result: ToolResult = SingleToolResult()
             while tool_result.do_continue():
                 response = await self.brain.respond(self.context.to_list())
+                if response.thought:
+                    self.event_bus.publish(
+                        AssistantThoughtEvent(self.agent_id, response.thought)
+                    )
                 if response.answer or response.tool_calls:
                     self.context.assistant_turn(response.answer, response.tool_calls)
                 self.event_bus.publish(
