@@ -161,6 +161,10 @@ class TextualApp(App):
         border-left: outer $success;
     }
 
+    ToolCollapsible.thought > CollapsibleTitle {
+        text-style: not italic;
+    }
+
     #user-input {
         height: 5;
         min-height: 3;
