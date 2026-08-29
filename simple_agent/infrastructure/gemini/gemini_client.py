@@ -88,7 +88,10 @@ class GeminiLLM(LLM):
             "model": self._config.model,
             "input": steps,
             "store": False,
-            "generation_config": {"thinking_summaries": "auto"},
+            "generation_config": {
+                "thinking_summaries": "auto",
+                "thinking_level": "low",
+            },
         }
         if self._tools:
             request["tools"] = to_function_declarations(self._tools)
