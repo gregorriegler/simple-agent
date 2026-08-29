@@ -36,7 +36,7 @@ async def test_the_agent_receives_a_suggestion_about_a_bad_name(tmp_path, monkey
     verify(result.as_approval_string())
 
 
-async def test_the_same_observer_judges_every_change(tmp_path, monkeypatch):
+async def test_the_observer_judges_the_change_it_caught_up_with(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
     session = SessionTestBed()
@@ -53,10 +53,6 @@ async def test_the_same_observer_judges_every_change(tmp_path, monkeypatch):
     )
     session.with_observer_responses(
         [
-            "🛠️[suggest]\ndata1.txt says nothing about its content, "
-            "call it greeting.txt\n🛠️[/end]\n"
-            "🛠️[complete-task judged data1.txt /]",
-            "🛠️[complete-task greeting.txt is a fine name /]",
             "🛠️[suggest]\ntmp2.txt says nothing about its content\n🛠️[/end]\n"
             "🛠️[complete-task judged tmp2.txt /]",
         ]
@@ -104,12 +100,7 @@ async def test_the_observer_always_receives_the_latest_intent(tmp_path, monkeypa
             "🛠️[complete-task stored the greeting /]",
         ]
     )
-    session.with_observer_responses(
-        [
-            "🛠️[complete-task judged data1.txt /]",
-            "🛠️[complete-task judged greeting.txt /]",
-        ]
-    )
+    session.with_observer_responses(["🛠️[complete-task judged greeting.txt /]"])
 
     result = await session.run()
 

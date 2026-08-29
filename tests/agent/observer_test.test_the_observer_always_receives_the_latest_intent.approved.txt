@@ -32,21 +32,13 @@ Agent:        agent_finished:
 Agent:         session_ended: 
 Agent/Naming:         agent_started: Naming stub-model naming
 Agent/Naming: user_prompt_requested: 
-Agent/Naming:         user_prompted: Intent: Store the greeting in a file
-
-diff --git a/data1.txt b/data1.txt
-+Hello
-Agent/Naming:   assistant_responded: 🛠️[complete-task judged data1.txt /] stub-model 0.0%
-Agent/Naming:           tool_called: Agent/Naming::tool_call::1 🛠️ complete-task judged data1.txt
-Agent/Naming:           tool_result: Agent/Naming::tool_call::1 judged data1.txt
-Agent/Naming: user_prompt_requested: 
 Agent/Naming:         user_prompted: Intent: Give the file a telling name
 
 diff --git a/greeting.txt b/greeting.txt
 +Hello
 Agent/Naming:   assistant_responded: 🛠️[complete-task judged greeting.txt /] stub-model 0.0%
-Agent/Naming:           tool_called: Agent/Naming::tool_call::2 🛠️ complete-task judged greeting.txt
-Agent/Naming:           tool_result: Agent/Naming::tool_call::2 judged greeting.txt
+Agent/Naming:           tool_called: Agent/Naming::tool_call::1 🛠️ complete-task judged greeting.txt
+Agent/Naming:           tool_result: Agent/Naming::tool_call::1 judged greeting.txt
 Agent/Naming: user_prompt_requested: 
 Agent/Naming:        agent_finished: 
 Agent/Naming:         session_ended: 
@@ -73,12 +65,6 @@ user: Created file: greeting.txt with content
 assistant: 🛠️[complete-task stored the greeting /]
 user: stored the greeting
 [Agent/Naming]
-user: Intent: Store the greeting in a file
-
-diff --git a/data1.txt b/data1.txt
-+Hello
-assistant: 🛠️[complete-task judged data1.txt /]
-user: judged data1.txt
 user: Intent: Give the file a telling name
 
 diff --git a/greeting.txt b/greeting.txt

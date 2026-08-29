@@ -33,3 +33,22 @@ async def test_closing_ends_the_reading():
     observer_input.close()
 
     assert await observer_input.read_async() == ""
+
+
+async def test_reads_only_the_latest_packet():
+    observer_input = ObserverInput()
+
+    observer_input.submit("packet 1")
+    observer_input.submit("packet 2")
+
+    assert await observer_input.read_async() == "packet 2"
+
+
+async def test_reads_a_pending_packet_before_closing():
+    observer_input = ObserverInput()
+
+    observer_input.submit("packet 1")
+    observer_input.close()
+
+    assert await observer_input.read_async() == "packet 1"
+    assert await observer_input.read_async() == ""

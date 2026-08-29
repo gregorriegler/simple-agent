@@ -24,37 +24,18 @@ Agent:   assistant_responded: 🛠️[cat greeting.txt /] stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::4 🛠️ cat greeting.txt
 Agent/Naming:         agent_started: Naming stub-model naming
 Agent/Naming: user_prompt_requested: 
-Agent/Naming:         user_prompted: diff --git a/data1.txt b/data1.txt
-+Hello
-Agent/Naming:   assistant_responded: 🛠️[suggest]
-data1.txt says nothing about its content, call it greeting.txt
-🛠️[/end]
-🛠️[complete-task judged data1.txt /] stub-model 0.0%
-Agent/Naming:           tool_called: Agent/Naming::tool_call::1 🛠️ suggest
-Agent/Naming:           tool_result: Agent/Naming::tool_call::1 Suggested: data1.txt says nothing about its content, call it greeting.txt
-Agent/Naming:           tool_called: Agent/Naming::tool_call::2 🛠️ complete-task judged data1.txt
-Agent/Naming:           tool_result: Agent/Naming::tool_call::2 judged data1.txt
-Agent/Naming: user_prompt_requested: 
-Agent/Naming:         user_prompted: diff --git a/greeting.txt b/greeting.txt
-+Hello
-Agent/Naming:   assistant_responded: 🛠️[complete-task greeting.txt is a fine name /] stub-model 0.0%
-Agent/Naming:           tool_called: Agent/Naming::tool_call::3 🛠️ complete-task greeting.txt is a fine name
-Agent/Naming:           tool_result: Agent/Naming::tool_call::3 greeting.txt is a fine name
-Agent/Naming: user_prompt_requested: 
 Agent/Naming:         user_prompted: diff --git a/tmp2.txt b/tmp2.txt
 +Bye
 Agent/Naming:   assistant_responded: 🛠️[suggest]
 tmp2.txt says nothing about its content
 🛠️[/end]
 🛠️[complete-task judged tmp2.txt /] stub-model 0.0%
-Agent/Naming:           tool_called: Agent/Naming::tool_call::4 🛠️ suggest
-Agent/Naming:           tool_result: Agent/Naming::tool_call::4 Suggested: tmp2.txt says nothing about its content
-Agent/Naming:           tool_called: Agent/Naming::tool_call::5 🛠️ complete-task judged tmp2.txt
-Agent/Naming:           tool_result: Agent/Naming::tool_call::5 judged tmp2.txt
+Agent/Naming:           tool_called: Agent/Naming::tool_call::1 🛠️ suggest
+Agent/Naming:           tool_result: Agent/Naming::tool_call::1 Suggested: tmp2.txt says nothing about its content
+Agent/Naming:           tool_called: Agent/Naming::tool_call::2 🛠️ complete-task judged tmp2.txt
+Agent/Naming:           tool_result: Agent/Naming::tool_call::2 judged tmp2.txt
 Agent/Naming: user_prompt_requested: 
 Agent:           tool_result: Agent::tool_call::4 Hello
-Agent:         user_prompted: Suggestion from the naming observer:
-data1.txt says nothing about its content, call it greeting.txt
 Agent:         user_prompted: Suggestion from the naming observer:
 tmp2.txt says nothing about its content
 Agent:   assistant_responded: 🛠️[complete-task stored the greeting /] stub-model 0.0%
@@ -83,18 +64,6 @@ Bye
 user: Created file: tmp2.txt with content
 assistant: 🛠️[cat greeting.txt /]
 [Agent/Naming]
-user: diff --git a/data1.txt b/data1.txt
-+Hello
-assistant: 🛠️[suggest]
-data1.txt says nothing about its content, call it greeting.txt
-🛠️[/end]
-🛠️[complete-task judged data1.txt /]
-user: Suggested: data1.txt says nothing about its content, call it greeting.txt
-user: judged data1.txt
-user: diff --git a/greeting.txt b/greeting.txt
-+Hello
-assistant: 🛠️[complete-task greeting.txt is a fine name /]
-user: greeting.txt is a fine name
 user: diff --git a/tmp2.txt b/tmp2.txt
 +Bye
 assistant: 🛠️[suggest]
@@ -105,8 +74,6 @@ user: Suggested: tmp2.txt says nothing about its content
 user: judged tmp2.txt
 user: Hello
 [Agent]
-user: Suggestion from the naming observer:
-data1.txt says nothing about its content, call it greeting.txt
 user: Suggestion from the naming observer:
 tmp2.txt says nothing about its content
 assistant: 🛠️[complete-task stored the greeting /]

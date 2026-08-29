@@ -11,7 +11,16 @@ class ObserverInput(UserInput):
         self._packets.put_nowait(packet)
 
     async def read_async(self) -> str:
-        return await self._packets.get()
+        packet = await self._packets.get()
+        if packet == "":
+            return ""
+        while not self._packets.empty():
+            next_packet = self._packets.get_nowait()
+            if next_packet == "":
+                self._packets.put_nowait("")
+                break
+            packet = next_packet
+        return packet
 
     def escape_requested(self) -> bool:
         return False
