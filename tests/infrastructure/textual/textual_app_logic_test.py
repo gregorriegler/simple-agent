@@ -5,6 +5,7 @@ from textual.widgets import TabbedContent
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
+    AgentFinishedEvent,
     AgentStartedEvent,
     AssistantSaidEvent,
     SessionClearedEvent,
@@ -108,3 +109,42 @@ async def test_textual_app_clear_panels(app: TextualApp):
         # Verify cleared
         scroll = app.query_one(f"#{log_id}-scroll")
         assert len(scroll.children) == 0
+
+
+@pytest.mark.asyncio
+async def test_a_finished_subagent_leaves_no_tab_behind(app: TextualApp):
+    root_agent = AgentId("Agent")
+    subagent = AgentId("Agent/Naming")
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+
+        app.on_domain_event_message(
+            DomainEventMessage(AgentStartedEvent(root_agent, "Agent", "dummy-model"))
+        )
+        app.on_domain_event_message(
+            DomainEventMessage(AgentStartedEvent(subagent, "Naming", "dummy-model"))
+        )
+        await pilot.pause()
+        assert app.has_agent_tab(subagent)
+
+        app.on_domain_event_message(DomainEventMessage(AgentFinishedEvent(subagent)))
+        await pilot.pause()
+
+        assert not app.has_agent_tab(subagent)
+
+
+@pytest.mark.asyncio
+async def test_the_root_agent_keeps_its_tab_when_it_finishes(app: TextualApp):
+    root_agent = AgentId("Agent")
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+
+        app.on_domain_event_message(
+            DomainEventMessage(AgentStartedEvent(root_agent, "Agent", "dummy-model"))
+        )
+        app.on_domain_event_message(DomainEventMessage(AgentFinishedEvent(root_agent)))
+        await pilot.pause()
+
+        assert app.has_agent_tab(root_agent)

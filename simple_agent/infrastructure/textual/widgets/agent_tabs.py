@@ -7,6 +7,7 @@ from textual.widgets import TabbedContent, TabPane
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
     AgentChangedEvent,
+    AgentFinishedEvent,
     AgentStartedEvent,
     AssistantRespondedEvent,
     AssistantSaidEvent,
@@ -116,6 +117,12 @@ class AgentTabs(TabbedContent):
         self._agent_names.pop(agent_id, None)
         self._agent_workspaces.pop(str(agent_id), None)
 
+    def _close_tab(self, agent_id: AgentId) -> None:
+        if not self.app.is_running:
+            return
+        if self.has_agent_tab(agent_id):
+            self.remove_subagent_tab(agent_id)
+
     def update_tab_title(self, agent_id: AgentId, title: str) -> None:
         tab_id, _, _ = self.panel_ids_for(agent_id)
         try:
@@ -224,10 +231,10 @@ class AgentTabs(TabbedContent):
                 else:
                     workspace.write_message("Starting new session")
         elif isinstance(event, SessionEndedEvent):
-            if not self.app.is_running:
-                return
-            if self.has_agent_tab(agent_id):
-                self.remove_subagent_tab(agent_id)
+            self._close_tab(agent_id)
+        elif isinstance(event, AgentFinishedEvent):
+            if agent_id != self._root_agent_id:
+                self._close_tab(agent_id)
         elif isinstance(event, UserPromptRequestedEvent):
             workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:

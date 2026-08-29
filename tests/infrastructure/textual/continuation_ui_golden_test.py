@@ -220,3 +220,49 @@ async def test_continuation_tool_result_is_last_event(tmp_path):
         state_after = f"--- UI STATE FROM EVENT STORE CONTINUATION ---\n{dump_ascii_screen(app2)}\n{dump_ui_state(app2)}"
 
     verify(state_before + "\n\n" + state_after)
+
+
+@pytest.mark.asyncio
+async def test_continuation_does_not_restore_a_tab_for_a_finished_subagent(tmp_path):
+    """A subagent that finished before the session ended must not come back as a tab."""
+
+    event_store = FileEventStore(tmp_path)
+    agent_id = AgentId("Agent").with_root(tmp_path)
+    subagent_id = AgentId("Agent/Naming").with_root(tmp_path)
+
+    for event in [
+        AgentStartedEvent(
+            agent_id=agent_id,
+            agent_name="Agent",
+            model="stub-model",
+            agent_type=AgentType("agent"),
+        ),
+        AgentStartedEvent(
+            agent_id=subagent_id,
+            agent_name="Naming",
+            model="stub-model",
+            agent_type=AgentType("naming"),
+        ),
+        UserPromptedEvent(agent_id=subagent_id, input_text="Observe this"),
+        AgentFinishedEvent(agent_id=subagent_id),
+        AgentFinishedEvent(agent_id=agent_id),
+    ]:
+        event_store.persist(event)
+
+    event_bus = SimpleEventBus()
+    app = TextualApp(
+        user_input=None,
+        root_agent_id=agent_id,
+        agent_task_manager=AgentTaskManager(),
+        available_models=["stub-model"],
+    )
+    subscribe_events(event_bus, FakeEventLogger(), FakeAgentStateCleanup(), app)
+
+    async with app.run_test(size=(80, 24)) as pilot:
+        replayer = HistoryReplayer(event_bus, event_store)
+        await replayer.replay_all_agents_async(agent_id)
+        for _ in range(3):
+            await pilot.pause()
+
+        assert not app.has_agent_tab(subagent_id)
+        assert app.has_agent_tab(agent_id)

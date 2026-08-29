@@ -80,6 +80,7 @@ def subscribe_events(
         event_bus.subscribe(SessionInterruptedEvent, _post_domain_event)
         event_bus.subscribe(ErrorEvent, _post_domain_event)
         event_bus.subscribe(SessionEndedEvent, _post_domain_event)
+        event_bus.subscribe(AgentFinishedEvent, _post_domain_event)
 
 
 def subscribe_persistence(
