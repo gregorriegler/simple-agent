@@ -744,3 +744,36 @@ async def test_gemini_returns_the_thought_summary():
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
     assert result.thought == "First I weigh the options."
+
+
+@pytest.mark.asyncio
+async def test_gemini_never_sends_an_empty_text_part():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(),
+        tools=[bash_tool()],
+        transport=responding_with(interaction("done"), captured),
+    )
+    messages = [
+        {"role": "user", "content": ""},
+        {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [RawToolCall(name="bash", arguments="ls")],
+        },
+        {
+            "role": "tool",
+            "call": RawToolCall(name="bash", arguments="ls"),
+            "content": "",
+        },
+    ]
+
+    await chat.call_async(messages)
+
+    texts = [
+        part["text"]
+        for step in captured["body"]["input"]
+        for part in step.get("content", []) + step.get("result", [])
+    ]
+
+    assert "" not in texts

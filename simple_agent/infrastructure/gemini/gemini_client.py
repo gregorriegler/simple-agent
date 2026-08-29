@@ -13,6 +13,7 @@ from simple_agent.infrastructure.llm_http import post_with_retry
 from simple_agent.infrastructure.model_config import ModelConfig
 
 API_REVISION = "2026-05-20"
+EMPTY_TEXT_PLACEHOLDER = "(empty)"
 SUCCESS_STATUSES = ("completed", "incomplete", "requires_action")
 
 
@@ -173,7 +174,11 @@ class GeminiLLM(LLM):
         return turn
 
     def _step(self, step_type: str, text: str) -> dict:
-        return {"type": step_type, "content": [{"type": "text", "text": text}]}
+        return {"type": step_type, "content": [self._text_content(text)]}
+
+    def _text_content(self, text: str) -> dict:
+        """Gemini rejects a text part that carries no text."""
+        return {"type": "text", "text": text or EMPTY_TEXT_PLACEHOLDER}
 
     def _function_call_step(self, call_id: str, raw_call, tool) -> dict:
         return {
@@ -188,7 +193,7 @@ class GeminiLLM(LLM):
             "type": "function_result",
             "call_id": call_id,
             "name": message["call"].name,
-            "result": [{"type": "text", "text": output}],
+            "result": [self._text_content(output)],
         }
 
     def _raise_on_error(self, interaction: dict) -> None:
