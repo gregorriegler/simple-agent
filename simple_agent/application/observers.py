@@ -4,7 +4,12 @@ from typing import Protocol
 from .agent_id import AgentId
 from .change_reporter import ChangeReporter
 from .event_bus import EventBus
-from .events import AgentFinishedEvent, CheckpointReachedEvent, ToolCalledEvent
+from .events import (
+    AgentFinishedEvent,
+    CheckpointReachedEvent,
+    SessionClearedEvent,
+    ToolCalledEvent,
+)
 from .input import Input
 from .intent import Intent
 
@@ -39,6 +44,7 @@ class Observers:
         self._observers: dict[str, Observer] = {}
         event_bus.subscribe(CheckpointReachedEvent, self._observe)
         event_bus.subscribe(AgentFinishedEvent, self._close)
+        event_bus.subscribe(SessionClearedEvent, self._close)
         event_bus.subscribe(ToolCalledEvent, self._deliver)
 
     def _observe(self, event: CheckpointReachedEvent) -> None:
@@ -60,11 +66,12 @@ class Observers:
                     f"Suggestion from the {name} observer:\n{event.call.body.strip()}"
                 )
 
-    def _close(self, event: AgentFinishedEvent) -> None:
+    def _close(self, event: AgentFinishedEvent | SessionClearedEvent) -> None:
         if event.agent_id != self._agent_id:
             return
         for observer in self._observers.values():
             observer.close()
+        self._observers.clear()
 
     def _packet(self, diff: str) -> str:
         intent = self._intent.read()

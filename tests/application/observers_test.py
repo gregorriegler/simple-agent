@@ -3,6 +3,7 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
     AgentFinishedEvent,
     CheckpointReachedEvent,
+    SessionClearedEvent,
     ToolCalledEvent,
 )
 from simple_agent.application.input import Input
@@ -121,6 +122,32 @@ def test_observers_are_closed_when_the_agent_finishes():
     event_bus.publish(AgentFinishedEvent(AGENT))
 
     assert factory.created[0].closed
+
+
+def test_observers_are_closed_when_the_session_is_cleared():
+    event_bus = SimpleEventBus()
+    factory = ObserverFactoryStub()
+    observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory)
+
+    event_bus.publish(CheckpointReachedEvent(AGENT))
+    event_bus.publish(SessionClearedEvent(AGENT))
+
+    assert factory.created[0].closed
+
+
+def test_observers_are_recreated_after_the_session_is_cleared():
+    event_bus = SimpleEventBus()
+    factory = ObserverFactoryStub()
+    reporter = ChangeReporterStub(DIFF, "a later diff")
+    observers_of(event_bus, ["naming"], reporter, factory)
+
+    event_bus.publish(CheckpointReachedEvent(AGENT))
+    event_bus.publish(SessionClearedEvent(AGENT))
+    event_bus.publish(CheckpointReachedEvent(AGENT))
+
+    assert len(factory.created) == 2
+    assert factory.created[0].closed
+    assert not factory.created[1].closed
 
 
 def suggest(text):

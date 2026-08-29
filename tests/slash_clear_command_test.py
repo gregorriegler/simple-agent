@@ -2,7 +2,9 @@ import pytest
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
+    AgentFinishedEvent,
     SessionClearedEvent,
+    SessionEndedEvent,
     UserPromptRequestedEvent,
 )
 from tests.session_test_bed import SessionTestBed
@@ -57,3 +59,27 @@ async def test_agent_handles_slash_clear_command():
         "System prompt should be preserved"
     )
     assert messages.to_list()[0]["content"] == "You are a helpful assistant."
+
+
+async def test_slash_clear_command_closes_open_observers(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    session = (
+        SessionTestBed()
+        .observed_by(["naming"], "diff --git a/greeting.txt b/greeting.txt\n+Hello")
+        .with_user_inputs("Store greeting", "/clear", "After clear")
+        .with_llm_responses(
+            [
+                "🛠️[create-file greeting.txt]\nHello\n🛠️[/end]",
+                "Response after clear",
+            ]
+        )
+        .with_observer_responses(["🛠️[complete-task looks good /]"])
+    )
+
+    result = await session.run()
+
+    observer_id = AgentId("Agent/Naming")
+    result.events.assert_event_occured(SessionClearedEvent(AgentId("Agent")), times=1)
+    result.events.assert_event_occured(SessionEndedEvent(observer_id), times=1)
+    result.events.assert_event_occured(AgentFinishedEvent(observer_id), times=1)
