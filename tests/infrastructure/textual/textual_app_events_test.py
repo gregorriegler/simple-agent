@@ -18,6 +18,7 @@ from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 from tests.infrastructure.textual.conftest import StubTool
+from tests.infrastructure.textual.test_utils import eventually
 
 
 def _last_markdown_text(app: TextualApp, agent_id: AgentId) -> str:
@@ -27,11 +28,17 @@ def _last_markdown_text(app: TextualApp, agent_id: AgentId) -> str:
     return markdowns[-1]._markdown
 
 
-def _latest_tool_text_area(app: TextualApp, agent_id: AgentId) -> TextArea:
+def _tool_log(app: TextualApp, agent_id: AgentId) -> ToolLog:
     _, _, tool_results_id = app.panel_ids_for(agent_id)
-    tool_log = app.query_one(f"#{tool_results_id}", ToolLog)
-    collapsible = tool_log._collapsibles[-1]
-    return collapsible.query_one(TextArea)
+    return app.query_one(f"#{tool_results_id}", ToolLog)
+
+
+def _latest_tool_collapsible(app: TextualApp, agent_id: AgentId) -> Collapsible:
+    return _tool_log(app, agent_id)._collapsibles[-1]
+
+
+def _latest_tool_text_area(app: TextualApp, agent_id: AgentId) -> TextArea:
+    return _latest_tool_collapsible(app, agent_id).query_one(TextArea)
 
 
 @pytest.mark.asyncio
@@ -47,12 +54,16 @@ async def test_tool_call_loading_indicator_has_border_and_transparent_background
         event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
         await pilot.pause()
         event_bus.publish(ToolCalledEvent(agent_id, call_id, StubTool()))
-        await pilot.pause()
 
-        text_area = _latest_tool_text_area(app, agent_id)
-        assert text_area._cover_widget is not None
-        assert text_area._cover_widget.styles.border.top[0] == "round"
-        assert text_area._cover_widget.styles.background.is_transparent
+        await eventually(
+            pilot,
+            lambda: _latest_tool_text_area(app, agent_id)._cover_widget is not None,
+            "the loading indicator to cover the tool call",
+        )
+
+        cover = _latest_tool_text_area(app, agent_id)._cover_widget
+        assert cover.styles.border.top[0] == "round"
+        assert cover.styles.background.is_transparent
 
 
 @pytest.mark.asyncio
@@ -66,11 +77,17 @@ async def test_tool_call_collapsible_content_starts_at_left_edge(textual_harness
         event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
         await pilot.pause()
         event_bus.publish(ToolCalledEvent(agent_id, call_id, StubTool()))
-        await pilot.pause()
 
-        _, _, tool_results_id = app.panel_ids_for(agent_id)
-        tool_log = app.query_one(f"#{tool_results_id}", ToolLog)
-        collapsible = tool_log._collapsibles[-1]
+        await eventually(
+            pilot,
+            lambda: len(
+                _latest_tool_collapsible(app, agent_id).query(Collapsible.Contents)
+            )
+            == 1,
+            "the tool call collapsible to mount its contents",
+        )
+
+        collapsible = _latest_tool_collapsible(app, agent_id)
         contents = collapsible.query_one(Collapsible.Contents)
 
         assert collapsible.styles.padding.left == 0
@@ -95,15 +112,15 @@ async def test_tool_call_collapsible_title_takes_full_width_for_word_wrap(
         event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
         await pilot.pause()
         event_bus.publish(ToolCalledEvent(agent_id, call_id, LongTitleTool()))
-        await pilot.pause()
 
-        _, _, tool_results_id = app.panel_ids_for(agent_id)
-        tool_log = app.query_one(f"#{tool_results_id}", ToolLog)
-        collapsible = tool_log._collapsibles[-1]
-        title_widget = collapsible._title
+        await eventually(
+            pilot,
+            lambda: _latest_tool_collapsible(app, agent_id)._title.size.height > 1,
+            "the long tool call title to wrap onto more than one line",
+        )
 
+        title_widget = _latest_tool_collapsible(app, agent_id)._title
         assert title_widget.styles.width.value == 100.0
-        assert title_widget.size.height > 1
 
 
 @pytest.mark.asyncio
@@ -196,18 +213,23 @@ async def test_tool_call_and_result_are_tracked(textual_harness):
         event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
         await pilot.pause()
         event_bus.publish(ToolCalledEvent(agent_id, call_id, StubTool()))
-        await pilot.pause()
 
-        _, _, tool_results_id = app.panel_ids_for(agent_id)
-        tool_log = app.query_one(f"#{tool_results_id}", ToolLog)
-        assert call_id in tool_log._pending_tool_calls
+        await eventually(
+            pilot,
+            lambda: call_id in _tool_log(app, agent_id)._pending_tool_calls,
+            "the tool call to be tracked as pending",
+        )
 
         event_bus.publish(
             ToolResultEvent(agent_id, call_id, SingleToolResult(message="Done"))
         )
-        await pilot.pause()
 
-        assert call_id not in tool_log._pending_tool_calls
+        await eventually(
+            pilot,
+            lambda: call_id not in _tool_log(app, agent_id)._pending_tool_calls,
+            "the tool result to settle the pending call",
+        )
+
         assert _latest_tool_text_area(app, agent_id).text == "Done"
 
 
@@ -226,10 +248,13 @@ async def test_submit_input_sends_user_input(textual_harness):
         text_area.text = "Hello"
 
         app.action_submit_input()
-        for _ in range(3):
-            await pilot.pause()
 
-        assert user_input.submissions == ["Hello"]
+        await eventually(
+            pilot,
+            lambda: user_input.submissions == ["Hello"],
+            "the submitted input to reach the user input port",
+        )
+
         assert text_area.text == ""
 
 

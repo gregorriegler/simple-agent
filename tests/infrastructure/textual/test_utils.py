@@ -1,4 +1,6 @@
 import io
+from collections.abc import Callable
+from time import monotonic
 
 from rich.console import Console
 from textual.widgets import Collapsible, Markdown, Static, TabbedContent, TextArea
@@ -21,6 +23,40 @@ class MockUserInput:
 
     def close(self) -> None:
         pass
+
+
+async def eventually(
+    pilot, condition: Callable[[], bool], description: str, timeout: float = 5.0
+) -> None:
+    """Pause until condition() holds, instead of guessing a number of pauses.
+
+    pilot.pause() only waits on the widgets that existed when it was called, so
+    it is no barrier for widgets mounted while the event under test is handled.
+    Whether those have mounted and laid out by the time it returns is left to a
+    cpu-load heuristic, which is why a fixed pause count flakes on a loaded or
+    coarsely timed runner.
+
+    A condition that raises is treated as not yet true; its error is reported as
+    the cause when the timeout expires.
+    """
+    deadline = monotonic() + timeout
+    raised: Exception | None = None
+
+    while True:
+        try:
+            if condition():
+                return
+            raised = None
+        except Exception as error:
+            raised = error
+
+        if monotonic() >= deadline:
+            failure = AssertionError(
+                f"Timed out after {timeout}s waiting for {description}"
+            )
+            raise failure from raised
+
+        await pilot.pause()
 
 
 def dump_ui_state(app: TextualApp) -> str:
