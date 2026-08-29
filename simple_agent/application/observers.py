@@ -1,7 +1,7 @@
-from collections.abc import Callable
 from typing import Protocol
 
 from .agent_id import AgentId
+from .agent_type import AgentType
 from .change_reporter import ChangeReporter
 from .event_bus import EventBus
 from .events import (
@@ -24,6 +24,14 @@ class Observer(Protocol):
     def close(self) -> None: ...
 
 
+class ObserverSpawner(Protocol):
+    def __call__(self, name: str) -> Observer: ...
+
+    def create_from_history(
+        self, agent_id: AgentId, agent_type: AgentType
+    ) -> Observer: ...
+
+
 class Observers:
     def __init__(
         self,
@@ -31,7 +39,7 @@ class Observers:
         agent_id: AgentId,
         names: list[str],
         change_reporter: ChangeReporter,
-        create_observer: Callable[[str], Observer],
+        create_observer: ObserverSpawner,
         agent_input: Input,
         intent: Intent,
     ):
@@ -78,6 +86,15 @@ class Observers:
         if not intent:
             return diff
         return f"Intent: {intent}\n\n{diff}"
+
+    def resume(self, agent_id: AgentId, agent_type: AgentType) -> bool:
+        name = agent_type.raw
+        if name not in self._names or name in self._observers:
+            return False
+        self._observers[name] = self._create_observer.create_from_history(
+            agent_id, agent_type
+        )
+        return True
 
     def _observer(self, name: str) -> Observer:
         if name not in self._observers:

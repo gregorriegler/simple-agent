@@ -1,4 +1,5 @@
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import (
     AgentFinishedEvent,
@@ -24,9 +25,9 @@ class ChangeReporterStub:
 
 
 class ObserverStub:
-    def __init__(self, name):
+    def __init__(self, name, agent_id=None):
         self.name = name
-        self.agent_id = AgentId(f"Agent/{name}")
+        self.agent_id = agent_id or AgentId(f"Agent/{name}")
         self.observed = []
         self.closed = False
 
@@ -43,6 +44,13 @@ class ObserverFactoryStub:
 
     def __call__(self, name: str) -> ObserverStub:
         observer = ObserverStub(name)
+        self.created.append(observer)
+        return observer
+
+    def create_from_history(
+        self, agent_id: AgentId, agent_type: AgentType
+    ) -> ObserverStub:
+        observer = ObserverStub(agent_type.raw, agent_id)
         self.created.append(observer)
         return observer
 
@@ -214,3 +222,58 @@ def test_an_observer_sees_the_diff_alone_when_no_intent_was_communicated():
     event_bus.publish(CheckpointReachedEvent(AGENT))
 
     assert factory.created[0].observed == [DIFF]
+
+
+def test_a_resumed_observer_is_closed_when_the_session_is_cleared():
+    event_bus = SimpleEventBus()
+    factory = ObserverFactoryStub()
+    observers = observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory)
+
+    observers.resume(AgentId("Agent/Naming"), AgentType("naming"))
+    event_bus.publish(SessionClearedEvent(AGENT))
+
+    assert factory.created[0].closed
+
+
+def test_what_a_resumed_observer_found_reaches_the_agent():
+    event_bus = SimpleEventBus()
+    factory = ObserverFactoryStub()
+    agent_input = Input(DummyUserInput())
+    observers = observers_of(
+        event_bus, ["naming"], ChangeReporterStub(DIFF), factory, agent_input
+    )
+    resumed_id = AgentId("Agent/Naming")
+
+    observers.resume(resumed_id, AgentType("naming"))
+    event_bus.publish(
+        ToolCalledEvent(
+            resumed_id, "call-1", suggest("data1.txt should be greeting.txt")
+        )
+    )
+
+    assert agent_input.drain() == [
+        "Suggestion from the naming observer:\ndata1.txt should be greeting.txt"
+    ]
+
+
+def test_a_resumed_observer_is_fed_the_next_diff_instead_of_a_second_one():
+    event_bus = SimpleEventBus()
+    factory = ObserverFactoryStub()
+    observers = observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory)
+
+    observers.resume(AgentId("Agent/Naming"), AgentType("naming"))
+    event_bus.publish(CheckpointReachedEvent(AGENT))
+
+    assert len(factory.created) == 1
+    assert factory.created[0].observed == [DIFF]
+
+
+def test_an_agent_that_this_agent_does_not_observe_with_is_not_resumed():
+    event_bus = SimpleEventBus()
+    factory = ObserverFactoryStub()
+    observers = observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory)
+
+    resumed = observers.resume(AgentId("Agent/Coding"), AgentType("coding"))
+
+    assert not resumed
+    assert factory.created == []

@@ -33,6 +33,7 @@ from simple_agent.application.text_response import emoji_response
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from simple_agent.infrastructure.file_intent import FileIntent
 from tests.event_spy import EventSpy
+from tests.in_memory_event_store import InMemoryEventStore
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
@@ -99,6 +100,9 @@ class SessionTestResult:
 
     def assert_event_occured(self, expected_event: AgentEvent, times: int = 1):
         self.events.assert_event_occured(expected_event, times)
+
+    def assert_events_occured(self, *expected_events: AgentEvent):
+        self.events.assert_events_occured(*expected_events)
 
     def as_approval_string(self) -> str:
         return (
@@ -171,6 +175,10 @@ class SessionTestBed:
 
     def with_event_store(self, event_store: EventStore) -> "SessionTestBed":
         self._event_store = event_store
+        return self
+
+    def with_events(self, *events: AgentEvent) -> "SessionTestBed":
+        self._event_store = InMemoryEventStore(*events)
         return self
 
     def observed_by(self, observers: list[str], *diffs: str) -> "SessionTestBed":
@@ -352,7 +360,12 @@ name: Orchestrator
         return list(self._definitions.keys())
 
     def read_agent_definition(self, agent_type: AgentType) -> AgentDefinition:
-        return self._definitions[agent_type.raw]
+        try:
+            return self._definitions[agent_type.raw]
+        except KeyError as error:
+            raise FileNotFoundError(
+                f"Agent definition '{agent_type.raw}' not found"
+            ) from error
 
     def starting_agent_id(self) -> AgentId:
         return AgentId(self._starting_agent_definition().agent_name())

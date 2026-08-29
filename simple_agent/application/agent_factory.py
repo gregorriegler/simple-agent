@@ -60,8 +60,7 @@ class AgentFactory:
             agent_id = parent_agent_id.create_subagent_id(
                 definition.agent_name(), self._agent_suffixer
             )
-            events = self._event_store.load_events(agent_id)
-            context = events_to_messages(events, agent_id)
+            context = self.history_of(agent_id)
 
             subagent = self.create_agent(
                 agent_id, definition, task_description, context, agent_type
@@ -74,12 +73,14 @@ class AgentFactory:
 
         return spawn
 
+    def history_of(self, agent_id: AgentId) -> Messages:
+        return events_to_messages(self._event_store.load_events(agent_id), agent_id)
+
     def create_agent_from_history(
         self, agent_id: AgentId, agent_type: AgentType
     ) -> Agent:
         definition = self._agent_library.read_agent_definition(agent_type)
-        events = self._event_store.load_events(agent_id)
-        context = events_to_messages(events, agent_id)
+        context = self.history_of(agent_id)
 
         return self.create_agent(agent_id, definition, None, context, agent_type)
 

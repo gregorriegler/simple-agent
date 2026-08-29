@@ -39,6 +39,10 @@ class EventSpy:
             f"Expected {expected_event} to occur {times} times, but found {actual_times} matches"
         )
 
+    def assert_events_occured(self, *expected_events: AgentEvent):
+        for event in expected_events:
+            self.assert_event_occured(event)
+
     def get_events(self, event_type: type[AgentEvent]) -> list[AgentEvent]:
         return [event for event in self.events if isinstance(event, event_type)]
 

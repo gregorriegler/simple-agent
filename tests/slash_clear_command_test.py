@@ -1,12 +1,16 @@
 import pytest
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.events import (
     AgentFinishedEvent,
+    AgentStartedEvent,
     SessionClearedEvent,
     SessionEndedEvent,
+    UserPromptedEvent,
     UserPromptRequestedEvent,
 )
+from simple_agent.application.llm import Messages
 from tests.session_test_bed import SessionTestBed
 
 pytestmark = pytest.mark.asyncio
@@ -46,9 +50,8 @@ async def test_consecutive_clear_commands():
 
 
 async def test_agent_handles_slash_clear_command():
-    from simple_agent.application.llm import Messages
-
     messages = Messages(system_prompt="You are a helpful assistant.")
+
     messages.user_says("Hello agent")
     messages.assistant_says("Hello! How can I help?")
 
@@ -80,6 +83,41 @@ async def test_slash_clear_command_closes_open_observers(tmp_path, monkeypatch):
     result = await session.run()
 
     observer_id = AgentId("Agent/Naming")
-    result.events.assert_event_occured(SessionClearedEvent(AgentId("Agent")), times=1)
-    result.events.assert_event_occured(SessionEndedEvent(observer_id), times=1)
-    result.events.assert_event_occured(AgentFinishedEvent(observer_id), times=1)
+    result.assert_events_occured(
+        SessionClearedEvent(AgentId("Agent")),
+        SessionEndedEvent(observer_id),
+        AgentFinishedEvent(observer_id),
+    )
+
+
+async def test_slash_clear_command_closes_resumed_observers():
+    parent_id = AgentId("Agent")
+    observer_id = AgentId("Agent/Naming")
+
+    session = (
+        SessionTestBed()
+        .observed_by(["naming"])
+        .with_events(
+            AgentStartedEvent(
+                agent_id=parent_id, agent_name="Agent", model="test-model"
+            ),
+            AgentStartedEvent(
+                agent_id=observer_id,
+                agent_name="Naming",
+                model="test-model",
+                agent_type=AgentType("naming"),
+            ),
+            UserPromptedEvent(agent_id=observer_id, input_text="Observer prompt"),
+        )
+        .continuing_session()
+        .with_user_inputs("/clear", "After clear")
+        .with_llm_responses(["Response after clear"])
+    )
+
+    result = await session.run()
+
+    result.assert_events_occured(
+        SessionClearedEvent(parent_id),
+        SessionEndedEvent(observer_id),
+        AgentFinishedEvent(observer_id),
+    )

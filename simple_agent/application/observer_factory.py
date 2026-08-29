@@ -4,6 +4,7 @@ from .agent_task_manager import AgentTaskManager
 from .agent_type import AgentType
 from .input import Input
 from .llm import Messages
+from .observer_definition import ObserverDefinition
 from .observer_input import ObserverInput
 from .observer_library import ObserverLibrary
 
@@ -36,16 +37,34 @@ class ObserverFactory:
 
     def __call__(self, name: str) -> SpawnedObserver:
         definition = self._observer_library.read_observer_definition(name)
+        observer_id = self._claim_observer_id(definition.agent_name())
+        return self._start(observer_id, definition, Messages(), AgentType(name))
+
+    def create_from_history(
+        self, agent_id: AgentId, agent_type: AgentType
+    ) -> SpawnedObserver:
+        definition = self._observer_library.read_observer_definition(agent_type.raw)
+        self._claim_observer_id(definition.agent_name())
+        context = self._agent_factory.history_of(agent_id)
+        return self._start(agent_id, definition, context, agent_type)
+
+    def _claim_observer_id(self, agent_name: str) -> AgentId:
+        return self._observed_agent_id.create_subagent_id(agent_name, self._suffixer)
+
+    def _start(
+        self,
+        observer_id: AgentId,
+        definition: ObserverDefinition,
+        context: Messages,
+        agent_type: AgentType,
+    ) -> SpawnedObserver:
         observer_input = ObserverInput()
-        observer_id = self._observed_agent_id.create_subagent_id(
-            definition.agent_name(), self._suffixer
-        )
         observer = self._agent_factory.create_agent(
             observer_id,
             definition,
             None,
-            Messages(),
-            AgentType(name),
+            context,
+            agent_type,
             user_input=Input(observer_input),
         )
         self._agent_task_manager.start_task(observer_id, observer.start())

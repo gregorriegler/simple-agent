@@ -70,13 +70,13 @@ class Session:
 
     def _observe(
         self, agent_factory: AgentFactory, agent_definition, agent_input: Input
-    ) -> None:
+    ) -> Observers | None:
         if not self._observer_library or not self._change_reporter:
-            return
+            return None
         names = agent_definition.observers()
         if not names:
-            return
-        Observers(
+            return None
+        return Observers(
             self._event_bus,
             self._starting_agent_id,
             names,
@@ -90,6 +90,12 @@ class Session:
             agent_input,
             self._intent,
         )
+
+    @staticmethod
+    def _resumed_as_observer(observers: Observers | None, event) -> bool:
+        if not observers or not event.agent_type:
+            return False
+        return observers.resume(event.agent_id, event.agent_type)
 
     async def run_async(
         self,
@@ -135,9 +141,11 @@ class Session:
             user_input=agent_input,
         )
 
-        self._observe(agent_factory, agent_definition, agent_input)
+        observers = self._observe(agent_factory, agent_definition, agent_input)
 
         for event in unfinished_subagents:
+            if self._resumed_as_observer(observers, event):
+                continue
             subagent = agent_factory.create_agent_from_history(
                 event.agent_id, event.agent_type
             )
