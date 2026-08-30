@@ -7,6 +7,7 @@ from simple_agent.application.events import (
     AgentStartedEvent,
     AssistantRespondedEvent,
     AssistantSaidEvent,
+    SessionClearedEvent,
     UserPromptedEvent,
 )
 from simple_agent.infrastructure.file_event_store import FileEventStore
@@ -223,4 +224,33 @@ async def test_continuing_finished_session_replays_agent_started_before_messages
         f"AgentStartedEvent (index {agent_started_idx}) should come before "
         f"UserPromptedEvent (index {user_prompted_idx}). "
         f"Actual order: {events_in_order}"
+    )
+
+
+@pytest.mark.asyncio
+async def test_legacy_log_does_not_replay_what_was_cleared(tmp_path):
+    """Sessions recorded before clearing rotated the session still hold pre-clear events."""
+    agent_id = AgentId("Agent")
+    event_store = FileEventStore(tmp_path)
+    event_store.persist(UserPromptedEvent(agent_id=agent_id, input_text="Forgotten"))
+    event_store.persist(
+        AssistantRespondedEvent(agent_id=agent_id, response="Also gone")
+    )
+    event_store.persist(SessionClearedEvent(agent_id=agent_id))
+    event_store.persist(UserPromptedEvent(agent_id=agent_id, input_text="Remembered"))
+
+    result = await (
+        SessionTestBed()
+        .with_event_store(event_store)
+        .with_llm_responses(["Done"])
+        .continuing_session()
+        .with_user_inputs("Continue please")
+        .run()
+    )
+
+    result.assert_event_occured(
+        UserPromptedEvent(agent_id=agent_id, input_text="Remembered")
+    )
+    result.assert_event_occured(
+        UserPromptedEvent(agent_id=agent_id, input_text="Forgotten"), times=0
     )

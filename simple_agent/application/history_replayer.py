@@ -11,6 +11,7 @@ from simple_agent.application.events import (
     AgentStartedEvent,
     AssistantRespondedEvent,
     AssistantSaidEvent,
+    SessionClearedEvent,
     ToolCalledEvent,
     ToolResultEvent,
 )
@@ -27,7 +28,7 @@ class HistoryReplayer:
     async def replay_all_agents_async(
         self, starting_agent_id: AgentId
     ) -> list[AgentStartedEvent]:
-        events = self._event_store.load_all_events()
+        events = _since_last_clear(self._event_store.load_all_events())
         if not events:
             return []
 
@@ -108,3 +109,14 @@ class HistoryReplayer:
                 event.agent_id,
                 exc_info=True,
             )
+
+
+def _since_last_clear(events: list) -> list:
+    """Clearing starts a fresh session, so anything before it is not ours to replay.
+
+    New sessions rotate their event log on clear; older logs kept everything.
+    """
+    for i in range(len(events) - 1, -1, -1):
+        if isinstance(events[i], SessionClearedEvent):
+            return events[i + 1 :]
+    return events
