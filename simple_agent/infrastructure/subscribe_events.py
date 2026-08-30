@@ -19,6 +19,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
+from simple_agent.application.session_storage import SessionStorage
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_agent_state_cleanup import (
     FileSystemAgentStateCleanup,
@@ -86,6 +87,7 @@ def subscribe_events(
 def subscribe_persistence(
     event_bus: SimpleEventBus,
     event_store: EventStore,
+    session: SessionStorage | None = None,
 ):
     """Subscribe event persistence. Call this AFTER replay to avoid re-persisting replayed events."""
     event_bus.subscribe(UserPromptedEvent, event_store.persist)
@@ -102,3 +104,8 @@ def subscribe_persistence(
     event_bus.subscribe(AgentChangedEvent, event_store.persist)
     event_bus.subscribe(SessionInterruptedEvent, event_store.persist)
     event_bus.subscribe(ErrorEvent, event_store.persist)
+
+    if session is not None:
+        # A cleared conversation continues as a fresh session, so nothing before
+        # the clear is replayed or resumed.
+        event_bus.subscribe(SessionClearedEvent, lambda _: session.rotate())
