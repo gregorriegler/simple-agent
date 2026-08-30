@@ -346,7 +346,7 @@ Creates a new subagent that will handle a specific task/todo and report back the
 🛠️[subagent {agenttype} {task_description} [--async] /]
 
 ### Arguments:
- - agenttype: string (required) - Type of agent to create. Available types: 'code-review', 'coding', 'orchestrator', 'question'
+ - agenttype: string (required) - Type of agent to create. Available types: 'approval-test-writer', 'code-review', 'coding', 'orchestrator', 'question'
  - task_description: string (required) - Detailed description of the task for the subagent to perform
  - --async: bool (optional) - Run the subagent asynchronously, returning immediately without waiting for it to finish.
 
