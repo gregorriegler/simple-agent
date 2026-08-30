@@ -49,3 +49,27 @@ def test_continue_session_creates_new_when_no_sessions_exist(tmp_path):
     storage = FileSessionStorage.create(base_dir, continue_session=True, cwd=tmp_path)
 
     assert storage.session_root().exists()
+
+
+def test_rotate_starts_a_new_session_directory(tmp_path):
+    base_dir = tmp_path / "sessions"
+    storage = FileSessionStorage.create(base_dir, continue_session=False, cwd=tmp_path)
+    first_root = storage.session_root()
+
+    storage.rotate()
+
+    assert storage.session_root() != first_root
+    assert storage.session_root().parent == base_dir
+    assert first_root.exists()
+
+
+def test_rotated_session_has_its_own_manifest(tmp_path):
+    storage = FileSessionStorage.create(
+        tmp_path / "sessions", continue_session=False, cwd=tmp_path
+    )
+
+    storage.rotate()
+
+    manifest_path = storage.session_root() / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["session_id"] == storage.session_root().name

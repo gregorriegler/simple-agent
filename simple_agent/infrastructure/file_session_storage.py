@@ -40,6 +40,15 @@ class FileSessionStorage(SessionStorage):
     def session_root(self) -> Path:
         return self._session_root
 
+    def rotate(self) -> None:
+        self._session_root = self._base_dir / self._new_session_id()
+        self._metadata = SessionMetadata(
+            session_id=self._session_root.name,
+            created_at=self._current_timestamp(),
+            cwd=self._metadata.cwd,
+        )
+        self._ensure_manifest()
+
     def _ensure_manifest(self) -> None:
         manifest_path = self._session_root / "manifest.json"
         if manifest_path.exists():

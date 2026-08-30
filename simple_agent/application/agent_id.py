@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from simple_agent.application.session_storage import FixedSessionStorage, SessionStorage
+
 TODO_SUFFIX = "todos.md"
 INTENT_SUFFIX = "intent.md"
 STATE_FILE_SUFFIXES = (TODO_SUFFIX, INTENT_SUFFIX)
@@ -16,13 +18,13 @@ def state_file_globs() -> list[str]:
 
 
 class AgentId:
-    def __init__(self, raw_id: str, root: Path | None = None):
+    def __init__(self, raw_id: str, root: "SessionStorage | Path | None" = None):
         if not raw_id or not raw_id.strip():
             raise ValueError("Agent ID cannot be empty")
         self._raw_id = raw_id
-        self._root = root
+        self._root = FixedSessionStorage(root) if isinstance(root, Path) else root
 
-    def with_root(self, root: Path) -> "AgentId":
+    def with_root(self, root: "SessionStorage | Path") -> "AgentId":
         return AgentId(self._raw_id, root=root)
 
     def with_suffix(self, suffix: str) -> "AgentId":
@@ -63,7 +65,7 @@ class AgentId:
         return self.state_filename(INTENT_SUFFIX)
 
     def state_filename(self, suffix: str) -> Path:
-        root = self._root or Path(".")
+        root = self._root.session_root() if self._root else Path(".")
         return root / STATE_FILE_PATTERN.format(
             name=self.for_filesystem(), suffix=suffix
         )

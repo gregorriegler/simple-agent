@@ -4,15 +4,25 @@ from pathlib import Path
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_serializer import EventSerializer
 from simple_agent.application.events import AgentEvent
+from simple_agent.application.session_storage import FixedSessionStorage, SessionStorage
 from simple_agent.logging_config import get_logger
 
 logger = get_logger(__name__)
 
 
 class FileEventStore:
-    def __init__(self, session_root: Path):
-        self._session_root = session_root
-        self._events_file = session_root / "events.jsonl"
+    def __init__(self, session: SessionStorage | Path):
+        self._session = (
+            FixedSessionStorage(session) if isinstance(session, Path) else session
+        )
+
+    @property
+    def _session_root(self) -> Path:
+        return self._session.session_root()
+
+    @property
+    def _events_file(self) -> Path:
+        return self._session_root / "events.jsonl"
 
     def persist(self, event: AgentEvent) -> None:
         self._session_root.mkdir(parents=True, exist_ok=True)

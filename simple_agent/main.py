@@ -109,8 +109,8 @@ async def _run_main(
         user_config=user_config,
         log_file=session_storage.session_root() / "session.log",
     )
-    agent_state_cleanup = FileSystemAgentStateCleanup(session_storage.session_root())
-    event_store = FileEventStore(session_storage.session_root())
+    agent_state_cleanup = FileSystemAgentStateCleanup(session_storage)
+    event_store = FileEventStore(session_storage)
 
     if not args.continue_session:
         agent_state_cleanup.cleanup_all()
@@ -129,9 +129,7 @@ async def _run_main(
 
     project_tree = FileSystemProjectTree(Path(cwd))
 
-    starting_agent_id = agent_library.starting_agent_id().with_root(
-        session_storage.session_root()
-    )
+    starting_agent_id = agent_library.starting_agent_id().with_root(session_storage)
     agent_task_manager = AgentTaskManager()
     session = Session(
         starting_agent_id,

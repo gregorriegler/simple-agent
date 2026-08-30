@@ -58,3 +58,25 @@ def test_filesystem_and_repr_helpers():
     assert str(agent_id) == agent_id.raw
     assert repr(agent_id) == f"AgentId('{agent_id.raw}')"
     assert len({AgentId("dup"), AgentId("dup")}) == 1
+
+
+class RotatingSessionStub:
+    def __init__(self, root: Path):
+        self._root = root
+
+    def session_root(self) -> Path:
+        return self._root
+
+    def rotate(self) -> None:
+        self._root = self._root.parent / "rotated"
+
+
+def test_state_files_follow_a_rotating_session(tmp_path):
+    storage = RotatingSessionStub(tmp_path / "first")
+    agent_id = AgentId("Agent").with_root(storage)
+    subagent_id = agent_id.create_subagent_id("Coding", AgentIdSuffixer())
+
+    storage.rotate()
+
+    assert agent_id.todo_filename().parent == storage.session_root()
+    assert subagent_id.intent_filename().parent == storage.session_root()

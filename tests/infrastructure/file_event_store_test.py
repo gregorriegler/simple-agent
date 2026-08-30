@@ -9,6 +9,7 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.file_event_store import FileEventStore
+from simple_agent.infrastructure.file_session_storage import FileSessionStorage
 
 
 class TestFileEventStore:
@@ -125,3 +126,22 @@ class TestFileEventStore:
         events = store.load_events(None)
 
         assert len(events) == 2
+
+
+class TestFileEventStoreFollowsSessionRotation:
+    def test_persists_into_the_rotated_session(self, tmp_path):
+        storage = FileSessionStorage.create(
+            tmp_path / "sessions", continue_session=False, cwd=tmp_path
+        )
+        store = FileEventStore(storage)
+        store.persist(UserPromptedEvent(agent_id=AgentId("Agent"), input_text="Before"))
+        first_root = storage.session_root()
+
+        storage.rotate()
+        store.persist(UserPromptedEvent(agent_id=AgentId("Agent"), input_text="After"))
+
+        assert (first_root / "events.jsonl").read_text(encoding="utf-8").count(
+            "\n"
+        ) == 1
+        events = store.load_all_events()
+        assert [e.input_text for e in events] == ["After"]
