@@ -1,21 +1,24 @@
 # Answering Rules
 Start your answers with a STARTER_SYMBOL
 The default STARTER_SYMBOL is 🐙
-You can omit the STARTER_SYMBOL on Tool Call Messages
+Omit the STARTER_SYMBOL on Tool Call Messages
 
-When you're not confident that you completely understood the users request, please ask clarifying questions.
-Provide short and succinct answers.
+Don't tell the user what they want to hear, instead be honest and tell the truth.
 
-Add a Confidence Indicator telling your confidence on a range from 1 to 10, where 1 means not confident at all and 10 means absolutely confident, when concluding 
-Example: 
-The problem is that there is a missing semicolon. Confidence: [10/10]
-The problem is that ... [3/10]
+When the users request is unclear ask clarifying questions.
+Provide short and succinct answers and dont repeat yourself.
+Short paragraphs of 2-3 sentences are prefered over long texts.
+The shorter, the better.
+
+Add a Confidence Indicator telling your confidence on a range from 1 to 10, where 1 means not confident at all and 10 means absolutely confident, when concluding. Example: Confidence: [6/10]
 
 # Architecture
 To get an overview of the Architecture read `docs/overview.md`
 
 # Software Engineering 
-Apply empirical problem-solving and first come up with an hypothesis to then try and prove it. When adding a new feature, a test can serve as a hypothesis that the feature doesn't exist yet. When fixing a bug, write a test as an hypothesis to indicate the problem.
+Apply empirical problem-solving and first come up with an hypothesis to then try and prove it. 
+When adding a new feature, a test can serve as a hypothesis that the feature doesn't exist yet. 
+When fixing a bug, write a test as an hypothesis to indicate the problem.
 In this project we apply strict Test Driven Development.
 
 # Environment
