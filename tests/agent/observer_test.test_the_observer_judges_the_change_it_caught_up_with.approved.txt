@@ -36,7 +36,7 @@ Agent/Naming:           tool_called: Agent/Naming::tool_call::2 🛠️ complete
 Agent/Naming:           tool_result: Agent/Naming::tool_call::2 judged tmp2.txt
 Agent/Naming: user_prompt_requested: 
 Agent:           tool_result: Agent::tool_call::4 Hello
-Agent:         user_prompted: Suggestion from the naming observer:
+Agent:         user_prompted: 💡 Suggestion from the naming observer:
 tmp2.txt says nothing about its content
 Agent:   assistant_responded: 🛠️[complete-task stored the greeting /] stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::5 🛠️ complete-task stored the greeting
@@ -74,7 +74,7 @@ user: Suggested: tmp2.txt says nothing about its content
 user: judged tmp2.txt
 user: Hello
 [Agent]
-user: Suggestion from the naming observer:
+user: 💡 Suggestion from the naming observer:
 tmp2.txt says nothing about its content
 assistant: 🛠️[complete-task stored the greeting /]
 user: stored the greeting

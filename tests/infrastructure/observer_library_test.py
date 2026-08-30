@@ -65,3 +65,11 @@ def test_the_builtin_observers_are_found_without_configuration(tmp_path):
     library = create_observer_library(user_config)
 
     assert "naming" in library.list_observers()
+
+
+def test_the_approval_test_reviewer_is_a_builtin_observer(tmp_path):
+    user_config = UserConfiguration({}, str(tmp_path))
+
+    library = create_observer_library(user_config)
+
+    assert "approval-test-reviewer" in library.list_observers()

@@ -177,7 +177,7 @@ def test_what_an_observer_found_reaches_the_agent():
     )
 
     assert agent_input.drain() == [
-        "Suggestion from the naming observer:\ndata1.txt should be greeting.txt"
+        "💡 Suggestion from the naming observer:\ndata1.txt should be greeting.txt"
     ]
 
 
@@ -252,7 +252,7 @@ def test_what_a_resumed_observer_found_reaches_the_agent():
     )
 
     assert agent_input.drain() == [
-        "Suggestion from the naming observer:\ndata1.txt should be greeting.txt"
+        "💡 Suggestion from the naming observer:\ndata1.txt should be greeting.txt"
     ]
 
 

@@ -24,7 +24,7 @@ Agent/Naming:           tool_called: Agent/Naming::tool_call::2 🛠️ complete
 Agent/Naming:           tool_result: Agent/Naming::tool_call::2 judged the new file
 Agent/Naming: user_prompt_requested: 
 Agent:           tool_result: Agent::tool_call::2 Hello
-Agent:         user_prompted: Suggestion from the naming observer:
+Agent:         user_prompted: 💡 Suggestion from the naming observer:
 data1.txt says nothing about its content, call it greeting.txt
 Agent:   assistant_responded: I will rename it.
 🛠️[complete-task renamed the file /] stub-model 0.0%
@@ -56,7 +56,7 @@ user: Suggested: data1.txt says nothing about its content, call it greeting.txt
 user: judged the new file
 user: Hello
 [Agent]
-user: Suggestion from the naming observer:
+user: 💡 Suggestion from the naming observer:
 data1.txt says nothing about its content, call it greeting.txt
 assistant: I will rename it.
 🛠️[complete-task renamed the file /]

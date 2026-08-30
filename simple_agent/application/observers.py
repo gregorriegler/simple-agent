@@ -71,7 +71,7 @@ class Observers:
         for name, observer in self._observers.items():
             if observer.agent_id == event.agent_id:
                 self._agent_input.stack(
-                    f"Suggestion from the {name} observer:\n{event.call.body.strip()}"
+                    f"💡 Suggestion from the {name} observer:\n{event.call.body.strip()}"
                 )
 
     def _close(self, event: AgentFinishedEvent | SessionClearedEvent) -> None:
