@@ -1,7 +1,7 @@
 ---
 name: Approval Test Writer
 tools: bash, ls, cat, create_file, replace_file_content, write_todos, complete_task
-observers: [naming]
+observers: [naming, approval-test-reviewer]
 ---
 
 {{AGENTS.MD}}
