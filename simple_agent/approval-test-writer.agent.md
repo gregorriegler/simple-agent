@@ -1,6 +1,6 @@
 ---
 name: Approval Test Writer
-tools: bash, ls, cat, create_file, replace_file_content, write_todos, complete_task
+tools: communicate_intent, write_todos, bash, ls, cat, create_file, replace_file_content, complete_task
 observers: [naming, approval-test-reviewer]
 ---
 
