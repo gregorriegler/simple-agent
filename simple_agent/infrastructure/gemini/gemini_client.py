@@ -236,8 +236,8 @@ class GeminiLLM(LLM):
 
             output_error = output_error or step.get("error")
             for content in reversed(step.get("content") or []):
-                if content.get("type") == "text":
-                    texts.append(content.get("text", ""))
+                if content.get("type") == "text" and content.get("text"):
+                    texts.append(content["text"])
 
         text = "".join(reversed(texts))
         if not text and not tool_calls:

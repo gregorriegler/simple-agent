@@ -360,6 +360,30 @@ async def test_gemini_chat_skips_trailing_steps_that_are_not_model_output():
 
 
 @pytest.mark.asyncio
+async def test_gemini_chat_skips_empty_model_output_when_collecting_answer():
+    response_data = {
+        "status": "completed",
+        "steps": [
+            {
+                "type": "model_output",
+                "content": [{"type": "text", "text": "🐙 Here are the three options…"}],
+            },
+            {"type": "thought", "signature": "opaque"},
+            {
+                "type": "model_output",
+                "content": [{"type": "text", "text": ""}],
+            },
+            {"type": "function_call", "name": "complete-task", "arguments": {}},
+        ],
+    }
+    chat = GeminiLLM(build_config(), transport=responding_with(response_data))
+
+    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+
+    assert result.answer == "🐙 Here are the three options…"
+
+
+@pytest.mark.asyncio
 async def test_gemini_chat_stops_at_echoed_user_input_step():
     response_data = {
         "status": "completed",
