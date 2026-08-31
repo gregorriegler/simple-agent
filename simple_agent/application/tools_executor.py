@@ -4,7 +4,7 @@ from .agent_id import AgentId
 from .event_bus import EventBus
 from .events import ToolCalledEvent, ToolCancelledEvent, ToolResultEvent
 from .tool_library import ToolCall, ToolLibrary
-from .tool_results import ManyToolsResult, ToolResult
+from .tool_results import ManyToolsResult, ToolResult, TruncatedToolResult
 
 
 class ToolsExecutor:
@@ -35,7 +35,9 @@ class ToolsExecutor:
             ToolCalledEvent(self._agent_id, call_id, tool_call.raw_call)
         )
         try:
-            tool_result = await self._library.execute_tool_call(tool_call)
+            tool_result = TruncatedToolResult(
+                await self._library.execute_tool_call(tool_call)
+            )
             self._event_bus.publish(
                 ToolResultEvent(self._agent_id, call_id, tool_result)
             )

@@ -72,3 +72,28 @@ async def test_tool_called_event_published_before_tool_completes():
     await task
 
     assert result_event.is_set() is True
+
+
+class HugeOutputTool:
+    def __init__(self, text: str):
+        self._text = text
+
+    async def execute(self, raw_call):
+        return SingleToolResult(self._text, status=ToolResultStatus.SUCCESS)
+
+
+@pytest.mark.asyncio
+async def test_huge_tool_result_is_capped():
+    tool_call = ToolCall(
+        RawToolCall(name="huge", arguments=""), HugeOutputTool("x" * 200_000)
+    )
+    executor = ToolsExecutor(
+        library=ToolLibraryStub(),
+        event_bus=SimpleEventBus(),
+        agent_id=AgentId("test"),
+    )
+
+    result = await executor.execute_tool_calls([tool_call])
+
+    assert len(result.message) < 40_000
+    assert "truncated" in result.message

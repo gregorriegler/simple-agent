@@ -3,6 +3,8 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, Protocol
 
+from .truncation import truncate
+
 if TYPE_CHECKING:
     from .tool_library import RawToolCall, ToolCall
 
@@ -147,3 +149,38 @@ class ManyToolsResult(ToolResult):
 
     def mark_cancelled(self, tool_call: ToolCall) -> None:
         self._cancelled_tool_call = tool_call
+
+
+class TruncatedToolResult(ToolResult):
+    def __init__(self, result: ToolResult):
+        self._result = result
+
+    @property
+    def message(self) -> str:
+        return truncate(self._result.message)
+
+    @property
+    def success(self) -> bool:
+        return self._result.success
+
+    @property
+    def cancelled(self) -> bool:
+        return self._result.cancelled
+
+    @property
+    def display_title(self) -> str:
+        return self._result.display_title
+
+    @property
+    def display_body(self) -> str:
+        return truncate(self._result.display_body)
+
+    @property
+    def display_language(self) -> str:
+        return self._result.display_language
+
+    def do_continue(self) -> bool:
+        return self._result.do_continue()
+
+    def __str__(self) -> str:
+        return truncate(str(self._result))
