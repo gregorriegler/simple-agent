@@ -141,8 +141,9 @@ async def _run_main(
         project_tree=project_tree,
         event_store=event_store,
         agent_task_manager=agent_task_manager,
-        on_replay_complete=lambda: subscribe_persistence(
-            event_bus, event_store, session_storage
+        on_replay_complete=lambda: (
+            textual_app.end_replay(),
+            subscribe_persistence(event_bus, event_store, session_storage),
         ),
         observer_library=create_observer_library(user_config),
         change_reporter=GitChangeReporter(Path(cwd)),
@@ -160,6 +161,8 @@ async def _run_main(
         event_subscriber(event_bus, textual_app)
 
     async def run_session():
+        if args.continue_session:
+            textual_app.begin_replay()
         await session.run_async(args)
 
     return await run_strategy.run(textual_app, run_session)

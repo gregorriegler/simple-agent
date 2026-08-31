@@ -45,9 +45,20 @@ class AgentTabs(TabbedContent):
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._agent_models: dict[AgentId, str] = {}
         self._agent_token_display: dict[AgentId, str] = {}
+        self._replaying = False
 
     def on_mount(self) -> None:
         self._ensure_agent_tab_exists(self._root_agent_id, None, None)
+
+    def begin_replay(self) -> None:
+        self._replaying = True
+        for workspace in self._agent_workspaces.values():
+            workspace.begin_replay()
+
+    def end_replay(self) -> None:
+        self._replaying = False
+        for workspace in self._agent_workspaces.values():
+            workspace.end_replay()
 
     @property
     def active_workspace(self) -> AgentWorkspace | None:
@@ -79,6 +90,9 @@ class AgentTabs(TabbedContent):
             tool_results_id=tool_results_id,
             id="tab-content",
         )
+
+        if self._replaying:
+            workspace.begin_replay()
 
         self._agent_workspaces[str(agent_id)] = workspace
         self._agent_panel_ids[agent_id] = (log_id, tool_results_id)

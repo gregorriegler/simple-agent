@@ -56,6 +56,12 @@ class AgentWorkspace(Vertical):
 
         super().__init__(self.split_view, self.smart_input, **kwargs)
 
+    def begin_replay(self) -> None:
+        self.tool_log.begin_replay()
+
+    def end_replay(self) -> None:
+        self.tool_log.end_replay()
+
     def refresh_todos(self) -> None:
         self.todo_view.refresh_content()
         self.left_panel.set_bottom_visibility(self.todo_view.has_content)

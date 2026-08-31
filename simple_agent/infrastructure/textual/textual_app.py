@@ -136,6 +136,44 @@ class TextualApp(App):
         height: auto;
     }
 
+    CollapsedToolEntry {
+        width: 100%;
+        height: auto;
+        padding: 0 1;
+        background: $surface;
+        color: $block-cursor-blurred-foreground;
+        text-style: $block-cursor-blurred-text-style;
+    }
+
+    CollapsedToolEntry:focus, CollapsedToolEntry.thought:focus {
+        text-style: $block-cursor-text-style;
+        background: $block-cursor-background;
+        color: $block-cursor-foreground;
+    }
+
+    CollapsedToolEntry:hover, CollapsedToolEntry.thought:hover {
+        background-tint: $block-hover-background;
+        color: $foreground;
+    }
+
+    CollapsedToolEntry.tool-status-success {
+        border-left: outer $success;
+    }
+
+    CollapsedToolEntry.tool-status-error {
+        border-left: outer $error;
+    }
+
+    CollapsedToolEntry.tool-status-cancelled {
+        border-left: outer $warning;
+    }
+
+    CollapsedToolEntry.thought {
+        border-left: outer $success;
+        text-style: not italic;
+        color: $block-cursor-blurred-foreground;
+    }
+
     ToolCollapsible.tool-status-running > CollapsibleTitle,
     ToolCollapsible.tool-status-running > Contents {
         border-left: outer $primary;
@@ -200,6 +238,12 @@ class TextualApp(App):
         self._file_searcher = NativeFileSearcher()
         self.file_loader = XmlFormattingFileLoader(DiskFileLoader())
         self._suggestion_provider = self._create_suggestion_provider()
+
+    def begin_replay(self) -> None:
+        self.query_one(AgentTabs).begin_replay()
+
+    def end_replay(self) -> None:
+        self.query_one(AgentTabs).end_replay()
 
     def has_agent_tab(self, agent_id: AgentId) -> bool:
         return self.query_one(AgentTabs).has_agent_tab(agent_id)

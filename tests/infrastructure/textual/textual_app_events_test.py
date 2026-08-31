@@ -2,7 +2,7 @@ import pytest
 from textual.containers import VerticalScroll
 from textual.widgets import Collapsible, Markdown, TextArea
 
-from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
 from simple_agent.application.events import (
     AgentChangedEvent,
     AgentStartedEvent,
@@ -16,7 +16,10 @@ from simple_agent.application.events import (
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
-from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
+from simple_agent.infrastructure.textual.widgets.tool_log import (
+    CollapsedToolEntry,
+    ToolLog,
+)
 from tests.infrastructure.textual.conftest import StubTool
 from tests.infrastructure.textual.test_utils import eventually
 
@@ -302,3 +305,81 @@ async def test_agent_changed_event_updates_tab_title(textual_harness):
         tab_id, _, _ = app.panel_ids_for(agent_id)
         tab = tabs.get_tab(tab_id)
         assert str(tab.label) == "Developer [test-model]"
+
+
+@pytest.mark.asyncio
+async def test_replayed_history_renders_as_cheap_entries(textual_harness):
+    event_bus, _, _, app = textual_harness
+    agent_id = AgentId("Agent")
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.begin_replay()
+        event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        await pilot.pause()
+        event_bus.publish(ToolCalledEvent(agent_id, "call-1", StubTool()))
+        event_bus.publish(
+            ToolResultEvent(agent_id, "call-1", SingleToolResult("replayed output"))
+        )
+        await pilot.pause()
+        app.end_replay()
+
+        await eventually(
+            pilot,
+            lambda: len(_tool_log(app, agent_id).query(CollapsedToolEntry)) == 1,
+            "the replayed call to render as a cheap entry",
+        )
+        assert not _tool_log(app, agent_id).query(TextArea)
+
+
+@pytest.mark.asyncio
+async def test_a_subagent_tab_opened_during_replay_also_replays_cheaply(
+    textual_harness,
+):
+    event_bus, _, _, app = textual_harness
+    root_id = AgentId("Agent")
+    sub_id = root_id.create_subagent_id("Helper", AgentIdSuffixer())
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.begin_replay()
+        event_bus.publish(AgentStartedEvent(root_id, "Agent", "dummy-model"))
+        event_bus.publish(AgentStartedEvent(sub_id, "Helper", "dummy-model"))
+        await pilot.pause()
+        event_bus.publish(ToolCalledEvent(sub_id, "call-1", StubTool()))
+        event_bus.publish(
+            ToolResultEvent(sub_id, "call-1", SingleToolResult("sub output"))
+        )
+        await pilot.pause()
+        app.end_replay()
+
+        await eventually(
+            pilot,
+            lambda: len(_tool_log(app, sub_id).query(CollapsedToolEntry)) == 1,
+            "the subagent's replayed call to render as a cheap entry",
+        )
+
+
+@pytest.mark.asyncio
+async def test_live_tool_calls_after_replay_build_collapsibles(textual_harness):
+    event_bus, _, _, app = textual_harness
+    agent_id = AgentId("Agent")
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.begin_replay()
+        event_bus.publish(AgentStartedEvent(agent_id, "Agent", "dummy-model"))
+        await pilot.pause()
+        app.end_replay()
+
+        event_bus.publish(ToolCalledEvent(agent_id, "call-live", StubTool()))
+        event_bus.publish(
+            ToolResultEvent(agent_id, "call-live", SingleToolResult("live output"))
+        )
+
+        await eventually(
+            pilot,
+            lambda: _latest_tool_text_area(app, agent_id).text == "live output",
+            "the live call to build a collapsible",
+        )
+        assert not _tool_log(app, agent_id).query(CollapsedToolEntry)
