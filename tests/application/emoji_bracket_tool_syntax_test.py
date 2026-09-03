@@ -643,3 +643,43 @@ class _MockFlagTool(BaseTool):
         ]
     )
     examples = []
+
+
+class TestRenderHeader:
+    def test_quotes_a_value_with_spaces(self):
+        named = {"arg1": "my notes.md", "arg2": "value2"}
+
+        header = EmojiBracketToolSyntax().render_header(named, SimpleTool())
+
+        assert header == "'my notes.md' value2"
+
+    def test_renders_a_true_flag_by_name_and_omits_a_false_one(self):
+        named = {"agenttype": "coding", "task": "say hello", "--async": True}
+
+        header = EmojiBracketToolSyntax().render_header(named, _MockFlagTool())
+
+        assert header == "coding 'say hello' --async"
+        assert (
+            EmojiBracketToolSyntax().render_header(
+                {**named, "--async": False}, _MockFlagTool()
+            )
+            == "coding 'say hello'"
+        )
+
+    def test_a_single_header_argument_is_left_unquoted(self):
+        named = {"inline_arg": "rg 'main\\(' -g '*.py'"}
+
+        header = EmojiBracketToolSyntax().render_header(named, MultilineTool())
+
+        assert header == "rg 'main\\(' -g '*.py'"
+
+    def test_rendering_then_binding_round_trips(self):
+        syntax = EmojiBracketToolSyntax()
+        named = {"agenttype": "coding", "task": 'say "hi" there', "--async": True}
+
+        header = syntax.render_header(named, _MockFlagTool())
+        bound = syntax.bind(
+            RawToolCall(name="flag_tool", arguments=header), _MockFlagTool()
+        )
+
+        assert bound.named_arguments == named

@@ -266,3 +266,24 @@ def test_declares_a_bool_argument_as_a_json_boolean():
     declaration = to_function_declarations([subagent])[0]
 
     assert declaration["parameters"]["properties"]["--async"]["type"] == "boolean"
+
+
+def test_renders_the_positional_text_with_quoting_and_flags():
+    subagent = tool(
+        "subagent",
+        "",
+        ToolArguments(
+            header=[
+                ToolArgument(name="agenttype", description=""),
+                ToolArgument(name="task", description=""),
+                ToolArgument(name="--async", type="bool", description=""),
+            ]
+        ),
+    )
+    step = function_call(
+        "subagent", {"agenttype": "coding", "task": "say hello", "--async": True}
+    )
+
+    calls = to_raw_tool_calls([step], [subagent])
+
+    assert calls[0].arguments == "coding 'say hello' --async"

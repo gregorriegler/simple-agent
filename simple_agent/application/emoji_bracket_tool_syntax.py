@@ -6,6 +6,10 @@ from simple_agent.application.tool_library import RawToolCall, Tool, ToolArgumen
 from simple_agent.application.tool_syntax import RawAssistantTurn, ToolSyntax
 
 
+def _is_true(value: Any) -> bool:
+    return value is True or str(value).lower() in ("true", "1")
+
+
 class EmojiBracketToolSyntax(ToolSyntax):
     """Emoji-bracket syntax implementation per v1 spec.
 
@@ -173,6 +177,23 @@ class EmojiBracketToolSyntax(ToolSyntax):
             values[last:] = [" ".join(values[last:])]
         named.update(zip((arg.name for arg in positional), values, strict=False))
         return named
+
+    def render_header(self, named: dict[str, Any], tool: Tool) -> str:
+        """
+        Render named arguments as the positional header text, the inverse of
+        bind: a single header argument is written as is, other values are
+        shell-quoted when needed, and a true flag appears by name.
+        """
+        header = list(tool.arguments.header)
+        flags = [arg for arg in header if arg.type == "bool"]
+        positional = [arg for arg in header if arg.type != "bool"]
+        if not flags and len(positional) == 1:
+            return str(named.get(positional[0].name, ""))
+        parts = [
+            shlex.quote(str(named[arg.name])) for arg in positional if arg.name in named
+        ]
+        parts.extend(flag.name for flag in flags if _is_true(named.get(flag.name)))
+        return " ".join(parts)
 
     def contains_call(self, text: str) -> bool:
         return any(marker in text for marker in ("🛠️[", "🛠["))

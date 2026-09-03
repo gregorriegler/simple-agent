@@ -1,4 +1,7 @@
+from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.tool_library import RawToolCall, Tool, ToolArgument
+
+_SYNTAX = EmojiBracketToolSyntax()
 
 _TYPES = {"string", "integer", "number", "boolean"}
 _TYPE_ALIASES = {
@@ -60,14 +63,12 @@ def _raw_tool_call(step: dict, tool: Tool | None) -> RawToolCall:
             name=name, arguments=joined, body="", named_arguments=arguments
         )
 
-    header = " ".join(
-        str(arguments[arg.name])
-        for arg in tool.arguments.header
-        if arg.name in arguments
-    )
     body = ""
     if tool.arguments.body and tool.arguments.body.name in arguments:
         body = str(arguments[tool.arguments.body.name])
     return RawToolCall(
-        name=name, arguments=header, body=body, named_arguments=arguments
+        name=name,
+        arguments=_SYNTAX.render_header(arguments, tool),
+        body=body,
+        named_arguments=arguments,
     )
