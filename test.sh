@@ -123,6 +123,7 @@ while [[ "${1:-}" == -* ]]; do
 done
 
 export USE_APPROVE_SH_REPORTER=true
+export PYTHONUTF8=1
 
 cd "$(dirname "$0")"
 
