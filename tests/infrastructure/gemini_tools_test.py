@@ -252,3 +252,17 @@ def test_keeps_the_native_call_id_on_the_call():
     calls = to_raw_tool_calls([step], [bash])
 
     assert calls[0].native_id == "fc_42"
+
+
+def test_declares_a_bool_argument_as_a_json_boolean():
+    subagent = tool(
+        "subagent",
+        "",
+        ToolArguments(
+            header=[ToolArgument(name="--async", type="bool", description="")]
+        ),
+    )
+
+    declaration = to_function_declarations([subagent])[0]
+
+    assert declaration["parameters"]["properties"]["--async"]["type"] == "boolean"
