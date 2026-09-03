@@ -873,3 +873,42 @@ async def test_gemini_keeps_a_parallel_tool_turn_native_when_only_its_first_call
         "function_result",
         "function_result",
     ]
+
+
+@pytest.mark.asyncio
+async def test_gemini_replays_the_native_arguments_it_received():
+    captured: dict = {}
+    cat = SimpleNamespace(
+        name="cat",
+        description="Print a file",
+        arguments=ToolArguments(
+            header=[
+                ToolArgument(name="filename", description=""),
+                ToolArgument(name="with_line_numbers", description="", required=False),
+            ]
+        ),
+    )
+    chat = GeminiLLM(
+        build_config(),
+        tools=[cat],
+        transport=responding_with(interaction("done"), captured),
+    )
+    native_arguments = {"filename": "my notes.md", "with_line_numbers": "true"}
+    call = RawToolCall(
+        name="cat",
+        arguments="my notes.md true",
+        named_arguments=native_arguments,
+        thought_signature="SIG",
+    )
+    messages = [
+        {"role": "user", "content": "show my notes"},
+        {"role": "assistant", "content": "", "tool_calls": [call]},
+        {"role": "tool", "call": call, "content": "Hello world"},
+    ]
+
+    await chat.call_async(messages)
+
+    function_call = next(
+        step for step in captured["body"]["input"] if step["type"] == "function_call"
+    )
+    assert function_call["arguments"] == native_arguments

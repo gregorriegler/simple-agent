@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
 
 from .tool_results import ToolResult
@@ -13,6 +13,7 @@ class RawToolCall:
     arguments: str
     body: str = ""
     thought_signature: str = ""
+    named_arguments: dict[str, Any] = field(default_factory=dict)
 
     def header(self) -> str:
         if self.arguments:

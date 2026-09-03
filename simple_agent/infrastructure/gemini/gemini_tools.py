@@ -44,6 +44,8 @@ def to_raw_tool_calls(steps: list[dict], tools: list[Tool]) -> list[RawToolCall]
 
 def to_native_arguments(raw_call: RawToolCall, tool: Tool | None) -> dict:
     """Reconstruct a native argument dict from a positional RawToolCall."""
+    if raw_call.named_arguments:
+        return raw_call.named_arguments
     if tool is None:
         return {}
     header = list(tool.arguments.header)
@@ -62,7 +64,9 @@ def _raw_tool_call(step: dict, tool: Tool | None) -> RawToolCall:
     arguments = step.get("arguments") or {}
     if tool is None:
         joined = " ".join(str(value) for value in arguments.values())
-        return RawToolCall(name=name, arguments=joined, body="")
+        return RawToolCall(
+            name=name, arguments=joined, body="", named_arguments=arguments
+        )
 
     header = " ".join(
         str(arguments[arg.name])
@@ -72,4 +76,6 @@ def _raw_tool_call(step: dict, tool: Tool | None) -> RawToolCall:
     body = ""
     if tool.arguments.body and tool.arguments.body.name in arguments:
         body = str(arguments[tool.arguments.body.name])
-    return RawToolCall(name=name, arguments=header, body=body)
+    return RawToolCall(
+        name=name, arguments=header, body=body, named_arguments=arguments
+    )

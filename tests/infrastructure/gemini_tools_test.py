@@ -105,7 +105,14 @@ def test_reads_a_single_argument_function_call_into_a_raw_tool_call():
 
     calls = to_raw_tool_calls([function_call("bash", {"command": "ls -la"})], [bash])
 
-    assert calls == [RawToolCall(name="bash", arguments="ls -la", body="")]
+    assert calls == [
+        RawToolCall(
+            name="bash",
+            arguments="ls -la",
+            body="",
+            named_arguments={"command": "ls -la"},
+        )
+    ]
 
 
 def test_joins_multiple_arguments_in_declared_order():
@@ -124,7 +131,14 @@ def test_joins_multiple_arguments_in_declared_order():
         [function_call("cat", {"line_range": "1-20", "filename": "x.py"})], [cat]
     )
 
-    assert calls == [RawToolCall(name="cat", arguments="x.py 1-20", body="")]
+    assert calls == [
+        RawToolCall(
+            name="cat",
+            arguments="x.py 1-20",
+            body="",
+            named_arguments={"line_range": "1-20", "filename": "x.py"},
+        )
+    ]
 
 
 def test_body_argument_becomes_the_body():
@@ -142,7 +156,14 @@ def test_body_argument_becomes_the_body():
         [create_file],
     )
 
-    assert calls == [RawToolCall(name="create-file", arguments="a.txt", body="hello")]
+    assert calls == [
+        RawToolCall(
+            name="create-file",
+            arguments="a.txt",
+            body="hello",
+            named_arguments={"filename": "a.txt", "content": "hello"},
+        )
+    ]
 
 
 def test_ignores_non_function_call_steps():
@@ -191,3 +212,30 @@ def test_reads_multiple_function_calls():
     )
 
     assert [c.arguments for c in calls] == ["ls", "pwd"]
+
+
+def test_keeps_the_native_arguments_on_the_call():
+    cat = tool(
+        "cat",
+        "",
+        ToolArguments(
+            header=[
+                ToolArgument(name="filename", description=""),
+                ToolArgument(name="with_line_numbers", description="", required=False),
+            ]
+        ),
+    )
+
+    calls = to_raw_tool_calls(
+        [
+            function_call(
+                "cat", {"filename": "my notes.md", "with_line_numbers": "true"}
+            )
+        ],
+        [cat],
+    )
+
+    assert calls[0].named_arguments == {
+        "filename": "my notes.md",
+        "with_line_numbers": "true",
+    }
