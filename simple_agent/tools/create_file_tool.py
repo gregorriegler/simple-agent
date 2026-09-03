@@ -42,24 +42,13 @@ class CreateFileTool(BaseTool):
     ]
 
     async def execute(self, raw_call):
-        args = raw_call.arguments
-        body = raw_call.body
-
-        if not args:
+        named = raw_call.named_arguments
+        filename = (named.get("filename") or "").strip()
+        if not filename:
             return SingleToolResult(
                 "No filename specified", status=ToolResultStatus.FAILURE
             )
-
-        # Simple string splitting - first word is filename
-        parts = args.strip().split(None, 1)
-
-        if not parts:
-            return SingleToolResult(
-                "No filename specified", status=ToolResultStatus.FAILURE
-            )
-
-        filename = parts[0]
-        content = body if body else None
+        content = named.get("content") or None
 
         try:
             # Check if file already exists
