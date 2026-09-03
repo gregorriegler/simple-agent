@@ -9,10 +9,10 @@ def to_text_messages(messages: ChatMessages) -> ChatMessages:
     becomes 'Result of ...' user text and an assistant turn drops its
     structured tool_calls (the calls already live in its text content).
     """
-    return [_text_message(message) for message in messages]
+    return [to_text_message(message) for message in messages]
 
 
-def _text_message(message: dict) -> dict:
+def to_text_message(message: dict) -> dict:
     role = message.get("role", "")
     content = message.get("content", "")
     if role == "tool":

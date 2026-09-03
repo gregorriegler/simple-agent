@@ -573,7 +573,9 @@ async def test_gemini_replays_a_prior_tool_call_as_a_function_call_step():
         {
             "role": "assistant",
             "content": "on it",
-            "tool_calls": [RawToolCall(name="bash", arguments="ls")],
+            "tool_calls": [
+                RawToolCall(name="bash", arguments="ls", thought_signature="SIG")
+            ],
         },
         {
             "role": "tool",
@@ -586,6 +588,7 @@ async def test_gemini_replays_a_prior_tool_call_as_a_function_call_step():
 
     assert captured["body"]["input"] == [
         {"type": "user_input", "content": [{"type": "text", "text": "list files"}]},
+        {"type": "thought", "signature": "SIG"},
         {"type": "model_output", "content": [{"type": "text", "text": "on it"}]},
         {
             "type": "function_call",
@@ -656,19 +659,22 @@ async def test_gemini_omits_empty_model_output_before_a_tool_call():
         {
             "role": "assistant",
             "content": "",
-            "tool_calls": [RawToolCall(name="bash", arguments="ls")],
+            "tool_calls": [
+                RawToolCall(name="bash", arguments="ls", thought_signature="SIG")
+            ],
         },
     ]
 
     await chat.call_async(messages)
 
     assert captured["body"]["input"] == [
+        {"type": "thought", "signature": "SIG"},
         {
             "type": "function_call",
             "id": "call_1",
             "name": "bash",
             "arguments": {"command": "ls"},
-        }
+        },
     ]
 
 
@@ -783,7 +789,9 @@ async def test_gemini_never_sends_an_empty_text_part():
         {
             "role": "assistant",
             "content": "",
-            "tool_calls": [RawToolCall(name="bash", arguments="ls")],
+            "tool_calls": [
+                RawToolCall(name="bash", arguments="ls", thought_signature="SIG")
+            ],
         },
         {
             "role": "tool",
@@ -801,3 +809,67 @@ async def test_gemini_never_sends_an_empty_text_part():
     ]
 
     assert "" not in texts
+
+
+@pytest.mark.asyncio
+async def test_gemini_replays_a_tool_turn_without_a_signature_as_text():
+    """
+    Gemini rejects a function_call/function_result pair that is not led by
+    the thought step which produced it. Calls made under the text protocol,
+    by another adapter or before a model switch, have no signature.
+    """
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(),
+        tools=[bash_tool()],
+        transport=responding_with(interaction("done"), captured),
+    )
+    call = RawToolCall(name="bash", arguments="ls")
+    messages = [
+        {"role": "user", "content": "list files"},
+        {"role": "assistant", "content": "on it\n🛠️ bash ls", "tool_calls": [call]},
+        {"role": "tool", "call": call, "content": "a.txt"},
+        {"role": "user", "content": "thanks"},
+    ]
+
+    await chat.call_async(messages)
+
+    assert captured["body"]["input"] == [
+        {"type": "user_input", "content": [{"type": "text", "text": "list files"}]},
+        {
+            "type": "model_output",
+            "content": [{"type": "text", "text": "on it\n🛠️ bash ls"}],
+        },
+        {
+            "type": "user_input",
+            "content": [{"type": "text", "text": "Result of 🛠️ bash ls\na.txt"}],
+        },
+        {"type": "user_input", "content": [{"type": "text", "text": "thanks"}]},
+    ]
+
+
+@pytest.mark.asyncio
+async def test_gemini_keeps_a_parallel_tool_turn_native_when_only_its_first_call_is_signed():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(),
+        tools=[bash_tool()],
+        transport=responding_with(interaction("done"), captured),
+    )
+    first = RawToolCall(name="bash", arguments="ls", thought_signature="SIG")
+    second = RawToolCall(name="bash", arguments="pwd")
+    messages = [
+        {"role": "assistant", "content": "", "tool_calls": [first, second]},
+        {"role": "tool", "call": first, "content": "a.txt"},
+        {"role": "tool", "call": second, "content": "/home"},
+    ]
+
+    await chat.call_async(messages)
+
+    assert [step["type"] for step in captured["body"]["input"]] == [
+        "thought",
+        "function_call",
+        "function_call",
+        "function_result",
+        "function_result",
+    ]

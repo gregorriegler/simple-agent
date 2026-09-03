@@ -1,7 +1,7 @@
 import httpx
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
-from simple_agent.application.text_messages import to_text_messages
+from simple_agent.application.text_messages import to_text_message, to_text_messages
 from simple_agent.application.text_response import emoji_response
 from simple_agent.application.tool_library import Tool
 from simple_agent.infrastructure.gemini.gemini_tools import (
@@ -112,6 +112,7 @@ class GeminiLLM(LLM):
         """
         if not self._tools:
             messages = to_text_messages(messages)
+        messages = self._unsigned_tool_turns_as_text(messages)
 
         system_prompts = []
         steps = []
@@ -151,6 +152,27 @@ class GeminiLLM(LLM):
                 )
 
         return "\n\n".join(system_prompts), steps
+
+    def _unsigned_tool_turns_as_text(self, messages: ChatMessages) -> ChatMessages:
+        """
+        Gemini rejects a function_call/function_result pair that is not led
+        by the thought step which produced it. Only calls Gemini made itself
+        carry that signature; calls made under the text protocol, by another
+        adapter or before a model switch, are replayed as the text they were.
+        """
+        converted = []
+        native = True
+        for message in messages:
+            role = message.get("role")
+            if role == "assistant":
+                tool_calls = message.get("tool_calls") or []
+                native = not tool_calls or any(
+                    call.thought_signature for call in tool_calls
+                )
+            if role in ("assistant", "tool") and not native:
+                message = to_text_message(message)
+            converted.append(message)
+        return converted
 
     def _thought_summary(self, steps: list[dict]) -> str:
         return "".join(
