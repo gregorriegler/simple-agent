@@ -14,6 +14,7 @@ class RawToolCall:
     body: str = ""
     thought_signature: str = ""
     named_arguments: dict[str, Any] = field(default_factory=dict)
+    native_id: str = ""
 
     def header(self) -> str:
         if self.arguments:

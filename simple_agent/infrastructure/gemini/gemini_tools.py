@@ -37,6 +37,7 @@ def to_raw_tool_calls(steps: list[dict], tools: list[Tool]) -> list[RawToolCall]
         elif step_type == "function_call":
             call = _raw_tool_call(step, tools_by_name.get(step.get("name")))
             call.thought_signature = pending_signature
+            call.native_id = step.get("id", "")
             pending_signature = ""
             calls.append(call)
     return calls

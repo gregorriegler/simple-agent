@@ -308,6 +308,7 @@ class TestEventSerializer:
             "tool_body": "body text",
             "named_arguments": {},
             "thought_signature": "",
+            "native_id": "",
         }
 
     def test_deserialize_tool_called_event(self):
@@ -331,6 +332,7 @@ class TestEventSerializer:
             "my notes.md true",
             named_arguments={"filename": "my notes.md", "with_line_numbers": "true"},
             thought_signature="SIG",
+            native_id="fc_1",
         )
         event = ToolCalledEvent(
             agent_id=AgentId("Agent"), call_id="Agent::tool_call::1", call=call

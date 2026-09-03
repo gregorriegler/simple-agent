@@ -136,14 +136,15 @@ class GeminiLLM(LLM):
                     if raw_call.thought_signature:
                         turn.append(self._thought_step(raw_call.thought_signature))
                     turn.append(
-                        self._function_call_step(f"call_{call_index}", raw_call)
+                        self._function_call_step(
+                            raw_call.native_id or f"call_{call_index}", raw_call
+                        )
                     )
                 steps.extend(self._thought_first(turn))
             elif role == "tool":
                 result_index += 1
-                steps.append(
-                    self._function_result_step(f"call_{result_index}", message, content)
-                )
+                call_id = message["call"].native_id or f"call_{result_index}"
+                steps.append(self._function_result_step(call_id, message, content))
 
         return "\n\n".join(system_prompts), steps
 

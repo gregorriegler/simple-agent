@@ -50,7 +50,7 @@ assistant: ok
   },
   {
     "type": "function_call",
-    "id": "call_1",
+    "id": "fc_1",
     "name": "bash",
     "arguments": {
       "command": "sleep 5"
@@ -58,7 +58,7 @@ assistant: ok
   },
   {
     "type": "function_result",
-    "call_id": "call_1",
+    "call_id": "fc_1",
     "name": "bash",
     "result": "Interrupted by the user before the tool finished."
   },

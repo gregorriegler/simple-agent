@@ -944,3 +944,41 @@ async def test_gemini_replays_the_native_arguments_it_received():
         step for step in captured["body"]["input"] if step["type"] == "function_call"
     )
     assert function_call["arguments"] == native_arguments
+
+
+@pytest.mark.asyncio
+async def test_gemini_replays_calls_and_results_under_their_native_ids():
+    captured: dict = {}
+    chat = GeminiLLM(
+        build_config(),
+        tools=[bash_tool()],
+        transport=responding_with(interaction("done"), captured),
+    )
+    first = RawToolCall(
+        name="bash",
+        arguments="ls",
+        named_arguments={"command": "ls"},
+        thought_signature="SIG",
+        native_id="fc_a",
+    )
+    second = RawToolCall(
+        name="bash",
+        arguments="pwd",
+        named_arguments={"command": "pwd"},
+        native_id="fc_b",
+    )
+    messages = [
+        {"role": "user", "content": "go"},
+        {"role": "assistant", "content": "", "tool_calls": [first, second]},
+        {"role": "tool", "call": first, "content": "a.txt"},
+        {"role": "tool", "call": second, "content": "/tmp"},
+    ]
+
+    await chat.call_async(messages)
+
+    steps = captured["body"]["input"]
+    assert [s["id"] for s in steps if s["type"] == "function_call"] == ["fc_a", "fc_b"]
+    assert [s["call_id"] for s in steps if s["type"] == "function_result"] == [
+        "fc_a",
+        "fc_b",
+    ]

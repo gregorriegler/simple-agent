@@ -42,7 +42,7 @@ assistant: done again
   },
   {
     "type": "function_call",
-    "id": "call_1",
+    "id": "fc_1",
     "name": "cat",
     "arguments": {
       "filename": "my notes.md",
@@ -51,7 +51,7 @@ assistant: done again
   },
   {
     "type": "function_result",
-    "call_id": "call_1",
+    "call_id": "fc_1",
     "name": "cat",
     "result": "     1\tHello world"
   },

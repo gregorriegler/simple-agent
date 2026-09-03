@@ -239,3 +239,16 @@ def test_keeps_the_native_arguments_on_the_call():
         "filename": "my notes.md",
         "with_line_numbers": "true",
     }
+
+
+def test_keeps_the_native_call_id_on_the_call():
+    bash = tool(
+        "bash",
+        "",
+        ToolArguments(header=[ToolArgument(name="command", description="")]),
+    )
+    step = {**function_call("bash", {"command": "ls"}), "id": "fc_42"}
+
+    calls = to_raw_tool_calls([step], [bash])
+
+    assert calls[0].native_id == "fc_42"
