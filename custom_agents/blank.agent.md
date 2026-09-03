@@ -9,7 +9,7 @@ tools:
   - replace_file_content
   - write_todos
   - complete_task
-model: gemini-3.7-flash 
+model: gemini-3.8-flash 
 ---
 
 {{DYNAMIC_TOOLS_PLACEHOLDER}}

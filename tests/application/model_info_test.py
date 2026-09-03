@@ -15,6 +15,7 @@ def test_fuzzy_model_prefix_match_returns_context_window():
 
 def test_current_gemini_models_return_context_window():
     for model in [
+        "gemini-3.8-flash",
         "gemini-3.7-flash",
         "gemini-3.6-flash",
         "gemini-3.5-flash",

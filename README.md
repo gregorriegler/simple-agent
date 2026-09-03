@@ -109,7 +109,7 @@ api_key = "${OPENAI_API_KEY}"
 # base_url = "https://openrouter.ai/api/v1"  # Optional: for OpenRouter, etc.
 
 [models.gemini]
-model = "gemini-3.7-flash"
+model = "gemini-3.8-flash"
 adapter = "gemini"
 api_key = "${GOOGLE_API_KEY}"
 ```
@@ -118,7 +118,7 @@ api_key = "${GOOGLE_API_KEY}"
 
 **OpenAI adapter:** You can point the client at a compatible provider by overriding `base_url`, e.g. set it to `https://openrouter.ai/api/v1` for OpenRouter.
 
-**Gemini adapter:** Talks to the Gemini [Interactions API](https://ai.google.dev/gemini-api/docs/interactions) (`POST /v1beta/interactions`). Configure with a Google AI API key and a current model name (e.g., `gemini-3.7-flash`, `gemini-3.1-pro-preview`, `gemini-3.5-flash-lite`).
+**Gemini adapter:** Talks to the Gemini [Interactions API](https://ai.google.dev/gemini-api/docs/interactions) (`POST /v1beta/interactions`). Configure with a Google AI API key and a current model name (e.g., `gemini-3.8-flash`, `gemini-3.1-pro-preview`, `gemini-3.5-flash-lite`).
 
 ### Custom agent definitions
 
