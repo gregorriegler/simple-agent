@@ -1,5 +1,5 @@
 from simple_agent.application.llm import (
-    AssistantTurnMessage,
+    AssistantMessage,
     LLMResponse,
     Messages,
     ToolResultMessage,
@@ -44,7 +44,7 @@ def test_messages_records_an_assistant_turn_with_its_tool_calls():
 
     messages.assistant_turn("on it", calls)
 
-    assert messages.to_list() == [AssistantTurnMessage("on it", calls)]
+    assert messages.to_list() == [AssistantMessage("on it", calls)]
 
 
 def test_messages_records_an_assistant_tool_call_turn_with_empty_text():
@@ -53,7 +53,7 @@ def test_messages_records_an_assistant_tool_call_turn_with_empty_text():
 
     messages.assistant_turn("", calls)
 
-    assert messages.to_list() == [AssistantTurnMessage("", calls)]
+    assert messages.to_list() == [AssistantMessage("", calls)]
 
 
 def test_messages_records_a_tool_result_turn():

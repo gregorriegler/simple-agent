@@ -87,7 +87,7 @@ commit with the tests green:
 - the call carries no syntax marker: `str(call)` is `name arguments body`,
   the "Result of 🛠️" label is rendered by the emoji syntax, and the UI adds
   its own icon
-- assistant turns and tool results travel as `AssistantTurnMessage` and
+- assistant turns and tool results travel as `AssistantMessage` and
   `ToolResultMessage` instead of role-keyed dicts; the Gemini adapter and
   the text renderer dispatch on the type
 - the Gemini adapter asks a turn whether it signed it, rather than walking

@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import httpx
 import pytest
 
-from simple_agent.application.llm import AssistantTurnMessage, ToolResultMessage
+from simple_agent.application.llm import AssistantMessage, ToolResultMessage
 from simple_agent.application.tool_library import (
     RawToolCall,
     ToolArgument,
@@ -573,7 +573,7 @@ async def test_gemini_replays_a_prior_tool_call_as_a_function_call_step():
     )
     messages = [
         {"role": "user", "content": "list files"},
-        AssistantTurnMessage(
+        AssistantMessage(
             "on it",
             [
                 RawToolCall(
@@ -617,7 +617,7 @@ async def test_gemini_replays_the_thought_signature_before_the_function_call():
         transport=responding_with(interaction("done"), captured),
     )
     messages = [
-        AssistantTurnMessage(
+        AssistantMessage(
             "",
             [
                 RawToolCall(
@@ -659,7 +659,7 @@ async def test_gemini_omits_empty_model_output_before_a_tool_call():
         transport=responding_with(interaction("done"), captured),
     )
     messages = [
-        AssistantTurnMessage(
+        AssistantMessage(
             "",
             [
                 RawToolCall(
@@ -712,7 +712,7 @@ async def test_gemini_starts_a_model_turn_with_text_and_a_call_with_the_thought(
         transport=responding_with(interaction("done"), captured),
     )
     messages = [
-        AssistantTurnMessage(
+        AssistantMessage(
             "listing now",
             [
                 RawToolCall(
@@ -793,7 +793,7 @@ async def test_gemini_never_sends_an_empty_text_part():
     )
     messages = [
         {"role": "user", "content": ""},
-        AssistantTurnMessage(
+        AssistantMessage(
             "",
             [
                 RawToolCall(
@@ -834,7 +834,7 @@ async def test_gemini_replays_a_tool_turn_without_a_signature_as_text():
     call = RawToolCall(name="bash", arguments="ls")
     messages = [
         {"role": "user", "content": "list files"},
-        AssistantTurnMessage("on it\n🛠️[bash ls /]", [call]),
+        AssistantMessage("on it\n🛠️[bash ls /]", [call]),
         ToolResultMessage(call, "a.txt"),
         {"role": "user", "content": "thanks"},
     ]
@@ -873,7 +873,7 @@ async def test_gemini_keeps_a_parallel_tool_turn_native_when_only_its_first_call
         name="bash", arguments="pwd", named_arguments={"command": "pwd"}
     )
     messages = [
-        AssistantTurnMessage("", [first, second]),
+        AssistantMessage("", [first, second]),
         ToolResultMessage(first, "a.txt"),
         ToolResultMessage(second, "/home"),
     ]
@@ -916,7 +916,7 @@ async def test_gemini_replays_the_native_arguments_it_received():
     )
     messages = [
         {"role": "user", "content": "show my notes"},
-        AssistantTurnMessage("", [call]),
+        AssistantMessage("", [call]),
         ToolResultMessage(call, "Hello world"),
     ]
 
@@ -951,7 +951,7 @@ async def test_gemini_replays_calls_and_results_under_their_native_ids():
     )
     messages = [
         {"role": "user", "content": "go"},
-        AssistantTurnMessage("", [first, second]),
+        AssistantMessage("", [first, second]),
         ToolResultMessage(first, "a.txt"),
         ToolResultMessage(second, "/tmp"),
     ]

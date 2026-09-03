@@ -1,6 +1,6 @@
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.llm import (
-    AssistantTurnMessage,
+    AssistantMessage,
     ChatMessage,
     ChatMessages,
     ToolResultMessage,
@@ -26,7 +26,7 @@ def to_text_message(message: ChatMessage) -> dict[str, str]:
     if isinstance(message, ToolResultMessage):
         content = _SYNTAX.render_result(message.call, message.content)
         return {"role": "user", "content": content}
-    if isinstance(message, AssistantTurnMessage):
+    if isinstance(message, AssistantMessage):
         content = _with_calls_as_text(message.content, message.tool_calls)
         return {"role": "assistant", "content": content}
     return {"role": message.get("role", ""), "content": message.get("content", "")}

@@ -4,7 +4,7 @@ import httpx
 
 from simple_agent.application.llm import (
     LLM,
-    AssistantTurnMessage,
+    AssistantMessage,
     ChatMessage,
     ChatMessages,
     LLMResponse,
@@ -130,7 +130,7 @@ class GeminiLLM(LLM):
         result_index = 0
 
         for message in history:
-            if isinstance(message, AssistantTurnMessage):
+            if isinstance(message, AssistantMessage):
                 turn = []
                 if message.content or not message.tool_calls:
                     turn.append(self._step("model_output", message.content))
@@ -174,14 +174,14 @@ class GeminiLLM(LLM):
         converted = []
         signed = False
         for message in messages:
-            if isinstance(message, AssistantTurnMessage):
+            if isinstance(message, AssistantMessage):
                 signed = self._signed(message)
-            if isinstance(message, AssistantTurnMessage | ToolResultMessage):
+            if isinstance(message, AssistantMessage | ToolResultMessage):
                 message = message if signed else to_text_message(message)
             converted.append(message)
         return converted
 
-    def _signed(self, turn: AssistantTurnMessage) -> bool:
+    def _signed(self, turn: AssistantMessage) -> bool:
         return any(call.thought_signature for call in turn.tool_calls)
 
     def _thought_summary(self, steps: list[dict]) -> str:

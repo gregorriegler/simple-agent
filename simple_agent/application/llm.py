@@ -7,7 +7,7 @@ from .tool_library import RawToolCall
 
 
 @dataclass
-class AssistantTurnMessage:
+class AssistantMessage:
     """An assistant turn as the model made it: its text and its tool calls."""
 
     content: str
@@ -22,7 +22,7 @@ class ToolResultMessage:
     content: str
 
 
-ChatMessage = dict[str, str] | AssistantTurnMessage | ToolResultMessage
+ChatMessage = dict[str, str] | AssistantMessage | ToolResultMessage
 ChatMessages = list[ChatMessage]
 
 
@@ -88,7 +88,7 @@ class Messages:
         self.add("assistant", content)
 
     def assistant_turn(self, content: str, tool_calls: list[RawToolCall]) -> None:
-        self._messages.append(AssistantTurnMessage(content, tool_calls))
+        self._messages.append(AssistantMessage(content, tool_calls))
 
     def tool_result(self, call: RawToolCall, output: str) -> None:
         self._messages.append(ToolResultMessage(call, output))

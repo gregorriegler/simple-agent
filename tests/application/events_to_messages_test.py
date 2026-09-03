@@ -10,7 +10,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
 )
 from simple_agent.application.events_to_messages import events_to_messages
-from simple_agent.application.llm import AssistantTurnMessage, ToolResultMessage
+from simple_agent.application.llm import AssistantMessage, ToolResultMessage
 from simple_agent.application.tool_library import RawToolCall
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.application.tools_executor import INTERRUPTED_RESULT
@@ -176,7 +176,7 @@ class TestEventsToMessages:
 
         assert messages.to_list() == [
             {"role": "user", "content": "show my notes"},
-            AssistantTurnMessage("", [call]),
+            AssistantMessage("", [call]),
             ToolResultMessage(call, "Hello world"),
             {"role": "assistant", "content": "done"},
         ]
@@ -200,7 +200,7 @@ class TestEventsToMessages:
         messages = events_to_messages(events, agent_id)
 
         assert messages.to_list() == [
-            AssistantTurnMessage("on it", [first, second]),
+            AssistantMessage("on it", [first, second]),
             ToolResultMessage(first, "a"),
             ToolResultMessage(second, "/tmp"),
         ]
@@ -218,7 +218,7 @@ class TestEventsToMessages:
         messages = events_to_messages(events, agent_id)
 
         assert messages.to_list() == [
-            AssistantTurnMessage("", [call]),
+            AssistantMessage("", [call]),
             ToolResultMessage(call, INTERRUPTED_RESULT),
             {"role": "user", "content": "and now?"},
         ]
