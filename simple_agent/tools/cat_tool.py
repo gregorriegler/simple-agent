@@ -77,6 +77,8 @@ class CatTool(BaseTool):
             "",
             "false",
         )
+        if line_range == "with_line_numbers":
+            line_range, with_line_numbers = None, True
         return filename, line_range, with_line_numbers, None
 
     def _validate_range(self, line_range):

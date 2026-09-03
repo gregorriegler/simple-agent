@@ -1,7 +1,11 @@
 from approvaltests import verify
 
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
-from simple_agent.application.tool_library import ToolArgument, ToolArguments
+from simple_agent.application.tool_library import (
+    RawToolCall,
+    ToolArgument,
+    ToolArguments,
+)
 from simple_agent.tools.base_tool import BaseTool
 
 
@@ -544,3 +548,59 @@ class TestEmojiBracketRoundTrip:
         assert result.tool_calls[0].name == "multiline_tool"
         assert "test" in result.tool_calls[0].arguments
         assert "line1" in result.tool_calls[0].body
+
+
+class TestBind:
+    def test_binds_positional_arguments_to_declared_names(self):
+        call = RawToolCall(name="test_tool", arguments="value1 value2")
+
+        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+
+        assert bound.named_arguments == {"arg1": "value1", "arg2": "value2"}
+
+    def test_omits_optional_arguments_that_were_not_given(self):
+        call = RawToolCall(name="test_tool", arguments="value1")
+
+        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+
+        assert bound.named_arguments == {"arg1": "value1"}
+
+    def test_a_quoted_value_binds_as_one_argument(self):
+        call = RawToolCall(name="test_tool", arguments="'my notes.md' value2")
+
+        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+
+        assert bound.named_arguments == {"arg1": "my notes.md", "arg2": "value2"}
+
+    def test_a_single_header_argument_takes_the_whole_text(self):
+        call = RawToolCall(name="multiline_tool", arguments="rg 'main\\(' -g '*.py'")
+
+        bound = EmojiBracketToolSyntax().bind(call, MultilineTool())
+
+        assert bound.named_arguments["inline_arg"] == "rg 'main\\(' -g '*.py'"
+
+    def test_the_body_binds_to_the_body_argument(self):
+        call = RawToolCall(name="multiline_tool", arguments="test", body="line1\nline2")
+
+        bound = EmojiBracketToolSyntax().bind(call, MultilineTool())
+
+        assert bound.named_arguments == {
+            "inline_arg": "test",
+            "multiline_arg": "line1\nline2",
+        }
+
+    def test_leaves_already_named_arguments_alone(self):
+        call = RawToolCall(
+            name="test_tool", arguments="a b", named_arguments={"arg1": "native"}
+        )
+
+        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+
+        assert bound.named_arguments == {"arg1": "native"}
+
+    def test_unbalanced_quotes_bind_nothing(self):
+        call = RawToolCall(name="test_tool", arguments="'broken value2")
+
+        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+
+        assert bound.named_arguments == {}

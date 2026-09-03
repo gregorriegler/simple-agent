@@ -159,3 +159,14 @@ def test_parse_tool_with_two_multiline_tools(tool_library):
 
 def dedent(text):
     return textwrap.dedent(text).strip()
+
+
+def test_resolving_binds_positional_arguments_to_names(tool_library):
+    text = "🛠️[cat 'my notes.md' 1-5]"
+
+    turn = tool_library.parse_and_resolve(text)
+
+    assert turn.tool_calls[0].raw_call.named_arguments == {
+        "filename": "my notes.md",
+        "line_range": "1-5",
+    }

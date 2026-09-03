@@ -1,3 +1,5 @@
+import shlex
+from dataclasses import replace
 from typing import Any
 
 from simple_agent.application.tool_library import RawToolCall, Tool, ToolArgument
@@ -133,6 +135,32 @@ class EmojiBracketToolSyntax(ToolSyntax):
         output_lines.append("\n-")
 
         return "\n".join(output_lines)
+
+    def bind(self, raw_call: RawToolCall, tool: Tool) -> RawToolCall:
+        """
+        Bind the positional header text to the tool's declared argument names.
+
+        A single header argument takes the whole text as it was written; a
+        longer header is split shell-style so a quoted value stays one value.
+        Calls that already carry named arguments are left untouched.
+        """
+        if raw_call.named_arguments:
+            return raw_call
+        try:
+            named = self._bind_header(raw_call.arguments, tool.arguments.header)
+        except ValueError:
+            return raw_call
+        if tool.arguments.body and raw_call.body:
+            named[tool.arguments.body.name] = raw_call.body
+        return replace(raw_call, named_arguments=named)
+
+    def _bind_header(self, text: str, header: list[ToolArgument]) -> dict[str, Any]:
+        if not text or not header:
+            return {}
+        if len(header) == 1:
+            return {header[0].name: text}
+        values = shlex.split(text)
+        return {arg.name: value for arg, value in zip(header, values, strict=False)}
 
     def parse(self, text: str) -> RawAssistantTurn:
         # Markers can appear with or without variation selector (U+FE0F)

@@ -95,7 +95,8 @@ class AllTools(ToolLibrary):
             if not tool_instance:
                 unbound = fallback_message if fallback_message is not None else message
                 return AssistantTurn(message=unbound, tool_calls=[])
-            resolved.append(ToolCall(raw_call, tool_instance))
+            bound_call = self.tool_syntax.bind(raw_call, tool_instance)
+            resolved.append(ToolCall(bound_call, tool_instance))
 
         return AssistantTurn(message=message, tool_calls=resolved)
 
