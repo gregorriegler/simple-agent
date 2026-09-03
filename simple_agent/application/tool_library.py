@@ -102,6 +102,21 @@ class ToolArguments:
         return self._body
 
     @property
+    def flags(self) -> list[ToolArgument]:
+        return [arg for arg in self._header if arg.type == "bool"]
+
+    @property
+    def positional(self) -> list[ToolArgument]:
+        return [arg for arg in self._header if arg.type != "bool"]
+
+    @property
+    def single_positional(self) -> ToolArgument | None:
+        """The one header argument that takes the header text as written."""
+        if self.flags or len(self.positional) != 1:
+            return None
+        return self.positional[0]
+
+    @property
     def all(self) -> list[ToolArgument]:
         """Return all arguments: header args followed by body (if present)."""
         if self._body:

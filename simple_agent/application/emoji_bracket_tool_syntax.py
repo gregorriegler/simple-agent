@@ -2,7 +2,12 @@ import shlex
 from dataclasses import replace
 from typing import Any
 
-from simple_agent.application.tool_library import RawToolCall, Tool, ToolArgument
+from simple_agent.application.tool_library import (
+    RawToolCall,
+    Tool,
+    ToolArgument,
+    ToolArguments,
+)
 from simple_agent.application.tool_syntax import RawAssistantTurn, ToolSyntax
 
 
@@ -155,7 +160,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
         if raw_call.named_arguments:
             return self._render_text(raw_call, tool)
         try:
-            named = self._bind_header(raw_call.arguments, tool.arguments.header)
+            named = self._bind_header(raw_call.arguments, tool.arguments)
         except ValueError:
             return raw_call
         if tool.arguments.body and raw_call.body:
@@ -170,18 +175,17 @@ class EmojiBracketToolSyntax(ToolSyntax):
         body = str(named.get(body_argument.name, "")) if body_argument else ""
         return replace(raw_call, arguments=self.render_header(named, tool), body=body)
 
-    def _bind_header(self, text: str, header: list[ToolArgument]) -> dict[str, Any]:
-        if not text or not header:
+    def _bind_header(self, text: str, arguments: ToolArguments) -> dict[str, Any]:
+        if not text or not arguments.header:
             return {}
-        flags = [arg for arg in header if arg.type == "bool"]
-        positional = [arg for arg in header if arg.type != "bool"]
-        if not flags and len(positional) == 1:
-            return {positional[0].name: text}
+        if arguments.single_positional:
+            return {arguments.single_positional.name: text}
         values = shlex.split(text)
         named: dict[str, Any] = {
-            flag.name: True for flag in flags if flag.name in values
+            flag.name: True for flag in arguments.flags if flag.name in values
         }
         values = [value for value in values if value not in named]
+        positional = arguments.positional
         last = len(positional) - 1
         if len(values) > len(positional):
             values[last:] = [" ".join(values[last:])]
@@ -194,15 +198,17 @@ class EmojiBracketToolSyntax(ToolSyntax):
         bind: a single header argument is written as is, other values are
         shell-quoted when needed, and a true flag appears by name.
         """
-        header = list(tool.arguments.header)
-        flags = [arg for arg in header if arg.type == "bool"]
-        positional = [arg for arg in header if arg.type != "bool"]
-        if not flags and len(positional) == 1:
-            return str(named.get(positional[0].name, ""))
+        arguments = tool.arguments
+        if arguments.single_positional:
+            return str(named.get(arguments.single_positional.name, ""))
         parts = [
-            shlex.quote(str(named[arg.name])) for arg in positional if arg.name in named
+            shlex.quote(str(named[arg.name]))
+            for arg in arguments.positional
+            if arg.name in named
         ]
-        parts.extend(flag.name for flag in flags if _is_true(named.get(flag.name)))
+        parts.extend(
+            flag.name for flag in arguments.flags if _is_true(named.get(flag.name))
+        )
         return " ".join(parts)
 
     def contains_call(self, text: str) -> bool:
