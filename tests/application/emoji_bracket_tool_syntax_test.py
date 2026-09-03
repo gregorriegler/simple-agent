@@ -604,3 +604,10 @@ class TestBind:
         bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
 
         assert bound.named_arguments == {}
+
+    def test_extra_tokens_flow_into_the_last_header_argument(self):
+        call = RawToolCall(name="test_tool", arguments="value1 say hello world")
+
+        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+
+        assert bound.named_arguments == {"arg1": "value1", "arg2": "say hello world"}

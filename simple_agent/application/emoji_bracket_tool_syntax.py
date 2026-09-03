@@ -141,7 +141,8 @@ class EmojiBracketToolSyntax(ToolSyntax):
         Bind the positional header text to the tool's declared argument names.
 
         A single header argument takes the whole text as it was written; a
-        longer header is split shell-style so a quoted value stays one value.
+        longer header is split shell-style so a quoted value stays one value,
+        and any tokens beyond the header flow into its last argument.
         Calls that already carry named arguments are left untouched.
         """
         if raw_call.named_arguments:
@@ -160,6 +161,9 @@ class EmojiBracketToolSyntax(ToolSyntax):
         if len(header) == 1:
             return {header[0].name: text}
         values = shlex.split(text)
+        last = len(header) - 1
+        if len(values) > len(header):
+            values[last:] = [" ".join(values[last:])]
         return {arg.name: value for arg, value in zip(header, values, strict=False)}
 
     def parse(self, text: str) -> RawAssistantTurn:
