@@ -39,7 +39,10 @@ class CatTool(BaseTool):
         {"filename": "script.py", "with_line_numbers": "with_line_numbers"},
     ]
 
-    def _parse_arguments(self, args):
+    def _parse_arguments(self, raw_call):
+        if raw_call.named_arguments:
+            return self._parse_named_arguments(raw_call.named_arguments)
+        args = raw_call.arguments
         if not args:
             return None, None, False, "STDERR: cat: missing file operand"
 
@@ -65,6 +68,17 @@ class CatTool(BaseTool):
 
         return filename, line_range, with_line_numbers, None
 
+    def _parse_named_arguments(self, named):
+        filename = named.get("filename")
+        if not filename:
+            return None, None, False, "STDERR: cat: missing file operand"
+        line_range = named.get("line_range") or None
+        with_line_numbers = str(named.get("with_line_numbers", "")).lower() not in (
+            "",
+            "false",
+        )
+        return filename, line_range, with_line_numbers, None
+
     def _validate_range(self, line_range):
         try:
             start_line, end_line = map(int, line_range.split("-"))
@@ -85,8 +99,7 @@ class CatTool(BaseTool):
         return start_line, end_line, None
 
     async def execute(self, raw_call):
-        args = raw_call.arguments
-        filename, line_range, with_line_numbers, error = self._parse_arguments(args)
+        filename, line_range, with_line_numbers, error = self._parse_arguments(raw_call)
         if error:
             return SingleToolResult(error, status=ToolResultStatus.FAILURE)
 

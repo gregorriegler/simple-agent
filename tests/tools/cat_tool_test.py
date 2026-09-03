@@ -1,5 +1,7 @@
 import pytest
 
+from simple_agent.application.tool_library import RawToolCall
+from simple_agent.tools.cat_tool import CatTool
 from tests.test_helpers import create_temp_file, verify_tool
 
 pytestmark = pytest.mark.asyncio
@@ -118,3 +120,17 @@ async def test_cat_tool_with_range_no_line_numbers(tmp_path, tool_library):
     )
 
     await verify_tool(tool_library, f"🛠️[cat {temp_file} 1-2 /]")
+
+
+async def test_cat_tool_reads_named_arguments(tmp_path):
+    temp_file = create_temp_file(tmp_path, "my notes.md", "Hello world")
+    call = RawToolCall(
+        name="cat",
+        arguments=f"{temp_file} true",
+        named_arguments={"filename": str(temp_file), "with_line_numbers": "true"},
+    )
+
+    result = await CatTool().execute(call)
+
+    assert result.success
+    assert result.message.strip() == "1\tHello world"

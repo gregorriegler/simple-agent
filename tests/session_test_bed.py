@@ -122,6 +122,7 @@ class SessionTestBed:
                 return LLMResponse(answer="")
 
         self._llm = DefaultLLM()
+        self._llm_provider = None
         self._user_inputs = ["\n"]
         self._start_message = "test message"
         self._escape_hits = None
@@ -152,6 +153,10 @@ class SessionTestBed:
 
     def with_llm(self, llm) -> "SessionTestBed":
         self._llm = llm
+        return self
+
+    def with_llm_provider(self, llm_provider) -> "SessionTestBed":
+        self._llm_provider = llm_provider
         return self
 
     def with_user_inputs(self, start_message: str, *remaining) -> "SessionTestBed":
@@ -259,7 +264,8 @@ class SessionTestBed:
             tool_library_factory=tool_library_factory,
             agent_library=agent_library,
             user_input=user_input,
-            llm_provider=TestLLMProvider(self._llm, self._observer_llm),
+            llm_provider=self._llm_provider
+            or TestLLMProvider(self._llm, self._observer_llm),
             project_tree=DummyProjectTree(),
             event_store=event_store,
             agent_task_manager=agent_task_manager,
