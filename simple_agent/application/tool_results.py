@@ -102,12 +102,7 @@ class ManyToolsResult(ToolResult):
 
     @property
     def message(self) -> str:
-        parts = [
-            f"Result of {tool_call}\n{result}"
-            for tool_call, result in self._entries
-            if result.do_continue()
-        ]
-        return "\n\n".join(parts)
+        return self._last_result.message
 
     @property
     def tool_results(self) -> list[tuple[RawToolCall, str]]:

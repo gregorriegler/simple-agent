@@ -46,9 +46,6 @@ class ToolCall:
     def name(self):
         return self.raw_call.name
 
-    def __str__(self):
-        return self.raw_call.__str__()
-
 
 @dataclass
 class AssistantTurn:
