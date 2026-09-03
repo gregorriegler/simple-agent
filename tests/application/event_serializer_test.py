@@ -306,6 +306,8 @@ class TestEventSerializer:
             "tool_name": "bash",
             "tool_arguments": "ls -la",
             "tool_body": "body text",
+            "named_arguments": {},
+            "thought_signature": "",
         }
 
     def test_deserialize_tool_called_event(self):
@@ -322,6 +324,35 @@ class TestEventSerializer:
 
         assert result.call_id == "Agent::tool_call::1"
         assert result.call == RawToolCall("bash", "ls -la", "body text")
+
+    def test_round_trips_named_arguments_and_thought_signature(self):
+        call = RawToolCall(
+            "cat",
+            "my notes.md true",
+            named_arguments={"filename": "my notes.md", "with_line_numbers": "true"},
+            thought_signature="SIG",
+        )
+        event = ToolCalledEvent(
+            agent_id=AgentId("Agent"), call_id="Agent::tool_call::1", call=call
+        )
+
+        result = EventSerializer.from_dict(EventSerializer.to_dict(event))
+
+        assert result.call == call
+
+    def test_deserializes_a_tool_called_event_written_before_named_arguments(self):
+        data = {
+            "type": "ToolCalledEvent",
+            "agent_id": "Agent",
+            "call_id": "Agent::tool_call::1",
+            "tool_name": "bash",
+            "tool_arguments": "ls -la",
+            "tool_body": "",
+        }
+
+        result = EventSerializer.from_dict(data)
+
+        assert result.call == RawToolCall("bash", "ls -la", "")
 
 
 class TestAssistantThoughtEventSerialization:

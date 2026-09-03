@@ -74,6 +74,8 @@ class EventSerializer:
                 "tool_name": event.call.name if event.call else "",
                 "tool_arguments": event.call.arguments if event.call else "",
                 "tool_body": event.call.body if event.call else "",
+                "named_arguments": event.call.named_arguments if event.call else {},
+                "thought_signature": event.call.thought_signature if event.call else "",
             }
         elif isinstance(event, ToolResultEvent):
             status = "success"
@@ -185,6 +187,8 @@ class EventSerializer:
                     data.get("tool_name", ""),
                     data.get("tool_arguments", ""),
                     data.get("tool_body", ""),
+                    named_arguments=data.get("named_arguments") or {},
+                    thought_signature=data.get("thought_signature", ""),
                 ),
             )
         elif event_type == "ToolResultEvent":
