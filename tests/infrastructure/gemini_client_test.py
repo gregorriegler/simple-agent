@@ -539,7 +539,9 @@ async def test_gemini_reads_function_call_into_tool_calls():
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
     assert result.answer == "on it"
-    assert [(c.name, c.arguments) for c in result.tool_calls] == [("bash", "ls -la")]
+    assert [(c.name, c.named_arguments) for c in result.tool_calls] == [
+        ("bash", {"command": "ls -la"})
+    ]
 
 
 @pytest.mark.asyncio
@@ -557,7 +559,7 @@ async def test_gemini_allows_empty_text_when_the_model_only_calls_a_function():
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
     assert result.answer == ""
-    assert [c.arguments for c in result.tool_calls] == ["pwd"]
+    assert [c.named_arguments for c in result.tool_calls] == [{"command": "pwd"}]
 
 
 @pytest.mark.asyncio
@@ -708,7 +710,7 @@ async def test_gemini_treats_requires_action_as_a_tool_call_turn():
     result = await chat.call_async([{"role": "user", "content": "Hello"}])
 
     assert result.answer == ""
-    assert [c.arguments for c in result.tool_calls] == ["ls"]
+    assert [c.named_arguments for c in result.tool_calls] == [{"command": "ls"}]
 
 
 @pytest.mark.asyncio

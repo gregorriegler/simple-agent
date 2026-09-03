@@ -183,6 +183,13 @@ class Agent(SlashCommandVisitor):
         except Exception as e:
             self.event_bus.publish(ErrorEvent(self.agent_id, str(e)))
 
+    @staticmethod
+    def _context_calls(response, turn) -> list:
+        """The history keeps the resolved calls, complete with text and names."""
+        if turn.tool_calls:
+            return [call.raw_call for call in turn.tool_calls]
+        return response.tool_calls
+
     def _append_pending_user_messages(self) -> None:
         for message in self.user_input.drain():
             self.context.user_says(message)
@@ -197,8 +204,13 @@ class Agent(SlashCommandVisitor):
                     self.event_bus.publish(
                         AssistantThoughtEvent(self.agent_id, response.thought)
                     )
+                turn = self.brain.tools.resolve_tool_calls(
+                    response.tool_calls, response.message
+                )
                 if response.answer or response.tool_calls:
-                    self.context.assistant_turn(response.answer, response.tool_calls)
+                    self.context.assistant_turn(
+                        response.answer, self._context_calls(response, turn)
+                    )
                 self.event_bus.publish(
                     AssistantRespondedEvent(
                         self.agent_id,
@@ -213,9 +225,6 @@ class Agent(SlashCommandVisitor):
                         AssistantSaidEvent(self.agent_id, response.message)
                     )
 
-                turn = self.brain.tools.resolve_tool_calls(
-                    response.tool_calls, response.message
-                )
                 if not turn.tool_calls:
                     break
 

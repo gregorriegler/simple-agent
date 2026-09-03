@@ -142,16 +142,18 @@ class EmojiBracketToolSyntax(ToolSyntax):
 
     def bind(self, raw_call: RawToolCall, tool: Tool) -> RawToolCall:
         """
-        Bind the positional header text to the tool's declared argument names.
+        Complete a call so it carries both its named arguments and its text.
 
-        A single header argument takes the whole text as it was written; a
-        longer header is split shell-style so a quoted value stays one value,
-        and any tokens beyond the header flow into its last argument. Boolean
-        arguments are flags: they bind by name wherever they appear.
-        Calls that already carry named arguments are left untouched.
+        A call made under the text protocol gets its positional header bound
+        to the tool's declared names: a single header argument takes the whole
+        text as it was written; a longer header is split shell-style so a
+        quoted value stays one value, and any tokens beyond the header flow
+        into its last argument. Boolean arguments are flags: they bind by name
+        wherever they appear. A call made natively, carrying only the named
+        arguments, gets its header text and body rendered from them.
         """
         if raw_call.named_arguments:
-            return raw_call
+            return self._render_text(raw_call, tool)
         try:
             named = self._bind_header(raw_call.arguments, tool.arguments.header)
         except ValueError:
@@ -159,6 +161,14 @@ class EmojiBracketToolSyntax(ToolSyntax):
         if tool.arguments.body and raw_call.body:
             named[tool.arguments.body.name] = raw_call.body
         return replace(raw_call, named_arguments=named)
+
+    def _render_text(self, raw_call: RawToolCall, tool: Tool) -> RawToolCall:
+        if raw_call.arguments or raw_call.body:
+            return raw_call
+        named = raw_call.named_arguments
+        body_argument = tool.arguments.body
+        body = str(named.get(body_argument.name, "")) if body_argument else ""
+        return replace(raw_call, arguments=self.render_header(named, tool), body=body)
 
     def _bind_header(self, text: str, header: list[ToolArgument]) -> dict[str, Any]:
         if not text or not header:

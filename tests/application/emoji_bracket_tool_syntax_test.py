@@ -683,3 +683,33 @@ class TestRenderHeader:
         )
 
         assert bound.named_arguments == named
+
+
+class TestBindNativeCalls:
+    def test_renders_the_positional_text_for_a_call_that_only_has_a_dict(self):
+        call = RawToolCall(
+            name="flag_tool",
+            arguments="",
+            named_arguments={
+                "agenttype": "coding",
+                "task": "say hello",
+                "--async": True,
+            },
+        )
+
+        bound = EmojiBracketToolSyntax().bind(call, _MockFlagTool())
+
+        assert bound.arguments == "coding 'say hello' --async"
+        assert bound.named_arguments == call.named_arguments
+
+    def test_renders_the_body_from_the_dict(self):
+        call = RawToolCall(
+            name="multiline_tool",
+            arguments="",
+            named_arguments={"inline_arg": "test", "multiline_arg": "line1\nline2"},
+        )
+
+        bound = EmojiBracketToolSyntax().bind(call, MultilineTool())
+
+        assert bound.arguments == "test"
+        assert bound.body == "line1\nline2"

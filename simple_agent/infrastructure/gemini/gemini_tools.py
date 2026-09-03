@@ -1,7 +1,4 @@
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.tool_library import RawToolCall, Tool, ToolArgument
-
-_SYNTAX = EmojiBracketToolSyntax()
 
 _TYPES = {"string", "integer", "number", "boolean"}
 _TYPE_ALIASES = {
@@ -37,8 +34,12 @@ def _property(arg: ToolArgument) -> dict:
     return {"type": arg_type, "description": arg.description}
 
 
-def to_raw_tool_calls(steps: list[dict], tools: list[Tool]) -> list[RawToolCall]:
-    tools_by_name = {tool.name: tool for tool in tools}
+def to_raw_tool_calls(steps: list[dict]) -> list[RawToolCall]:
+    """
+    Read the function calls Gemini made. The call carries only what Gemini
+    sent: its name, argument dict, id and thought signature. The positional
+    text is a text-protocol concern and is rendered when the call is resolved.
+    """
     calls: list[RawToolCall] = []
     pending_signature = ""
     for step in steps:
@@ -46,29 +47,14 @@ def to_raw_tool_calls(steps: list[dict], tools: list[Tool]) -> list[RawToolCall]
         if step_type == "thought":
             pending_signature = step.get("signature", "")
         elif step_type == "function_call":
-            call = _raw_tool_call(step, tools_by_name.get(step.get("name")))
-            call.thought_signature = pending_signature
-            call.native_id = step.get("id", "")
+            calls.append(
+                RawToolCall(
+                    name=step.get("name", ""),
+                    arguments="",
+                    named_arguments=step.get("arguments") or {},
+                    native_id=step.get("id", ""),
+                    thought_signature=pending_signature,
+                )
+            )
             pending_signature = ""
-            calls.append(call)
     return calls
-
-
-def _raw_tool_call(step: dict, tool: Tool | None) -> RawToolCall:
-    name = step.get("name", "")
-    arguments = step.get("arguments") or {}
-    if tool is None:
-        joined = " ".join(str(value) for value in arguments.values())
-        return RawToolCall(
-            name=name, arguments=joined, body="", named_arguments=arguments
-        )
-
-    body = ""
-    if tool.arguments.body and tool.arguments.body.name in arguments:
-        body = str(arguments[tool.arguments.body.name])
-    return RawToolCall(
-        name=name,
-        arguments=_SYNTAX.render_header(arguments, tool),
-        body=body,
-        named_arguments=arguments,
-    )

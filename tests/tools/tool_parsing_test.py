@@ -170,3 +170,15 @@ def test_resolving_binds_positional_arguments_to_names(tool_library):
         "filename": "my notes.md",
         "line_range": "1-5",
     }
+
+
+def test_resolving_a_native_call_renders_its_positional_text(tool_library):
+    from simple_agent.application.tool_library import RawToolCall
+
+    native = RawToolCall(
+        name="cat", arguments="", named_arguments={"filename": "my notes.md"}
+    )
+
+    turn = tool_library.resolve_tool_calls([native], "")
+
+    assert turn.tool_calls[0].raw_call.arguments == "'my notes.md'"

@@ -61,7 +61,7 @@ class GeminiLLM(LLM):
         steps = interaction.get("steps")
         if not steps:
             raise self.error_class("API response has no steps")
-        tool_calls = to_raw_tool_calls(steps, self._tools)
+        tool_calls = to_raw_tool_calls(steps)
         content = self._output_text(interaction, tool_calls)
         model = interaction.get("model") or self._config.model
         usage = self._usage(interaction)
