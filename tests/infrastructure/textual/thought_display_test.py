@@ -1,6 +1,6 @@
 import pytest
 from approvaltests import verify
-from textual.widgets import Collapsible
+from textual.widgets import Collapsible, TextArea
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
@@ -12,7 +12,7 @@ from simple_agent.application.events import (
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 from tests.infrastructure.textual.conftest import StubTool
-from tests.infrastructure.textual.test_utils import dump_ui_state
+from tests.infrastructure.textual.test_utils import dump_ui_state, eventually
 
 
 def _left_borders(app, agent_id: AgentId) -> list[tuple]:
@@ -39,7 +39,11 @@ async def test_a_thought_is_shown_in_the_tool_log_before_the_call_it_led_to(
             AssistantThoughtEvent(agent_id, "The file is small, I will read it whole.")
         )
         event_bus.publish(ToolCalledEvent(agent_id, "call-1", StubTool()))
-        await pilot.pause()
+        await eventually(
+            pilot,
+            lambda: app.query_one(".tool-call", TextArea) is not None,
+            "the tool call to be mounted after the thought",
+        )
 
         verify(dump_ui_state(app))
 
