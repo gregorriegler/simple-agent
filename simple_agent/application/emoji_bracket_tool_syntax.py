@@ -174,6 +174,15 @@ class EmojiBracketToolSyntax(ToolSyntax):
         named.update(zip((arg.name for arg in positional), values, strict=False))
         return named
 
+    def contains_call(self, text: str) -> bool:
+        return any(marker in text for marker in ("🛠️[", "🛠["))
+
+    def render_call(self, raw_call: RawToolCall) -> str:
+        header = f"{raw_call.name} {raw_call.arguments}".strip()
+        if raw_call.body:
+            return f"🛠️[{header}]\n{raw_call.body}\n🛠️[/end]"
+        return f"🛠️[{header} /]"
+
     def parse(self, text: str) -> RawAssistantTurn:
         # Markers can appear with or without variation selector (U+FE0F)
         # 🛠️ is U+1F6E0 U+FE0F

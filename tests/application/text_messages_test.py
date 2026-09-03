@@ -37,3 +37,34 @@ def test_drops_structured_tool_calls_keeping_assistant_text():
     assert to_text_messages(messages) == [
         {"role": "assistant", "content": "🐙 running it 🛠️[bash sleep 5 /]"}
     ]
+
+
+def test_renders_native_tool_calls_as_emoji_text():
+    call = RawToolCall(
+        name="cat",
+        arguments="my notes.md true",
+        named_arguments={"filename": "my notes.md", "with_line_numbers": "true"},
+        native_id="fc_1",
+    )
+    messages = [{"role": "assistant", "content": "", "tool_calls": [call]}]
+
+    assert to_text_messages(messages) == [
+        {"role": "assistant", "content": "🛠️[cat my notes.md true /]"}
+    ]
+
+
+def test_renders_a_native_call_with_a_body_and_keeps_the_prose():
+    call = RawToolCall(
+        name="create-file",
+        arguments="a.txt",
+        body="hello",
+        named_arguments={"filename": "a.txt", "content": "hello"},
+    )
+    messages = [{"role": "assistant", "content": "creating it", "tool_calls": [call]}]
+
+    assert to_text_messages(messages) == [
+        {
+            "role": "assistant",
+            "content": "creating it\n🛠️[create-file a.txt]\nhello\n🛠️[/end]",
+        }
+    ]

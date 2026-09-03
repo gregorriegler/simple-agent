@@ -852,7 +852,11 @@ async def test_gemini_replays_a_tool_turn_without_a_signature_as_text():
     call = RawToolCall(name="bash", arguments="ls")
     messages = [
         {"role": "user", "content": "list files"},
-        {"role": "assistant", "content": "on it\n🛠️ bash ls", "tool_calls": [call]},
+        {
+            "role": "assistant",
+            "content": "on it\n🛠️[bash ls /]",
+            "tool_calls": [call],
+        },
         {"role": "tool", "call": call, "content": "a.txt"},
         {"role": "user", "content": "thanks"},
     ]
@@ -863,7 +867,7 @@ async def test_gemini_replays_a_tool_turn_without_a_signature_as_text():
         {"type": "user_input", "content": [{"type": "text", "text": "list files"}]},
         {
             "type": "model_output",
-            "content": [{"type": "text", "text": "on it\n🛠️ bash ls"}],
+            "content": [{"type": "text", "text": "on it\n🛠️[bash ls /]"}],
         },
         {
             "type": "user_input",
