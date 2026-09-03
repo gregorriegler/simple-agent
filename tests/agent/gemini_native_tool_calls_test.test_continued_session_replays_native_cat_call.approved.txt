@@ -1,0 +1,76 @@
+# Events
+Agent:       session_started: True
+Agent:         agent_started: Agent test-model agent
+Agent:         user_prompted: show me my notes
+Agent:   assistant_responded:  test-model 0.0%
+Agent:           tool_called: Agent::tool_call::1 🛠️ cat my notes.md true
+Agent:           tool_result: Agent::tool_call::1      1	Hello world
+Agent:   assistant_responded: done test-model 0.0%
+Agent:        agent_finished: 
+Agent:         agent_started: Agent test-model agent
+Agent:         user_prompted: what did it say?
+Agent:   assistant_responded: done again test-model 0.0%
+Agent:        assistant_said: done again
+Agent: user_prompt_requested: 
+Agent:        agent_finished: 
+Agent:         session_ended: 
+
+# Messages:
+[Agent]
+user: show me my notes
+assistant: 
+user:      1	Hello world
+assistant: done
+user: what did it say?
+assistant: done again
+
+
+# Request 1 input steps
+[
+  {
+    "type": "user_input",
+    "content": [
+      {
+        "type": "text",
+        "text": "show me my notes"
+      }
+    ]
+  },
+  {
+    "type": "thought",
+    "signature": "SIG"
+  },
+  {
+    "type": "function_call",
+    "id": "call_1",
+    "name": "cat",
+    "arguments": {
+      "filename": "my notes.md",
+      "with_line_numbers": "true"
+    }
+  },
+  {
+    "type": "function_result",
+    "call_id": "call_1",
+    "name": "cat",
+    "result": "     1\tHello world"
+  },
+  {
+    "type": "model_output",
+    "content": [
+      {
+        "type": "text",
+        "text": "done"
+      }
+    ]
+  },
+  {
+    "type": "user_input",
+    "content": [
+      {
+        "type": "text",
+        "text": "what did it say?"
+      }
+    ]
+  }
+]

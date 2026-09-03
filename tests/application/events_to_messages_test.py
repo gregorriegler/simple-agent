@@ -4,10 +4,12 @@ from simple_agent.application.events import (
     AgentStartedEvent,
     AssistantRespondedEvent,
     SessionClearedEvent,
+    ToolCalledEvent,
     ToolResultEvent,
     UserPromptedEvent,
 )
 from simple_agent.application.events_to_messages import events_to_messages
+from simple_agent.application.tool_library import RawToolCall
 from simple_agent.application.tool_results import SingleToolResult
 
 
@@ -146,3 +148,56 @@ class TestEventsToMessages:
         messages = events_to_messages(events, agent_id)
 
         assert len(messages.to_list()) == 0
+
+    def test_rebuilds_a_tool_turn_from_called_and_result_events(self):
+        agent_id = AgentId("Agent")
+        call = RawToolCall(
+            "cat",
+            "my notes.md",
+            named_arguments={"filename": "my notes.md"},
+            thought_signature="SIG",
+        )
+        events = [
+            UserPromptedEvent(agent_id=agent_id, input_text="show my notes"),
+            AssistantRespondedEvent(agent_id=agent_id, response=""),
+            ToolCalledEvent(agent_id=agent_id, call_id="call-1", call=call),
+            ToolResultEvent(
+                agent_id=agent_id,
+                call_id="call-1",
+                result=SingleToolResult(message="Hello world"),
+            ),
+            AssistantRespondedEvent(agent_id=agent_id, response="done"),
+        ]
+
+        messages = events_to_messages(events, agent_id)
+
+        assert messages.to_list() == [
+            {"role": "user", "content": "show my notes"},
+            {"role": "assistant", "content": "", "tool_calls": [call]},
+            {"role": "tool", "call": call, "content": "Hello world"},
+            {"role": "assistant", "content": "done"},
+        ]
+
+    def test_groups_parallel_calls_into_one_assistant_turn(self):
+        agent_id = AgentId("Agent")
+        first = RawToolCall("bash", "ls", named_arguments={"command": "ls"})
+        second = RawToolCall("bash", "pwd", named_arguments={"command": "pwd"})
+        events = [
+            AssistantRespondedEvent(agent_id=agent_id, response="on it"),
+            ToolCalledEvent(agent_id=agent_id, call_id="call-1", call=first),
+            ToolCalledEvent(agent_id=agent_id, call_id="call-2", call=second),
+            ToolResultEvent(
+                agent_id=agent_id, call_id="call-1", result=SingleToolResult("a")
+            ),
+            ToolResultEvent(
+                agent_id=agent_id, call_id="call-2", result=SingleToolResult("/tmp")
+            ),
+        ]
+
+        messages = events_to_messages(events, agent_id)
+
+        assert messages.to_list() == [
+            {"role": "assistant", "content": "on it", "tool_calls": [first, second]},
+            {"role": "tool", "call": first, "content": "a"},
+            {"role": "tool", "call": second, "content": "/tmp"},
+        ]
