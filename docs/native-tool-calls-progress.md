@@ -87,15 +87,19 @@ commit with the tests green:
 - the call carries no syntax marker: `str(call)` is `name arguments body`,
   the "Result of 🛠️" label is rendered by the emoji syntax, and the UI adds
   its own icon
-- assistant turns and tool results travel as `AssistantMessage` and
-  `ToolResultMessage` instead of role-keyed dicts; the Gemini adapter and
-  the text renderer dispatch on the type
+- every assistant turn, with or without calls, is an `AssistantMessage`, and
+  a tool's output is a `ToolResultMessage` carrying the call it answers; the
+  Gemini adapter and the text renderer dispatch on the type
 - the Gemini adapter asks a turn whether it signed it, rather than walking
   message keys
 
 ## Next steps
 
 Leftovers from this story, small:
+- system and user messages are still role-keyed dicts, so `ChatMessage` is
+  a union of dict and the two typed messages; the fold stopped halfway. The
+  consistent end state is `UserMessage` and `SystemMessage` too, with each
+  adapter mapping every message to its own wire format
 - `RawToolCall.arguments` is still a constructor field, filled by the binder
   for native calls; making it a computed rendering would touch every
   construction site for no behaviour change
