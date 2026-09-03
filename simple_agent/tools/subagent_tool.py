@@ -54,7 +54,7 @@ class SubagentTool(BaseTool):
         named = raw_call.named_arguments
         agent_type_str = named.get("agenttype", "")
         task_description = str(named.get("task_description", "")).strip()
-        is_async = self._is_async(named.get("--async"))
+        is_async = raw_call.flag("--async")
 
         if not agent_type_str or not task_description:
             return SingleToolResult(
@@ -74,10 +74,6 @@ class SubagentTool(BaseTool):
             return SingleToolResult(
                 f"STDERR: subagent error: {str(e)}", status=ToolResultStatus.FAILURE
             )
-
-    @staticmethod
-    def _is_async(value) -> bool:
-        return str(value or "").lower() in ("true", "1")
 
     def get_template_variables(self) -> dict:
         if not self._agent_types:  # Empty AgentTypes

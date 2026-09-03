@@ -7,6 +7,11 @@ if TYPE_CHECKING:
     from .tool_syntax import ToolSyntax
 
 
+def is_true(value: Any) -> bool:
+    """A flag is true as a JSON boolean or under its text spellings."""
+    return value is True or str(value).lower() in ("true", "1")
+
+
 @dataclass
 class RawToolCall:
     name: str
@@ -15,6 +20,9 @@ class RawToolCall:
     thought_signature: str = ""
     named_arguments: dict[str, Any] = field(default_factory=dict)
     native_id: str = ""
+
+    def flag(self, name: str) -> bool:
+        return is_true(self.named_arguments.get(name, False))
 
     def header(self) -> str:
         if self.arguments:

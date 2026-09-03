@@ -1,6 +1,10 @@
 import pytest
 
-from simple_agent.application.tool_library import ToolArgument, ToolArguments
+from simple_agent.application.tool_library import (
+    RawToolCall,
+    ToolArgument,
+    ToolArguments,
+)
 
 
 def test_tool_arguments_supports_len_and_getitem_by_name():
@@ -59,3 +63,22 @@ def test_json_type_normalises_python_spellings_and_falls_back_to_string():
     assert json_type("str") == "string"
     assert json_type("boolean") == "boolean"
     assert json_type("path") == "string"
+
+
+def test_a_flag_reads_true_from_a_json_boolean_or_its_text_spellings():
+    def flag(value):
+        return RawToolCall(name="t", arguments="", named_arguments={"f": value}).flag(
+            "f"
+        )
+
+    assert flag(True)
+    assert flag("true")
+    assert flag("True")
+    assert flag("1")
+    assert not flag(False)
+    assert not flag("false")
+    assert not flag("")
+
+
+def test_an_absent_flag_reads_false():
+    assert not RawToolCall(name="t", arguments="").flag("f")

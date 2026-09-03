@@ -7,12 +7,9 @@ from simple_agent.application.tool_library import (
     Tool,
     ToolArgument,
     ToolArguments,
+    is_true,
 )
 from simple_agent.application.tool_syntax import RawAssistantTurn, ToolSyntax
-
-
-def _is_true(value: Any) -> bool:
-    return value is True or str(value).lower() in ("true", "1")
 
 
 class EmojiBracketToolSyntax(ToolSyntax):
@@ -207,7 +204,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
             if arg.name in named
         ]
         parts.extend(
-            flag.name for flag in arguments.flags if _is_true(named.get(flag.name))
+            flag.name for flag in arguments.flags if is_true(named.get(flag.name))
         )
         return " ".join(parts)
 
