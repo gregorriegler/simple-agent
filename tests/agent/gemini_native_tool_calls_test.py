@@ -4,6 +4,7 @@ import httpx
 import pytest
 from approvaltests import Options, verify
 
+from simple_agent.application.events import ToolCalledEvent
 from simple_agent.infrastructure.file_event_store import FileEventStore
 from simple_agent.infrastructure.gemini.gemini_client import GeminiLLM
 from simple_agent.infrastructure.model_config import ModelConfig
@@ -128,5 +129,31 @@ async def test_continued_session_replays_native_cat_call(tmp_path, monkeypatch):
 
     verify(
         result.as_approval_string() + "\n" + continued_gemini.as_approval_string(),
+        options=Options().with_scrubber(all_scrubbers()),
+    )
+
+
+async def test_interrupted_native_call_still_gets_a_result(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    gemini = ScriptedGemini(
+        [
+            completed(
+                {"type": "thought", "signature": "SIG"},
+                function_call("bash", {"command": "sleep 5"}),
+            ),
+            completed(text("ok")),
+        ]
+    )
+
+    result = (
+        await SessionTestBed()
+        .with_llm_provider(gemini)
+        .cancelling_when(ToolCalledEvent)
+        .with_user_inputs("run it", "and now?", "\n")
+        .run()
+    )
+
+    verify(
+        result.as_approval_string() + "\n" + gemini.as_approval_string(),
         options=Options().with_scrubber(all_scrubbers()),
     )

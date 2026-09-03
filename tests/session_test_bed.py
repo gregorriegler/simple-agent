@@ -131,6 +131,7 @@ class SessionTestBed:
         self._continue_session = False
         self._event_store: EventStore | None = None
         self._custom_event_subscriptions = []
+        self._cancel_on = None
         self._observers: list[str] = []
         self._diffs = ["a production diff"]
         self._observer_llm = create_llm_stub([], default="🛠️[complete-task nothing /]")
@@ -197,6 +198,11 @@ class SessionTestBed:
 
     def continuing_session(self) -> "SessionTestBed":
         self._continue_session = True
+        return self
+
+    def cancelling_when(self, event_type) -> "SessionTestBed":
+        """Press ESC as soon as the given event is published."""
+        self._cancel_on = event_type
         return self
 
     def on_event(self, event_type, handler) -> "SessionTestBed":
@@ -281,12 +287,19 @@ class SessionTestBed:
             on_replay_complete=subscribe_persistence,
         )
 
-        asyncio.create_task(
+        if self._cancel_on is not None:
+            event_bus.subscribe(
+                self._cancel_on,
+                lambda _: agent_task_manager.cancel_task(root_agent_id),
+            )
+
+        agent_task_manager.start_task(
+            root_agent_id,
             session.run_async(
                 create_session_args(
                     self._continue_session, start_message=self._start_message
                 )
-            )
+            ),
         )
 
         while True:
