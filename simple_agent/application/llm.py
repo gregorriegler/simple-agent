@@ -8,10 +8,10 @@ from .tool_library import RawToolCall
 
 @dataclass
 class AssistantMessage:
-    """An assistant turn as the model made it: its text and its tool calls."""
+    """What the model said: its text and the tool calls it made, if any."""
 
     content: str
-    tool_calls: list[RawToolCall]
+    tool_calls: list[RawToolCall] = field(default_factory=list)
 
 
 @dataclass
@@ -84,11 +84,11 @@ class Messages:
     def user_says(self, content: str):
         self.add("user", content)
 
-    def assistant_says(self, content: str):
-        self.add("assistant", content)
-
-    def assistant_turn(self, content: str, tool_calls: list[RawToolCall]) -> None:
-        self._messages.append(AssistantMessage(content, tool_calls))
+    def assistant_says(
+        self, content: str, tool_calls: list[RawToolCall] | None = None
+    ) -> None:
+        if content or tool_calls:
+            self._messages.append(AssistantMessage(content, tool_calls or []))
 
     def tool_result(self, call: RawToolCall, output: str) -> None:
         self._messages.append(ToolResultMessage(call, output))

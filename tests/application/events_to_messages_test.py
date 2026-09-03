@@ -42,9 +42,7 @@ class TestEventsToMessages:
         messages = events_to_messages(events, agent_id)
 
         message_list = messages.to_list()
-        assert len(message_list) == 1
-        assert message_list[0]["role"] == "assistant"
-        assert message_list[0]["content"] == "Hi there!"
+        assert message_list == [AssistantMessage("Hi there!")]
 
     def test_converts_tool_result_to_user_message(self):
         agent_id = AgentId("Agent")
@@ -91,8 +89,10 @@ class TestEventsToMessages:
 
         message_list = messages.to_list()
         assert len(message_list) == 2
-        assert message_list[0]["content"] == "For Agent"
-        assert message_list[1]["content"] == "Agent response"
+        assert message_list == [
+            {"role": "user", "content": "For Agent"},
+            AssistantMessage("Agent response"),
+        ]
 
     def test_ignores_agent_started_and_finished_events(self):
         agent_id = AgentId("Agent")
@@ -128,12 +128,9 @@ class TestEventsToMessages:
         message_list = messages.to_list()
         assert len(message_list) == 4
         assert message_list[0] == {"role": "user", "content": "Do something"}
-        assert message_list[1] == {
-            "role": "assistant",
-            "content": "I'll use a tool 🛠️[bash ls /]",
-        }
+        assert message_list[1] == AssistantMessage("I'll use a tool 🛠️[bash ls /]")
         assert message_list[2] == {"role": "user", "content": "file1.txt\nfile2.txt"}
-        assert message_list[3] == {"role": "assistant", "content": "Found 2 files"}
+        assert message_list[3] == AssistantMessage("Found 2 files")
 
     def test_empty_events_returns_empty_messages(self):
         agent_id = AgentId("Agent")
@@ -178,7 +175,7 @@ class TestEventsToMessages:
             {"role": "user", "content": "show my notes"},
             AssistantMessage("", [call]),
             ToolResultMessage(call, "Hello world"),
-            {"role": "assistant", "content": "done"},
+            AssistantMessage("done"),
         ]
 
     def test_groups_parallel_calls_into_one_assistant_turn(self):

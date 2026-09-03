@@ -42,7 +42,7 @@ def test_messages_records_an_assistant_turn_with_its_tool_calls():
     messages = Messages()
     calls = [RawToolCall(name="bash", arguments="ls")]
 
-    messages.assistant_turn("on it", calls)
+    messages.assistant_says("on it", calls)
 
     assert messages.to_list() == [AssistantMessage("on it", calls)]
 
@@ -51,7 +51,7 @@ def test_messages_records_an_assistant_tool_call_turn_with_empty_text():
     messages = Messages()
     calls = [RawToolCall(name="bash", arguments="ls")]
 
-    messages.assistant_turn("", calls)
+    messages.assistant_says("", calls)
 
     assert messages.to_list() == [AssistantMessage("", calls)]
 
@@ -63,3 +63,11 @@ def test_messages_records_a_tool_result_turn():
     messages.tool_result(call, "a.txt\nb.txt")
 
     assert messages.to_list() == [ToolResultMessage(call, "a.txt\nb.txt")]
+
+
+def test_messages_records_plain_assistant_text_as_an_assistant_message():
+    messages = Messages()
+
+    messages.assistant_says("hello")
+
+    assert messages.to_list() == [AssistantMessage("hello")]
