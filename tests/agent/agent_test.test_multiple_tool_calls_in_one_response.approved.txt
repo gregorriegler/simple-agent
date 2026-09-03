@@ -5,18 +5,18 @@ Agent:         user_prompted: Test message
 Agent:   assistant_responded: I will list the files and then read one.
 🛠️[ls /tmp/test_path /]🛠️[cat /tmp/test_path/file2.py /] stub-model 0.0%
 Agent:        assistant_said: I will list the files and then read one.
-Agent:           tool_called: Agent::tool_call::1 🛠️ ls /tmp/test_path
+Agent:           tool_called: Agent::tool_call::1 ls /tmp/test_path
 Agent:           tool_result: Agent::tool_call::1 .
 ..
 file1.txt
 file2.py
 subdir
-Agent:           tool_called: Agent::tool_call::2 🛠️ cat /tmp/test_path/file2.py
+Agent:           tool_called: Agent::tool_call::2 cat /tmp/test_path/file2.py
 Agent:           tool_result: Agent::tool_call::2 def hello():
     print('Hello')
     return 42
 Agent:   assistant_responded: 🛠️[complete-task summary /] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::3 🛠️ complete-task summary
+Agent:           tool_called: Agent::tool_call::3 complete-task summary
 Agent:           tool_result: Agent::tool_call::3 summary
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 

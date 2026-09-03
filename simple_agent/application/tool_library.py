@@ -7,6 +7,11 @@ if TYPE_CHECKING:
     from .tool_syntax import ToolSyntax
 
 
+def is_true(value: Any) -> bool:
+    """A flag is true as a JSON boolean or under its text spellings."""
+    return value is True or str(value).lower() in ("true", "1")
+
+
 @dataclass
 class RawToolCall:
     name: str
@@ -16,17 +21,14 @@ class RawToolCall:
     named_arguments: dict[str, Any] = field(default_factory=dict)
     native_id: str = ""
 
+    def flag(self, name: str) -> bool:
+        return is_true(self.named_arguments.get(name, False))
+
     def header(self) -> str:
-        if self.arguments:
-            return f"🛠️ {self.name} {self.arguments}"
-        return f"🛠️ {self.name}"
+        return " ".join(part for part in (self.name, self.arguments) if part)
 
     def __str__(self) -> str:
-        if self.arguments:
-            if self.body:
-                return f"🛠️ {self.name} {self.arguments} {self.body}"
-            return f"🛠️ {self.name} {self.arguments}"
-        return f"🛠️ {self.name}"
+        return " ".join(part for part in (self.header(), self.body) if part)
 
 
 class ToolCall:
@@ -37,17 +39,6 @@ class ToolCall:
     @property
     def name(self):
         return self.raw_call.name
-
-    @property
-    def arguments(self):
-        return self.raw_call.arguments
-
-    @property
-    def body(self):
-        return self.raw_call.body
-
-    def __str__(self):
-        return self.raw_call.__str__()
 
 
 @dataclass
@@ -60,12 +51,33 @@ class AssistantTurn:
         yield self.tool_calls
 
 
+_JSON_TYPES = {
+    "string": "string",
+    "str": "string",
+    "integer": "integer",
+    "int": "integer",
+    "number": "number",
+    "float": "number",
+    "boolean": "boolean",
+    "bool": "boolean",
+}
+
+
 @dataclass
 class ToolArgument:
     name: str
     description: str
     required: bool = True
     type: str = "string"
+
+    @property
+    def json_type(self) -> str:
+        """The JSON schema type native adapters declare; unknown types are text."""
+        return _JSON_TYPES.get(self.type, "string")
+
+    @property
+    def is_flag(self) -> bool:
+        return self.json_type == "boolean"
 
 
 class ToolArguments:
@@ -100,6 +112,21 @@ class ToolArguments:
     @property
     def body(self) -> ToolArgument | None:
         return self._body
+
+    @property
+    def flags(self) -> list[ToolArgument]:
+        return [arg for arg in self._header if arg.is_flag]
+
+    @property
+    def positional(self) -> list[ToolArgument]:
+        return [arg for arg in self._header if not arg.is_flag]
+
+    @property
+    def single_positional(self) -> ToolArgument | None:
+        """The one header argument that takes the header text as written."""
+        if self.flags or len(self.positional) != 1:
+            return None
+        return self.positional[0]
 
     @property
     def all(self) -> list[ToolArgument]:

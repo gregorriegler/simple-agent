@@ -5,10 +5,10 @@ Agent:         user_prompted: Test message
 Agent:   assistant_responded: 🛠️[create-file greeting.txt]
 Hello again
 🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 🛠️ create-file greeting.txt Hello again
+Agent:           tool_called: Agent::tool_call::1 create-file greeting.txt Hello again
 Agent:           tool_result: Agent::tool_call::1 Error creating file 'greeting.txt': File already exists
 Agent:   assistant_responded: 🛠️[complete-task summary /] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 🛠️ complete-task summary
+Agent:           tool_called: Agent::tool_call::2 complete-task summary
 Agent:           tool_result: Agent::tool_call::2 summary
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 

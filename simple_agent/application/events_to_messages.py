@@ -23,10 +23,7 @@ class _AssistantTurn:
         self.calls: list[RawToolCall] = []
 
     def flush(self, messages: Messages) -> None:
-        if self.calls:
-            messages.assistant_turn(self.answer, self.calls)
-        elif self.answer:
-            messages.assistant_says(self.answer)
+        messages.assistant_says(self.answer, self.calls)
         self.answer = ""
         self.calls = []
 

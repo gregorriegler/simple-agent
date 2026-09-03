@@ -4,6 +4,7 @@ from types import SimpleNamespace
 import httpx
 import pytest
 
+from simple_agent.application.llm import AssistantMessage, ToolResultMessage
 from simple_agent.application.tool_library import (
     RawToolCall,
     ToolArgument,
@@ -572,10 +573,9 @@ async def test_gemini_replays_a_prior_tool_call_as_a_function_call_step():
     )
     messages = [
         {"role": "user", "content": "list files"},
-        {
-            "role": "assistant",
-            "content": "on it",
-            "tool_calls": [
+        AssistantMessage(
+            "on it",
+            [
                 RawToolCall(
                     name="bash",
                     arguments="ls",
@@ -583,12 +583,8 @@ async def test_gemini_replays_a_prior_tool_call_as_a_function_call_step():
                     named_arguments={"command": "ls"},
                 )
             ],
-        },
-        {
-            "role": "tool",
-            "call": RawToolCall(name="bash", arguments="ls"),
-            "content": "a.txt",
-        },
+        ),
+        ToolResultMessage(RawToolCall(name="bash", arguments="ls"), "a.txt"),
     ]
 
     await chat.call_async(messages)
@@ -621,10 +617,9 @@ async def test_gemini_replays_the_thought_signature_before_the_function_call():
         transport=responding_with(interaction("done"), captured),
     )
     messages = [
-        {
-            "role": "assistant",
-            "content": "",
-            "tool_calls": [
+        AssistantMessage(
+            "",
+            [
                 RawToolCall(
                     name="bash",
                     arguments="ls",
@@ -632,12 +627,8 @@ async def test_gemini_replays_the_thought_signature_before_the_function_call():
                     named_arguments={"command": "ls"},
                 )
             ],
-        },
-        {
-            "role": "tool",
-            "call": RawToolCall(name="bash", arguments="ls"),
-            "content": "a.txt",
-        },
+        ),
+        ToolResultMessage(RawToolCall(name="bash", arguments="ls"), "a.txt"),
     ]
 
     await chat.call_async(messages)
@@ -668,10 +659,9 @@ async def test_gemini_omits_empty_model_output_before_a_tool_call():
         transport=responding_with(interaction("done"), captured),
     )
     messages = [
-        {
-            "role": "assistant",
-            "content": "",
-            "tool_calls": [
+        AssistantMessage(
+            "",
+            [
                 RawToolCall(
                     name="bash",
                     arguments="ls",
@@ -679,7 +669,7 @@ async def test_gemini_omits_empty_model_output_before_a_tool_call():
                     named_arguments={"command": "ls"},
                 )
             ],
-        },
+        ),
     ]
 
     await chat.call_async(messages)
@@ -722,10 +712,9 @@ async def test_gemini_starts_a_model_turn_with_text_and_a_call_with_the_thought(
         transport=responding_with(interaction("done"), captured),
     )
     messages = [
-        {
-            "role": "assistant",
-            "content": "listing now",
-            "tool_calls": [
+        AssistantMessage(
+            "listing now",
+            [
                 RawToolCall(
                     name="bash",
                     arguments="ls",
@@ -733,12 +722,8 @@ async def test_gemini_starts_a_model_turn_with_text_and_a_call_with_the_thought(
                     named_arguments={"command": "ls"},
                 )
             ],
-        },
-        {
-            "role": "tool",
-            "call": RawToolCall(name="bash", arguments="ls"),
-            "content": "a.txt",
-        },
+        ),
+        ToolResultMessage(RawToolCall(name="bash", arguments="ls"), "a.txt"),
     ]
 
     await chat.call_async(messages)
@@ -808,10 +793,9 @@ async def test_gemini_never_sends_an_empty_text_part():
     )
     messages = [
         {"role": "user", "content": ""},
-        {
-            "role": "assistant",
-            "content": "",
-            "tool_calls": [
+        AssistantMessage(
+            "",
+            [
                 RawToolCall(
                     name="bash",
                     arguments="ls",
@@ -819,12 +803,8 @@ async def test_gemini_never_sends_an_empty_text_part():
                     named_arguments={"command": "ls"},
                 )
             ],
-        },
-        {
-            "role": "tool",
-            "call": RawToolCall(name="bash", arguments="ls"),
-            "content": "",
-        },
+        ),
+        ToolResultMessage(RawToolCall(name="bash", arguments="ls"), ""),
     ]
 
     await chat.call_async(messages)
@@ -854,12 +834,8 @@ async def test_gemini_replays_a_tool_turn_without_a_signature_as_text():
     call = RawToolCall(name="bash", arguments="ls")
     messages = [
         {"role": "user", "content": "list files"},
-        {
-            "role": "assistant",
-            "content": "on it\n🛠️[bash ls /]",
-            "tool_calls": [call],
-        },
-        {"role": "tool", "call": call, "content": "a.txt"},
+        AssistantMessage("on it\n🛠️[bash ls /]", [call]),
+        ToolResultMessage(call, "a.txt"),
         {"role": "user", "content": "thanks"},
     ]
 
@@ -897,9 +873,9 @@ async def test_gemini_keeps_a_parallel_tool_turn_native_when_only_its_first_call
         name="bash", arguments="pwd", named_arguments={"command": "pwd"}
     )
     messages = [
-        {"role": "assistant", "content": "", "tool_calls": [first, second]},
-        {"role": "tool", "call": first, "content": "a.txt"},
-        {"role": "tool", "call": second, "content": "/home"},
+        AssistantMessage("", [first, second]),
+        ToolResultMessage(first, "a.txt"),
+        ToolResultMessage(second, "/home"),
     ]
 
     await chat.call_async(messages)
@@ -940,8 +916,8 @@ async def test_gemini_replays_the_native_arguments_it_received():
     )
     messages = [
         {"role": "user", "content": "show my notes"},
-        {"role": "assistant", "content": "", "tool_calls": [call]},
-        {"role": "tool", "call": call, "content": "Hello world"},
+        AssistantMessage("", [call]),
+        ToolResultMessage(call, "Hello world"),
     ]
 
     await chat.call_async(messages)
@@ -975,9 +951,9 @@ async def test_gemini_replays_calls_and_results_under_their_native_ids():
     )
     messages = [
         {"role": "user", "content": "go"},
-        {"role": "assistant", "content": "", "tool_calls": [first, second]},
-        {"role": "tool", "call": first, "content": "a.txt"},
-        {"role": "tool", "call": second, "content": "/tmp"},
+        AssistantMessage("", [first, second]),
+        ToolResultMessage(first, "a.txt"),
+        ToolResultMessage(second, "/tmp"),
     ]
 
     await chat.call_async(messages)

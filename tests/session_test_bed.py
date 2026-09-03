@@ -29,6 +29,7 @@ from simple_agent.application.llm import ChatMessages, LLMResponse, TokenUsage
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.application.session import Session
+from simple_agent.application.text_messages import to_text_messages
 from simple_agent.application.text_response import emoji_response
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from simple_agent.infrastructure.file_intent import FileIntent
@@ -70,7 +71,7 @@ class CapturingLLM:
             return False
         return any(
             m["role"] == role and content in m["content"]
-            for m in self.captured_messages[call_index]
+            for m in to_text_messages(self.captured_messages[call_index])
         )
 
 
@@ -80,7 +81,9 @@ class SessionTestResult:
 
     def current_messages(self, agent_id: AgentId) -> str:
         messages = events_to_messages(self.events.get_all_events(), agent_id)
-        return "\n".join(f"{msg['role']}: {msg['content']}" for msg in messages)
+        return "\n".join(
+            f"{msg['role']}: {msg['content']}" for msg in to_text_messages(messages)
+        )
 
     def all_messages(self) -> str:
         result = ""

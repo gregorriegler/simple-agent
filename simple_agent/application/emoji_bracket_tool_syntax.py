@@ -2,12 +2,14 @@ import shlex
 from dataclasses import replace
 from typing import Any
 
-from simple_agent.application.tool_library import RawToolCall, Tool, ToolArgument
+from simple_agent.application.tool_library import (
+    RawToolCall,
+    Tool,
+    ToolArgument,
+    ToolArguments,
+    is_true,
+)
 from simple_agent.application.tool_syntax import RawAssistantTurn, ToolSyntax
-
-
-def _is_true(value: Any) -> bool:
-    return value is True or str(value).lower() in ("true", "1")
 
 
 class EmojiBracketToolSyntax(ToolSyntax):
@@ -94,7 +96,10 @@ class EmojiBracketToolSyntax(ToolSyntax):
         inline_values = []
         for arg in tool.arguments:
             value = example_without_special.get(arg.name, "")
-            if value:
+            if arg.is_flag:
+                if is_true(value):
+                    inline_values.append(arg.name)
+            elif value:
                 inline_values.append(str(value))
 
         # Collect body value
@@ -155,7 +160,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
         if raw_call.named_arguments:
             return self._render_text(raw_call, tool)
         try:
-            named = self._bind_header(raw_call.arguments, tool.arguments.header)
+            named = self._bind_header(raw_call.arguments, tool.arguments)
         except ValueError:
             return raw_call
         if tool.arguments.body and raw_call.body:
@@ -170,18 +175,17 @@ class EmojiBracketToolSyntax(ToolSyntax):
         body = str(named.get(body_argument.name, "")) if body_argument else ""
         return replace(raw_call, arguments=self.render_header(named, tool), body=body)
 
-    def _bind_header(self, text: str, header: list[ToolArgument]) -> dict[str, Any]:
-        if not text or not header:
+    def _bind_header(self, text: str, arguments: ToolArguments) -> dict[str, Any]:
+        if not text or not arguments.header:
             return {}
-        flags = [arg for arg in header if arg.type == "bool"]
-        positional = [arg for arg in header if arg.type != "bool"]
-        if not flags and len(positional) == 1:
-            return {positional[0].name: text}
+        if arguments.single_positional:
+            return {arguments.single_positional.name: text}
         values = shlex.split(text)
         named: dict[str, Any] = {
-            flag.name: True for flag in flags if flag.name in values
+            flag.name: True for flag in arguments.flags if flag.name in values
         }
         values = [value for value in values if value not in named]
+        positional = arguments.positional
         last = len(positional) - 1
         if len(values) > len(positional):
             values[last:] = [" ".join(values[last:])]
@@ -194,25 +198,29 @@ class EmojiBracketToolSyntax(ToolSyntax):
         bind: a single header argument is written as is, other values are
         shell-quoted when needed, and a true flag appears by name.
         """
-        header = list(tool.arguments.header)
-        flags = [arg for arg in header if arg.type == "bool"]
-        positional = [arg for arg in header if arg.type != "bool"]
-        if not flags and len(positional) == 1:
-            return str(named.get(positional[0].name, ""))
+        arguments = tool.arguments
+        if arguments.single_positional:
+            return str(named.get(arguments.single_positional.name, ""))
         parts = [
-            shlex.quote(str(named[arg.name])) for arg in positional if arg.name in named
+            shlex.quote(str(named[arg.name]))
+            for arg in arguments.positional
+            if arg.name in named
         ]
-        parts.extend(flag.name for flag in flags if _is_true(named.get(flag.name)))
+        parts.extend(
+            flag.name for flag in arguments.flags if is_true(named.get(flag.name))
+        )
         return " ".join(parts)
 
     def contains_call(self, text: str) -> bool:
         return any(marker in text for marker in ("🛠️[", "🛠["))
 
     def render_call(self, raw_call: RawToolCall) -> str:
-        header = f"{raw_call.name} {raw_call.arguments}".strip()
         if raw_call.body:
-            return f"🛠️[{header}]\n{raw_call.body}\n🛠️[/end]"
-        return f"🛠️[{header} /]"
+            return f"🛠️[{raw_call.header()}]\n{raw_call.body}\n🛠️[/end]"
+        return f"🛠️[{raw_call.header()} /]"
+
+    def render_result(self, raw_call: RawToolCall, output: str) -> str:
+        return f"Result of 🛠️ {raw_call}\n{output}"
 
     def parse(self, text: str) -> RawAssistantTurn:
         # Markers can appear with or without variation selector (U+FE0F)

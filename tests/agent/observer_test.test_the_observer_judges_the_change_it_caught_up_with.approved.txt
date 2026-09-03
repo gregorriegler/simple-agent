@@ -5,23 +5,23 @@ Agent:         user_prompted: Store the greeting
 Agent:   assistant_responded: 🛠️[create-file data1.txt]
 Hello
 🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 🛠️ create-file data1.txt Hello
+Agent:           tool_called: Agent::tool_call::1 create-file data1.txt Hello
 Agent:           tool_result: Agent::tool_call::1 Created file: data1.txt with content
 Agent:    checkpoint_reached: 
 Agent:   assistant_responded: 🛠️[create-file greeting.txt]
 Hello
 🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 🛠️ create-file greeting.txt Hello
+Agent:           tool_called: Agent::tool_call::2 create-file greeting.txt Hello
 Agent:           tool_result: Agent::tool_call::2 Created file: greeting.txt with content
 Agent:    checkpoint_reached: 
 Agent:   assistant_responded: 🛠️[create-file tmp2.txt]
 Bye
 🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::3 🛠️ create-file tmp2.txt Bye
+Agent:           tool_called: Agent::tool_call::3 create-file tmp2.txt Bye
 Agent:           tool_result: Agent::tool_call::3 Created file: tmp2.txt with content
 Agent:    checkpoint_reached: 
 Agent:   assistant_responded: 🛠️[cat greeting.txt /] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::4 🛠️ cat greeting.txt
+Agent:           tool_called: Agent::tool_call::4 cat greeting.txt
 Agent/Naming:         agent_started: Naming stub-model naming
 Agent/Naming: user_prompt_requested: 
 Agent/Naming:         user_prompted: diff --git a/tmp2.txt b/tmp2.txt
@@ -30,16 +30,16 @@ Agent/Naming:   assistant_responded: 🛠️[suggest]
 tmp2.txt says nothing about its content
 🛠️[/end]
 🛠️[complete-task judged tmp2.txt /] stub-model 0.0%
-Agent/Naming:           tool_called: Agent/Naming::tool_call::1 🛠️ suggest
+Agent/Naming:           tool_called: Agent/Naming::tool_call::1 suggest tmp2.txt says nothing about its content
 Agent/Naming:           tool_result: Agent/Naming::tool_call::1 Suggested: tmp2.txt says nothing about its content
-Agent/Naming:           tool_called: Agent/Naming::tool_call::2 🛠️ complete-task judged tmp2.txt
+Agent/Naming:           tool_called: Agent/Naming::tool_call::2 complete-task judged tmp2.txt
 Agent/Naming:           tool_result: Agent/Naming::tool_call::2 judged tmp2.txt
 Agent/Naming: user_prompt_requested: 
 Agent:           tool_result: Agent::tool_call::4 Hello
 Agent:         user_prompted: 💡 Suggestion from the naming observer:
 tmp2.txt says nothing about its content
 Agent:   assistant_responded: 🛠️[complete-task stored the greeting /] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::5 🛠️ complete-task stored the greeting
+Agent:           tool_called: Agent::tool_call::5 complete-task stored the greeting
 Agent:           tool_result: Agent::tool_call::5 stored the greeting
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 

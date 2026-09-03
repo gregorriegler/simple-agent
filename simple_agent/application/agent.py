@@ -208,7 +208,7 @@ class Agent(SlashCommandVisitor):
                     response.tool_calls, response.message
                 )
                 if response.answer or response.tool_calls:
-                    self.context.assistant_turn(
+                    self.context.assistant_says(
                         response.answer, self._context_calls(response, turn)
                     )
                 self.event_bus.publish(

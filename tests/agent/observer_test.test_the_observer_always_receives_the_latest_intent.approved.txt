@@ -5,27 +5,27 @@ Agent:         user_prompted: Store the greeting
 Agent:   assistant_responded: 🛠️[communicate-intent]
 Store the greeting in a file
 🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 🛠️ communicate-intent
+Agent:           tool_called: Agent::tool_call::1 communicate-intent Store the greeting in a file
 Agent:           tool_result: Agent::tool_call::1 Intent: Store the greeting in a file
 Agent:   assistant_responded: 🛠️[create-file data1.txt]
 Hello
 🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 🛠️ create-file data1.txt Hello
+Agent:           tool_called: Agent::tool_call::2 create-file data1.txt Hello
 Agent:           tool_result: Agent::tool_call::2 Created file: data1.txt with content
 Agent:    checkpoint_reached: 
 Agent:   assistant_responded: 🛠️[communicate-intent]
 Give the file a telling name
 🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::3 🛠️ communicate-intent
+Agent:           tool_called: Agent::tool_call::3 communicate-intent Give the file a telling name
 Agent:           tool_result: Agent::tool_call::3 Intent: Give the file a telling name
 Agent:   assistant_responded: 🛠️[create-file greeting.txt]
 Hello
 🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::4 🛠️ create-file greeting.txt Hello
+Agent:           tool_called: Agent::tool_call::4 create-file greeting.txt Hello
 Agent:           tool_result: Agent::tool_call::4 Created file: greeting.txt with content
 Agent:    checkpoint_reached: 
 Agent:   assistant_responded: 🛠️[complete-task stored the greeting /] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::5 🛠️ complete-task stored the greeting
+Agent:           tool_called: Agent::tool_call::5 complete-task stored the greeting
 Agent:           tool_result: Agent::tool_call::5 stored the greeting
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
@@ -37,7 +37,7 @@ Agent/Naming:         user_prompted: Intent: Give the file a telling name
 diff --git a/greeting.txt b/greeting.txt
 +Hello
 Agent/Naming:   assistant_responded: 🛠️[complete-task judged greeting.txt /] stub-model 0.0%
-Agent/Naming:           tool_called: Agent/Naming::tool_call::1 🛠️ complete-task judged greeting.txt
+Agent/Naming:           tool_called: Agent/Naming::tool_call::1 complete-task judged greeting.txt
 Agent/Naming:           tool_result: Agent/Naming::tool_call::1 judged greeting.txt
 Agent/Naming: user_prompt_requested: 
 Agent/Naming:        agent_finished: 

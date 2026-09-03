@@ -72,9 +72,34 @@ Session behaviour:
 Test bed: `with_llm_provider`, `cancelling_when(event)`, persists tool-called
 events and subscribes persistence after replay, both as production does.
 
+## Cleanup after the story
+
+A second review found the seams the story had left, each fixed in its own
+commit with the tests green:
+- `ToolArguments` answers which header arguments are flags, which are
+  positional, and whether one argument takes the whole text; the syntax no
+  longer computes that twice
+- `ToolArgument` answers its JSON type and whether it is a flag, under both
+  the `bool` and `boolean` spellings; cat's `with_line_numbers` is declared
+  as the flag it is, so a native call renders it by name, not as `true`
+- a tool reads a flag through `RawToolCall.flag`, one truth test instead of
+  one per tool
+- the call carries no syntax marker: `str(call)` is `name arguments body`,
+  the "Result of 🛠️" label is rendered by the emoji syntax, and the UI adds
+  its own icon
+- every assistant turn, with or without calls, is an `AssistantMessage`, and
+  a tool's output is a `ToolResultMessage` carrying the call it answers; the
+  Gemini adapter and the text renderer dispatch on the type
+- the Gemini adapter asks a turn whether it signed it, rather than walking
+  message keys
+
 ## Next steps
 
 Leftovers from this story, small:
+- system and user messages are still role-keyed dicts, so `ChatMessage` is
+  a union of dict and the two typed messages; the fold stopped halfway. The
+  consistent end state is `UserMessage` and `SystemMessage` too, with each
+  adapter mapping every message to its own wire format
 - `RawToolCall.arguments` is still a constructor field, filled by the binder
   for native calls; making it a computed rendering would touch every
   construction site for no behaviour change

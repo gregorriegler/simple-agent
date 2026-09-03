@@ -51,6 +51,20 @@ def test_many_tools_result_exposes_per_tool_name_and_output():
     ]
 
 
+def test_many_tools_result_message_is_the_last_results_message():
+    results = ManyToolsResult()
+    results.add(
+        ToolCall(RawToolCall(name="bash", arguments="ls"), DummyTool()),
+        SingleToolResult(message="a.txt"),
+    )
+    results.add(
+        ToolCall(RawToolCall(name="cat", arguments="a.txt"), DummyTool()),
+        SingleToolResult(message="hello"),
+    )
+
+    assert results.message == "hello"
+
+
 def test_many_tools_result_reports_failure_when_cancelled():
     tool = ToolCall(RawToolCall(name="dummy", arguments=""), DummyTool())
     results = ManyToolsResult()

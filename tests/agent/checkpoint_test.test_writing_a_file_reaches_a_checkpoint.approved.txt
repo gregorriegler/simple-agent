@@ -5,11 +5,11 @@ Agent:         user_prompted: Test message
 Agent:   assistant_responded: 🛠️[create-file greeting.txt]
 Hello
 🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 🛠️ create-file greeting.txt Hello
+Agent:           tool_called: Agent::tool_call::1 create-file greeting.txt Hello
 Agent:           tool_result: Agent::tool_call::1 Created file: greeting.txt with content
 Agent:    checkpoint_reached: 
 Agent:   assistant_responded: 🛠️[complete-task summary /] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 🛠️ complete-task summary
+Agent:           tool_called: Agent::tool_call::2 complete-task summary
 Agent:           tool_result: Agent::tool_call::2 summary
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 

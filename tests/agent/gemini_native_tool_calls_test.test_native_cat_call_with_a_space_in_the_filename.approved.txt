@@ -3,7 +3,7 @@ Agent:       session_started: False
 Agent:         agent_started: Agent test-model agent
 Agent:         user_prompted: show me my notes
 Agent:   assistant_responded:  test-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 🛠️ cat 'my notes.md' true
+Agent:           tool_called: Agent::tool_call::1 cat 'my notes.md' with_line_numbers
 Agent:           tool_result: Agent::tool_call::1      1	Hello world
 Agent:   assistant_responded: done test-model 0.0%
 Agent:        assistant_said: done

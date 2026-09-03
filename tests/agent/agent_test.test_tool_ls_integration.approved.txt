@@ -3,14 +3,14 @@ Agent:       session_started: False
 Agent:         agent_started: Agent stub-model agent
 Agent:         user_prompted: Test message
 Agent:   assistant_responded: 🛠️[ls /tmp/test_path] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 🛠️ ls /tmp/test_path
+Agent:           tool_called: Agent::tool_call::1 ls /tmp/test_path
 Agent:           tool_result: Agent::tool_call::1 .
 ..
 file1.txt
 file2.py
 subdir
 Agent:   assistant_responded: 🛠️[complete-task summary] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 🛠️ complete-task summary
+Agent:           tool_called: Agent::tool_call::2 complete-task summary
 Agent:           tool_result: Agent::tool_call::2 summary
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 

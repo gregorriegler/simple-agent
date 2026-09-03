@@ -114,7 +114,7 @@ Display file contents with line numbers
 ### Arguments:
  - filename: string (required) - Path to the file to display
  - line_range: string (optional) - Optional line range in format 'start-end' (e.g., '1-10')
- - with_line_numbers: string (optional) - Optional parameter to show line numbers, e.g. 'with_line_numbers'
+ - with_line_numbers: bool (optional) - Optional flag to show line numbers
 
 ### Examples:
 

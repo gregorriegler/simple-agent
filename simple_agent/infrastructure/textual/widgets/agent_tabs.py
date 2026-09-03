@@ -207,7 +207,7 @@ class AgentTabs(TabbedContent):
         elif isinstance(event, ToolCalledEvent):
             workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
-                workspace.on_tool_call(event.call_id, event.call.header())
+                workspace.on_tool_call(event.call_id, f"🛠️ {event.call.header()}")
             else:
                 logger.warning(
                     "Could not find workspace for agent %s to write tool call",

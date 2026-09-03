@@ -5,10 +5,10 @@ Agent:         user_prompted: Test message
 Agent:   assistant_responded: 🛠️[communicate-intent]
 Extract the tool syntax parser
 🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 🛠️ communicate-intent
+Agent:           tool_called: Agent::tool_call::1 communicate-intent Extract the tool syntax parser
 Agent:           tool_result: Agent::tool_call::1 Intent: Extract the tool syntax parser
 Agent:   assistant_responded: 🛠️[complete-task summary /] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 🛠️ complete-task summary
+Agent:           tool_called: Agent::tool_call::2 complete-task summary
 Agent:           tool_result: Agent::tool_call::2 summary
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
