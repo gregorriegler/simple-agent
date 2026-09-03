@@ -1,9 +1,19 @@
+from collections.abc import Sequence
+
 import httpx
 
-from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
+from simple_agent.application.llm import (
+    LLM,
+    AssistantTurnMessage,
+    ChatMessage,
+    ChatMessages,
+    LLMResponse,
+    TokenUsage,
+    ToolResultMessage,
+)
 from simple_agent.application.text_messages import to_text_message, to_text_messages
 from simple_agent.application.text_response import emoji_response
-from simple_agent.application.tool_library import Tool
+from simple_agent.application.tool_library import RawToolCall, Tool
 from simple_agent.infrastructure.gemini.gemini_tools import (
     to_function_declarations,
     to_raw_tool_calls,
@@ -109,29 +119,22 @@ class GeminiLLM(LLM):
         messages become 'user_input' steps and assistant messages become
         'model_output' steps.
         """
+        history: Sequence[ChatMessage] = messages
         if not self._tools:
-            messages = to_text_messages(messages)
-        messages = self._unsigned_tool_turns_as_text(messages)
+            history = to_text_messages(history)
+        history = self._unsigned_tool_turns_as_text(history)
 
         system_prompts = []
         steps = []
         call_index = 0
         result_index = 0
 
-        for message in messages:
-            role = message.get("role", "")
-            content = message.get("content", "")
-            tool_calls = message.get("tool_calls") or []
-
-            if role == "system":
-                system_prompts.append(content)
-            elif role == "user":
-                steps.append(self._step("user_input", content))
-            elif role == "assistant":
+        for message in history:
+            if isinstance(message, AssistantTurnMessage):
                 turn = []
-                if content or not tool_calls:
-                    turn.append(self._step("model_output", content))
-                for raw_call in tool_calls:
+                if message.content or not message.tool_calls:
+                    turn.append(self._step("model_output", message.content))
+                for raw_call in message.tool_calls:
                     call_index += 1
                     if raw_call.thought_signature:
                         turn.append(self._thought_step(raw_call.thought_signature))
@@ -141,14 +144,27 @@ class GeminiLLM(LLM):
                         )
                     )
                 steps.extend(self._thought_first(turn))
-            elif role == "tool":
+            elif isinstance(message, ToolResultMessage):
                 result_index += 1
-                call_id = message["call"].native_id or f"call_{result_index}"
-                steps.append(self._function_result_step(call_id, message, content))
+                call_id = message.call.native_id or f"call_{result_index}"
+                steps.append(
+                    self._function_result_step(call_id, message.call, message.content)
+                )
+            else:
+                role = message.get("role", "")
+                content = message.get("content", "")
+                if role == "system":
+                    system_prompts.append(content)
+                elif role == "user":
+                    steps.append(self._step("user_input", content))
+                elif role == "assistant":
+                    steps.append(self._step("model_output", content))
 
         return "\n\n".join(system_prompts), steps
 
-    def _unsigned_tool_turns_as_text(self, messages: ChatMessages) -> ChatMessages:
+    def _unsigned_tool_turns_as_text(
+        self, messages: Sequence[ChatMessage]
+    ) -> Sequence[ChatMessage]:
         """
         Gemini rejects a function_call/function_result pair that is not led
         by the thought step which produced it. Only calls Gemini made itself
@@ -158,13 +174,12 @@ class GeminiLLM(LLM):
         converted = []
         native = True
         for message in messages:
-            role = message.get("role")
-            if role == "assistant":
-                tool_calls = message.get("tool_calls") or []
-                native = not tool_calls or any(
-                    call.thought_signature for call in tool_calls
+            if isinstance(message, AssistantTurnMessage):
+                native = not message.tool_calls or any(
+                    call.thought_signature for call in message.tool_calls
                 )
-            if role in ("assistant", "tool") and not native:
+            structured = isinstance(message, AssistantTurnMessage | ToolResultMessage)
+            if structured and not native:
                 message = to_text_message(message)
             converted.append(message)
         return converted
@@ -205,7 +220,9 @@ class GeminiLLM(LLM):
             "arguments": raw_call.named_arguments,
         }
 
-    def _function_result_step(self, call_id: str, message: dict, output: str) -> dict:
+    def _function_result_step(
+        self, call_id: str, raw_call: RawToolCall, output: str
+    ) -> dict:
         """
         Gemini 2.5 models reject a function result made of content parts
         ("Multimodal function responses are not supported"); every model
@@ -214,7 +231,7 @@ class GeminiLLM(LLM):
         return {
             "type": "function_result",
             "call_id": call_id,
-            "name": message["call"].name,
+            "name": raw_call.name,
             "result": output,
         }
 

@@ -10,6 +10,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
 )
 from simple_agent.application.events_to_messages import events_to_messages
+from simple_agent.application.llm import AssistantTurnMessage, ToolResultMessage
 from simple_agent.application.tool_library import RawToolCall
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.application.tools_executor import INTERRUPTED_RESULT
@@ -175,8 +176,8 @@ class TestEventsToMessages:
 
         assert messages.to_list() == [
             {"role": "user", "content": "show my notes"},
-            {"role": "assistant", "content": "", "tool_calls": [call]},
-            {"role": "tool", "call": call, "content": "Hello world"},
+            AssistantTurnMessage("", [call]),
+            ToolResultMessage(call, "Hello world"),
             {"role": "assistant", "content": "done"},
         ]
 
@@ -199,9 +200,9 @@ class TestEventsToMessages:
         messages = events_to_messages(events, agent_id)
 
         assert messages.to_list() == [
-            {"role": "assistant", "content": "on it", "tool_calls": [first, second]},
-            {"role": "tool", "call": first, "content": "a"},
-            {"role": "tool", "call": second, "content": "/tmp"},
+            AssistantTurnMessage("on it", [first, second]),
+            ToolResultMessage(first, "a"),
+            ToolResultMessage(second, "/tmp"),
         ]
 
     def test_an_interrupted_call_gets_an_interrupted_result(self):
@@ -217,7 +218,7 @@ class TestEventsToMessages:
         messages = events_to_messages(events, agent_id)
 
         assert messages.to_list() == [
-            {"role": "assistant", "content": "", "tool_calls": [call]},
-            {"role": "tool", "call": call, "content": INTERRUPTED_RESULT},
+            AssistantTurnMessage("", [call]),
+            ToolResultMessage(call, INTERRUPTED_RESULT),
             {"role": "user", "content": "and now?"},
         ]

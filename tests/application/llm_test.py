@@ -1,4 +1,9 @@
-from simple_agent.application.llm import LLMResponse, Messages
+from simple_agent.application.llm import (
+    AssistantTurnMessage,
+    LLMResponse,
+    Messages,
+    ToolResultMessage,
+)
 from simple_agent.application.tool_library import RawToolCall
 
 
@@ -39,9 +44,7 @@ def test_messages_records_an_assistant_turn_with_its_tool_calls():
 
     messages.assistant_turn("on it", calls)
 
-    assert messages.to_list() == [
-        {"role": "assistant", "content": "on it", "tool_calls": calls}
-    ]
+    assert messages.to_list() == [AssistantTurnMessage("on it", calls)]
 
 
 def test_messages_records_an_assistant_tool_call_turn_with_empty_text():
@@ -50,9 +53,7 @@ def test_messages_records_an_assistant_tool_call_turn_with_empty_text():
 
     messages.assistant_turn("", calls)
 
-    assert messages.to_list() == [
-        {"role": "assistant", "content": "", "tool_calls": calls}
-    ]
+    assert messages.to_list() == [AssistantTurnMessage("", calls)]
 
 
 def test_messages_records_a_tool_result_turn():
@@ -61,6 +62,4 @@ def test_messages_records_a_tool_result_turn():
 
     messages.tool_result(call, "a.txt\nb.txt")
 
-    assert messages.to_list() == [
-        {"role": "tool", "call": call, "content": "a.txt\nb.txt"}
-    ]
+    assert messages.to_list() == [ToolResultMessage(call, "a.txt\nb.txt")]

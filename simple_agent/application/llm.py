@@ -5,7 +5,24 @@ from typing import Protocol
 from .model_info import ModelInfo
 from .tool_library import RawToolCall
 
-ChatMessage = dict[str, str]
+
+@dataclass
+class AssistantTurnMessage:
+    """An assistant turn as the model made it: its text and its tool calls."""
+
+    content: str
+    tool_calls: list[RawToolCall]
+
+
+@dataclass
+class ToolResultMessage:
+    """The output of one tool call, paired with the call it answers."""
+
+    call: RawToolCall
+    content: str
+
+
+ChatMessage = dict[str, str] | AssistantTurnMessage | ToolResultMessage
 ChatMessages = list[ChatMessage]
 
 
@@ -70,13 +87,11 @@ class Messages:
     def assistant_says(self, content: str):
         self.add("assistant", content)
 
-    def assistant_turn(self, content: str, tool_calls: list) -> None:
-        self._messages.append(
-            {"role": "assistant", "content": content, "tool_calls": tool_calls}
-        )
+    def assistant_turn(self, content: str, tool_calls: list[RawToolCall]) -> None:
+        self._messages.append(AssistantTurnMessage(content, tool_calls))
 
-    def tool_result(self, call, output: str) -> None:
-        self._messages.append({"role": "tool", "call": call, "content": output})
+    def tool_result(self, call: RawToolCall, output: str) -> None:
+        self._messages.append(ToolResultMessage(call, output))
 
     def add(self, role: str, content: str):
         if content:
@@ -88,7 +103,7 @@ class Messages:
 
         system_message = {"role": "system", "content": content}
 
-        if self._messages and self._messages[0].get("role") == "system":
+        if self._system_prompt() is not None:
             self._messages[0] = system_message
             return
 
@@ -98,12 +113,15 @@ class Messages:
         return list(self._messages)
 
     def clear(self):
-        system_prompt = None
-        if self._messages and self._messages[0].get("role") == "system":
-            system_prompt = self._messages[0].get("content")
+        system_prompt = self._system_prompt()
         self._messages = []
-        if system_prompt:
-            self.seed_system_prompt(system_prompt)
+        self.seed_system_prompt(system_prompt)
+
+    def _system_prompt(self) -> str | None:
+        first = self._messages[0] if self._messages else None
+        if isinstance(first, dict) and first.get("role") == "system":
+            return first.get("content", "")
+        return None
 
     def __len__(self) -> int:
         return len(self._messages)

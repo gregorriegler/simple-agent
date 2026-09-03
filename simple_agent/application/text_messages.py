@@ -1,10 +1,16 @@
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
-from simple_agent.application.llm import ChatMessages
+from simple_agent.application.llm import (
+    AssistantTurnMessage,
+    ChatMessage,
+    ChatMessages,
+    ToolResultMessage,
+)
+from simple_agent.application.tool_library import RawToolCall
 
 _SYNTAX = EmojiBracketToolSyntax()
 
 
-def to_text_messages(messages: ChatMessages) -> ChatMessages:
+def to_text_messages(messages: ChatMessages) -> list[dict[str, str]]:
     """
     Flatten structured tool turns into plain {role, content} text messages.
 
@@ -16,21 +22,17 @@ def to_text_messages(messages: ChatMessages) -> ChatMessages:
     return [to_text_message(message) for message in messages]
 
 
-def to_text_message(message: dict) -> dict:
-    role = message.get("role", "")
-    content = message.get("content", "")
-    if role == "tool":
-        return {
-            "role": "user",
-            "content": _SYNTAX.render_result(message["call"], content),
-        }
-    if role == "assistant":
-        return {"role": role, "content": _with_calls_as_text(content, message)}
-    return {"role": role, "content": content}
+def to_text_message(message: ChatMessage) -> dict[str, str]:
+    if isinstance(message, ToolResultMessage):
+        content = _SYNTAX.render_result(message.call, message.content)
+        return {"role": "user", "content": content}
+    if isinstance(message, AssistantTurnMessage):
+        content = _with_calls_as_text(message.content, message.tool_calls)
+        return {"role": "assistant", "content": content}
+    return {"role": message.get("role", ""), "content": message.get("content", "")}
 
 
-def _with_calls_as_text(content: str, message: dict) -> str:
-    tool_calls = message.get("tool_calls") or []
+def _with_calls_as_text(content: str, tool_calls: list[RawToolCall]) -> str:
     if not tool_calls or _SYNTAX.contains_call(content):
         return content
     rendered = "\n".join(_SYNTAX.render_call(call) for call in tool_calls)

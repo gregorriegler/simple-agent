@@ -1,3 +1,4 @@
+from simple_agent.application.llm import AssistantTurnMessage, ToolResultMessage
 from simple_agent.application.text_messages import to_text_messages
 from simple_agent.application.tool_library import RawToolCall
 
@@ -13,11 +14,7 @@ def test_passes_plain_messages_through():
 
 def test_renders_a_tool_result_as_user_text():
     messages = [
-        {
-            "role": "tool",
-            "call": RawToolCall(name="bash", arguments="sleep 5"),
-            "content": "done",
-        }
+        ToolResultMessage(RawToolCall(name="bash", arguments="sleep 5"), "done")
     ]
 
     assert to_text_messages(messages) == [
@@ -27,11 +24,10 @@ def test_renders_a_tool_result_as_user_text():
 
 def test_drops_structured_tool_calls_keeping_assistant_text():
     messages = [
-        {
-            "role": "assistant",
-            "content": "🐙 running it 🛠️[bash sleep 5 /]",
-            "tool_calls": [RawToolCall(name="bash", arguments="sleep 5")],
-        }
+        AssistantTurnMessage(
+            "🐙 running it 🛠️[bash sleep 5 /]",
+            [RawToolCall(name="bash", arguments="sleep 5")],
+        )
     ]
 
     assert to_text_messages(messages) == [
@@ -46,7 +42,7 @@ def test_renders_native_tool_calls_as_emoji_text():
         named_arguments={"filename": "my notes.md", "with_line_numbers": "true"},
         native_id="fc_1",
     )
-    messages = [{"role": "assistant", "content": "", "tool_calls": [call]}]
+    messages = [AssistantTurnMessage("", [call])]
 
     assert to_text_messages(messages) == [
         {"role": "assistant", "content": "🛠️[cat my notes.md true /]"}
@@ -60,7 +56,7 @@ def test_renders_a_native_call_with_a_body_and_keeps_the_prose():
         body="hello",
         named_arguments={"filename": "a.txt", "content": "hello"},
     )
-    messages = [{"role": "assistant", "content": "creating it", "tool_calls": [call]}]
+    messages = [AssistantTurnMessage("creating it", [call])]
 
     assert to_text_messages(messages) == [
         {
