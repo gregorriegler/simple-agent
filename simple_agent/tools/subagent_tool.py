@@ -51,28 +51,16 @@ class SubagentTool(BaseTool):
         self._agent_types = agent_types
 
     async def execute(self, raw_call):
-        args = raw_call.arguments
-        if not args or not args.strip():
-            return SingleToolResult(
-                "STDERR: subagent: missing arguments", status=ToolResultStatus.FAILURE
-            )
+        named = raw_call.named_arguments
+        agent_type_str = named.get("agenttype", "")
+        task_description = str(named.get("task_description", "")).strip()
+        is_async = self._is_async(named.get("--async"))
 
-        parts = args.strip().split(None)
-        is_async = "--async" in parts
-        if is_async:
-            parts.remove("--async")
-
-        agent_type_str = parts[0]
-        task_description = " ".join(parts[1:])
-
-        if len(parts) < 2:
+        if not agent_type_str or not task_description:
             return SingleToolResult(
                 "STDERR: subagent: missing agenttype or task description",
                 status=ToolResultStatus.FAILURE,
             )
-
-        agent_type_str = parts[0]
-        task_description = " ".join(parts[1:])
 
         try:
             result = await self._spawn_subagent(
@@ -86,6 +74,10 @@ class SubagentTool(BaseTool):
             return SingleToolResult(
                 f"STDERR: subagent error: {str(e)}", status=ToolResultStatus.FAILURE
             )
+
+    @staticmethod
+    def _is_async(value) -> bool:
+        return str(value or "").lower() in ("true", "1")
 
     def get_template_variables(self) -> dict:
         if not self._agent_types:  # Empty AgentTypes
