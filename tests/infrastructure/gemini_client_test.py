@@ -597,7 +597,7 @@ async def test_gemini_replays_a_prior_tool_call_as_a_function_call_step():
             "type": "function_result",
             "call_id": "call_1",
             "name": "bash",
-            "result": [{"type": "text", "text": "a.txt"}],
+            "result": "a.txt",
         },
     ]
 
@@ -639,7 +639,7 @@ async def test_gemini_replays_the_thought_signature_before_the_function_call():
             "type": "function_result",
             "call_id": "call_1",
             "name": "bash",
-            "result": [{"type": "text", "text": "a.txt"}],
+            "result": "a.txt",
         },
     ]
 
@@ -728,7 +728,7 @@ async def test_gemini_starts_a_model_turn_with_text_and_a_call_with_the_thought(
             "type": "function_result",
             "call_id": "call_1",
             "name": "bash",
-            "result": [{"type": "text", "text": "a.txt"}],
+            "result": "a.txt",
         },
     ]
 
@@ -797,7 +797,7 @@ async def test_gemini_never_sends_an_empty_text_part():
     texts = [
         part["text"]
         for step in captured["body"]["input"]
-        for part in step.get("content", []) + step.get("result", [])
+        for part in step.get("content", [])
     ]
 
     assert "" not in texts

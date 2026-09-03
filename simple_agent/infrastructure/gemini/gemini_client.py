@@ -189,11 +189,16 @@ class GeminiLLM(LLM):
         }
 
     def _function_result_step(self, call_id: str, message: dict, output: str) -> dict:
+        """
+        Gemini 2.5 models reject a function result made of content parts
+        ("Multimodal function responses are not supported"); every model
+        accepts a plain string, an empty one included.
+        """
         return {
             "type": "function_result",
             "call_id": call_id,
             "name": message["call"].name,
-            "result": [self._text_content(output)],
+            "result": output,
         }
 
     def _raise_on_error(self, interaction: dict) -> None:
