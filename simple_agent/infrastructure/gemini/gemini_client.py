@@ -172,17 +172,17 @@ class GeminiLLM(LLM):
         adapter or before a model switch, are replayed as the text they were.
         """
         converted = []
-        native = True
+        signed = False
         for message in messages:
             if isinstance(message, AssistantTurnMessage):
-                native = not message.tool_calls or any(
-                    call.thought_signature for call in message.tool_calls
-                )
-            structured = isinstance(message, AssistantTurnMessage | ToolResultMessage)
-            if structured and not native:
-                message = to_text_message(message)
+                signed = self._signed(message)
+            if isinstance(message, AssistantTurnMessage | ToolResultMessage):
+                message = message if signed else to_text_message(message)
             converted.append(message)
         return converted
+
+    def _signed(self, turn: AssistantTurnMessage) -> bool:
+        return any(call.thought_signature for call in turn.tool_calls)
 
     def _thought_summary(self, steps: list[dict]) -> str:
         return "".join(
