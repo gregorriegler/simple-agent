@@ -22,9 +22,9 @@ class CatTool(BaseTool):
             ),
             ToolArgument(
                 name="with_line_numbers",
-                type="string",
+                type="bool",
                 required=False,
-                description="Optional parameter to show line numbers, e.g. 'with_line_numbers'",
+                description="Optional flag to show line numbers",
             ),
         ]
     )
@@ -35,21 +35,16 @@ class CatTool(BaseTool):
             "result": "     1\tLine 1 of file\n     2\tLine 2 of file",
         },
         {"filename": "script.py", "line_range": "1-20"},
-        {"filename": "script.py", "with_line_numbers": "with_line_numbers"},
+        {"filename": "script.py", "with_line_numbers": True},
     ]
 
-    def _parse_arguments(self, named):
+    def _parse_arguments(self, raw_call):
+        named = raw_call.named_arguments
         filename = named.get("filename")
         if not filename:
             return None, None, False, "STDERR: cat: missing file operand"
         line_range = named.get("line_range") or None
-        with_line_numbers = str(named.get("with_line_numbers", "")).lower() not in (
-            "",
-            "false",
-        )
-        if line_range == "with_line_numbers":
-            line_range, with_line_numbers = None, True
-        return filename, line_range, with_line_numbers, None
+        return filename, line_range, raw_call.flag("with_line_numbers"), None
 
     def _validate_range(self, line_range):
         try:
@@ -71,9 +66,7 @@ class CatTool(BaseTool):
         return start_line, end_line, None
 
     async def execute(self, raw_call):
-        filename, line_range, with_line_numbers, error = self._parse_arguments(
-            raw_call.named_arguments
-        )
+        filename, line_range, with_line_numbers, error = self._parse_arguments(raw_call)
         if error:
             return SingleToolResult(error, status=ToolResultStatus.FAILURE)
 

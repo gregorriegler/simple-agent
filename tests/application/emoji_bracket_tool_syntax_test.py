@@ -73,6 +73,15 @@ class TestEmojiBracketDocumentation:
 
         verify(doc)
 
+    def test_renders_a_true_flag_in_an_example_by_name(self):
+        class FlagExampleTool(_MockFlagTool):
+            examples = [{"agenttype": "coding", "task": "hello", "--async": True}]
+
+        doc = EmojiBracketToolSyntax().render_documentation(FlagExampleTool())
+
+        assert "🛠️[flag_tool coding hello --async /]" in doc
+        assert "True" not in doc
+
     def test_renders_non_dict_example_values(self):
         class WeirdExampleTool(BaseTool):
             name = "weird_example"

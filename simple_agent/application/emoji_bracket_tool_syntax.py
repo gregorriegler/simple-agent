@@ -96,7 +96,10 @@ class EmojiBracketToolSyntax(ToolSyntax):
         inline_values = []
         for arg in tool.arguments:
             value = example_without_special.get(arg.name, "")
-            if value:
+            if arg.is_flag:
+                if is_true(value):
+                    inline_values.append(arg.name)
+            elif value:
                 inline_values.append(str(value))
 
         # Collect body value
