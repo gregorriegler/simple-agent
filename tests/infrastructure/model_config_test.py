@@ -109,6 +109,30 @@ def test_model_config_from_dict_reads_native_tool_syntax():
     assert model.tool_syntax == "native"
 
 
+def test_model_config_from_dict_rejects_native_tool_syntax_on_other_adapters():
+    config = {
+        "model": "claude-sonnet-4",
+        "adapter": "claude",
+        "api_key": "key",
+        "tool_syntax": "native",
+    }
+
+    with pytest.raises(ValueError, match="native tool calling"):
+        ModelConfig.from_dict("claude", config)
+
+
+def test_model_config_from_dict_rejects_unknown_tool_syntax():
+    config = {
+        "model": "gemini-3-flash",
+        "adapter": "gemini",
+        "api_key": "key",
+        "tool_syntax": "json",
+    }
+
+    with pytest.raises(ValueError, match="tool_syntax"):
+        ModelConfig.from_dict("gemini", config)
+
+
 def test_model_config_from_dict_raises_on_invalid_timeout():
     config = {
         "model": "claude-sonnet-4",

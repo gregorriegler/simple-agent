@@ -2,6 +2,8 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
+NATIVE_ADAPTERS = ("gemini",)
+
 
 @dataclass
 class ModelConfig:
@@ -65,6 +67,16 @@ class ModelConfig:
             ) from err
 
         tool_syntax = str(config.get("tool_syntax", "emoji")).strip().lower()
+        if tool_syntax not in ("emoji", "native"):
+            raise ValueError(
+                f"model '{name}' has unknown 'tool_syntax': {tool_syntax!r} "
+                "(expected 'emoji' or 'native')"
+            )
+        if tool_syntax == "native" and normalized_adapter not in NATIVE_ADAPTERS:
+            raise ValueError(
+                f"model '{name}' asks for native tool calling, but the "
+                f"'{normalized_adapter}' adapter only supports the emoji syntax"
+            )
 
         return ModelConfig(
             name=name,
