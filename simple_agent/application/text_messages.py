@@ -20,7 +20,10 @@ def to_text_message(message: dict) -> dict:
     role = message.get("role", "")
     content = message.get("content", "")
     if role == "tool":
-        return {"role": "user", "content": f"Result of {message['call']}\n{content}"}
+        return {
+            "role": "user",
+            "content": _SYNTAX.render_result(message["call"], content),
+        }
     if role == "assistant":
         return {"role": role, "content": _with_calls_as_text(content, message)}
     return {"role": role, "content": content}

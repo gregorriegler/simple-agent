@@ -215,10 +215,12 @@ class EmojiBracketToolSyntax(ToolSyntax):
         return any(marker in text for marker in ("🛠️[", "🛠["))
 
     def render_call(self, raw_call: RawToolCall) -> str:
-        header = f"{raw_call.name} {raw_call.arguments}".strip()
         if raw_call.body:
-            return f"🛠️[{header}]\n{raw_call.body}\n🛠️[/end]"
-        return f"🛠️[{header} /]"
+            return f"🛠️[{raw_call.header()}]\n{raw_call.body}\n🛠️[/end]"
+        return f"🛠️[{raw_call.header()} /]"
+
+    def render_result(self, raw_call: RawToolCall, output: str) -> str:
+        return f"Result of 🛠️ {raw_call}\n{output}"
 
     def parse(self, text: str) -> RawAssistantTurn:
         # Markers can appear with or without variation selector (U+FE0F)

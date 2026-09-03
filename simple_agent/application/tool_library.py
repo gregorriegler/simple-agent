@@ -25,16 +25,10 @@ class RawToolCall:
         return is_true(self.named_arguments.get(name, False))
 
     def header(self) -> str:
-        if self.arguments:
-            return f"🛠️ {self.name} {self.arguments}"
-        return f"🛠️ {self.name}"
+        return " ".join(part for part in (self.name, self.arguments) if part)
 
     def __str__(self) -> str:
-        if self.arguments:
-            if self.body:
-                return f"🛠️ {self.name} {self.arguments} {self.body}"
-            return f"🛠️ {self.name} {self.arguments}"
-        return f"🛠️ {self.name}"
+        return " ".join(part for part in (self.header(), self.body) if part)
 
 
 class ToolCall:

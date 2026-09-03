@@ -722,3 +722,19 @@ class TestBindNativeCalls:
 
         assert bound.arguments == "test"
         assert bound.body == "line1\nline2"
+
+
+class TestRenderResult:
+    def test_labels_the_output_with_the_call_it_answers(self):
+        call = RawToolCall(name="bash", arguments="ls")
+
+        rendered = EmojiBracketToolSyntax().render_result(call, "a.txt")
+
+        assert rendered == "Result of 🛠️ bash ls\na.txt"
+
+    def test_the_label_carries_the_body_as_it_always_has(self):
+        call = RawToolCall(name="create-file", arguments="f.txt", body="hi")
+
+        rendered = EmojiBracketToolSyntax().render_result(call, "Created f.txt")
+
+        assert rendered == "Result of 🛠️ create-file f.txt hi\nCreated f.txt"

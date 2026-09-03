@@ -82,3 +82,14 @@ def test_a_flag_reads_true_from_a_json_boolean_or_its_text_spellings():
 
 def test_an_absent_flag_reads_false():
     assert not RawToolCall(name="t", arguments="").flag("f")
+
+
+def test_a_call_describes_itself_without_any_syntax_marker():
+    assert str(RawToolCall(name="bash", arguments="ls")) == "bash ls"
+    assert str(RawToolCall(name="ls", arguments="")) == "ls"
+    assert str(RawToolCall(name="create-file", arguments="f", body="x")) == (
+        "create-file f x"
+    )
+    assert RawToolCall(name="create-file", arguments="f", body="x").header() == (
+        "create-file f"
+    )
