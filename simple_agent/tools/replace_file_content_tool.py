@@ -4,7 +4,6 @@ from dataclasses import dataclass
 
 from ..application.tool_library import ToolArgument, ToolArguments
 from ..application.tool_results import SingleToolResult, ToolResultStatus
-from .argument_parser import split_arguments
 from .base_tool import BaseTool
 
 
@@ -183,28 +182,12 @@ class ReplaceFileContentTool(BaseTool):
         return (old_string, new_string), None
 
     def parse_arguments(self, raw_call):
-        args = raw_call.arguments
-        body = raw_call.body
-
-        if not args:
+        named = raw_call.named_arguments
+        filename = named.get("filename")
+        if not filename:
             return None, "No arguments specified"
-
-        try:
-            parts = split_arguments(args.strip())
-        except ValueError as e:
-            return None, f"Error parsing arguments: {str(e)}"
-
-        if len(parts) < 1:
-            return None, "Usage: replace-file-content <filename> [replace_mode]"
-
-        filename = parts[0]
-        replace_mode = "single"
-
-        if len(parts) > 1:
-            replace_mode = parts[1]
-
-        if len(parts) > 2:
-            return None, "Too many arguments for replace-file-content"
+        replace_mode = named.get("replace_mode") or "single"
+        body = named.get("content", "")
 
         if replace_mode not in ["single", "all"]:
             return None, f"Invalid replace_mode: {replace_mode}"

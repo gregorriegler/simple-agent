@@ -9,13 +9,21 @@ from simple_agent.tools.replace_file_content_tool import (
 pytestmark = pytest.mark.asyncio
 
 
+def replace_call(filename, replace_mode, content):
+    named = {"filename": filename, "content": content}
+    if replace_mode:
+        named["replace_mode"] = replace_mode
+    return RawToolCall(
+        name=ReplaceFileContentTool.name,
+        arguments=f"{filename} {replace_mode}".strip(),
+        body=content,
+        named_arguments=named,
+    )
+
+
 async def test_execute_reports_missing_file():
     tool = ReplaceFileContentTool()
-    raw_call = RawToolCall(
-        name=tool.name,
-        arguments="missing.txt single",
-        body="old\n@@@\nnew",
-    )
+    raw_call = replace_call("missing.txt", "single", "old\n@@@\nnew")
 
     result = await tool.execute(raw_call)
 
@@ -25,11 +33,7 @@ async def test_execute_reports_missing_file():
 
 async def test_execute_reports_os_error_for_directory(tmp_path):
     tool = ReplaceFileContentTool()
-    raw_call = RawToolCall(
-        name=tool.name,
-        arguments=f"{tmp_path} single",
-        body="old\n@@@\nnew",
-    )
+    raw_call = replace_call(str(tmp_path), "single", "old\n@@@\nnew")
 
     result = await tool.execute(raw_call)
 
@@ -41,11 +45,7 @@ async def test_execute_reports_no_changes_when_replacement_same(tmp_path):
     tool = ReplaceFileContentTool()
     path = tmp_path / "sample.txt"
     path.write_text("value", encoding="utf-8")
-    raw_call = RawToolCall(
-        name=tool.name,
-        arguments=f"{path} single",
-        body="value\n@@@\nvalue",
-    )
+    raw_call = replace_call(str(path), "single", "value\n@@@\nvalue")
 
     result = await tool.execute(raw_call)
 
@@ -55,7 +55,7 @@ async def test_execute_reports_no_changes_when_replacement_same(tmp_path):
 
 async def test_parse_arguments_requires_body_separator():
     tool = ReplaceFileContentTool()
-    raw_call = RawToolCall(name=tool.name, arguments="file.txt", body="missing")
+    raw_call = replace_call("file.txt", "", "missing")
 
     parsed, error = tool.parse_arguments(raw_call)
 
@@ -66,26 +66,13 @@ async def test_parse_arguments_requires_body_separator():
 
 async def test_parse_arguments_reports_invalid_replace_mode():
     tool = ReplaceFileContentTool()
-    raw_call = RawToolCall(
-        name=tool.name, arguments="file.txt invalid", body="a\n@@@\nb"
-    )
+    raw_call = replace_call("file.txt", "invalid", "a\n@@@\nb")
 
     parsed, error = tool.parse_arguments(raw_call)
 
     assert parsed is None
     assert error is not None
     assert "Invalid replace_mode" in error
-
-
-async def test_parse_arguments_reports_invalid_argument_syntax():
-    tool = ReplaceFileContentTool()
-    raw_call = RawToolCall(name=tool.name, arguments='"unclosed', body="a\n@@@\nb")
-
-    parsed, error = tool.parse_arguments(raw_call)
-
-    assert parsed is None
-    assert error is not None
-    assert "Error parsing arguments" in error
 
 
 async def test_parse_arguments_requires_arguments():
