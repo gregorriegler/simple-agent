@@ -1,6 +1,5 @@
 from ..application.tool_library import ToolArgument, ToolArguments
 from ..application.tool_results import SingleToolResult, ToolResultStatus
-from .argument_parser import split_arguments
 from .base_tool import BaseTool
 
 
@@ -39,36 +38,7 @@ class CatTool(BaseTool):
         {"filename": "script.py", "with_line_numbers": "with_line_numbers"},
     ]
 
-    def _parse_arguments(self, raw_call):
-        if raw_call.named_arguments:
-            return self._parse_named_arguments(raw_call.named_arguments)
-        args = raw_call.arguments
-        if not args:
-            return None, None, False, "STDERR: cat: missing file operand"
-
-        try:
-            parts = split_arguments(args)
-        except ValueError as exc:
-            return None, None, False, f"STDERR: cat: {exc}"
-
-        if not parts:
-            return None, None, False, "STDERR: cat: missing file operand"
-
-        filename = parts[0]
-        line_range = None
-        with_line_numbers = False
-
-        for part in parts[1:]:
-            if part == "with_line_numbers":
-                with_line_numbers = True
-            elif "-" in part:
-                line_range = part
-            else:
-                return None, None, False, f"STDERR: cat: invalid argument '{part}'"
-
-        return filename, line_range, with_line_numbers, None
-
-    def _parse_named_arguments(self, named):
+    def _parse_arguments(self, named):
         filename = named.get("filename")
         if not filename:
             return None, None, False, "STDERR: cat: missing file operand"
@@ -101,7 +71,9 @@ class CatTool(BaseTool):
         return start_line, end_line, None
 
     async def execute(self, raw_call):
-        filename, line_range, with_line_numbers, error = self._parse_arguments(raw_call)
+        filename, line_range, with_line_numbers, error = self._parse_arguments(
+            raw_call.named_arguments
+        )
         if error:
             return SingleToolResult(error, status=ToolResultStatus.FAILURE)
 
