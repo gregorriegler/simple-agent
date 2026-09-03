@@ -41,3 +41,21 @@ def test_no_single_positional_when_a_flag_shares_the_header():
     )
 
     assert arguments.single_positional is None
+
+
+def test_a_bool_argument_is_a_flag_under_either_spelling():
+    assert ToolArgument(name="--async", description="", type="bool").is_flag
+    assert ToolArgument(name="--async", description="", type="boolean").is_flag
+    assert not ToolArgument(name="task", description="").is_flag
+
+
+def test_json_type_normalises_python_spellings_and_falls_back_to_string():
+    def json_type(declared):
+        return ToolArgument(name="x", description="", type=declared).json_type
+
+    assert json_type("bool") == "boolean"
+    assert json_type("int") == "integer"
+    assert json_type("float") == "number"
+    assert json_type("str") == "string"
+    assert json_type("boolean") == "boolean"
+    assert json_type("path") == "string"

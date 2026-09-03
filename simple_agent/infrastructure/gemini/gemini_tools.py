@@ -1,13 +1,5 @@
 from simple_agent.application.tool_library import RawToolCall, Tool, ToolArgument
 
-_TYPES = {"string", "integer", "number", "boolean"}
-_TYPE_ALIASES = {
-    "bool": "boolean",
-    "int": "integer",
-    "float": "number",
-    "str": "string",
-}
-
 
 def to_function_declarations(tools: list[Tool]) -> list[dict]:
     return [_declaration(tool) for tool in tools]
@@ -28,10 +20,7 @@ def _declaration(tool: Tool) -> dict:
 
 
 def _property(arg: ToolArgument) -> dict:
-    arg_type = _TYPE_ALIASES.get(arg.type, arg.type)
-    if arg_type not in _TYPES:
-        arg_type = "string"
-    return {"type": arg_type, "description": arg.description}
+    return {"type": arg.json_type, "description": arg.description}
 
 
 def to_raw_tool_calls(steps: list[dict]) -> list[RawToolCall]:

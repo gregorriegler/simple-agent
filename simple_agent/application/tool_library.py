@@ -60,12 +60,33 @@ class AssistantTurn:
         yield self.tool_calls
 
 
+_JSON_TYPES = {
+    "string": "string",
+    "str": "string",
+    "integer": "integer",
+    "int": "integer",
+    "number": "number",
+    "float": "number",
+    "boolean": "boolean",
+    "bool": "boolean",
+}
+
+
 @dataclass
 class ToolArgument:
     name: str
     description: str
     required: bool = True
     type: str = "string"
+
+    @property
+    def json_type(self) -> str:
+        """The JSON schema type native adapters declare; unknown types are text."""
+        return _JSON_TYPES.get(self.type, "string")
+
+    @property
+    def is_flag(self) -> bool:
+        return self.json_type == "boolean"
 
 
 class ToolArguments:
@@ -103,11 +124,11 @@ class ToolArguments:
 
     @property
     def flags(self) -> list[ToolArgument]:
-        return [arg for arg in self._header if arg.type == "bool"]
+        return [arg for arg in self._header if arg.is_flag]
 
     @property
     def positional(self) -> list[ToolArgument]:
-        return [arg for arg in self._header if arg.type != "bool"]
+        return [arg for arg in self._header if not arg.is_flag]
 
     @property
     def single_positional(self) -> ToolArgument | None:
