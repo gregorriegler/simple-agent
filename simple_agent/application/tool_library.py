@@ -46,14 +46,6 @@ class ToolCall:
     def name(self):
         return self.raw_call.name
 
-    @property
-    def arguments(self):
-        return self.raw_call.arguments
-
-    @property
-    def body(self):
-        return self.raw_call.body
-
     def __str__(self):
         return self.raw_call.__str__()
 
