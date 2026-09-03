@@ -6,7 +6,6 @@ from simple_agent.application.text_response import emoji_response
 from simple_agent.application.tool_library import Tool
 from simple_agent.infrastructure.gemini.gemini_tools import (
     to_function_declarations,
-    to_native_arguments,
     to_raw_tool_calls,
 )
 from simple_agent.infrastructure.llm_http import post_with_retry
@@ -116,7 +115,6 @@ class GeminiLLM(LLM):
 
         system_prompts = []
         steps = []
-        tools_by_name = {tool.name: tool for tool in self._tools}
         call_index = 0
         result_index = 0
 
@@ -138,11 +136,7 @@ class GeminiLLM(LLM):
                     if raw_call.thought_signature:
                         turn.append(self._thought_step(raw_call.thought_signature))
                     turn.append(
-                        self._function_call_step(
-                            f"call_{call_index}",
-                            raw_call,
-                            tools_by_name.get(raw_call.name),
-                        )
+                        self._function_call_step(f"call_{call_index}", raw_call)
                     )
                 steps.extend(self._thought_first(turn))
             elif role == "tool":
@@ -202,12 +196,12 @@ class GeminiLLM(LLM):
         """Gemini rejects a text part that carries no text."""
         return {"type": "text", "text": text or EMPTY_TEXT_PLACEHOLDER}
 
-    def _function_call_step(self, call_id: str, raw_call, tool) -> dict:
+    def _function_call_step(self, call_id: str, raw_call) -> dict:
         return {
             "type": "function_call",
             "id": call_id,
             "name": raw_call.name,
-            "arguments": to_native_arguments(raw_call, tool),
+            "arguments": raw_call.named_arguments,
         }
 
     def _function_result_step(self, call_id: str, message: dict, output: str) -> dict:

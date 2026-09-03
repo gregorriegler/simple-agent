@@ -574,7 +574,12 @@ async def test_gemini_replays_a_prior_tool_call_as_a_function_call_step():
             "role": "assistant",
             "content": "on it",
             "tool_calls": [
-                RawToolCall(name="bash", arguments="ls", thought_signature="SIG")
+                RawToolCall(
+                    name="bash",
+                    arguments="ls",
+                    thought_signature="SIG",
+                    named_arguments={"command": "ls"},
+                )
             ],
         },
         {
@@ -618,7 +623,12 @@ async def test_gemini_replays_the_thought_signature_before_the_function_call():
             "role": "assistant",
             "content": "",
             "tool_calls": [
-                RawToolCall(name="bash", arguments="ls", thought_signature="SIG")
+                RawToolCall(
+                    name="bash",
+                    arguments="ls",
+                    thought_signature="SIG",
+                    named_arguments={"command": "ls"},
+                )
             ],
         },
         {
@@ -660,7 +670,12 @@ async def test_gemini_omits_empty_model_output_before_a_tool_call():
             "role": "assistant",
             "content": "",
             "tool_calls": [
-                RawToolCall(name="bash", arguments="ls", thought_signature="SIG")
+                RawToolCall(
+                    name="bash",
+                    arguments="ls",
+                    thought_signature="SIG",
+                    named_arguments={"command": "ls"},
+                )
             ],
         },
     ]
@@ -709,7 +724,12 @@ async def test_gemini_starts_a_model_turn_with_text_and_a_call_with_the_thought(
             "role": "assistant",
             "content": "listing now",
             "tool_calls": [
-                RawToolCall(name="bash", arguments="ls", thought_signature="SIG")
+                RawToolCall(
+                    name="bash",
+                    arguments="ls",
+                    thought_signature="SIG",
+                    named_arguments={"command": "ls"},
+                )
             ],
         },
         {
@@ -790,7 +810,12 @@ async def test_gemini_never_sends_an_empty_text_part():
             "role": "assistant",
             "content": "",
             "tool_calls": [
-                RawToolCall(name="bash", arguments="ls", thought_signature="SIG")
+                RawToolCall(
+                    name="bash",
+                    arguments="ls",
+                    thought_signature="SIG",
+                    named_arguments={"command": "ls"},
+                )
             ],
         },
         {
@@ -856,8 +881,15 @@ async def test_gemini_keeps_a_parallel_tool_turn_native_when_only_its_first_call
         tools=[bash_tool()],
         transport=responding_with(interaction("done"), captured),
     )
-    first = RawToolCall(name="bash", arguments="ls", thought_signature="SIG")
-    second = RawToolCall(name="bash", arguments="pwd")
+    first = RawToolCall(
+        name="bash",
+        arguments="ls",
+        thought_signature="SIG",
+        named_arguments={"command": "ls"},
+    )
+    second = RawToolCall(
+        name="bash", arguments="pwd", named_arguments={"command": "pwd"}
+    )
     messages = [
         {"role": "assistant", "content": "", "tool_calls": [first, second]},
         {"role": "tool", "call": first, "content": "a.txt"},
