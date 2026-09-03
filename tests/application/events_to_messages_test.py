@@ -5,12 +5,14 @@ from simple_agent.application.events import (
     AssistantRespondedEvent,
     SessionClearedEvent,
     ToolCalledEvent,
+    ToolCancelledEvent,
     ToolResultEvent,
     UserPromptedEvent,
 )
 from simple_agent.application.events_to_messages import events_to_messages
 from simple_agent.application.tool_library import RawToolCall
 from simple_agent.application.tool_results import SingleToolResult
+from simple_agent.application.tools_executor import INTERRUPTED_RESULT
 
 
 class TestEventsToMessages:
@@ -200,4 +202,22 @@ class TestEventsToMessages:
             {"role": "assistant", "content": "on it", "tool_calls": [first, second]},
             {"role": "tool", "call": first, "content": "a"},
             {"role": "tool", "call": second, "content": "/tmp"},
+        ]
+
+    def test_an_interrupted_call_gets_an_interrupted_result(self):
+        agent_id = AgentId("Agent")
+        call = RawToolCall("bash", "sleep 5", named_arguments={"command": "sleep 5"})
+        events = [
+            AssistantRespondedEvent(agent_id=agent_id, response=""),
+            ToolCalledEvent(agent_id=agent_id, call_id="call-1", call=call),
+            ToolCancelledEvent(agent_id=agent_id, call_id="call-1"),
+            UserPromptedEvent(agent_id=agent_id, input_text="and now?"),
+        ]
+
+        messages = events_to_messages(events, agent_id)
+
+        assert messages.to_list() == [
+            {"role": "assistant", "content": "", "tool_calls": [call]},
+            {"role": "tool", "call": call, "content": INTERRUPTED_RESULT},
+            {"role": "user", "content": "and now?"},
         ]

@@ -61,8 +61,8 @@ class Agent(SlashCommandVisitor):
         self.llm_provider = llm_provider
         self.user_input = user_input
         self.event_bus = event_bus
-        self.tools_executor = ToolsExecutor(brain.tools, event_bus, agent_id)
         self.context: Messages = context
+        self.tools_executor = self._tools_executor(brain)
         self.brain_factory = brain_factory
         self.slash_command_registry = SlashCommandRegistry(
             available_models=llm_provider.get_available_models(),
@@ -73,7 +73,7 @@ class Agent(SlashCommandVisitor):
         old_name = self.brain.name
         old_model = self.brain.llm.model
         self.brain = brain
-        self.tools_executor = ToolsExecutor(brain.tools, self.event_bus, self.agent_id)
+        self.tools_executor = self._tools_executor(brain)
         self.context.seed_system_prompt(brain.system_prompt)
         if old_model != brain.llm.model:
             self.event_bus.publish(
@@ -81,6 +81,14 @@ class Agent(SlashCommandVisitor):
             )
         self.event_bus.publish(
             AgentChangedEvent(self.agent_id, old_name=old_name, new_name=brain.name)
+        )
+
+    def _tools_executor(self, brain: Brain) -> ToolsExecutor:
+        return ToolsExecutor(
+            brain.tools,
+            self.event_bus,
+            self.agent_id,
+            on_result=self.context.tool_result,
         )
 
     async def start(self):
@@ -214,8 +222,6 @@ class Agent(SlashCommandVisitor):
                 tool_result = await self.tools_executor.execute_tool_calls(
                     turn.tool_calls
                 )
-                for call, output in tool_result.tool_results:
-                    self.context.tool_result(call, output)
                 self._append_pending_user_messages()
 
             return tool_result

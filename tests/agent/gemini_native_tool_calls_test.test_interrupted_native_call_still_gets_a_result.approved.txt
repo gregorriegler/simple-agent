@@ -1,0 +1,74 @@
+# Events
+Agent:       session_started: False
+Agent:         agent_started: Agent test-model agent
+Agent:         user_prompted: run it
+Agent:   assistant_responded:  test-model 0.0%
+Agent:           tool_called: Agent::tool_call::1 🛠️ bash sleep 5
+Agent:   session_interrupted: 
+Agent: user_prompt_requested: 
+Agent:         user_prompted: and now?
+Agent:   assistant_responded: ok test-model 0.0%
+Agent:        assistant_said: ok
+Agent: user_prompt_requested: 
+Agent:        agent_finished: 
+Agent:         session_ended: 
+
+# Messages:
+[Agent]
+user: run it
+assistant: 
+user: and now?
+assistant: ok
+
+
+# Request 1 input steps
+[
+  {
+    "type": "user_input",
+    "content": [
+      {
+        "type": "text",
+        "text": "run it"
+      }
+    ]
+  }
+]
+# Request 2 input steps
+[
+  {
+    "type": "user_input",
+    "content": [
+      {
+        "type": "text",
+        "text": "run it"
+      }
+    ]
+  },
+  {
+    "type": "thought",
+    "signature": "SIG"
+  },
+  {
+    "type": "function_call",
+    "id": "call_1",
+    "name": "bash",
+    "arguments": {
+      "command": "sleep 5"
+    }
+  },
+  {
+    "type": "function_result",
+    "call_id": "call_1",
+    "name": "bash",
+    "result": "Interrupted by the user before the tool finished."
+  },
+  {
+    "type": "user_input",
+    "content": [
+      {
+        "type": "text",
+        "text": "and now?"
+      }
+    ]
+  }
+]

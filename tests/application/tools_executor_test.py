@@ -16,7 +16,7 @@ from simple_agent.application.tool_library import (
 )
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
 from simple_agent.application.tool_syntax import ToolSyntax
-from simple_agent.application.tools_executor import ToolsExecutor
+from simple_agent.application.tools_executor import INTERRUPTED_RESULT, ToolsExecutor
 from simple_agent.tools.base_tool import BaseTool
 
 
@@ -97,3 +97,45 @@ async def test_huge_tool_result_is_capped():
 
     assert len(result.message) < 40_000
     assert "truncated" in result.message
+
+
+class NeverFinishingTool:
+    async def execute(self, raw_call):
+        await asyncio.Event().wait()
+
+
+@pytest.mark.asyncio
+async def test_cancelled_turn_reports_a_result_for_every_call():
+    recorded = []
+    first = ToolCall(RawToolCall(name="first", arguments=""), NeverFinishingTool())
+    second = ToolCall(RawToolCall(name="second", arguments=""), NeverFinishingTool())
+    executor = ToolsExecutor(
+        library=ToolLibraryStub(),
+        event_bus=SimpleEventBus(),
+        agent_id=AgentId("test"),
+        on_result=lambda call, output: recorded.append((call.name, output)),
+    )
+
+    task = asyncio.create_task(executor.execute_tool_calls([first, second]))
+    await asyncio.sleep(0)
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+
+    assert recorded == [("first", INTERRUPTED_RESULT), ("second", INTERRUPTED_RESULT)]
+
+
+@pytest.mark.asyncio
+async def test_completed_results_are_reported_as_they_arrive():
+    recorded = []
+    call = ToolCall(RawToolCall(name="huge", arguments=""), HugeOutputTool("ok"))
+    executor = ToolsExecutor(
+        library=ToolLibraryStub(),
+        event_bus=SimpleEventBus(),
+        agent_id=AgentId("test"),
+        on_result=lambda call, output: recorded.append((call.name, output)),
+    )
+
+    await executor.execute_tool_calls([call])
+
+    assert recorded == [("huge", "ok")]

@@ -1,17 +1,29 @@
 import asyncio
+from collections.abc import Callable
 
 from .agent_id import AgentId
 from .event_bus import EventBus
 from .events import ToolCalledEvent, ToolCancelledEvent, ToolResultEvent
-from .tool_library import ToolCall, ToolLibrary
+from .tool_library import RawToolCall, ToolCall, ToolLibrary
 from .tool_results import ManyToolsResult, ToolResult, TruncatedToolResult
+
+INTERRUPTED_RESULT = "Interrupted by the user before the tool finished."
+
+OnResult = Callable[[RawToolCall, str], None]
 
 
 class ToolsExecutor:
-    def __init__(self, library: ToolLibrary, event_bus: EventBus, agent_id: AgentId):
+    def __init__(
+        self,
+        library: ToolLibrary,
+        event_bus: EventBus,
+        agent_id: AgentId,
+        on_result: OnResult | None = None,
+    ):
         self._library = library
         self._event_bus = event_bus
         self._agent_id = agent_id
+        self._on_result = on_result or (lambda call, output: None)
         self._tool_call_counter = 0
 
     async def execute_tool_calls(
@@ -19,12 +31,15 @@ class ToolsExecutor:
         tool_calls: list[ToolCall],
     ) -> ManyToolsResult:
         result = ManyToolsResult()
-        for tool_call in tool_calls:
+        for index, tool_call in enumerate(tool_calls):
             try:
                 single_result = await self._execute(tool_call)
                 result.add(tool_call, single_result)
+                self._on_result(tool_call.raw_call, str(single_result))
             except asyncio.CancelledError:
                 result.mark_cancelled(tool_call)
+                for unanswered in tool_calls[index:]:
+                    self._on_result(unanswered.raw_call, INTERRUPTED_RESULT)
                 raise
         return result
 
