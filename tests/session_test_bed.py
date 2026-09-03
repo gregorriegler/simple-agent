@@ -235,14 +235,20 @@ class SessionTestBed:
         for event_type, handler in self._custom_event_subscriptions:
             event_bus.subscribe(event_type, handler)
 
-        if self._event_store:
-            event_bus.subscribe(UserPromptedEvent, self._event_store.persist)
-            event_bus.subscribe(AssistantRespondedEvent, self._event_store.persist)
-            event_bus.subscribe(AgentStartedEvent, self._event_store.persist)
-            event_bus.subscribe(AgentFinishedEvent, self._event_store.persist)
-            event_bus.subscribe(ToolResultEvent, self._event_store.persist)
-            event_bus.subscribe(SessionClearedEvent, self._event_store.persist)
-            event_bus.subscribe(ModelChangedEvent, self._event_store.persist)
+        def subscribe_persistence():
+            if not self._event_store:
+                return
+            for event_type in (
+                UserPromptedEvent,
+                AssistantRespondedEvent,
+                AgentStartedEvent,
+                AgentFinishedEvent,
+                ToolCalledEvent,
+                ToolResultEvent,
+                SessionClearedEvent,
+                ModelChangedEvent,
+            ):
+                event_bus.subscribe(event_type, self._event_store.persist)
 
         agent_library = TestAgentLibrary(self._observers)
 
@@ -272,6 +278,7 @@ class SessionTestBed:
             observer_library=TestObserverLibrary(),
             change_reporter=ChangeReporterStub(self._diffs),
             intent=FileIntent(root_agent_id),
+            on_replay_complete=subscribe_persistence,
         )
 
         asyncio.create_task(
