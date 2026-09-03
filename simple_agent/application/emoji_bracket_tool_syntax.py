@@ -142,7 +142,8 @@ class EmojiBracketToolSyntax(ToolSyntax):
 
         A single header argument takes the whole text as it was written; a
         longer header is split shell-style so a quoted value stays one value,
-        and any tokens beyond the header flow into its last argument.
+        and any tokens beyond the header flow into its last argument. Boolean
+        arguments are flags: they bind by name wherever they appear.
         Calls that already carry named arguments are left untouched.
         """
         if raw_call.named_arguments:
@@ -158,13 +159,20 @@ class EmojiBracketToolSyntax(ToolSyntax):
     def _bind_header(self, text: str, header: list[ToolArgument]) -> dict[str, Any]:
         if not text or not header:
             return {}
-        if len(header) == 1:
-            return {header[0].name: text}
+        flags = [arg for arg in header if arg.type == "bool"]
+        positional = [arg for arg in header if arg.type != "bool"]
+        if not flags and len(positional) == 1:
+            return {positional[0].name: text}
         values = shlex.split(text)
-        last = len(header) - 1
-        if len(values) > len(header):
+        named: dict[str, Any] = {
+            flag.name: True for flag in flags if flag.name in values
+        }
+        values = [value for value in values if value not in named]
+        last = len(positional) - 1
+        if len(values) > len(positional):
             values[last:] = [" ".join(values[last:])]
-        return {arg.name: value for arg, value in zip(header, values, strict=False)}
+        named.update(zip((arg.name for arg in positional), values, strict=False))
+        return named
 
     def parse(self, text: str) -> RawAssistantTurn:
         # Markers can appear with or without variation selector (U+FE0F)

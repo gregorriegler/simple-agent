@@ -611,3 +611,35 @@ class TestBind:
         bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
 
         assert bound.named_arguments == {"arg1": "value1", "arg2": "say hello world"}
+
+    def test_boolean_arguments_bind_as_flags_by_name(self):
+        flagged = _MockFlagTool()
+        call = RawToolCall(name="flag_tool", arguments="coding say hello --async")
+
+        bound = EmojiBracketToolSyntax().bind(call, flagged)
+
+        assert bound.named_arguments == {
+            "agenttype": "coding",
+            "task": "say hello",
+            "--async": True,
+        }
+
+    def test_an_absent_flag_is_not_bound(self):
+        call = RawToolCall(name="flag_tool", arguments="coding say hello")
+
+        bound = EmojiBracketToolSyntax().bind(call, _MockFlagTool())
+
+        assert bound.named_arguments == {"agenttype": "coding", "task": "say hello"}
+
+
+class _MockFlagTool(BaseTool):
+    name = "flag_tool"
+    description = "Tool with a flag"
+    arguments = ToolArguments(
+        header=[
+            ToolArgument(name="agenttype", description="", required=True),
+            ToolArgument(name="task", description="", required=True),
+            ToolArgument(name="--async", type="bool", description="", required=False),
+        ]
+    )
+    examples = []
