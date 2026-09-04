@@ -180,7 +180,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
             return {}
         if arguments.single_positional:
             return {arguments.single_positional.name: text}
-        values = shlex.split(text)
+        values = self._split_shell_style(text)
         named: dict[str, Any] = {
             flag.name: True for flag in arguments.flags if flag.name in values
         }
@@ -191,6 +191,13 @@ class EmojiBracketToolSyntax(ToolSyntax):
             values[last:] = [" ".join(values[last:])]
         named.update(zip((arg.name for arg in positional), values, strict=False))
         return named
+
+    @staticmethod
+    def _split_shell_style(text: str) -> list[str]:
+        lexer = shlex.shlex(text, posix=True)
+        lexer.whitespace_split = True
+        lexer.escape = ""
+        return list(lexer)
 
     def render_header(self, named: dict[str, Any], tool: Tool) -> str:
         """

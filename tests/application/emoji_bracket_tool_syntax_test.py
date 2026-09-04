@@ -581,6 +581,18 @@ class TestBind:
 
         assert bound.named_arguments == {"arg1": "my notes.md", "arg2": "value2"}
 
+    def test_backslashes_in_a_value_are_kept(self):
+        call = RawToolCall(
+            name="test_tool", arguments="C:\\Users\\me\\notes.txt value2"
+        )
+
+        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+
+        assert bound.named_arguments == {
+            "arg1": "C:\\Users\\me\\notes.txt",
+            "arg2": "value2",
+        }
+
     def test_a_single_header_argument_takes_the_whole_text(self):
         call = RawToolCall(name="multiline_tool", arguments="rg 'main\\(' -g '*.py'")
 

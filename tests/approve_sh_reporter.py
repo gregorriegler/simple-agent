@@ -1,4 +1,5 @@
 import os
+import sys
 
 from approvaltests.reporters import Reporter
 
@@ -8,6 +9,10 @@ class ApproveShReporter(Reporter):
         pass
 
     def report(self, received_path, approved_path):
+        reconfigure = getattr(sys.stdout, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(errors="backslashreplace")
+
         approved_filename = os.path.basename(approved_path)
         test_name = approved_filename.replace(".approved.txt", "")
 
