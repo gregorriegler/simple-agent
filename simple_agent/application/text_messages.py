@@ -7,9 +7,8 @@ from simple_agent.application.llm import (
     ToolResultMessage,
     UserMessage,
 )
-from simple_agent.application.tool_library import RawToolCall
 
-_SYNTAX = EmojiBracketToolSyntax()
+TextTurn = SystemMessage | UserMessage | AssistantMessage
 
 
 def to_text_messages(messages: ChatMessages) -> list[dict[str, str]]:
@@ -21,7 +20,11 @@ def to_text_messages(messages: ChatMessages) -> list[dict[str, str]]:
     as emoji text: turns made under the text protocol already do, turns made
     natively get their calls rendered.
     """
-    return [_wire_message(to_text_turn(message)) for message in messages]
+    return [to_text_turn(message).render(_WIRE) for message in messages]
+
+
+def to_text_turn(message: ChatMessage) -> TextTurn:
+    return message.render(_TEXT_TURN)
 
 
 def split_system_prompt(messages: ChatMessages) -> tuple[str | None, ChatMessages]:
@@ -31,30 +34,42 @@ def split_system_prompt(messages: ChatMessages) -> tuple[str | None, ChatMessage
     return None, list(messages)
 
 
-def to_text_turn(
-    message: ChatMessage,
-) -> SystemMessage | UserMessage | AssistantMessage:
-    if isinstance(message, ToolResultMessage):
-        return UserMessage(_SYNTAX.render_result(message.call, message.content))
-    if isinstance(message, AssistantMessage):
-        return AssistantMessage(
-            _with_calls_as_text(message.content, message.tool_calls)
-        )
-    return message
+class _AsTextTurn:
+    """Renders a tool turn as the emoji text it would have been."""
+
+    def __init__(self) -> None:
+        self._syntax = EmojiBracketToolSyntax()
+
+    def system(self, message: SystemMessage) -> TextTurn:
+        return message
+
+    def user(self, message: UserMessage) -> TextTurn:
+        return message
+
+    def assistant(self, message: AssistantMessage) -> TextTurn:
+        content = message.content
+        if message.tool_calls and not self._syntax.contains_call(content):
+            calls = "\n".join(self._syntax.render_call(c) for c in message.tool_calls)
+            content = f"{content}\n{calls}" if content else calls
+        return AssistantMessage(content)
+
+    def tool_result(self, message: ToolResultMessage) -> TextTurn:
+        return UserMessage(self._syntax.render_result(message.call, message.content))
 
 
-def _wire_message(
-    message: SystemMessage | UserMessage | AssistantMessage,
-) -> dict[str, str]:
-    if isinstance(message, SystemMessage):
+class _AsWireMessage:
+    def system(self, message: SystemMessage) -> dict[str, str]:
         return {"role": "system", "content": message.content}
-    if isinstance(message, UserMessage):
+
+    def user(self, message: UserMessage) -> dict[str, str]:
         return {"role": "user", "content": message.content}
-    return {"role": "assistant", "content": message.content}
+
+    def assistant(self, message: AssistantMessage) -> dict[str, str]:
+        return {"role": "assistant", "content": message.content}
+
+    def tool_result(self, message: ToolResultMessage) -> dict[str, str]:
+        return self.user(_TEXT_TURN.tool_result(message))
 
 
-def _with_calls_as_text(content: str, tool_calls: list[RawToolCall]) -> str:
-    if not tool_calls or _SYNTAX.contains_call(content):
-        return content
-    rendered = "\n".join(_SYNTAX.render_call(call) for call in tool_calls)
-    return f"{content}\n{rendered}" if content else rendered
+_TEXT_TURN = _AsTextTurn()
+_WIRE = _AsWireMessage()
