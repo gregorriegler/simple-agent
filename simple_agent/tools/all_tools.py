@@ -1,5 +1,6 @@
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.subagent_spawner import SubagentSpawner
+from simple_agent.application.text_response import bind_emoji_calls
 from simple_agent.application.tool_library import (
     AssistantTurn,
     Tool,
@@ -12,7 +13,6 @@ from simple_agent.application.tool_library_factory import (
     ToolContext,
     ToolLibraryFactory,
 )
-from simple_agent.application.tool_message_parser import parse_tool_calls
 from simple_agent.application.tool_syntax import ToolSyntax
 
 from .bash_tool import BashTool
@@ -99,24 +99,17 @@ class AllTools(ToolLibrary):
         return tools
 
     def parse_and_resolve(self, text) -> AssistantTurn:
-        raw_turn = parse_tool_calls(text, self.tool_syntax)
-        return self.resolve_tool_calls(
-            raw_turn.tool_calls, raw_turn.message, fallback_message=text
+        message, calls = bind_emoji_calls(text, self.tool_dict, self.tool_syntax)
+        return self.resolve_tool_calls(calls, message)
+
+    def resolve_tool_calls(self, tool_calls, message) -> AssistantTurn:
+        """Pair each bound call with the tool that runs it."""
+        return AssistantTurn(
+            message=message,
+            tool_calls=[
+                ToolCall(call, self.tool_dict[call.name]) for call in tool_calls
+            ],
         )
-
-    def resolve_tool_calls(
-        self, tool_calls, message, fallback_message=None
-    ) -> AssistantTurn:
-        resolved = []
-        for raw_call in tool_calls:
-            tool_instance = self.tool_dict.get(raw_call.name)
-            if not tool_instance:
-                unbound = fallback_message if fallback_message is not None else message
-                return AssistantTurn(message=unbound, tool_calls=[])
-            bound_call = raw_call.bind(tool_instance)
-            resolved.append(ToolCall(bound_call, tool_instance))
-
-        return AssistantTurn(message=message, tool_calls=resolved)
 
     async def execute_tool_call(self, tool_call):
         return await tool_call.tool_instance.execute(tool_call.raw_call)

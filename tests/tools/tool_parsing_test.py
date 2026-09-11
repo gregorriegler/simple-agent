@@ -182,11 +182,17 @@ def test_resolving_binds_positional_arguments_to_names(tool_library):
     }
 
 
-def test_resolving_a_native_call_renders_its_positional_text(tool_library):
+def test_resolving_pairs_a_bound_call_with_its_tool_and_leaves_the_call_as_it_is(
+    tool_library,
+):
     from simple_agent.application.tool_library import RawToolCall
 
-    native = RawToolCall("cat", {"filename": "my notes.md"})
+    bound = RawToolCall("cat", {"filename": "my notes.md"}).bind(
+        tool_library.tool_dict["cat"]
+    )
 
-    turn = tool_library.resolve_tool_calls([native], "")
+    turn = tool_library.resolve_tool_calls([bound], "reading")
 
-    assert turn.tool_calls[0].raw_call.header() == "cat 'my notes.md'"
+    assert turn.message == "reading"
+    assert turn.tool_calls[0].raw_call is bound
+    assert type(turn.tool_calls[0].tool_instance).__name__ == "CatTool"

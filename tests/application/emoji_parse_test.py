@@ -1,14 +1,13 @@
 import textwrap
 
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
-from simple_agent.application.tool_message_parser import parse_tool_calls
 
 syntax = EmojiBracketToolSyntax()
 
 
 def test_parse_simple_tool_call():
     text = "Hello\n🛠️[bash echo hello]"
-    result = parse_tool_calls(text, syntax)
+    result = syntax.parse(text)
     assert result.message == "Hello"
     assert len(result.tool_calls) == 1
     assert result.tool_calls[0].name == "bash"
@@ -17,21 +16,21 @@ def test_parse_simple_tool_call():
 
 def test_parse_multiline_arguments():
     text = "Message\n🛠️[create_file path.txt]\nline1\nline2\n🛠️[/end]"
-    result = parse_tool_calls(text, syntax)
+    result = syntax.parse(text)
     assert result.tool_calls[0].arguments == "path.txt"
     assert result.tool_calls[0].body == "line1\nline2"
 
 
 def test_parse_no_tools():
     text = "Just a message with no tools"
-    result = parse_tool_calls(text, syntax)
+    result = syntax.parse(text)
     assert result.message == "Just a message with no tools"
     assert result.tool_calls == []
 
 
 def test_parse_multiple_tools():
     text = "Start\n🛠️[ls /]\n🛠️[bash pwd /]"
-    result = parse_tool_calls(text, syntax)
+    result = syntax.parse(text)
     assert len(result.tool_calls) == 2
     assert result.tool_calls[0].name == "ls"
     assert result.tool_calls[0].arguments == ""
@@ -41,7 +40,7 @@ def test_parse_multiple_tools():
 
 def test_parse_tool_with_hyphen_in_name():
     text = "🛠️[create-file test.txt]\ncontent\n🛠️[/end]"
-    result = parse_tool_calls(text, syntax)
+    result = syntax.parse(text)
     assert result.tool_calls[0].name == "create-file"
     assert result.tool_calls[0].arguments == "test.txt"
     assert result.tool_calls[0].body == "content"
@@ -54,7 +53,7 @@ def test_parse_tool_with_multiline_message():
 
     🛠️[ls]
     """)
-    result = parse_tool_calls(text, syntax)
+    result = syntax.parse(text)
     assert result.message == dedent("""
     Let me read
     the current folder
@@ -73,7 +72,7 @@ def test_parse_tool_with_end_marker():
 
     This is text after the tool
     """)
-    result = parse_tool_calls(text, syntax)
+    result = syntax.parse(text)
     assert result.message == "I will create a file"
     assert result.tool_calls[0].name == "create-file"
     assert result.tool_calls[0].arguments == "test.txt"
@@ -90,7 +89,7 @@ def test_parse_tool_with_nested_like_body():
     🛠️[/end]
     🛠️[/end]
     """)
-    result = parse_tool_calls(text, syntax)
+    result = syntax.parse(text)
 
     assert result.message == "I will create a file that contains tool syntax"
     assert len(result.tool_calls) == 1
@@ -114,7 +113,7 @@ def test_parse_two_multiline_tools():
     Second line
     🛠️[/end]
     """)
-    result = parse_tool_calls(text, syntax)
+    result = syntax.parse(text)
     assert result.message == "I will create two files"
     assert len(result.tool_calls) == 2
     assert result.tool_calls[0].name == "create-file"
@@ -128,7 +127,7 @@ def test_parse_two_multiline_tools():
 def test_parse_unknown_tool_returns_raw_call():
     """Parser does not validate tool names - returns raw calls for any tool name."""
     text = "🛠️[nonexistent_tool arg1]"
-    result = parse_tool_calls(text, syntax)
+    result = syntax.parse(text)
     assert len(result.tool_calls) == 1
     assert result.tool_calls[0].name == "nonexistent_tool"
     assert result.tool_calls[0].arguments == "arg1"
