@@ -41,7 +41,8 @@ scenarios: a filename with a space, a continued session, an interrupted call,
 a mid-session switch to a text model.
 
 The core shape:
-- the call (then `RawToolCall`, now `ToolCall`) carries `named_arguments`, `native_id`, `thought_signature`
+- the call (then `RawToolCall`, now `ToolCall`) carries `named_arguments` and
+  the provider state (first as `native_id` and `thought_signature`)
 - Gemini reads a function call into name, dict, id and signature only; it
   knows nothing about the emoji syntax or the tool declarations any more
 - Gemini replays the dict verbatim, under the ids it sent, thought first
@@ -154,9 +155,12 @@ not coerced, since no tool declares them.
 
 ## Next steps
 
-Leftover from this story, small:
-- `thought_signature` and `native_id` are Gemini-shaped; fold into one
-  `provider_state` when a second native adapter needs its own
+The Ctrl+C and provider-state leftovers are done: a `KeyboardInterrupt`
+during a tool records the cancelled event and an interrupted result like ESC
+does, and `ToolCall.provider_state` is an opaque dict the core persists
+without reading; only the Gemini adapter knows its `thought_signature` and
+`native_id` keys. Persisted tool-called events written before this carry
+the two keys at the top level and load without them.
 
 The next story: native tool calling for Claude and OpenAI. Each adapter maps
 `ToolCall` (name, typed dict, id) to its wire format and back, declares tools
