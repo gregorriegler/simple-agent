@@ -207,6 +207,14 @@ continued session, an interrupted call.
   reading is gone. `NATIVE_ADAPTERS` lists claude; the provider's native
   branch dispatches on the adapter
 
+## Native by adapter
+
+With all three API adapters native, the `tool_syntax` config key is gone.
+The provider hands Claude, OpenAI and Gemini out bare with the tools;
+`ModelConfig.tool_syntax` derives the name from the adapter, so the system
+prompt still knows whether to document the tools as text. A `tool_syntax`
+key left in an old config is ignored.
+
 ## Next steps
 
 Bedrock still speaks emoji only; its Claude shapes would map the same way.
