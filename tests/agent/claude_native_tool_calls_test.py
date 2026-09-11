@@ -36,7 +36,6 @@ class ScriptedClaude:
             api_key="test-api-key",
             base_url="https://api.anthropic.com/v1",
             request_timeout=60,
-            tool_syntax="native",
         )
         return ClaudeLLM(config, tools=tools, transport=self.transport())
 

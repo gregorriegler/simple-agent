@@ -36,7 +36,6 @@ class ScriptedOpenAI:
             api_key="test-api-key",
             base_url="https://api.openai.com/v1",
             request_timeout=60,
-            tool_syntax="native",
         )
         return OpenAILLM(config, tools=tools, transport=self.transport())
 

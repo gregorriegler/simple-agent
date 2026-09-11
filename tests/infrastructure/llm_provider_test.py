@@ -20,87 +20,65 @@ def build_user_config(model_config: ModelConfig) -> UserConfiguration:
                 "api_key": model_config.api_key,
                 "base_url": model_config.base_url,
                 "request_timeout": model_config.request_timeout,
-                "tool_syntax": model_config.tool_syntax,
             }
         },
     }
     return UserConfiguration(config, "/tmp")
 
 
-def test_remote_llm_provider_returns_openai_adapter():
+TOOLS = [SimpleNamespace(name="tool-a"), SimpleNamespace(name="tool-b")]
+
+
+def test_openai_is_native_and_receives_the_tools():
     model = ModelConfig(name="openai", model="gpt-4", adapter="openai", api_key="key")
     provider = RemoteLLMProvider(build_user_config(model))
 
-    llm = provider.get()
+    llm = provider.get(tools=TOOLS)
 
-    assert isinstance(llm, EmojiToolCallsLLM)
-    assert isinstance(llm._inner, OpenAILLM)
+    assert isinstance(llm, OpenAILLM)
+    assert llm._tools == TOOLS
 
 
-def test_remote_llm_provider_returns_gemini_adapter():
+def test_gemini_is_native_and_receives_the_tools():
     model = ModelConfig(
         name="gemini", model="gemini-3.7-flash", adapter="gemini", api_key="key"
     )
     provider = RemoteLLMProvider(build_user_config(model))
 
-    llm = provider.get()
+    llm = provider.get(tools=TOOLS)
 
-    assert isinstance(llm, EmojiToolCallsLLM)
-    assert isinstance(llm._inner, GeminiLLM)
+    assert isinstance(llm, GeminiLLM)
+    assert llm._tools == TOOLS
 
 
-def test_remote_llm_provider_returns_claude_adapter_by_default():
+def test_claude_is_native_and_receives_the_tools():
     model = ModelConfig(
         name="claude", model="claude-sonnet-4", adapter="claude", api_key="key"
     )
     provider = RemoteLLMProvider(build_user_config(model))
 
-    llm = provider.get()
+    llm = provider.get(tools=TOOLS)
 
-    assert isinstance(llm, EmojiToolCallsLLM)
-    assert isinstance(llm._inner, ClaudeLLM)
+    assert isinstance(llm, ClaudeLLM)
+    assert llm._tools == TOOLS
 
 
-def test_native_gemini_receives_the_tools():
+def test_provider_reports_native_tool_syntax_for_the_api_adapters():
     model = ModelConfig(
-        name="gemini",
-        model="gemini-3-flash",
-        adapter="gemini",
-        api_key="key",
-        tool_syntax="native",
-    )
-    provider = RemoteLLMProvider(build_user_config(model))
-    tools = [SimpleNamespace(name="tool-a"), SimpleNamespace(name="tool-b")]
-
-    llm = provider.get(tools=tools)
-
-    assert isinstance(llm, GeminiLLM)
-    assert llm._tools == tools
-
-
-def test_provider_reports_configured_tool_syntax():
-    model = ModelConfig(
-        name="gemini",
-        model="gemini-3-flash",
-        adapter="gemini",
-        api_key="key",
-        tool_syntax="native",
+        name="gemini", model="gemini-3-flash", adapter="gemini", api_key="key"
     )
     provider = RemoteLLMProvider(build_user_config(model))
 
     assert provider.tool_syntax() == "native"
 
 
-def test_emoji_gemini_ignores_the_tools():
+def test_provider_reports_emoji_tool_syntax_for_bedrock():
     model = ModelConfig(
-        name="gemini", model="gemini-3-flash", adapter="gemini", api_key="key"
+        name="bedrock", model="claude-3-haiku", adapter="bedrock", api_key="unused"
     )
     provider = RemoteLLMProvider(build_user_config(model))
 
-    llm = provider.get(tools=[SimpleNamespace(name="tool-a")])
-
-    assert isinstance(llm, EmojiToolCallsLLM)
-    assert llm._inner._tools == []
+    assert provider.tool_syntax() == "emoji"
 
 
 def test_remote_llm_provider_returns_bedrock_adapter():
@@ -116,20 +94,3 @@ def test_remote_llm_provider_returns_bedrock_adapter():
 
     assert isinstance(llm, EmojiToolCallsLLM)
     assert isinstance(llm._inner, BedrockClaudeLLM)
-
-
-def test_native_claude_receives_the_tools():
-    model = ModelConfig(
-        name="claude",
-        model="claude-sonnet-4",
-        adapter="claude",
-        api_key="key",
-        tool_syntax="native",
-    )
-    provider = RemoteLLMProvider(build_user_config(model))
-    tools = [SimpleNamespace(name="tool-a"), SimpleNamespace(name="tool-b")]
-
-    llm = provider.get(tools=tools)
-
-    assert isinstance(llm, ClaudeLLM)
-    assert llm._tools == tools
