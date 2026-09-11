@@ -3,10 +3,10 @@ import logging
 import httpx
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
-from simple_agent.application.text_messages import (
-    split_system_prompt,
-    to_wire_messages,
-)
+from simple_agent.application.text_messages import split_system_prompt
+from simple_agent.application.tool_library import Tool
+from simple_agent.infrastructure.claude.claude_messages import to_messages_api
+from simple_agent.infrastructure.claude.claude_tools import to_tool_calls, to_tools
 from simple_agent.infrastructure.llm_http import post_with_retry
 from simple_agent.infrastructure.model_config import ModelConfig
 
@@ -19,9 +19,14 @@ class ClaudeClientError(RuntimeError):
 
 class ClaudeLLM(LLM):
     def __init__(
-        self, config: ModelConfig, transport: httpx.AsyncBaseTransport | None = None
+        self,
+        config: ModelConfig,
+        tools: list[Tool] | None = None,
+        transport: httpx.AsyncBaseTransport | None = None,
     ):
         self._config = config
+        self._tools = tools or []
+        self._declarations = {tool.name: tool for tool in self._tools}
         self._transport = transport
         self._ensure_claude_adapter()
 
@@ -43,13 +48,14 @@ class ClaudeLLM(LLM):
             "anthropic-version": "2023-06-01",
         }
         system_prompt, history = split_system_prompt(messages)
-        payload_messages = to_wire_messages(history)
         data = {
             "model": model,
             "max_tokens": 4000,
-            "messages": payload_messages,
+            "messages": to_messages_api(history),
             **({"system": system_prompt} if system_prompt else {}),
         }
+        if self._tools:
+            data["tools"] = to_tools(self._tools)
 
         response = await post_with_retry(
             url,
@@ -71,12 +77,14 @@ class ClaudeLLM(LLM):
             raise ClaudeClientError("API response missing 'content' field")
 
         content_list = response_data["content"]
-        content = ""
-        if content_list:
-            first_content = content_list[0]
-            if "text" not in first_content:
-                raise ClaudeClientError("API response content missing 'text' field")
-            content = first_content["text"]
+        content = "".join(
+            block.get("text", "")
+            for block in content_list
+            if block.get("type") == "text"
+        )
+        tool_calls = (
+            to_tool_calls(content_list, self._declarations) if self._tools else []
+        )
 
         usage_data = response_data.get("usage", {})
         input_tokens = usage_data.get("input_tokens", 0)
@@ -87,7 +95,9 @@ class ClaudeLLM(LLM):
             total_tokens=input_tokens + output_tokens,
         )
 
-        return LLMResponse(answer=content, model=model, usage=usage)
+        return LLMResponse(
+            answer=content, tool_calls=tool_calls, model=model, usage=usage
+        )
 
     def _ensure_claude_adapter(self) -> None:
         if self._config.adapter != "claude":
