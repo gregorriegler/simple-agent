@@ -190,9 +190,11 @@ class ToolArguments:
 
     @staticmethod
     def _quoted(value: str, last: bool) -> str:
-        if last and not any(quote in value for quote in "'\""):
-            return value
-        return shlex.quote(value)
+        quoted = any(quote in value for quote in "'\"")
+        spaced = not value or any(char.isspace() for char in value)
+        if quoted or (spaced and not last):
+            return shlex.quote(value)
+        return value
 
     def render_body(self, named: dict[str, Any]) -> str:
         if self._body is None:
