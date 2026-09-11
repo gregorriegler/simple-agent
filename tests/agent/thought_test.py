@@ -1,8 +1,7 @@
 import pytest
 
 from simple_agent.application.events import AssistantThoughtEvent
-from simple_agent.application.llm import TokenUsage
-from simple_agent.application.text_response import emoji_response
+from simple_agent.application.llm import LLMResponse, TokenUsage
 from tests.session_test_bed import SessionTestBed
 
 pytestmark = pytest.mark.asyncio
@@ -18,7 +17,9 @@ class ThinkingLLM:
 
     async def call_async(self, messages):
         content, thought = self._turns.pop(0)
-        return emoji_response(content, self.model, TokenUsage(), thought)
+        return LLMResponse(
+            answer=content, model=self.model, usage=TokenUsage(), thought=thought
+        )
 
 
 async def published_thoughts(turns: list[tuple[str, str]]) -> list[str]:

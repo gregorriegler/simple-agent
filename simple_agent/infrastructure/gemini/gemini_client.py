@@ -10,7 +10,6 @@ from simple_agent.application.llm import (
     TokenUsage,
 )
 from simple_agent.application.text_messages import to_text_turn
-from simple_agent.application.text_response import emoji_response
 from simple_agent.application.tool_library import Tool
 from simple_agent.infrastructure.gemini.gemini_steps import (
     InteractionSteps,
@@ -80,8 +79,6 @@ class GeminiLLM(LLM):
 
         thought = self._thought_summary(steps)
 
-        if not self._tools:
-            return emoji_response(content, model, usage, thought)
         return LLMResponse(
             answer=content,
             tool_calls=tool_calls,

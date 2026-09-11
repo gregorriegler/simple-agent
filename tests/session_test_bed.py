@@ -30,7 +30,7 @@ from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.application.session import Session
 from simple_agent.application.text_messages import to_text_messages
-from simple_agent.application.text_response import emoji_response
+from simple_agent.application.text_response import EmojiToolCallsLLM
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from simple_agent.infrastructure.file_intent import FileIntent
 from tests.event_spy import EventSpy
@@ -61,7 +61,7 @@ class CapturingLLM:
         if self._response_index < len(self._responses):
             content = self._responses[self._response_index]
             self._response_index += 1
-        return emoji_response(content, self.model, TokenUsage(0, 0, 0))
+        return LLMResponse(answer=content, model=self.model, usage=TokenUsage(0, 0, 0))
 
     def first_call_contained(self, role: str, content: str) -> bool:
         return self.call_contained(0, role, content)
@@ -333,9 +333,8 @@ class TestLLMProvider:
         self._observer_llm = observer_llm
 
     def get(self, model_name: str | None = None, tools: list | None = None):
-        if model_name == OBSERVER_MODEL:
-            return self._observer_llm
-        return self._agent_llm
+        llm = self._observer_llm if model_name == OBSERVER_MODEL else self._agent_llm
+        return EmojiToolCallsLLM(llm, tools or [])
 
     def get_available_models(self) -> list[str]:
         return [self._agent_llm.model]

@@ -7,7 +7,6 @@ from simple_agent.application.text_messages import (
     split_system_prompt,
     to_text_messages,
 )
-from simple_agent.application.text_response import emoji_response
 from simple_agent.infrastructure.llm_http import post_with_retry
 from simple_agent.infrastructure.model_config import ModelConfig
 
@@ -88,7 +87,7 @@ class ClaudeLLM(LLM):
             total_tokens=input_tokens + output_tokens,
         )
 
-        return emoji_response(content, model, usage)
+        return LLMResponse(answer=content, model=model, usage=usage)
 
     def _ensure_claude_adapter(self) -> None:
         if self._config.adapter != "claude":

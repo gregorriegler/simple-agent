@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+from simple_agent.application.text_response import EmojiToolCallsLLM
 from simple_agent.infrastructure.bedrock.bedrock_client import BedrockClaudeLLM
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.gemini import GeminiLLM
@@ -32,7 +33,8 @@ def test_remote_llm_provider_returns_openai_adapter():
 
     llm = provider.get()
 
-    assert isinstance(llm, OpenAILLM)
+    assert isinstance(llm, EmojiToolCallsLLM)
+    assert isinstance(llm._inner, OpenAILLM)
 
 
 def test_remote_llm_provider_returns_gemini_adapter():
@@ -43,7 +45,8 @@ def test_remote_llm_provider_returns_gemini_adapter():
 
     llm = provider.get()
 
-    assert isinstance(llm, GeminiLLM)
+    assert isinstance(llm, EmojiToolCallsLLM)
+    assert isinstance(llm._inner, GeminiLLM)
 
 
 def test_remote_llm_provider_returns_claude_adapter_by_default():
@@ -54,7 +57,8 @@ def test_remote_llm_provider_returns_claude_adapter_by_default():
 
     llm = provider.get()
 
-    assert isinstance(llm, ClaudeLLM)
+    assert isinstance(llm, EmojiToolCallsLLM)
+    assert isinstance(llm._inner, ClaudeLLM)
 
 
 def test_native_gemini_receives_the_tools():
@@ -93,9 +97,10 @@ def test_emoji_gemini_ignores_the_tools():
     )
     provider = RemoteLLMProvider(build_user_config(model))
 
-    llm = provider.get(tools=["tool-a"])
+    llm = provider.get(tools=[SimpleNamespace(name="tool-a")])
 
-    assert llm._tools == []
+    assert isinstance(llm, EmojiToolCallsLLM)
+    assert llm._inner._tools == []
 
 
 def test_remote_llm_provider_returns_bedrock_adapter():
@@ -109,4 +114,5 @@ def test_remote_llm_provider_returns_bedrock_adapter():
 
     llm = provider.get()
 
-    assert isinstance(llm, BedrockClaudeLLM)
+    assert isinstance(llm, EmojiToolCallsLLM)
+    assert isinstance(llm._inner, BedrockClaudeLLM)

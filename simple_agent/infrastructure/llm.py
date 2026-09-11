@@ -1,4 +1,5 @@
 from simple_agent.application.llm import LLM
+from simple_agent.application.text_response import EmojiToolCallsLLM
 from simple_agent.application.tool_library import Tool
 from simple_agent.infrastructure.bedrock.bedrock_client import BedrockClaudeLLM
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
@@ -21,14 +22,17 @@ class RemoteLLMProvider:
         self, model_name: str | None = None, tools: list[Tool] | None = None
     ) -> LLM:
         model_config = self._registry.get(model_name)
+        tools = tools or []
+        if model_config.adapter == "gemini" and model_config.tool_syntax == "native":
+            return GeminiLLM(model_config, tools=tools)
+        return EmojiToolCallsLLM(self._text_client(model_config), tools)
+
+    @staticmethod
+    def _text_client(model_config) -> LLM:
         if model_config.adapter == "openai":
             return OpenAILLM(model_config)
-
         if model_config.adapter == "gemini":
-            native = model_config.tool_syntax == "native"
-            return GeminiLLM(model_config, tools=tools if native else None)
-
+            return GeminiLLM(model_config)
         if model_config.adapter == "bedrock":
             return BedrockClaudeLLM(model_config)
-
         return ClaudeLLM(model_config)

@@ -4,7 +4,6 @@ import httpx
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
 from simple_agent.application.text_messages import to_text_messages
-from simple_agent.application.text_response import emoji_response
 from simple_agent.infrastructure.llm_http import post_with_retry
 from simple_agent.infrastructure.model_config import ModelConfig
 
@@ -76,7 +75,7 @@ class OpenAILLM(LLM):
             total_tokens=usage_data.get("total_tokens", 0),
         )
 
-        return emoji_response(content, model, usage)
+        return LLMResponse(answer=content, model=model, usage=usage)
 
     def _ensure_openai_adapter(self) -> None:
         if self._config.adapter != "openai":

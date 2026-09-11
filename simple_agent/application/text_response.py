@@ -1,25 +1,33 @@
+from dataclasses import replace
+
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
-from simple_agent.application.llm import LLMResponse, TokenUsage
+from simple_agent.application.llm import LLM, ChatMessages, LLMResponse
+from simple_agent.application.tool_library import RawToolCall, ToolDeclaration
 
-_SYNTAX = EmojiBracketToolSyntax()
 
-
-def emoji_response(
-    content: str, model: str, usage: TokenUsage | None, thought: str = ""
-) -> LLMResponse:
+class EmojiToolCallsLLM:
     """
-    Build an LLMResponse from an emoji-protocol text completion.
-
-    The adapter owns parsing: the emoji tool calls are extracted into
-    structured tool_calls and the surrounding prose becomes the message,
-    while content keeps the raw text for history and round-trip.
+    Binds the emoji tool calls in a text-only LLM's answer to the tools it
+    was handed. A call to a tool it does not know leaves the whole answer
+    as text, so the model's words reach the user unchanged.
     """
-    raw_turn = _SYNTAX.parse(content)
-    return LLMResponse(
-        answer=content,
-        tool_calls=raw_turn.tool_calls,
-        message=raw_turn.message,
-        model=model,
-        usage=usage,
-        thought=thought,
-    )
+
+    def __init__(self, inner: LLM, tools: list[ToolDeclaration]):
+        self._inner = inner
+        self._tools = {tool.name: tool for tool in tools}
+        self._syntax = EmojiBracketToolSyntax()
+
+    @property
+    def model(self) -> str:
+        return self._inner.model
+
+    async def call_async(self, messages: ChatMessages) -> LLMResponse:
+        response = await self._inner.call_async(messages)
+        turn = self._syntax.parse(response.answer)
+        bound: list[RawToolCall] = []
+        for call in turn.tool_calls:
+            tool = self._tools.get(call.name)
+            if tool is None:
+                return replace(response, tool_calls=[], message=response.answer)
+            bound.append(call.bind(tool))
+        return replace(response, tool_calls=bound, message=turn.message)

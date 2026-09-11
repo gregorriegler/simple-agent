@@ -13,7 +13,6 @@ from simple_agent.application.text_messages import (
     split_system_prompt,
     to_text_messages,
 )
-from simple_agent.application.text_response import emoji_response
 from simple_agent.infrastructure.logging_http_client import (
     format_request_args,
     format_response_args,
@@ -98,7 +97,7 @@ class BedrockClaudeLLM(LLM):
             total_tokens=input_tokens + output_tokens,
         )
 
-        return emoji_response(content, self._config.model, usage)
+        return LLMResponse(answer=content, model=self._config.model, usage=usage)
 
     def _invoke_model(self, data: dict[str, Any]):
         body = json.dumps(data)

@@ -55,8 +55,9 @@ class RawToolCall:
 
 
 class ToolDeclaration(Protocol):
-    """What a call needs to know about its tool: the declared arguments."""
+    """What a call needs to know about its tool: its name and declared arguments."""
 
+    name: str
     arguments: "ToolArguments"
 
 
