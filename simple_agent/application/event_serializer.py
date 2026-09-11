@@ -75,6 +75,7 @@ class EventSerializer:
                 "named_arguments": event.call.named_arguments if event.call else {},
                 "thought_signature": event.call.thought_signature if event.call else "",
                 "native_id": event.call.native_id if event.call else "",
+                "provider_state": event.call.provider_state if event.call else {},
             }
         elif isinstance(event, ToolResultEvent):
             status = "success"
@@ -187,6 +188,7 @@ class EventSerializer:
                     named_arguments=data.get("named_arguments") or {},
                     thought_signature=data.get("thought_signature", ""),
                     native_id=data.get("native_id", ""),
+                    provider_state=data.get("provider_state") or {},
                 ),
             )
         elif event_type == "ToolResultEvent":

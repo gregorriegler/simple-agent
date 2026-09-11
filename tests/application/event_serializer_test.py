@@ -307,6 +307,7 @@ class TestEventSerializer:
             "named_arguments": {"command": "ls -la"},
             "thought_signature": "",
             "native_id": "",
+            "provider_state": {},
         }
 
     def test_deserialize_tool_called_event(self):
@@ -323,12 +324,11 @@ class TestEventSerializer:
         assert result.call_id == "Agent::tool_call::1"
         assert result.call == ToolCall("bash", {"command": "ls -la"})
 
-    def test_round_trips_named_arguments_and_thought_signature(self):
+    def test_round_trips_named_arguments_and_provider_state(self):
         call = ToolCall(
             "cat",
             {"filename": "my notes.md", "with_line_numbers": "true"},
-            thought_signature="SIG",
-            native_id="fc_1",
+            provider_state={"thought_signature": "SIG", "native_id": "fc_1"},
         )
         event = ToolCalledEvent(
             agent_id=AgentId("Agent"), call_id="Agent::tool_call::1", call=call
