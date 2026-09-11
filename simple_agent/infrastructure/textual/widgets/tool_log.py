@@ -255,6 +255,19 @@ class ToolLog(VerticalScroll):
         finally:
             self._replaying = True
 
+    def _swap_body(
+        self, collapsible: ToolCollapsible, old: Widget, new: Widget
+    ) -> None:
+        """
+        Replace a call's body once the collapsible is mounted; a result that
+        lands before then, on a log not yet on screen, waits for its mount.
+        """
+        old.remove()
+        try:
+            collapsible.query_one(Collapsible.Contents).mount(new)
+        except NoMatches:
+            collapsible.mount(new)
+
     def _degrade_old_entries(self) -> None:
         excess = len(self._collapsibles) - LIVE_ENTRY_WINDOW
         for collapsible in self._collapsibles[: max(excess, 0)]:
@@ -395,12 +408,12 @@ class ToolLog(VerticalScroll):
                 diff_widget.add_class(cls)
             height = min((len(message.splitlines()) or 1) + 2, 30)
             diff_widget.styles.height = height
-            text_area.remove()
-            try:
-                contents = call_collapsible.query_one(Collapsible.Contents)
-                contents.mount(diff_widget)
-            except NoMatches:
-                call_collapsible.mount(diff_widget)
+            if call_collapsible.is_mounted:
+                self._swap_body(call_collapsible, text_area, diff_widget)
+            else:
+                call_collapsible.call_later(
+                    self._swap_body, call_collapsible, text_area, diff_widget
+                )
         else:
             text_area.load_text(message)
             text_area.language = language
