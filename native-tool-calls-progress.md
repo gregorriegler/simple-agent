@@ -103,13 +103,26 @@ commit with the tests green:
   Gemini `InteractionSteps` builder are the two renderers; a native Claude
   or OpenAI adapter is a third, and a new message kind fails at the
   protocol instead of falling through a chain
+- every tool reads its arguments by name; none reads the header or body
+  text
+- `RawToolCall` is the name, the dict and the provider ids. Bound to its
+  tool it carries the `ToolArguments` declaration and renders the header
+  and body from the dict; the text fields are gone. The emoji parser
+  yields `EmojiToolCall`, which binds its positional text to the declared
+  names; the resolver calls `bind` on whichever call it got. Persistence
+  stores the dict only, and a session continued from disk binds every
+  loaded call against the factory's declarations before replaying it, so
+  the transcript and the text adapters render the same header as live.
+  The last declared positional argument is written unquoted, since it
+  absorbs leftover tokens when bound, so `say hello` round-trips as
+  written; a value with quotes in it is shell-quoted
 
 ## Next steps
 
 Leftovers from this story, small:
-- `RawToolCall.arguments` is still a constructor field, filled by the binder
-  for native calls; making it a computed rendering would touch every
-  construction site for no behaviour change
+- a tool-called event written before named arguments were persisted loads
+  with its name only; the assistant text still carries the call, so a text
+  adapter replays it, but the result label loses its arguments
 - values from Gemini are not coerced to the declared type; a non-string where
   a tool expects text fails the turn with a generic error (typed arguments
   object, needed once a second native adapter exists)
