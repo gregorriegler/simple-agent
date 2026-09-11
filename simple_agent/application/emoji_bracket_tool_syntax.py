@@ -8,7 +8,6 @@ from simple_agent.application.tool_library import (
     ToolArgument,
     ToolArguments,
     ToolDeclaration,
-    is_true,
 )
 from simple_agent.application.tool_syntax import RawAssistantTurn, ToolSyntax
 
@@ -37,7 +36,7 @@ class EmojiToolCall:
             named = {}
         if tool.arguments.body and self.body:
             named[tool.arguments.body.name] = self.body
-        return RawToolCall(self.name, named, declaration=tool.arguments)
+        return RawToolCall(self.name, named).bind(tool)
 
 
 def _bind_header(text: str, arguments: ToolArguments) -> dict[str, Any]:
@@ -141,16 +140,16 @@ class EmojiBracketToolSyntax(ToolSyntax):
         reasoning = example.get("reasoning")
         result = example.get("result")
         # Create a copy without special fields for formatting
-        example_without_special = {
-            k: v for k, v in example.items() if k not in ("reasoning", "result")
-        }
+        example_without_special = tool.arguments.coerce(
+            {k: v for k, v in example.items() if k not in ("reasoning", "result")}
+        )
 
         # Collect inline argument values (header args)
         inline_values = []
         for arg in tool.arguments:
             value = example_without_special.get(arg.name, "")
             if arg.is_flag:
-                if is_true(value):
+                if value:
                     inline_values.append(arg.name)
             elif value:
                 inline_values.append(str(value))

@@ -211,7 +211,7 @@ class ToolArguments:
             for arg in positional
             if arg.name in named
         ]
-        parts.extend(flag.name for flag in self.flags if is_true(named.get(flag.name)))
+        parts.extend(flag.name for flag in self.flags if named.get(flag.name))
         return " ".join(parts)
 
     @staticmethod
