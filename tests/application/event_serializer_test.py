@@ -305,8 +305,6 @@ class TestEventSerializer:
             "call_id": "Agent::tool_call::1",
             "tool_name": "bash",
             "named_arguments": {"command": "ls -la"},
-            "thought_signature": "",
-            "native_id": "",
             "provider_state": {},
         }
 

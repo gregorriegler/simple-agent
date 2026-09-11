@@ -75,7 +75,7 @@ def test_renders_native_tool_calls_as_emoji_text():
     call = ToolCall(
         "cat",
         {"filename": "my notes.md", "with_line_numbers": True},
-        native_id="fc_1",
+        provider_state={"native_id": "fc_1"},
     )
     messages = [AssistantMessage("", [call])]
 

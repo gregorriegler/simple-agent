@@ -28,6 +28,23 @@ def _property(arg: ToolArgument) -> dict:
     return {"type": arg.json_type, "description": arg.description}
 
 
+def provider_state(native_id: str, thought_signature: str) -> dict[str, str]:
+    state = {}
+    if native_id:
+        state["native_id"] = native_id
+    if thought_signature:
+        state["thought_signature"] = thought_signature
+    return state
+
+
+def native_id(call: ToolCall) -> str:
+    return call.provider_state.get("native_id", "")
+
+
+def thought_signature(call: ToolCall) -> str:
+    return call.provider_state.get("thought_signature", "")
+
+
 class UndeclaredTool(Exception):
     """Gemini called a function it was never declared."""
 
@@ -53,8 +70,9 @@ def to_tool_calls(steps: list[dict], tools: ToolDeclarations) -> list[ToolCall]:
                 ToolCall(
                     name=name,
                     named_arguments=tool.arguments.coerce(step.get("arguments") or {}),
-                    native_id=step.get("id", ""),
-                    thought_signature=pending_signature,
+                    provider_state=provider_state(
+                        step.get("id", ""), pending_signature
+                    ),
                 )
             )
             pending_signature = ""
