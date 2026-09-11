@@ -1,5 +1,4 @@
 from collections.abc import Sequence
-from dataclasses import replace
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
@@ -12,11 +11,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
 )
 from simple_agent.application.llm import Messages
-from simple_agent.application.tool_library import (
-    ToolCall,
-    ToolDeclarations,
-    bind_call,
-)
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tools_executor import INTERRUPTED_RESULT
 
 
@@ -31,22 +26,6 @@ class _AssistantTurn:
         messages.assistant_says(self.answer, self.calls)
         self.answer = ""
         self.calls = []
-
-
-def bind_tool_calls(
-    events: Sequence[AgentEvent], declarations: ToolDeclarations
-) -> list[AgentEvent]:
-    """
-    A persisted call carries only what the model sent. Bound to the tool it
-    names, it can render its text again, for the transcript and for the
-    text adapters.
-    """
-    return [
-        replace(event, call=bind_call(event.call, declarations))
-        if isinstance(event, ToolCalledEvent) and event.call is not None
-        else event
-        for event in events
-    ]
 
 
 def events_to_messages(events: Sequence[AgentEvent], agent_id: AgentId) -> Messages:

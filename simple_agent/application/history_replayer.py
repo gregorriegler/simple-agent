@@ -15,8 +15,8 @@ from simple_agent.application.events import (
     ToolCalledEvent,
     ToolResultEvent,
 )
-from simple_agent.application.events_to_messages import bind_tool_calls
-from simple_agent.application.tool_library import ToolDeclarations, bind_call
+from simple_agent.application.text_response import bind_emoji_calls
+from simple_agent.application.tool_library import ToolDeclarations
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +36,7 @@ class HistoryReplayer:
     async def replay_all_agents_async(
         self, starting_agent_id: AgentId
     ) -> list[AgentStartedEvent]:
-        events = bind_tool_calls(
-            _since_last_clear(self._event_store.load_all_events()), self._declarations
-        )
+        events = _since_last_clear(self._event_store.load_all_events())
         if not events:
             return []
 
@@ -87,16 +85,15 @@ class HistoryReplayer:
 
     def _recover_legacy_assistant_response(self, event, results):
         try:
-            raw_turn = self._tool_syntax.parse(event.response)
-            if raw_turn.message:
+            message, calls = bind_emoji_calls(
+                event.response, self._declarations, self._tool_syntax
+            )
+            if message:
                 self._event_bus.publish(
-                    AssistantSaidEvent(
-                        agent_id=event.agent_id, message=raw_turn.message
-                    )
+                    AssistantSaidEvent(agent_id=event.agent_id, message=message)
                 )
 
-            for i, unbound in enumerate(raw_turn.tool_calls):
-                call = bind_call(unbound, self._declarations)
+            for i, call in enumerate(calls):
                 if results:
                     res_event = results.popleft()
                     self._event_bus.publish(

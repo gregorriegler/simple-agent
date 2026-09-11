@@ -605,13 +605,6 @@ class TestBind:
             "multiline_arg": "line1\nline2",
         }
 
-    def test_a_native_call_keeps_its_named_arguments_when_bound(self):
-        call = ToolCall("test_tool", {"arg1": "native"})
-
-        bound = call.bind(SimpleTool())
-
-        assert bound.named_arguments == {"arg1": "native"}
-
     def test_unbalanced_quotes_bind_nothing(self):
         bound = EmojiToolCall("test_tool", "'broken value2").bind(SimpleTool())
 
@@ -637,11 +630,6 @@ class TestBind:
         bound = EmojiToolCall("flag_tool", "coding say hello").bind(_MockFlagTool())
 
         assert bound.named_arguments == {"agenttype": "coding", "task": "say hello"}
-
-    def test_a_text_call_bound_to_no_tool_keeps_only_its_name(self):
-        bound = EmojiToolCall("mystery", "a b", body="c").bind(None)
-
-        assert bound == ToolCall("mystery")
 
 
 class _MockFlagTool(BaseTool):

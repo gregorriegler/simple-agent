@@ -9,7 +9,6 @@ from simple_agent.application.brain import Brain
 from simple_agent.application.event_bus import EventBus
 from simple_agent.application.event_store import EventStore
 from simple_agent.application.events_to_messages import (
-    bind_tool_calls,
     events_to_messages,
 )
 from simple_agent.application.input import Input
@@ -77,10 +76,7 @@ class AgentFactory:
         return spawn
 
     def history_of(self, agent_id: AgentId) -> Messages:
-        events = bind_tool_calls(
-            self._event_store.load_events(agent_id),
-            self._tool_library_factory.declarations(),
-        )
+        events = self._event_store.load_events(agent_id)
         return events_to_messages(events, agent_id)
 
     def create_agent_from_history(

@@ -49,12 +49,13 @@ def to_tool_calls(steps: list[dict], tools: ToolDeclarations) -> list[ToolCall]:
             tool = tools.get(name)
             if tool is None:
                 raise UndeclaredTool(f"Gemini called an undeclared tool: {name!r}")
-            call = ToolCall(
-                name=name,
-                named_arguments=step.get("arguments") or {},
-                native_id=step.get("id", ""),
-                thought_signature=pending_signature,
+            calls.append(
+                ToolCall(
+                    name=name,
+                    named_arguments=tool.arguments.coerce(step.get("arguments") or {}),
+                    native_id=step.get("id", ""),
+                    thought_signature=pending_signature,
+                )
             )
-            calls.append(call.bind(tool))
             pending_signature = ""
     return calls

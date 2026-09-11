@@ -90,7 +90,7 @@ async def test_renders_the_history_as_text_turns_before_the_inner_call():
 
     inner = TextOnlyLLM("ok")
     llm = EmojiToolCallsLLM(inner, [CAT])
-    call = ToolCall("cat", {"filename": "notes.md"}).bind(CAT)
+    call = ToolCall("cat", {"filename": "notes.md"})
 
     await llm.call_async(
         [

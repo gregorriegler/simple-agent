@@ -181,9 +181,7 @@ def test_resolving_pairs_a_bound_call_with_its_tool_and_leaves_the_call_as_it_is
 ):
     from simple_agent.application.tool_library import ToolCall
 
-    bound = ToolCall("cat", {"filename": "my notes.md"}).bind(
-        tool_library.tool_dict["cat"]
-    )
+    bound = ToolCall("cat", {"filename": "my notes.md"})
 
     turn = tool_library.resolve_tool_calls([bound], "reading")
 

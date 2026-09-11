@@ -13,7 +13,6 @@ from simple_agent.application.event_bus import EventBus
 from simple_agent.application.event_store import EventStore
 from simple_agent.application.events import SessionStartedEvent
 from simple_agent.application.events_to_messages import (
-    bind_tool_calls,
     events_to_messages,
 )
 from simple_agent.application.history_replayer import HistoryReplayer
@@ -128,9 +127,7 @@ class Session:
             unfinished_subagents = await history_replayer.replay_all_agents_async(
                 self._starting_agent_id
             )
-            events = bind_tool_calls(
-                self._event_store.load_events(self._starting_agent_id), declarations
-            )
+            events = self._event_store.load_events(self._starting_agent_id)
             context = events_to_messages(events, self._starting_agent_id)
         else:
             context = Messages()

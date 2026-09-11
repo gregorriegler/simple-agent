@@ -21,23 +21,22 @@ class EmojiToolCall:
     arguments: str
     body: str = ""
 
-    def bind(self, tool: ToolDeclaration | None) -> ToolCall:
+    def bind(self, tool: ToolDeclaration) -> ToolCall:
         """
         Bind the positional header to the tool's declared names: a single
         header argument takes the whole text as it was written; a longer
         header is split shell-style so a quoted value stays one value, and
         any tokens beyond the header flow into its last argument. Boolean
-        arguments are flags: they bind by name wherever they appear.
+        arguments are flags: they bind by name wherever they appear. The
+        values come out typed per the declaration.
         """
-        if tool is None:
-            return ToolCall(self.name)
         try:
             named = _bind_header(self.arguments, tool.arguments)
         except ValueError:
             named = {}
         if tool.arguments.body and self.body:
             named[tool.arguments.body.name] = self.body
-        return ToolCall(self.name, named).bind(tool)
+        return ToolCall(self.name, tool.arguments.coerce(named))
 
 
 def _bind_header(text: str, arguments: ToolArguments) -> dict[str, Any]:

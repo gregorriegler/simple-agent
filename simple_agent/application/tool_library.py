@@ -1,6 +1,6 @@
 import shlex
 from collections.abc import Mapping
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
 
 from .tool_results import ToolResult
@@ -26,13 +26,6 @@ class ToolCall:
     thought_signature: str = ""
     native_id: str = ""
 
-    def bind(self, tool: "ToolDeclaration | None") -> "ToolCall":
-        if tool is None:
-            return self
-        return replace(
-            self, named_arguments=tool.arguments.coerce(self.named_arguments)
-        )
-
 
 class ToolDeclaration(Protocol):
     """What a call needs to know about its tool: its name and declared arguments."""
@@ -46,17 +39,13 @@ ToolDeclarations = Mapping[str, ToolDeclaration]
 
 class UnboundToolCall(Protocol):
     """
-    A call as an adapter delivered it, before the tool it names is known.
-    Binding to no tool at all yields the best call there is without one.
+    A call as a text parser delivered it, before the tool it names is known.
+    Bound to that tool it becomes a ToolCall with typed named arguments.
     """
 
     name: str
 
-    def bind(self, tool: ToolDeclaration | None) -> ToolCall: ...
-
-
-def bind_call(call: UnboundToolCall, declarations: ToolDeclarations) -> ToolCall:
-    return call.bind(declarations.get(call.name))
+    def bind(self, tool: ToolDeclaration) -> ToolCall: ...
 
 
 class ToolInvocation:

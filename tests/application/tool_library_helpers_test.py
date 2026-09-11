@@ -79,13 +79,11 @@ def test_a_flag_coerces_a_json_boolean_or_its_text_spellings():
     assert flag("") is False
 
 
-def test_binding_to_no_tool_keeps_the_call():
-    call = ToolCall("mystery", {"x": "1"})
-
-    assert call.bind(None) is call
+def test_a_call_is_data_and_does_not_bind_itself():
+    assert not hasattr(ToolCall("cat"), "bind")
 
 
-def test_binding_coerces_values_to_their_declared_types():
+def test_declared_arguments_coerce_values_to_their_declared_types():
     cat = ToolArguments(
         header=[
             ToolArgument(name="filename", description=""),
@@ -94,7 +92,7 @@ def test_binding_coerces_values_to_their_declared_types():
     )
 
     def bound(named):
-        return ToolCall("cat", named).bind(Declares(cat)).named_arguments
+        return cat.coerce(named)
 
     assert bound({"filename": 42, "with_line_numbers": "true"}) == {
         "filename": "42",
@@ -105,11 +103,6 @@ def test_binding_coerces_values_to_their_declared_types():
         "with_line_numbers": False,
     }
     assert bound({"filename": "f"}) == {"filename": "f"}
-
-
-class Declares:
-    def __init__(self, arguments: ToolArguments) -> None:
-        self.arguments = arguments
 
 
 def test_renders_a_header_quoting_values_with_spaces_and_true_flags_by_name():
