@@ -65,21 +65,17 @@ def test_json_type_normalises_python_spellings_and_falls_back_to_string():
     assert json_type("path") == "string"
 
 
-def test_a_flag_reads_true_from_a_json_boolean_or_its_text_spellings():
+def test_a_flag_coerces_a_json_boolean_or_its_text_spellings():
     def flag(value):
-        return RawToolCall("t", {"f": value}).flag("f")
+        return ToolArgument(name="f", description="", type="bool").coerce(value)
 
-    assert flag(True)
-    assert flag("true")
-    assert flag("True")
-    assert flag("1")
-    assert not flag(False)
-    assert not flag("false")
-    assert not flag("")
-
-
-def test_an_absent_flag_reads_false():
-    assert not RawToolCall("t").flag("f")
+    assert flag(True) is True
+    assert flag("true") is True
+    assert flag("True") is True
+    assert flag("1") is True
+    assert flag(False) is False
+    assert flag("false") is False
+    assert flag("") is False
 
 
 def test_a_call_describes_itself_without_any_syntax_marker():

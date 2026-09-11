@@ -37,9 +37,6 @@ class RawToolCall:
             declaration=tool.arguments,
         )
 
-    def flag(self, name: str) -> bool:
-        return is_true(self.named_arguments.get(name, False))
-
     def header(self) -> str:
         return " ".join(part for part in (self.name, self._arguments_text()) if part)
 

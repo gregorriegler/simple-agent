@@ -54,7 +54,7 @@ class SubagentTool(BaseTool):
         named = raw_call.named_arguments
         agent_type_str = named.get("agenttype", "")
         task_description = str(named.get("task_description", "")).strip()
-        is_async = raw_call.flag("--async")
+        is_async = named.get("--async", False)
 
         if not agent_type_str or not task_description:
             return SingleToolResult(

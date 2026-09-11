@@ -44,7 +44,7 @@ class CatTool(BaseTool):
         if not filename:
             return None, None, False, "STDERR: cat: missing file operand"
         line_range = named.get("line_range") or None
-        return filename, line_range, raw_call.flag("with_line_numbers"), None
+        return filename, line_range, named.get("with_line_numbers", False), None
 
     def _validate_range(self, line_range):
         try:
