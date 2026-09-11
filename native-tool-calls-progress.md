@@ -98,6 +98,11 @@ commit with the tests green:
   ask for it; `split_system_prompt` hands Claude and Bedrock their system
   prompt, and Gemini flattens unsigned turns through `to_text_turn`, which
   stays typed
+- a message renders itself through a `MessageRenderer`, one method per
+  kind, so no adapter asks a message what it is. The text renderer and the
+  Gemini `InteractionSteps` builder are the two renderers; a native Claude
+  or OpenAI adapter is a third, and a new message kind fails at the
+  protocol instead of falling through a chain
 
 ## Next steps
 
