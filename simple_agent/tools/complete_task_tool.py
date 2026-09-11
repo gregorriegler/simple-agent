@@ -22,7 +22,7 @@ class CompleteTaskTool(BaseTool):
     ]
 
     async def execute(self, raw_call):
-        args = raw_call.arguments
+        args = str(raw_call.named_arguments.get("summary", ""))
         if not args or not args.strip():
             return SingleToolResult(
                 "STDERR: complete-task: missing summary",

@@ -37,7 +37,7 @@ class CommunicateIntentTool(BaseTool):
         self.filename = filename
 
     async def execute(self, raw_call):
-        body = raw_call.body
+        body = str(raw_call.named_arguments.get("intent", ""))
         if not body or not body.strip():
             return SingleToolResult(
                 "No intent provided", status=ToolResultStatus.FAILURE

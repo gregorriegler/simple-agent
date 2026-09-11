@@ -28,7 +28,7 @@ class SuggestTool(BaseTool):
     ]
 
     async def execute(self, raw_call):
-        body = raw_call.body
+        body = str(raw_call.named_arguments.get("suggestion", ""))
         if not body or not body.strip():
             return SingleToolResult(
                 "No suggestion provided", status=ToolResultStatus.FAILURE
