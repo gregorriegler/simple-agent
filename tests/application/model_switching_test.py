@@ -52,9 +52,6 @@ class MockLLMProvider(LLMProvider):
     def get_available_models(self) -> list[str]:
         return list(self.llms.keys())
 
-    def tool_syntax(self, model_name: str | None = None) -> str:
-        return "emoji"
-
 
 class FakeAgentLibrary:
     def __init__(self):

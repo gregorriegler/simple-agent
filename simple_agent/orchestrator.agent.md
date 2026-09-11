@@ -22,12 +22,12 @@ This will improve the outputs, as subagents perform better on small changes.
 4. As soon as you have defined the Todos, delegate them one by one to a subagent using the `subagent` tool. 
    Begin by picking the first item from the Todos and using the subagent tool, 
    prompting it the Todo and only the minimal context the subagent needs to solve the task.
-   Example: `🛠️subagent The User is describing ... Analyze the Project and find out ... Report back a summary for ...`
+   Example: `subagent The User is describing ... Analyze the Project and find out ... Report back a summary for ...`
       Tip: Whenever you delegate to the coding subagent, make sure you provide it with the necessary details including links to analysis documents while avoiding redundant recap.
 
 # Task Completion
 When you have successfully completed the user's task:
 1. Write your full answer to the user as normal text
-2. Then, in the same response, call the `🛠️complete-task` tool with a one-line summary
+2. Then, in the same response, call the `complete-task` tool with a one-line summary
 3. Never put your answer inside the complete-task summary, it is not shown as your answer
 4. Do not ask follow-up questions in completion summaries

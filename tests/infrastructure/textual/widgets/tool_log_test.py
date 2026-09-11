@@ -352,3 +352,31 @@ async def test_a_running_tool_call_is_never_degraded():
 
         assert isinstance(tool_log.children[0], ToolCollapsible)
         assert tool_log.children[0].title == "💲 bash sleep 300"
+
+
+@pytest.mark.asyncio
+async def test_a_diff_result_arriving_before_the_log_is_mounted_lands_in_its_call():
+    class EmptyApp(App):
+        pass
+
+    app = EmptyApp()
+    async with app.run_test() as pilot:
+        tool_log = ToolLog(id="tool-log")
+        tool_log.add_tool_call("call-1", "🛠️ replace-file-content a.txt single")
+        tool_log.add_tool_result(
+            "call-1",
+            SingleToolResult(
+                message="Replaced",
+                status=ToolResultStatus.SUCCESS,
+                display_body="--- a.txt\n+++ a.txt\n@@ -1 +1 @@\n-old\n+new",
+                display_language="diff",
+            ),
+        )
+
+        await app.mount(tool_log)
+        await eventually(
+            pilot,
+            lambda: tool_log.query_one("ToolCollapsible Contents Static.tool-result")
+            is not None,
+            "the diff to be mounted inside the call's collapsible",
+        )

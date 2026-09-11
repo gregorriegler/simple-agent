@@ -2,8 +2,6 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
-NATIVE_ADAPTERS = ("claude", "gemini", "openai")
-
 
 @dataclass
 class ModelConfig:
@@ -13,10 +11,6 @@ class ModelConfig:
     api_key: str
     base_url: str | None = None
     request_timeout: int = 60
-
-    @property
-    def tool_syntax(self) -> str:
-        return "native" if self.adapter in NATIVE_ADAPTERS else "emoji"
 
     @staticmethod
     def from_dict(name: str, config: Mapping[str, Any]) -> "ModelConfig":

@@ -109,7 +109,12 @@ class LLMProvider(Protocol):
 
     def get_available_models(self) -> list[str]: ...
 
-    def tool_syntax(self, model_name: str | None = None) -> str: ...
+
+def split_system_prompt(messages: ChatMessages) -> tuple[str | None, ChatMessages]:
+    """Take a leading system message off the conversation, if there is one."""
+    if messages and isinstance(messages[0], SystemMessage):
+        return messages[0].content, list(messages[1:])
+    return None, list(messages)
 
 
 class Messages:

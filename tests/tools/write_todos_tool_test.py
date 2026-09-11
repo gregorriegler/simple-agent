@@ -3,6 +3,7 @@ import textwrap
 import pytest
 from approvaltests import Options, verify
 
+from tests.emoji_llm import resolve_emoji
 from tests.test_helpers import all_scrubbers
 
 pytestmark = pytest.mark.asyncio
@@ -19,9 +20,6 @@ async def test_write_todos_creates_markdown_file(tmp_path):
 
     from simple_agent.application.agent_id import AgentId
     from simple_agent.application.agent_types import AgentTypes
-    from simple_agent.application.emoji_bracket_tool_syntax import (
-        EmojiBracketToolSyntax,
-    )
     from simple_agent.application.tool_library_factory import ToolContext
     from simple_agent.application.tool_results import SingleToolResult
     from simple_agent.tools.all_tools import AllToolsFactory
@@ -30,14 +28,14 @@ async def test_write_todos_creates_markdown_file(tmp_path):
 
     tool_context = ToolContext(tool_keys=[], agent_id=agent_id)
 
-    factory = AllToolsFactory(tool_syntax=EmojiBracketToolSyntax())
+    factory = AllToolsFactory()
 
     async def dummy_spawner(agent_type, task_description):
         return SingleToolResult(message="")
 
     library = factory.create(tool_context, dummy_spawner, AgentTypes([]))
 
-    turn = library.parse_and_resolve(command)
+    turn = resolve_emoji(library, command)
     result = await library.execute_tool_call(turn.invocations[0])
 
     # The file should be at tmp_path / .Agent.todos.md

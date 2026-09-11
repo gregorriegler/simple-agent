@@ -1,6 +1,5 @@
 import asyncio
 import sys
-from unittest.mock import Mock
 
 import pytest
 
@@ -8,14 +7,12 @@ from simple_agent.application.agent_id import AgentId
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import ToolCalledEvent, ToolResultEvent
 from simple_agent.application.tool_library import (
-    AssistantTurn,
     Tool,
     ToolCall,
     ToolInvocation,
     ToolLibrary,
 )
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
-from simple_agent.application.tool_syntax import ToolSyntax
 from simple_agent.application.tools_executor import INTERRUPTED_RESULT, ToolsExecutor
 from simple_agent.tools.base_tool import BaseTool
 
@@ -23,10 +20,6 @@ from simple_agent.tools.base_tool import BaseTool
 class ToolLibraryStub(ToolLibrary):
     def __init__(self):
         self.tools: list[Tool] = []
-        self.tool_syntax: ToolSyntax = Mock()
-
-    def parse_and_resolve(self, text: str) -> AssistantTurn:
-        return AssistantTurn(text, [])
 
     async def execute_tool_call(self, tool_call):
         return await tool_call.execute()

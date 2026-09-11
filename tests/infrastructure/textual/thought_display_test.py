@@ -41,8 +41,11 @@ async def test_a_thought_is_shown_in_the_tool_log_before_the_call_it_led_to(
         event_bus.publish(ToolCalledEvent(agent_id, "call-1", StubTool()))
         await eventually(
             pilot,
-            lambda: app.query_one(".tool-call", TextArea) is not None,
-            "the tool call to be mounted after the thought",
+            lambda: app.query_one(".tool-call", TextArea) is not None
+            and app.query_one("Collapsible.thought", Collapsible).has_class(
+                "-collapsed"
+            ),
+            "the tool call to be mounted after the collapsed thought",
         )
 
         verify(dump_ui_state(app))

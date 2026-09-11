@@ -19,5 +19,5 @@ One tool execution per answer.
 # Task Completion
 When you have finished reviewing:
 1. Respond with your findings. Remember to keep it as short as possible.
-2. Use the `🛠️complete-task` tool with your summary.
+2. Use the `complete-task` tool with your summary.
 3. Do not ask follow-up questions in completion summaries

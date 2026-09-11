@@ -42,9 +42,6 @@ class ScriptedOpenAI:
     def get_available_models(self):
         return ["openai"]
 
-    def tool_syntax(self, model_name=None):
-        return "native"
-
     def as_approval_string(self) -> str:
         parts = []
         for index, request in enumerate(self.requests):

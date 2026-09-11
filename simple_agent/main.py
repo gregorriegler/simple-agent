@@ -8,21 +8,13 @@ import sys
 from pathlib import Path
 from typing import Any, Protocol, cast
 
-from simple_agent.application.agent_factory import AgentFactory
-from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
-from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.display_type import DisplayType
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.event_bus import SimpleEventBus
-from simple_agent.application.event_store import NoOpEventStore
 from simple_agent.application.events import UserPromptRequestedEvent
 from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.queued_user_input import QueuedUserInput
 from simple_agent.application.session import Session, SessionArgs
-from simple_agent.application.tool_documentation import generate_tools_documentation
-from simple_agent.application.tool_library_factory import ToolContext
-from simple_agent.application.user_input import DummyUserInput
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_event_store import FileEventStore
@@ -118,8 +110,7 @@ async def _run_main(
     event_logger = EventLogger()
     event_bus = SimpleEventBus()
 
-    tool_syntax = EmojiBracketToolSyntax(TOOL_DECLARATIONS)
-    tool_library_factory = AllToolsFactory(tool_syntax)
+    tool_library_factory = AllToolsFactory()
 
     if llm_provider is None:
         if args.stub_llm:
@@ -155,7 +146,7 @@ async def _run_main(
         agent_task_manager=agent_task_manager,
         available_models=llm_provider.get_available_models(),
         available_agents=agent_library.list_agent_types(),
-        tool_syntax=tool_syntax,
+        declarations=TOOL_DECLARATIONS,
     )
     subscribe_events(event_bus, event_logger, agent_state_cleanup, textual_app)
     if event_subscriber:
@@ -197,31 +188,9 @@ async def main_async(on_user_prompt_requested=None, llm_provider=None):
 
 
 def print_system_prompt_command(user_config, cwd, args):
-    tool_syntax = EmojiBracketToolSyntax()
-    tool_library_factory = AllToolsFactory(tool_syntax)
-    dummy_event_bus = SimpleEventBus()
     agent_library = create_agent_library(user_config, args)
-    agent_factory = AgentFactory(
-        dummy_event_bus,
-        tool_library_factory,
-        agent_library,
-        DummyUserInput(),
-        StubLLMProvider.dummy(),
-        FileSystemProjectTree(Path(cwd)),
-        event_store=NoOpEventStore(),
-        agent_task_manager=AgentTaskManager(),
-    )
     agent_definition = agent_library._starting_agent_definition()
-    agent_id = AgentId("Agent", root=Path(cwd))
-    tool_context = ToolContext(agent_definition.tool_keys(), agent_id)
-    spawner = agent_factory.create_spawner(agent_id)
-    tool_library = tool_library_factory.create(
-        tool_context, spawner, AgentTypes(agent_library.list_agent_types())
-    )
-    tools_documentation = generate_tools_documentation(tool_library.tools, tool_syntax)
-    system_prompt = agent_definition.prompt().render(
-        tools_documentation, FileSystemProjectTree(Path(cwd))
-    )
+    system_prompt = agent_definition.prompt().render(FileSystemProjectTree(Path(cwd)))
     print(system_prompt)
     return
 

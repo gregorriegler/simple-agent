@@ -1,6 +1,6 @@
 import textwrap
 
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
+from tests.emoji_syntax import EmojiBracketToolSyntax
 
 syntax = EmojiBracketToolSyntax()
 

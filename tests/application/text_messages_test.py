@@ -1,21 +1,21 @@
 import pytest
 
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.llm import (
     AssistantMessage,
     SystemMessage,
     ToolResultMessage,
     UserMessage,
-)
-from simple_agent.application.text_messages import (
     split_system_prompt,
-    to_text_messages,
-    to_wire_messages,
 )
 from simple_agent.application.tool_library import ToolCall
 from simple_agent.tools.bash_tool import BashTool
 from simple_agent.tools.cat_tool import CatTool
 from simple_agent.tools.create_file_tool import CreateFileTool
+from tests.emoji_llm import (
+    to_text_messages,
+    to_wire_messages,
+)
+from tests.emoji_syntax import EmojiBracketToolSyntax
 
 SYNTAX = EmojiBracketToolSyntax(
     {"cat": CatTool(), "create-file": CreateFileTool(), "bash": BashTool()}

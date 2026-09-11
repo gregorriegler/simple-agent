@@ -8,11 +8,16 @@ import boto3
 from botocore.config import Config
 from botocore.exceptions import BotoCoreError, ClientError
 
-from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
-from simple_agent.application.text_messages import (
+from simple_agent.application.llm import (
+    LLM,
+    ChatMessages,
+    LLMResponse,
+    TokenUsage,
     split_system_prompt,
-    to_wire_messages,
 )
+from simple_agent.application.tool_library import Tool
+from simple_agent.infrastructure.claude.claude_messages import to_messages_api
+from simple_agent.infrastructure.claude.claude_tools import to_tool_calls, to_tools
 from simple_agent.infrastructure.logging_http_client import (
     format_request_args,
     format_response_args,
@@ -29,8 +34,15 @@ class BedrockClaudeClientError(RuntimeError):
 
 
 class BedrockClaudeLLM(LLM):
-    def __init__(self, config: ModelConfig, client: Any = _CLIENT_UNSET):
+    def __init__(
+        self,
+        config: ModelConfig,
+        tools: list[Tool] | None = None,
+        client: Any = _CLIENT_UNSET,
+    ):
         self._config = config
+        self._tools = tools or []
+        self._declarations = {tool.name: tool for tool in self._tools}
         if client is None:
             raise BedrockClaudeClientError("Bedrock client cannot be None")
         self._client = self._build_client() if client is _CLIENT_UNSET else client
@@ -45,14 +57,14 @@ class BedrockClaudeLLM(LLM):
 
     async def _call_async(self, messages: ChatMessages) -> LLMResponse:
         system_prompt, history = split_system_prompt(messages)
-        payload_messages = to_wire_messages(history)
-
         data = {
             "anthropic_version": "bedrock-2023-05-31",
             "max_tokens": 4000,
-            "messages": payload_messages,
+            "messages": to_messages_api(history),
             **({"system": system_prompt} if system_prompt else {}),
         }
+        if self._tools:
+            data["tools"] = to_tools(self._tools)
 
         try:
             response = await asyncio.to_thread(self._invoke_model, data)
@@ -79,14 +91,14 @@ class BedrockClaudeLLM(LLM):
             raise BedrockClaudeClientError("API response missing 'content' field")
 
         content_list = response_data["content"]
-        content = ""
-        if content_list:
-            first_content = content_list[0]
-            if "text" not in first_content:
-                raise BedrockClaudeClientError(
-                    "API response content missing 'text' field"
-                )
-            content = first_content["text"]
+        content = "".join(
+            block.get("text", "")
+            for block in content_list
+            if block.get("type", "text") == "text"
+        )
+        tool_calls = (
+            to_tool_calls(content_list, self._declarations) if self._tools else []
+        )
 
         usage_data = response_data.get("usage", {})
         input_tokens = usage_data.get("input_tokens", 0)
@@ -97,7 +109,12 @@ class BedrockClaudeLLM(LLM):
             total_tokens=input_tokens + output_tokens,
         )
 
-        return LLMResponse(answer=content, model=self._config.model, usage=usage)
+        return LLMResponse(
+            answer=content,
+            tool_calls=tool_calls,
+            model=self._config.model,
+            usage=usage,
+        )
 
     def _invoke_model(self, data: dict[str, Any]):
         body = json.dumps(data)

@@ -9,6 +9,7 @@ from textual.containers import Vertical
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.slash_command_registry import SlashCommandRegistry
+from simple_agent.application.tool_library import ToolDeclarations
 from simple_agent.infrastructure.native_file_searcher import NativeFileSearcher
 from simple_agent.infrastructure.textual.smart_input import SmartInput
 from simple_agent.infrastructure.textual.smart_input.autocomplete.autocomplete import (
@@ -225,11 +226,11 @@ class TextualApp(App):
         agent_task_manager: AgentTaskManager,
         available_models: list[str] | None = None,
         available_agents: list[str] | None = None,
-        tool_syntax=None,
+        declarations: ToolDeclarations | None = None,
     ):
         super().__init__()
         self.user_input = user_input
-        self._tool_syntax = tool_syntax
+        self._declarations = declarations
         self._root_agent_id = root_agent_id
         self.agent_task_manager = agent_task_manager
         self._session_runner: Callable[[], Coroutine[Any, Any, None]] | None = None
@@ -277,7 +278,7 @@ class TextualApp(App):
             yield AgentTabs(
                 self._suggestion_provider,
                 self._root_agent_id,
-                tool_syntax=self._tool_syntax,
+                declarations=self._declarations,
                 id="tabs",
             )
 

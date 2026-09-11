@@ -1,5 +1,4 @@
 from simple_agent.application.llm import LLM
-from simple_agent.application.text_response import EmojiToolCallsLLM
 from simple_agent.application.tool_library import Tool
 from simple_agent.infrastructure.bedrock.bedrock_client import BedrockClaudeLLM
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
@@ -15,9 +14,6 @@ class RemoteLLMProvider:
     def get_available_models(self) -> list[str]:
         return list(self._registry.models.keys())
 
-    def tool_syntax(self, model_name: str | None = None) -> str:
-        return self._registry.get(model_name).tool_syntax
-
     def get(
         self, model_name: str | None = None, tools: list[Tool] | None = None
     ) -> LLM:
@@ -28,5 +24,5 @@ class RemoteLLMProvider:
         if model_config.adapter == "gemini":
             return GeminiLLM(model_config, tools=tools)
         if model_config.adapter == "bedrock":
-            return EmojiToolCallsLLM(BedrockClaudeLLM(model_config), tools)
+            return BedrockClaudeLLM(model_config, tools=tools)
         return ClaudeLLM(model_config, tools=tools)

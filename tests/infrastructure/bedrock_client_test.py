@@ -9,7 +9,17 @@ import pytest
 from botocore.response import StreamingBody
 from botocore.stub import Stubber
 
-from simple_agent.application.llm import SystemMessage, UserMessage
+from simple_agent.application.llm import (
+    AssistantMessage,
+    SystemMessage,
+    ToolResultMessage,
+    UserMessage,
+)
+from simple_agent.application.tool_library import (
+    ToolArgument,
+    ToolArguments,
+    ToolCall,
+)
 from simple_agent.infrastructure.bedrock.bedrock_client import (
     BedrockClaudeClientError,
     BedrockClaudeLLM,
@@ -283,3 +293,120 @@ def build_config(base_url: str | None = None) -> ModelConfig:
         base_url=base_url,
         request_timeout=60,
     )
+
+
+def build_tool(name: str) -> SimpleNamespace:
+    return SimpleNamespace(
+        name=name,
+        description=f"{name} tool",
+        arguments=ToolArguments(
+            header=[ToolArgument(name="filename", description="", required=True)]
+        ),
+    )
+
+
+class RecordingClient:
+    def __init__(self, response_data: dict):
+        self.meta = SimpleNamespace(endpoint_url="https://dummy-endpoint")
+        self.requests: list[dict] = []
+        self._body = json.dumps(response_data).encode("utf-8")
+
+    def invoke_model(self, **kwargs):
+        self.requests.append(json.loads(kwargs["body"]))
+        return {
+            "body": StreamingBody(io.BytesIO(self._body), len(self._body)),
+            "contentType": "application/json",
+        }
+
+
+@pytest.mark.asyncio
+async def test_bedrock_claude_chat_declares_its_tools():
+    client = RecordingClient({"content": [{"type": "text", "text": "ok"}]})
+    chat = BedrockClaudeLLM(build_config(), tools=[build_tool("cat")], client=client)
+
+    await chat.call_async([UserMessage("Hello")])
+
+    assert [tool["name"] for tool in client.requests[0]["tools"]] == ["cat"]
+    assert client.requests[0]["tools"][0]["input_schema"]["required"] == ["filename"]
+
+
+@pytest.mark.asyncio
+async def test_bedrock_claude_chat_without_tools_declares_none():
+    client = RecordingClient({"content": [{"type": "text", "text": "ok"}]})
+    chat = BedrockClaudeLLM(build_config(), client=client)
+
+    await chat.call_async([UserMessage("Hello")])
+
+    assert "tools" not in client.requests[0]
+
+
+@pytest.mark.asyncio
+async def test_bedrock_claude_chat_reads_tool_use_blocks_into_bound_calls():
+    client = RecordingClient(
+        {
+            "content": [
+                {"type": "text", "text": "Let me look."},
+                {
+                    "type": "tool_use",
+                    "id": "toolu_abc",
+                    "name": "cat",
+                    "input": {"filename": "notes.md"},
+                },
+            ],
+            "stop_reason": "tool_use",
+            "usage": {"input_tokens": 1, "output_tokens": 1},
+        }
+    )
+    chat = BedrockClaudeLLM(build_config(), tools=[build_tool("cat")], client=client)
+
+    result = await chat.call_async([UserMessage("show notes")])
+
+    assert result.answer == "Let me look."
+    assert result.tool_calls == [
+        ToolCall(
+            "cat", {"filename": "notes.md"}, provider_state={"native_id": "toolu_abc"}
+        )
+    ]
+
+
+@pytest.mark.asyncio
+async def test_bedrock_claude_chat_replays_tool_turns_as_blocks():
+    client = RecordingClient({"content": [{"type": "text", "text": "ok"}]})
+    chat = BedrockClaudeLLM(build_config(), tools=[build_tool("cat")], client=client)
+    call = ToolCall(
+        "cat", {"filename": "notes.md"}, provider_state={"native_id": "toolu_abc"}
+    )
+
+    await chat.call_async(
+        [
+            UserMessage("show notes"),
+            AssistantMessage("Let me look.", tool_calls=[call]),
+            ToolResultMessage(call, "the notes"),
+        ]
+    )
+
+    assert client.requests[0]["messages"] == [
+        {"role": "user", "content": "show notes"},
+        {
+            "role": "assistant",
+            "content": [
+                {"type": "text", "text": "Let me look."},
+                {
+                    "type": "tool_use",
+                    "id": "toolu_abc",
+                    "name": "cat",
+                    "input": {"filename": "notes.md"},
+                },
+            ],
+        },
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "tool_result",
+                    "tool_use_id": "toolu_abc",
+                    "content": "the notes",
+                }
+            ],
+        },
+    ]

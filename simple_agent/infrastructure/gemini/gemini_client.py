@@ -1,6 +1,5 @@
 import httpx
 
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.llm import (
     LLM,
     ChatMessages,
@@ -42,7 +41,6 @@ class GeminiLLM(LLM):
         self._config = config
         self._tools = tools or []
         self._declarations = {tool.name: tool for tool in self._tools}
-        self._unsigned_syntax = EmojiBracketToolSyntax(self._declarations)
         self._transport = transport
         self._ensure_adapter()
 
@@ -109,7 +107,7 @@ class GeminiLLM(LLM):
         return request
 
     def _convert_messages(self, messages: ChatMessages) -> tuple[str, list[dict]]:
-        unsigned_as_text = UnsignedTurnsAsText(self._unsigned_syntax)
+        unsigned_as_text = UnsignedTurnsAsText(self._declarations)
         history = [message.render(unsigned_as_text) for message in messages]
 
         steps = InteractionSteps()

@@ -5,10 +5,10 @@ import pytest
 from approvaltests import Options, verify
 
 from simple_agent.application.events import ToolCalledEvent
-from simple_agent.application.text_messages import to_text_messages
 from simple_agent.infrastructure.file_event_store import FileEventStore
 from simple_agent.infrastructure.gemini.gemini_client import GeminiLLM
 from simple_agent.infrastructure.model_config import ModelConfig
+from tests.emoji_llm import to_text_messages
 from tests.session_test_bed import TRANSCRIPT_SYNTAX, CapturingLLM, SessionTestBed
 from tests.test_helpers import all_scrubbers, create_temp_file
 
@@ -52,9 +52,6 @@ class ScriptedGemini:
 
     def get_available_models(self):
         return ["gemini", "text"]
-
-    def tool_syntax(self, model_name=None):
-        return "emoji" if model_name == "text" else "native"
 
     def as_approval_string(self) -> str:
         gemini_requests = "\n".join(

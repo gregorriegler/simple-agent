@@ -4,6 +4,7 @@ import textwrap
 import pytest
 from approvaltests import Options, verify
 
+from tests.emoji_llm import resolve_emoji
 from tests.test_helpers import all_scrubbers, temp_directory
 
 pytestmark = pytest.mark.asyncio
@@ -17,7 +18,7 @@ async def verify_edit_tool(tool_library, setup_file, setup_content, command, tmp
 
         initial_file_info = f"Initial file: {setup_file}\nInitial content:\n--- INITIAL CONTENT START ---\n{setup_content}\n--- INITIAL CONTENT END ---"
 
-        turn = tool_library.parse_and_resolve(command)
+        turn = resolve_emoji(tool_library, command)
         result = await tool_library.execute_tool_call(turn.invocations[0])
         with open(setup_file, encoding="utf-8") as f:
             actual_content = f.read()

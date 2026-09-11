@@ -11,13 +11,10 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
 from simple_agent.application.tool_library import (
-    AssistantTurn,
     Tool,
-    ToolCall,
     ToolInvocation,
 )
 from simple_agent.application.tool_results import SingleToolResult
-from simple_agent.application.tool_syntax import ToolSyntax
 from simple_agent.application.user_input import DummyUserInput
 
 
@@ -45,10 +42,6 @@ def _make_input_with_message(message: str) -> Input:
 class EmptyToolLibrary:
     def __init__(self):
         self.tools: list[Tool] = []
-        self.tool_syntax: ToolSyntax = Mock()
-
-    def parse_and_resolve(self, text: str) -> AssistantTurn:
-        return AssistantTurn(text, [])
 
     async def execute_tool_call(self, tool_call: ToolInvocation):
         return SingleToolResult()
@@ -125,13 +118,6 @@ class ToolCallingToolLibrary:
     def __init__(self, slow_tool: SlowTool):
         self._slow_tool = slow_tool
         self.tools: list[Tool] = []
-        self.tool_syntax: ToolSyntax = Mock()
-
-    def parse_and_resolve(self, text: str) -> AssistantTurn:
-        if "<tool>slow_tool</tool>" in text:
-            tool_call = ToolCall("slow_tool")
-            return AssistantTurn("", [ToolInvocation(tool_call, self._slow_tool)])
-        return AssistantTurn(text, [])
 
     async def execute_tool_call(self, tool_call: ToolInvocation):
         return await self._slow_tool()
