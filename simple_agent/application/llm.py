@@ -1,19 +1,43 @@
 from collections.abc import Iterator
 from dataclasses import dataclass, field
-from typing import Protocol
+from typing import Protocol, TypeVar
 
 from .model_info import ModelInfo
 from .tool_library import RawToolCall
+
+T = TypeVar("T", covariant=True)
+
+
+class MessageRenderer(Protocol[T]):
+    """
+    One method per kind of message. A message hands itself to the method
+    that knows it, so an adapter maps every message to its own wire format
+    without asking what it is.
+    """
+
+    def system(self, message: "SystemMessage") -> T: ...
+
+    def user(self, message: "UserMessage") -> T: ...
+
+    def assistant(self, message: "AssistantMessage") -> T: ...
+
+    def tool_result(self, message: "ToolResultMessage") -> T: ...
 
 
 @dataclass
 class SystemMessage:
     content: str
 
+    def render(self, renderer: MessageRenderer[T]) -> T:
+        return renderer.system(self)
+
 
 @dataclass
 class UserMessage:
     content: str
+
+    def render(self, renderer: MessageRenderer[T]) -> T:
+        return renderer.user(self)
 
 
 @dataclass
@@ -23,6 +47,9 @@ class AssistantMessage:
     content: str
     tool_calls: list[RawToolCall] = field(default_factory=list)
 
+    def render(self, renderer: MessageRenderer[T]) -> T:
+        return renderer.assistant(self)
+
 
 @dataclass
 class ToolResultMessage:
@@ -30,6 +57,9 @@ class ToolResultMessage:
 
     call: RawToolCall
     content: str
+
+    def render(self, renderer: MessageRenderer[T]) -> T:
+        return renderer.tool_result(self)
 
 
 ChatMessage = SystemMessage | UserMessage | AssistantMessage | ToolResultMessage

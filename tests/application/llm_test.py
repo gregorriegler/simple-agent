@@ -74,6 +74,39 @@ def test_messages_records_a_tool_result_turn():
     assert messages.to_list() == [ToolResultMessage(call, "a.txt\nb.txt")]
 
 
+class NamingRenderer:
+    def system(self, message: SystemMessage) -> str:
+        return f"system:{message.content}"
+
+    def user(self, message: UserMessage) -> str:
+        return f"user:{message.content}"
+
+    def assistant(self, message: AssistantMessage) -> str:
+        return f"assistant:{message.content}"
+
+    def tool_result(self, message: ToolResultMessage) -> str:
+        return f"tool_result:{message.content}"
+
+
+def test_each_message_renders_through_its_own_renderer_method():
+    call = RawToolCall(name="bash", arguments="ls")
+    messages = [
+        SystemMessage("rules"),
+        UserMessage("hi"),
+        AssistantMessage("on it", [call]),
+        ToolResultMessage(call, "a.txt"),
+    ]
+
+    rendered = [message.render(NamingRenderer()) for message in messages]
+
+    assert rendered == [
+        "system:rules",
+        "user:hi",
+        "assistant:on it",
+        "tool_result:a.txt",
+    ]
+
+
 def test_messages_records_plain_assistant_text_as_an_assistant_message():
     messages = Messages()
 
