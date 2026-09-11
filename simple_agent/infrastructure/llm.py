@@ -23,24 +23,10 @@ class RemoteLLMProvider:
     ) -> LLM:
         model_config = self._registry.get(model_name)
         tools = tools or []
-        if model_config.tool_syntax == "native":
-            return self._native_client(model_config, tools)
-        return EmojiToolCallsLLM(self._text_client(model_config), tools)
-
-    @staticmethod
-    def _native_client(model_config, tools: list[Tool]) -> LLM:
         if model_config.adapter == "openai":
             return OpenAILLM(model_config, tools=tools)
-        if model_config.adapter == "claude":
-            return ClaudeLLM(model_config, tools=tools)
-        return GeminiLLM(model_config, tools=tools)
-
-    @staticmethod
-    def _text_client(model_config) -> LLM:
-        if model_config.adapter == "openai":
-            return OpenAILLM(model_config)
         if model_config.adapter == "gemini":
-            return GeminiLLM(model_config)
+            return GeminiLLM(model_config, tools=tools)
         if model_config.adapter == "bedrock":
-            return BedrockClaudeLLM(model_config)
-        return ClaudeLLM(model_config)
+            return EmojiToolCallsLLM(BedrockClaudeLLM(model_config), tools)
+        return ClaudeLLM(model_config, tools=tools)

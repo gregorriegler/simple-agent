@@ -47,7 +47,6 @@ class ScriptedGemini:
             api_key="test-api-key",
             base_url="https://generativelanguage.googleapis.com/v1beta",
             request_timeout=60,
-            tool_syntax="native",
         )
         return GeminiLLM(config, tools=tools, transport=self.transport())
 

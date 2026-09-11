@@ -88,62 +88,34 @@ def test_model_config_from_dict_normalizes_adapter_and_timeout():
     assert model.request_timeout == 30
 
 
-def test_model_config_from_dict_defaults_tool_syntax_to_emoji():
-    config = {"model": "claude-sonnet-4", "adapter": "claude", "api_key": "key"}
+@pytest.mark.parametrize("adapter", ["claude", "openai", "gemini"])
+def test_model_config_speaks_native_tool_calls_on_the_api_adapters(adapter):
+    config = {"model": "some-model", "adapter": adapter, "api_key": "key"}
 
-    model = ModelConfig.from_dict("claude", config)
+    model = ModelConfig.from_dict("model", config)
+
+    assert model.tool_syntax == "native"
+
+
+def test_model_config_speaks_emoji_on_bedrock():
+    config = {"model": "claude-3-haiku", "adapter": "bedrock", "api_key": "key"}
+
+    model = ModelConfig.from_dict("bedrock", config)
 
     assert model.tool_syntax == "emoji"
 
 
-def test_model_config_from_dict_reads_native_tool_syntax():
-    config = {
-        "model": "gemini-3-flash",
-        "adapter": "gemini",
-        "api_key": "key",
-        "tool_syntax": "Native",
-    }
-
-    model = ModelConfig.from_dict("gemini-3", config)
-
-    assert model.tool_syntax == "native"
-
-
-def test_model_config_from_dict_accepts_native_tool_syntax_on_claude():
+def test_model_config_ignores_a_configured_tool_syntax():
     config = {
         "model": "claude-sonnet-4",
         "adapter": "claude",
         "api_key": "key",
-        "tool_syntax": "native",
+        "tool_syntax": "emoji",
     }
 
     model = ModelConfig.from_dict("claude", config)
 
     assert model.tool_syntax == "native"
-
-
-def test_model_config_from_dict_rejects_native_tool_syntax_on_other_adapters():
-    config = {
-        "model": "claude-3-haiku",
-        "adapter": "bedrock",
-        "api_key": "key",
-        "tool_syntax": "native",
-    }
-
-    with pytest.raises(ValueError, match="native tool calling"):
-        ModelConfig.from_dict("bedrock", config)
-
-
-def test_model_config_from_dict_rejects_unknown_tool_syntax():
-    config = {
-        "model": "gemini-3-flash",
-        "adapter": "gemini",
-        "api_key": "key",
-        "tool_syntax": "json",
-    }
-
-    with pytest.raises(ValueError, match="tool_syntax"):
-        ModelConfig.from_dict("gemini", config)
 
 
 def test_model_config_from_dict_raises_on_invalid_timeout():
