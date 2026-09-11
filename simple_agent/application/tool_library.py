@@ -31,7 +31,11 @@ class RawToolCall:
     def bind(self, tool: "ToolDeclaration | None") -> "RawToolCall":
         if tool is None:
             return self
-        return replace(self, declaration=tool.arguments)
+        return replace(
+            self,
+            named_arguments=tool.arguments.coerce(self.named_arguments),
+            declaration=tool.arguments,
+        )
 
     def flag(self, name: str) -> bool:
         return is_true(self.named_arguments.get(name, False))
@@ -125,6 +129,12 @@ class ToolArgument:
     def is_flag(self) -> bool:
         return self.json_type == "boolean"
 
+    def coerce(self, value: Any) -> Any:
+        """The value as the declared type: a flag from its spellings, else text."""
+        if self.is_flag:
+            return is_true(value)
+        return str(value)
+
 
 class ToolArguments:
     def __init__(
@@ -180,6 +190,14 @@ class ToolArguments:
         if self._body:
             return self._header + [self._body]
         return self._header
+
+    def coerce(self, named: dict[str, Any]) -> dict[str, Any]:
+        """Every present value as its declared type; undeclared values as they are."""
+        declared = {arg.name: arg for arg in self.all}
+        return {
+            name: declared[name].coerce(value) if name in declared else value
+            for name, value in named.items()
+        }
 
     def render_header(self, named: dict[str, Any]) -> str:
         """

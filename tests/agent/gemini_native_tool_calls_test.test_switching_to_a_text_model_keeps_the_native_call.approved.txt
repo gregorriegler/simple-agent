@@ -60,7 +60,7 @@ assistant: done again
     "name": "cat",
     "arguments": {
       "filename": "my notes.md",
-      "with_line_numbers": "true"
+      "with_line_numbers": true
     }
   },
   {

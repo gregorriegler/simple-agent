@@ -110,6 +110,28 @@ def test_binding_to_no_tool_keeps_the_call():
     assert call.bind(None) is call
 
 
+def test_binding_coerces_values_to_their_declared_types():
+    cat = ToolArguments(
+        header=[
+            ToolArgument(name="filename", description=""),
+            ToolArgument(name="with_line_numbers", description="", type="bool"),
+        ]
+    )
+
+    def bound(named):
+        return RawToolCall("cat", named).bind(Declares(cat)).named_arguments
+
+    assert bound({"filename": 42, "with_line_numbers": "true"}) == {
+        "filename": "42",
+        "with_line_numbers": True,
+    }
+    assert bound({"filename": "f", "with_line_numbers": "false"}) == {
+        "filename": "f",
+        "with_line_numbers": False,
+    }
+    assert bound({"filename": "f"}) == {"filename": "f"}
+
+
 class Declares:
     def __init__(self, arguments: ToolArguments) -> None:
         self.arguments = arguments
