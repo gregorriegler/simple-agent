@@ -1,13 +1,16 @@
 from types import SimpleNamespace
 
+import pytest
+
 from simple_agent.application.tool_library import (
     RawToolCall,
     ToolArgument,
     ToolArguments,
 )
 from simple_agent.infrastructure.gemini.gemini_tools import (
+    UndeclaredTool,
     to_function_declarations,
-    to_raw_tool_calls,
+    to_tool_calls,
 )
 
 
@@ -99,49 +102,73 @@ def function_call(name, arguments, call_id=""):
     return step
 
 
-def test_reads_a_function_call_into_a_raw_tool_call_carrying_the_dict():
-    calls = to_raw_tool_calls([function_call("bash", {"command": "ls -la"})])
+BASH = tool(
+    "bash", "", ToolArguments(header=[ToolArgument(name="command", description="")])
+)
+CAT = tool(
+    "cat",
+    "",
+    ToolArguments(
+        header=[
+            ToolArgument(name="filename", description=""),
+            ToolArgument(name="with_line_numbers", description="", type="bool"),
+        ]
+    ),
+)
+TOOLS = {"bash": BASH, "cat": CAT}
+
+
+def test_reads_a_function_call_into_a_call_bound_to_its_tool():
+    calls = to_tool_calls([function_call("bash", {"command": "ls -la"})], TOOLS)
 
     assert calls == [RawToolCall("bash", {"command": "ls -la"})]
+    assert calls[0].declaration is BASH.arguments
 
 
-def test_a_call_read_from_gemini_is_not_bound_to_any_tool():
-    calls = to_raw_tool_calls(
-        [function_call("create-file", {"filename": "a.txt", "content": "hello"})]
+def test_a_call_read_from_gemini_carries_typed_arguments():
+    calls = to_tool_calls(
+        [function_call("cat", {"filename": 42, "with_line_numbers": "true"})], TOOLS
     )
 
-    assert calls[0].declaration is None
-    assert calls[0].named_arguments == {"filename": "a.txt", "content": "hello"}
+    assert calls[0].named_arguments == {"filename": "42", "with_line_numbers": True}
+
+
+def test_a_call_to_an_undeclared_tool_is_refused():
+    with pytest.raises(UndeclaredTool, match="rm"):
+        to_tool_calls([function_call("rm", {"path": "/"})], TOOLS)
 
 
 def test_ignores_non_function_call_steps():
-    calls = to_raw_tool_calls(
+    calls = to_tool_calls(
         [
             {"type": "model_output", "content": [{"type": "text", "text": "hi"}]},
             function_call("bash", {"command": "ls"}),
-        ]
+        ],
+        TOOLS,
     )
 
     assert [call.name for call in calls] == ["bash"]
 
 
 def test_captures_the_preceding_thought_signature_on_the_call():
-    calls = to_raw_tool_calls(
+    calls = to_tool_calls(
         [
             {"type": "thought", "signature": "SIG"},
             function_call("bash", {"command": "ls"}),
-        ]
+        ],
+        TOOLS,
     )
 
     assert calls[0].thought_signature == "SIG"
 
 
 def test_reads_multiple_function_calls():
-    calls = to_raw_tool_calls(
+    calls = to_tool_calls(
         [
             function_call("bash", {"command": "ls"}),
             function_call("bash", {"command": "pwd"}),
-        ]
+        ],
+        TOOLS,
     )
 
     assert [call.named_arguments for call in calls] == [
@@ -151,7 +178,7 @@ def test_reads_multiple_function_calls():
 
 
 def test_keeps_the_native_call_id_on_the_call():
-    calls = to_raw_tool_calls([function_call("bash", {"command": "ls"}, "fc_42")])
+    calls = to_tool_calls([function_call("bash", {"command": "ls"}, "fc_42")], TOOLS)
 
     assert calls[0].native_id == "fc_42"
 

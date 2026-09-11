@@ -18,7 +18,7 @@ from simple_agent.infrastructure.gemini.gemini_steps import (
 )
 from simple_agent.infrastructure.gemini.gemini_tools import (
     to_function_declarations,
-    to_raw_tool_calls,
+    to_tool_calls,
 )
 from simple_agent.infrastructure.llm_http import post_with_retry
 from simple_agent.infrastructure.model_config import ModelConfig
@@ -45,6 +45,7 @@ class GeminiLLM(LLM):
     ):
         self._config = config
         self._tools = tools or []
+        self._declarations = {tool.name: tool for tool in self._tools}
         self._transport = transport
         self._ensure_adapter()
 
@@ -72,7 +73,7 @@ class GeminiLLM(LLM):
         steps = interaction.get("steps")
         if not steps:
             raise self.error_class("API response has no steps")
-        tool_calls = to_raw_tool_calls(steps)
+        tool_calls = to_tool_calls(steps, self._declarations) if self._tools else []
         content = self._output_text(interaction, tool_calls)
         model = interaction.get("model") or self._config.model
         usage = self._usage(interaction)

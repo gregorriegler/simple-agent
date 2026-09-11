@@ -1,4 +1,9 @@
-from simple_agent.application.tool_library import RawToolCall, Tool, ToolArgument
+from simple_agent.application.tool_library import (
+    RawToolCall,
+    Tool,
+    ToolArgument,
+    ToolDeclarations,
+)
 
 
 def to_function_declarations(tools: list[Tool]) -> list[dict]:
@@ -23,11 +28,15 @@ def _property(arg: ToolArgument) -> dict:
     return {"type": arg.json_type, "description": arg.description}
 
 
-def to_raw_tool_calls(steps: list[dict]) -> list[RawToolCall]:
+class UndeclaredTool(Exception):
+    """Gemini called a function it was never declared."""
+
+
+def to_tool_calls(steps: list[dict], tools: ToolDeclarations) -> list[RawToolCall]:
     """
-    Read the function calls Gemini made. The call carries only what Gemini
-    sent: its name, argument dict, id and thought signature. The positional
-    text is a text-protocol concern and is rendered when the call is resolved.
+    Read the function calls Gemini made, each bound to the tool it names:
+    the argument dict typed per the declaration, with Gemini's id and
+    thought signature.
     """
     calls: list[RawToolCall] = []
     pending_signature = ""
@@ -36,13 +45,16 @@ def to_raw_tool_calls(steps: list[dict]) -> list[RawToolCall]:
         if step_type == "thought":
             pending_signature = step.get("signature", "")
         elif step_type == "function_call":
-            calls.append(
-                RawToolCall(
-                    name=step.get("name", ""),
-                    named_arguments=step.get("arguments") or {},
-                    native_id=step.get("id", ""),
-                    thought_signature=pending_signature,
-                )
+            name = step.get("name", "")
+            tool = tools.get(name)
+            if tool is None:
+                raise UndeclaredTool(f"Gemini called an undeclared tool: {name!r}")
+            call = RawToolCall(
+                name=name,
+                named_arguments=step.get("arguments") or {},
+                native_id=step.get("id", ""),
+                thought_signature=pending_signature,
             )
+            calls.append(call.bind(tool))
             pending_signature = ""
     return calls

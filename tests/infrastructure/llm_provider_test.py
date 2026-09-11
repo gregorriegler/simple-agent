@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 from simple_agent.infrastructure.bedrock.bedrock_client import BedrockClaudeLLM
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.gemini import GeminiLLM
@@ -64,7 +66,7 @@ def test_native_gemini_receives_the_tools():
         tool_syntax="native",
     )
     provider = RemoteLLMProvider(build_user_config(model))
-    tools = ["tool-a", "tool-b"]
+    tools = [SimpleNamespace(name="tool-a"), SimpleNamespace(name="tool-b")]
 
     llm = provider.get(tools=tools)
 
