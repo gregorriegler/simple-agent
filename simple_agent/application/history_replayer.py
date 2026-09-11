@@ -96,14 +96,14 @@ class HistoryReplayer:
                 )
 
             for i, unbound in enumerate(raw_turn.tool_calls):
-                raw_call = bind_call(unbound, self._declarations)
+                call = bind_call(unbound, self._declarations)
                 if results:
                     res_event = results.popleft()
                     self._event_bus.publish(
                         ToolCalledEvent(
                             agent_id=event.agent_id,
                             call_id=res_event.call_id,
-                            call=raw_call,
+                            call=call,
                         )
                     )
                     self._event_bus.publish(res_event)
@@ -111,7 +111,7 @@ class HistoryReplayer:
                     call_id = f"legacy_{event.agent_id.for_ui()}_{i}"
                     self._event_bus.publish(
                         ToolCalledEvent(
-                            agent_id=event.agent_id, call_id=call_id, call=raw_call
+                            agent_id=event.agent_id, call_id=call_id, call=call
                         )
                     )
         except Exception:

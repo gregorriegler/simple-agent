@@ -18,7 +18,7 @@ from simple_agent.application.events import (
     ToolResultEvent,
     UserPromptedEvent,
 )
-from simple_agent.application.tool_library import RawToolCall
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
 
 
@@ -182,7 +182,7 @@ class EventSerializer:
             return ToolCalledEvent(
                 agent_id=agent_id,
                 call_id=data.get("call_id", ""),
-                call=RawToolCall(
+                call=ToolCall(
                     data.get("tool_name", ""),
                     named_arguments=data.get("named_arguments") or {},
                     thought_signature=data.get("thought_signature", ""),

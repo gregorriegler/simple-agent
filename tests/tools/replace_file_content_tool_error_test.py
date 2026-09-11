@@ -1,6 +1,6 @@
 import pytest
 
-from simple_agent.application.tool_library import RawToolCall
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.tools.replace_file_content_tool import (
     FileReplacer,
     ReplaceFileContentTool,
@@ -13,7 +13,7 @@ def replace_call(filename, replace_mode, content):
     named = {"filename": filename, "content": content}
     if replace_mode:
         named["replace_mode"] = replace_mode
-    return RawToolCall(
+    return ToolCall(
         name=ReplaceFileContentTool.name,
         named_arguments=named,
     )
@@ -21,9 +21,9 @@ def replace_call(filename, replace_mode, content):
 
 async def test_execute_reports_missing_file():
     tool = ReplaceFileContentTool()
-    raw_call = replace_call("missing.txt", "single", "old\n@@@\nnew")
+    call = replace_call("missing.txt", "single", "old\n@@@\nnew")
 
-    result = await tool.execute(raw_call)
+    result = await tool.execute(call)
 
     assert result.success is False
     assert "not found" in result.message
@@ -31,9 +31,9 @@ async def test_execute_reports_missing_file():
 
 async def test_execute_reports_os_error_for_directory(tmp_path):
     tool = ReplaceFileContentTool()
-    raw_call = replace_call(str(tmp_path), "single", "old\n@@@\nnew")
+    call = replace_call(str(tmp_path), "single", "old\n@@@\nnew")
 
-    result = await tool.execute(raw_call)
+    result = await tool.execute(call)
 
     assert result.success is False
     assert "Error replacing content" in result.message
@@ -43,9 +43,9 @@ async def test_execute_reports_no_changes_when_replacement_same(tmp_path):
     tool = ReplaceFileContentTool()
     path = tmp_path / "sample.txt"
     path.write_text("value", encoding="utf-8")
-    raw_call = replace_call(str(path), "single", "value\n@@@\nvalue")
+    call = replace_call(str(path), "single", "value\n@@@\nvalue")
 
-    result = await tool.execute(raw_call)
+    result = await tool.execute(call)
 
     assert result.success is True
     assert "No changes made" in result.message
@@ -53,9 +53,9 @@ async def test_execute_reports_no_changes_when_replacement_same(tmp_path):
 
 async def test_parse_arguments_requires_body_separator():
     tool = ReplaceFileContentTool()
-    raw_call = replace_call("file.txt", "", "missing")
+    call = replace_call("file.txt", "", "missing")
 
-    parsed, error = tool.parse_arguments(raw_call)
+    parsed, error = tool.parse_arguments(call)
 
     assert parsed is None
     assert error is not None
@@ -64,9 +64,9 @@ async def test_parse_arguments_requires_body_separator():
 
 async def test_parse_arguments_reports_invalid_replace_mode():
     tool = ReplaceFileContentTool()
-    raw_call = replace_call("file.txt", "invalid", "a\n@@@\nb")
+    call = replace_call("file.txt", "invalid", "a\n@@@\nb")
 
-    parsed, error = tool.parse_arguments(raw_call)
+    parsed, error = tool.parse_arguments(call)
 
     assert parsed is None
     assert error is not None
@@ -75,9 +75,9 @@ async def test_parse_arguments_reports_invalid_replace_mode():
 
 async def test_parse_arguments_requires_arguments():
     tool = ReplaceFileContentTool()
-    raw_call = RawToolCall(tool.name, {"content": "a\n@@@\nb"})
+    call = ToolCall(tool.name, {"content": "a\n@@@\nb"})
 
-    parsed, error = tool.parse_arguments(raw_call)
+    parsed, error = tool.parse_arguments(call)
 
     assert parsed is None
     assert error == "No arguments specified"

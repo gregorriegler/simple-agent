@@ -12,8 +12,8 @@ from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
 from simple_agent.application.tool_library import (
     AssistantTurn,
-    RawToolCall,
     Tool,
+    ToolCall,
     ToolInvocation,
 )
 from simple_agent.application.tool_results import SingleToolResult
@@ -129,7 +129,7 @@ class ToolCallingToolLibrary:
 
     def parse_and_resolve(self, text: str) -> AssistantTurn:
         if "<tool>slow_tool</tool>" in text:
-            tool_call = RawToolCall("slow_tool")
+            tool_call = ToolCall("slow_tool")
             return AssistantTurn("", [ToolInvocation(tool_call, self._slow_tool)])
         return AssistantTurn(text, [])
 

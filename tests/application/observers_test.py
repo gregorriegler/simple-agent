@@ -9,7 +9,7 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.input import Input
 from simple_agent.application.observers import Observers
-from simple_agent.application.tool_library import RawToolCall
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.user_input import DummyUserInput
 
 AGENT = AgentId("Agent")
@@ -159,7 +159,7 @@ def test_observers_are_recreated_after_the_session_is_cleared():
 
 
 def suggest(text):
-    return RawToolCall("suggest", {"suggestion": text})
+    return ToolCall("suggest", {"suggestion": text})
 
 
 def test_what_an_observer_found_reaches_the_agent():
@@ -193,7 +193,7 @@ def test_an_observation_without_a_suggestion_does_not_disturb_the_agent():
         ToolCalledEvent(
             observer.agent_id,
             "call-1",
-            RawToolCall("complete-task", {"summary": "looks fine"}),
+            ToolCall("complete-task", {"summary": "looks fine"}),
         )
     )
 

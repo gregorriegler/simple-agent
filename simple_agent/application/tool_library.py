@@ -15,7 +15,7 @@ def is_true(value: Any) -> bool:
 
 
 @dataclass
-class RawToolCall:
+class ToolCall:
     """
     A tool call as the model made it: its name and named arguments, with
     the provider's ids. Once bound to a tool it knows the tool's declared
@@ -28,7 +28,7 @@ class RawToolCall:
     native_id: str = ""
     declaration: "ToolArguments | None" = field(default=None, compare=False, repr=False)
 
-    def bind(self, tool: "ToolDeclaration | None") -> "RawToolCall":
+    def bind(self, tool: "ToolDeclaration | None") -> "ToolCall":
         if tool is None:
             return self
         return replace(
@@ -72,17 +72,17 @@ class UnboundToolCall(Protocol):
 
     name: str
 
-    def bind(self, tool: ToolDeclaration | None) -> RawToolCall: ...
+    def bind(self, tool: ToolDeclaration | None) -> ToolCall: ...
 
 
-def bind_call(call: UnboundToolCall, declarations: ToolDeclarations) -> RawToolCall:
+def bind_call(call: UnboundToolCall, declarations: ToolDeclarations) -> ToolCall:
     return call.bind(declarations.get(call.name))
 
 
 class ToolInvocation:
     """A bound call paired with the tool that runs it."""
 
-    def __init__(self, call: RawToolCall, tool: "Tool"):
+    def __init__(self, call: ToolCall, tool: "Tool"):
         self.call = call
         self.tool = tool
 
@@ -238,7 +238,7 @@ class Tool(Protocol):
     arguments: ToolArguments
     examples: list[dict[str, Any]]
 
-    async def execute(self, raw_call: RawToolCall) -> ToolResult: ...
+    async def execute(self, call: ToolCall) -> ToolResult: ...
 
     def get_template_variables(self) -> dict[str, str]: ...
 
@@ -250,7 +250,7 @@ class ToolLibrary(Protocol):
     def parse_and_resolve(self, text: str) -> AssistantTurn: ...
 
     def resolve_tool_calls(
-        self, tool_calls: list[RawToolCall], message: str
+        self, tool_calls: list[ToolCall], message: str
     ) -> AssistantTurn: ...
 
     async def execute_tool_call(self, invocation: ToolInvocation) -> ToolResult: ...

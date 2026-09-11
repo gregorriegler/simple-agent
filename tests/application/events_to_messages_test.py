@@ -15,7 +15,7 @@ from simple_agent.application.llm import (
     ToolResultMessage,
     UserMessage,
 )
-from simple_agent.application.tool_library import RawToolCall
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.application.tools_executor import INTERRUPTED_RESULT
 
@@ -149,7 +149,7 @@ class TestEventsToMessages:
 
     def test_rebuilds_a_tool_turn_from_called_and_result_events(self):
         agent_id = AgentId("Agent")
-        call = RawToolCall(
+        call = ToolCall(
             "cat",
             named_arguments={"filename": "my notes.md"},
             thought_signature="SIG",
@@ -177,8 +177,8 @@ class TestEventsToMessages:
 
     def test_groups_parallel_calls_into_one_assistant_turn(self):
         agent_id = AgentId("Agent")
-        first = RawToolCall("bash", {"command": "ls"})
-        second = RawToolCall("bash", {"command": "pwd"})
+        first = ToolCall("bash", {"command": "ls"})
+        second = ToolCall("bash", {"command": "pwd"})
         events = [
             AssistantRespondedEvent(agent_id=agent_id, response="on it"),
             ToolCalledEvent(agent_id=agent_id, call_id="call-1", call=first),
@@ -201,7 +201,7 @@ class TestEventsToMessages:
 
     def test_an_interrupted_call_gets_an_interrupted_result(self):
         agent_id = AgentId("Agent")
-        call = RawToolCall("bash", {"command": "sleep 5"})
+        call = ToolCall("bash", {"command": "sleep 5"})
         events = [
             AssistantRespondedEvent(agent_id=agent_id, response=""),
             ToolCalledEvent(agent_id=agent_id, call_id="call-1", call=call),

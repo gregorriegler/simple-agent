@@ -3,20 +3,20 @@ from dataclasses import replace
 
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse
-from simple_agent.application.tool_library import RawToolCall, ToolDeclaration
+from simple_agent.application.tool_library import ToolCall, ToolDeclaration
 from simple_agent.application.tool_syntax import ToolSyntax
 
 
 def bind_emoji_calls(
     text: str, tools: Mapping[str, ToolDeclaration], syntax: ToolSyntax
-) -> tuple[str, list[RawToolCall]]:
+) -> tuple[str, list[ToolCall]]:
     """
     The message and the emoji calls in a text, each bound to the tool it
     names. A call to a tool not in the mapping leaves the whole text as the
     message with no calls.
     """
     turn = syntax.parse(text)
-    bound: list[RawToolCall] = []
+    bound: list[ToolCall] = []
     for call in turn.tool_calls:
         tool = tools.get(call.name)
         if tool is None:

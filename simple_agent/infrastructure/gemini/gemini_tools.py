@@ -1,7 +1,7 @@
 from simple_agent.application.tool_library import (
-    RawToolCall,
     Tool,
     ToolArgument,
+    ToolCall,
     ToolDeclarations,
 )
 
@@ -32,13 +32,13 @@ class UndeclaredTool(Exception):
     """Gemini called a function it was never declared."""
 
 
-def to_tool_calls(steps: list[dict], tools: ToolDeclarations) -> list[RawToolCall]:
+def to_tool_calls(steps: list[dict], tools: ToolDeclarations) -> list[ToolCall]:
     """
     Read the function calls Gemini made, each bound to the tool it names:
     the argument dict typed per the declaration, with Gemini's id and
     thought signature.
     """
-    calls: list[RawToolCall] = []
+    calls: list[ToolCall] = []
     pending_signature = ""
     for step in steps:
         step_type = step.get("type")
@@ -49,7 +49,7 @@ def to_tool_calls(steps: list[dict], tools: ToolDeclarations) -> list[RawToolCal
             tool = tools.get(name)
             if tool is None:
                 raise UndeclaredTool(f"Gemini called an undeclared tool: {name!r}")
-            call = RawToolCall(
+            call = ToolCall(
                 name=name,
                 named_arguments=step.get("arguments") or {},
                 native_id=step.get("id", ""),

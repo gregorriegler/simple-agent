@@ -17,7 +17,7 @@ class _MockTool:
     def get_template_variables(self):
         return {}
 
-    async def execute(self, raw_call):
+    async def execute(self, call):
         return SingleToolResult("", status=ToolResultStatus.SUCCESS)
 
 

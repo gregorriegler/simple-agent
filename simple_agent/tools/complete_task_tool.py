@@ -21,8 +21,8 @@ class CompleteTaskTool(BaseTool):
         {"summary": "Fixed the bug in the payment processing module"},
     ]
 
-    async def execute(self, raw_call):
-        args = str(raw_call.named_arguments.get("summary", ""))
+    async def execute(self, call):
+        args = str(call.named_arguments.get("summary", ""))
         if not args or not args.strip():
             return SingleToolResult(
                 "STDERR: complete-task: missing summary",

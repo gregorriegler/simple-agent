@@ -41,8 +41,8 @@ class CreateFileTool(BaseTool):
         {"filename": "multi-line.py", "content": "Line 1\nLine 2"},
     ]
 
-    async def execute(self, raw_call):
-        named = raw_call.named_arguments
+    async def execute(self, call):
+        named = call.named_arguments
         filename = (named.get("filename") or "").strip()
         if not filename:
             return SingleToolResult(

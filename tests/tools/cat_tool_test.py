@@ -1,6 +1,6 @@
 import pytest
 
-from simple_agent.application.tool_library import RawToolCall
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.tools.cat_tool import CatTool
 from tests.test_helpers import create_temp_file, verify_tool
 
@@ -124,7 +124,7 @@ async def test_cat_tool_with_range_no_line_numbers(tmp_path, tool_library):
 
 async def test_cat_tool_reads_named_arguments(tmp_path):
     temp_file = create_temp_file(tmp_path, "my notes.md", "Hello world")
-    call = RawToolCall(
+    call = ToolCall(
         name="cat",
         named_arguments={"filename": str(temp_file), "with_line_numbers": "true"},
     )
@@ -137,7 +137,7 @@ async def test_cat_tool_reads_named_arguments(tmp_path):
 
 async def test_cat_tool_reads_a_native_boolean_flag(tmp_path):
     temp_file = create_temp_file(tmp_path, "notes.md", "Hello world")
-    call = RawToolCall(
+    call = ToolCall(
         name="cat",
         named_arguments={"filename": str(temp_file), "with_line_numbers": True},
     )

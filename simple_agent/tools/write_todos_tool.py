@@ -34,8 +34,8 @@ class WriteTodosTool(BaseTool):
         super().__init__()
         self.filename = filename
 
-    async def execute(self, raw_call):
-        body = str(raw_call.named_arguments.get("content", ""))
+    async def execute(self, call):
+        body = str(call.named_arguments.get("content", ""))
         if not body or not body.strip():
             return SingleToolResult(
                 "No todo content provided", status=ToolResultStatus.FAILURE

@@ -6,7 +6,7 @@ from simple_agent.application.llm import (
     UserMessage,
 )
 from simple_agent.application.text_messages import to_text_turn
-from simple_agent.application.tool_library import RawToolCall
+from simple_agent.application.tool_library import ToolCall
 
 EMPTY_TEXT_PLACEHOLDER = "(empty)"
 
@@ -99,7 +99,7 @@ class InteractionSteps:
         """Gemini rejects a text part that carries no text."""
         return {"type": "text", "text": text or EMPTY_TEXT_PLACEHOLDER}
 
-    def _function_call_step(self, call_id: str, call: RawToolCall) -> dict:
+    def _function_call_step(self, call_id: str, call: ToolCall) -> dict:
         return {
             "type": "function_call",
             "id": call_id,
@@ -107,9 +107,7 @@ class InteractionSteps:
             "arguments": call.named_arguments,
         }
 
-    def _function_result_step(
-        self, call_id: str, call: RawToolCall, output: str
-    ) -> dict:
+    def _function_result_step(self, call_id: str, call: ToolCall, output: str) -> dict:
         """
         Gemini 2.5 models reject a function result made of content parts
         ("Multimodal function responses are not supported"); every model

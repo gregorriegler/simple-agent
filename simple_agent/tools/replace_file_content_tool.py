@@ -105,8 +105,8 @@ class ReplaceFileContentTool(BaseTool):
         "🛠️[replace-file-content test.txt all]\nfoo\n@@@\nbar\n🛠️[/end]",
     ]
 
-    async def execute(self, raw_call):
-        replace_args, error = self.parse_arguments(raw_call)
+    async def execute(self, call):
+        replace_args, error = self.parse_arguments(call)
         if error or replace_args is None:
             return SingleToolResult(
                 error or "Failed to parse arguments", status=ToolResultStatus.FAILURE
@@ -181,8 +181,8 @@ class ReplaceFileContentTool(BaseTool):
 
         return (old_string, new_string), None
 
-    def parse_arguments(self, raw_call):
-        named = raw_call.named_arguments
+    def parse_arguments(self, call):
+        named = call.named_arguments
         filename = named.get("filename")
         if not filename:
             return None, "No arguments specified"

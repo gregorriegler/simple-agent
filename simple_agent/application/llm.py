@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import Protocol, TypeVar
 
 from .model_info import ModelInfo
-from .tool_library import RawToolCall
+from .tool_library import ToolCall
 
 T = TypeVar("T", covariant=True)
 
@@ -45,7 +45,7 @@ class AssistantMessage:
     """What the model said: its text and the tool calls it made, if any."""
 
     content: str
-    tool_calls: list[RawToolCall] = field(default_factory=list)
+    tool_calls: list[ToolCall] = field(default_factory=list)
 
     def render(self, renderer: MessageRenderer[T]) -> T:
         return renderer.assistant(self)
@@ -55,7 +55,7 @@ class AssistantMessage:
 class ToolResultMessage:
     """The output of one tool call, paired with the call it answers."""
 
-    call: RawToolCall
+    call: ToolCall
     content: str
 
     def render(self, renderer: MessageRenderer[T]) -> T:
@@ -76,7 +76,7 @@ class TokenUsage:
 @dataclass
 class LLMResponse:
     answer: str
-    tool_calls: list[RawToolCall] = field(default_factory=list)
+    tool_calls: list[ToolCall] = field(default_factory=list)
     message: str | None = None
     model: str = ""
     usage: TokenUsage | None = None
@@ -126,12 +126,12 @@ class Messages:
             self._messages.append(UserMessage(content))
 
     def assistant_says(
-        self, content: str, tool_calls: list[RawToolCall] | None = None
+        self, content: str, tool_calls: list[ToolCall] | None = None
     ) -> None:
         if content or tool_calls:
             self._messages.append(AssistantMessage(content, tool_calls or []))
 
-    def tool_result(self, call: RawToolCall, output: str) -> None:
+    def tool_result(self, call: ToolCall, output: str) -> None:
         self._messages.append(ToolResultMessage(call, output))
 
     def seed_system_prompt(self, content: str | None):

@@ -179,9 +179,9 @@ def test_resolving_binds_positional_arguments_to_names(tool_library):
 def test_resolving_pairs_a_bound_call_with_its_tool_and_leaves_the_call_as_it_is(
     tool_library,
 ):
-    from simple_agent.application.tool_library import RawToolCall
+    from simple_agent.application.tool_library import ToolCall
 
-    bound = RawToolCall("cat", {"filename": "my notes.md"}).bind(
+    bound = ToolCall("cat", {"filename": "my notes.md"}).bind(
         tool_library.tool_dict["cat"]
     )
 

@@ -5,9 +5,9 @@ from simple_agent.application.emoji_bracket_tool_syntax import (
     EmojiToolCall,
 )
 from simple_agent.application.tool_library import (
-    RawToolCall,
     ToolArgument,
     ToolArguments,
+    ToolCall,
 )
 from simple_agent.tools.base_tool import BaseTool
 
@@ -606,7 +606,7 @@ class TestBind:
         }
 
     def test_a_native_call_keeps_its_named_arguments_when_bound(self):
-        call = RawToolCall("test_tool", {"arg1": "native"})
+        call = ToolCall("test_tool", {"arg1": "native"})
 
         bound = call.bind(SimpleTool())
 
@@ -641,7 +641,7 @@ class TestBind:
     def test_a_text_call_bound_to_no_tool_keeps_only_its_name(self):
         bound = EmojiToolCall("mystery", "a b", body="c").bind(None)
 
-        assert bound == RawToolCall("mystery")
+        assert bound == ToolCall("mystery")
 
 
 class _MockFlagTool(BaseTool):
@@ -684,7 +684,7 @@ class TestRenderHeader:
 
 class TestRenderNativeCalls:
     def test_renders_the_positional_text_for_a_call_that_only_has_a_dict(self):
-        call = RawToolCall(
+        call = ToolCall(
             "flag_tool",
             {"agenttype": "coding", "task": "say hello", "--async": True},
         )
@@ -695,7 +695,7 @@ class TestRenderNativeCalls:
         assert bound.named_arguments == call.named_arguments
 
     def test_renders_the_body_from_the_dict(self):
-        call = RawToolCall(
+        call = ToolCall(
             "multiline_tool", {"inline_arg": "test", "multiline_arg": "line1\nline2"}
         )
 
@@ -707,7 +707,7 @@ class TestRenderNativeCalls:
 
 class TestRenderResult:
     def test_labels_the_output_with_the_call_it_answers(self):
-        call = RawToolCall("bash", {"command": "ls"})
+        call = ToolCall("bash", {"command": "ls"})
 
         rendered = EmojiBracketToolSyntax().render_result(call, "a.txt")
 

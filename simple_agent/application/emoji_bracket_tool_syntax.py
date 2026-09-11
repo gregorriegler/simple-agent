@@ -3,10 +3,10 @@ from dataclasses import dataclass
 from typing import Any
 
 from simple_agent.application.tool_library import (
-    RawToolCall,
     Tool,
     ToolArgument,
     ToolArguments,
+    ToolCall,
     ToolDeclaration,
 )
 from simple_agent.application.tool_syntax import RawAssistantTurn, ToolSyntax
@@ -20,7 +20,7 @@ class EmojiToolCall:
     arguments: str
     body: str = ""
 
-    def bind(self, tool: ToolDeclaration | None) -> RawToolCall:
+    def bind(self, tool: ToolDeclaration | None) -> ToolCall:
         """
         Bind the positional header to the tool's declared names: a single
         header argument takes the whole text as it was written; a longer
@@ -29,14 +29,14 @@ class EmojiToolCall:
         arguments are flags: they bind by name wherever they appear.
         """
         if tool is None:
-            return RawToolCall(self.name)
+            return ToolCall(self.name)
         try:
             named = _bind_header(self.arguments, tool.arguments)
         except ValueError:
             named = {}
         if tool.arguments.body and self.body:
             named[tool.arguments.body.name] = self.body
-        return RawToolCall(self.name, named).bind(tool)
+        return ToolCall(self.name, named).bind(tool)
 
 
 def _bind_header(text: str, arguments: ToolArguments) -> dict[str, Any]:
@@ -200,14 +200,14 @@ class EmojiBracketToolSyntax(ToolSyntax):
     def contains_call(self, text: str) -> bool:
         return any(marker in text for marker in ("🛠️[", "🛠["))
 
-    def render_call(self, raw_call: RawToolCall) -> str:
-        body = raw_call.body()
+    def render_call(self, call: ToolCall) -> str:
+        body = call.body()
         if body:
-            return f"🛠️[{raw_call.header()}]\n{body}\n🛠️[/end]"
-        return f"🛠️[{raw_call.header()} /]"
+            return f"🛠️[{call.header()}]\n{body}\n🛠️[/end]"
+        return f"🛠️[{call.header()} /]"
 
-    def render_result(self, raw_call: RawToolCall, output: str) -> str:
-        return f"Result of 🛠️ {raw_call}\n{output}"
+    def render_result(self, call: ToolCall, output: str) -> str:
+        return f"Result of 🛠️ {call}\n{output}"
 
     def parse(self, text: str) -> RawAssistantTurn:
         # Markers can appear with or without variation selector (U+FE0F)

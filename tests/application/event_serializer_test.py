@@ -14,7 +14,7 @@ from simple_agent.application.events import (
     ToolResultEvent,
     UserPromptedEvent,
 )
-from simple_agent.application.tool_library import RawToolCall
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import SingleToolResult
 
 
@@ -294,7 +294,7 @@ class TestEventSerializer:
         event = ToolCalledEvent(
             agent_id=AgentId("Agent"),
             call_id="Agent::tool_call::1",
-            call=RawToolCall("bash", {"command": "ls -la"}),
+            call=ToolCall("bash", {"command": "ls -la"}),
         )
 
         result = EventSerializer.to_dict(event)
@@ -321,10 +321,10 @@ class TestEventSerializer:
         result = EventSerializer.from_dict(data)
 
         assert result.call_id == "Agent::tool_call::1"
-        assert result.call == RawToolCall("bash", {"command": "ls -la"})
+        assert result.call == ToolCall("bash", {"command": "ls -la"})
 
     def test_round_trips_named_arguments_and_thought_signature(self):
-        call = RawToolCall(
+        call = ToolCall(
             "cat",
             {"filename": "my notes.md", "with_line_numbers": "true"},
             thought_signature="SIG",
@@ -350,7 +350,7 @@ class TestEventSerializer:
 
         result = EventSerializer.from_dict(data)
 
-        assert result.call == RawToolCall("bash")
+        assert result.call == ToolCall("bash")
 
 
 class TestAssistantThoughtEventSerialization:

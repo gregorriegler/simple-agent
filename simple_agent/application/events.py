@@ -3,7 +3,7 @@ from typing import ClassVar
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_type import AgentType
-from simple_agent.application.tool_library import RawToolCall
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import ToolResult
 
 
@@ -29,7 +29,7 @@ class AssistantThoughtEvent(AgentEvent):
 class ToolCalledEvent(AgentEvent):
     event_name: ClassVar[str] = "tool_called"
     call_id: str = ""
-    call: RawToolCall | None = None
+    call: ToolCall | None = None
 
 
 @dataclass

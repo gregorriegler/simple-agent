@@ -2,7 +2,7 @@ import asyncio
 import subprocess
 import time
 
-from simple_agent.application.tool_library import RawToolCall, Tool, ToolArguments
+from simple_agent.application.tool_library import Tool, ToolArguments, ToolCall
 from simple_agent.application.tool_results import ToolResult
 
 TIMEOUT = 60
@@ -14,7 +14,7 @@ class BaseTool(Tool):
     arguments: ToolArguments = ToolArguments(header=[], body=None)
     examples = []
 
-    async def execute(self, raw_call: RawToolCall) -> ToolResult:
+    async def execute(self, call: ToolCall) -> ToolResult:
         raise NotImplementedError("Subclasses must implement execute()")
 
     @staticmethod

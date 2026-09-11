@@ -13,7 +13,7 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.llm import Messages
 from simple_agent.application.tool_library import (
-    RawToolCall,
+    ToolCall,
     ToolDeclarations,
     bind_call,
 )
@@ -25,7 +25,7 @@ class _AssistantTurn:
 
     def __init__(self) -> None:
         self.answer = ""
-        self.calls: list[RawToolCall] = []
+        self.calls: list[ToolCall] = []
 
     def flush(self, messages: Messages) -> None:
         messages.assistant_says(self.answer, self.calls)
@@ -52,7 +52,7 @@ def bind_tool_calls(
 def events_to_messages(events: Sequence[AgentEvent], agent_id: AgentId) -> Messages:
     messages = Messages()
     turn = _AssistantTurn()
-    calls_by_id: dict[str, RawToolCall] = {}
+    calls_by_id: dict[str, ToolCall] = {}
 
     for event in events:
         if event.agent_id != agent_id:
@@ -90,7 +90,7 @@ def events_to_messages(events: Sequence[AgentEvent], agent_id: AgentId) -> Messa
     return messages
 
 
-def _interrupt_unanswered(messages: Messages, calls_by_id: dict[str, RawToolCall]):
+def _interrupt_unanswered(messages: Messages, calls_by_id: dict[str, ToolCall]):
     for call in calls_by_id.values():
         messages.tool_result(call, INTERRUPTED_RESULT)
     calls_by_id.clear()

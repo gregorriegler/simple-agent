@@ -1,7 +1,7 @@
 import pytest
 
 from simple_agent.application.agent_types import AgentTypes
-from simple_agent.application.tool_library import RawToolCall
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.tools.subagent_tool import SubagentTool
 
@@ -19,7 +19,7 @@ class SpawnSpy:
 
 async def test_subagent_reads_native_named_arguments():
     spawn = SpawnSpy()
-    call = RawToolCall(
+    call = ToolCall(
         name="subagent",
         named_arguments={
             "agenttype": "coding",

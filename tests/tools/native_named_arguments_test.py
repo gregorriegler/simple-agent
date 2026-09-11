@@ -1,6 +1,6 @@
 import pytest
 
-from simple_agent.application.tool_library import RawToolCall
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.tools.bash_tool import BashTool
 from simple_agent.tools.communicate_intent_tool import CommunicateIntentTool
 from simple_agent.tools.complete_task_tool import CompleteTaskTool
@@ -11,8 +11,8 @@ from simple_agent.tools.write_todos_tool import WriteTodosTool
 pytestmark = pytest.mark.asyncio
 
 
-def native_call(name: str, **named) -> RawToolCall:
-    return RawToolCall(name, named)
+def native_call(name: str, **named) -> ToolCall:
+    return ToolCall(name, named)
 
 
 async def test_bash_runs_the_named_command():

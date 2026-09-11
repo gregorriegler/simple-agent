@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Protocol
 from .truncation import truncate
 
 if TYPE_CHECKING:
-    from .tool_library import RawToolCall, ToolInvocation
+    from .tool_library import ToolCall, ToolInvocation
 
 
 class ToolResultStatus(str, Enum):
@@ -105,7 +105,7 @@ class ManyToolsResult(ToolResult):
         return self._last_result.message
 
     @property
-    def tool_results(self) -> list[tuple[RawToolCall, str]]:
+    def tool_results(self) -> list[tuple[ToolCall, str]]:
         return [(invocation.call, str(result)) for invocation, result in self._entries]
 
     @property

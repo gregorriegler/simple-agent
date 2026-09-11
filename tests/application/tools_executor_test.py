@@ -9,8 +9,8 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import ToolCalledEvent, ToolResultEvent
 from simple_agent.application.tool_library import (
     AssistantTurn,
-    RawToolCall,
     Tool,
+    ToolCall,
     ToolInvocation,
     ToolLibrary,
 )
@@ -36,7 +36,7 @@ class BlockingSlowTool:
     def __init__(self, delay_seconds: float = 0.1):
         self._delay_seconds = delay_seconds
 
-    async def execute(self, raw_call):
+    async def execute(self, call):
         command = [
             sys.executable,
             "-c",
@@ -56,7 +56,7 @@ async def test_tool_called_event_published_before_tool_completes():
     event_bus.subscribe(ToolResultEvent, lambda event: result_event.set())
 
     tool = BlockingSlowTool(delay_seconds=0.1)
-    tool_call = ToolInvocation(RawToolCall("blocking"), tool)
+    tool_call = ToolInvocation(ToolCall("blocking"), tool)
 
     executor = ToolsExecutor(
         library=ToolLibraryStub(),
@@ -78,13 +78,13 @@ class HugeOutputTool:
     def __init__(self, text: str):
         self._text = text
 
-    async def execute(self, raw_call):
+    async def execute(self, call):
         return SingleToolResult(self._text, status=ToolResultStatus.SUCCESS)
 
 
 @pytest.mark.asyncio
 async def test_huge_tool_result_is_capped():
-    tool_call = ToolInvocation(RawToolCall("huge"), HugeOutputTool("x" * 200_000))
+    tool_call = ToolInvocation(ToolCall("huge"), HugeOutputTool("x" * 200_000))
     executor = ToolsExecutor(
         library=ToolLibraryStub(),
         event_bus=SimpleEventBus(),
@@ -98,15 +98,15 @@ async def test_huge_tool_result_is_capped():
 
 
 class NeverFinishingTool:
-    async def execute(self, raw_call):
+    async def execute(self, call):
         await asyncio.Event().wait()
 
 
 @pytest.mark.asyncio
 async def test_cancelled_turn_reports_a_result_for_every_call():
     recorded = []
-    first = ToolInvocation(RawToolCall("first"), NeverFinishingTool())
-    second = ToolInvocation(RawToolCall("second"), NeverFinishingTool())
+    first = ToolInvocation(ToolCall("first"), NeverFinishingTool())
+    second = ToolInvocation(ToolCall("second"), NeverFinishingTool())
     executor = ToolsExecutor(
         library=ToolLibraryStub(),
         event_bus=SimpleEventBus(),
@@ -126,7 +126,7 @@ async def test_cancelled_turn_reports_a_result_for_every_call():
 @pytest.mark.asyncio
 async def test_completed_results_are_reported_as_they_arrive():
     recorded = []
-    call = ToolInvocation(RawToolCall("huge"), HugeOutputTool("ok"))
+    call = ToolInvocation(ToolCall("huge"), HugeOutputTool("ok"))
     executor = ToolsExecutor(
         library=ToolLibraryStub(),
         event_bus=SimpleEventBus(),

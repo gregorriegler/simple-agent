@@ -4,12 +4,12 @@ from collections.abc import Callable
 from .agent_id import AgentId
 from .event_bus import EventBus
 from .events import ToolCalledEvent, ToolCancelledEvent, ToolResultEvent
-from .tool_library import RawToolCall, ToolInvocation, ToolLibrary
+from .tool_library import ToolCall, ToolInvocation, ToolLibrary
 from .tool_results import ManyToolsResult, ToolResult, TruncatedToolResult
 
 INTERRUPTED_RESULT = "Interrupted by the user before the tool finished."
 
-OnResult = Callable[[RawToolCall, str], None]
+OnResult = Callable[[ToolCall, str], None]
 
 
 class ToolsExecutor:

@@ -50,8 +50,8 @@ class SubagentTool(BaseTool):
         self._spawn_subagent = spawn_subagent
         self._agent_types = agent_types
 
-    async def execute(self, raw_call):
-        named = raw_call.named_arguments
+    async def execute(self, call):
+        named = call.named_arguments
         agent_type_str = named.get("agenttype", "")
         task_description = str(named.get("task_description", "")).strip()
         is_async = named.get("--async", False)

@@ -1,9 +1,9 @@
 import pytest
 
 from simple_agent.application.tool_library import (
-    RawToolCall,
     ToolArgument,
     ToolArguments,
+    ToolCall,
     ToolInvocation,
 )
 
@@ -84,25 +84,25 @@ def test_a_call_describes_itself_without_any_syntax_marker():
         header=[ToolArgument(name="filename", description="")],
         body=ToolArgument(name="content", description=""),
     )
-    bound = RawToolCall("create-file", {"filename": "f", "content": "x"}).bind(
+    bound = ToolCall("create-file", {"filename": "f", "content": "x"}).bind(
         Declares(create_file)
     )
 
-    assert str(RawToolCall("bash", {"command": "ls"})) == "bash ls"
-    assert str(RawToolCall("ls")) == "ls"
+    assert str(ToolCall("bash", {"command": "ls"})) == "bash ls"
+    assert str(ToolCall("ls")) == "ls"
     assert str(bound) == "create-file f x"
     assert bound.header() == "create-file f"
 
 
 def test_an_unbound_call_renders_its_values_and_no_body():
-    call = RawToolCall("create-file", {"filename": "f", "content": "x"})
+    call = ToolCall("create-file", {"filename": "f", "content": "x"})
 
     assert call.header() == "create-file f x"
     assert call.body() == ""
 
 
 def test_binding_to_no_tool_keeps_the_call():
-    call = RawToolCall("mystery", {"x": "1"})
+    call = ToolCall("mystery", {"x": "1"})
 
     assert call.bind(None) is call
 
@@ -116,7 +116,7 @@ def test_binding_coerces_values_to_their_declared_types():
     )
 
     def bound(named):
-        return RawToolCall("cat", named).bind(Declares(cat)).named_arguments
+        return ToolCall("cat", named).bind(Declares(cat)).named_arguments
 
     assert bound({"filename": 42, "with_line_numbers": "true"}) == {
         "filename": "42",
@@ -186,7 +186,7 @@ async def test_an_invocation_executes_its_call_against_its_tool():
         async def execute(self, call):
             return f"ran {call.name} with {call.named_arguments}"
 
-    invocation = ToolInvocation(RawToolCall("echo", {"text": "hi"}), Echo())
+    invocation = ToolInvocation(ToolCall("echo", {"text": "hi"}), Echo())
 
     assert await invocation.execute() == "ran echo with {'text': 'hi'}"
     assert invocation.name == "echo"

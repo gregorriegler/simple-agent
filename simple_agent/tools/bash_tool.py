@@ -42,8 +42,8 @@ class BashTool(BaseTool):
         },
     ]
 
-    async def execute(self, raw_call):
-        args = str(raw_call.named_arguments.get("command", ""))
+    async def execute(self, call):
+        args = str(call.named_arguments.get("command", ""))
         if not args:
             return SingleToolResult(
                 "STDERR: bash: missing command", status=ToolResultStatus.FAILURE

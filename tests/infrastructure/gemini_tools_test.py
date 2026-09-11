@@ -3,9 +3,9 @@ from types import SimpleNamespace
 import pytest
 
 from simple_agent.application.tool_library import (
-    RawToolCall,
     ToolArgument,
     ToolArguments,
+    ToolCall,
 )
 from simple_agent.infrastructure.gemini.gemini_tools import (
     UndeclaredTool,
@@ -121,7 +121,7 @@ TOOLS = {"bash": BASH, "cat": CAT}
 def test_reads_a_function_call_into_a_call_bound_to_its_tool():
     calls = to_tool_calls([function_call("bash", {"command": "ls -la"})], TOOLS)
 
-    assert calls == [RawToolCall("bash", {"command": "ls -la"})]
+    assert calls == [ToolCall("bash", {"command": "ls -la"})]
     assert calls[0].declaration is BASH.arguments
 
 

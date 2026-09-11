@@ -5,9 +5,9 @@ import pytest
 from simple_agent.application.llm import LLMResponse, TokenUsage, UserMessage
 from simple_agent.application.text_response import EmojiToolCallsLLM
 from simple_agent.application.tool_library import (
-    RawToolCall,
     ToolArgument,
     ToolArguments,
+    ToolCall,
 )
 
 pytestmark = pytest.mark.asyncio
@@ -54,7 +54,7 @@ async def test_binds_the_emoji_calls_in_the_answer_to_the_given_tools():
     response = await llm.call_async([UserMessage("hi")])
 
     assert response.tool_calls == [
-        RawToolCall("cat", {"filename": "notes.md", "with_line_numbers": True})
+        ToolCall("cat", {"filename": "notes.md", "with_line_numbers": True})
     ]
     assert response.tool_calls[0].declaration is CAT.arguments
     assert response.message == "on it"

@@ -124,7 +124,7 @@ def test_parse_two_multiline_tools():
     assert result.tool_calls[1].body == "Second line"
 
 
-def test_parse_unknown_tool_returns_raw_call():
+def test_parse_unknown_tool_returns_the_call():
     """Parser does not validate tool names - returns raw calls for any tool name."""
     text = "🛠️[nonexistent_tool arg1]"
     result = syntax.parse(text)
