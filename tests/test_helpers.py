@@ -180,7 +180,7 @@ def all_scrubbers():
 
 async def verify_tool(library, command):
     turn = library.parse_and_resolve(command)
-    result = await library.execute_tool_call(turn.tool_calls[0])
+    result = await library.execute_tool_call(turn.invocations[0])
     verify(
         f"Command:\n{command}\n\nResult:\n{result}",
         options=Options().with_scrubber(all_scrubbers()),

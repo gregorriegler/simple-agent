@@ -11,7 +11,7 @@ from simple_agent.application.tool_library import (
     AssistantTurn,
     RawToolCall,
     Tool,
-    ToolCall,
+    ToolInvocation,
     ToolLibrary,
 )
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
@@ -29,7 +29,7 @@ class ToolLibraryStub(ToolLibrary):
         return AssistantTurn(text, [])
 
     async def execute_tool_call(self, tool_call):
-        return await tool_call.tool_instance.execute(tool_call.raw_call)
+        return await tool_call.execute()
 
 
 class BlockingSlowTool:
@@ -56,7 +56,7 @@ async def test_tool_called_event_published_before_tool_completes():
     event_bus.subscribe(ToolResultEvent, lambda event: result_event.set())
 
     tool = BlockingSlowTool(delay_seconds=0.1)
-    tool_call = ToolCall(RawToolCall("blocking"), tool)
+    tool_call = ToolInvocation(RawToolCall("blocking"), tool)
 
     executor = ToolsExecutor(
         library=ToolLibraryStub(),
@@ -84,7 +84,7 @@ class HugeOutputTool:
 
 @pytest.mark.asyncio
 async def test_huge_tool_result_is_capped():
-    tool_call = ToolCall(RawToolCall("huge"), HugeOutputTool("x" * 200_000))
+    tool_call = ToolInvocation(RawToolCall("huge"), HugeOutputTool("x" * 200_000))
     executor = ToolsExecutor(
         library=ToolLibraryStub(),
         event_bus=SimpleEventBus(),
@@ -105,8 +105,8 @@ class NeverFinishingTool:
 @pytest.mark.asyncio
 async def test_cancelled_turn_reports_a_result_for_every_call():
     recorded = []
-    first = ToolCall(RawToolCall("first"), NeverFinishingTool())
-    second = ToolCall(RawToolCall("second"), NeverFinishingTool())
+    first = ToolInvocation(RawToolCall("first"), NeverFinishingTool())
+    second = ToolInvocation(RawToolCall("second"), NeverFinishingTool())
     executor = ToolsExecutor(
         library=ToolLibraryStub(),
         event_bus=SimpleEventBus(),
@@ -126,7 +126,7 @@ async def test_cancelled_turn_reports_a_result_for_every_call():
 @pytest.mark.asyncio
 async def test_completed_results_are_reported_as_they_arrive():
     recorded = []
-    call = ToolCall(RawToolCall("huge"), HugeOutputTool("ok"))
+    call = ToolInvocation(RawToolCall("huge"), HugeOutputTool("ok"))
     executor = ToolsExecutor(
         library=ToolLibraryStub(),
         event_bus=SimpleEventBus(),

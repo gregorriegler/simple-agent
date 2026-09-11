@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Protocol
 from .truncation import truncate
 
 if TYPE_CHECKING:
-    from .tool_library import RawToolCall, ToolCall
+    from .tool_library import RawToolCall, ToolInvocation
 
 
 class ToolResultStatus(str, Enum):
@@ -96,9 +96,9 @@ class SingleToolResult(ToolResult):
 
 class ManyToolsResult(ToolResult):
     def __init__(self):
-        self._entries: list[tuple[ToolCall, ToolResult]] = []
+        self._entries: list[tuple[ToolInvocation, ToolResult]] = []
         self._last_result: ToolResult = SingleToolResult()
-        self._cancelled_tool_call: ToolCall | None = None
+        self._cancelled: ToolInvocation | None = None
 
     @property
     def message(self) -> str:
@@ -106,9 +106,7 @@ class ManyToolsResult(ToolResult):
 
     @property
     def tool_results(self) -> list[tuple[RawToolCall, str]]:
-        return [
-            (tool_call.raw_call, str(result)) for tool_call, result in self._entries
-        ]
+        return [(invocation.call, str(result)) for invocation, result in self._entries]
 
     @property
     def success(self) -> bool:
@@ -118,7 +116,7 @@ class ManyToolsResult(ToolResult):
 
     @property
     def cancelled(self) -> bool:
-        return self._cancelled_tool_call is not None
+        return self._cancelled is not None
 
     @property
     def display_title(self) -> str:
@@ -138,12 +136,12 @@ class ManyToolsResult(ToolResult):
     def __str__(self) -> str:
         return str(self._last_result)
 
-    def add(self, tool_call: ToolCall, result: ToolResult) -> None:
-        self._entries.append((tool_call, result))
+    def add(self, invocation: ToolInvocation, result: ToolResult) -> None:
+        self._entries.append((invocation, result))
         self._last_result = result
 
-    def mark_cancelled(self, tool_call: ToolCall) -> None:
-        self._cancelled_tool_call = tool_call
+    def mark_cancelled(self, invocation: ToolInvocation) -> None:
+        self._cancelled = invocation
 
 
 class TruncatedToolResult(ToolResult):

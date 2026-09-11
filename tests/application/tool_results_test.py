@@ -1,4 +1,4 @@
-from simple_agent.application.tool_library import RawToolCall, ToolCall
+from simple_agent.application.tool_library import RawToolCall, ToolInvocation
 from simple_agent.application.tool_results import (
     ManyToolsResult,
     SingleToolResult,
@@ -18,7 +18,7 @@ def test_single_tool_result_cancelled_when_status_cancelled():
 
 
 def test_many_tools_result_exposes_last_result_display_fields():
-    tool = ToolCall(RawToolCall("dummy"), DummyTool())
+    tool = ToolInvocation(RawToolCall("dummy"), DummyTool())
     inner_result = SingleToolResult(
         message="done",
         display_title="Title",
@@ -37,11 +37,11 @@ def test_many_tools_result_exposes_last_result_display_fields():
 def test_many_tools_result_exposes_per_tool_name_and_output():
     results = ManyToolsResult()
     results.add(
-        ToolCall(RawToolCall("bash", {"command": "ls"}), DummyTool()),
+        ToolInvocation(RawToolCall("bash", {"command": "ls"}), DummyTool()),
         SingleToolResult(message="a.txt"),
     )
     results.add(
-        ToolCall(RawToolCall("cat", {"filename": "a.txt"}), DummyTool()),
+        ToolInvocation(RawToolCall("cat", {"filename": "a.txt"}), DummyTool()),
         SingleToolResult(message="hello"),
     )
 
@@ -54,11 +54,11 @@ def test_many_tools_result_exposes_per_tool_name_and_output():
 def test_many_tools_result_message_is_the_last_results_message():
     results = ManyToolsResult()
     results.add(
-        ToolCall(RawToolCall("bash", {"command": "ls"}), DummyTool()),
+        ToolInvocation(RawToolCall("bash", {"command": "ls"}), DummyTool()),
         SingleToolResult(message="a.txt"),
     )
     results.add(
-        ToolCall(RawToolCall("cat", {"filename": "a.txt"}), DummyTool()),
+        ToolInvocation(RawToolCall("cat", {"filename": "a.txt"}), DummyTool()),
         SingleToolResult(message="hello"),
     )
 
@@ -66,7 +66,7 @@ def test_many_tools_result_message_is_the_last_results_message():
 
 
 def test_many_tools_result_reports_failure_when_cancelled():
-    tool = ToolCall(RawToolCall("dummy"), DummyTool())
+    tool = ToolInvocation(RawToolCall("dummy"), DummyTool())
     results = ManyToolsResult()
     results.add(tool, SingleToolResult())
 

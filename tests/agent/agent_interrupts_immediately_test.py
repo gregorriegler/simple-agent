@@ -14,7 +14,7 @@ from simple_agent.application.tool_library import (
     AssistantTurn,
     RawToolCall,
     Tool,
-    ToolCall,
+    ToolInvocation,
 )
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.application.tool_syntax import ToolSyntax
@@ -50,7 +50,7 @@ class EmptyToolLibrary:
     def parse_and_resolve(self, text: str) -> AssistantTurn:
         return AssistantTurn(text, [])
 
-    async def execute_tool_call(self, tool_call: ToolCall):
+    async def execute_tool_call(self, tool_call: ToolInvocation):
         return SingleToolResult()
 
 
@@ -130,10 +130,10 @@ class ToolCallingToolLibrary:
     def parse_and_resolve(self, text: str) -> AssistantTurn:
         if "<tool>slow_tool</tool>" in text:
             tool_call = RawToolCall("slow_tool")
-            return AssistantTurn("", [ToolCall(tool_call, self._slow_tool)])
+            return AssistantTurn("", [ToolInvocation(tool_call, self._slow_tool)])
         return AssistantTurn(text, [])
 
-    async def execute_tool_call(self, tool_call: ToolCall):
+    async def execute_tool_call(self, tool_call: ToolInvocation):
         return await self._slow_tool()
 
 

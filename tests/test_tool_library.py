@@ -80,7 +80,7 @@ class ToolLibraryStub(AllTools):
         ):
             self.counter += 1
             raise KeyboardInterrupt()
-        result = await tool_call.tool_instance.execute(tool_call.raw_call)
+        result = await tool_call.execute()
         self.counter += 1
         return result
 

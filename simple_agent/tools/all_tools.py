@@ -4,9 +4,9 @@ from simple_agent.application.text_response import bind_emoji_calls
 from simple_agent.application.tool_library import (
     AssistantTurn,
     Tool,
-    ToolCall,
     ToolDeclaration,
     ToolDeclarations,
+    ToolInvocation,
     ToolLibrary,
 )
 from simple_agent.application.tool_library_factory import (
@@ -106,13 +106,13 @@ class AllTools(ToolLibrary):
         """Pair each bound call with the tool that runs it."""
         return AssistantTurn(
             message=message,
-            tool_calls=[
-                ToolCall(call, self.tool_dict[call.name]) for call in tool_calls
+            invocations=[
+                ToolInvocation(call, self.tool_dict[call.name]) for call in tool_calls
             ],
         )
 
-    async def execute_tool_call(self, tool_call):
-        return await tool_call.tool_instance.execute(tool_call.raw_call)
+    async def execute_tool_call(self, invocation):
+        return await invocation.execute()
 
     def _discover_dynamic_tools(self):
         return []

@@ -79,24 +79,29 @@ def bind_call(call: UnboundToolCall, declarations: ToolDeclarations) -> RawToolC
     return call.bind(declarations.get(call.name))
 
 
-class ToolCall:
-    def __init__(self, raw_call, tool_instance):
-        self.raw_call = raw_call
-        self.tool_instance = tool_instance
+class ToolInvocation:
+    """A bound call paired with the tool that runs it."""
+
+    def __init__(self, call: RawToolCall, tool: "Tool"):
+        self.call = call
+        self.tool = tool
 
     @property
-    def name(self):
-        return self.raw_call.name
+    def name(self) -> str:
+        return self.call.name
+
+    async def execute(self) -> ToolResult:
+        return await self.tool.execute(self.call)
 
 
 @dataclass
 class AssistantTurn:
     message: str
-    tool_calls: list[ToolCall]
+    invocations: list[ToolInvocation]
 
     def __iter__(self):
         yield self.message
-        yield self.tool_calls
+        yield self.invocations
 
 
 _JSON_TYPES = {
@@ -248,4 +253,4 @@ class ToolLibrary(Protocol):
         self, tool_calls: list[RawToolCall], message: str
     ) -> AssistantTurn: ...
 
-    async def execute_tool_call(self, tool_call: ToolCall) -> ToolResult: ...
+    async def execute_tool_call(self, invocation: ToolInvocation) -> ToolResult: ...

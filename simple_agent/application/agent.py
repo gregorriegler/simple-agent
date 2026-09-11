@@ -202,7 +202,8 @@ class Agent(SlashCommandVisitor):
                 )
                 if response.answer or response.tool_calls:
                     self.context.assistant_says(
-                        response.answer, [call.raw_call for call in turn.tool_calls]
+                        response.answer,
+                        [invocation.call for invocation in turn.invocations],
                     )
                 self.event_bus.publish(
                     AssistantRespondedEvent(
@@ -218,11 +219,11 @@ class Agent(SlashCommandVisitor):
                         AssistantSaidEvent(self.agent_id, response.message)
                     )
 
-                if not turn.tool_calls:
+                if not turn.invocations:
                     break
 
                 tool_result = await self.tools_executor.execute_tool_calls(
-                    turn.tool_calls
+                    turn.invocations
                 )
                 self._append_pending_user_messages()
 

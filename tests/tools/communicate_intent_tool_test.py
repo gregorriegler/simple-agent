@@ -49,4 +49,4 @@ async def execute(command, tmp_path):
 
     library = factory.create(tool_context, dummy_spawner, AgentTypes([]))
     turn = library.parse_and_resolve(command)
-    return await library.execute_tool_call(turn.tool_calls[0])
+    return await library.execute_tool_call(turn.invocations[0])

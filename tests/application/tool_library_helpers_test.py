@@ -4,6 +4,7 @@ from simple_agent.application.tool_library import (
     RawToolCall,
     ToolArgument,
     ToolArguments,
+    ToolInvocation,
 )
 
 
@@ -177,3 +178,15 @@ def test_a_windows_path_with_a_space_survives_rendering():
     assert arguments.render_header({"filename": "C:\\Users\\me\\my notes.txt"}) == (
         "'C:\\Users\\me\\my notes.txt'"
     )
+
+
+@pytest.mark.asyncio
+async def test_an_invocation_executes_its_call_against_its_tool():
+    class Echo:
+        async def execute(self, call):
+            return f"ran {call.name} with {call.named_arguments}"
+
+    invocation = ToolInvocation(RawToolCall("echo", {"text": "hi"}), Echo())
+
+    assert await invocation.execute() == "ran echo with {'text': 'hi'}"
+    assert invocation.name == "echo"
