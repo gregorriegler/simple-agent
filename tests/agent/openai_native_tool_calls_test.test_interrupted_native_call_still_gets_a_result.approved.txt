@@ -1,0 +1,101 @@
+# Events
+Agent:       session_started: False
+Agent:         agent_started: Agent test-model agent
+Agent:         user_prompted: run it
+Agent:   assistant_responded:  test-model 0.0%
+Agent:           tool_called: Agent::tool_call::1 bash sleep 5
+Agent:        tool_cancelled: Agent::tool_call::1
+Agent:   session_interrupted: 
+Agent: user_prompt_requested: 
+Agent:         user_prompted: and now?
+Agent:   assistant_responded: ok test-model 0.0%
+Agent:        assistant_said: ok
+Agent: user_prompt_requested: 
+Agent:        agent_finished: 
+Agent:         session_ended: 
+
+# Messages:
+[Agent]
+user: run it
+assistant: 
+user: and now?
+assistant: ok
+
+
+# Request 1 messages
+[
+  {
+    "role": "system",
+    "content": "Test system prompt\n\n"
+  },
+  {
+    "role": "user",
+    "content": "run it"
+  }
+]
+# Request 2 messages
+[
+  {
+    "role": "system",
+    "content": "Test system prompt\n\n"
+  },
+  {
+    "role": "user",
+    "content": "run it"
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "tool_calls": [
+      {
+        "id": "call_abc",
+        "type": "function",
+        "function": {
+          "name": "bash",
+          "arguments": "{\"command\": \"sleep 5\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_abc",
+    "content": "Interrupted by the user before the tool finished."
+  },
+  {
+    "role": "user",
+    "content": "and now?"
+  }
+]
+# Request 1 tools
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "cat",
+      "description": "Display file contents with line numbers",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "string",
+            "description": "Path to the file to display"
+          },
+          "line_range": {
+            "type": "string",
+            "description": "Optional line range in format 'start-end' (e.g., '1-10')"
+          },
+          "with_line_numbers": {
+            "type": "boolean",
+            "description": "Optional flag to show line numbers"
+          }
+        },
+        "required": [
+          "filename"
+        ]
+      }
+    }
+  }
+]
+# Request 1 declared tool names
+write-todos, ls, cat, create-file, replace-file-content, complete-task, communicate-intent, bash, subagent
