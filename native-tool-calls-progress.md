@@ -92,14 +92,16 @@ commit with the tests green:
   Gemini adapter and the text renderer dispatch on the type
 - the Gemini adapter asks a turn whether it signed it, rather than walking
   message keys
+- `ChatMessage` is a union of four typed messages: `SystemMessage`,
+  `UserMessage`, `AssistantMessage`, `ToolResultMessage`. The role-keyed
+  wire dict exists only inside `to_text_messages`, where the text adapters
+  ask for it; `split_system_prompt` hands Claude and Bedrock their system
+  prompt, and Gemini flattens unsigned turns through `to_text_turn`, which
+  stays typed
 
 ## Next steps
 
 Leftovers from this story, small:
-- system and user messages are still role-keyed dicts, so `ChatMessage` is
-  a union of dict and the two typed messages; the fold stopped halfway. The
-  consistent end state is `UserMessage` and `SystemMessage` too, with each
-  adapter mapping every message to its own wire format
 - `RawToolCall.arguments` is still a constructor field, filled by the binder
   for native calls; making it a computed rendering would touch every
   construction site for no behaviour change
