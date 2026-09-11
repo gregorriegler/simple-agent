@@ -1,10 +1,32 @@
 import os
+import shutil
 import subprocess
 import sys
+from pathlib import PureWindowsPath
 
 from ..application.tool_library import ToolArgument, ToolArguments
 from ..application.tool_results import SingleToolResult, ToolResultStatus
 from .base_tool import BaseTool
+
+
+def bash_executable() -> str:
+    found = shutil.which("bash")
+    if sys.platform != "win32" or found is None:
+        return found or "bash"
+    if not found.lower().replace("/", "\\").endswith("\\system32\\bash.exe"):
+        return found
+    return _git_bash() or found
+
+
+def _git_bash() -> str | None:
+    git = shutil.which("git")
+    if git is None:
+        return None
+    root = PureWindowsPath(git).parent.parent
+    for candidate in (root / "bin" / "bash.exe", root / "usr" / "bin" / "bash.exe"):
+        if os.path.exists(str(candidate)):
+            return str(candidate)
+    return None
 
 
 class BashTool(BaseTool):
@@ -70,7 +92,9 @@ class BashTool(BaseTool):
                         | subprocess.DETACHED_PROCESS
                     )
 
-                process = subprocess.Popen(["bash", "-c", args], **popen_kwargs)
+                process = subprocess.Popen(
+                    [bash_executable(), "-c", args], **popen_kwargs
+                )
                 return SingleToolResult(
                     f"✅ Process started in background with PID: {process.pid}",
                     status=ToolResultStatus.SUCCESS,
@@ -83,7 +107,7 @@ class BashTool(BaseTool):
 
         # Original synchronous execution
         _ = subprocess
-        result = await self.run_command_async("bash", ["-c", args])
+        result = await self.run_command_async(bash_executable(), ["-c", args])
 
         output = result["output"]
         elapsed_time = result.get("elapsed_time", 0)
