@@ -109,7 +109,7 @@ def test_model_config_from_dict_reads_native_tool_syntax():
     assert model.tool_syntax == "native"
 
 
-def test_model_config_from_dict_rejects_native_tool_syntax_on_other_adapters():
+def test_model_config_from_dict_accepts_native_tool_syntax_on_claude():
     config = {
         "model": "claude-sonnet-4",
         "adapter": "claude",
@@ -117,8 +117,21 @@ def test_model_config_from_dict_rejects_native_tool_syntax_on_other_adapters():
         "tool_syntax": "native",
     }
 
+    model = ModelConfig.from_dict("claude", config)
+
+    assert model.tool_syntax == "native"
+
+
+def test_model_config_from_dict_rejects_native_tool_syntax_on_other_adapters():
+    config = {
+        "model": "claude-3-haiku",
+        "adapter": "bedrock",
+        "api_key": "key",
+        "tool_syntax": "native",
+    }
+
     with pytest.raises(ValueError, match="native tool calling"):
-        ModelConfig.from_dict("claude", config)
+        ModelConfig.from_dict("bedrock", config)
 
 
 def test_model_config_from_dict_rejects_unknown_tool_syntax():

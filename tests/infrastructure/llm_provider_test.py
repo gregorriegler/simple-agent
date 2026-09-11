@@ -116,3 +116,20 @@ def test_remote_llm_provider_returns_bedrock_adapter():
 
     assert isinstance(llm, EmojiToolCallsLLM)
     assert isinstance(llm._inner, BedrockClaudeLLM)
+
+
+def test_native_claude_receives_the_tools():
+    model = ModelConfig(
+        name="claude",
+        model="claude-sonnet-4",
+        adapter="claude",
+        api_key="key",
+        tool_syntax="native",
+    )
+    provider = RemoteLLMProvider(build_user_config(model))
+    tools = [SimpleNamespace(name="tool-a"), SimpleNamespace(name="tool-b")]
+
+    llm = provider.get(tools=tools)
+
+    assert isinstance(llm, ClaudeLLM)
+    assert llm._tools == tools

@@ -31,6 +31,8 @@ class RemoteLLMProvider:
     def _native_client(model_config, tools: list[Tool]) -> LLM:
         if model_config.adapter == "openai":
             return OpenAILLM(model_config, tools=tools)
+        if model_config.adapter == "claude":
+            return ClaudeLLM(model_config, tools=tools)
         return GeminiLLM(model_config, tools=tools)
 
     @staticmethod

@@ -23,7 +23,7 @@ CLIENTS = [
         ClaudeLLM,
         ClaudeClientError,
         "claude",
-        {"content": [{"text": "success"}]},
+        {"content": [{"type": "text", "text": "success"}]},
         id="claude",
     ),
     pytest.param(
