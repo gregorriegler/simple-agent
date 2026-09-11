@@ -6,7 +6,7 @@ from simple_agent.application.brain import Brain
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AgentChangedEvent, ModelChangedEvent
 from simple_agent.application.input import Input
-from simple_agent.application.llm import Messages
+from simple_agent.application.llm import Messages, SystemMessage, UserMessage
 from simple_agent.application.user_input import DummyUserInput
 from tests.agent.agent_interrupts_immediately_test import EmptyToolLibrary
 from tests.application.model_switching_test import MockLLMProvider
@@ -51,8 +51,8 @@ async def test_agent_runtime_switch_updates_brain_configuration():
     assert agent.brain.tools is new_tools
     actual = agent.context.to_list()
     expected = [
-        {"role": "system", "content": "new system prompt"},
-        {"role": "user", "content": "Keep this history"},
+        SystemMessage("new system prompt"),
+        UserMessage("Keep this history"),
     ]
     assert actual == expected
 

@@ -3,7 +3,9 @@ from simple_agent.application.llm import (
     AssistantMessage,
     ChatMessage,
     ChatMessages,
+    SystemMessage,
     ToolResultMessage,
+    UserMessage,
 )
 from simple_agent.application.tool_library import RawToolCall
 
@@ -29,6 +31,10 @@ def to_text_message(message: ChatMessage) -> dict[str, str]:
     if isinstance(message, AssistantMessage):
         content = _with_calls_as_text(message.content, message.tool_calls)
         return {"role": "assistant", "content": content}
+    if isinstance(message, UserMessage):
+        return {"role": "user", "content": message.content}
+    if isinstance(message, SystemMessage):
+        return {"role": "system", "content": message.content}
     return {"role": message.get("role", ""), "content": message.get("content", "")}
 
 

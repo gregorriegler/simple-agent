@@ -12,6 +12,7 @@ from simple_agent.application.llm import (
     LLMProvider,
     LLMResponse,
     TokenUsage,
+    UserMessage,
 )
 from simple_agent.application.session import Session
 from tests.system_prompt_generator_test import GroundRulesStub
@@ -133,4 +134,4 @@ async def test_model_switching_uses_new_llm_instance():
     assert len(specialized_llm.calls) == 1
     last_call_messages = specialized_llm.calls[0]
     # The last user message in that call should be "Do verify"
-    assert last_call_messages[-1]["content"] == "Do verify"
+    assert last_call_messages[-1] == UserMessage("Do verify")

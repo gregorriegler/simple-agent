@@ -10,7 +10,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
-from simple_agent.application.llm import Messages
+from simple_agent.application.llm import Messages, SystemMessage
 from tests.session_test_bed import SessionTestBed
 
 pytestmark = pytest.mark.asyncio
@@ -57,11 +57,7 @@ async def test_agent_handles_slash_clear_command():
 
     messages.clear()
 
-    assert len(messages.to_list()) == 1, "Only system prompt should remain"
-    assert messages.to_list()[0]["role"] == "system", (
-        "System prompt should be preserved"
-    )
-    assert messages.to_list()[0]["content"] == "You are a helpful assistant."
+    assert messages.to_list() == [SystemMessage("You are a helpful assistant.")]
 
 
 async def test_slash_clear_command_closes_open_observers(tmp_path, monkeypatch):

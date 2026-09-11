@@ -7,6 +7,16 @@ from .tool_library import RawToolCall
 
 
 @dataclass
+class SystemMessage:
+    content: str
+
+
+@dataclass
+class UserMessage:
+    content: str
+
+
+@dataclass
 class AssistantMessage:
     """What the model said: its text and the tool calls it made, if any."""
 
@@ -22,7 +32,9 @@ class ToolResultMessage:
     content: str
 
 
-ChatMessage = dict[str, str] | AssistantMessage | ToolResultMessage
+ChatMessage = (
+    dict[str, str] | SystemMessage | UserMessage | AssistantMessage | ToolResultMessage
+)
 ChatMessages = list[ChatMessage]
 
 
@@ -82,7 +94,8 @@ class Messages:
         self.seed_system_prompt(system_prompt)
 
     def user_says(self, content: str):
-        self.add("user", content)
+        if content:
+            self._messages.append(UserMessage(content))
 
     def assistant_says(
         self, content: str, tool_calls: list[RawToolCall] | None = None
@@ -93,15 +106,11 @@ class Messages:
     def tool_result(self, call: RawToolCall, output: str) -> None:
         self._messages.append(ToolResultMessage(call, output))
 
-    def add(self, role: str, content: str):
-        if content:
-            self._messages.append({"role": role, "content": content})
-
     def seed_system_prompt(self, content: str | None):
         if not content:
             return
 
-        system_message = {"role": "system", "content": content}
+        system_message = SystemMessage(content)
 
         if self._system_prompt() is not None:
             self._messages[0] = system_message
@@ -119,8 +128,8 @@ class Messages:
 
     def _system_prompt(self) -> str | None:
         first = self._messages[0] if self._messages else None
-        if isinstance(first, dict) and first.get("role") == "system":
-            return first.get("content", "")
+        if isinstance(first, SystemMessage):
+            return first.content
         return None
 
     def __len__(self) -> int:

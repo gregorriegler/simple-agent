@@ -8,8 +8,10 @@ from simple_agent.application.llm import (
     ChatMessage,
     ChatMessages,
     LLMResponse,
+    SystemMessage,
     TokenUsage,
     ToolResultMessage,
+    UserMessage,
 )
 from simple_agent.application.text_messages import to_text_message, to_text_messages
 from simple_agent.application.text_response import emoji_response
@@ -150,6 +152,10 @@ class GeminiLLM(LLM):
                 steps.append(
                     self._function_result_step(call_id, message.call, message.content)
                 )
+            elif isinstance(message, SystemMessage):
+                system_prompts.append(message.content)
+            elif isinstance(message, UserMessage):
+                steps.append(self._step("user_input", message.content))
             else:
                 role = message.get("role", "")
                 content = message.get("content", "")

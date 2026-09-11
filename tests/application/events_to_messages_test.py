@@ -10,7 +10,11 @@ from simple_agent.application.events import (
     UserPromptedEvent,
 )
 from simple_agent.application.events_to_messages import events_to_messages
-from simple_agent.application.llm import AssistantMessage, ToolResultMessage
+from simple_agent.application.llm import (
+    AssistantMessage,
+    ToolResultMessage,
+    UserMessage,
+)
 from simple_agent.application.tool_library import RawToolCall
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.application.tools_executor import INTERRUPTED_RESULT
@@ -24,9 +28,7 @@ class TestEventsToMessages:
         messages = events_to_messages(events, agent_id)
 
         message_list = messages.to_list()
-        assert len(message_list) == 1
-        assert message_list[0]["role"] == "user"
-        assert message_list[0]["content"] == "Hello"
+        assert message_list == [UserMessage("Hello")]
 
     def test_converts_assistant_responded_to_assistant_message(self):
         agent_id = AgentId("Agent")
@@ -57,9 +59,7 @@ class TestEventsToMessages:
         messages = events_to_messages(events, agent_id)
 
         message_list = messages.to_list()
-        assert len(message_list) == 1
-        assert message_list[0]["role"] == "user"
-        assert message_list[0]["content"] == "Tool output here"
+        assert message_list == [UserMessage("Tool output here")]
 
     def test_session_cleared_resets_messages(self):
         agent_id = AgentId("Agent")
@@ -73,8 +73,7 @@ class TestEventsToMessages:
         messages = events_to_messages(events, agent_id)
 
         message_list = messages.to_list()
-        assert len(message_list) == 1
-        assert message_list[0]["content"] == "After clear"
+        assert message_list == [UserMessage("After clear")]
 
     def test_filters_by_agent_id(self):
         agent_id = AgentId("Agent")
@@ -90,7 +89,7 @@ class TestEventsToMessages:
         message_list = messages.to_list()
         assert len(message_list) == 2
         assert message_list == [
-            {"role": "user", "content": "For Agent"},
+            UserMessage("For Agent"),
             AssistantMessage("Agent response"),
         ]
 
@@ -105,8 +104,7 @@ class TestEventsToMessages:
         messages = events_to_messages(events, agent_id)
 
         message_list = messages.to_list()
-        assert len(message_list) == 1
-        assert message_list[0]["content"] == "Hello"
+        assert message_list == [UserMessage("Hello")]
 
     def test_full_conversation_flow(self):
         agent_id = AgentId("Agent")
@@ -127,9 +125,9 @@ class TestEventsToMessages:
 
         message_list = messages.to_list()
         assert len(message_list) == 4
-        assert message_list[0] == {"role": "user", "content": "Do something"}
+        assert message_list[0] == UserMessage("Do something")
         assert message_list[1] == AssistantMessage("I'll use a tool 🛠️[bash ls /]")
-        assert message_list[2] == {"role": "user", "content": "file1.txt\nfile2.txt"}
+        assert message_list[2] == UserMessage("file1.txt\nfile2.txt")
         assert message_list[3] == AssistantMessage("Found 2 files")
 
     def test_empty_events_returns_empty_messages(self):
@@ -172,7 +170,7 @@ class TestEventsToMessages:
         messages = events_to_messages(events, agent_id)
 
         assert messages.to_list() == [
-            {"role": "user", "content": "show my notes"},
+            UserMessage("show my notes"),
             AssistantMessage("", [call]),
             ToolResultMessage(call, "Hello world"),
             AssistantMessage("done"),
@@ -217,5 +215,5 @@ class TestEventsToMessages:
         assert messages.to_list() == [
             AssistantMessage("", [call]),
             ToolResultMessage(call, INTERRUPTED_RESULT),
-            {"role": "user", "content": "and now?"},
+            UserMessage("and now?"),
         ]

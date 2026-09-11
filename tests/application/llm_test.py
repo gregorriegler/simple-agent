@@ -2,7 +2,9 @@ from simple_agent.application.llm import (
     AssistantMessage,
     LLMResponse,
     Messages,
+    SystemMessage,
     ToolResultMessage,
+    UserMessage,
 )
 from simple_agent.application.tool_library import RawToolCall
 
@@ -15,9 +17,9 @@ def test_llm_response_defaults_usage():
 
 
 def test_messages_replaces_seeded_system_prompt():
-    messages = Messages([{"role": "system", "content": "old"}], system_prompt="new")
+    messages = Messages([SystemMessage("old")], system_prompt="new")
 
-    assert messages.to_list()[0]["content"] == "new"
+    assert messages.to_list() == [SystemMessage("new")]
 
 
 def test_messages_clear_keeps_system_prompt():
@@ -26,8 +28,15 @@ def test_messages_clear_keeps_system_prompt():
 
     messages.clear()
 
-    assert len(messages) == 1
-    assert messages.to_list()[0]["role"] == "system"
+    assert messages.to_list() == [SystemMessage("system")]
+
+
+def test_messages_records_user_text_as_a_user_message():
+    messages = Messages()
+
+    messages.user_says("hello")
+
+    assert messages.to_list() == [UserMessage("hello")]
 
 
 def test_messages_ignores_empty_user_message():
