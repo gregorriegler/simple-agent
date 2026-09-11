@@ -3,6 +3,7 @@ from unittest.mock import patch
 import httpx
 import pytest
 
+from simple_agent.application.llm import UserMessage
 from simple_agent.infrastructure.claude.claude_client import (
     ClaudeClientError,
     ClaudeLLM,
@@ -71,7 +72,7 @@ async def test_client_wraps_http_status_error(
 
     with patch("asyncio.sleep", return_value=None):
         with pytest.raises(error_class) as error:
-            await client.call_async([{"role": "user", "content": "Hello"}])
+            await client.call_async([UserMessage("Hello")])
 
     assert "API request failed" in str(error.value)
     assert "500" in str(error.value)
@@ -95,7 +96,7 @@ async def test_client_retries_transient_500(
     client = llm_class(build_config(adapter), transport=transport)
 
     with patch("asyncio.sleep", return_value=None):
-        result = await client.call_async([{"role": "user", "content": "Hello"}])
+        result = await client.call_async([UserMessage("Hello")])
 
     assert result.answer == "success"
     assert post_count == 3
@@ -119,7 +120,7 @@ async def test_client_surfaces_api_error_message(
     client = llm_class(build_config(adapter), transport=transport)
 
     with pytest.raises(error_class) as error:
-        await client.call_async([{"role": "user", "content": "Hello"}])
+        await client.call_async([UserMessage("Hello")])
 
     assert "API key not valid" in str(error.value)
     assert "INVALID_ARGUMENT" in str(error.value)
@@ -137,7 +138,7 @@ async def test_client_does_not_echo_an_unrecognized_error_body(
     client = llm_class(build_config(adapter), transport=transport)
 
     with pytest.raises(error_class) as error:
-        await client.call_async([{"role": "user", "content": "Hello"}])
+        await client.call_async([UserMessage("Hello")])
 
     assert "super-secret-key" not in str(error.value)
     assert "400" in str(error.value)

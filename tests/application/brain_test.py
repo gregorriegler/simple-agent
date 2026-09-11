@@ -1,7 +1,7 @@
 import pytest
 
 from simple_agent.application.brain import Brain
-from simple_agent.application.llm import LLMResponse
+from simple_agent.application.llm import LLMResponse, UserMessage
 
 
 class FakeLLM:
@@ -24,7 +24,7 @@ async def test_relays_the_llm_response_for_the_given_messages():
     llm = FakeLLM(response)
     brain = Brain(name="agent", system_prompt="sp", llm=llm, tools=None)
 
-    result = await brain.respond([{"role": "user", "content": "hello"}])
+    result = await brain.respond([UserMessage("hello")])
 
     assert result is response
-    assert llm.received == [{"role": "user", "content": "hello"}]
+    assert llm.received == [UserMessage("hello")]

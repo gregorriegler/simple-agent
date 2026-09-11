@@ -3,7 +3,10 @@ import logging
 import httpx
 
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
-from simple_agent.application.text_messages import to_text_messages
+from simple_agent.application.text_messages import (
+    split_system_prompt,
+    to_text_messages,
+)
 from simple_agent.application.text_response import emoji_response
 from simple_agent.infrastructure.llm_http import post_with_retry
 from simple_agent.infrastructure.model_config import ModelConfig
@@ -40,12 +43,8 @@ class ClaudeLLM(LLM):
             "x-api-key": api_key,
             "anthropic-version": "2023-06-01",
         }
-        payload_messages = to_text_messages(messages)
-        system_prompt = (
-            payload_messages.pop(0).get("content", "")
-            if payload_messages and payload_messages[0].get("role") == "system"
-            else None
-        )
+        system_prompt, history = split_system_prompt(messages)
+        payload_messages = to_text_messages(history)
         data = {
             "model": model,
             "max_tokens": 4000,

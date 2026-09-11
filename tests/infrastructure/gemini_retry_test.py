@@ -3,6 +3,7 @@ from unittest.mock import patch
 import httpx
 import pytest
 
+from simple_agent.application.llm import UserMessage
 from simple_agent.infrastructure.gemini.gemini_client import (
     GeminiClientError,
     GeminiLLM,
@@ -43,7 +44,7 @@ async def test_gemini_retries_on_500():
     client = GeminiLLM(build_config(), transport=httpx.MockTransport(handler))
 
     with patch("asyncio.sleep", return_value=None):
-        result = await client.call_async([{"role": "user", "content": "hello"}])
+        result = await client.call_async([UserMessage("hello")])
 
     assert result.answer == "success"
     assert call_count == 3
@@ -63,7 +64,7 @@ async def test_gemini_retries_on_timeout():
     client = GeminiLLM(build_config(), transport=httpx.MockTransport(handler))
 
     with patch("asyncio.sleep", return_value=None):
-        result = await client.call_async([{"role": "user", "content": "hello"}])
+        result = await client.call_async([UserMessage("hello")])
 
     assert result.answer == "success"
     assert call_count == 2
@@ -82,7 +83,7 @@ async def test_gemini_eventually_fails_after_5_retries():
 
     with patch("asyncio.sleep", return_value=None):
         with pytest.raises(GeminiClientError) as excinfo:
-            await client.call_async([{"role": "user", "content": "hello"}])
+            await client.call_async([UserMessage("hello")])
 
     assert call_count == 6
     assert "500" in str(excinfo.value)

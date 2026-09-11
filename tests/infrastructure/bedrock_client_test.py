@@ -9,6 +9,7 @@ import pytest
 from botocore.response import StreamingBody
 from botocore.stub import Stubber
 
+from simple_agent.application.llm import SystemMessage, UserMessage
 from simple_agent.infrastructure.bedrock.bedrock_client import (
     BedrockClaudeClientError,
     BedrockClaudeLLM,
@@ -60,8 +61,8 @@ async def test_bedrock_claude_chat_returns_content_text():
 
     chat = BedrockClaudeLLM(build_config(), client=client)
     messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": "Hello"},
+        SystemMessage(system_prompt),
+        UserMessage("Hello"),
     ]
 
     result = await chat.call_async(messages)
@@ -102,7 +103,7 @@ async def test_bedrock_claude_chat_runs_in_thread(monkeypatch):
 
     chat = BedrockClaudeLLM(build_config(), client=DummyClient())
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.answer == "assistant response"
     assert called["to_thread"] >= 1
@@ -148,7 +149,7 @@ async def test_bedrock_claude_chat_raises_error_when_content_missing():
     chat = BedrockClaudeLLM(build_config(), client=client)
 
     with pytest.raises(BedrockClaudeClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
+        await chat.call_async([UserMessage("Hello")])
 
     assert str(error.value) == "API response missing 'content' field"
 
@@ -234,8 +235,8 @@ async def test_bedrock_claude_logs_requests_and_responses(caplog):
     )
     chat = BedrockClaudeLLM(config, client=client)
     messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": "Hello"},
+        SystemMessage(system_prompt),
+        UserMessage("Hello"),
     ]
 
     await chat.call_async(messages)

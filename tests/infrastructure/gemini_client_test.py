@@ -4,7 +4,12 @@ from types import SimpleNamespace
 import httpx
 import pytest
 
-from simple_agent.application.llm import AssistantMessage, ToolResultMessage
+from simple_agent.application.llm import (
+    AssistantMessage,
+    SystemMessage,
+    ToolResultMessage,
+    UserMessage,
+)
 from simple_agent.application.tool_library import (
     RawToolCall,
     ToolArgument,
@@ -55,7 +60,7 @@ def responding_with(response_data: dict, captured: dict | None = None):
 async def test_gemini_chat_returns_text_from_model_output_step():
     chat = GeminiLLM(build_config(), transport=responding_with(interaction("hi")))
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.answer == "hi"
     assert result.model == "test-model"
@@ -66,7 +71,7 @@ async def test_gemini_chat_reports_model_from_response():
     response_data = interaction("hi") | {"model": "gemini-3.7-flash"}
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.model == "gemini-3.7-flash"
 
@@ -79,7 +84,7 @@ async def test_gemini_chat_posts_to_interactions_endpoint_with_api_key_header():
         transport=responding_with(interaction("hi"), captured),
     )
 
-    await chat.call_async([{"role": "user", "content": "Hello"}])
+    await chat.call_async([UserMessage("Hello")])
 
     assert (
         captured["url"]
@@ -96,10 +101,10 @@ async def test_gemini_chat_converts_messages_to_interaction_steps():
         build_config(), transport=responding_with(interaction("hi"), captured)
     )
     messages = [
-        {"role": "system", "content": "You are a helpful assistant"},
-        {"role": "user", "content": "Hello"},
-        {"role": "assistant", "content": "Hi there!"},
-        {"role": "user", "content": "How are you?"},
+        SystemMessage("You are a helpful assistant"),
+        UserMessage("Hello"),
+        AssistantMessage("Hi there!"),
+        UserMessage("How are you?"),
     ]
 
     await chat.call_async(messages)
@@ -134,9 +139,9 @@ async def test_gemini_chat_joins_multiple_system_messages():
         build_config(), transport=responding_with(interaction("hi"), captured)
     )
     messages = [
-        {"role": "system", "content": "First rule"},
-        {"role": "system", "content": "Second rule"},
-        {"role": "user", "content": "Hello"},
+        SystemMessage("First rule"),
+        SystemMessage("Second rule"),
+        UserMessage("Hello"),
     ]
 
     await chat.call_async(messages)
@@ -151,7 +156,7 @@ async def test_gemini_chat_omits_system_instruction_when_absent():
         build_config(), transport=responding_with(interaction("hi"), captured)
     )
 
-    await chat.call_async([{"role": "user", "content": "Hello"}])
+    await chat.call_async([UserMessage("Hello")])
 
     assert "system_instruction" not in captured["body"]
 
@@ -163,7 +168,7 @@ async def test_gemini_chat_forbids_native_function_calls():
         build_config(), transport=responding_with(interaction("hi"), captured)
     )
 
-    await chat.call_async([{"role": "user", "content": "Hello"}])
+    await chat.call_async([UserMessage("Hello")])
 
     assert captured["body"]["generation_config"] == {
         "thinking_summaries": "auto",
@@ -193,7 +198,7 @@ async def test_gemini_chat_concatenates_text_of_trailing_model_output_steps():
     }
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.answer == "First part. Second part."
 
@@ -215,7 +220,7 @@ async def test_gemini_chat_keeps_text_surrounding_non_text_content():
     }
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.answer == "this is a picture"
 
@@ -232,7 +237,7 @@ async def test_gemini_chat_reports_token_usage():
     }
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.usage.input_tokens == 100
     assert result.usage.output_tokens == 30
@@ -244,7 +249,7 @@ async def test_gemini_chat_raises_error_when_steps_missing():
     chat = GeminiLLM(build_config(), transport=responding_with({"status": "completed"}))
 
     with pytest.raises(GeminiClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
+        await chat.call_async([UserMessage("Hello")])
 
     assert str(error.value) == "API response has no steps"
 
@@ -258,7 +263,7 @@ async def test_gemini_chat_raises_error_when_model_output_has_no_text():
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
     with pytest.raises(GeminiClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
+        await chat.call_async([UserMessage("Hello")])
 
     assert str(error.value) == "API response contains no model output text"
 
@@ -278,7 +283,7 @@ async def test_gemini_chat_surfaces_api_error_body():
     chat = GeminiLLM(build_config(), transport=transport)
 
     with pytest.raises(GeminiClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
+        await chat.call_async([UserMessage("Hello")])
 
     assert "API key not valid" in str(error.value)
 
@@ -289,7 +294,7 @@ async def test_gemini_chat_reports_error_code_when_there_is_no_message():
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
     with pytest.raises(GeminiClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
+        await chat.call_async([UserMessage("Hello")])
 
     assert str(error.value) == "Gemini interaction failed: quota/exhausted"
 
@@ -303,7 +308,7 @@ async def test_gemini_chat_raises_error_when_interaction_failed():
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
     with pytest.raises(GeminiClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
+        await chat.call_async([UserMessage("Hello")])
 
     assert str(error.value) == "Gemini interaction failed: quota: Resource exhausted"
 
@@ -313,7 +318,7 @@ async def test_gemini_chat_raises_error_when_interaction_is_not_completed():
     chat = GeminiLLM(build_config(), transport=responding_with({"status": "cancelled"}))
 
     with pytest.raises(GeminiClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
+        await chat.call_async([UserMessage("Hello")])
 
     assert str(error.value) == "Gemini interaction cancelled: no error message"
 
@@ -326,7 +331,7 @@ async def test_gemini_chat_raises_error_when_request_fails():
     chat = GeminiLLM(build_config(), transport=httpx.MockTransport(handler))
 
     with pytest.raises(GeminiClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
+        await chat.call_async([UserMessage("Hello")])
 
     assert "API request failed" in str(error.value)
 
@@ -355,7 +360,7 @@ async def test_gemini_chat_skips_trailing_steps_that_are_not_model_output():
     }
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.answer == "the answer"
 
@@ -379,7 +384,7 @@ async def test_gemini_chat_skips_empty_model_output_when_collecting_answer():
     }
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.answer == "🐙 Here are the three options…"
 
@@ -402,7 +407,7 @@ async def test_gemini_chat_stops_at_echoed_user_input_step():
     }
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.answer == "this turn"
 
@@ -417,7 +422,7 @@ async def test_gemini_chat_returns_truncated_text_when_interaction_is_incomplete
     }
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.answer == "cut off"
 
@@ -437,7 +442,7 @@ async def test_gemini_chat_raises_model_output_error_when_there_is_no_text():
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
     with pytest.raises(GeminiClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
+        await chat.call_async([UserMessage("Hello")])
 
     assert str(error.value) == "Gemini model output error [9]: Recitation checked"
 
@@ -456,7 +461,7 @@ async def test_gemini_chat_prefers_model_output_text_over_step_error():
     }
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.answer == "partial answer"
 
@@ -470,7 +475,7 @@ async def test_gemini_chat_raises_error_when_model_output_text_is_empty():
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
     with pytest.raises(GeminiClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
+        await chat.call_async([UserMessage("Hello")])
 
     assert str(error.value) == "API response contains no model output text"
 
@@ -498,7 +503,7 @@ async def test_gemini_declares_tools_natively_when_provided():
         transport=responding_with(interaction("ok"), captured),
     )
 
-    await chat.call_async([{"role": "user", "content": "Hello"}])
+    await chat.call_async([UserMessage("Hello")])
 
     assert captured["body"]["tools"] == [
         {
@@ -537,7 +542,7 @@ async def test_gemini_reads_function_call_into_tool_calls():
         build_config(), tools=[bash_tool()], transport=responding_with(response_data)
     )
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.answer == "on it"
     assert [(c.name, c.named_arguments) for c in result.tool_calls] == [
@@ -557,7 +562,7 @@ async def test_gemini_allows_empty_text_when_the_model_only_calls_a_function():
         build_config(), tools=[bash_tool()], transport=responding_with(response_data)
     )
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.answer == ""
     assert [c.named_arguments for c in result.tool_calls] == [{"command": "pwd"}]
@@ -572,7 +577,7 @@ async def test_gemini_replays_a_prior_tool_call_as_a_function_call_step():
         transport=responding_with(interaction("done"), captured),
     )
     messages = [
-        {"role": "user", "content": "list files"},
+        UserMessage("list files"),
         AssistantMessage(
             "on it",
             [
@@ -697,7 +702,7 @@ async def test_gemini_treats_requires_action_as_a_tool_call_turn():
         build_config(), tools=[bash_tool()], transport=responding_with(response_data)
     )
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.answer == ""
     assert [c.named_arguments for c in result.tool_calls] == [{"command": "ls"}]
@@ -755,7 +760,7 @@ async def test_gemini_asks_for_thought_summaries():
         transport=responding_with(interaction("hi"), captured),
     )
 
-    await chat.call_async([{"role": "user", "content": "Hello"}])
+    await chat.call_async([UserMessage("Hello")])
 
     assert captured["body"]["generation_config"] == {
         "thinking_summaries": "auto",
@@ -778,7 +783,7 @@ async def test_gemini_returns_the_thought_summary():
     }
     chat = GeminiLLM(build_config(), transport=responding_with(response_data))
 
-    result = await chat.call_async([{"role": "user", "content": "Hello"}])
+    result = await chat.call_async([UserMessage("Hello")])
 
     assert result.thought == "First I weigh the options."
 
@@ -792,7 +797,7 @@ async def test_gemini_never_sends_an_empty_text_part():
         transport=responding_with(interaction("done"), captured),
     )
     messages = [
-        {"role": "user", "content": ""},
+        UserMessage(""),
         AssistantMessage(
             "",
             [
@@ -833,10 +838,10 @@ async def test_gemini_replays_a_tool_turn_without_a_signature_as_text():
     )
     call = RawToolCall(name="bash", arguments="ls")
     messages = [
-        {"role": "user", "content": "list files"},
+        UserMessage("list files"),
         AssistantMessage("on it\n🛠️[bash ls /]", [call]),
         ToolResultMessage(call, "a.txt"),
-        {"role": "user", "content": "thanks"},
+        UserMessage("thanks"),
     ]
 
     await chat.call_async(messages)
@@ -915,7 +920,7 @@ async def test_gemini_replays_the_native_arguments_it_received():
         thought_signature="SIG",
     )
     messages = [
-        {"role": "user", "content": "show my notes"},
+        UserMessage("show my notes"),
         AssistantMessage("", [call]),
         ToolResultMessage(call, "Hello world"),
     ]
@@ -950,7 +955,7 @@ async def test_gemini_replays_calls_and_results_under_their_native_ids():
         native_id="fc_b",
     )
     messages = [
-        {"role": "user", "content": "go"},
+        UserMessage("go"),
         AssistantMessage("", [first, second]),
         ToolResultMessage(first, "a.txt"),
         ToolResultMessage(second, "/tmp"),

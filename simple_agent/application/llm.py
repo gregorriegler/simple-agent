@@ -32,9 +32,7 @@ class ToolResultMessage:
     content: str
 
 
-ChatMessage = (
-    dict[str, str] | SystemMessage | UserMessage | AssistantMessage | ToolResultMessage
-)
+ChatMessage = SystemMessage | UserMessage | AssistantMessage | ToolResultMessage
 ChatMessages = list[ChatMessage]
 
 

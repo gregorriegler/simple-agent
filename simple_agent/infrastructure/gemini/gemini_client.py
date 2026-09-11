@@ -13,7 +13,7 @@ from simple_agent.application.llm import (
     ToolResultMessage,
     UserMessage,
 )
-from simple_agent.application.text_messages import to_text_message, to_text_messages
+from simple_agent.application.text_messages import to_text_turn
 from simple_agent.application.text_response import emoji_response
 from simple_agent.application.tool_library import RawToolCall, Tool
 from simple_agent.infrastructure.gemini.gemini_tools import (
@@ -123,7 +123,7 @@ class GeminiLLM(LLM):
         """
         history: Sequence[ChatMessage] = messages
         if not self._tools:
-            history = to_text_messages(history)
+            history = [to_text_turn(message) for message in history]
         history = self._unsigned_tool_turns_as_text(history)
 
         system_prompts = []
@@ -156,15 +156,6 @@ class GeminiLLM(LLM):
                 system_prompts.append(message.content)
             elif isinstance(message, UserMessage):
                 steps.append(self._step("user_input", message.content))
-            else:
-                role = message.get("role", "")
-                content = message.get("content", "")
-                if role == "system":
-                    system_prompts.append(content)
-                elif role == "user":
-                    steps.append(self._step("user_input", content))
-                elif role == "assistant":
-                    steps.append(self._step("model_output", content))
 
         return "\n\n".join(system_prompts), steps
 
@@ -183,7 +174,7 @@ class GeminiLLM(LLM):
             if isinstance(message, AssistantMessage):
                 signed = self._signed(message)
             if isinstance(message, AssistantMessage | ToolResultMessage):
-                message = message if signed else to_text_message(message)
+                message = message if signed else to_text_turn(message)
             converted.append(message)
         return converted
 

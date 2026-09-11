@@ -1,6 +1,7 @@
 import httpx
 import pytest
 
+from simple_agent.application.llm import SystemMessage, UserMessage
 from simple_agent.infrastructure.claude.claude_client import (
     ClaudeClientError,
     ClaudeLLM,
@@ -22,8 +23,8 @@ async def test_claude_chat_returns_content_text():
 
     chat = ClaudeLLM(build_config(), transport=transport)
     messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": "Hello"},
+        SystemMessage(system_prompt),
+        UserMessage("Hello"),
     ]
 
     result = await chat.call_async(messages)
@@ -43,7 +44,7 @@ async def test_claude_chat_raises_error_when_content_missing():
     chat = ClaudeLLM(build_config(), transport=transport)
 
     with pytest.raises(ClaudeClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
+        await chat.call_async([UserMessage("Hello")])
 
     assert str(error.value) == "API response missing 'content' field"
 
@@ -57,7 +58,7 @@ async def test_claude_chat_raises_error_when_request_fails():
     chat = ClaudeLLM(build_config(), transport=transport)
 
     with pytest.raises(ClaudeClientError) as error:
-        await chat.call_async([{"role": "user", "content": "Hello"}])
+        await chat.call_async([UserMessage("Hello")])
 
     assert "API request failed" in str(error.value)
 

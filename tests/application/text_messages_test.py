@@ -1,15 +1,35 @@
-from simple_agent.application.llm import AssistantMessage, ToolResultMessage
-from simple_agent.application.text_messages import to_text_messages
+from simple_agent.application.llm import (
+    AssistantMessage,
+    SystemMessage,
+    ToolResultMessage,
+    UserMessage,
+)
+from simple_agent.application.text_messages import (
+    split_system_prompt,
+    to_text_messages,
+)
 from simple_agent.application.tool_library import RawToolCall
 
 
-def test_passes_plain_messages_through():
-    messages = [
+def test_renders_plain_messages_as_role_keyed_dicts():
+    messages = [SystemMessage("sys"), UserMessage("hi")]
+
+    assert to_text_messages(messages) == [
         {"role": "system", "content": "sys"},
         {"role": "user", "content": "hi"},
     ]
 
-    assert to_text_messages(messages) == messages
+
+def test_splits_a_leading_system_prompt_off_the_history():
+    messages = [SystemMessage("sys"), UserMessage("hi")]
+
+    assert split_system_prompt(messages) == ("sys", [UserMessage("hi")])
+
+
+def test_splits_nothing_when_there_is_no_system_prompt():
+    messages = [UserMessage("hi")]
+
+    assert split_system_prompt(messages) == (None, [UserMessage("hi")])
 
 
 def test_renders_a_tool_result_as_user_text():

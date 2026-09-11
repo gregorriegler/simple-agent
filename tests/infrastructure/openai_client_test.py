@@ -3,6 +3,7 @@ import json
 import httpx
 import pytest
 
+from simple_agent.application.llm import UserMessage
 from simple_agent.infrastructure.model_config import ModelConfig
 from simple_agent.infrastructure.openai.openai_client import OpenAILLM
 
@@ -23,7 +24,7 @@ async def test_openai_client_sends_correct_request():
     transport = httpx.MockTransport(handler)
 
     client = OpenAILLM(build_config(), transport=transport)
-    messages = [{"role": "user", "content": "Hello"}]
+    messages = [UserMessage("Hello")]
 
     result = await client.call_async(messages)
 
@@ -35,7 +36,7 @@ async def test_openai_client_sends_correct_request():
     assert result.usage.total_tokens == 30
     assert captured["url"] == "https://api.openai.com/v1/chat/completions"
     assert captured["json"]["model"] == "test-openai-model"
-    assert captured["json"]["messages"] == messages
+    assert captured["json"]["messages"] == [{"role": "user", "content": "Hello"}]
 
 
 def build_config(base_url: str | None = None) -> ModelConfig:
