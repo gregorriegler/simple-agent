@@ -3,6 +3,7 @@ from dataclasses import replace
 
 from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse
+from simple_agent.application.text_messages import to_text_turn
 from simple_agent.application.tool_library import ToolCall, ToolDeclaration
 from simple_agent.application.tool_syntax import ToolSyntax
 
@@ -27,9 +28,11 @@ def bind_emoji_calls(
 
 class EmojiToolCallsLLM:
     """
-    Binds the emoji tool calls in a text-only LLM's answer to the tools it
-    was handed. A call to a tool it does not know leaves the whole answer
-    as text, so the model's words reach the user unchanged.
+    The emoji text protocol around a text-only LLM: the history goes in as
+    the text turns it would have been, and the emoji tool calls in the
+    answer come out bound to the tools it was handed. A call to a tool it
+    does not know leaves the whole answer as text, so the model's words
+    reach the user unchanged.
     """
 
     def __init__(self, inner: LLM, tools: list[ToolDeclaration]):
@@ -42,6 +45,7 @@ class EmojiToolCallsLLM:
         return self._inner.model
 
     async def call_async(self, messages: ChatMessages) -> LLMResponse:
-        response = await self._inner.call_async(messages)
+        history = [to_text_turn(message) for message in messages]
+        response = await self._inner.call_async(history)
         message, calls = bind_emoji_calls(response.answer, self._tools, self._syntax)
         return replace(response, tool_calls=calls, message=message)

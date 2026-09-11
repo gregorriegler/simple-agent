@@ -84,3 +84,27 @@ async def test_passes_messages_in_and_the_rest_of_the_response_through():
         "hmm",
     )
     assert response.message == "just text"
+
+
+async def test_renders_the_history_as_text_turns_before_the_inner_call():
+    from simple_agent.application.llm import AssistantMessage, ToolResultMessage
+
+    inner = TextOnlyLLM("ok")
+    llm = EmojiToolCallsLLM(inner, [CAT])
+    call = ToolCall("cat", {"filename": "notes.md"}).bind(CAT)
+
+    await llm.call_async(
+        [
+            UserMessage("hi"),
+            AssistantMessage("", [call]),
+            ToolResultMessage(call, "line one"),
+        ]
+    )
+
+    assert inner.received == [
+        [
+            UserMessage("hi"),
+            AssistantMessage("🛠️[cat notes.md /]"),
+            UserMessage("Result of 🛠️ cat notes.md\nline one"),
+        ]
+    ]

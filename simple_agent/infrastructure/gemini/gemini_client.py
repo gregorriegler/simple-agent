@@ -1,15 +1,11 @@
-from collections.abc import Sequence
-
 import httpx
 
 from simple_agent.application.llm import (
     LLM,
-    ChatMessage,
     ChatMessages,
     LLMResponse,
     TokenUsage,
 )
-from simple_agent.application.text_messages import to_text_turn
 from simple_agent.application.tool_library import Tool
 from simple_agent.infrastructure.gemini.gemini_steps import (
     InteractionSteps,
@@ -111,11 +107,8 @@ class GeminiLLM(LLM):
         return request
 
     def _convert_messages(self, messages: ChatMessages) -> tuple[str, list[dict]]:
-        history: Sequence[ChatMessage] = messages
-        if not self._tools:
-            history = [to_text_turn(message) for message in history]
         unsigned_as_text = UnsignedTurnsAsText()
-        history = [message.render(unsigned_as_text) for message in history]
+        history = [message.render(unsigned_as_text) for message in messages]
 
         steps = InteractionSteps()
         for message in history:
