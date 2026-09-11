@@ -39,7 +39,6 @@ def to_raw_tool_calls(steps: list[dict]) -> list[RawToolCall]:
             calls.append(
                 RawToolCall(
                     name=step.get("name", ""),
-                    arguments="",
                     named_arguments=step.get("arguments") or {},
                     native_id=step.get("id", ""),
                     thought_signature=pending_signature,

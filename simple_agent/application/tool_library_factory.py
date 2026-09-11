@@ -3,7 +3,7 @@ from typing import Protocol
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.subagent_spawner import SubagentSpawner
-from simple_agent.application.tool_library import ToolLibrary
+from simple_agent.application.tool_library import ToolDeclarations, ToolLibrary
 
 
 class ToolContext:
@@ -19,3 +19,7 @@ class ToolLibraryFactory(Protocol):
         spawner: SubagentSpawner,
         agent_types: AgentTypes,
     ) -> ToolLibrary: ...
+
+    def declarations(self) -> ToolDeclarations:
+        """Every tool this factory can make, by name, for binding replayed calls."""
+        ...

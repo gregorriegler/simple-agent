@@ -64,7 +64,7 @@ async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
         ToolCalledEvent(
             agent_id=agent_id,
             call_id="call-1",
-            call=RawToolCall("read_file", "test.txt"),
+            call=RawToolCall("read_file", {"path": "test.txt"}),
         ),
         ToolResultEvent(
             agent_id=agent_id,
@@ -165,7 +165,7 @@ async def test_continuation_tool_result_is_last_event(tmp_path):
         ToolCalledEvent(
             agent_id=agent_id,
             call_id="Agent::tool_call::1",
-            call=RawToolCall("bash", "sleep 5"),
+            call=RawToolCall("bash", {"command": "sleep 5"}),
         ),
         ToolResultEvent(
             agent_id=agent_id,

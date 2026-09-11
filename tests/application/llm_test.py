@@ -49,7 +49,7 @@ def test_messages_ignores_empty_user_message():
 
 def test_messages_records_an_assistant_turn_with_its_tool_calls():
     messages = Messages()
-    calls = [RawToolCall(name="bash", arguments="ls")]
+    calls = [RawToolCall("bash", {"command": "ls"})]
 
     messages.assistant_says("on it", calls)
 
@@ -58,7 +58,7 @@ def test_messages_records_an_assistant_turn_with_its_tool_calls():
 
 def test_messages_records_an_assistant_tool_call_turn_with_empty_text():
     messages = Messages()
-    calls = [RawToolCall(name="bash", arguments="ls")]
+    calls = [RawToolCall("bash", {"command": "ls"})]
 
     messages.assistant_says("", calls)
 
@@ -67,7 +67,7 @@ def test_messages_records_an_assistant_tool_call_turn_with_empty_text():
 
 def test_messages_records_a_tool_result_turn():
     messages = Messages()
-    call = RawToolCall(name="bash", arguments="ls")
+    call = RawToolCall("bash", {"command": "ls"})
 
     messages.tool_result(call, "a.txt\nb.txt")
 
@@ -89,7 +89,7 @@ class NamingRenderer:
 
 
 def test_each_message_renders_through_its_own_renderer_method():
-    call = RawToolCall(name="bash", arguments="ls")
+    call = RawToolCall("bash", {"command": "ls"})
     messages = [
         SystemMessage("rules"),
         UserMessage("hi"),

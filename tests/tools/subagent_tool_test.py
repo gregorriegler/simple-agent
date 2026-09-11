@@ -21,7 +21,6 @@ async def test_subagent_reads_native_named_arguments():
     spawn = SpawnSpy()
     call = RawToolCall(
         name="subagent",
-        arguments="coding say hello world True",
         named_arguments={
             "agenttype": "coding",
             "task_description": "say hello world",

@@ -583,13 +583,12 @@ async def test_gemini_replays_a_prior_tool_call_as_a_function_call_step():
             [
                 RawToolCall(
                     name="bash",
-                    arguments="ls",
                     thought_signature="SIG",
                     named_arguments={"command": "ls"},
                 )
             ],
         ),
-        ToolResultMessage(RawToolCall(name="bash", arguments="ls"), "a.txt"),
+        ToolResultMessage(RawToolCall("bash", {"command": "ls"}), "a.txt"),
     ]
 
     await chat.call_async(messages)
@@ -627,13 +626,12 @@ async def test_gemini_replays_the_thought_signature_before_the_function_call():
             [
                 RawToolCall(
                     name="bash",
-                    arguments="ls",
                     thought_signature="SIG",
                     named_arguments={"command": "ls"},
                 )
             ],
         ),
-        ToolResultMessage(RawToolCall(name="bash", arguments="ls"), "a.txt"),
+        ToolResultMessage(RawToolCall("bash", {"command": "ls"}), "a.txt"),
     ]
 
     await chat.call_async(messages)
@@ -669,7 +667,6 @@ async def test_gemini_omits_empty_model_output_before_a_tool_call():
             [
                 RawToolCall(
                     name="bash",
-                    arguments="ls",
                     thought_signature="SIG",
                     named_arguments={"command": "ls"},
                 )
@@ -722,13 +719,12 @@ async def test_gemini_starts_a_model_turn_with_text_and_a_call_with_the_thought(
             [
                 RawToolCall(
                     name="bash",
-                    arguments="ls",
                     thought_signature="SIG",
                     named_arguments={"command": "ls"},
                 )
             ],
         ),
-        ToolResultMessage(RawToolCall(name="bash", arguments="ls"), "a.txt"),
+        ToolResultMessage(RawToolCall("bash", {"command": "ls"}), "a.txt"),
     ]
 
     await chat.call_async(messages)
@@ -803,13 +799,12 @@ async def test_gemini_never_sends_an_empty_text_part():
             [
                 RawToolCall(
                     name="bash",
-                    arguments="ls",
                     thought_signature="SIG",
                     named_arguments={"command": "ls"},
                 )
             ],
         ),
-        ToolResultMessage(RawToolCall(name="bash", arguments="ls"), ""),
+        ToolResultMessage(RawToolCall("bash", {"command": "ls"}), ""),
     ]
 
     await chat.call_async(messages)
@@ -836,7 +831,7 @@ async def test_gemini_replays_a_tool_turn_without_a_signature_as_text():
         tools=[bash_tool()],
         transport=responding_with(interaction("done"), captured),
     )
-    call = RawToolCall(name="bash", arguments="ls")
+    call = RawToolCall("bash", {"command": "ls"})
     messages = [
         UserMessage("list files"),
         AssistantMessage("on it\n🛠️[bash ls /]", [call]),
@@ -870,13 +865,10 @@ async def test_gemini_keeps_a_parallel_tool_turn_native_when_only_its_first_call
     )
     first = RawToolCall(
         name="bash",
-        arguments="ls",
         thought_signature="SIG",
         named_arguments={"command": "ls"},
     )
-    second = RawToolCall(
-        name="bash", arguments="pwd", named_arguments={"command": "pwd"}
-    )
+    second = RawToolCall("bash", {"command": "pwd"})
     messages = [
         AssistantMessage("", [first, second]),
         ToolResultMessage(first, "a.txt"),
@@ -915,7 +907,6 @@ async def test_gemini_replays_the_native_arguments_it_received():
     native_arguments = {"filename": "my notes.md", "with_line_numbers": "true"}
     call = RawToolCall(
         name="cat",
-        arguments="my notes.md true",
         named_arguments=native_arguments,
         thought_signature="SIG",
     )
@@ -943,14 +934,12 @@ async def test_gemini_replays_calls_and_results_under_their_native_ids():
     )
     first = RawToolCall(
         name="bash",
-        arguments="ls",
         named_arguments={"command": "ls"},
         thought_signature="SIG",
         native_id="fc_a",
     )
     second = RawToolCall(
         name="bash",
-        arguments="pwd",
         named_arguments={"command": "pwd"},
         native_id="fc_b",
     )

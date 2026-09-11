@@ -183,13 +183,6 @@ class Agent(SlashCommandVisitor):
         except Exception as e:
             self.event_bus.publish(ErrorEvent(self.agent_id, str(e)))
 
-    @staticmethod
-    def _context_calls(response, turn) -> list:
-        """The history keeps the resolved calls, complete with text and names."""
-        if turn.tool_calls:
-            return [call.raw_call for call in turn.tool_calls]
-        return response.tool_calls
-
     def _append_pending_user_messages(self) -> None:
         for message in self.user_input.drain():
             self.context.user_says(message)
@@ -209,7 +202,7 @@ class Agent(SlashCommandVisitor):
                 )
                 if response.answer or response.tool_calls:
                     self.context.assistant_says(
-                        response.answer, self._context_calls(response, turn)
+                        response.answer, [call.raw_call for call in turn.tool_calls]
                     )
                 self.event_bus.publish(
                     AssistantRespondedEvent(

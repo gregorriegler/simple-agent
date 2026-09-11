@@ -126,7 +126,6 @@ async def test_cat_tool_reads_named_arguments(tmp_path):
     temp_file = create_temp_file(tmp_path, "my notes.md", "Hello world")
     call = RawToolCall(
         name="cat",
-        arguments=f"{temp_file} true",
         named_arguments={"filename": str(temp_file), "with_line_numbers": "true"},
     )
 
@@ -140,7 +139,6 @@ async def test_cat_tool_reads_a_native_boolean_flag(tmp_path):
     temp_file = create_temp_file(tmp_path, "notes.md", "Hello world")
     call = RawToolCall(
         name="cat",
-        arguments="",
         named_arguments={"filename": str(temp_file), "with_line_numbers": True},
     )
 

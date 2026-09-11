@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import Protocol, TypeVar
 
 from .model_info import ModelInfo
-from .tool_library import RawToolCall
+from .tool_library import RawToolCall, UnboundToolCall
 
 T = TypeVar("T", covariant=True)
 
@@ -76,7 +76,7 @@ class TokenUsage:
 @dataclass
 class LLMResponse:
     answer: str
-    tool_calls: list[RawToolCall] = field(default_factory=list)
+    tool_calls: list[UnboundToolCall] = field(default_factory=list)
     message: str | None = None
     model: str = ""
     usage: TokenUsage | None = None

@@ -15,20 +15,30 @@ from simple_agent.application.events import (
     ToolCalledEvent,
     ToolResultEvent,
 )
+from simple_agent.application.events_to_messages import bind_tool_calls
+from simple_agent.application.tool_library import ToolDeclarations, bind_call
 
 logger = logging.getLogger(__name__)
 
 
 class HistoryReplayer:
-    def __init__(self, event_bus: EventBus, event_store: EventStore):
+    def __init__(
+        self,
+        event_bus: EventBus,
+        event_store: EventStore,
+        declarations: ToolDeclarations | None = None,
+    ):
         self._event_bus = event_bus
         self._event_store = event_store
+        self._declarations: ToolDeclarations = declarations or {}
         self._tool_syntax = EmojiBracketToolSyntax()
 
     async def replay_all_agents_async(
         self, starting_agent_id: AgentId
     ) -> list[AgentStartedEvent]:
-        events = _since_last_clear(self._event_store.load_all_events())
+        events = bind_tool_calls(
+            _since_last_clear(self._event_store.load_all_events()), self._declarations
+        )
         if not events:
             return []
 
@@ -85,7 +95,8 @@ class HistoryReplayer:
                     )
                 )
 
-            for i, raw_call in enumerate(raw_turn.tool_calls):
+            for i, unbound in enumerate(raw_turn.tool_calls):
+                raw_call = bind_call(unbound, self._declarations)
                 if results:
                     res_event = results.popleft()
                     self._event_bus.publish(

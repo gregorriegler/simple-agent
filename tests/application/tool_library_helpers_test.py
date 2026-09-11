@@ -67,9 +67,7 @@ def test_json_type_normalises_python_spellings_and_falls_back_to_string():
 
 def test_a_flag_reads_true_from_a_json_boolean_or_its_text_spellings():
     def flag(value):
-        return RawToolCall(name="t", arguments="", named_arguments={"f": value}).flag(
-            "f"
-        )
+        return RawToolCall("t", {"f": value}).flag("f")
 
     assert flag(True)
     assert flag("true")
@@ -81,18 +79,40 @@ def test_a_flag_reads_true_from_a_json_boolean_or_its_text_spellings():
 
 
 def test_an_absent_flag_reads_false():
-    assert not RawToolCall(name="t", arguments="").flag("f")
+    assert not RawToolCall("t").flag("f")
 
 
 def test_a_call_describes_itself_without_any_syntax_marker():
-    assert str(RawToolCall(name="bash", arguments="ls")) == "bash ls"
-    assert str(RawToolCall(name="ls", arguments="")) == "ls"
-    assert str(RawToolCall(name="create-file", arguments="f", body="x")) == (
-        "create-file f x"
+    create_file = ToolArguments(
+        header=[ToolArgument(name="filename", description="")],
+        body=ToolArgument(name="content", description=""),
     )
-    assert RawToolCall(name="create-file", arguments="f", body="x").header() == (
-        "create-file f"
+    bound = RawToolCall("create-file", {"filename": "f", "content": "x"}).bind(
+        Declares(create_file)
     )
+
+    assert str(RawToolCall("bash", {"command": "ls"})) == "bash ls"
+    assert str(RawToolCall("ls")) == "ls"
+    assert str(bound) == "create-file f x"
+    assert bound.header() == "create-file f"
+
+
+def test_an_unbound_call_renders_its_values_and_no_body():
+    call = RawToolCall("create-file", {"filename": "f", "content": "x"})
+
+    assert call.header() == "create-file f x"
+    assert call.body() == ""
+
+
+def test_binding_to_no_tool_keeps_the_call():
+    call = RawToolCall("mystery", {"x": "1"})
+
+    assert call.bind(None) is call
+
+
+class Declares:
+    def __init__(self, arguments: ToolArguments) -> None:
+        self.arguments = arguments
 
 
 def test_renders_a_header_quoting_values_with_spaces_and_true_flags_by_name():
@@ -105,8 +125,11 @@ def test_renders_a_header_quoting_values_with_spaces_and_true_flags_by_name():
     )
     named = {"agenttype": "coding", "task": "say hello", "--async": True}
 
-    assert arguments.render_header(named) == "coding 'say hello' --async"
-    assert arguments.render_header({**named, "--async": False}) == "coding 'say hello'"
+    assert arguments.render_header(named) == "coding say hello --async"
+    assert arguments.render_header({**named, "--async": False}) == "coding say hello"
+    assert arguments.render_header({**named, "agenttype": "a b"}) == (
+        "'a b' say hello --async"
+    )
 
 
 def test_renders_a_lone_positional_argument_as_written():

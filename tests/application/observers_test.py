@@ -159,7 +159,7 @@ def test_observers_are_recreated_after_the_session_is_cleared():
 
 
 def suggest(text):
-    return RawToolCall("suggest", "", body=text)
+    return RawToolCall("suggest", {"suggestion": text})
 
 
 def test_what_an_observer_found_reaches_the_agent():
@@ -191,7 +191,9 @@ def test_an_observation_without_a_suggestion_does_not_disturb_the_agent():
     observer = factory.created[0]
     event_bus.publish(
         ToolCalledEvent(
-            observer.agent_id, "call-1", RawToolCall("complete-task", "looks fine")
+            observer.agent_id,
+            "call-1",
+            RawToolCall("complete-task", {"summary": "looks fine"}),
         )
     )
 

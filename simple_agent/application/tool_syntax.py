@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from typing import Protocol
 
-from simple_agent.application.tool_library import RawToolCall, Tool
+from simple_agent.application.tool_library import Tool, UnboundToolCall
 
 
 @dataclass
 class RawAssistantTurn:
     message: str
-    tool_calls: list[RawToolCall]
+    tool_calls: list[UnboundToolCall]
 
 
 class ToolSyntax(Protocol):
@@ -16,5 +16,3 @@ class ToolSyntax(Protocol):
     def _format_example(self, example: object, tool: Tool) -> str: ...
 
     def parse(self, text: str) -> RawAssistantTurn: ...
-
-    def bind(self, raw_call: RawToolCall, tool: Tool) -> RawToolCall: ...

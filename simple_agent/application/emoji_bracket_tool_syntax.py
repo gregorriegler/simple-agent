@@ -1,5 +1,5 @@
 import shlex
-from dataclasses import replace
+from dataclasses import dataclass
 from typing import Any
 
 from simple_agent.application.tool_library import (
@@ -7,9 +7,62 @@ from simple_agent.application.tool_library import (
     Tool,
     ToolArgument,
     ToolArguments,
+    ToolDeclaration,
     is_true,
 )
 from simple_agent.application.tool_syntax import RawAssistantTurn, ToolSyntax
+
+
+@dataclass
+class EmojiToolCall:
+    """A call as written in the emoji text protocol: a positional header and a body."""
+
+    name: str
+    arguments: str
+    body: str = ""
+
+    def bind(self, tool: ToolDeclaration | None) -> RawToolCall:
+        """
+        Bind the positional header to the tool's declared names: a single
+        header argument takes the whole text as it was written; a longer
+        header is split shell-style so a quoted value stays one value, and
+        any tokens beyond the header flow into its last argument. Boolean
+        arguments are flags: they bind by name wherever they appear.
+        """
+        if tool is None:
+            return RawToolCall(self.name)
+        try:
+            named = _bind_header(self.arguments, tool.arguments)
+        except ValueError:
+            named = {}
+        if tool.arguments.body and self.body:
+            named[tool.arguments.body.name] = self.body
+        return RawToolCall(self.name, named, declaration=tool.arguments)
+
+
+def _bind_header(text: str, arguments: ToolArguments) -> dict[str, Any]:
+    if not text or not arguments.header:
+        return {}
+    if arguments.single_positional:
+        return {arguments.single_positional.name: text}
+    values = _split_shell_style(text)
+    named: dict[str, Any] = {
+        flag.name: True for flag in arguments.flags if flag.name in values
+    }
+    values = [value for value in values if value not in named]
+    positional = arguments.positional
+    last = len(positional) - 1
+    if len(values) > len(positional):
+        values[last:] = [" ".join(values[last:])]
+    named.update(zip((arg.name for arg in positional), values, strict=False))
+    return named
+
+
+def _split_shell_style(text: str) -> list[str]:
+    lexer = shlex.shlex(text, posix=True)
+    lexer.whitespace_split = True
+    lexer.escape = ""
+    return list(lexer)
 
 
 class EmojiBracketToolSyntax(ToolSyntax):
@@ -145,68 +198,13 @@ class EmojiBracketToolSyntax(ToolSyntax):
 
         return "\n".join(output_lines)
 
-    def bind(self, raw_call: RawToolCall, tool: Tool) -> RawToolCall:
-        """
-        Complete a call so it carries both its named arguments and its text.
-
-        A call made under the text protocol gets its positional header bound
-        to the tool's declared names: a single header argument takes the whole
-        text as it was written; a longer header is split shell-style so a
-        quoted value stays one value, and any tokens beyond the header flow
-        into its last argument. Boolean arguments are flags: they bind by name
-        wherever they appear. A call made natively, carrying only the named
-        arguments, gets its header text and body rendered from them.
-        """
-        if raw_call.named_arguments:
-            return self._render_text(raw_call, tool)
-        try:
-            named = self._bind_header(raw_call.arguments, tool.arguments)
-        except ValueError:
-            return raw_call
-        if tool.arguments.body and raw_call.body:
-            named[tool.arguments.body.name] = raw_call.body
-        return replace(raw_call, named_arguments=named)
-
-    def _render_text(self, raw_call: RawToolCall, tool: Tool) -> RawToolCall:
-        if raw_call.arguments or raw_call.body:
-            return raw_call
-        named = raw_call.named_arguments
-        return replace(
-            raw_call,
-            arguments=tool.arguments.render_header(named),
-            body=tool.arguments.render_body(named),
-        )
-
-    def _bind_header(self, text: str, arguments: ToolArguments) -> dict[str, Any]:
-        if not text or not arguments.header:
-            return {}
-        if arguments.single_positional:
-            return {arguments.single_positional.name: text}
-        values = self._split_shell_style(text)
-        named: dict[str, Any] = {
-            flag.name: True for flag in arguments.flags if flag.name in values
-        }
-        values = [value for value in values if value not in named]
-        positional = arguments.positional
-        last = len(positional) - 1
-        if len(values) > len(positional):
-            values[last:] = [" ".join(values[last:])]
-        named.update(zip((arg.name for arg in positional), values, strict=False))
-        return named
-
-    @staticmethod
-    def _split_shell_style(text: str) -> list[str]:
-        lexer = shlex.shlex(text, posix=True)
-        lexer.whitespace_split = True
-        lexer.escape = ""
-        return list(lexer)
-
     def contains_call(self, text: str) -> bool:
         return any(marker in text for marker in ("🛠️[", "🛠["))
 
     def render_call(self, raw_call: RawToolCall) -> str:
-        if raw_call.body:
-            return f"🛠️[{raw_call.header()}]\n{raw_call.body}\n🛠️[/end]"
+        body = raw_call.body()
+        if body:
+            return f"🛠️[{raw_call.header()}]\n{body}\n🛠️[/end]"
         return f"🛠️[{raw_call.header()} /]"
 
     def render_result(self, raw_call: RawToolCall, output: str) -> str:
@@ -294,9 +292,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
 
             if is_self_closing:
                 # Self-closing tool call - no body
-                tool_calls.append(
-                    RawToolCall(name=tool_name, arguments=arguments, body="")
-                )
+                tool_calls.append(EmojiToolCall(tool_name, arguments))
                 pos = header_end + len(SELF_CLOSING_SUFFIX)
             else:
                 # Tool call with body - must find matching end marker
@@ -325,11 +321,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
                                 body = body[1:]
                             elif body.startswith("\r\n"):
                                 body = body[2:]
-                            tool_calls.append(
-                                RawToolCall(
-                                    name=tool_name, arguments=arguments, body=body
-                                )
-                            )
+                            tool_calls.append(EmojiToolCall(tool_name, arguments, body))
                             pos = len(text)
                         break
 
@@ -358,9 +350,7 @@ class EmojiBracketToolSyntax(ToolSyntax):
                         body_text = body_text[2:]
                     body = body_text.rstrip("\n\r")
 
-                    tool_calls.append(
-                        RawToolCall(name=tool_name, arguments=arguments, body=body)
-                    )
+                    tool_calls.append(EmojiToolCall(tool_name, arguments, body))
 
                     # Continue after end marker
                     pos = end_idx + len(current_end_marker)

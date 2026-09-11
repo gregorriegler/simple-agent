@@ -1,5 +1,6 @@
 import shlex
-from dataclasses import dataclass, field
+from collections.abc import Mapping
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Any, Protocol
 
 from .tool_results import ToolResult
@@ -15,21 +16,65 @@ def is_true(value: Any) -> bool:
 
 @dataclass
 class RawToolCall:
+    """
+    A tool call as the model made it: its name and named arguments, with
+    the provider's ids. Once bound to a tool it knows the tool's declared
+    arguments and can render its positional header and body text from them.
+    """
+
     name: str
-    arguments: str
-    body: str = ""
-    thought_signature: str = ""
     named_arguments: dict[str, Any] = field(default_factory=dict)
+    thought_signature: str = ""
     native_id: str = ""
+    declaration: "ToolArguments | None" = field(default=None, compare=False, repr=False)
+
+    def bind(self, tool: "ToolDeclaration | None") -> "RawToolCall":
+        if tool is None:
+            return self
+        return replace(self, declaration=tool.arguments)
 
     def flag(self, name: str) -> bool:
         return is_true(self.named_arguments.get(name, False))
 
     def header(self) -> str:
-        return " ".join(part for part in (self.name, self.arguments) if part)
+        return " ".join(part for part in (self.name, self._arguments_text()) if part)
+
+    def body(self) -> str:
+        if self.declaration is None:
+            return ""
+        return self.declaration.render_body(self.named_arguments)
+
+    def _arguments_text(self) -> str:
+        if self.declaration is None:
+            return " ".join(str(value) for value in self.named_arguments.values())
+        return self.declaration.render_header(self.named_arguments)
 
     def __str__(self) -> str:
-        return " ".join(part for part in (self.header(), self.body) if part)
+        return " ".join(part for part in (self.header(), self.body()) if part)
+
+
+class ToolDeclaration(Protocol):
+    """What a call needs to know about its tool: the declared arguments."""
+
+    arguments: "ToolArguments"
+
+
+ToolDeclarations = Mapping[str, ToolDeclaration]
+
+
+class UnboundToolCall(Protocol):
+    """
+    A call as an adapter delivered it, before the tool it names is known.
+    Binding to no tool at all yields the best call there is without one.
+    """
+
+    name: str
+
+    def bind(self, tool: ToolDeclaration | None) -> RawToolCall: ...
+
+
+def bind_call(call: UnboundToolCall, declarations: ToolDeclarations) -> RawToolCall:
+    return call.bind(declarations.get(call.name))
 
 
 class ToolCall:
@@ -138,19 +183,27 @@ class ToolArguments:
 
     def render_header(self, named: dict[str, Any]) -> str:
         """
-        The positional header text for named values: a lone header argument
-        is written as is, other values are shell-quoted when needed, and a
-        true flag appears by name.
+        The positional header text for named values, the inverse of binding:
+        a value is shell-quoted when needed, and a true flag appears by name.
+        The last positional argument absorbs any leftover tokens when it is
+        bound, so it is written as it is unless it carries quotes itself.
         """
         if self.single_positional:
             return str(named.get(self.single_positional.name, ""))
+        positional = self.positional
         parts = [
-            shlex.quote(str(named[arg.name]))
-            for arg in self.positional
+            self._quoted(str(named[arg.name]), last=arg is positional[-1])
+            for arg in positional
             if arg.name in named
         ]
         parts.extend(flag.name for flag in self.flags if is_true(named.get(flag.name)))
         return " ".join(parts)
+
+    @staticmethod
+    def _quoted(value: str, last: bool) -> str:
+        if last and not any(quote in value for quote in "'\""):
+            return value
+        return shlex.quote(value)
 
     def render_body(self, named: dict[str, Any]) -> str:
         if self._body is None:
@@ -176,7 +229,7 @@ class ToolLibrary(Protocol):
     def parse_and_resolve(self, text: str) -> AssistantTurn: ...
 
     def resolve_tool_calls(
-        self, tool_calls: list[RawToolCall], message: str
+        self, tool_calls: list[UnboundToolCall], message: str
     ) -> AssistantTurn: ...
 
     async def execute_tool_call(self, tool_call: ToolCall) -> ToolResult: ...

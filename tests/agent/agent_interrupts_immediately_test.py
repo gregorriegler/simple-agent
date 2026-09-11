@@ -129,7 +129,7 @@ class ToolCallingToolLibrary:
 
     def parse_and_resolve(self, text: str) -> AssistantTurn:
         if "<tool>slow_tool</tool>" in text:
-            tool_call = RawToolCall(name="slow_tool", arguments="", body="")
+            tool_call = RawToolCall("slow_tool")
             return AssistantTurn("", [ToolCall(tool_call, self._slow_tool)])
         return AssistantTurn(text, [])
 

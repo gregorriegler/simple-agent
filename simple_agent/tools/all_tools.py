@@ -4,6 +4,8 @@ from simple_agent.application.tool_library import (
     AssistantTurn,
     Tool,
     ToolCall,
+    ToolDeclaration,
+    ToolDeclarations,
     ToolLibrary,
 )
 from simple_agent.application.tool_library_factory import (
@@ -25,6 +27,22 @@ from .suggest_tool import SuggestTool
 from .write_todos_tool import WriteTodosTool
 
 OBSERVER_ONLY_TOOLS = ("suggest",)
+
+TOOL_DECLARATIONS: dict[str, ToolDeclaration] = {
+    tool.name: tool
+    for tool in (
+        BashTool,
+        CatTool,
+        CommunicateIntentTool,
+        CompleteTaskTool,
+        CreateFileTool,
+        LsTool,
+        ReplaceFileContentTool,
+        SubagentTool,
+        SuggestTool,
+        WriteTodosTool,
+    )
+}
 
 
 class AllTools(ToolLibrary):
@@ -95,7 +113,7 @@ class AllTools(ToolLibrary):
             if not tool_instance:
                 unbound = fallback_message if fallback_message is not None else message
                 return AssistantTurn(message=unbound, tool_calls=[])
-            bound_call = self.tool_syntax.bind(raw_call, tool_instance)
+            bound_call = raw_call.bind(tool_instance)
             resolved.append(ToolCall(bound_call, tool_instance))
 
         return AssistantTurn(message=message, tool_calls=resolved)
@@ -110,6 +128,9 @@ class AllTools(ToolLibrary):
 class AllToolsFactory(ToolLibraryFactory):
     def __init__(self, tool_syntax: ToolSyntax):
         self.tool_syntax = tool_syntax
+
+    def declarations(self) -> ToolDeclarations:
+        return TOOL_DECLARATIONS
 
     def create(
         self,

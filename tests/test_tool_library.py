@@ -12,7 +12,7 @@ from simple_agent.application.tool_library_factory import (
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.tools import AllTools
-from simple_agent.tools.all_tools import AllToolsFactory
+from simple_agent.tools.all_tools import TOOL_DECLARATIONS, AllToolsFactory
 from tests.test_helpers import DummyProjectTree
 from tests.user_input_stub import UserInputStub
 
@@ -103,6 +103,9 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
         self._event_bus = event_bus
         self._all_displays = all_displays
         self._agent_library = agent_library or BuiltinAgentLibrary()
+
+    def declarations(self):
+        return TOOL_DECLARATIONS
 
     def create(
         self,

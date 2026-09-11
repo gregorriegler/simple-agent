@@ -294,7 +294,7 @@ class TestEventSerializer:
         event = ToolCalledEvent(
             agent_id=AgentId("Agent"),
             call_id="Agent::tool_call::1",
-            call=RawToolCall("bash", "ls -la", "body text"),
+            call=RawToolCall("bash", {"command": "ls -la"}),
         )
 
         result = EventSerializer.to_dict(event)
@@ -304,9 +304,7 @@ class TestEventSerializer:
             "agent_id": "Agent",
             "call_id": "Agent::tool_call::1",
             "tool_name": "bash",
-            "tool_arguments": "ls -la",
-            "tool_body": "body text",
-            "named_arguments": {},
+            "named_arguments": {"command": "ls -la"},
             "thought_signature": "",
             "native_id": "",
         }
@@ -317,20 +315,18 @@ class TestEventSerializer:
             "agent_id": "Agent",
             "call_id": "Agent::tool_call::1",
             "tool_name": "bash",
-            "tool_arguments": "ls -la",
-            "tool_body": "body text",
+            "named_arguments": {"command": "ls -la"},
         }
 
         result = EventSerializer.from_dict(data)
 
         assert result.call_id == "Agent::tool_call::1"
-        assert result.call == RawToolCall("bash", "ls -la", "body text")
+        assert result.call == RawToolCall("bash", {"command": "ls -la"})
 
     def test_round_trips_named_arguments_and_thought_signature(self):
         call = RawToolCall(
             "cat",
-            "my notes.md true",
-            named_arguments={"filename": "my notes.md", "with_line_numbers": "true"},
+            {"filename": "my notes.md", "with_line_numbers": "true"},
             thought_signature="SIG",
             native_id="fc_1",
         )
@@ -342,7 +338,7 @@ class TestEventSerializer:
 
         assert result.call == call
 
-    def test_deserializes_a_tool_called_event_written_before_named_arguments(self):
+    def test_a_tool_called_event_written_as_text_loads_with_its_name_only(self):
         data = {
             "type": "ToolCalledEvent",
             "agent_id": "Agent",
@@ -354,7 +350,7 @@ class TestEventSerializer:
 
         result = EventSerializer.from_dict(data)
 
-        assert result.call == RawToolCall("bash", "ls -la", "")
+        assert result.call == RawToolCall("bash")
 
 
 class TestAssistantThoughtEventSerialization:

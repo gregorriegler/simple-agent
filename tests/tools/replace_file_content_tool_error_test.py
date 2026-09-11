@@ -15,8 +15,6 @@ def replace_call(filename, replace_mode, content):
         named["replace_mode"] = replace_mode
     return RawToolCall(
         name=ReplaceFileContentTool.name,
-        arguments=f"{filename} {replace_mode}".strip(),
-        body=content,
         named_arguments=named,
     )
 
@@ -77,7 +75,7 @@ async def test_parse_arguments_reports_invalid_replace_mode():
 
 async def test_parse_arguments_requires_arguments():
     tool = ReplaceFileContentTool()
-    raw_call = RawToolCall(name=tool.name, arguments="", body="a\n@@@\nb")
+    raw_call = RawToolCall(tool.name, {"content": "a\n@@@\nb"})
 
     parsed, error = tool.parse_arguments(raw_call)
 

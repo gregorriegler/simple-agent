@@ -12,7 +12,7 @@ pytestmark = pytest.mark.asyncio
 
 
 def native_call(name: str, **named) -> RawToolCall:
-    return RawToolCall(name=name, arguments="", named_arguments=named)
+    return RawToolCall(name, named)
 
 
 async def test_bash_runs_the_named_command():

@@ -1,6 +1,9 @@
 from approvaltests import verify
 
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
+from simple_agent.application.emoji_bracket_tool_syntax import (
+    EmojiBracketToolSyntax,
+    EmojiToolCall,
+)
 from simple_agent.application.tool_library import (
     RawToolCall,
     ToolArgument,
@@ -561,32 +564,24 @@ class TestEmojiBracketRoundTrip:
 
 class TestBind:
     def test_binds_positional_arguments_to_declared_names(self):
-        call = RawToolCall(name="test_tool", arguments="value1 value2")
-
-        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+        bound = EmojiToolCall("test_tool", "value1 value2").bind(SimpleTool())
 
         assert bound.named_arguments == {"arg1": "value1", "arg2": "value2"}
 
     def test_omits_optional_arguments_that_were_not_given(self):
-        call = RawToolCall(name="test_tool", arguments="value1")
-
-        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+        bound = EmojiToolCall("test_tool", "value1").bind(SimpleTool())
 
         assert bound.named_arguments == {"arg1": "value1"}
 
     def test_a_quoted_value_binds_as_one_argument(self):
-        call = RawToolCall(name="test_tool", arguments="'my notes.md' value2")
-
-        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+        bound = EmojiToolCall("test_tool", "'my notes.md' value2").bind(SimpleTool())
 
         assert bound.named_arguments == {"arg1": "my notes.md", "arg2": "value2"}
 
     def test_backslashes_in_a_value_are_kept(self):
-        call = RawToolCall(
-            name="test_tool", arguments="C:\\Users\\me\\notes.txt value2"
-        )
+        call = EmojiToolCall("test_tool", "C:\\Users\\me\\notes.txt value2")
 
-        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+        bound = call.bind(SimpleTool())
 
         assert bound.named_arguments == {
             "arg1": "C:\\Users\\me\\notes.txt",
@@ -594,50 +589,43 @@ class TestBind:
         }
 
     def test_a_single_header_argument_takes_the_whole_text(self):
-        call = RawToolCall(name="multiline_tool", arguments="rg 'main\\(' -g '*.py'")
+        call = EmojiToolCall("multiline_tool", "rg 'main\\(' -g '*.py'")
 
-        bound = EmojiBracketToolSyntax().bind(call, MultilineTool())
+        bound = call.bind(MultilineTool())
 
         assert bound.named_arguments["inline_arg"] == "rg 'main\\(' -g '*.py'"
 
     def test_the_body_binds_to_the_body_argument(self):
-        call = RawToolCall(name="multiline_tool", arguments="test", body="line1\nline2")
+        call = EmojiToolCall("multiline_tool", "test", body="line1\nline2")
 
-        bound = EmojiBracketToolSyntax().bind(call, MultilineTool())
+        bound = call.bind(MultilineTool())
 
         assert bound.named_arguments == {
             "inline_arg": "test",
             "multiline_arg": "line1\nline2",
         }
 
-    def test_leaves_already_named_arguments_alone(self):
-        call = RawToolCall(
-            name="test_tool", arguments="a b", named_arguments={"arg1": "native"}
-        )
+    def test_a_native_call_keeps_its_named_arguments_when_bound(self):
+        call = RawToolCall("test_tool", {"arg1": "native"})
 
-        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+        bound = call.bind(SimpleTool())
 
         assert bound.named_arguments == {"arg1": "native"}
 
     def test_unbalanced_quotes_bind_nothing(self):
-        call = RawToolCall(name="test_tool", arguments="'broken value2")
-
-        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+        bound = EmojiToolCall("test_tool", "'broken value2").bind(SimpleTool())
 
         assert bound.named_arguments == {}
 
     def test_extra_tokens_flow_into_the_last_header_argument(self):
-        call = RawToolCall(name="test_tool", arguments="value1 say hello world")
-
-        bound = EmojiBracketToolSyntax().bind(call, SimpleTool())
+        bound = EmojiToolCall("test_tool", "value1 say hello world").bind(SimpleTool())
 
         assert bound.named_arguments == {"arg1": "value1", "arg2": "say hello world"}
 
     def test_boolean_arguments_bind_as_flags_by_name(self):
-        flagged = _MockFlagTool()
-        call = RawToolCall(name="flag_tool", arguments="coding say hello --async")
+        call = EmojiToolCall("flag_tool", "coding say hello --async")
 
-        bound = EmojiBracketToolSyntax().bind(call, flagged)
+        bound = call.bind(_MockFlagTool())
 
         assert bound.named_arguments == {
             "agenttype": "coding",
@@ -646,11 +634,14 @@ class TestBind:
         }
 
     def test_an_absent_flag_is_not_bound(self):
-        call = RawToolCall(name="flag_tool", arguments="coding say hello")
-
-        bound = EmojiBracketToolSyntax().bind(call, _MockFlagTool())
+        bound = EmojiToolCall("flag_tool", "coding say hello").bind(_MockFlagTool())
 
         assert bound.named_arguments == {"agenttype": "coding", "task": "say hello"}
+
+    def test_a_text_call_bound_to_no_tool_keeps_only_its_name(self):
+        bound = EmojiToolCall("mystery", "a b", body="c").bind(None)
+
+        assert bound == RawToolCall("mystery")
 
 
 class _MockFlagTool(BaseTool):
@@ -671,9 +662,7 @@ class TestRenderHeader:
         named = {"agenttype": "coding", "task": 'say "hi" there', "--async": True}
 
         header = _MockFlagTool.arguments.render_header(named)
-        bound = EmojiBracketToolSyntax().bind(
-            RawToolCall(name="flag_tool", arguments=header), _MockFlagTool()
-        )
+        bound = EmojiToolCall("flag_tool", header).bind(_MockFlagTool())
 
         assert bound.named_arguments == named
 
@@ -681,54 +670,45 @@ class TestRenderHeader:
         named = {"arg1": "C:\\Users\\me\\my notes.txt", "arg2": "value2"}
 
         header = SimpleTool.arguments.render_header(named)
-        bound = EmojiBracketToolSyntax().bind(
-            RawToolCall(name="test_tool", arguments=header), SimpleTool()
-        )
+        bound = EmojiToolCall("test_tool", header).bind(SimpleTool())
 
         assert bound.named_arguments == named
 
+    def test_the_last_positional_argument_is_written_as_it_was(self):
+        named = {"agenttype": "coding", "task": "say hello", "--async": True}
 
-class TestBindNativeCalls:
-    def test_renders_the_positional_text_for_a_call_that_only_has_a_dict(self):
-        call = RawToolCall(
-            name="flag_tool",
-            arguments="",
-            named_arguments={
-                "agenttype": "coding",
-                "task": "say hello",
-                "--async": True,
-            },
+        assert _MockFlagTool.arguments.render_header(named) == (
+            "coding say hello --async"
         )
 
-        bound = EmojiBracketToolSyntax().bind(call, _MockFlagTool())
 
-        assert bound.arguments == "coding 'say hello' --async"
+class TestRenderNativeCalls:
+    def test_renders_the_positional_text_for_a_call_that_only_has_a_dict(self):
+        call = RawToolCall(
+            "flag_tool",
+            {"agenttype": "coding", "task": "say hello", "--async": True},
+        )
+
+        bound = call.bind(_MockFlagTool())
+
+        assert bound.header() == "flag_tool coding say hello --async"
         assert bound.named_arguments == call.named_arguments
 
     def test_renders_the_body_from_the_dict(self):
         call = RawToolCall(
-            name="multiline_tool",
-            arguments="",
-            named_arguments={"inline_arg": "test", "multiline_arg": "line1\nline2"},
+            "multiline_tool", {"inline_arg": "test", "multiline_arg": "line1\nline2"}
         )
 
-        bound = EmojiBracketToolSyntax().bind(call, MultilineTool())
+        bound = call.bind(MultilineTool())
 
-        assert bound.arguments == "test"
-        assert bound.body == "line1\nline2"
+        assert bound.header() == "multiline_tool test"
+        assert bound.body() == "line1\nline2"
 
 
 class TestRenderResult:
     def test_labels_the_output_with_the_call_it_answers(self):
-        call = RawToolCall(name="bash", arguments="ls")
+        call = RawToolCall("bash", {"command": "ls"})
 
         rendered = EmojiBracketToolSyntax().render_result(call, "a.txt")
 
         assert rendered == "Result of 🛠️ bash ls\na.txt"
-
-    def test_the_label_carries_the_body_as_it_always_has(self):
-        call = RawToolCall(name="create-file", arguments="f.txt", body="hi")
-
-        rendered = EmojiBracketToolSyntax().render_result(call, "Created f.txt")
-
-        assert rendered == "Result of 🛠️ create-file f.txt hi\nCreated f.txt"

@@ -8,7 +8,10 @@ from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.brain import Brain
 from simple_agent.application.event_bus import EventBus
 from simple_agent.application.event_store import EventStore
-from simple_agent.application.events_to_messages import events_to_messages
+from simple_agent.application.events_to_messages import (
+    bind_tool_calls,
+    events_to_messages,
+)
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLMProvider, Messages
 from simple_agent.application.project_tree import ProjectTree
@@ -74,7 +77,11 @@ class AgentFactory:
         return spawn
 
     def history_of(self, agent_id: AgentId) -> Messages:
-        return events_to_messages(self._event_store.load_events(agent_id), agent_id)
+        events = bind_tool_calls(
+            self._event_store.load_events(agent_id),
+            self._tool_library_factory.declarations(),
+        )
+        return events_to_messages(events, agent_id)
 
     def create_agent_from_history(
         self, agent_id: AgentId, agent_type: AgentType

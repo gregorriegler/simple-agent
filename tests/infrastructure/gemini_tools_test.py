@@ -102,18 +102,15 @@ def function_call(name, arguments, call_id=""):
 def test_reads_a_function_call_into_a_raw_tool_call_carrying_the_dict():
     calls = to_raw_tool_calls([function_call("bash", {"command": "ls -la"})])
 
-    assert calls == [
-        RawToolCall(name="bash", arguments="", named_arguments={"command": "ls -la"})
-    ]
+    assert calls == [RawToolCall("bash", {"command": "ls -la"})]
 
 
-def test_leaves_the_positional_text_and_body_to_the_text_protocol():
+def test_a_call_read_from_gemini_is_not_bound_to_any_tool():
     calls = to_raw_tool_calls(
         [function_call("create-file", {"filename": "a.txt", "content": "hello"})]
     )
 
-    assert calls[0].arguments == ""
-    assert calls[0].body == ""
+    assert calls[0].declaration is None
     assert calls[0].named_arguments == {"filename": "a.txt", "content": "hello"}
 
 

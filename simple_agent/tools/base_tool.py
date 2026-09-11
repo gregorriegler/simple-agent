@@ -2,9 +2,8 @@ import asyncio
 import subprocess
 import time
 
-from simple_agent.application.tool_library import Tool, ToolArguments
+from simple_agent.application.tool_library import RawToolCall, Tool, ToolArguments
 from simple_agent.application.tool_results import ToolResult
-from simple_agent.application.tool_syntax import RawToolCall
 
 TIMEOUT = 60
 
