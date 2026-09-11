@@ -154,9 +154,7 @@ not coerced, since no tool declares them.
 
 ## Next steps
 
-Leftovers from this story, small:
-- Ctrl+C (KeyboardInterrupt) ends the session without recording results;
-  only ESC (CancelledError) is covered
+Leftover from this story, small:
 - `thought_signature` and `native_id` are Gemini-shaped; fold into one
   `provider_state` when a second native adapter needs its own
 
