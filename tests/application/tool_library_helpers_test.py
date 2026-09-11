@@ -93,3 +93,46 @@ def test_a_call_describes_itself_without_any_syntax_marker():
     assert RawToolCall(name="create-file", arguments="f", body="x").header() == (
         "create-file f"
     )
+
+
+def test_renders_a_header_quoting_values_with_spaces_and_true_flags_by_name():
+    arguments = ToolArguments(
+        header=[
+            ToolArgument(name="agenttype", description=""),
+            ToolArgument(name="task", description=""),
+            ToolArgument(name="--async", description="", type="bool"),
+        ]
+    )
+    named = {"agenttype": "coding", "task": "say hello", "--async": True}
+
+    assert arguments.render_header(named) == "coding 'say hello' --async"
+    assert arguments.render_header({**named, "--async": False}) == "coding 'say hello'"
+
+
+def test_renders_a_lone_positional_argument_as_written():
+    arguments = ToolArguments(header=[ToolArgument(name="command", description="")])
+
+    assert arguments.render_header({"command": "rg 'main\\(' -g '*.py'"}) == (
+        "rg 'main\\(' -g '*.py'"
+    )
+
+
+def test_renders_the_body_value_and_nothing_without_a_body_argument():
+    with_body = ToolArguments(body=ToolArgument(name="content", description=""))
+    without = ToolArguments(header=[ToolArgument(name="command", description="")])
+
+    assert with_body.render_body({"content": "line1\nline2"}) == "line1\nline2"
+    assert without.render_body({"command": "ls"}) == ""
+
+
+def test_a_windows_path_with_a_space_survives_rendering():
+    arguments = ToolArguments(
+        header=[
+            ToolArgument(name="filename", description=""),
+            ToolArgument(name="range", description="", required=False),
+        ]
+    )
+
+    assert arguments.render_header({"filename": "C:\\Users\\me\\my notes.txt"}) == (
+        "'C:\\Users\\me\\my notes.txt'"
+    )

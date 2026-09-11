@@ -1,3 +1,4 @@
+import shlex
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
 
@@ -134,6 +135,27 @@ class ToolArguments:
         if self._body:
             return self._header + [self._body]
         return self._header
+
+    def render_header(self, named: dict[str, Any]) -> str:
+        """
+        The positional header text for named values: a lone header argument
+        is written as is, other values are shell-quoted when needed, and a
+        true flag appears by name.
+        """
+        if self.single_positional:
+            return str(named.get(self.single_positional.name, ""))
+        parts = [
+            shlex.quote(str(named[arg.name]))
+            for arg in self.positional
+            if arg.name in named
+        ]
+        parts.extend(flag.name for flag in self.flags if is_true(named.get(flag.name)))
+        return " ".join(parts)
+
+    def render_body(self, named: dict[str, Any]) -> str:
+        if self._body is None:
+            return ""
+        return str(named.get(self._body.name, ""))
 
 
 class Tool(Protocol):

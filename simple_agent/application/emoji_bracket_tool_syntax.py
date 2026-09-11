@@ -171,9 +171,11 @@ class EmojiBracketToolSyntax(ToolSyntax):
         if raw_call.arguments or raw_call.body:
             return raw_call
         named = raw_call.named_arguments
-        body_argument = tool.arguments.body
-        body = str(named.get(body_argument.name, "")) if body_argument else ""
-        return replace(raw_call, arguments=self.render_header(named, tool), body=body)
+        return replace(
+            raw_call,
+            arguments=tool.arguments.render_header(named),
+            body=tool.arguments.render_body(named),
+        )
 
     def _bind_header(self, text: str, arguments: ToolArguments) -> dict[str, Any]:
         if not text or not arguments.header:
@@ -198,25 +200,6 @@ class EmojiBracketToolSyntax(ToolSyntax):
         lexer.whitespace_split = True
         lexer.escape = ""
         return list(lexer)
-
-    def render_header(self, named: dict[str, Any], tool: Tool) -> str:
-        """
-        Render named arguments as the positional header text, the inverse of
-        bind: a single header argument is written as is, other values are
-        shell-quoted when needed, and a true flag appears by name.
-        """
-        arguments = tool.arguments
-        if arguments.single_positional:
-            return str(named.get(arguments.single_positional.name, ""))
-        parts = [
-            shlex.quote(str(named[arg.name]))
-            for arg in arguments.positional
-            if arg.name in named
-        ]
-        parts.extend(
-            flag.name for flag in arguments.flags if is_true(named.get(flag.name))
-        )
-        return " ".join(parts)
 
     def contains_call(self, text: str) -> bool:
         return any(marker in text for marker in ("🛠️[", "🛠["))
