@@ -215,10 +215,15 @@ The provider hands Claude, OpenAI and Gemini out bare with the tools;
 prompt still knows whether to document the tools as text. A `tool_syntax`
 key left in an old config is ignored.
 
+## Bedrock
+
+Bedrock's `invoke_model` takes the Messages API shapes, so the Bedrock
+adapter reuses the Claude adapter's block renderer, tool declarations and
+`tool_use` reader as they are. The provider hands it out bare with the
+tools like the other three; every adapter is native now.
+
 ## Next steps
 
-Bedrock still speaks emoji only; its Claude shapes would map the same way.
-When the last emoji model goes, `EmojiToolCallsLLM`, the provider's emoji
-branch, the header/body split in `ToolArguments`, `text_messages.py`,
-`text_response.py` and the emoji module are the deletable remainder; no
-core type changes.
+No model speaks emoji any more. `EmojiToolCallsLLM`, the header/body split
+in `ToolArguments`, `text_messages.py`, `text_response.py` and the emoji
+module are the deletable remainder; no core type changes.

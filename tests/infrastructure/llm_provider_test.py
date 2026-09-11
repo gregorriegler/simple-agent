@@ -1,6 +1,5 @@
 from types import SimpleNamespace
 
-from simple_agent.application.text_response import EmojiToolCallsLLM
 from simple_agent.infrastructure.bedrock.bedrock_client import BedrockClaudeLLM
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
 from simple_agent.infrastructure.gemini import GeminiLLM
@@ -63,7 +62,7 @@ def test_claude_is_native_and_receives_the_tools():
     assert llm._tools == TOOLS
 
 
-def test_provider_reports_native_tool_syntax_for_the_api_adapters():
+def test_provider_reports_native_tool_syntax():
     model = ModelConfig(
         name="gemini", model="gemini-3-flash", adapter="gemini", api_key="key"
     )
@@ -72,16 +71,9 @@ def test_provider_reports_native_tool_syntax_for_the_api_adapters():
     assert provider.tool_syntax() == "native"
 
 
-def test_provider_reports_emoji_tool_syntax_for_bedrock():
-    model = ModelConfig(
-        name="bedrock", model="claude-3-haiku", adapter="bedrock", api_key="unused"
-    )
-    provider = RemoteLLMProvider(build_user_config(model))
-
-    assert provider.tool_syntax() == "emoji"
-
-
-def test_remote_llm_provider_returns_bedrock_adapter():
+def test_bedrock_is_native_and_receives_the_tools(monkeypatch):
+    monkeypatch.setenv("AWS_ACCESS_KEY_ID", "test")
+    monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "test")
     model = ModelConfig(
         name="bedrock",
         model="claude-3-haiku-20240307-v1:0",
@@ -90,7 +82,7 @@ def test_remote_llm_provider_returns_bedrock_adapter():
     )
     provider = RemoteLLMProvider(build_user_config(model))
 
-    llm = provider.get()
+    llm = provider.get(tools=TOOLS)
 
-    assert isinstance(llm, EmojiToolCallsLLM)
-    assert isinstance(llm._inner, BedrockClaudeLLM)
+    assert isinstance(llm, BedrockClaudeLLM)
+    assert llm._tools == TOOLS

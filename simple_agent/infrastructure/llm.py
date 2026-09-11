@@ -1,5 +1,4 @@
 from simple_agent.application.llm import LLM
-from simple_agent.application.text_response import EmojiToolCallsLLM
 from simple_agent.application.tool_library import Tool
 from simple_agent.infrastructure.bedrock.bedrock_client import BedrockClaudeLLM
 from simple_agent.infrastructure.claude.claude_client import ClaudeLLM
@@ -28,5 +27,5 @@ class RemoteLLMProvider:
         if model_config.adapter == "gemini":
             return GeminiLLM(model_config, tools=tools)
         if model_config.adapter == "bedrock":
-            return EmojiToolCallsLLM(BedrockClaudeLLM(model_config), tools)
+            return BedrockClaudeLLM(model_config, tools=tools)
         return ClaudeLLM(model_config, tools=tools)
