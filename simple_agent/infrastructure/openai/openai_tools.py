@@ -41,6 +41,10 @@ class UndeclaredTool(Exception):
     """OpenAI called a function it was never declared."""
 
 
+class MalformedArguments(Exception):
+    """OpenAI's argument string for a call is not a JSON object."""
+
+
 def to_tool_calls(message_calls: list[dict], tools: ToolDeclarations) -> list[ToolCall]:
     """
     Read the tool calls of a chat completion message, each bound to the
@@ -54,7 +58,7 @@ def to_tool_calls(message_calls: list[dict], tools: ToolDeclarations) -> list[To
         tool = tools.get(name)
         if tool is None:
             raise UndeclaredTool(f"OpenAI called an undeclared tool: {name!r}")
-        arguments = json.loads(function.get("arguments") or "{}")
+        arguments = _decode_arguments(name, function.get("arguments") or "{}")
         calls.append(
             ToolCall(
                 name=name,
@@ -63,3 +67,17 @@ def to_tool_calls(message_calls: list[dict], tools: ToolDeclarations) -> list[To
             )
         )
     return calls
+
+
+def _decode_arguments(name: str, arguments: str) -> dict:
+    try:
+        decoded = json.loads(arguments)
+    except json.JSONDecodeError as error:
+        raise MalformedArguments(
+            f"OpenAI called {name!r} with malformed arguments: {arguments!r}"
+        ) from error
+    if not isinstance(decoded, dict):
+        raise MalformedArguments(
+            f"OpenAI called {name!r} with non-object arguments: {arguments!r}"
+        )
+    return decoded
