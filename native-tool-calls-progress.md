@@ -162,11 +162,32 @@ without reading; only the Gemini adapter knows its `thought_signature` and
 `native_id` keys. Persisted tool-called events written before this carry
 the two keys at the top level and load without them.
 
-The next story: native tool calling for Claude and OpenAI. Each adapter maps
-`ToolCall` (name, typed dict, id) to its wire format and back, declares tools
-from `ToolArguments`, coerces through them, and is handed out bare by the
-provider like Gemini native. The Gemini adapter and its acceptance tests are
-the template. When the last emoji model goes, `EmojiToolCallsLLM`, the
+## OpenAI native
+
+The second native adapter, on the chat completions API, shapes verified
+against the types in `openai/openai-python`. `tool_syntax = "native"` on an
+openai model hands `OpenAILLM(config, tools)` out bare. Acceptance tests in
+`tests/agent/openai_native_tool_calls_test.py`: a filename with a space, a
+continued session, an interrupted call.
+- `openai_tools.py` declares each tool as `{"type": "function", "function":
+  {name, description, parameters}}` and reads a message's `tool_calls` into
+  `ToolCall`s: the JSON argument string decoded and coerced through the
+  declaration, the call id as `provider_state["native_id"]`. An undeclared
+  name or a malformed argument string is refused with the tool named
+- `openai_messages.py` is the third `MessageRenderer`: an assistant turn
+  carries its calls as `tool_calls` (arguments re-encoded as JSON, content
+  `null` when there is none), a tool result is a `tool` message under the
+  call's id. A call made without an id, under emoji or by another adapter,
+  is replayed under a synthetic `call_N` matched to its result by order;
+  chat completions needs no signature, so no text fallback
+- `NATIVE_ADAPTERS` lists openai; the provider's native branch dispatches on
+  the adapter
+
+## Next steps
+
+Native tool calling for Claude: map `ToolCall` to its wire format and back,
+declare tools from `ToolArguments`, coerce through them, and hand the client
+out bare like the two native adapters. When the last emoji model goes, `EmojiToolCallsLLM`, the
 provider's emoji branch, the header/body split in `ToolArguments`,
 `text_messages.py`, `text_response.py` and the emoji module are the
 deletable remainder; no core type changes.
