@@ -2,7 +2,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
-NATIVE_ADAPTERS = ("gemini",)
+NATIVE_ADAPTERS = ("gemini", "openai")
 
 
 @dataclass
