@@ -15,7 +15,6 @@ from simple_agent.application.input import Input
 from simple_agent.application.llm import LLMProvider, Messages
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.subagent_spawner import SubagentSpawner
-from simple_agent.application.tool_documentation import tools_documentation
 from simple_agent.application.tool_library_factory import (
     ToolContext,
     ToolLibraryFactory,
@@ -121,12 +120,7 @@ class AgentFactory:
         tools = self._tool_library_factory.create(
             tool_context, spawner, AgentTypes(self._agent_library.list_agent_types())
         )
-        documentation = tools_documentation(
-            self._llm_provider.tool_syntax(definition.model()),
-            tools.tools,
-            tools.tool_syntax,
-        )
-        system_prompt = definition.prompt().render(documentation, self._project_tree)
+        system_prompt = definition.prompt().render(self._project_tree)
         return Brain(
             name=definition.agent_name(),
             system_prompt=system_prompt,

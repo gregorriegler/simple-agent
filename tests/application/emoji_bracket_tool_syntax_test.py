@@ -1,15 +1,13 @@
-from approvaltests import verify
-
-from simple_agent.application.emoji_bracket_tool_syntax import (
-    EmojiBracketToolSyntax,
-    EmojiToolCall,
-)
 from simple_agent.application.tool_library import (
     ToolArgument,
     ToolArguments,
     ToolCall,
 )
 from simple_agent.tools.base_tool import BaseTool
+from tests.emoji_syntax import (
+    EmojiBracketToolSyntax,
+    EmojiToolCall,
+)
 
 
 class SimpleTool(BaseTool):
@@ -43,61 +41,6 @@ class MultilineTool(BaseTool):
     examples = [
         {"inline_arg": "test", "multiline_arg": "line1\nline2\nline3"},
     ]
-
-
-class TestEmojiBracketDocumentation:
-    def test_renders_simple_tool_documentation(self):
-        syntax = EmojiBracketToolSyntax()
-        tool = SimpleTool()
-
-        doc = syntax.render_documentation(tool)
-
-        verify(doc)
-
-    def test_renders_multiline_tool_documentation(self):
-        syntax = EmojiBracketToolSyntax()
-        tool = MultilineTool()
-
-        doc = syntax.render_documentation(tool)
-
-        verify(doc)
-
-    def test_renders_tool_without_arguments(self):
-        class NoArgsTool(BaseTool):
-            name = "no_args"
-            description = "Tool without arguments"
-            arguments = ToolArguments()
-            examples = []
-
-        syntax = EmojiBracketToolSyntax()
-        tool = NoArgsTool()
-
-        doc = syntax.render_documentation(tool)
-
-        verify(doc)
-
-    def test_renders_a_true_flag_in_an_example_by_name(self):
-        class FlagExampleTool(_MockFlagTool):
-            examples = [{"agenttype": "coding", "task": "hello", "--async": True}]
-
-        doc = EmojiBracketToolSyntax().render_documentation(FlagExampleTool())
-
-        assert "🛠️[flag_tool coding hello --async /]" in doc
-        assert "True" not in doc
-
-    def test_renders_non_dict_example_values(self):
-        class WeirdExampleTool(BaseTool):
-            name = "weird_example"
-            description = "Tool with unusual examples"
-            arguments = ToolArguments()
-            examples = [123]
-
-        syntax = EmojiBracketToolSyntax()
-        tool = WeirdExampleTool()
-
-        doc = syntax.render_documentation(tool)
-
-        assert "123" in doc
 
 
 class TestEmojiBracketBasicParsing:
@@ -543,26 +486,6 @@ class TestEmojiBracketRoundTrip:
         assert result.tool_calls[0].name == "test_tool"
         assert result.tool_calls[0].arguments == "value1 value2"
 
-    def test_round_trip_multiline_example(self):
-        syntax = EmojiBracketToolSyntax()
-        tool = MultilineTool()
-
-        doc = syntax.render_documentation(tool)
-
-        # Extract the example from documentation and parse it
-        example_start = doc.find("🛠️[multiline_tool test]")
-        assert example_start != -1, "Example not found in documentation"
-
-        example_text = doc[example_start:]
-        result = syntax.parse(example_text)
-
-        assert len(result.tool_calls) == 1
-        assert result.tool_calls[0].name == "multiline_tool"
-        assert "test" in result.tool_calls[0].arguments
-        assert "line1" in result.tool_calls[0].body
-
-
-class TestBind:
     def test_binds_positional_arguments_to_declared_names(self):
         bound = EmojiToolCall("test_tool", "value1 value2").bind(SimpleTool())
 

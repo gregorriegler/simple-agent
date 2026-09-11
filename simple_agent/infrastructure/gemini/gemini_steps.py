@@ -1,4 +1,3 @@
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.llm import (
     AssistantMessage,
     ChatMessage,
@@ -6,8 +5,12 @@ from simple_agent.application.llm import (
     ToolResultMessage,
     UserMessage,
 )
-from simple_agent.application.text_messages import to_text_turn
-from simple_agent.application.tool_library import ToolCall
+from simple_agent.application.tool_library import (
+    ToolCall,
+    ToolDeclarations,
+    call_body,
+    call_header,
+)
 from simple_agent.infrastructure.gemini.gemini_tools import native_id, thought_signature
 
 EMPTY_TEXT_PLACEHOLDER = "(empty)"
@@ -17,12 +20,12 @@ class UnsignedTurnsAsText:
     """
     Gemini rejects a function_call/function_result pair that is not led
     by the thought step which produced it. Only calls Gemini made itself
-    carry that signature; calls made under the text protocol, by another
-    adapter or before a model switch, are replayed as the text they were.
+    carry that signature; calls made by another adapter or before a model
+    switch are replayed as plain text describing the call and its result.
     """
 
-    def __init__(self, syntax: EmojiBracketToolSyntax) -> None:
-        self._syntax = syntax
+    def __init__(self, declarations: ToolDeclarations) -> None:
+        self._declarations = declarations
         self._signed = False
 
     def system(self, message: SystemMessage) -> ChatMessage:
@@ -33,10 +36,22 @@ class UnsignedTurnsAsText:
 
     def assistant(self, message: AssistantMessage) -> ChatMessage:
         self._signed = any(thought_signature(call) for call in message.tool_calls)
-        return message if self._signed else to_text_turn(message, self._syntax)
+        if self._signed or not message.tool_calls:
+            return message
+        calls = "\n".join(self._call_text(call) for call in message.tool_calls)
+        content = f"{message.content}\n{calls}" if message.content else calls
+        return AssistantMessage(content)
 
     def tool_result(self, message: ToolResultMessage) -> ChatMessage:
-        return message if self._signed else to_text_turn(message, self._syntax)
+        if self._signed:
+            return message
+        header = call_header(message.call, self._declarations)
+        return UserMessage(f"Result of {header}:\n{message.content}")
+
+    def _call_text(self, call: ToolCall) -> str:
+        header = call_header(call, self._declarations)
+        body = call_body(call, self._declarations)
+        return f"Called {header}:\n{body}" if body else f"Called {header}"
 
 
 class InteractionSteps:

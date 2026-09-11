@@ -8,9 +8,6 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_types import AgentTypes
-from simple_agent.application.emoji_bracket_tool_syntax import (
-    EmojiBracketToolSyntax,
-)
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.event_store import NoOpEventStore
 from simple_agent.application.llm_stub import StubLLMProvider
@@ -20,13 +17,13 @@ from simple_agent.application.system_prompt import AgentPrompt
 from simple_agent.application.tool_library_factory import ToolContext
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.tools.all_tools import AllTools, AllToolsFactory
+from tests.emoji_llm import resolve_emoji
 from tests.user_input_stub import UserInputStub
 
 
 def create_all_tools_for_test(tool_keys: list[str] | None = None):
     event_bus = SimpleEventBus()
-    tool_syntax = EmojiBracketToolSyntax()
-    tool_library_factory = AllToolsFactory(tool_syntax)
+    tool_library_factory = AllToolsFactory()
     agent_library = BuiltinAgentLibrary()
     agent_factory = AgentFactory(
         event_bus=event_bus,
@@ -48,7 +45,6 @@ def create_all_tools_for_test(tool_keys: list[str] | None = None):
         tool_context=tool_context,
         spawner=spawner,
         agent_types=AgentTypes(agent_library.list_agent_types()),
-        tool_syntax=tool_syntax,
     )
 
 
@@ -179,7 +175,7 @@ def all_scrubbers():
 
 
 async def verify_tool(library, command):
-    turn = library.parse_and_resolve(command)
+    turn = resolve_emoji(library, command)
     result = await library.execute_tool_call(turn.invocations[0])
     verify(
         f"Command:\n{command}\n\nResult:\n{result}",

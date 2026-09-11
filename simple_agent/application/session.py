@@ -120,10 +120,7 @@ class Session:
 
         unfinished_subagents = []
         if args.continue_session:
-            declarations = self._tool_library_factory.declarations()
-            history_replayer = HistoryReplayer(
-                self._event_bus, self._event_store, declarations
-            )
+            history_replayer = HistoryReplayer(self._event_bus, self._event_store)
             unfinished_subagents = await history_replayer.replay_all_agents_async(
                 self._starting_agent_id
             )

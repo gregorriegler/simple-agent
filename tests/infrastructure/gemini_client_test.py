@@ -834,7 +834,7 @@ async def test_gemini_replays_a_tool_turn_without_a_signature_as_text():
     call = ToolCall("bash", {"command": "ls"})
     messages = [
         UserMessage("list files"),
-        AssistantMessage("on it\n🛠️[bash ls /]", [call]),
+        AssistantMessage("on it", [call]),
         ToolResultMessage(call, "a.txt"),
         UserMessage("thanks"),
     ]
@@ -845,11 +845,11 @@ async def test_gemini_replays_a_tool_turn_without_a_signature_as_text():
         {"type": "user_input", "content": [{"type": "text", "text": "list files"}]},
         {
             "type": "model_output",
-            "content": [{"type": "text", "text": "on it\n🛠️[bash ls /]"}],
+            "content": [{"type": "text", "text": "on it\nCalled bash ls"}],
         },
         {
             "type": "user_input",
-            "content": [{"type": "text", "text": "Result of 🛠️ bash ls\na.txt"}],
+            "content": [{"type": "text", "text": "Result of bash ls:\na.txt"}],
         },
         {"type": "user_input", "content": [{"type": "text", "text": "thanks"}]},
     ]

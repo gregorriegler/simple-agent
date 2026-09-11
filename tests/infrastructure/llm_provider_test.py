@@ -62,15 +62,6 @@ def test_claude_is_native_and_receives_the_tools():
     assert llm._tools == TOOLS
 
 
-def test_provider_reports_native_tool_syntax():
-    model = ModelConfig(
-        name="gemini", model="gemini-3-flash", adapter="gemini", api_key="key"
-    )
-    provider = RemoteLLMProvider(build_user_config(model))
-
-    assert provider.tool_syntax() == "native"
-
-
 def test_bedrock_is_native_and_receives_the_tools(monkeypatch):
     monkeypatch.setenv("AWS_ACCESS_KEY_ID", "test")
     monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "test")

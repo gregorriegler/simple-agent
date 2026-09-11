@@ -1,11 +1,9 @@
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.subagent_spawner import SubagentSpawner
-from simple_agent.application.text_response import bind_emoji_calls
 from simple_agent.application.tool_library import (
     AssistantTurn,
     Tool,
     ToolDeclaration,
-    ToolDeclarations,
     ToolInvocation,
     ToolLibrary,
 )
@@ -13,7 +11,6 @@ from simple_agent.application.tool_library_factory import (
     ToolContext,
     ToolLibraryFactory,
 )
-from simple_agent.application.tool_syntax import ToolSyntax
 
 from .bash_tool import BashTool
 from .cat_tool import CatTool
@@ -51,12 +48,10 @@ class AllTools(ToolLibrary):
         tool_context: ToolContext,
         spawner: SubagentSpawner,
         agent_types: AgentTypes,
-        tool_syntax: ToolSyntax,
     ):
         self.tool_context = tool_context
         self._spawner = spawner
         self._agent_types = agent_types
-        self.tool_syntax = tool_syntax
         self.tool_keys = tool_context.tool_keys if tool_context.tool_keys else []
 
         static_tools = self._create_static_tools()
@@ -98,10 +93,6 @@ class AllTools(ToolLibrary):
                     tools.append(tool)
         return tools
 
-    def parse_and_resolve(self, text) -> AssistantTurn:
-        message, calls = bind_emoji_calls(text, self.tool_dict, self.tool_syntax)
-        return self.resolve_tool_calls(calls, message)
-
     def resolve_tool_calls(self, tool_calls, message) -> AssistantTurn:
         """Pair each bound call with the tool that runs it."""
         return AssistantTurn(
@@ -119,16 +110,10 @@ class AllTools(ToolLibrary):
 
 
 class AllToolsFactory(ToolLibraryFactory):
-    def __init__(self, tool_syntax: ToolSyntax):
-        self.tool_syntax = tool_syntax
-
-    def declarations(self) -> ToolDeclarations:
-        return TOOL_DECLARATIONS
-
     def create(
         self,
         tool_context: ToolContext,
         spawner: SubagentSpawner,
         agent_types: AgentTypes,
     ) -> ToolLibrary:
-        return AllTools(tool_context, spawner, agent_types, self.tool_syntax)
+        return AllTools(tool_context, spawner, agent_types)

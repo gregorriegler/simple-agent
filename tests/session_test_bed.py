@@ -4,7 +4,6 @@ from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_type import AgentType
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.event_store import EventStore, NoOpEventStore
 from simple_agent.application.events import (
@@ -31,11 +30,11 @@ from simple_agent.application.llm import ChatMessages, LLMResponse, TokenUsage
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.application.session import Session
-from simple_agent.application.text_messages import to_text_messages, to_wire_messages
-from simple_agent.application.text_response import EmojiToolCallsLLM
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from simple_agent.infrastructure.file_intent import FileIntent
 from simple_agent.tools.all_tools import TOOL_DECLARATIONS
+from tests.emoji_llm import EmojiToolCallsLLM, to_text_messages, to_wire_messages
+from tests.emoji_syntax import EmojiBracketToolSyntax
 from tests.event_spy import EventSpy
 from tests.in_memory_event_store import InMemoryEventStore
 from tests.system_prompt_generator_test import GroundRulesStub
@@ -345,9 +344,6 @@ class TestLLMProvider:
 
     def get_available_models(self) -> list[str]:
         return [self._agent_llm.model]
-
-    def tool_syntax(self, model_name: str | None = None) -> str:
-        return "emoji"
 
 
 class TestObserverLibrary:

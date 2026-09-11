@@ -7,10 +7,6 @@ from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.ground_rules import GroundRules
 from simple_agent.application.system_prompt import AgentPrompt
-from simple_agent.application.tool_documentation import (
-    generate_tools_documentation,
-    tools_documentation,
-)
 from simple_agent.infrastructure.agent_library import (
     BuiltinAgentLibrary,
     FileSystemAgentLibrary,
@@ -28,11 +24,8 @@ def test_generate_coding_system_prompt(tool_library):
 
 def verify_system_prompt(agent_type, tool_library):
     agent_library = BuiltinAgentLibrary(GroundRulesStub())
-    tools_documentation = generate_tools_documentation(
-        tool_library.tools, tool_library.tool_syntax
-    )
     prompt = agent_library.read_agent_definition(AgentType(agent_type)).prompt()
-    system_prompt = prompt.render(tools_documentation, DummyProjectTree())
+    system_prompt = prompt.render(DummyProjectTree())
     verify(system_prompt)
 
 
@@ -93,26 +86,12 @@ def test_extract_tool_keys_from_prompt(
     assert result == expected_keys
 
 
-def test_native_tool_syntax_yields_no_system_prompt_tool_docs(tool_library):
-    result = tools_documentation("native", tool_library.tools, tool_library.tool_syntax)
-
-    assert result == ""
-
-
-def test_emoji_tool_syntax_generates_the_emoji_docs(tool_library):
-    result = tools_documentation("emoji", tool_library.tools, tool_library.tool_syntax)
-
-    assert result == generate_tools_documentation(
-        tool_library.tools, tool_library.tool_syntax
-    )
-
-
 def test_render_removes_placeholder_when_no_agents_content():
     prompt = AgentPrompt(
         agent_name="Test", template="Header\n{{AGENTS.MD}}\nFooter", agents_content=""
     )
 
-    result = prompt.render("TOOLS DOCS", DummyProjectTree())
+    result = prompt.render(DummyProjectTree())
 
     assert result == "Header\n\nFooter"
 

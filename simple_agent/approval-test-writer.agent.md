@@ -82,4 +82,4 @@ Nondeterminism is scrubbed, never printed.
 # Task Completion
 1. Report the scenario you covered, what the approved file shows, and whether the
    test fails because nothing is approved yet or because the behavior is missing.
-2. Use the `🛠️complete-task` tool with your summary.
+2. Use the `complete-task` tool with your summary.

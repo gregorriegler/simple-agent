@@ -222,8 +222,22 @@ adapter reuses the Claude adapter's block renderer, tool declarations and
 `tool_use` reader as they are. The provider hands it out bare with the
 tools like the other three; every adapter is native now.
 
+## The emoji syntax is test-only
+
+No model speaks emoji any more, so the syntax left production: the emoji
+module, `EmojiToolCallsLLM` and the text-turn rendering live under
+`tests/` (`emoji_syntax.py`, `emoji_llm.py`), where the stub LLMs are
+still scripted as emoji text and the transcripts render calls back into
+it. The system prompt documents no tools as text, `tool_syntax` is gone
+from the provider and the config, and the stub provider answers with
+structured calls. A call is rendered as one line of command text through
+`call_header`/`call_body` where production still needs text: the UI's
+tool title, and Gemini's replay of unsigned turns. History replay of a
+log older than the granular events keeps the assistant text but no longer
+recovers its calls.
+
 ## Next steps
 
-No model speaks emoji any more. `EmojiToolCallsLLM`, the header/body split
-in `ToolArguments`, `text_messages.py`, `text_response.py` and the emoji
-module are the deletable remainder; no core type changes.
+Rewrite the test bed to script the stub LLM with structured calls; then
+the test-only emoji modules and the header/body split in `ToolArguments`
+can go.

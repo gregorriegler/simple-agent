@@ -1,9 +1,6 @@
 import asyncio
-import logging
-from collections import deque
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.event_bus import EventBus
 from simple_agent.application.event_store import EventStore
 from simple_agent.application.events import (
@@ -15,23 +12,12 @@ from simple_agent.application.events import (
     ToolCalledEvent,
     ToolResultEvent,
 )
-from simple_agent.application.text_response import bind_emoji_calls
-from simple_agent.application.tool_library import ToolDeclarations
-
-logger = logging.getLogger(__name__)
 
 
 class HistoryReplayer:
-    def __init__(
-        self,
-        event_bus: EventBus,
-        event_store: EventStore,
-        declarations: ToolDeclarations | None = None,
-    ):
+    def __init__(self, event_bus: EventBus, event_store: EventStore):
         self._event_bus = event_bus
         self._event_store = event_store
-        self._declarations: ToolDeclarations = declarations or {}
-        self._tool_syntax = EmojiBracketToolSyntax(self._declarations)
 
     async def replay_all_agents_async(
         self, starting_agent_id: AgentId
@@ -50,27 +36,20 @@ class HistoryReplayer:
             isinstance(e, (AssistantSaidEvent, ToolCalledEvent)) for e in events
         )
 
-        results_by_agent: dict[AgentId, deque[ToolResultEvent]] = {}
-        if not has_granular:
-            for e in events:
-                if isinstance(e, ToolResultEvent):
-                    results_by_agent.setdefault(e.agent_id, deque()).append(e)
-
         for i, event in enumerate(events):
             if isinstance(event, AgentFinishedEvent):
                 finished_agents.add(event.agent_id)
             elif isinstance(event, AgentStartedEvent):
                 start_events[event.agent_id] = event
 
-            # In legacy mode, we don't publish raw ToolResultEvents alone
             if not has_granular and isinstance(event, ToolResultEvent):
                 continue
 
             self._event_bus.publish(event)
 
             if not has_granular and isinstance(event, AssistantRespondedEvent):
-                self._recover_legacy_assistant_response(
-                    event, results_by_agent.get(event.agent_id, [])
+                self._event_bus.publish(
+                    AssistantSaidEvent(agent_id=event.agent_id, message=event.response)
                 )
 
             # Cooperative multitasking
@@ -82,41 +61,6 @@ class HistoryReplayer:
             for aid, e in start_events.items()
             if aid not in finished_agents and aid != starting_agent_id
         ]
-
-    def _recover_legacy_assistant_response(self, event, results):
-        try:
-            message, calls = bind_emoji_calls(
-                event.response, self._declarations, self._tool_syntax
-            )
-            if message:
-                self._event_bus.publish(
-                    AssistantSaidEvent(agent_id=event.agent_id, message=message)
-                )
-
-            for i, call in enumerate(calls):
-                if results:
-                    res_event = results.popleft()
-                    self._event_bus.publish(
-                        ToolCalledEvent(
-                            agent_id=event.agent_id,
-                            call_id=res_event.call_id,
-                            call=call,
-                        )
-                    )
-                    self._event_bus.publish(res_event)
-                else:
-                    call_id = f"legacy_{event.agent_id.for_ui()}_{i}"
-                    self._event_bus.publish(
-                        ToolCalledEvent(
-                            agent_id=event.agent_id, call_id=call_id, call=call
-                        )
-                    )
-        except Exception:
-            logger.warning(
-                "Failed to recover legacy response for agent %s",
-                event.agent_id,
-                exc_info=True,
-            )
 
 
 def _since_last_clear(events: list) -> list:

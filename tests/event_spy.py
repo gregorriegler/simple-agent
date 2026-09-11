@@ -1,9 +1,9 @@
 from dataclasses import fields
 
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.events import AgentEvent
 from simple_agent.application.tool_library import ToolCall
 from simple_agent.tools.all_tools import TOOL_DECLARATIONS
+from tests.emoji_syntax import EmojiBracketToolSyntax
 
 
 class EventSpy:

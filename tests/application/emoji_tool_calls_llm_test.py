@@ -3,12 +3,12 @@ from types import SimpleNamespace
 import pytest
 
 from simple_agent.application.llm import LLMResponse, TokenUsage, UserMessage
-from simple_agent.application.text_response import EmojiToolCallsLLM
 from simple_agent.application.tool_library import (
     ToolArgument,
     ToolArguments,
     ToolCall,
 )
+from tests.emoji_llm import EmojiToolCallsLLM
 
 pytestmark = pytest.mark.asyncio
 

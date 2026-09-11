@@ -1,12 +1,9 @@
 import shlex
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import Any, Protocol
 
 from .tool_results import ToolResult
-
-if TYPE_CHECKING:
-    from .tool_syntax import ToolSyntax
 
 
 def is_true(value: Any) -> bool:
@@ -34,17 +31,6 @@ class ToolDeclaration(Protocol):
 
 
 ToolDeclarations = Mapping[str, ToolDeclaration]
-
-
-class UnboundToolCall(Protocol):
-    """
-    A call as a text parser delivered it, before the tool it names is known.
-    Bound to that tool it becomes a ToolCall with typed named arguments.
-    """
-
-    name: str
-
-    def bind(self, tool: ToolDeclaration) -> ToolCall: ...
 
 
 class ToolInvocation:
@@ -202,6 +188,24 @@ class ToolArguments:
         return str(named.get(self._body.name, ""))
 
 
+def call_header(call: ToolCall, declarations: ToolDeclarations) -> str:
+    """
+    The call as one line of command text: its name and positional header.
+    A call to a tool not declared renders its values in order.
+    """
+    tool = declarations.get(call.name)
+    if tool is None:
+        text = " ".join(str(value) for value in call.named_arguments.values())
+    else:
+        text = tool.arguments.render_header(call.named_arguments)
+    return " ".join(part for part in (call.name, text) if part)
+
+
+def call_body(call: ToolCall, declarations: ToolDeclarations) -> str:
+    tool = declarations.get(call.name)
+    return "" if tool is None else tool.arguments.render_body(call.named_arguments)
+
+
 class Tool(Protocol):
     name: str
     description: str
@@ -215,9 +219,6 @@ class Tool(Protocol):
 
 class ToolLibrary(Protocol):
     tools: list[Tool]
-    tool_syntax: "ToolSyntax"
-
-    def parse_and_resolve(self, text: str) -> AssistantTurn: ...
 
     def resolve_tool_calls(
         self, tool_calls: list[ToolCall], message: str

@@ -5,7 +5,6 @@ from textual.css.query import NoMatches
 from textual.widgets import TabbedContent, TabPane
 
 from simple_agent.application.agent_id import AgentId
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.events import (
     AgentChangedEvent,
     AgentFinishedEvent,
@@ -25,6 +24,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
+from simple_agent.application.tool_library import ToolDeclarations, call_header
 from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 
 logger = logging.getLogger(__name__)
@@ -37,11 +37,15 @@ class AgentTabs(TabbedContent):
     """
 
     def __init__(
-        self, suggestion_provider, root_agent_id: AgentId, tool_syntax=None, **kwargs
+        self,
+        suggestion_provider,
+        root_agent_id: AgentId,
+        declarations: ToolDeclarations | None = None,
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self._suggestion_provider = suggestion_provider
-        self._tool_syntax = tool_syntax or EmojiBracketToolSyntax()
+        self._declarations: ToolDeclarations = declarations or {}
         self._root_agent_id = root_agent_id
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
         self._agent_names: dict[AgentId, str] = {}
@@ -212,7 +216,8 @@ class AgentTabs(TabbedContent):
             workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
                 workspace.on_tool_call(
-                    event.call_id, f"🛠️ {self._tool_syntax.header(event.call)}"
+                    event.call_id,
+                    f"🛠️ {call_header(event.call, self._declarations)}",
                 )
             else:
                 logger.warning(

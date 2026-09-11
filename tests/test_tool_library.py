@@ -1,9 +1,7 @@
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_types import AgentTypes
-from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.event_bus import SimpleEventBus
-from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library_factory import (
     ToolContext,
@@ -12,7 +10,8 @@ from simple_agent.application.tool_library_factory import (
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.tools import AllTools
-from simple_agent.tools.all_tools import TOOL_DECLARATIONS, AllToolsFactory
+from simple_agent.tools.all_tools import AllToolsFactory
+from tests.emoji_llm import EmojiLLMProvider
 from tests.test_helpers import DummyProjectTree
 from tests.user_input_stub import UserInputStub
 
@@ -38,14 +37,13 @@ class ToolLibraryStub(AllTools):
             agent_types if agent_types is not None else AgentTypes.empty()
         )
         if actual_tool_context is None:
-            tool_syntax = EmojiBracketToolSyntax()
-            tool_library_factory = AllToolsFactory(tool_syntax)
+            tool_library_factory = AllToolsFactory()
             agent_factory = AgentFactory(
                 event_bus=actual_event_bus,
                 tool_library_factory=tool_library_factory,
                 agent_library=agent_library or BuiltinAgentLibrary(),
                 user_input=UserInputStub(inputs=inputs, escapes=escapes),
-                llm_provider=StubLLMProvider.for_testing(llm),
+                llm_provider=EmojiLLMProvider(llm),
                 project_tree=DummyProjectTree(),
             )
 
@@ -61,13 +59,11 @@ class ToolLibraryStub(AllTools):
 
             actual_spawner = fallback_spawner
 
-        tool_syntax = EmojiBracketToolSyntax()
         assert actual_spawner is not None
         super().__init__(
             tool_context=actual_tool_context,
             spawner=actual_spawner,
             agent_types=actual_agent_types,
-            tool_syntax=tool_syntax,
         )
         self.interrupts = interrupts or []
         self.counter = 0
@@ -103,9 +99,6 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
         self._event_bus = event_bus
         self._all_displays = all_displays
         self._agent_library = agent_library or BuiltinAgentLibrary()
-
-    def declarations(self):
-        return TOOL_DECLARATIONS
 
     def create(
         self,

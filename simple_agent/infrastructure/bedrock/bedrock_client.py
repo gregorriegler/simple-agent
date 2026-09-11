@@ -8,8 +8,13 @@ import boto3
 from botocore.config import Config
 from botocore.exceptions import BotoCoreError, ClientError
 
-from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
-from simple_agent.application.text_messages import split_system_prompt
+from simple_agent.application.llm import (
+    LLM,
+    ChatMessages,
+    LLMResponse,
+    TokenUsage,
+    split_system_prompt,
+)
 from simple_agent.application.tool_library import Tool
 from simple_agent.infrastructure.claude.claude_messages import to_messages_api
 from simple_agent.infrastructure.claude.claude_tools import to_tool_calls, to_tools

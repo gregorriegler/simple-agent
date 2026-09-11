@@ -1,16 +1,27 @@
+"""
+The emoji bracket text syntax, kept for the tests only: the stub LLMs are
+scripted as the emoji text they used to speak, and the transcripts render
+calls back into it. No model speaks it any more.
+"""
+
 import shlex
 from dataclasses import dataclass
 from typing import Any
 
 from simple_agent.application.tool_library import (
-    Tool,
-    ToolArgument,
     ToolArguments,
     ToolCall,
     ToolDeclaration,
     ToolDeclarations,
+    call_body,
+    call_header,
 )
-from simple_agent.application.tool_syntax import RawAssistantTurn, ToolSyntax
+
+
+@dataclass
+class RawAssistantTurn:
+    message: str
+    tool_calls: list["EmojiToolCall"]
 
 
 @dataclass
@@ -64,7 +75,7 @@ def _split_shell_style(text: str) -> list[str]:
     return list(lexer)
 
 
-class EmojiBracketToolSyntax(ToolSyntax):
+class EmojiBracketToolSyntax:
     """Emoji-bracket syntax implementation per v1 spec.
 
     This implements the 🛠️[tool_name args]...🛠️[/end] syntax as specified in
@@ -78,149 +89,13 @@ class EmojiBracketToolSyntax(ToolSyntax):
         self._declarations: ToolDeclarations = declarations or {}
 
     def header(self, call: ToolCall) -> str:
-        arguments = self._arguments_of(call)
-        if arguments is None:
-            text = " ".join(str(value) for value in call.named_arguments.values())
-        else:
-            text = arguments.render_header(call.named_arguments)
-        return " ".join(part for part in (call.name, text) if part)
+        return call_header(call, self._declarations)
 
     def body(self, call: ToolCall) -> str:
-        arguments = self._arguments_of(call)
-        return "" if arguments is None else arguments.render_body(call.named_arguments)
+        return call_body(call, self._declarations)
 
     def describe(self, call: ToolCall) -> str:
         return " ".join(part for part in (self.header(call), self.body(call)) if part)
-
-    def _arguments_of(self, call: ToolCall) -> ToolArguments | None:
-        tool = self._declarations.get(call.name)
-        return None if tool is None else tool.arguments
-
-    def render_documentation(self, tool: Tool) -> str:
-        lines = [f"Tool: {tool.name}"]
-
-        if hasattr(tool, "description") and tool.description:
-            lines.append(f"Description: {tool.description}")
-
-        lines.append("")
-        syntax = self.build_syntax(tool)
-        lines.append(f"### Usage:\n{syntax}")
-
-        if tool.arguments:
-            lines.append("")
-            lines.append("### Arguments:")
-            for arg in tool.arguments.all:
-                lines.append(self._format_arg_doc(arg))
-
-        if hasattr(tool, "examples") and tool.examples:
-            lines.append("")
-            lines.append("### Examples:\n")
-            for i, example in enumerate(tool.examples):
-                if i > 0:
-                    lines.append("")  # Add blank line between examples
-                lines.append(self._format_example(example, tool))
-
-        return "\n".join(lines)
-
-    def build_syntax(self, tool):
-        syntax_parts = []
-        if tool.arguments:
-            for arg in tool.arguments.header:
-                syntax_parts.append(
-                    "{" + f"{arg.name}" + "}" if arg.required else f"[{arg.name}]"
-                )
-        syntax = f"🛠️[{tool.name}"
-        if syntax_parts:
-            syntax += " " + " ".join(syntax_parts)
-        if tool.arguments.body:
-            syntax += "]"
-            syntax += "\n{content}\n🛠️[/end]"
-        else:
-            syntax += " /]"
-        return syntax
-
-    def _format_arg_doc(self, arg: ToolArgument) -> str:
-        """Format a single argument for documentation."""
-        required_str = " (required)" if arg.required else " (optional)"
-        type_str = f" - {arg.name}: {arg.type}{required_str}"
-        if arg.description:
-            type_str += f" - {arg.description}"
-        return type_str
-
-    def _format_example(self, example: Any, tool: Tool) -> str:
-        """Format an example in emoji bracket syntax.
-
-        Supports optional fields in example dict:
-        - 'reasoning': Context/explanation before the tool call
-        - 'result': Result output to display after the tool call
-        - All other fields are treated as arguments
-        """
-        if isinstance(example, str):
-            return example
-
-        if not isinstance(example, dict):
-            return str(example)
-
-        # Extract optional fields
-        reasoning = example.get("reasoning")
-        result = example.get("result")
-        # Create a copy without special fields for formatting
-        example_without_special = tool.arguments.coerce(
-            {k: v for k, v in example.items() if k not in ("reasoning", "result")}
-        )
-
-        # Collect inline argument values (header args)
-        inline_values = []
-        for arg in tool.arguments:
-            value = example_without_special.get(arg.name, "")
-            if arg.is_flag:
-                if value:
-                    inline_values.append(arg.name)
-            elif value:
-                inline_values.append(str(value))
-
-        # Collect body value
-        body_value = ""
-        if tool.arguments.body:
-            value = example_without_special.get(tool.arguments.body.name, "")
-            if value:
-                body_value = str(value)
-
-        syntax = f"🛠️[{tool.name}"
-        if inline_values:
-            syntax += " " + " ".join(inline_values)
-
-        if body_value:
-            syntax += "]"
-            syntax += "\n" + body_value
-            syntax += "\n🛠️[/end]"
-        else:
-            # Self-closing syntax for bodyless tools
-            syntax += " /]"
-
-        # Build complete conversation pattern
-        output_lines = []
-
-        # Add reasoning if present
-        if reasoning:
-            output_lines.append(reasoning)
-
-        # Add tool call
-        output_lines.append(syntax)
-
-        # Append result if present
-        if result:
-            result_header = (
-                f"\nThen you will receive a result:\nResult of 🛠️ {tool.name}"
-            )
-            if inline_values:
-                result_header += " " + " ".join(inline_values)
-            output_lines.append(result_header)
-            output_lines.append(result)
-
-        output_lines.append("\n-")
-
-        return "\n".join(output_lines)
 
     def contains_call(self, text: str) -> bool:
         return any(marker in text for marker in ("🛠️[", "🛠["))

@@ -1,10 +1,12 @@
 import textwrap
 
+from tests.emoji_llm import resolve_emoji
+
 
 def test_parse_tool_with_cat_command(tool_library):
     text = "🛠️[cat test.txt]"
 
-    turn = tool_library.parse_and_resolve(text)
+    turn = resolve_emoji(tool_library, text)
 
     assert turn.message == ""
     assert turn.invocations[0] is not None
@@ -20,7 +22,7 @@ def test_parse_tool_with_message_and_cat_command(tool_library):
     🛠️[cat test.txt]
     """)
 
-    turn = tool_library.parse_and_resolve(text)
+    turn = resolve_emoji(tool_library, text)
 
     assert turn.message == "I will read test.txt"
     assert turn.invocations[0] is not None
@@ -37,7 +39,7 @@ def test_parse_tool_with_multiline_message_and_ls_command(tool_library):
     🛠️[ls]
     """)
 
-    turn = tool_library.parse_and_resolve(text)
+    turn = resolve_emoji(tool_library, text)
 
     assert turn.message == dedent("""
     Let me read
@@ -57,7 +59,7 @@ def test_parse_tool_with_message_and_two_tool_calls(tool_library):
     🛠️[cat test.txt /]
     """)
 
-    turn = tool_library.parse_and_resolve(text)
+    turn = resolve_emoji(tool_library, text)
 
     assert turn.message == "I will run ls and read test.txt"
     assert turn.invocations[0] is not None
@@ -81,7 +83,7 @@ def test_parse_tool_with_create_file_multiline(tool_library):
     🛠️[/end]
     """)
 
-    turn = tool_library.parse_and_resolve(text)
+    turn = resolve_emoji(tool_library, text)
 
     assert turn.message == "I will create a file with 3 lines"
     assert turn.invocations[0] is not None
@@ -103,7 +105,7 @@ def test_parse_tool_with_create_file_goes_til_end(tool_library):
     Line 3
     """)
 
-    turn = tool_library.parse_and_resolve(text)
+    turn = resolve_emoji(tool_library, text)
 
     assert turn.message == "I will create a file with 3 lines"
     assert turn.invocations[0] is not None
@@ -127,7 +129,7 @@ def test_parse_tool_with_multiline_and_message_after(tool_library):
     This is text after the tool
     """)
 
-    turn = tool_library.parse_and_resolve(text)
+    turn = resolve_emoji(tool_library, text)
 
     assert turn.message == "I will create a file"
     assert turn.invocations[0] is not None
@@ -149,7 +151,7 @@ def test_parse_tool_with_two_multiline_tools(tool_library):
     🛠️[/end]
     """)
 
-    turn = tool_library.parse_and_resolve(text)
+    turn = resolve_emoji(tool_library, text)
 
     assert turn.message == "I will create two files"
     assert len(turn.invocations) == 2
@@ -168,7 +170,7 @@ def dedent(text):
 def test_resolving_binds_positional_arguments_to_names(tool_library):
     text = "🛠️[cat 'my notes.md' 1-5]"
 
-    turn = tool_library.parse_and_resolve(text)
+    turn = resolve_emoji(tool_library, text)
 
     assert turn.invocations[0].call.named_arguments == {
         "filename": "my notes.md",
