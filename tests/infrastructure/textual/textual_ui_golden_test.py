@@ -14,6 +14,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
@@ -119,7 +120,7 @@ async def test_golden_happy_path_flow(tmp_path, monkeypatch):
                 ToolCalledEvent(
                     agent_id,
                     call_id,
-                    type("Tool", (), {"header": lambda s: tool_header})(),
+                    ToolCall(tool_header),
                 )
             )
         )

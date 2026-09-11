@@ -38,14 +38,14 @@ class EmojiToolCallsLLM:
     def __init__(self, inner: LLM, tools: list[ToolDeclaration]):
         self._inner = inner
         self._tools = {tool.name: tool for tool in tools}
-        self._syntax = EmojiBracketToolSyntax()
+        self._syntax = EmojiBracketToolSyntax(self._tools)
 
     @property
     def model(self) -> str:
         return self._inner.model
 
     async def call_async(self, messages: ChatMessages) -> LLMResponse:
-        history = [to_text_turn(message) for message in messages]
+        history = [to_text_turn(message, self._syntax) for message in messages]
         response = await self._inner.call_async(history)
         message, calls = bind_emoji_calls(response.answer, self._tools, self._syntax)
         return replace(response, tool_calls=calls, message=message)

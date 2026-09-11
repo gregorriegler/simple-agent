@@ -5,6 +5,7 @@ import pytest
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_system_agent_state_cleanup import (
     FileSystemAgentStateCleanup,
@@ -52,9 +53,8 @@ class FakeAgentStateCleanup(FileSystemAgentStateCleanup):
         return None
 
 
-class StubTool:
-    def header(self) -> str:
-        return "Tool Call\nInput: example"
+def StubTool() -> ToolCall:
+    return ToolCall("Tool Call\nInput: example")
 
 
 @pytest.fixture

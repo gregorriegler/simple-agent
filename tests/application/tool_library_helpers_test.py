@@ -79,28 +79,6 @@ def test_a_flag_coerces_a_json_boolean_or_its_text_spellings():
     assert flag("") is False
 
 
-def test_a_call_describes_itself_without_any_syntax_marker():
-    create_file = ToolArguments(
-        header=[ToolArgument(name="filename", description="")],
-        body=ToolArgument(name="content", description=""),
-    )
-    bound = ToolCall("create-file", {"filename": "f", "content": "x"}).bind(
-        Declares(create_file)
-    )
-
-    assert str(ToolCall("bash", {"command": "ls"})) == "bash ls"
-    assert str(ToolCall("ls")) == "ls"
-    assert str(bound) == "create-file f x"
-    assert bound.header() == "create-file f"
-
-
-def test_an_unbound_call_renders_its_values_and_no_body():
-    call = ToolCall("create-file", {"filename": "f", "content": "x"})
-
-    assert call.header() == "create-file f x"
-    assert call.body() == ""
-
-
 def test_binding_to_no_tool_keeps_the_call():
     call = ToolCall("mystery", {"x": "1"})
 

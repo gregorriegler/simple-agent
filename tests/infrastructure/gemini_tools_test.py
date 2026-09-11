@@ -122,7 +122,6 @@ def test_reads_a_function_call_into_a_call_bound_to_its_tool():
     calls = to_tool_calls([function_call("bash", {"command": "ls -la"})], TOOLS)
 
     assert calls == [ToolCall("bash", {"command": "ls -la"})]
-    assert calls[0].declaration is BASH.arguments
 
 
 def test_a_call_read_from_gemini_carries_typed_arguments():

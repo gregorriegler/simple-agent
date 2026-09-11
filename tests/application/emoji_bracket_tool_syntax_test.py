@@ -683,32 +683,44 @@ class TestRenderHeader:
 
 
 class TestRenderNativeCalls:
-    def test_renders_the_positional_text_for_a_call_that_only_has_a_dict(self):
+    syntax = EmojiBracketToolSyntax(
+        {"flag_tool": _MockFlagTool(), "multiline_tool": MultilineTool()}
+    )
+
+    def test_renders_the_positional_header_from_the_dict_and_the_declaration(self):
         call = ToolCall(
             "flag_tool",
             {"agenttype": "coding", "task": "say hello", "--async": True},
         )
 
-        bound = call.bind(_MockFlagTool())
-
-        assert bound.header() == "flag_tool coding say hello --async"
-        assert bound.named_arguments == call.named_arguments
+        assert self.syntax.header(call) == "flag_tool coding say hello --async"
+        assert self.syntax.render_call(call) == (
+            "🛠️[flag_tool coding say hello --async /]"
+        )
 
     def test_renders_the_body_from_the_dict(self):
         call = ToolCall(
             "multiline_tool", {"inline_arg": "test", "multiline_arg": "line1\nline2"}
         )
 
-        bound = call.bind(MultilineTool())
+        assert self.syntax.header(call) == "multiline_tool test"
+        assert self.syntax.body(call) == "line1\nline2"
+        assert self.syntax.render_call(call) == (
+            "🛠️[multiline_tool test]\nline1\nline2\n🛠️[/end]"
+        )
 
-        assert bound.header() == "multiline_tool test"
-        assert bound.body() == "line1\nline2"
+    def test_a_call_to_an_undeclared_tool_renders_its_values_and_no_body(self):
+        call = ToolCall("mystery", {"a": "1", "b": "two words"})
+
+        assert self.syntax.header(call) == "mystery 1 two words"
+        assert self.syntax.body(call) == ""
 
 
 class TestRenderResult:
     def test_labels_the_output_with_the_call_it_answers(self):
-        call = ToolCall("bash", {"command": "ls"})
+        syntax = EmojiBracketToolSyntax({"multiline_tool": MultilineTool()})
+        call = ToolCall("multiline_tool", {"inline_arg": "f", "multiline_arg": "x"})
 
-        rendered = EmojiBracketToolSyntax().render_result(call, "a.txt")
-
-        assert rendered == "Result of 🛠️ bash ls\na.txt"
+        assert syntax.render_result(call, "a.txt") == (
+            "Result of 🛠️ multiline_tool f x\na.txt"
+        )

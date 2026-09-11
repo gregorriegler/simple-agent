@@ -4,6 +4,7 @@ from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_type import AgentType
+from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.event_store import EventStore, NoOpEventStore
 from simple_agent.application.events import (
@@ -29,16 +30,19 @@ from simple_agent.application.llm import ChatMessages, LLMResponse, TokenUsage
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.application.session import Session
-from simple_agent.application.text_messages import to_text_messages
+from simple_agent.application.text_messages import to_text_messages, to_wire_messages
 from simple_agent.application.text_response import EmojiToolCallsLLM
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from simple_agent.infrastructure.file_intent import FileIntent
+from simple_agent.tools.all_tools import TOOL_DECLARATIONS
 from tests.event_spy import EventSpy
 from tests.in_memory_event_store import InMemoryEventStore
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
 from tests.user_input_stub import UserInputStub
+
+TRANSCRIPT_SYNTAX = EmojiBracketToolSyntax(TOOL_DECLARATIONS)
 
 
 class CapturingLLM:
@@ -71,7 +75,7 @@ class CapturingLLM:
             return False
         return any(
             m["role"] == role and content in m["content"]
-            for m in to_text_messages(self.captured_messages[call_index])
+            for m in to_wire_messages(self.captured_messages[call_index])
         )
 
 
@@ -82,7 +86,8 @@ class SessionTestResult:
     def current_messages(self, agent_id: AgentId) -> str:
         messages = events_to_messages(self.events.get_all_events(), agent_id)
         return "\n".join(
-            f"{msg['role']}: {msg['content']}" for msg in to_text_messages(messages)
+            f"{msg['role']}: {msg['content']}"
+            for msg in to_text_messages(messages, TRANSCRIPT_SYNTAX)
         )
 
     def all_messages(self) -> str:

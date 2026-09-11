@@ -11,7 +11,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
 from simple_agent.application.text_messages import (
     split_system_prompt,
-    to_text_messages,
+    to_wire_messages,
 )
 from simple_agent.infrastructure.logging_http_client import (
     format_request_args,
@@ -45,7 +45,7 @@ class BedrockClaudeLLM(LLM):
 
     async def _call_async(self, messages: ChatMessages) -> LLMResponse:
         system_prompt, history = split_system_prompt(messages)
-        payload_messages = to_text_messages(history)
+        payload_messages = to_wire_messages(history)
 
         data = {
             "anthropic_version": "bedrock-2023-05-31",

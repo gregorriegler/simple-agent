@@ -5,6 +5,7 @@ from textual.css.query import NoMatches
 from textual.widgets import TabbedContent, TabPane
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.events import (
     AgentChangedEvent,
     AgentFinishedEvent,
@@ -35,9 +36,12 @@ class AgentTabs(TabbedContent):
     Each tab contains an AgentWorkspace.
     """
 
-    def __init__(self, suggestion_provider, root_agent_id: AgentId, **kwargs):
+    def __init__(
+        self, suggestion_provider, root_agent_id: AgentId, tool_syntax=None, **kwargs
+    ):
         super().__init__(**kwargs)
         self._suggestion_provider = suggestion_provider
+        self._tool_syntax = tool_syntax or EmojiBracketToolSyntax()
         self._root_agent_id = root_agent_id
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
         self._agent_names: dict[AgentId, str] = {}
@@ -207,7 +211,9 @@ class AgentTabs(TabbedContent):
         elif isinstance(event, ToolCalledEvent):
             workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
-                workspace.on_tool_call(event.call_id, f"🛠️ {event.call.header()}")
+                workspace.on_tool_call(
+                    event.call_id, f"🛠️ {self._tool_syntax.header(event.call)}"
+                )
             else:
                 logger.warning(
                     "Could not find workspace for agent %s to write tool call",

@@ -1,6 +1,9 @@
 from dataclasses import fields
 
+from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.events import AgentEvent
+from simple_agent.application.tool_library import ToolCall
+from simple_agent.tools.all_tools import TOOL_DECLARATIONS
 
 
 class EventSpy:
@@ -55,7 +58,7 @@ class EventSpy:
             field_values = []
             for field in fields(event):
                 if field.name != "agent_id":
-                    field_values.append(str(getattr(event, field.name)))
+                    field_values.append(_describe(getattr(event, field.name)))
             lines.append(
                 f"{event.agent_id}: {event.event_name:>21}: {' '.join(field_values)}"
             )
@@ -63,3 +66,12 @@ class EventSpy:
 
     def clear(self):
         self.events.clear()
+
+
+_TRANSCRIPT_SYNTAX = EmojiBracketToolSyntax(TOOL_DECLARATIONS)
+
+
+def _describe(value) -> str:
+    if isinstance(value, ToolCall):
+        return _TRANSCRIPT_SYNTAX.describe(value)
+    return str(value)

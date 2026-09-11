@@ -48,7 +48,7 @@ from simple_agent.infrastructure.user_configuration import (
     UserConfiguration,
 )
 from simple_agent.logging_config import setup_logging
-from simple_agent.tools.all_tools import AllToolsFactory
+from simple_agent.tools.all_tools import TOOL_DECLARATIONS, AllToolsFactory
 
 
 class TextualRunStrategy(Protocol):
@@ -118,7 +118,7 @@ async def _run_main(
     event_logger = EventLogger()
     event_bus = SimpleEventBus()
 
-    tool_syntax = EmojiBracketToolSyntax()
+    tool_syntax = EmojiBracketToolSyntax(TOOL_DECLARATIONS)
     tool_library_factory = AllToolsFactory(tool_syntax)
 
     if llm_provider is None:
@@ -155,6 +155,7 @@ async def _run_main(
         agent_task_manager=agent_task_manager,
         available_models=llm_provider.get_available_models(),
         available_agents=agent_library.list_agent_types(),
+        tool_syntax=tool_syntax,
     )
     subscribe_events(event_bus, event_logger, agent_state_cleanup, textual_app)
     if event_subscriber:

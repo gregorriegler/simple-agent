@@ -13,6 +13,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
@@ -106,9 +107,8 @@ async def test_tool_call_collapsible_title_takes_full_width_for_word_wrap(
     agent_id = AgentId("Agent")
     call_id = "test-call-id"
 
-    class LongTitleTool:
-        def header(self) -> str:
-            return "🛠️ bash " + "long_argument " * 20
+    def LongTitleTool() -> ToolCall:
+        return ToolCall("bash", {"command": ("long_argument " * 20).strip()})
 
     async with app.run_test() as pilot:
         await pilot.pause()

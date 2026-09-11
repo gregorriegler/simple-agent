@@ -17,6 +17,7 @@ from simple_agent.application.events import (
     ToolCancelledEvent,
     ToolResultEvent,
 )
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
@@ -117,7 +118,7 @@ async def test_golden_complex_scenarios(tmp_path, monkeypatch):
                 ToolCalledEvent(
                     agent_id,
                     call_id_todo,
-                    type("Tool", (), {"header": lambda s: "write_todos()"})(),
+                    ToolCall("write_todos()"),
                 )
             )
         )
@@ -131,7 +132,7 @@ async def test_golden_complex_scenarios(tmp_path, monkeypatch):
                 ToolCalledEvent(
                     agent_id,
                     call_id_diff,
-                    type("Tool", (), {"header": lambda s: "apply_diff()"})(),
+                    ToolCall("apply_diff()"),
                 )
             )
         )
@@ -160,7 +161,7 @@ new line
                 ToolCalledEvent(
                     agent_id,
                     call_id_cancel,
-                    type("Tool", (), {"header": lambda s: "long_running()"})(),
+                    ToolCall("long_running()"),
                 )
             )
         )

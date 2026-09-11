@@ -56,7 +56,6 @@ async def test_binds_the_emoji_calls_in_the_answer_to_the_given_tools():
     assert response.tool_calls == [
         ToolCall("cat", {"filename": "notes.md", "with_line_numbers": True})
     ]
-    assert response.tool_calls[0].declaration is CAT.arguments
     assert response.message == "on it"
     assert response.answer == "on it\n🛠️[cat notes.md with_line_numbers /]"
 

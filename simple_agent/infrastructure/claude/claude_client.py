@@ -5,7 +5,7 @@ import httpx
 from simple_agent.application.llm import LLM, ChatMessages, LLMResponse, TokenUsage
 from simple_agent.application.text_messages import (
     split_system_prompt,
-    to_text_messages,
+    to_wire_messages,
 )
 from simple_agent.infrastructure.llm_http import post_with_retry
 from simple_agent.infrastructure.model_config import ModelConfig
@@ -43,7 +43,7 @@ class ClaudeLLM(LLM):
             "anthropic-version": "2023-06-01",
         }
         system_prompt, history = split_system_prompt(messages)
-        payload_messages = to_text_messages(history)
+        payload_messages = to_wire_messages(history)
         data = {
             "model": model,
             "max_tokens": 4000,

@@ -9,7 +9,7 @@ from simple_agent.application.text_messages import to_text_messages
 from simple_agent.infrastructure.file_event_store import FileEventStore
 from simple_agent.infrastructure.gemini.gemini_client import GeminiLLM
 from simple_agent.infrastructure.model_config import ModelConfig
-from tests.session_test_bed import CapturingLLM, SessionTestBed
+from tests.session_test_bed import TRANSCRIPT_SYNTAX, CapturingLLM, SessionTestBed
 from tests.test_helpers import all_scrubbers, create_temp_file
 
 pytestmark = pytest.mark.asyncio
@@ -19,7 +19,7 @@ class TextModel(CapturingLLM):
     """Captures what an emoji-protocol adapter would send, after flattening."""
 
     async def call_async(self, messages):
-        return await super().call_async(to_text_messages(messages))
+        return await super().call_async(to_text_messages(messages, TRANSCRIPT_SYNTAX))
 
 
 class ScriptedGemini:

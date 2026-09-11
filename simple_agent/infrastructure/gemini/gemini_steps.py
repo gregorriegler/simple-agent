@@ -1,3 +1,4 @@
+from simple_agent.application.emoji_bracket_tool_syntax import EmojiBracketToolSyntax
 from simple_agent.application.llm import (
     AssistantMessage,
     ChatMessage,
@@ -19,7 +20,8 @@ class UnsignedTurnsAsText:
     adapter or before a model switch, are replayed as the text they were.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, syntax: EmojiBracketToolSyntax) -> None:
+        self._syntax = syntax
         self._signed = False
 
     def system(self, message: SystemMessage) -> ChatMessage:
@@ -30,10 +32,10 @@ class UnsignedTurnsAsText:
 
     def assistant(self, message: AssistantMessage) -> ChatMessage:
         self._signed = any(call.thought_signature for call in message.tool_calls)
-        return message if self._signed else to_text_turn(message)
+        return message if self._signed else to_text_turn(message, self._syntax)
 
     def tool_result(self, message: ToolResultMessage) -> ChatMessage:
-        return message if self._signed else to_text_turn(message)
+        return message if self._signed else to_text_turn(message, self._syntax)
 
 
 class InteractionSteps:

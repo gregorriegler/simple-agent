@@ -31,7 +31,7 @@ class HistoryReplayer:
         self._event_bus = event_bus
         self._event_store = event_store
         self._declarations: ToolDeclarations = declarations or {}
-        self._tool_syntax = EmojiBracketToolSyntax()
+        self._tool_syntax = EmojiBracketToolSyntax(self._declarations)
 
     async def replay_all_agents_async(
         self, starting_agent_id: AgentId

@@ -225,9 +225,11 @@ class TextualApp(App):
         agent_task_manager: AgentTaskManager,
         available_models: list[str] | None = None,
         available_agents: list[str] | None = None,
+        tool_syntax=None,
     ):
         super().__init__()
         self.user_input = user_input
+        self._tool_syntax = tool_syntax
         self._root_agent_id = root_agent_id
         self.agent_task_manager = agent_task_manager
         self._session_runner: Callable[[], Coroutine[Any, Any, None]] | None = None
@@ -272,7 +274,12 @@ class TextualApp(App):
 
     def compose(self) -> ComposeResult:
         with Vertical():
-            yield AgentTabs(self._suggestion_provider, self._root_agent_id, id="tabs")
+            yield AgentTabs(
+                self._suggestion_provider,
+                self._root_agent_id,
+                tool_syntax=self._tool_syntax,
+                id="tabs",
+            )
 
     async def on_mount(self) -> None:
         # Focus the smart input of the active tab

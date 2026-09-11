@@ -17,41 +17,21 @@ def is_true(value: Any) -> bool:
 @dataclass
 class ToolCall:
     """
-    A tool call as the model made it: its name and named arguments, with
-    the provider's ids. Once bound to a tool it knows the tool's declared
-    arguments and can render its positional header and body text from them.
+    A tool call as the model made it: its name and named arguments, typed
+    per the tool's declaration, with the provider's ids.
     """
 
     name: str
     named_arguments: dict[str, Any] = field(default_factory=dict)
     thought_signature: str = ""
     native_id: str = ""
-    declaration: "ToolArguments | None" = field(default=None, compare=False, repr=False)
 
     def bind(self, tool: "ToolDeclaration | None") -> "ToolCall":
         if tool is None:
             return self
         return replace(
-            self,
-            named_arguments=tool.arguments.coerce(self.named_arguments),
-            declaration=tool.arguments,
+            self, named_arguments=tool.arguments.coerce(self.named_arguments)
         )
-
-    def header(self) -> str:
-        return " ".join(part for part in (self.name, self._arguments_text()) if part)
-
-    def body(self) -> str:
-        if self.declaration is None:
-            return ""
-        return self.declaration.render_body(self.named_arguments)
-
-    def _arguments_text(self) -> str:
-        if self.declaration is None:
-            return " ".join(str(value) for value in self.named_arguments.values())
-        return self.declaration.render_header(self.named_arguments)
-
-    def __str__(self) -> str:
-        return " ".join(part for part in (self.header(), self.body()) if part)
 
 
 class ToolDeclaration(Protocol):

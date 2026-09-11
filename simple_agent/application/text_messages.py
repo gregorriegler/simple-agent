@@ -11,20 +11,27 @@ from simple_agent.application.llm import (
 TextTurn = SystemMessage | UserMessage | AssistantMessage
 
 
-def to_text_messages(messages: ChatMessages) -> list[dict[str, str]]:
+def to_text_messages(
+    messages: ChatMessages, syntax: EmojiBracketToolSyntax
+) -> list[dict[str, str]]:
     """
-    Flatten structured tool turns into plain {role, content} wire messages.
-
-    Adapters that speak the emoji text protocol call this so a tool result
-    becomes 'Result of ...' user text and an assistant turn carries its calls
-    as emoji text: turns made under the text protocol already do, turns made
-    natively get their calls rendered.
+    Flatten structured tool turns into plain {role, content} wire messages:
+    a tool result becomes 'Result of ...' user text and an assistant turn
+    carries its calls as emoji text, rendered through the syntax.
     """
-    return [to_text_turn(message).render(_WIRE) for message in messages]
+    return to_wire_messages([to_text_turn(message, syntax) for message in messages])
 
 
-def to_text_turn(message: ChatMessage) -> TextTurn:
-    return message.render(_TEXT_TURN)
+def to_wire_messages(messages: ChatMessages) -> list[dict[str, str]]:
+    """
+    Plain {role, content} wire messages for text turns. A tool turn has no
+    wire shape here; it must have been rendered to text first.
+    """
+    return [message.render(_WIRE) for message in messages]
+
+
+def to_text_turn(message: ChatMessage, syntax: EmojiBracketToolSyntax) -> TextTurn:
+    return message.render(_AsTextTurn(syntax))
 
 
 def split_system_prompt(messages: ChatMessages) -> tuple[str | None, ChatMessages]:
@@ -37,8 +44,8 @@ def split_system_prompt(messages: ChatMessages) -> tuple[str | None, ChatMessage
 class _AsTextTurn:
     """Renders a tool turn as the emoji text it would have been."""
 
-    def __init__(self) -> None:
-        self._syntax = EmojiBracketToolSyntax()
+    def __init__(self, syntax: EmojiBracketToolSyntax) -> None:
+        self._syntax = syntax
 
     def system(self, message: SystemMessage) -> TextTurn:
         return message
@@ -68,8 +75,7 @@ class _AsWireMessage:
         return {"role": "assistant", "content": message.content}
 
     def tool_result(self, message: ToolResultMessage) -> dict[str, str]:
-        return self.user(_TEXT_TURN.tool_result(message))
+        raise TypeError("a tool result has no wire shape; render it to text first")
 
 
-_TEXT_TURN = _AsTextTurn()
 _WIRE = _AsWireMessage()
