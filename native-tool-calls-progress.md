@@ -47,18 +47,18 @@ The core shape:
 - Gemini replays the dict verbatim, under the ids it sent, thought first
 - tool-called events persist the dict, id and signature; old files still load
 
-The emoji syntax as one adapter (`EmojiBracketToolSyntax.bind`, called once
-at resolve time in `AllTools.resolve_tool_calls`):
+The emoji syntax as one adapter (binding happens once, at resolve time in
+`AllTools.resolve_tool_calls`; see the cleanup section for the final shape):
 - text call: positional header bound to declared names (single argument takes
   the whole text, shlex split otherwise, leftovers into the last argument,
   bool arguments are flags matched by name)
 - native call: header text and body rendered from the dict, the inverse
-  (`render_header`: shell quoting, true flags by name)
+  (`ToolArguments.render_header`: shell quoting, true flags by name)
 - text adapters render a native assistant turn as emoji text when they see it
 
-Tools read only `named_arguments`: cat, create-file, replace-file-content,
-subagent. Single-argument tools were never broken. The positional parser
-module is deleted.
+Tools read only `named_arguments` (first cat, create-file,
+replace-file-content and subagent; the rest followed in the cleanup). The
+positional parser module is deleted.
 
 Session behaviour:
 - `events_to_messages` rebuilds structured assistant turns and tool messages
