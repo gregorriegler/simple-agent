@@ -41,7 +41,7 @@ scenarios: a filename with a space, a continued session, an interrupted call,
 a mid-session switch to a text model.
 
 The core shape:
-- `RawToolCall` carries `named_arguments`, `native_id`, `thought_signature`
+- the call (then `RawToolCall`, now `ToolCall`) carries `named_arguments`, `native_id`, `thought_signature`
 - Gemini reads a function call into name, dict, id and signature only; it
   knows nothing about the emoji syntax or the tool declarations any more
 - Gemini replays the dict verbatim, under the ids it sent, thought first
@@ -105,32 +105,66 @@ commit with the tests green:
   protocol instead of falling through a chain
 - every tool reads its arguments by name; none reads the header or body
   text
-- `RawToolCall` is the name, the dict and the provider ids. Bound to its
-  tool it carries the `ToolArguments` declaration and renders the header
-  and body from the dict; the text fields are gone. The emoji parser
-  yields `EmojiToolCall`, which binds its positional text to the declared
-  names; the resolver calls `bind` on whichever call it got. Persistence
-  stores the dict only, and a session continued from disk binds every
-  loaded call against the factory's declarations before replaying it, so
-  the transcript and the text adapters render the same header as live.
-  The last declared positional argument is written unquoted, since it
-  absorbs leftover tokens when bound, so `say hello` round-trips as
+- the call is the name, the dict and the provider ids; the text fields are
+  gone. The last declared positional argument is rendered unquoted, since
+  it absorbs leftover tokens when bound, so `say hello` round-trips as
   written; a value with quotes in it is shell-quoted
+
+## Binding belongs to the adapters
+
+A third review asked who should bind and coerce a call. The answer: the
+adapter, because it already holds the tool declarations it sent out, and
+the consumer of an adapter wants finished calls, not half-products. Each
+step its own commit, tests green:
+- `ToolArguments.coerce` types a dict per the declaration: a flag from its
+  spellings to a bool, everything else to text. Tools read a flag straight
+  from the dict; `RawToolCall.flag` and the per-tool `str()`/`is_true` went
+- the Gemini reader `to_tool_calls(steps, tools)` binds each function call
+  to the tool it names and refuses an undeclared name (`UndeclaredTool`)
+- `EmojiToolCallsLLM` wraps any client that still speaks emoji. The provider
+  builds it with the tools; it renders the history to text turns before the
+  inner call and binds the emoji calls in the answer afterwards, leaving the
+  whole answer as text when a call names an unknown tool. Clients return
+  plain text and know nothing about the emoji syntax; Gemini native binds
+  inside and is handed out bare. `emoji_response` is gone
+- `LLMResponse.tool_calls` carries bound calls. `AllTools.resolve_tool_calls`
+  only pairs each call with the tool that runs it
+- the pairing is `ToolInvocation(call, tool)` with `execute()`; the executor
+  and the results container hold invocations and read `.call`
+- `RawToolCall` is `ToolCall`: name, typed `named_arguments`, provider ids,
+  nothing else. It has no `bind`, no `declaration`, no `header`/`body`/`str`
+- `EmojiBracketToolSyntax(declarations)` renders a call's header, body and
+  result label by looking the tool up; a call to a tool it does not know
+  renders its values in order. `to_text_messages(messages, syntax)` and
+  `to_text_turn` take the syntax; clients call `to_wire_messages`, a plain
+  role mapping that raises on an unrendered tool turn. Gemini native builds
+  a syntax from its declarations for unsigned turns; the UI receives one
+  from `main.py` for the tab label
+- loaded events need no binding: a persisted call is typed JSON and is
+  replayed as it is. `bind_call` and `bind_tool_calls` are gone; the
+  replayer's legacy text recovery uses `bind_emoji_calls`, the same routine
+  as the wrapper. Only `EmojiToolCall.bind(tool)` binds, positional text to
+  typed names, and it never takes `None`
+
+Known smells left in place: `AgentTabs` falls back to a syntax without
+declarations when none is passed (UI tests build the app by hand);
+`library.execute_tool_call(invocation)` stays as the executor's seam because
+the test bed injects Ctrl+C there; integer and number types are declared but
+not coerced, since no tool declares them.
 
 ## Next steps
 
 Leftovers from this story, small:
-- values from Gemini are not coerced to the declared type; a non-string where
-  a tool expects text fails the turn with a generic error (typed arguments
-  object, needed once a second native adapter exists)
 - Ctrl+C (KeyboardInterrupt) ends the session without recording results;
   only ESC (CancelledError) is covered
 - `thought_signature` and `native_id` are Gemini-shaped; fold into one
   `provider_state` when a second native adapter needs its own
 
 The next story: native tool calling for Claude and OpenAI. Each adapter maps
-the core call (name, dict, id) to its wire format and back, declares tools
-from `ToolArguments`, and drops the emoji parsing. The Gemini adapter and its
-acceptance tests are the template. After that the header/body split in
-`ToolArguments`, `text_messages.py`, `text_response.py` and the emoji module
-are the deletable remainder.
+`ToolCall` (name, typed dict, id) to its wire format and back, declares tools
+from `ToolArguments`, coerces through them, and is handed out bare by the
+provider like Gemini native. The Gemini adapter and its acceptance tests are
+the template. When the last emoji model goes, `EmojiToolCallsLLM`, the
+provider's emoji branch, the header/body split in `ToolArguments`,
+`text_messages.py`, `text_response.py` and the emoji module are the
+deletable remainder; no core type changes.
