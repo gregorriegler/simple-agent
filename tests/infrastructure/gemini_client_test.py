@@ -583,7 +583,7 @@ async def test_gemini_replays_a_prior_tool_call_as_a_function_call_step():
             [
                 ToolCall(
                     name="bash",
-                    thought_signature="SIG",
+                    provider_state={"thought_signature": "SIG"},
                     named_arguments={"command": "ls"},
                 )
             ],
@@ -626,7 +626,7 @@ async def test_gemini_replays_the_thought_signature_before_the_function_call():
             [
                 ToolCall(
                     name="bash",
-                    thought_signature="SIG",
+                    provider_state={"thought_signature": "SIG"},
                     named_arguments={"command": "ls"},
                 )
             ],
@@ -667,7 +667,7 @@ async def test_gemini_omits_empty_model_output_before_a_tool_call():
             [
                 ToolCall(
                     name="bash",
-                    thought_signature="SIG",
+                    provider_state={"thought_signature": "SIG"},
                     named_arguments={"command": "ls"},
                 )
             ],
@@ -719,7 +719,7 @@ async def test_gemini_starts_a_model_turn_with_text_and_a_call_with_the_thought(
             [
                 ToolCall(
                     name="bash",
-                    thought_signature="SIG",
+                    provider_state={"thought_signature": "SIG"},
                     named_arguments={"command": "ls"},
                 )
             ],
@@ -799,7 +799,7 @@ async def test_gemini_never_sends_an_empty_text_part():
             [
                 ToolCall(
                     name="bash",
-                    thought_signature="SIG",
+                    provider_state={"thought_signature": "SIG"},
                     named_arguments={"command": "ls"},
                 )
             ],
@@ -865,7 +865,7 @@ async def test_gemini_keeps_a_parallel_tool_turn_native_when_only_its_first_call
     )
     first = ToolCall(
         name="bash",
-        thought_signature="SIG",
+        provider_state={"thought_signature": "SIG"},
         named_arguments={"command": "ls"},
     )
     second = ToolCall("bash", {"command": "pwd"})
@@ -908,7 +908,7 @@ async def test_gemini_replays_the_native_arguments_it_received():
     call = ToolCall(
         name="cat",
         named_arguments=native_arguments,
-        thought_signature="SIG",
+        provider_state={"thought_signature": "SIG"},
     )
     messages = [
         UserMessage("show my notes"),
@@ -935,13 +935,12 @@ async def test_gemini_replays_calls_and_results_under_their_native_ids():
     first = ToolCall(
         name="bash",
         named_arguments={"command": "ls"},
-        thought_signature="SIG",
-        native_id="fc_a",
+        provider_state={"thought_signature": "SIG", "native_id": "fc_a"},
     )
     second = ToolCall(
         name="bash",
         named_arguments={"command": "pwd"},
-        native_id="fc_b",
+        provider_state={"native_id": "fc_b"},
     )
     messages = [
         UserMessage("go"),

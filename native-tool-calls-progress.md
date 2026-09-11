@@ -41,7 +41,8 @@ scenarios: a filename with a space, a continued session, an interrupted call,
 a mid-session switch to a text model.
 
 The core shape:
-- the call (then `RawToolCall`, now `ToolCall`) carries `named_arguments`, `native_id`, `thought_signature`
+- the call (then `RawToolCall`, now `ToolCall`) carries `named_arguments` and
+  the provider state (first as `native_id` and `thought_signature`)
 - Gemini reads a function call into name, dict, id and signature only; it
   knows nothing about the emoji syntax or the tool declarations any more
 - Gemini replays the dict verbatim, under the ids it sent, thought first
@@ -154,17 +155,39 @@ not coerced, since no tool declares them.
 
 ## Next steps
 
-Leftovers from this story, small:
-- Ctrl+C (KeyboardInterrupt) ends the session without recording results;
-  only ESC (CancelledError) is covered
-- `thought_signature` and `native_id` are Gemini-shaped; fold into one
-  `provider_state` when a second native adapter needs its own
+The Ctrl+C and provider-state leftovers are done: a `KeyboardInterrupt`
+during a tool records the cancelled event and an interrupted result like ESC
+does, and `ToolCall.provider_state` is an opaque dict the core persists
+without reading; only the Gemini adapter knows its `thought_signature` and
+`native_id` keys. Persisted tool-called events written before this carry
+the two keys at the top level and load without them.
 
-The next story: native tool calling for Claude and OpenAI. Each adapter maps
-`ToolCall` (name, typed dict, id) to its wire format and back, declares tools
-from `ToolArguments`, coerces through them, and is handed out bare by the
-provider like Gemini native. The Gemini adapter and its acceptance tests are
-the template. When the last emoji model goes, `EmojiToolCallsLLM`, the
+## OpenAI native
+
+The second native adapter, on the chat completions API, shapes verified
+against the types in `openai/openai-python`. `tool_syntax = "native"` on an
+openai model hands `OpenAILLM(config, tools)` out bare. Acceptance tests in
+`tests/agent/openai_native_tool_calls_test.py`: a filename with a space, a
+continued session, an interrupted call.
+- `openai_tools.py` declares each tool as `{"type": "function", "function":
+  {name, description, parameters}}` and reads a message's `tool_calls` into
+  `ToolCall`s: the JSON argument string decoded and coerced through the
+  declaration, the call id as `provider_state["native_id"]`. An undeclared
+  name or a malformed argument string is refused with the tool named
+- `openai_messages.py` is the third `MessageRenderer`: an assistant turn
+  carries its calls as `tool_calls` (arguments re-encoded as JSON, content
+  `null` when there is none), a tool result is a `tool` message under the
+  call's id. A call made without an id, under emoji or by another adapter,
+  is replayed under a synthetic `call_N` matched to its result by order;
+  chat completions needs no signature, so no text fallback
+- `NATIVE_ADAPTERS` lists openai; the provider's native branch dispatches on
+  the adapter
+
+## Next steps
+
+Native tool calling for Claude: map `ToolCall` to its wire format and back,
+declare tools from `ToolArguments`, coerce through them, and hand the client
+out bare like the two native adapters. When the last emoji model goes, `EmojiToolCallsLLM`, the
 provider's emoji branch, the header/body split in `ToolArguments`,
 `text_messages.py`, `text_response.py` and the emoji module are the
 deletable remainder; no core type changes.

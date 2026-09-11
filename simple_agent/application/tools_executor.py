@@ -36,7 +36,7 @@ class ToolsExecutor:
                 single_result = await self._execute(invocation)
                 result.add(invocation, single_result)
                 self._on_result(invocation.call, str(single_result))
-            except asyncio.CancelledError:
+            except (asyncio.CancelledError, KeyboardInterrupt):
                 result.mark_cancelled(invocation)
                 for unanswered in invocations[index:]:
                     self._on_result(unanswered.call, INTERRUPTED_RESULT)
@@ -57,6 +57,6 @@ class ToolsExecutor:
                 ToolResultEvent(self._agent_id, call_id, tool_result)
             )
             return tool_result
-        except asyncio.CancelledError:
+        except (asyncio.CancelledError, KeyboardInterrupt):
             self._event_bus.publish(ToolCancelledEvent(self._agent_id, call_id))
             raise

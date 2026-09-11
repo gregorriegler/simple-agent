@@ -8,6 +8,7 @@ from simple_agent.application.llm import (
 )
 from simple_agent.application.text_messages import to_text_turn
 from simple_agent.application.tool_library import ToolCall
+from simple_agent.infrastructure.gemini.gemini_tools import native_id, thought_signature
 
 EMPTY_TEXT_PLACEHOLDER = "(empty)"
 
@@ -31,7 +32,7 @@ class UnsignedTurnsAsText:
         return message
 
     def assistant(self, message: AssistantMessage) -> ChatMessage:
-        self._signed = any(call.thought_signature for call in message.tool_calls)
+        self._signed = any(thought_signature(call) for call in message.tool_calls)
         return message if self._signed else to_text_turn(message, self._syntax)
 
     def tool_result(self, message: ToolResultMessage) -> ChatMessage:
@@ -68,18 +69,18 @@ class InteractionSteps:
             turn.append(self._step("model_output", message.content))
         for call in message.tool_calls:
             self._call_index += 1
-            if call.thought_signature:
-                turn.append({"type": "thought", "signature": call.thought_signature})
+            if thought_signature(call):
+                turn.append({"type": "thought", "signature": thought_signature(call)})
             turn.append(
                 self._function_call_step(
-                    call.native_id or f"call_{self._call_index}", call
+                    native_id(call) or f"call_{self._call_index}", call
                 )
             )
         self.steps.extend(self._thought_first(turn))
 
     def tool_result(self, message: ToolResultMessage) -> None:
         self._result_index += 1
-        call_id = message.call.native_id or f"call_{self._result_index}"
+        call_id = native_id(message.call) or f"call_{self._result_index}"
         self.steps.append(
             self._function_result_step(call_id, message.call, message.content)
         )

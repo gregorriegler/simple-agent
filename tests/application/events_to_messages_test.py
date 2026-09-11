@@ -152,7 +152,7 @@ class TestEventsToMessages:
         call = ToolCall(
             "cat",
             named_arguments={"filename": "my notes.md"},
-            thought_signature="SIG",
+            provider_state={"thought_signature": "SIG"},
         )
         events = [
             UserPromptedEvent(agent_id=agent_id, input_text="show my notes"),

@@ -158,7 +158,7 @@ def test_captures_the_preceding_thought_signature_on_the_call():
         TOOLS,
     )
 
-    assert calls[0].thought_signature == "SIG"
+    assert calls[0].provider_state == {"thought_signature": "SIG"}
 
 
 def test_reads_multiple_function_calls():
@@ -179,7 +179,7 @@ def test_reads_multiple_function_calls():
 def test_keeps_the_native_call_id_on_the_call():
     calls = to_tool_calls([function_call("bash", {"command": "ls"}, "fc_42")], TOOLS)
 
-    assert calls[0].native_id == "fc_42"
+    assert calls[0].provider_state == {"native_id": "fc_42"}
 
 
 def test_declares_a_bool_argument_as_a_json_boolean():

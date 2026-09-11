@@ -23,8 +23,7 @@ class ToolCall:
 
     name: str
     named_arguments: dict[str, Any] = field(default_factory=dict)
-    thought_signature: str = ""
-    native_id: str = ""
+    provider_state: dict[str, Any] = field(default_factory=dict)
 
 
 class ToolDeclaration(Protocol):
