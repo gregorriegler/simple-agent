@@ -120,9 +120,6 @@ commit with the tests green:
 ## Next steps
 
 Leftovers from this story, small:
-- a tool-called event written before named arguments were persisted loads
-  with its name only; the assistant text still carries the call, so a text
-  adapter replays it, but the result label loses its arguments
 - values from Gemini are not coerced to the declared type; a non-string where
   a tool expects text fails the turn with a generic error (typed arguments
   object, needed once a second native adapter exists)
