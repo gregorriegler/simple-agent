@@ -10,7 +10,7 @@ compaction, no skills, agents only.
 
 Scope of this story: only the path that consumes the Gemini adapter, done in
 small steps that break nothing, each step tests first and its own commit.
-Native calling for Claude and OpenAI is a later story; it will map the same
+Native calling for Claude and OpenAI was a later story; it will map the same
 core shape to their wire formats.
 
 ## Where we started (commit c2dfca1b)
@@ -183,11 +183,34 @@ continued session, an interrupted call.
 - `NATIVE_ADAPTERS` lists openai; the provider's native branch dispatches on
   the adapter
 
+## Claude native
+
+The third native adapter, on the Messages API, shapes checked against the
+tool use reference. `tool_syntax = "native"` on a claude model hands
+`ClaudeLLM(config, tools)` out bare. Acceptance tests in
+`tests/agent/claude_native_tool_calls_test.py`: a filename with a space, a
+continued session, an interrupted call.
+- `claude_tools.py` declares each tool as `{name, description, input_schema}`
+  and reads a response's `tool_use` blocks into `ToolCall`s: the input dict
+  coerced through the declaration, the block id as
+  `provider_state["native_id"]`. An undeclared name is refused with the tool
+  named; the input is already JSON, so nothing to decode
+- `claude_messages.py` is the fourth `MessageRenderer`: an assistant turn
+  carries its calls as `tool_use` blocks after its text block (none when the
+  text is empty), a tool result is a `tool_result` block under the call's id
+  in a user turn, and the results of one turn share a single user message,
+  as the API wants them. A call made without an id is replayed under a
+  synthetic `toolu_N` matched to its result by order. A system message has
+  no place in the history; the client splits it off as before
+- the client renders every history through the block renderer, emoji or
+  native, and joins a response's text blocks; the "first block must be text"
+  reading is gone. `NATIVE_ADAPTERS` lists claude; the provider's native
+  branch dispatches on the adapter
+
 ## Next steps
 
-Native tool calling for Claude: map `ToolCall` to its wire format and back,
-declare tools from `ToolArguments`, coerce through them, and hand the client
-out bare like the two native adapters. When the last emoji model goes, `EmojiToolCallsLLM`, the
-provider's emoji branch, the header/body split in `ToolArguments`,
-`text_messages.py`, `text_response.py` and the emoji module are the
-deletable remainder; no core type changes.
+Bedrock still speaks emoji only; its Claude shapes would map the same way.
+When the last emoji model goes, `EmojiToolCallsLLM`, the provider's emoji
+branch, the header/body split in `ToolArguments`, `text_messages.py`,
+`text_response.py` and the emoji module are the deletable remainder; no
+core type changes.
