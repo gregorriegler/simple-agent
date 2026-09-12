@@ -31,8 +31,8 @@ class FakeUserInput:
     def escape_requested(self) -> bool:
         return False
 
-    def submit_input(self, content: str) -> None:
-        self.submissions.append(content)
+    def submit_input(self, agent_id, content: str) -> None:
+        self.submissions.append((agent_id, content))
 
     def close(self) -> None:
         self.closed = True

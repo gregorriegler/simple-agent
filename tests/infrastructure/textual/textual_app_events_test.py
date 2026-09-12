@@ -254,11 +254,41 @@ async def test_submit_input_sends_user_input(textual_harness):
 
         await eventually(
             pilot,
-            lambda: user_input.submissions == ["Hello"],
+            lambda: user_input.submissions == [(AgentId("Agent"), "Hello")],
             "the submitted input to reach the user input port",
         )
 
         assert text_area.text == ""
+
+
+@pytest.mark.asyncio
+async def test_input_typed_in_a_subagent_tab_is_addressed_to_that_subagent(
+    textual_harness,
+):
+    event_bus, _, user_input, app = textual_harness
+    root_id = AgentId("Agent")
+    sub_id = root_id.create_subagent_id("Helper", AgentIdSuffixer())
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        event_bus.publish(AgentStartedEvent(root_id, "Agent", "dummy-model"))
+        event_bus.publish(AgentStartedEvent(sub_id, "Helper", "dummy-model"))
+        await pilot.pause()
+        from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+
+        tabs = app.query_one(AgentTabs)
+        tabs.switch_tab(1)
+        await pilot.pause()
+        assert tabs.active_workspace.agent_id == sub_id
+
+        tabs.active_workspace.smart_input.text = "for the helper"
+        app.action_submit_input()
+
+        await eventually(
+            pilot,
+            lambda: user_input.submissions == [(sub_id, "for the helper")],
+            "the input to be addressed to the subagent",
+        )
 
 
 @pytest.mark.asyncio

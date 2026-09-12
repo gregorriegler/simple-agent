@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 
 from simple_agent.application.input import Input
@@ -109,3 +111,32 @@ async def test_drain_empties_the_queue():
 
     assert feed.drain() == []
     assert not feed.has_stacked_messages()
+
+
+class BlockingUserInput(UserInputStub):
+    async def read_async(self):
+        self.calls += 1
+        await asyncio.Event().wait()
+        return "never"
+
+
+async def test_message_stacked_while_waiting_on_the_user_is_read_at_once():
+    feed = Input(BlockingUserInput())
+    reading = asyncio.create_task(feed.read_async())
+    await asyncio.sleep(0)
+
+    feed.stack("from a subagent")
+
+    assert await asyncio.wait_for(reading, timeout=1) == "from a subagent"
+
+
+async def test_a_message_typed_as_the_read_is_cancelled_is_kept_for_the_next_read():
+    feed = Input(UserInputStub("typed"))
+    reading = asyncio.create_task(feed.read_async())
+    await asyncio.sleep(0)
+    await asyncio.sleep(0)
+    reading.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await reading
+
+    assert feed.drain() == ["typed"]

@@ -62,7 +62,7 @@ class ToolLibraryStub(AllTools):
             agent_id = AgentId("Agent")
             actual_tool_context = ToolContext(tool_keys or [], agent_id)
             actual_spawner = agent_factory.create_spawner(
-                agent_id, agent_factory.create_input()
+                agent_id, agent_factory.create_input(agent_id)
             )
             actual_agent_types = AgentTypes(agent_library.list_agent_types())
 

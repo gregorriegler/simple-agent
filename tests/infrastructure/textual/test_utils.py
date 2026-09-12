@@ -18,7 +18,7 @@ class MockUserInput:
     def escape_requested(self) -> bool:
         return False
 
-    def submit_input(self, content: str) -> None:
+    def submit_input(self, agent_id, content: str) -> None:
         self.submitted_content.append(content)
 
     def close(self) -> None:

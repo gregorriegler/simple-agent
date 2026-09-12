@@ -26,7 +26,7 @@ async def test_wait_returns_once_a_message_is_stacked():
 
 
 async def test_wait_returns_at_once_when_the_user_typed_something():
-    inbox = Input(UserInputStub(typed_while_working=["hello"]))
+    inbox = Input(UserInputStub(inputs=["hello"]))
 
     result = await WaitTool(inbox).execute(wait(timeout=5))
 

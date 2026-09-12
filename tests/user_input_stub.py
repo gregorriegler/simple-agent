@@ -14,9 +14,6 @@ class UserInputStub(UserInput):
         typed, self._typed_while_working = self._typed_while_working, []
         return typed
 
-    def has_pending(self) -> bool:
-        return bool(self._typed_while_working)
-
     async def read_async(self) -> str:
         if not self._inputs:
             return ""

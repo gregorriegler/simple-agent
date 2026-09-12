@@ -30,7 +30,7 @@ async def test_submit_input_includes_referenced_files(textual_harness, tmp_path)
 
         # 3. Verify submission
         assert len(user_input.submissions) == 1
-        submission = user_input.submissions[0]
+        _, submission = user_input.submissions[0]
 
         expected_context = (
             f'<file_context path="{test_file_path}">\nSecret content\n</file_context>'
@@ -63,6 +63,6 @@ async def test_submit_input_ignores_unreferenced_files(textual_harness, tmp_path
         for _ in range(3):
             await pilot.pause()
 
-        submission = user_input.submissions[0]
+        _, submission = user_input.submissions[0]
         assert "Just text without file" in submission
         assert "<file_context" not in submission

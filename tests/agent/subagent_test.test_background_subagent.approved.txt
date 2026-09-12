@@ -8,8 +8,6 @@ Agent:           tool_result: Agent::tool_call::1 Subagent started
 Agent:   assistant_responded: Subagent started stub-model 0.0%
 Agent:        assistant_said: Subagent started
 Agent: user_prompt_requested: 
-Agent:        agent_finished: 
-Agent:         session_ended: 
 Agent/Coding:         agent_started: Coding stub-model coding
 Agent/Coding:         user_prompted: say hello
 Agent/Coding:   assistant_responded: hello stub-model 0.0%
@@ -18,6 +16,8 @@ Agent/Coding:           tool_called: Agent/Coding::tool_call::1 complete-task su
 Agent/Coding:           tool_result: Agent/Coding::tool_call::1 I successfully said hello
 Agent/Coding:        agent_finished: 
 Agent/Coding:         session_ended: 
+Agent:        agent_finished: 
+Agent:         session_ended: 
 
 # Messages:
 [Agent]

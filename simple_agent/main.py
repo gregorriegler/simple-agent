@@ -13,7 +13,7 @@ from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import UserPromptRequestedEvent
 from simple_agent.application.llm_stub import StubLLMProvider
-from simple_agent.application.queued_user_input import QueuedUserInput
+from simple_agent.application.routed_user_input import RoutedUserInput
 from simple_agent.application.session import Session, SessionArgs
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.infrastructure.event_logger import EventLogger
@@ -88,7 +88,7 @@ async def _run_main(
     if args.non_interactive:
         user_input = NonInteractiveUserInput()
     else:
-        user_input = QueuedUserInput()
+        user_input = RoutedUserInput()
 
     agent_library = create_agent_library(user_config, args)
 
@@ -175,9 +175,9 @@ async def main_async(on_user_prompt_requested=None, llm_provider=None):
         if not on_prompt:
             return
 
-        def on_prompt_wrapper(_):
+        def on_prompt_wrapper(event: UserPromptRequestedEvent):
             assert on_prompt is not None
-            result = on_prompt(textual_app)
+            result = on_prompt(textual_app, event.agent_id)
             asyncio.create_task(result)
 
         event_bus.subscribe(UserPromptRequestedEvent, on_prompt_wrapper)

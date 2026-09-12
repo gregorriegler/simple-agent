@@ -22,7 +22,7 @@ from simple_agent.application.tool_library_factory import (
     ToolLibraryFactory,
 )
 from simple_agent.application.tool_results import SingleToolResult
-from simple_agent.application.user_input import UserInput
+from simple_agent.application.user_input import UserInputs
 
 
 class AgentFactory:
@@ -31,7 +31,7 @@ class AgentFactory:
         event_bus: EventBus,
         tool_library_factory: ToolLibraryFactory,
         agent_library: AgentLibrary,
-        user_input: UserInput,
+        user_input: UserInputs,
         llm_provider: LLMProvider,
         project_tree: ProjectTree,
         event_store: EventStore,
@@ -51,8 +51,10 @@ class AgentFactory:
     def event_bus(self) -> EventBus:
         return self._event_bus
 
-    def create_input(self, initial_message: str | None = None) -> Input:
-        inp = Input(self._user_input)
+    def create_input(
+        self, agent_id: AgentId, initial_message: str | None = None
+    ) -> Input:
+        inp = Input(self._user_input.for_agent(agent_id))
         if initial_message:
             inp.stack(initial_message)
         return inp
@@ -118,7 +120,7 @@ class AgentFactory:
         user_input: Input | None = None,
         unattended: bool = False,
     ) -> Agent:
-        agent_input = user_input or self.create_input(initial_message)
+        agent_input = user_input or self.create_input(agent_id, initial_message)
         brain = self._build_brain(agent_id, definition, agent_input)
         messages.seed_system_prompt(brain.system_prompt)
 

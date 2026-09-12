@@ -15,6 +15,7 @@ from simple_agent.application.events import (
     UserPromptRequestedEvent,
 )
 from simple_agent.application.llm_stub import create_llm_stub
+from simple_agent.application.routed_user_input import RoutedUserInput
 from simple_agent.tools.all_tools import AllToolsFactory
 from tests.session_test_bed import SessionTestBed, TestAgentLibrary
 from tests.test_helpers import DummyProjectTree
@@ -48,7 +49,7 @@ async def test_background_subagent_finishes_on_complete_task_without_asking_for_
 
 async def test_background_subagent_reports_its_summary_to_the_parent_input():
     factory = _factory(FixedLLMProvider(create_llm_stub([complete_task("sub done")])))
-    parent_input = factory.create_input()
+    parent_input = factory.create_input(AgentId("Agent"))
     spawn = factory.create_spawner(AgentId("Agent"), parent_input)
 
     await spawn(AgentType("coding"), "do the sub task", True)
@@ -59,7 +60,7 @@ async def test_background_subagent_reports_its_summary_to_the_parent_input():
 
 async def test_background_subagent_that_fails_reports_the_failure():
     factory = _factory(FixedLLMProvider(FailingLLM("boom")))
-    parent_input = factory.create_input()
+    parent_input = factory.create_input(AgentId("Agent"))
     spawn = factory.create_spawner(AgentId("Agent"), parent_input)
 
     await spawn(AgentType("coding"), "do the sub task", True)
@@ -145,12 +146,34 @@ async def test_parent_waits_for_a_background_command():
     assert prompts[1].startswith("Background command `sleep 0.2; echo done` finished:")
 
 
-def _factory(llm_provider) -> AgentFactory:
+async def test_background_subagent_that_ends_with_text_does_not_take_the_parents_message():
+    keyboard = RoutedUserInput()
+    event_bus = SimpleEventBus()
+    factory = _factory(
+        FixedLLMProvider(create_llm_stub(["done, I think"])), keyboard, event_bus
+    )
+    parent_input = factory.create_input(AgentId("Agent"))
+    spawn = factory.create_spawner(AgentId("Agent"), parent_input)
+    subagent_waits = asyncio.Event()
+    event_bus.subscribe(UserPromptRequestedEvent, lambda _: subagent_waits.set())
+
+    await spawn(AgentType("coding"), "do the sub task", True)
+    await asyncio.wait_for(subagent_waits.wait(), timeout=2)
+    keyboard.submit_input(AgentId("Agent"), "for the parent")
+
+    assert await asyncio.wait_for(parent_input.read_async(), timeout=2) == (
+        "for the parent"
+    )
+    keyboard.close()
+    await asyncio.gather(*_other_tasks(), return_exceptions=True)
+
+
+def _factory(llm_provider, user_input=None, event_bus=None) -> AgentFactory:
     return AgentFactory(
-        event_bus=SimpleEventBus(),
+        event_bus=event_bus or SimpleEventBus(),
         tool_library_factory=AllToolsFactory(),
         agent_library=TestAgentLibrary(),
-        user_input=UserInputStub(),
+        user_input=user_input or UserInputStub(),
         llm_provider=llm_provider,
         project_tree=DummyProjectTree(),
         event_store=NoOpEventStore(),
