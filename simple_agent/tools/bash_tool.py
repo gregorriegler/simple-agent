@@ -1,10 +1,12 @@
+import asyncio
 import os
 import shutil
-import subprocess
 import sys
+import time
 from pathlib import PureWindowsPath
 
 from ..application.tool_library import ToolArgument, ToolArguments
+from ..application.tool_library_factory import Report
 from ..application.tool_results import SingleToolResult, ToolResultStatus
 from .base_tool import BaseTool
 
@@ -31,7 +33,7 @@ def _git_bash() -> str | None:
 
 class BashTool(BaseTool):
     name = "bash"
-    description = "Execute bash commands. Tip: Avoid grep, but use ripgrep (the rg command) for search. To run a command in the background, end it with an ampersand (&)."
+    description = "Execute bash commands. Tip: Avoid grep, but use ripgrep (the rg command) for search."
     arguments = ToolArguments(
         header=[
             ToolArgument(
@@ -39,7 +41,13 @@ class BashTool(BaseTool):
                 type="string",
                 required=True,
                 description="The bash command to execute",
-            )
+            ),
+            ToolArgument(
+                name="--background",
+                type="bool",
+                required=False,
+                description="Run the command in the background: return immediately, and receive its output as a message once it finishes.",
+            ),
         ]
     )
     examples = [
@@ -58,11 +66,17 @@ class BashTool(BaseTool):
             "command": "ls -la",
         },
         {
-            "reasoning": "To start a long-running process in the background:",
-            "command": "sleep 10 &",
+            "reasoning": "To start a long-running process and carry on while it runs:",
+            "command": "bash test.sh",
+            "--background": True,
             "result": "✅ Process started in background with PID: 12345",
         },
     ]
+
+    def __init__(self, report: Report | None = None):
+        super().__init__()
+        self._report = report or (lambda message: None)
+        self._background: set[asyncio.Task] = set()
 
     async def execute(self, call):
         args = str(call.named_arguments.get("command", ""))
@@ -70,58 +84,56 @@ class BashTool(BaseTool):
             return SingleToolResult(
                 "STDERR: bash: missing command", status=ToolResultStatus.FAILURE
             )
+        if call.named_arguments.get("--background", False):
+            return await self._start_in_background(args)
 
-        # Check if command should be run in the background
-        if args.strip().endswith("&"):
-            try:
-                # Use Popen for non-blocking execution.
-                # preexec_fn=os.setsid is used to run the command in a new session,
-                # detaching it from the current process. This is Unix-specific.
-                popen_kwargs = {
-                    "stdout": subprocess.DEVNULL,
-                    "stderr": subprocess.DEVNULL,
-                    "stdin": subprocess.DEVNULL,
-                }
-                if hasattr(os, "setsid"):
-                    popen_kwargs["preexec_fn"] = os.setsid
-                elif sys.platform == "win32":
-                    # On Windows, use CREATE_NEW_PROCESS_GROUP or DETACHED_PROCESS
-                    # to achieve similar detachment.
-                    popen_kwargs["creationflags"] = (
-                        subprocess.CREATE_NEW_PROCESS_GROUP
-                        | subprocess.DETACHED_PROCESS
-                    )
-
-                process = subprocess.Popen(
-                    [bash_executable(), "-c", args], **popen_kwargs
-                )
-                return SingleToolResult(
-                    f"✅ Process started in background with PID: {process.pid}",
-                    status=ToolResultStatus.SUCCESS,
-                )
-            except Exception as e:
-                return SingleToolResult(
-                    f"❌ Failed to start process in background: {e}",
-                    status=ToolResultStatus.FAILURE,
-                )
-
-        # Original synchronous execution
-        _ = subprocess
         result = await self.run_command_async(bash_executable(), ["-c", args])
-
-        output = result["output"]
-        elapsed_time = result.get("elapsed_time", 0)
         exit_code = 0 if result["success"] else 1
-        status_icon = "✅" if result["success"] else "❌"
-
-        if output:
-            formatted_output = f"{status_icon} Exit code {exit_code} ({elapsed_time:.3f}s elapsed)\n\n{output}"
-        else:
-            formatted_output = (
-                f"{status_icon} Exit code {exit_code} ({elapsed_time:.3f}s elapsed)"
-            )
-
-        status = (
-            ToolResultStatus.SUCCESS if result["success"] else ToolResultStatus.FAILURE
+        return SingleToolResult(
+            _format(result["output"], exit_code, result.get("elapsed_time", 0)),
+            status=ToolResultStatus.SUCCESS
+            if result["success"]
+            else ToolResultStatus.FAILURE,
         )
-        return SingleToolResult(formatted_output, status=status)
+
+    async def _start_in_background(self, command: str) -> SingleToolResult:
+        try:
+            process = await asyncio.create_subprocess_exec(
+                bash_executable(),
+                "-c",
+                command,
+                stdin=asyncio.subprocess.DEVNULL,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+        except Exception as e:
+            return SingleToolResult(
+                f"❌ Failed to start process in background: {e}",
+                status=ToolResultStatus.FAILURE,
+            )
+        task = asyncio.create_task(self._report_when_done(command, process))
+        self._background.add(task)
+        task.add_done_callback(self._background.discard)
+        return SingleToolResult(
+            f"✅ Process started in background with PID: {process.pid}"
+        )
+
+    async def _report_when_done(self, command: str, process) -> None:
+        started = time.time()
+        stdout, stderr = await process.communicate()
+        elapsed = time.time() - started
+        output = stdout.decode("utf-8", errors="replace").rstrip("\n")
+        if stderr:
+            if output:
+                output += "\n"
+            output += f"STDERR: {stderr.decode('utf-8', errors='replace')}"
+        self._report(
+            f"Background command `{command}` finished:\n"
+            f"{_format(output, process.returncode, elapsed)}"
+        )
+
+
+def _format(output: str, exit_code: int, elapsed: float) -> str:
+    icon = "✅" if exit_code == 0 else "❌"
+    header = f"{icon} Exit code {exit_code} ({elapsed:.3f}s elapsed)"
+    return f"{header}\n\n{output}" if output else header

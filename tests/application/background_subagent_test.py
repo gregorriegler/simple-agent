@@ -82,5 +82,28 @@ async def test_parent_receives_the_background_subagent_summary_as_a_prompt():
     )
 
 
+async def test_parent_receives_a_background_command_output_as_a_prompt():
+    llm = create_llm_stub(
+        [
+            bash("sleep 0.1; echo done", background=True),
+            bash("sleep 0.5"),
+            "parent carries on",
+        ]
+    )
+
+    result = await SessionTestBed().with_llm(llm).run()
+
+    prompts = [
+        e.input_text
+        for e in result.events.get_all_events()
+        if isinstance(e, UserPromptedEvent) and e.agent_id == AgentId("Agent")
+    ]
+    assert len(prompts) == 2
+    assert prompts[1].startswith(
+        "Background command `sleep 0.1; echo done` finished:\n✅ Exit code 0 ("
+    )
+    assert prompts[1].endswith("\n\ndone")
+
+
 def _other_tasks():
     return [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]

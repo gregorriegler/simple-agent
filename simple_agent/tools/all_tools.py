@@ -73,7 +73,7 @@ class AllTools(ToolLibrary):
                 str(self.tool_context.agent_id.intent_filename())
             ),
             "suggest": lambda: SuggestTool(),
-            "bash": lambda: BashTool(),
+            "bash": lambda: BashTool(self.tool_context.report),
             "subagent": lambda: SubagentTool(self._spawner, self._agent_types),
         }
 

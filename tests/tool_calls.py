@@ -18,8 +18,11 @@ def ls(path: str = "") -> ToolCall:
     return ToolCall("ls", {"path": path} if path else {})
 
 
-def bash(command: str) -> ToolCall:
-    return ToolCall("bash", {"command": command})
+def bash(command: str, background: bool = False) -> ToolCall:
+    arguments: dict = {"command": command}
+    if background:
+        arguments["--background"] = True
+    return ToolCall("bash", arguments)
 
 
 def create_file(filename: str, content: str = "") -> ToolCall:
