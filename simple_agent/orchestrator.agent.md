@@ -1,6 +1,6 @@
 ---
 name: Orchestrator
-tools: write_todos, subagent, complete_task
+tools: write_todos, subagent, wait, complete_task
 ---
 
 {{AGENTS.MD}}
