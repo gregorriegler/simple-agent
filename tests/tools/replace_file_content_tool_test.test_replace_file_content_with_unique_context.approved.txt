@@ -1,11 +1,9 @@
 Command:
-🛠️[replace-file-content test.txt single]
-bar
+replace-file-content test.txt single bar
 foo
 @@@
 bar
 replaced
-🛠️[/end]
 
 Result:
 Successfully replaced content in test.txt

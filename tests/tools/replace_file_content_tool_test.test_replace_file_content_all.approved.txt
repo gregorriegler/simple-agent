@@ -1,9 +1,7 @@
 Command:
-🛠️[replace-file-content test.txt all]
-foo
+replace-file-content test.txt all foo
 @@@
 replaced
-🛠️[/end]
 
 Result:
 Successfully replaced content in test.txt

@@ -1,5 +1,5 @@
 Command:
-🛠️[bash printf 'hello world' /]
+bash printf 'hello world'
 
 Result:
 ✅ Exit code 0 [ELAPSED]

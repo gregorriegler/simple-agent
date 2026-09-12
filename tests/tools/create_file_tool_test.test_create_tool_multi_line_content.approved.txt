@@ -1,9 +1,7 @@
 Command:
-🛠️[create-file a]
-First Line
+create-file a First Line
 Second Line
 Third Line
-🛠️[/end]
 
 Result:
 Created file: a with content

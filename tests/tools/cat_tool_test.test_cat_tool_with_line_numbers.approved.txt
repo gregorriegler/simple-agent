@@ -1,5 +1,5 @@
 Command:
-🛠️[cat /tmp/test_path/test.txt with_line_numbers /]
+cat /tmp/test_path/test.txt with_line_numbers
 
 Result:
      1	Hello world

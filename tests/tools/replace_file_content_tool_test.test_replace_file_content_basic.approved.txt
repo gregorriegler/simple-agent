@@ -1,9 +1,7 @@
 Command:
-🛠️[replace-file-content test.txt single]
-hello
+replace-file-content test.txt single hello
 @@@
 goodbye
-🛠️[/end]
 
 Result:
 Successfully replaced content in test.txt

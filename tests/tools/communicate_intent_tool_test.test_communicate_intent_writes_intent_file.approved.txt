@@ -1,7 +1,5 @@
 Command:
-🛠️[communicate-intent]
-Extract the tool syntax parser
-🛠️[/end]
+communicate-intent Extract the tool syntax parser
 
 Result:
 Intent: Extract the tool syntax parser
