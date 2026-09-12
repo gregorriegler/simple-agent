@@ -42,9 +42,9 @@ async def test_agent_says_after_subagent():
     )
 
 
-async def test_async_subagent():
+async def test_background_subagent():
     await verify_chat(
-        ["Create an async subagent that says hello", "\n"],
+        ["Create a background subagent that says hello", "\n"],
         [
             subagent("coding", "say hello", background=True),
             "Subagent started",

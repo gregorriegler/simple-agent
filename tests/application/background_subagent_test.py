@@ -24,7 +24,7 @@ from tests.user_input_stub import UserInputStub
 pytestmark = pytest.mark.asyncio
 
 
-async def test_async_subagent_finishes_on_complete_task_without_asking_for_input():
+async def test_background_subagent_finishes_on_complete_task_without_asking_for_input():
     subagent_id = AgentId("Agent/Coding")
     llm = create_llm_stub(
         [
@@ -45,7 +45,7 @@ async def test_async_subagent_finishes_on_complete_task_without_asking_for_input
     assert asked == []
 
 
-async def test_async_subagent_reports_its_summary_to_the_parent_input():
+async def test_background_subagent_reports_its_summary_to_the_parent_input():
     factory = AgentFactory(
         event_bus=SimpleEventBus(),
         tool_library_factory=AllToolsFactory(),
@@ -65,7 +65,7 @@ async def test_async_subagent_reports_its_summary_to_the_parent_input():
     assert parent_input.drain() == ["Subagent Agent/Coding completed: sub done"]
 
 
-async def test_parent_receives_the_async_subagent_summary_as_a_prompt():
+async def test_parent_receives_the_background_subagent_summary_as_a_prompt():
     llm = create_llm_stub(
         [
             subagent("coding", "do the sub task", background=True),

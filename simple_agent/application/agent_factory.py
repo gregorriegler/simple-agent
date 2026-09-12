@@ -60,7 +60,7 @@ class AgentFactory:
     def create_spawner(
         self, parent_agent_id: AgentId, parent_input: Input
     ) -> SubagentSpawner:
-        async def spawn(agent_type, task_description, is_async=False):
+        async def spawn(agent_type, task_description, background=False):
             definition = self._agent_library.read_agent_definition(agent_type)
             agent_id = parent_agent_id.create_subagent_id(
                 definition.agent_name(), self._agent_suffixer
@@ -73,9 +73,9 @@ class AgentFactory:
                 task_description,
                 context,
                 agent_type,
-                unattended=is_async,
+                unattended=background,
             )
-            if is_async:
+            if background:
                 task = self._agent_task_manager.start_task(agent_id, subagent.start())
                 task.add_done_callback(
                     lambda done: self._report_completion(parent_input, agent_id, done)

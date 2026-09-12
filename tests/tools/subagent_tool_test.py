@@ -12,8 +12,8 @@ class SpawnSpy:
     def __init__(self):
         self.calls = []
 
-    async def __call__(self, agent_type, task_description, is_async):
-        self.calls.append((agent_type.raw, task_description, is_async))
+    async def __call__(self, agent_type, task_description, background):
+        self.calls.append((agent_type.raw, task_description, background))
         return SingleToolResult("spawned")
 
 
@@ -24,7 +24,7 @@ async def test_subagent_reads_native_named_arguments():
         named_arguments={
             "agenttype": "coding",
             "task_description": "say hello world",
-            "--async": True,
+            "--background": True,
         },
     )
 

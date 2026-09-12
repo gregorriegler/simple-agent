@@ -1,9 +1,9 @@
 # Events
 Agent:       session_started: False
 Agent:         agent_started: Agent stub-model agent
-Agent:         user_prompted: Create an async subagent that says hello
+Agent:         user_prompted: Create a background subagent that says hello
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 subagent agenttype="coding" task_description="say hello" --async=true
+Agent:           tool_called: Agent::tool_call::1 subagent agenttype="coding" task_description="say hello" --background=true
 Agent:           tool_result: Agent::tool_call::1 Subagent started
 Agent:   assistant_responded: Subagent started stub-model 0.0%
 Agent:        assistant_said: Subagent started
@@ -21,9 +21,9 @@ Agent/Coding:         session_ended:
 
 # Messages:
 [Agent]
-user: Create an async subagent that says hello
+user: Create a background subagent that says hello
 assistant:
-  subagent agenttype="coding" task_description="say hello" --async=true
+  subagent agenttype="coding" task_description="say hello" --background=true
 tool_result: Subagent started
 assistant: Subagent started
 [Agent/Coding]

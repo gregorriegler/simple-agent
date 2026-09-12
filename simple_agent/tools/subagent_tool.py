@@ -25,10 +25,10 @@ class SubagentTool(BaseTool):
                 description="Detailed description of the task for the subagent to perform",
             ),
             ToolArgument(
-                name="--async",
+                name="--background",
                 type="bool",
                 required=False,
-                description="Run the subagent asynchronously, returning immediately without waiting for it to finish.",
+                description="Run the subagent in the background: return immediately, and receive its summary as a message once it completes.",
             ),
         ]
     )
@@ -54,7 +54,7 @@ class SubagentTool(BaseTool):
         named = call.named_arguments
         agent_type_str = named.get("agenttype", "")
         task_description = str(named.get("task_description", "")).strip()
-        is_async = named.get("--async", False)
+        background = named.get("--background", False)
 
         if not agent_type_str or not task_description:
             return SingleToolResult(
@@ -64,7 +64,7 @@ class SubagentTool(BaseTool):
 
         try:
             result = await self._spawn_subagent(
-                AgentType(agent_type_str), task_description, is_async
+                AgentType(agent_type_str), task_description, background
             )
             status = (
                 ToolResultStatus.SUCCESS if result.success else ToolResultStatus.FAILURE

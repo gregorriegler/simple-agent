@@ -36,7 +36,7 @@ def replace_file_content(filename: str, content: str, mode: str = "single") -> T
 def subagent(agenttype: str, task: str, background: bool = False) -> ToolCall:
     arguments: dict = {"agenttype": agenttype, "task_description": task}
     if background:
-        arguments["--async"] = True
+        arguments["--background"] = True
     return ToolCall("subagent", arguments)
 
 
