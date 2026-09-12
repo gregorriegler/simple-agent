@@ -3,6 +3,7 @@ from typing import ClassVar
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_type import AgentType
+from simple_agent.application.on_complete import OnComplete
 from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import ToolResult
 
@@ -101,6 +102,7 @@ class AgentStartedEvent(AgentEvent):
     agent_name: str = ""
     model: str = ""
     agent_type: AgentType | None = None
+    on_complete: OnComplete = OnComplete.HUMAN_REVIEW
 
 
 @dataclass

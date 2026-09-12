@@ -18,6 +18,7 @@ from simple_agent.application.events import (
     ToolResultEvent,
     UserPromptedEvent,
 )
+from simple_agent.application.on_complete import OnComplete
 from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
 
@@ -60,6 +61,7 @@ class EventSerializer:
                 "agent_name": event.agent_name,
                 "model": event.model,
                 "agent_type": event.agent_type.raw if event.agent_type else "",
+                "on_complete": event.on_complete.value,
             }
         elif isinstance(event, AgentFinishedEvent):
             return {
@@ -174,6 +176,9 @@ class EventSerializer:
                 agent_name=data.get("agent_name", ""),
                 model=data.get("model", ""),
                 agent_type=AgentType(agent_type_str) if agent_type_str else None,
+                on_complete=OnComplete(
+                    data.get("on_complete", OnComplete.HUMAN_REVIEW.value)
+                ),
             )
         elif event_type == "AgentFinishedEvent":
             return AgentFinishedEvent(agent_id=agent_id)

@@ -14,6 +14,7 @@ from simple_agent.application.events import (
     ToolResultEvent,
     UserPromptedEvent,
 )
+from simple_agent.application.on_complete import OnComplete
 from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import SingleToolResult
 
@@ -87,6 +88,7 @@ class TestEventSerializer:
             agent_name="Coding",
             model="claude-sonnet-4-20250514",
             agent_type=AgentType("coding"),
+            on_complete=OnComplete.CLOSE,
         )
 
         result = EventSerializer.to_dict(event)
@@ -97,9 +99,30 @@ class TestEventSerializer:
             "agent_name": "Coding",
             "model": "claude-sonnet-4-20250514",
             "agent_type": "coding",
+            "on_complete": "close",
         }
 
     def test_deserialize_agent_started_event(self):
+        data = {
+            "type": "AgentStartedEvent",
+            "agent_id": "Agent/Coding",
+            "agent_name": "Coding",
+            "model": "claude-sonnet-4-20250514",
+            "agent_type": "coding",
+            "on_complete": "close",
+        }
+
+        result = EventSerializer.from_dict(data)
+
+        assert isinstance(result, AgentStartedEvent)
+        assert result.agent_id == AgentId("Agent/Coding")
+        assert result.agent_name == "Coding"
+        assert result.model == "claude-sonnet-4-20250514"
+        assert result.on_complete is OnComplete.CLOSE
+
+    def test_deserialize_agent_started_event_without_on_complete_defaults_to_human_review(
+        self,
+    ):
         data = {
             "type": "AgentStartedEvent",
             "agent_id": "Agent/Coding",
@@ -111,9 +134,7 @@ class TestEventSerializer:
         result = EventSerializer.from_dict(data)
 
         assert isinstance(result, AgentStartedEvent)
-        assert result.agent_id == AgentId("Agent/Coding")
-        assert result.agent_name == "Coding"
-        assert result.model == "claude-sonnet-4-20250514"
+        assert result.on_complete is OnComplete.HUMAN_REVIEW
 
     def test_serialize_agent_finished_event(self):
         event = AgentFinishedEvent(agent_id=AgentId("Agent/Coding"))

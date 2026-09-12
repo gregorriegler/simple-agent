@@ -25,6 +25,7 @@ from .events import (
 )
 from .input import Input
 from .llm import LLMProvider, Messages
+from .on_complete import OnComplete
 from .slash_command_registry import CommandParseError, SlashCommandRegistry
 from .slash_commands import (
     AgentCommand,
@@ -56,10 +57,10 @@ class Agent(SlashCommandVisitor):
         agent_type: AgentType | None = None,
         available_agents: list[str] | None = None,
         brain_factory: BrainFactory | None = None,
-        unattended: bool = False,
+        on_complete: OnComplete = OnComplete.HUMAN_REVIEW,
     ):
         self.agent_id = agent_id
-        self.unattended = unattended
+        self.on_complete = on_complete
         self.brain = brain
         self.agent_type = agent_type
         self.llm_provider = llm_provider
@@ -102,6 +103,7 @@ class Agent(SlashCommandVisitor):
                 self.brain.name,
                 self.brain.llm.model,
                 self.agent_type,
+                on_complete=self.on_complete,
             )
         )
         try:
@@ -113,7 +115,7 @@ class Agent(SlashCommandVisitor):
                     if not prompt:
                         break
                     tool_result = await self.run_tool_loop()
-                    if self.unattended and not tool_result.do_continue():
+                    if self._closes_on(tool_result):
                         break
                 except asyncio.CancelledError:
                     # ESC pressed - interrupt current operation but continue session
@@ -126,6 +128,9 @@ class Agent(SlashCommandVisitor):
         finally:
             self.event_bus.publish(AgentFinishedEvent(self.agent_id))
             self.event_bus.publish(SessionEndedEvent(self.agent_id))
+
+    def _closes_on(self, tool_result: ToolResult) -> bool:
+        return self.on_complete is OnComplete.CLOSE and not tool_result.do_continue()
 
     async def user_prompts(self):
         if not self.user_input.has_stacked_messages():

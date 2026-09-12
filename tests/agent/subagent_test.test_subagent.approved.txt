@@ -1,10 +1,10 @@
 # Events
 Agent:       session_started: False
-Agent:         agent_started: Agent stub-model agent
+Agent:         agent_started: Agent stub-model agent human_review
 Agent:         user_prompted: Create a subagent that says hello
 Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::1 subagent agenttype="coding" task_description="say hello"
-Agent/Coding:         agent_started: Coding stub-model coding
+Agent/Coding:         agent_started: Coding stub-model coding human_review
 Agent/Coding:         user_prompted: say hello
 Agent/Coding:   assistant_responded: hello stub-model 0.0%
 Agent/Coding:        assistant_said: hello

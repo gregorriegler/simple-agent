@@ -15,6 +15,7 @@ from simple_agent.application.events_to_messages import (
 )
 from simple_agent.application.input import Input
 from simple_agent.application.llm import LLMProvider, Messages
+from simple_agent.application.on_complete import OnComplete
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library_factory import (
@@ -75,7 +76,7 @@ class AgentFactory:
                 task_description,
                 context,
                 agent_type,
-                unattended=background,
+                on_complete=OnComplete.CLOSE if background else OnComplete.HUMAN_REVIEW,
             )
             if background:
                 task = self._agent_task_manager.start_task(agent_id, subagent.start())
@@ -118,7 +119,7 @@ class AgentFactory:
         messages: Messages,
         agent_type: AgentType | None = None,
         user_input: Input | None = None,
-        unattended: bool = False,
+        on_complete: OnComplete = OnComplete.HUMAN_REVIEW,
     ) -> Agent:
         agent_input = user_input or self.create_input(agent_id, initial_message)
         brain = self._build_brain(agent_id, definition, agent_input)
@@ -134,7 +135,7 @@ class AgentFactory:
             agent_type=agent_type,
             available_agents=self._agent_library.list_agent_types(),
             brain_factory=self,
-            unattended=unattended,
+            on_complete=on_complete,
         )
 
     def build_brain(
