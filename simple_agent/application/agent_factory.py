@@ -142,7 +142,7 @@ class AgentFactory:
     def _build_brain(
         self, agent_id: AgentId, definition: AgentDefinition, agent_input: Input
     ) -> Brain:
-        tool_context = ToolContext(definition.tool_keys(), agent_id, agent_input.stack)
+        tool_context = ToolContext(definition.tool_keys(), agent_id, agent_input)
         spawner = self.create_spawner(agent_id, agent_input)
         tools = self._tool_library_factory.create(
             tool_context, spawner, AgentTypes(self._agent_library.list_agent_types())

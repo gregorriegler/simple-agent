@@ -1,4 +1,8 @@
+import asyncio
+
 from .user_input import UserInput
+
+POLL_INTERVAL = 0.05
 
 
 class Input:
@@ -20,6 +24,16 @@ class Input:
         if self._stack:
             return self._stack.pop()
         return await self.user_input.read_async()
+
+    async def wait_for_message(self, timeout: float) -> bool:
+        """Block until a message is waiting or the timeout passes."""
+        deadline = asyncio.get_running_loop().time() + timeout
+        while True:
+            if self._stack or self.user_input.has_pending():
+                return True
+            if asyncio.get_running_loop().time() >= deadline:
+                return False
+            await asyncio.sleep(POLL_INTERVAL)
 
     def escape_requested(self) -> bool:
         return self.user_input.escape_requested()

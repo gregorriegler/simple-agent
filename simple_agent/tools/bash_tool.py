@@ -3,10 +3,10 @@ import os
 import shutil
 import sys
 import time
+from collections.abc import Callable
 from pathlib import PureWindowsPath
 
 from ..application.tool_library import ToolArgument, ToolArguments
-from ..application.tool_library_factory import Report
 from ..application.tool_results import SingleToolResult, ToolResultStatus
 from .base_tool import BaseTool
 
@@ -73,7 +73,7 @@ class BashTool(BaseTool):
         },
     ]
 
-    def __init__(self, report: Report | None = None):
+    def __init__(self, report: Callable[[str], None] | None = None):
         super().__init__()
         self._report = report or (lambda message: None)
         self._background: set[asyncio.Task] = set()

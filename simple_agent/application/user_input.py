@@ -8,6 +8,10 @@ class UserInput(Protocol):
         """Messages already waiting, without blocking for new ones."""
         return []
 
+    def has_pending(self) -> bool:
+        """Whether a message is waiting, without taking it."""
+        return False
+
     def escape_requested(self) -> bool: ...
 
     def close(self) -> None: ...

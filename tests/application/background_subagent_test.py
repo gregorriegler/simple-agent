@@ -10,6 +10,7 @@ from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.event_store import NoOpEventStore
 from simple_agent.application.events import (
     AgentFinishedEvent,
+    ToolResultEvent,
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
@@ -18,7 +19,7 @@ from simple_agent.tools.all_tools import AllToolsFactory
 from tests.session_test_bed import SessionTestBed, TestAgentLibrary
 from tests.test_helpers import DummyProjectTree
 from tests.test_tool_library import FixedLLMProvider
-from tests.tool_calls import bash, complete_task, subagent
+from tests.tool_calls import bash, complete_task, subagent, wait
 from tests.user_input_stub import UserInputStub
 
 pytestmark = pytest.mark.asyncio
@@ -103,6 +104,31 @@ async def test_parent_receives_a_background_command_output_as_a_prompt():
         "Background command `sleep 0.1; echo done` finished:\n✅ Exit code 0 ("
     )
     assert prompts[1].endswith("\n\ndone")
+
+
+async def test_parent_waits_for_a_background_command():
+    llm = create_llm_stub(
+        [
+            bash("sleep 0.2; echo done", background=True),
+            wait(timeout=5),
+            "parent carries on",
+        ]
+    )
+
+    result = await SessionTestBed().with_llm(llm).run()
+
+    tool_results = [
+        e.result.message
+        for e in result.events.get_all_events()
+        if isinstance(e, ToolResultEvent)
+    ]
+    assert tool_results[1] == "A message arrived."
+    prompts = [
+        e.input_text
+        for e in result.events.get_all_events()
+        if isinstance(e, UserPromptedEvent) and e.agent_id == AgentId("Agent")
+    ]
+    assert prompts[1].startswith("Background command `sleep 0.2; echo done` finished:")
 
 
 def _other_tasks():

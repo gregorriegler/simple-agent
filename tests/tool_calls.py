@@ -57,3 +57,7 @@ def write_todos(content: str) -> ToolCall:
 
 def complete_task(summary: str) -> ToolCall:
     return ToolCall("complete-task", {"summary": summary})
+
+
+def wait(timeout: float | None = None) -> ToolCall:
+    return ToolCall("wait", {"timeout": timeout} if timeout is not None else {})

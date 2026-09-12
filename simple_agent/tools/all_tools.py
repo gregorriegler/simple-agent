@@ -21,6 +21,7 @@ from .ls_tool import LsTool
 from .replace_file_content_tool import ReplaceFileContentTool
 from .subagent_tool import SubagentTool
 from .suggest_tool import SuggestTool
+from .wait_tool import WaitTool
 from .write_todos_tool import WriteTodosTool
 
 OBSERVER_ONLY_TOOLS = ("suggest",)
@@ -37,6 +38,7 @@ TOOL_DECLARATIONS: dict[str, ToolDeclaration] = {
         ReplaceFileContentTool,
         SubagentTool,
         SuggestTool,
+        WaitTool,
         WriteTodosTool,
     )
 }
@@ -73,7 +75,8 @@ class AllTools(ToolLibrary):
                 str(self.tool_context.agent_id.intent_filename())
             ),
             "suggest": lambda: SuggestTool(),
-            "bash": lambda: BashTool(self.tool_context.report),
+            "bash": lambda: BashTool(self.tool_context.inbox.stack),
+            "wait": lambda: WaitTool(self.tool_context.inbox),
             "subagent": lambda: SubagentTool(self._spawner, self._agent_types),
         }
 
