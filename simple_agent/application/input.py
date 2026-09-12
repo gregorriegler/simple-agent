@@ -25,23 +25,36 @@ class Input:
         keyboard = asyncio.ensure_future(self._read_keyboard())
         try:
             await asyncio.wait({inbox, keyboard}, return_when=asyncio.FIRST_COMPLETED)
-        finally:
-            inbox.cancel()
-            if not keyboard.done():
-                keyboard.cancel()
-            await asyncio.gather(inbox, keyboard, return_exceptions=True)
-        if not keyboard.cancelled():
-            typed = keyboard.result()
-            if isinstance(typed, BaseException):
-                raise typed
-            return typed
-        return self.inbox.take()
+        except asyncio.CancelledError:
+            await self._settle(inbox, keyboard)
+            typed = self._typed(keyboard)
+            if isinstance(typed, str) and typed:
+                self.inbox.put(typed)
+            raise
+        await self._settle(inbox, keyboard)
+        typed = self._typed(keyboard)
+        if typed is None:
+            return self.inbox.take()
+        if isinstance(typed, BaseException):
+            raise typed
+        return typed
 
     async def _read_keyboard(self) -> str | BaseException:
         try:
             return await self.user_input.read_async()
         except (EOFError, KeyboardInterrupt) as interrupt:
             return interrupt
+
+    @staticmethod
+    async def _settle(inbox: asyncio.Future, keyboard: asyncio.Future) -> None:
+        inbox.cancel()
+        if not keyboard.done():
+            keyboard.cancel()
+        await asyncio.gather(inbox, keyboard, return_exceptions=True)
+
+    @staticmethod
+    def _typed(keyboard: asyncio.Future) -> str | BaseException | None:
+        return None if keyboard.cancelled() else keyboard.result()
 
     async def wait_for_message(self, timeout: float) -> bool:
         """Block until a message is waiting or the timeout passes."""
