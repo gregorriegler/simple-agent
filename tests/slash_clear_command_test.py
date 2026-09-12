@@ -12,6 +12,7 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.llm import Messages, SystemMessage
 from tests.session_test_bed import SessionTestBed
+from tests.tool_calls import complete_task, create_file
 
 pytestmark = pytest.mark.asyncio
 
@@ -69,11 +70,11 @@ async def test_slash_clear_command_closes_open_observers(tmp_path, monkeypatch):
         .with_user_inputs("Store greeting", "/clear", "After clear")
         .with_llm_responses(
             [
-                "🛠️[create-file greeting.txt]\nHello\n🛠️[/end]",
+                create_file("greeting.txt", "Hello"),
                 "Response after clear",
             ]
         )
-        .with_observer_responses(["🛠️[complete-task looks good /]"])
+        .with_observer_responses([complete_task("looks good")])
     )
 
     result = await session.run()

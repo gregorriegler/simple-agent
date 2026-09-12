@@ -1,5 +1,5 @@
 Command:
-🛠️[bash echo 'standard output' && echo 'error output' >&2 && exit 1 /]
+bash command="echo 'standard output' && echo 'error output' >&2 && exit 1"
 
 Result:
 ❌ Exit code 1 [ELAPSED]

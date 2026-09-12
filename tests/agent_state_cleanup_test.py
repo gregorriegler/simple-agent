@@ -11,6 +11,7 @@ from simple_agent.infrastructure.file_system_agent_state_cleanup import (
 
 from .session_test_bed import SessionTestBed
 from .test_helpers import all_scrubbers
+from .tool_calls import complete_task, subagent, write_todos
 
 pytestmark = pytest.mark.asyncio
 
@@ -61,10 +62,10 @@ async def test_subagent_cleanup_deletes_subagent_todo(tmp_path, monkeypatch):
         SessionTestBed()
         .with_llm_responses(
             [
-                "🛠️[subagent coding handle-task]",
-                "🛠️[write-todos]\n- [ ] Coding task\n🛠️[/end]",
-                "🛠️[complete-task Subagent finished]",
-                "🛠️[complete-task Root finished]",
+                subagent("coding", "handle-task"),
+                write_todos("- [ ] Coding task"),
+                complete_task("Subagent finished"),
+                complete_task("Root finished"),
             ]
         )
         .on_event(

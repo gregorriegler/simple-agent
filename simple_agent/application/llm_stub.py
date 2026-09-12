@@ -6,19 +6,20 @@ from dataclasses import replace
 from .llm import LLM, ChatMessages, LLMResponse, TokenUsage
 from .tool_library import ToolCall
 
-StubResponse = str | LLMResponse
+StubResponse = str | ToolCall | LLMResponse
 
 
 class StubLLM:
     """
     Answers a scripted sequence, then repeats its last answer. A plain
-    string is a text-only answer; an LLMResponse carries its tool calls.
+    string is a text-only answer, a ToolCall is a call made without words,
+    and an LLMResponse carries its words and its calls.
     """
 
     def __init__(
         self,
         responses: Sequence[StubResponse],
-        default: str = "",
+        default: StubResponse = "",
         model: str = "stub-model",
     ):
         self._responses = responses
@@ -36,6 +37,8 @@ class StubLLM:
         if self._index < len(self._responses):
             response = self._responses[self._index]
             self._index += 1
+        if isinstance(response, ToolCall):
+            response = says("", response)
         if isinstance(response, LLMResponse):
             return replace(response, model=self._model_name)
         return LLMResponse(
@@ -43,11 +46,14 @@ class StubLLM:
         )
 
 
-def create_llm_stub(responses: Sequence[StubResponse], *, default: str = "") -> LLM:
+def create_llm_stub(
+    responses: Sequence[StubResponse], *, default: StubResponse = ""
+) -> LLM:
     return StubLLM(responses, default)
 
 
-def _says(text: str, *calls: ToolCall) -> LLMResponse:
+def says(text: str, *calls: ToolCall) -> LLMResponse:
+    """A scripted answer: the words the model says and the calls it makes."""
     return LLMResponse(answer=text, tool_calls=list(calls), usage=TokenUsage(0, 0, 0))
 
 
@@ -55,18 +61,18 @@ def _create_default_stub_llm() -> LLM:
     task = "Run bash echo hello world and then complete"
     return create_llm_stub(
         [
-            _says(
+            says(
                 "Starting task",
                 ToolCall(
                     "subagent",
                     {"agenttype": "orchestrator", "task_description": task},
                 ),
             ),
-            _says(
+            says(
                 "Subagent1 handling the orchestrator task",
                 ToolCall("subagent", {"agenttype": "coding", "task_description": task}),
             ),
-            _says(
+            says(
                 "Subagent2 updating todos",
                 ToolCall(
                     "write-todos",
@@ -77,22 +83,22 @@ def _create_default_stub_llm() -> LLM:
                     },
                 ),
             ),
-            _says(
+            says(
                 "Subagent2 running the bash command",
                 ToolCall("bash", {"command": "echo hello world"}),
             ),
-            _says(
+            says(
                 "Subagent2 reading AGENTS.md",
                 ToolCall("cat", {"filename": "AGENTS.md"}),
             ),
-            _says(
+            says(
                 "",
                 ToolCall(
                     "create-file",
                     {"filename": "newfile.txt", "content": "content of newfile.txt"},
                 ),
             ),
-            _says(
+            says(
                 "",
                 ToolCall(
                     "replace-file-content",
@@ -103,20 +109,20 @@ def _create_default_stub_llm() -> LLM:
                     },
                 ),
             ),
-            _says("", ToolCall("bash", {"command": "rm newfile.txt"})),
-            _says(
+            says("", ToolCall("bash", {"command": "rm newfile.txt"})),
+            says(
                 "",
                 ToolCall(
                     "complete-task", {"summary": "Subagent2 completed successfully"}
                 ),
             ),
-            _says(
+            says(
                 "",
                 ToolCall(
                     "complete-task", {"summary": "Subagent1 completed successfully"}
                 ),
             ),
-            _says(
+            says(
                 "",
                 ToolCall(
                     "complete-task", {"summary": "Main task completed successfully"}

@@ -2,44 +2,35 @@
 Agent:       session_started: False
 Agent:         agent_started: Agent stub-model agent
 Agent:         user_prompted: Store the greeting
-Agent:   assistant_responded: 🛠️[create-file data1.txt]
-Hello
-🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 create-file data1.txt Hello
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::1 create-file filename="data1.txt" content="Hello"
 Agent:           tool_result: Agent::tool_call::1 Created file: data1.txt with content
 Agent:    checkpoint_reached: 
-Agent:   assistant_responded: 🛠️[create-file greeting.txt]
-Hello
-🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 create-file greeting.txt Hello
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::2 create-file filename="greeting.txt" content="Hello"
 Agent:           tool_result: Agent::tool_call::2 Created file: greeting.txt with content
 Agent:    checkpoint_reached: 
-Agent:   assistant_responded: 🛠️[create-file tmp2.txt]
-Bye
-🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::3 create-file tmp2.txt Bye
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::3 create-file filename="tmp2.txt" content="Bye"
 Agent:           tool_result: Agent::tool_call::3 Created file: tmp2.txt with content
 Agent:    checkpoint_reached: 
-Agent:   assistant_responded: 🛠️[cat greeting.txt /] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::4 cat greeting.txt
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::4 cat filename="greeting.txt"
 Agent/Naming:         agent_started: Naming stub-model naming
 Agent/Naming: user_prompt_requested: 
 Agent/Naming:         user_prompted: diff --git a/tmp2.txt b/tmp2.txt
 +Bye
-Agent/Naming:   assistant_responded: 🛠️[suggest]
-tmp2.txt says nothing about its content
-🛠️[/end]
-🛠️[complete-task judged tmp2.txt /] stub-model 0.0%
-Agent/Naming:           tool_called: Agent/Naming::tool_call::1 suggest tmp2.txt says nothing about its content
+Agent/Naming:   assistant_responded:  stub-model 0.0%
+Agent/Naming:           tool_called: Agent/Naming::tool_call::1 suggest suggestion="tmp2.txt says nothing about its content"
 Agent/Naming:           tool_result: Agent/Naming::tool_call::1 Suggested: tmp2.txt says nothing about its content
-Agent/Naming:           tool_called: Agent/Naming::tool_call::2 complete-task judged tmp2.txt
+Agent/Naming:           tool_called: Agent/Naming::tool_call::2 complete-task summary="judged tmp2.txt"
 Agent/Naming:           tool_result: Agent/Naming::tool_call::2 judged tmp2.txt
 Agent/Naming: user_prompt_requested: 
 Agent:           tool_result: Agent::tool_call::4 Hello
 Agent:         user_prompted: 💡 Suggestion from the naming observer:
 tmp2.txt says nothing about its content
-Agent:   assistant_responded: 🛠️[complete-task stored the greeting /] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::5 complete-task stored the greeting
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::5 complete-task summary="stored the greeting"
 Agent:           tool_result: Agent::tool_call::5 stored the greeting
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
@@ -50,32 +41,30 @@ Agent/Naming:         session_ended:
 # Messages:
 [Agent]
 user: Store the greeting
-assistant: 🛠️[create-file data1.txt]
-Hello
-🛠️[/end]
-user: Created file: data1.txt with content
-assistant: 🛠️[create-file greeting.txt]
-Hello
-🛠️[/end]
-user: Created file: greeting.txt with content
-assistant: 🛠️[create-file tmp2.txt]
-Bye
-🛠️[/end]
-user: Created file: tmp2.txt with content
-assistant: 🛠️[cat greeting.txt /]
+assistant:
+  create-file filename="data1.txt" content="Hello"
+tool_result: Created file: data1.txt with content
+assistant:
+  create-file filename="greeting.txt" content="Hello"
+tool_result: Created file: greeting.txt with content
+assistant:
+  create-file filename="tmp2.txt" content="Bye"
+tool_result: Created file: tmp2.txt with content
+assistant:
+  cat filename="greeting.txt"
 [Agent/Naming]
 user: diff --git a/tmp2.txt b/tmp2.txt
 +Bye
-assistant: 🛠️[suggest]
-tmp2.txt says nothing about its content
-🛠️[/end]
-🛠️[complete-task judged tmp2.txt /]
-user: Suggested: tmp2.txt says nothing about its content
-user: judged tmp2.txt
-user: Hello
+assistant:
+  suggest suggestion="tmp2.txt says nothing about its content"
+tool_result: Suggested: tmp2.txt says nothing about its content
+  complete-task summary="judged tmp2.txt"
+tool_result: judged tmp2.txt
+tool_result: Hello
 [Agent]
 user: 💡 Suggestion from the naming observer:
 tmp2.txt says nothing about its content
-assistant: 🛠️[complete-task stored the greeting /]
-user: stored the greeting
+assistant:
+  complete-task summary="stored the greeting"
+tool_result: stored the greeting
 

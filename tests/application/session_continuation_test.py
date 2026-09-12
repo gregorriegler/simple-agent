@@ -9,6 +9,7 @@ from simple_agent.application.events import (
 )
 from simple_agent.infrastructure.file_event_store import FileEventStore
 from tests.session_test_bed import CapturingLLM, SessionTestBed
+from tests.tool_calls import complete_task, subagent
 
 
 @pytest.mark.asyncio
@@ -50,7 +51,7 @@ async def test_continued_session_restores_subagent_messages(tmp_path):
     event_store.persist(
         AssistantRespondedEvent(
             agent_id=parent_id,
-            response="🛠️[subagent coding Do something /]",
+            response="Starting subagent",
         )
     )
     event_store.persist(
@@ -70,9 +71,9 @@ async def test_continued_session_restores_subagent_messages(tmp_path):
     capturing_llm = CapturingLLM()
     capturing_llm.set_responses(
         [
-            "🛠️[subagent coding Continue subagent work /]",
-            "🛠️[complete-task Subagent done /]",
-            "🛠️[complete-task Parent done /]",
+            subagent("coding", "Continue subagent work"),
+            complete_task("Subagent done"),
+            complete_task("Parent done"),
         ]
     )
 

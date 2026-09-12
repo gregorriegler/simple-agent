@@ -14,10 +14,11 @@ from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.session import SessionArgs
 from simple_agent.application.system_prompt import AgentPrompt
+from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_library_factory import ToolContext
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.tools.all_tools import AllTools, AllToolsFactory
-from tests.emoji_llm import resolve_emoji
+from tests.transcript import describe_call
 from tests.user_input_stub import UserInputStub
 
 
@@ -174,11 +175,15 @@ def all_scrubbers():
     )
 
 
-async def verify_tool(library, command):
-    turn = resolve_emoji(library, command)
-    result = await library.execute_tool_call(turn.invocations[0])
+async def execute_call(library, call: ToolCall):
+    turn = library.resolve_tool_calls([call], "")
+    return await library.execute_tool_call(turn.invocations[0])
+
+
+async def verify_tool(library, call: ToolCall):
+    result = await execute_call(library, call)
     verify(
-        f"Command:\n{command}\n\nResult:\n{result}",
+        f"Command:\n{describe_call(call)}\n\nResult:\n{result}",
         options=Options().with_scrubber(all_scrubbers()),
     )
 

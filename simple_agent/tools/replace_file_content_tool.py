@@ -102,7 +102,6 @@ class ReplaceFileContentTool(BaseTool):
             "content": "search content\n@@@\nreplacement content",
             "result": "Successfully replaced content in test.txt",
         },
-        "🛠️[replace-file-content test.txt all]\nfoo\n@@@\nbar\n🛠️[/end]",
     ]
 
     async def execute(self, call):

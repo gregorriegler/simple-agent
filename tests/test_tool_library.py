@@ -11,9 +11,21 @@ from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
 from simple_agent.tools import AllTools
 from simple_agent.tools.all_tools import AllToolsFactory
-from tests.emoji_llm import EmojiLLMProvider
 from tests.test_helpers import DummyProjectTree
 from tests.user_input_stub import UserInputStub
+
+
+class FixedLLMProvider:
+    """Hands one LLM out, whatever model is asked for."""
+
+    def __init__(self, llm):
+        self._llm = llm
+
+    def get(self, model_name: str | None = None, tools: list | None = None):
+        return self._llm
+
+    def get_available_models(self) -> list[str]:
+        return [self._llm.model]
 
 
 class ToolLibraryStub(AllTools):
@@ -43,7 +55,7 @@ class ToolLibraryStub(AllTools):
                 tool_library_factory=tool_library_factory,
                 agent_library=agent_library or BuiltinAgentLibrary(),
                 user_input=UserInputStub(inputs=inputs, escapes=escapes),
-                llm_provider=EmojiLLMProvider(llm),
+                llm_provider=FixedLLMProvider(llm),
                 project_tree=DummyProjectTree(),
             )
 

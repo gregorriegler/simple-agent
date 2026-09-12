@@ -1,4 +1,5 @@
 import asyncio
+from collections.abc import Sequence
 
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
@@ -26,46 +27,37 @@ from simple_agent.application.events import (
     UserPromptRequestedEvent,
 )
 from simple_agent.application.events_to_messages import events_to_messages
-from simple_agent.application.llm import ChatMessages, LLMResponse, TokenUsage
-from simple_agent.application.llm_stub import create_llm_stub
+from simple_agent.application.llm import ChatMessages, LLMResponse
+from simple_agent.application.llm_stub import StubLLM, StubResponse, create_llm_stub
 from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.application.session import Session
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from simple_agent.infrastructure.file_intent import FileIntent
-from simple_agent.tools.all_tools import TOOL_DECLARATIONS
-from tests.emoji_llm import EmojiToolCallsLLM, to_text_messages, to_wire_messages
-from tests.emoji_syntax import EmojiBracketToolSyntax
 from tests.event_spy import EventSpy
 from tests.in_memory_event_store import InMemoryEventStore
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
+from tests.tool_calls import complete_task
+from tests.transcript import describe_call, render_messages, transcript_line
 from tests.user_input_stub import UserInputStub
-
-TRANSCRIPT_SYNTAX = EmojiBracketToolSyntax(TOOL_DECLARATIONS)
 
 
 class CapturingLLM:
     def __init__(self):
         self.captured_messages: list[ChatMessages] = []
-        self._responses: list[str] = []
-        self._response_index = 0
+        self.set_responses([])
 
     @property
     def model(self) -> str:
         return "capturing-model"
 
-    def set_responses(self, responses: list[str]) -> None:
-        self._responses = responses
-        self._response_index = 0
+    def set_responses(self, responses: Sequence[StubResponse]) -> None:
+        self._stub = StubLLM(responses, default="Done", model=self.model)
 
     async def call_async(self, messages: ChatMessages) -> LLMResponse:
         self.captured_messages.append(list(messages))
-        content = "Done"
-        if self._response_index < len(self._responses):
-            content = self._responses[self._response_index]
-            self._response_index += 1
-        return LLMResponse(answer=content, model=self.model, usage=TokenUsage(0, 0, 0))
+        return await self._stub.call_async(messages)
 
     def first_call_contained(self, role: str, content: str) -> bool:
         return self.call_contained(0, role, content)
@@ -74,8 +66,10 @@ class CapturingLLM:
         if call_index >= len(self.captured_messages):
             return False
         return any(
-            m["role"] == role and content in m["content"]
-            for m in to_wire_messages(self.captured_messages[call_index])
+            message_role == role and content in text
+            for message_role, text in map(
+                transcript_line, self.captured_messages[call_index]
+            )
         )
 
 
@@ -84,10 +78,8 @@ class SessionTestResult:
         self.events = event_spy
 
     def current_messages(self, agent_id: AgentId) -> str:
-        messages = events_to_messages(self.events.get_all_events(), agent_id)
-        return "\n".join(
-            f"{msg['role']}: {msg['content']}"
-            for msg in to_text_messages(messages, TRANSCRIPT_SYNTAX)
+        return render_messages(
+            events_to_messages(self.events.get_all_events(), agent_id)
         )
 
     def all_messages(self) -> str:
@@ -99,10 +91,12 @@ class SessionTestResult:
                     current_agent = event.agent_id
                     result += "[" + str(current_agent) + "]\n"
                 result += "user: " + event.input_text + "\n"
-            elif isinstance(event, ToolResultEvent):
-                result += "user: " + str(event.result) + "\n"
             elif isinstance(event, AssistantRespondedEvent):
-                result += "assistant: " + event.response + "\n"
+                result += ("assistant: " + event.response).rstrip() + "\n"
+            elif isinstance(event, ToolCalledEvent):
+                result += "  " + describe_call(event.call) + "\n"
+            elif isinstance(event, ToolResultEvent):
+                result += "tool_result: " + str(event.result) + "\n"
 
         return result
 
@@ -142,7 +136,7 @@ class SessionTestBed:
         self._cancel_on = None
         self._observers: list[str] = []
         self._diffs = ["a production diff"]
-        self._observer_llm = create_llm_stub([], default="🛠️[complete-task nothing /]")
+        self._observer_llm = create_llm_stub([], default=complete_task("nothing"))
 
     def with_llm_responses(self, responses: list[str]) -> "SessionTestBed":
         self._llm = create_llm_stub(responses)
@@ -339,8 +333,7 @@ class TestLLMProvider:
         self._observer_llm = observer_llm
 
     def get(self, model_name: str | None = None, tools: list | None = None):
-        llm = self._observer_llm if model_name == OBSERVER_MODEL else self._agent_llm
-        return EmojiToolCallsLLM(llm, tools or [])
+        return self._observer_llm if model_name == OBSERVER_MODEL else self._agent_llm
 
     def get_available_models(self) -> list[str]:
         return [self._agent_llm.model]

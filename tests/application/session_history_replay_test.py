@@ -79,7 +79,7 @@ async def test_continuing_session_replays_subagent_history(tmp_path):
     event_store.persist(
         AssistantRespondedEvent(
             agent_id=parent_id,
-            response="Starting subagent\n🛠️[subagent coding Do the task /]",
+            response="Starting subagent",
         )
     )
     event_store.persist(

@@ -1,10 +1,5 @@
 Command:
-🛠️[replace-file-content test.txt single]
-line2
-line3
-@@@
-replaced
-🛠️[/end]
+replace-file-content filename="test.txt" replace_mode="single" content="line2\nline3\n@@@\nreplaced"
 
 Result:
 Successfully replaced content in test.txt

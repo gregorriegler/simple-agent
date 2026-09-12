@@ -1,9 +1,5 @@
 Command:
-🛠️[replace-file-content test.txt all]
-foo
-@@@
-replaced
-🛠️[/end]
+replace-file-content filename="test.txt" replace_mode="all" content="foo\n@@@\nreplaced"
 
 Result:
 Successfully replaced content in test.txt

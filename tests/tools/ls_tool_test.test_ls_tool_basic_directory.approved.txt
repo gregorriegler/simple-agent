@@ -1,5 +1,5 @@
 Command:
-🛠️[ls /tmp/test_path /]
+ls path="/tmp/test_path"
 
 Result:
 .

@@ -1,8 +1,5 @@
 Command:
-🛠️[replace-file-content test.txt single]
-delete_me
-@@@
-🛠️[/end]
+replace-file-content filename="test.txt" replace_mode="single" content="delete_me\n@@@"
 
 Result:
 Successfully replaced content in test.txt

@@ -1,5 +1,5 @@
 Command:
-🛠️[create-file a /]
+create-file filename="a" content=""
 
 Result:
 Created empty file: a

@@ -1,11 +1,11 @@
 import os
-import textwrap
 
 import pytest
 from approvaltests import Options, verify
 
-from tests.emoji_llm import resolve_emoji
-from tests.test_helpers import all_scrubbers, temp_directory
+from tests.test_helpers import all_scrubbers, execute_call, temp_directory
+from tests.tool_calls import replace_file_content
+from tests.transcript import describe_call
 
 pytestmark = pytest.mark.asyncio
 
@@ -18,13 +18,12 @@ async def verify_edit_tool(tool_library, setup_file, setup_content, command, tmp
 
         initial_file_info = f"Initial file: {setup_file}\nInitial content:\n--- INITIAL CONTENT START ---\n{setup_content}\n--- INITIAL CONTENT END ---"
 
-        turn = resolve_emoji(tool_library, command)
-        result = await tool_library.execute_tool_call(turn.invocations[0])
+        result = await execute_call(tool_library, command)
         with open(setup_file, encoding="utf-8") as f:
             actual_content = f.read()
         final_file_info = f"File after edit: {setup_file}\nFinal content:\n--- FINAL CONTENT START ---\n{actual_content}\n--- FINAL CONTENT END ---"
         verify(
-            f"Command:\n{command}\n\nResult:\n{result}\n\n{initial_file_info}\n\n{final_file_info}",
+            f"Command:\n{describe_call(command)}\n\nResult:\n{result}\n\n{initial_file_info}\n\n{final_file_info}",
             options=Options().with_scrubber(all_scrubbers()),
         )
 
@@ -32,13 +31,7 @@ async def verify_edit_tool(tool_library, setup_file, setup_content, command, tmp
 async def test_replace_file_content_basic(tmp_path, tool_library):
     """Basic string replacement - find and replace exact match."""
     initial_content = "hello world\n"
-    command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt single]
-        hello
-        @@@
-        goodbye
-        🛠️[/end]
-        """).strip()
+    command = replace_file_content("test.txt", "hello\n@@@\ngoodbye")
     await verify_edit_tool(
         tool_library, "test.txt", initial_content, command, tmp_path=tmp_path
     )
@@ -47,14 +40,7 @@ async def test_replace_file_content_basic(tmp_path, tool_library):
 async def test_replace_file_content_multiline(tmp_path, tool_library):
     """Replace multiple lines at once."""
     initial_content = "line1\nline2\nline3\nline4\n"
-    command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt single]
-        line2
-        line3
-        @@@
-        replaced
-        🛠️[/end]
-        """).strip()
+    command = replace_file_content("test.txt", "line2\nline3\n@@@\nreplaced")
     await verify_edit_tool(
         tool_library, "test.txt", initial_content, command, tmp_path=tmp_path
     )
@@ -63,13 +49,9 @@ async def test_replace_file_content_multiline(tmp_path, tool_library):
 async def test_replace_file_content_preserves_indentation(tmp_path, tool_library):
     """Whitespace in old_string and new_string is preserved exactly."""
     initial_content = "def foo():\n    old_code = 1\n    return old_code\n"
-    command = textwrap.dedent("""
-        🛠️[replace-file-content test.py single]
-            old_code = 1
-        @@@
-            new_code = 42
-        🛠️[/end]
-        """).strip()
+    command = replace_file_content(
+        "test.py", "    old_code = 1\n@@@\n    new_code = 42"
+    )
     await verify_edit_tool(
         tool_library, "test.py", initial_content, command, tmp_path=tmp_path
     )
@@ -78,13 +60,7 @@ async def test_replace_file_content_preserves_indentation(tmp_path, tool_library
 async def test_replace_file_content_not_found(tmp_path, tool_library):
     """Error when string is not found in file."""
     initial_content = "hello world\n"
-    command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt single]
-        nonexistent
-        @@@
-        replacement
-        🛠️[/end]
-        """).strip()
+    command = replace_file_content("test.txt", "nonexistent\n@@@\nreplacement")
     await verify_edit_tool(
         tool_library, "test.txt", initial_content, command, tmp_path=tmp_path
     )
@@ -93,13 +69,7 @@ async def test_replace_file_content_not_found(tmp_path, tool_library):
 async def test_replace_file_content_multiple_matches_error(tmp_path, tool_library):
     """When string appears multiple times, single mode replaces only the first occurrence."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
-    command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt single]
-        foo
-        @@@
-        replaced
-        🛠️[/end]
-        """).strip()
+    command = replace_file_content("test.txt", "foo\n@@@\nreplaced")
     await verify_edit_tool(
         tool_library, "test.txt", initial_content, command, tmp_path=tmp_path
     )
@@ -108,15 +78,7 @@ async def test_replace_file_content_multiple_matches_error(tmp_path, tool_librar
 async def test_replace_file_content_with_unique_context(tmp_path, tool_library):
     """Adding surrounding context makes the match unique."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
-    command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt single]
-        bar
-        foo
-        @@@
-        bar
-        replaced
-        🛠️[/end]
-        """).strip()
+    command = replace_file_content("test.txt", "bar\nfoo\n@@@\nbar\nreplaced")
     await verify_edit_tool(
         tool_library, "test.txt", initial_content, command, tmp_path=tmp_path
     )
@@ -125,12 +87,7 @@ async def test_replace_file_content_with_unique_context(tmp_path, tool_library):
 async def test_replace_file_content_delete_string(tmp_path, tool_library):
     """Empty new_string effectively deletes the old_string."""
     initial_content = "keep\ndelete_me\nkeep\n"
-    command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt single]
-        delete_me
-        @@@
-        🛠️[/end]
-        """).strip()
+    command = replace_file_content("test.txt", "delete_me\n@@@")
     await verify_edit_tool(
         tool_library, "test.txt", initial_content, command, tmp_path=tmp_path
     )
@@ -139,13 +96,7 @@ async def test_replace_file_content_delete_string(tmp_path, tool_library):
 async def test_replace_file_content_all(tmp_path, tool_library):
     """Replace all occurrences of a string."""
     initial_content = "foo\nbar\nfoo\nbaz\n"
-    command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt all]
-        foo
-        @@@
-        replaced
-        🛠️[/end]
-        """).strip()
+    command = replace_file_content("test.txt", "foo\n@@@\nreplaced", mode="all")
     await verify_edit_tool(
         tool_library, "test.txt", initial_content, command, tmp_path=tmp_path
     )
@@ -154,13 +105,7 @@ async def test_replace_file_content_all(tmp_path, tool_library):
 async def test_replace_file_content_single_default(tmp_path, tool_library):
     """Replace a single occurrence of a string by default."""
     initial_content = "foo\nbar\nbaz\n"
-    command = textwrap.dedent("""
-        🛠️[replace-file-content test.txt single]
-        foo
-        @@@
-        replaced
-        🛠️[/end]
-        """).strip()
+    command = replace_file_content("test.txt", "foo\n@@@\nreplaced")
     await verify_edit_tool(
         tool_library, "test.txt", initial_content, command, tmp_path=tmp_path
     )

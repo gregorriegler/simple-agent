@@ -1,7 +1,5 @@
 Command:
-🛠️[suggest]
-
-🛠️[/end]
+suggest
 
 Result:
 No suggestion provided

@@ -6,6 +6,7 @@ import sys
 import pytest
 
 from tests.test_helpers import verify_tool
+from tests.tool_calls import bash
 
 pytestmark = pytest.mark.asyncio
 bash_available = True
@@ -46,19 +47,19 @@ if not bash_available:
 
 
 async def test_bash_tool_success_stdout(tool_library):
-    await verify_tool(tool_library, "🛠️[bash printf 'hello world' /]")
+    await verify_tool(tool_library, bash("printf 'hello world'"))
 
 
 async def test_bash_tool_stderr_output(tool_library):
-    await verify_tool(tool_library, "🛠️[bash printf 'warning' 1>&2 /]")
+    await verify_tool(tool_library, bash("printf 'warning' 1>&2"))
 
 
 async def test_bash_tool_nonzero_exit(tool_library):
-    await verify_tool(tool_library, "🛠️[bash exit 2 /]")
+    await verify_tool(tool_library, bash("exit 2"))
 
 
 async def test_bash_tool_fail_with_stdout_and_stderr(tool_library):
     await verify_tool(
         tool_library,
-        "🛠️[bash echo 'standard output' && echo 'error output' >&2 && exit 1 /]",
+        bash("echo 'standard output' && echo 'error output' >&2 && exit 1"),
     )

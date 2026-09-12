@@ -236,8 +236,30 @@ tool title, and Gemini's replay of unsigned turns. History replay of a
 log older than the granular events keeps the assistant text but no longer
 recovers its calls.
 
-## Next steps
+## The emoji syntax is gone
 
-Rewrite the test bed to script the stub LLM with structured calls; then
-the test-only emoji modules and the header/body split in `ToolArguments`
-can go.
+The test bed scripts the stub LLM the way the adapters answer: a scripted
+turn is a plain string, a bare `ToolCall`, or `says(text, *calls)` when
+the model speaks before it calls. `tests/tool_calls.py` builds the calls
+the tests make often (`cat`, `create_file`, `complete_task`, `subagent`
+and the like); the rest use `ToolCall` directly. The provider hands the
+stub out bare, a tool test executes a `ToolCall` through
+`resolve_tool_calls`, and a persisted fixture carries the assistant's
+words only, as production writes them now.
+
+Transcripts render from the structure: an `assistant:` line carries the
+words, each call is indented under it as its name and named arguments
+(`cat filename="my notes.md" with_line_numbers=true`), and each result is
+a `tool_result:` line, in the session transcript and in what a captured
+model received.
+The Gemini switch scenario now switches to another native model, which
+receives the call as structured history.
+
+Deleted: the emoji syntax and wrapper modules under `tests/`, their tests,
+and the emoji parsing tests; the emoji text example left in
+`replace-file-content`. What stays: `call_header` and `call_body` in
+`ToolArguments`, because production still renders a call as one line of
+command text for the UI tab title and for Gemini's replay of unsigned
+turns; the transcripts show the named dict instead. One legacy-log test keeps
+an emoji string in an old `assistant_responded` event to show that such
+text is replayed as text.

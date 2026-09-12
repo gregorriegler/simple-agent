@@ -5,6 +5,7 @@ from simple_agent.application.llm import (
     SystemMessage,
     ToolResultMessage,
     UserMessage,
+    split_system_prompt,
 )
 from simple_agent.application.tool_library import ToolCall
 
@@ -113,3 +114,15 @@ def test_messages_records_plain_assistant_text_as_an_assistant_message():
     messages.assistant_says("hello")
 
     assert messages.to_list() == [AssistantMessage("hello")]
+
+
+def test_splits_a_leading_system_prompt_off_the_history():
+    messages = [SystemMessage("sys"), UserMessage("hi")]
+
+    assert split_system_prompt(messages) == ("sys", [UserMessage("hi")])
+
+
+def test_splits_nothing_when_there_is_no_system_prompt():
+    messages = [UserMessage("hi")]
+
+    assert split_system_prompt(messages) == (None, [UserMessage("hi")])

@@ -2,8 +2,7 @@ from dataclasses import fields
 
 from simple_agent.application.events import AgentEvent
 from simple_agent.application.tool_library import ToolCall
-from simple_agent.tools.all_tools import TOOL_DECLARATIONS
-from tests.emoji_syntax import EmojiBracketToolSyntax
+from tests.transcript import describe_call
 
 
 class EventSpy:
@@ -68,10 +67,7 @@ class EventSpy:
         self.events.clear()
 
 
-_TRANSCRIPT_SYNTAX = EmojiBracketToolSyntax(TOOL_DECLARATIONS)
-
-
 def _describe(value) -> str:
     if isinstance(value, ToolCall):
-        return _TRANSCRIPT_SYNTAX.describe(value)
+        return describe_call(value)
     return str(value)

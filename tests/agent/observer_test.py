@@ -1,7 +1,15 @@
 import pytest
 from approvaltests import verify
 
+from simple_agent.application.llm_stub import says
 from tests.session_test_bed import SessionTestBed
+from tests.tool_calls import (
+    cat,
+    communicate_intent,
+    complete_task,
+    create_file,
+    suggest,
+)
 
 pytestmark = pytest.mark.asyncio
 
@@ -18,16 +26,20 @@ async def test_the_agent_receives_a_suggestion_about_a_bad_name(tmp_path, monkey
     session.with_user_inputs("Store the greeting", "\n")
     session.with_llm_responses(
         [
-            "🛠️[create-file data1.txt]\nHello\n🛠️[/end]",
-            "🛠️[cat data1.txt /]",
-            "I will rename it.\n🛠️[complete-task renamed the file /]",
+            create_file("data1.txt", "Hello"),
+            cat("data1.txt"),
+            says("I will rename it.", complete_task("renamed the file")),
         ]
     )
     session.with_observer_responses(
         [
-            "🛠️[suggest]\ndata1.txt says nothing about its content, "
-            "call it greeting.txt\n🛠️[/end]\n"
-            "🛠️[complete-task judged the new file /]"
+            says(
+                "",
+                suggest(
+                    "data1.txt says nothing about its content, call it greeting.txt"
+                ),
+                complete_task("judged the new file"),
+            )
         ]
     )
 
@@ -44,17 +56,20 @@ async def test_the_observer_judges_the_change_it_caught_up_with(tmp_path, monkey
     session.with_user_inputs("Store the greeting", "\n")
     session.with_llm_responses(
         [
-            "🛠️[create-file data1.txt]\nHello\n🛠️[/end]",
-            "🛠️[create-file greeting.txt]\nHello\n🛠️[/end]",
-            "🛠️[create-file tmp2.txt]\nBye\n🛠️[/end]",
-            "🛠️[cat greeting.txt /]",
-            "🛠️[complete-task stored the greeting /]",
+            create_file("data1.txt", "Hello"),
+            create_file("greeting.txt", "Hello"),
+            create_file("tmp2.txt", "Bye"),
+            cat("greeting.txt"),
+            complete_task("stored the greeting"),
         ]
     )
     session.with_observer_responses(
         [
-            "🛠️[suggest]\ntmp2.txt says nothing about its content\n🛠️[/end]\n"
-            "🛠️[complete-task judged tmp2.txt /]",
+            says(
+                "",
+                suggest("tmp2.txt says nothing about its content"),
+                complete_task("judged tmp2.txt"),
+            ),
         ]
     )
 
@@ -73,12 +88,12 @@ async def test_the_observer_is_told_what_the_agent_is_trying_to_do(
     session.with_user_inputs("Store the greeting", "\n")
     session.with_llm_responses(
         [
-            "🛠️[communicate-intent]\nStore the greeting in a file\n🛠️[/end]",
-            "🛠️[create-file data1.txt]\nHello\n🛠️[/end]",
-            "🛠️[complete-task stored the greeting /]",
+            communicate_intent("Store the greeting in a file"),
+            create_file("data1.txt", "Hello"),
+            complete_task("stored the greeting"),
         ]
     )
-    session.with_observer_responses(["🛠️[complete-task judged the new file /]"])
+    session.with_observer_responses([complete_task("judged the new file")])
 
     result = await session.run()
 
@@ -93,14 +108,14 @@ async def test_the_observer_always_receives_the_latest_intent(tmp_path, monkeypa
     session.with_user_inputs("Store the greeting", "\n")
     session.with_llm_responses(
         [
-            "🛠️[communicate-intent]\nStore the greeting in a file\n🛠️[/end]",
-            "🛠️[create-file data1.txt]\nHello\n🛠️[/end]",
-            "🛠️[communicate-intent]\nGive the file a telling name\n🛠️[/end]",
-            "🛠️[create-file greeting.txt]\nHello\n🛠️[/end]",
-            "🛠️[complete-task stored the greeting /]",
+            communicate_intent("Store the greeting in a file"),
+            create_file("data1.txt", "Hello"),
+            communicate_intent("Give the file a telling name"),
+            create_file("greeting.txt", "Hello"),
+            complete_task("stored the greeting"),
         ]
     )
-    session.with_observer_responses(["🛠️[complete-task judged greeting.txt /]"])
+    session.with_observer_responses([complete_task("judged greeting.txt")])
 
     result = await session.run()
 

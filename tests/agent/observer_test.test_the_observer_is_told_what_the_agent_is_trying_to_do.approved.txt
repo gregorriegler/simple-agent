@@ -2,19 +2,15 @@
 Agent:       session_started: False
 Agent:         agent_started: Agent stub-model agent
 Agent:         user_prompted: Store the greeting
-Agent:   assistant_responded: 🛠️[communicate-intent]
-Store the greeting in a file
-🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 communicate-intent Store the greeting in a file
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::1 communicate-intent intent="Store the greeting in a file"
 Agent:           tool_result: Agent::tool_call::1 Intent: Store the greeting in a file
-Agent:   assistant_responded: 🛠️[create-file data1.txt]
-Hello
-🛠️[/end] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 create-file data1.txt Hello
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::2 create-file filename="data1.txt" content="Hello"
 Agent:           tool_result: Agent::tool_call::2 Created file: data1.txt with content
 Agent:    checkpoint_reached: 
-Agent:   assistant_responded: 🛠️[complete-task stored the greeting /] stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::3 complete-task stored the greeting
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::3 complete-task summary="stored the greeting"
 Agent:           tool_result: Agent::tool_call::3 stored the greeting
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
@@ -25,8 +21,8 @@ Agent/Naming:         user_prompted: Intent: Store the greeting in a file
 
 diff --git a/data1.txt b/data1.txt
 +Hello
-Agent/Naming:   assistant_responded: 🛠️[complete-task judged the new file /] stub-model 0.0%
-Agent/Naming:           tool_called: Agent/Naming::tool_call::1 complete-task judged the new file
+Agent/Naming:   assistant_responded:  stub-model 0.0%
+Agent/Naming:           tool_called: Agent/Naming::tool_call::1 complete-task summary="judged the new file"
 Agent/Naming:           tool_result: Agent/Naming::tool_call::1 judged the new file
 Agent/Naming: user_prompt_requested: 
 Agent/Naming:        agent_finished: 
@@ -35,21 +31,21 @@ Agent/Naming:         session_ended:
 # Messages:
 [Agent]
 user: Store the greeting
-assistant: 🛠️[communicate-intent]
-Store the greeting in a file
-🛠️[/end]
-user: Intent: Store the greeting in a file
-assistant: 🛠️[create-file data1.txt]
-Hello
-🛠️[/end]
-user: Created file: data1.txt with content
-assistant: 🛠️[complete-task stored the greeting /]
-user: stored the greeting
+assistant:
+  communicate-intent intent="Store the greeting in a file"
+tool_result: Intent: Store the greeting in a file
+assistant:
+  create-file filename="data1.txt" content="Hello"
+tool_result: Created file: data1.txt with content
+assistant:
+  complete-task summary="stored the greeting"
+tool_result: stored the greeting
 [Agent/Naming]
 user: Intent: Store the greeting in a file
 
 diff --git a/data1.txt b/data1.txt
 +Hello
-assistant: 🛠️[complete-task judged the new file /]
-user: judged the new file
+assistant:
+  complete-task summary="judged the new file"
+tool_result: judged the new file
 

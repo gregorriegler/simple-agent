@@ -20,9 +20,9 @@ class ChatCompletionMessages:
     """
     Renders a conversation into chat completion messages: an assistant
     turn carries its calls as 'tool_calls' and a tool result is a 'tool'
-    message answering the call's id. A call made without an id, under the
-    emoji syntax or by another adapter, is replayed under a synthetic one,
-    matched to its result by order.
+    message answering the call's id. A call made without an id, by a stub
+    or by another adapter, is replayed under a synthetic one, matched to
+    its result by order.
     """
 
     def __init__(self) -> None:
