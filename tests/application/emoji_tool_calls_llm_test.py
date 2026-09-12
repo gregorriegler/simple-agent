@@ -107,3 +107,19 @@ async def test_renders_the_history_as_text_turns_before_the_inner_call():
             UserMessage("Result of 🛠️ cat notes.md\nline one"),
         ]
     ]
+
+
+async def test_hands_an_answer_that_already_carries_its_calls_through():
+    class StructuredLLM(TextOnlyLLM):
+        async def call_async(self, messages) -> LLMResponse:
+            return LLMResponse(
+                answer="reading it",
+                tool_calls=[ToolCall("cat", {"filename": "notes.md"})],
+            )
+
+    llm = EmojiToolCallsLLM(StructuredLLM(""), [BASH, CAT])
+
+    response = await llm.call_async([UserMessage("hi")])
+
+    assert response.tool_calls == [ToolCall("cat", {"filename": "notes.md"})]
+    assert response.message == "reading it"

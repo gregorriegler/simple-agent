@@ -74,6 +74,8 @@ class EmojiToolCallsLLM:
     async def call_async(self, messages: ChatMessages) -> LLMResponse:
         history = [to_text_turn(message, self._syntax) for message in messages]
         response = await self._inner.call_async(history)
+        if response.tool_calls:
+            return response
         message, calls = bind_emoji_calls(response.answer, self._tools, self._syntax)
         return replace(response, tool_calls=calls, message=message)
 
