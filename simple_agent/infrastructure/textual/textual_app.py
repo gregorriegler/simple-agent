@@ -350,7 +350,14 @@ class TextualApp(App):
     def on_smart_input_submitted(self, event: SmartInput.Submitted) -> None:
         if self.user_input:
             expanded_content = event.result.expand(self.file_loader)
-            self.user_input.submit_input(expanded_content)
+            self.user_input.submit_input(self._active_agent_id(), expanded_content)
+
+    def _active_agent_id(self) -> AgentId:
+        try:
+            workspace = self.query_one(AgentTabs).active_workspace
+        except Exception:
+            workspace = None
+        return workspace.agent_id if workspace else self._root_agent_id
 
     def add_subagent_tab(self, agent_id: AgentId, tab_title: str) -> tuple[str, str]:
         return self.query_one(AgentTabs).add_subagent_tab(agent_id, tab_title)

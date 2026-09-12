@@ -43,7 +43,7 @@ class StubUserInput:
     def __init__(self) -> None:
         self.inputs = []
 
-    def submit_input(self, content: str) -> None:
+    def submit_input(self, agent_id, content: str) -> None:
         self.inputs.append(content)
 
     def close(self) -> None:

@@ -24,7 +24,7 @@ from simple_agent.application.observer_library import ObserverLibrary
 from simple_agent.application.observers import Observers
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
-from simple_agent.application.user_input import UserInput
+from simple_agent.application.user_input import UserInputs
 
 
 @dataclass
@@ -45,7 +45,7 @@ class Session:
         event_bus: EventBus,
         tool_library_factory: ToolLibraryFactory,
         agent_library: AgentLibrary,
-        user_input: UserInput,
+        user_input: UserInputs,
         llm_provider: LLMProvider,
         project_tree: ProjectTree,
         event_store: EventStore,
@@ -133,7 +133,9 @@ class Session:
             self._on_replay_complete()
 
         agent_definition = self._agent_library._starting_agent_definition()
-        agent_input = agent_factory.create_input(args.start_message)
+        agent_input = agent_factory.create_input(
+            self._starting_agent_id, args.start_message
+        )
         agent = agent_factory.create_agent(
             self._starting_agent_id,
             agent_definition,
