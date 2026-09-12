@@ -130,14 +130,6 @@ def test_renders_a_lone_positional_argument_as_written():
     )
 
 
-def test_renders_the_body_value_and_nothing_without_a_body_argument():
-    with_body = ToolArguments(body=ToolArgument(name="content", description=""))
-    without = ToolArguments(header=[ToolArgument(name="command", description="")])
-
-    assert with_body.render_body({"content": "line1\nline2"}) == "line1\nline2"
-    assert without.render_body({"command": "ls"}) == ""
-
-
 def test_a_windows_path_with_a_space_survives_rendering():
     arguments = ToolArguments(
         header=[
@@ -161,3 +153,31 @@ async def test_an_invocation_executes_its_call_against_its_tool():
 
     assert await invocation.execute() == "ran echo with {'text': 'hi'}"
     assert invocation.name == "echo"
+
+
+def test_an_integer_argument_coerces_a_number_or_its_text_to_an_int():
+    def integer(value):
+        return ToolArgument(name="n", description="", type="int").coerce(value)
+
+    assert integer(3) == 3
+    assert integer("3") == 3
+    assert integer(3.0) == 3
+    assert isinstance(integer("3"), int)
+
+
+def test_a_number_argument_coerces_a_number_or_its_text_to_a_float():
+    def number(value):
+        return ToolArgument(name="x", description="", type="float").coerce(value)
+
+    assert number(2.5) == 2.5
+    assert number("2.5") == 2.5
+    assert number(2) == 2.0
+    assert isinstance(number(2), float)
+
+
+def test_a_value_that_is_not_a_number_stays_text_under_a_numeric_type():
+    integer = ToolArgument(name="n", description="", type="integer")
+    number = ToolArgument(name="x", description="", type="number")
+
+    assert integer.coerce("many") == "many"
+    assert number.coerce("some") == "some"

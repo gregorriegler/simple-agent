@@ -1,7 +1,5 @@
 """How calls and messages read in a test transcript."""
 
-import json
-
 from simple_agent.application.llm import (
     AssistantMessage,
     ChatMessage,
@@ -10,15 +8,7 @@ from simple_agent.application.llm import (
     ToolResultMessage,
     UserMessage,
 )
-from simple_agent.application.tool_library import ToolCall
-
-
-def describe_call(call: ToolCall) -> str:
-    """The call on one line: its name, then each named argument as JSON."""
-    arguments = (
-        f"{name}={json.dumps(value)}" for name, value in call.named_arguments.items()
-    )
-    return " ".join((call.name, *arguments))
+from simple_agent.application.tool_library import describe_call
 
 
 def transcript_line(message: ChatMessage) -> tuple[str, str]:

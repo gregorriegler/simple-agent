@@ -5,6 +5,7 @@ import pytest
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.infrastructure.textual.textual_app import TextualApp
+from simple_agent.tools.all_tools import TOOL_DECLARATIONS
 
 
 class StubUserInput:
@@ -34,7 +35,10 @@ async def test_action_quit_cancels_session_task():
 
     user_input = StubUserInput()
     app = TextualApp(
-        user_input, AgentId("Agent"), agent_task_manager=AgentTaskManager()
+        user_input,
+        AgentId("Agent"),
+        agent_task_manager=AgentTaskManager(),
+        declarations=TOOL_DECLARATIONS,
     )
     app._session_runner = session_runner
 

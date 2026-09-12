@@ -40,12 +40,12 @@ class AgentTabs(TabbedContent):
         self,
         suggestion_provider,
         root_agent_id: AgentId,
-        declarations: ToolDeclarations | None = None,
+        declarations: ToolDeclarations,
         **kwargs,
     ):
         super().__init__(**kwargs)
         self._suggestion_provider = suggestion_provider
-        self._declarations: ToolDeclarations = declarations or {}
+        self._declarations = declarations
         self._root_agent_id = root_agent_id
         self._agent_panel_ids: dict[AgentId, tuple[str, str]] = {}
         self._agent_names: dict[AgentId, str] = {}

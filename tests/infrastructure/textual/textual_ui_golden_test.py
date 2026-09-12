@@ -19,6 +19,7 @@ from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
+from simple_agent.tools.all_tools import TOOL_DECLARATIONS
 from tests.infrastructure.textual.test_utils import dump_ascii_screen, dump_ui_state
 
 
@@ -51,6 +52,7 @@ async def test_golden_happy_path_flow(tmp_path, monkeypatch):
         user_input=None,
         root_agent_id=agent_id,
         agent_task_manager=AgentTaskManager(),
+        declarations=TOOL_DECLARATIONS,
     )
 
     # Disable loading timer to avoid non-determinism

@@ -845,11 +845,13 @@ async def test_gemini_replays_a_tool_turn_without_a_signature_as_text():
         {"type": "user_input", "content": [{"type": "text", "text": "list files"}]},
         {
             "type": "model_output",
-            "content": [{"type": "text", "text": "on it\nCalled bash ls"}],
+            "content": [{"type": "text", "text": 'on it\nCalled bash command="ls"'}],
         },
         {
             "type": "user_input",
-            "content": [{"type": "text", "text": "Result of bash ls:\na.txt"}],
+            "content": [
+                {"type": "text", "text": 'Result of bash command="ls":\na.txt'}
+            ],
         },
         {"type": "user_input", "content": [{"type": "text", "text": "thanks"}]},
     ]

@@ -22,6 +22,7 @@ from simple_agent.application.tool_results import SingleToolResult, ToolResultSt
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
+from simple_agent.tools.all_tools import TOOL_DECLARATIONS
 from tests.infrastructure.textual.test_utils import (
     MockUserInput,
     dump_ascii_screen,
@@ -55,6 +56,7 @@ async def test_golden_complex_scenarios(tmp_path, monkeypatch):
         user_input=mock_user_input,
         root_agent_id=agent_id,
         agent_task_manager=AgentTaskManager(),
+        declarations=TOOL_DECLARATIONS,
     )
 
     # Disable loading timer

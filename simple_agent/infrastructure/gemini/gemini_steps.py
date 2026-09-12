@@ -5,12 +5,7 @@ from simple_agent.application.llm import (
     ToolResultMessage,
     UserMessage,
 )
-from simple_agent.application.tool_library import (
-    ToolCall,
-    ToolDeclarations,
-    call_body,
-    call_header,
-)
+from simple_agent.application.tool_library import ToolCall, describe_call
 from simple_agent.infrastructure.gemini.gemini_tools import native_id, thought_signature
 
 EMPTY_TEXT_PLACEHOLDER = "(empty)"
@@ -24,8 +19,7 @@ class UnsignedTurnsAsText:
     switch are replayed as plain text describing the call and its result.
     """
 
-    def __init__(self, declarations: ToolDeclarations) -> None:
-        self._declarations = declarations
+    def __init__(self) -> None:
         self._signed = False
 
     def system(self, message: SystemMessage) -> ChatMessage:
@@ -45,13 +39,12 @@ class UnsignedTurnsAsText:
     def tool_result(self, message: ToolResultMessage) -> ChatMessage:
         if self._signed:
             return message
-        header = call_header(message.call, self._declarations)
-        return UserMessage(f"Result of {header}:\n{message.content}")
+        return UserMessage(
+            f"Result of {describe_call(message.call)}:\n{message.content}"
+        )
 
     def _call_text(self, call: ToolCall) -> str:
-        header = call_header(call, self._declarations)
-        body = call_body(call, self._declarations)
-        return f"Called {header}:\n{body}" if body else f"Called {header}"
+        return f"Called {describe_call(call)}"
 
 
 class InteractionSteps:

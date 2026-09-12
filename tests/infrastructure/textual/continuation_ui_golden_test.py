@@ -22,6 +22,7 @@ from simple_agent.infrastructure.file_event_store import FileEventStore
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
+from simple_agent.tools.all_tools import TOOL_DECLARATIONS
 from tests.infrastructure.textual.conftest import FakeAgentStateCleanup, FakeEventLogger
 from tests.infrastructure.textual.test_utils import (
     dump_ascii_screen,
@@ -102,6 +103,7 @@ async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
         user_input=None,
         root_agent_id=agent_id,
         agent_task_manager=AgentTaskManager(),
+        declarations=TOOL_DECLARATIONS,
         available_models=["stub-model"],
     )
 
@@ -119,6 +121,7 @@ async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
         user_input=None,
         root_agent_id=agent_id,
         agent_task_manager=AgentTaskManager(),
+        declarations=TOOL_DECLARATIONS,
         available_models=["stub-model"],
     )
     subscribe_events(event_bus, FakeEventLogger(), FakeAgentStateCleanup(), app2)
@@ -190,6 +193,7 @@ async def test_continuation_tool_result_is_last_event(tmp_path):
         user_input=None,
         root_agent_id=agent_id,
         agent_task_manager=AgentTaskManager(),
+        declarations=TOOL_DECLARATIONS,
         available_models=["stub-model"],
     )
 
@@ -207,6 +211,7 @@ async def test_continuation_tool_result_is_last_event(tmp_path):
         user_input=None,
         root_agent_id=agent_id,
         agent_task_manager=AgentTaskManager(),
+        declarations=TOOL_DECLARATIONS,
         available_models=["stub-model"],
     )
     subscribe_events(event_bus, FakeEventLogger(), FakeAgentStateCleanup(), app2)
@@ -254,6 +259,7 @@ async def test_continuation_does_not_restore_a_tab_for_a_finished_subagent(tmp_p
         user_input=None,
         root_agent_id=agent_id,
         agent_task_manager=AgentTaskManager(),
+        declarations=TOOL_DECLARATIONS,
         available_models=["stub-model"],
     )
     subscribe_events(event_bus, FakeEventLogger(), FakeAgentStateCleanup(), app)
