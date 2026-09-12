@@ -47,16 +47,7 @@ async def test_background_subagent_finishes_on_complete_task_without_asking_for_
 
 
 async def test_background_subagent_reports_its_summary_to_the_parent_input():
-    factory = AgentFactory(
-        event_bus=SimpleEventBus(),
-        tool_library_factory=AllToolsFactory(),
-        agent_library=TestAgentLibrary(),
-        user_input=UserInputStub(),
-        llm_provider=FixedLLMProvider(create_llm_stub([complete_task("sub done")])),
-        project_tree=DummyProjectTree(),
-        event_store=NoOpEventStore(),
-        agent_task_manager=AgentTaskManager(),
-    )
+    factory = _factory(FixedLLMProvider(create_llm_stub([complete_task("sub done")])))
     parent_input = factory.create_input()
     spawn = factory.create_spawner(AgentId("Agent"), parent_input)
 
@@ -64,6 +55,29 @@ async def test_background_subagent_reports_its_summary_to_the_parent_input():
     await asyncio.gather(*_other_tasks())
 
     assert parent_input.drain() == ["Subagent Agent/Coding completed: sub done"]
+
+
+async def test_background_subagent_that_fails_reports_the_failure():
+    factory = _factory(FixedLLMProvider(FailingLLM("boom")))
+    parent_input = factory.create_input()
+    spawn = factory.create_spawner(AgentId("Agent"), parent_input)
+
+    await spawn(AgentType("coding"), "do the sub task", True)
+    await asyncio.gather(*_other_tasks())
+
+    assert parent_input.drain() == ["Subagent Agent/Coding failed: boom"]
+
+
+class FailingLLM:
+    def __init__(self, error: str):
+        self._error = error
+
+    @property
+    def model(self) -> str:
+        return "failing-model"
+
+    async def call_async(self, messages):
+        raise RuntimeError(self._error)
 
 
 async def test_parent_receives_the_background_subagent_summary_as_a_prompt():
@@ -129,6 +143,19 @@ async def test_parent_waits_for_a_background_command():
         if isinstance(e, UserPromptedEvent) and e.agent_id == AgentId("Agent")
     ]
     assert prompts[1].startswith("Background command `sleep 0.2; echo done` finished:")
+
+
+def _factory(llm_provider) -> AgentFactory:
+    return AgentFactory(
+        event_bus=SimpleEventBus(),
+        tool_library_factory=AllToolsFactory(),
+        agent_library=TestAgentLibrary(),
+        user_input=UserInputStub(),
+        llm_provider=llm_provider,
+        project_tree=DummyProjectTree(),
+        event_store=NoOpEventStore(),
+        agent_task_manager=AgentTaskManager(),
+    )
 
 
 def _other_tasks():

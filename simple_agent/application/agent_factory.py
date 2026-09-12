@@ -92,7 +92,9 @@ class AgentFactory:
     ) -> None:
         if done.cancelled() or done.exception() is not None:
             return
-        parent_input.stack(f"Subagent {agent_id} completed: {done.result()}")
+        result = done.result()
+        outcome = "completed" if result.success else "failed"
+        parent_input.stack(f"Subagent {agent_id} {outcome}: {result}")
 
     def history_of(self, agent_id: AgentId) -> Messages:
         events = self._event_store.load_events(agent_id)
