@@ -70,6 +70,13 @@ _JSON_TYPES = {
 }
 
 
+def _as_number(value: Any, kind: type) -> Any:
+    try:
+        return kind(value)
+    except (TypeError, ValueError):
+        return str(value)
+
+
 @dataclass
 class ToolArgument:
     name: str
@@ -87,9 +94,16 @@ class ToolArgument:
         return self.json_type == "boolean"
 
     def coerce(self, value: Any) -> Any:
-        """The value as the declared type: a flag from its spellings, else text."""
+        """
+        The value as the declared type: a flag from its spellings, a number
+        from its text, else text. A value that is no number stays text.
+        """
         if self.is_flag:
             return is_true(value)
+        if self.json_type == "integer":
+            return _as_number(value, int)
+        if self.json_type == "number":
+            return _as_number(value, float)
         return str(value)
 
 
