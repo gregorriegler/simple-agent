@@ -2,13 +2,15 @@ import pytest
 
 from simple_agent.application.events import AssistantThoughtEvent
 from simple_agent.application.llm import LLMResponse, TokenUsage
+from simple_agent.application.tool_library import ToolCall
 from tests.session_test_bed import SessionTestBed
+from tests.tool_calls import complete_task
 
 pytestmark = pytest.mark.asyncio
 
 
 class ThinkingLLM:
-    def __init__(self, turns: list[tuple[str, str]]):
+    def __init__(self, turns: list[tuple[ToolCall, str]]):
         self._turns = list(turns)
 
     @property
@@ -16,13 +18,17 @@ class ThinkingLLM:
         return "thinking-model"
 
     async def call_async(self, messages):
-        content, thought = self._turns.pop(0)
+        call, thought = self._turns.pop(0)
         return LLMResponse(
-            answer=content, model=self.model, usage=TokenUsage(), thought=thought
+            answer="",
+            tool_calls=[call],
+            model=self.model,
+            usage=TokenUsage(),
+            thought=thought,
         )
 
 
-async def published_thoughts(turns: list[tuple[str, str]]) -> list[str]:
+async def published_thoughts(turns: list[tuple[ToolCall, str]]) -> list[str]:
     thoughts: list[str] = []
     await (
         SessionTestBed()
@@ -35,7 +41,7 @@ async def published_thoughts(turns: list[tuple[str, str]]) -> list[str]:
 
 
 async def test_the_agent_publishes_what_the_model_thought():
-    turns = [("🛠️[complete-task done /]", "The user only wants a greeting.")]
+    turns = [(complete_task("done"), "The user only wants a greeting.")]
 
     thoughts = await published_thoughts(turns)
 
@@ -43,7 +49,7 @@ async def test_the_agent_publishes_what_the_model_thought():
 
 
 async def test_a_turn_without_a_thought_publishes_nothing():
-    turns = [("🛠️[complete-task done /]", "")]
+    turns = [(complete_task("done"), "")]
 
     thoughts = await published_thoughts(turns)
 

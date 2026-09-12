@@ -2,11 +2,11 @@
 Agent:       session_started: False
 Agent:         agent_started: Agent stub-model agent
 Agent:         user_prompted: Read that file
-Agent:   assistant_responded: 🛠️[cat /tmp/test_path/testfile.txt /] stub-model 0.0%
+Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::1 cat /tmp/test_path/testfile.txt
 Agent:           tool_result: Agent::tool_call::1 Hello world
 Agent:         user_prompted: actually, stop
-Agent:   assistant_responded: 🛠️[complete-task summary /] stub-model 0.0%
+Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::2 complete-task summary
 Agent:           tool_result: Agent::tool_call::2 summary
 Agent: user_prompt_requested: 
@@ -16,11 +16,11 @@ Agent:         session_ended:
 # Messages:
 [Agent]
 user: Read that file
-assistant: 🛠️[cat /tmp/test_path/testfile.txt /]
+assistant:
 tool_call: cat /tmp/test_path/testfile.txt
 tool_result: Hello world
 user: actually, stop
-assistant: 🛠️[complete-task summary /]
+assistant:
 tool_call: complete-task summary
 tool_result: summary
 
