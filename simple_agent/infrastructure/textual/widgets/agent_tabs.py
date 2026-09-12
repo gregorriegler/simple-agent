@@ -165,10 +165,27 @@ class AgentTabs(TabbedContent):
         new_tab_id = tab_panes[new_index].id
         if new_tab_id:
             self.active = new_tab_id
-            # Also focus the input in the new tab
-            workspace = self.active_workspace
-            if workspace and workspace.smart_input:
-                workspace.smart_input.focus()
+            self._focus_active_input()
+
+    def activate_tab(self, agent_id: AgentId) -> None:
+        tab_id, _, _ = self.panel_ids_for(agent_id)
+        self.active = tab_id
+        self.call_after_refresh(self._focus_active_input)
+
+    def _focus_active_input(self) -> None:
+        workspace = self.active_workspace
+        if workspace and workspace.smart_input:
+            workspace.smart_input.focus()
+
+    def _is_attended_subagent(
+        self, agent_id: AgentId, event: AgentStartedEvent
+    ) -> bool:
+        return (
+            not self._replaying
+            and agent_id != self._root_agent_id
+            and not event.unattended
+            and self.has_agent_tab(agent_id)
+        )
 
     def handle_event(self, event) -> None:
         agent_id = getattr(event, "agent_id", None)
@@ -176,6 +193,8 @@ class AgentTabs(TabbedContent):
             return
         if isinstance(event, AgentStartedEvent):
             self._ensure_agent_tab_exists(agent_id, event.agent_name, event.model)
+            if self._is_attended_subagent(agent_id, event):
+                self.activate_tab(agent_id)
         elif isinstance(event, SessionClearedEvent):
             workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:

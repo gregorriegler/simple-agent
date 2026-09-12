@@ -87,6 +87,7 @@ class TestEventSerializer:
             agent_name="Coding",
             model="claude-sonnet-4-20250514",
             agent_type=AgentType("coding"),
+            unattended=True,
         )
 
         result = EventSerializer.to_dict(event)
@@ -97,9 +98,30 @@ class TestEventSerializer:
             "agent_name": "Coding",
             "model": "claude-sonnet-4-20250514",
             "agent_type": "coding",
+            "unattended": True,
         }
 
     def test_deserialize_agent_started_event(self):
+        data = {
+            "type": "AgentStartedEvent",
+            "agent_id": "Agent/Coding",
+            "agent_name": "Coding",
+            "model": "claude-sonnet-4-20250514",
+            "agent_type": "coding",
+            "unattended": True,
+        }
+
+        result = EventSerializer.from_dict(data)
+
+        assert isinstance(result, AgentStartedEvent)
+        assert result.agent_id == AgentId("Agent/Coding")
+        assert result.agent_name == "Coding"
+        assert result.model == "claude-sonnet-4-20250514"
+        assert result.unattended is True
+
+    def test_deserialize_agent_started_event_without_unattended_defaults_to_attended(
+        self,
+    ):
         data = {
             "type": "AgentStartedEvent",
             "agent_id": "Agent/Coding",
@@ -111,9 +133,7 @@ class TestEventSerializer:
         result = EventSerializer.from_dict(data)
 
         assert isinstance(result, AgentStartedEvent)
-        assert result.agent_id == AgentId("Agent/Coding")
-        assert result.agent_name == "Coding"
-        assert result.model == "claude-sonnet-4-20250514"
+        assert result.unattended is False
 
     def test_serialize_agent_finished_event(self):
         event = AgentFinishedEvent(agent_id=AgentId("Agent/Coding"))

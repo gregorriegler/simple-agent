@@ -1,20 +1,20 @@
  Orchestrator [stub-model: 0.0%]  Orchestrator [stub-model: 0.0%]  Coding [stub-
-━━━━━━━━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-   Starting new        ▼ 🛠️ subagent orchestrator Run bash echo hello world and t
-   session                                                                      
-                         ╭─────────────────────────────────────────────────────╮
-   User: Hello,          │                      ● ● ● ● ●                      │
-   world!                ╰─────────────────────────────────────────────────────╯
-                                                                                
-   Orchestrator:                                                                
-   Starting task                                                                
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌ ▶ 💲 bash echo hello world                               
+   User: Run         ▌ ▶ 📄 cat AGENTS.md                                       
+   bash echo                                                                    
                                                                                 
                                                                                 
-                                                                                
-                                                                                
-                                                                                
-                                                                                
+    • [x]                                                                       
+      Feature                                                                   
+      exploratio                                                                
+      n                                                                         
+    • [ ]                                                                       
+      Implementi                                                                
+      ng tool                                                                   
+    • [ ]                                                                       
+      Initial                                                                   
+      setup                                                                     
                                                                                 
                                                                                 
 ┌──────────────────────────────────────────────────────────────────────────────┐

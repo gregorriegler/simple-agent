@@ -60,6 +60,7 @@ class EventSerializer:
                 "agent_name": event.agent_name,
                 "model": event.model,
                 "agent_type": event.agent_type.raw if event.agent_type else "",
+                "unattended": event.unattended,
             }
         elif isinstance(event, AgentFinishedEvent):
             return {
@@ -174,6 +175,7 @@ class EventSerializer:
                 agent_name=data.get("agent_name", ""),
                 model=data.get("model", ""),
                 agent_type=AgentType(agent_type_str) if agent_type_str else None,
+                unattended=data.get("unattended", False),
             )
         elif event_type == "AgentFinishedEvent":
             return AgentFinishedEvent(agent_id=agent_id)

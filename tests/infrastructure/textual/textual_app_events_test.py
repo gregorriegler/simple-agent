@@ -277,9 +277,11 @@ async def test_input_typed_in_a_subagent_tab_is_addressed_to_that_subagent(
         from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
 
         tabs = app.query_one(AgentTabs)
-        tabs.switch_tab(1)
-        await pilot.pause()
-        assert tabs.active_workspace.agent_id == sub_id
+        await eventually(
+            pilot,
+            lambda: tabs.active_workspace.agent_id == sub_id,
+            "the subagent tab to be active",
+        )
 
         tabs.active_workspace.smart_input.text = "for the helper"
         app.action_submit_input()
@@ -413,3 +415,51 @@ async def test_live_tool_calls_after_replay_build_collapsibles(textual_harness):
             "the live call to build a collapsible",
         )
         assert not _tool_log(app, agent_id).query(CollapsedToolEntry)
+
+
+@pytest.mark.asyncio
+async def test_a_sync_subagent_tab_becomes_active_when_it_starts(textual_harness):
+    event_bus, _, _, app = textual_harness
+    root_id = AgentId("Agent")
+    sub_id = root_id.create_subagent_id("Helper", AgentIdSuffixer())
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        event_bus.publish(AgentStartedEvent(root_id, "Agent", "dummy-model"))
+        event_bus.publish(AgentStartedEvent(sub_id, "Helper", "dummy-model"))
+        from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+
+        tabs = app.query_one(AgentTabs)
+        await eventually(
+            pilot,
+            lambda: tabs.active_workspace.agent_id == sub_id,
+            "the sync subagent tab to be active",
+        )
+        await eventually(
+            pilot,
+            lambda: tabs.active_workspace.smart_input.has_focus,
+            "the sync subagent input to be focused",
+        )
+
+
+@pytest.mark.asyncio
+async def test_a_background_subagent_tab_does_not_steal_the_active_tab(
+    textual_harness,
+):
+    event_bus, _, _, app = textual_harness
+    root_id = AgentId("Agent")
+    sub_id = root_id.create_subagent_id("Helper", AgentIdSuffixer())
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        event_bus.publish(AgentStartedEvent(root_id, "Agent", "dummy-model"))
+        event_bus.publish(
+            AgentStartedEvent(sub_id, "Helper", "dummy-model", unattended=True)
+        )
+        from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+
+        tabs = app.query_one(AgentTabs)
+        await eventually(
+            pilot, lambda: tabs.has_agent_tab(sub_id), "the subagent tab to exist"
+        )
+        assert tabs.active_workspace.agent_id == root_id

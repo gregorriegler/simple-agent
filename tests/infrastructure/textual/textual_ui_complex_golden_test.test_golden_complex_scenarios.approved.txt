@@ -51,15 +51,15 @@ Active Tab: tab-Agent
 
 --- Step: SubAgent Started (Widget Tree) ---
 Tabs: ['tab-Agent', 'tab-SubAgent']
-Active Tab: tab-Agent
+Active Tab: tab-SubAgent
     Vertical id='None' classes=''
       TabbedContent id='tabs' classes=''
         ContentTabs id='None' classes=''
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
-                ContentTab id='--content-tab-tab-SubAgent' classes='' content='SubAgent [gpt-4: 0.0%]'
+                ContentTab id='--content-tab-tab-Agent' classes='' content='Agent'
+                ContentTab id='--content-tab-tab-SubAgent' classes='-active' content='SubAgent [gpt-4: 0.0%]'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -115,15 +115,15 @@ Active Tab: tab-Agent
 
 --- Step: SubAgent Spoke (Widget Tree) ---
 Tabs: ['tab-Agent', 'tab-SubAgent']
-Active Tab: tab-Agent
+Active Tab: tab-SubAgent
     Vertical id='None' classes=''
       TabbedContent id='tabs' classes=''
         ContentTabs id='None' classes=''
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
-                ContentTab id='--content-tab-tab-SubAgent' classes='' content='SubAgent [gpt-4: 0.0%]'
+                ContentTab id='--content-tab-tab-Agent' classes='' content='Agent'
+                ContentTab id='--content-tab-tab-SubAgent' classes='-active' content='SubAgent [gpt-4: 0.0%]'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -157,9 +157,9 @@ Active Tab: tab-Agent
  Agent  SubAgent [gpt-4: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-
-
-
+   SubAgent:
+   Hello from
+   SubAgent
 
 
 

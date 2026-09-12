@@ -101,6 +101,7 @@ class AgentStartedEvent(AgentEvent):
     agent_name: str = ""
     model: str = ""
     agent_type: AgentType | None = None
+    unattended: bool = False
 
 
 @dataclass

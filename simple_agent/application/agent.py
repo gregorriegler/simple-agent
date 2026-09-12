@@ -102,6 +102,7 @@ class Agent(SlashCommandVisitor):
                 self.brain.name,
                 self.brain.llm.model,
                 self.agent_type,
+                unattended=self.unattended,
             )
         )
         try:

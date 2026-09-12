@@ -1,6 +1,6 @@
 # Events
 Agent:       session_started: False
-Agent:         agent_started: Agent stub-model agent
+Agent:         agent_started: Agent stub-model agent False
 Agent:         user_prompted: Store the greeting
 Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::1 communicate-intent intent="Store the greeting in a file"
@@ -20,7 +20,7 @@ Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::5 complete-task summary="stored the greeting"
 Agent:           tool_result: Agent::tool_call::5 stored the greeting
 Agent: user_prompt_requested: 
-Agent/Naming:         agent_started: Naming stub-model naming
+Agent/Naming:         agent_started: Naming stub-model naming False
 Agent/Naming: user_prompt_requested: 
 Agent:        agent_finished: 
 Agent:         session_ended: 

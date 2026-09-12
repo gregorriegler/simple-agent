@@ -1,12 +1,12 @@
 --- UI STATE FROM DIRECT EVENT REPLAY ---
  Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     ▌ ▼ 🛠️ Reading test.txt
-   Starting new      ▌╭────────────────────────────────────────────────────────╮
-   session           ▌│ Content of test.txt                                    │
-                     ▌╰────────────────────────────────────────────────────────╯
-   User: Start
-   the process
+
+   User: Say
+   hello
+
+
+
 
 
 
@@ -24,15 +24,15 @@
 │                                                                              │
 └──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 Tabs: ['tab-Agent', 'tab-Agent-Coding']
-Active Tab: tab-Agent
+Active Tab: tab-Agent-Coding
     Vertical id='None' classes=''
       TabbedContent id='tabs' classes=''
         ContentTabs id='None' classes=''
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent [stub-model: 0.0%]'
-                ContentTab id='--content-tab-tab-Agent-Coding' classes='' content='Coding [stub-model: 0.0%]'
+                ContentTab id='--content-tab-tab-Agent' classes='' content='Agent [stub-model: 0.0%]'
+                ContentTab id='--content-tab-tab-Agent-Coding' classes='-active' content='Coding [stub-model: 0.0%]'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
@@ -73,12 +73,12 @@ Active Tab: tab-Agent
 --- UI STATE FROM EVENT STORE CONTINUATION ---
  Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     ▌ ▼ 🛠️ Reading test.txt
-   Starting new      ▌╭────────────────────────────────────────────────────────╮
-   session           ▌│ Content of test.txt                                    │
-                     ▌╰────────────────────────────────────────────────────────╯
-   User: Start
-   the process
+
+   User: Say
+   hello
+
+
+
 
 
 
@@ -96,15 +96,15 @@ Active Tab: tab-Agent
 │                                                                              │
 └──────────────────────────────────── Enter to submit, Ctrl+Enter for newline ─┘
 Tabs: ['tab-Agent', 'tab-Agent-Coding']
-Active Tab: tab-Agent
+Active Tab: tab-Agent-Coding
     Vertical id='None' classes=''
       TabbedContent id='tabs' classes=''
         ContentTabs id='None' classes=''
           Container id='tabs-scroll' classes=''
             Vertical id='tabs-list-bar' classes=''
               Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent [stub-model: 0.0%]'
-                ContentTab id='--content-tab-tab-Agent-Coding' classes='' content='Coding [stub-model: 0.0%]'
+                ContentTab id='--content-tab-tab-Agent' classes='' content='Agent [stub-model: 0.0%]'
+                ContentTab id='--content-tab-tab-Agent-Coding' classes='-active' content='Coding [stub-model: 0.0%]'
               Underline id='None' classes=''
         ContentSwitcher id='None' classes=''
           TabPane id='tab-Agent' classes=''
