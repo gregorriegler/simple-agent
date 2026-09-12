@@ -17,8 +17,10 @@ Agent:         session_ended:
 [Agent]
 user: Read that file
 assistant: 🛠️[cat /tmp/test_path/testfile.txt /]
-user: Hello world
+tool_call: cat /tmp/test_path/testfile.txt
+tool_result: Hello world
 user: actually, stop
 assistant: 🛠️[complete-task summary /]
-user: summary
+tool_call: complete-task summary
+tool_result: summary
 

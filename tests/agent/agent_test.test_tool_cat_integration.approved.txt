@@ -17,8 +17,10 @@ Agent:         session_ended:
 [Agent]
 user: Test message
 assistant: 🛠️[cat /tmp/test_path/integration_test.txt /]
-user: Integration test content
+tool_call: cat /tmp/test_path/integration_test.txt
+tool_result: Integration test content
 Line 2
 assistant: 🛠️[complete-task summary /]
-user: summary
+tool_call: complete-task summary
+tool_result: summary
 

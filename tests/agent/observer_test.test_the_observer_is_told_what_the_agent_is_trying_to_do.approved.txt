@@ -38,18 +38,22 @@ user: Store the greeting
 assistant: 🛠️[communicate-intent]
 Store the greeting in a file
 🛠️[/end]
-user: Intent: Store the greeting in a file
+tool_call: communicate-intent Store the greeting in a file
+tool_result: Intent: Store the greeting in a file
 assistant: 🛠️[create-file data1.txt]
 Hello
 🛠️[/end]
-user: Created file: data1.txt with content
+tool_call: create-file data1.txt Hello
+tool_result: Created file: data1.txt with content
 assistant: 🛠️[complete-task stored the greeting /]
-user: stored the greeting
+tool_call: complete-task stored the greeting
+tool_result: stored the greeting
 [Agent/Naming]
 user: Intent: Store the greeting in a file
 
 diff --git a/data1.txt b/data1.txt
 +Hello
 assistant: 🛠️[complete-task judged the new file /]
-user: judged the new file
+tool_call: complete-task judged the new file
+tool_result: judged the new file
 

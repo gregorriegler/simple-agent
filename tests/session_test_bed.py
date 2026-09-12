@@ -40,6 +40,7 @@ from tests.in_memory_event_store import InMemoryEventStore
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
+from tests.transcript import describe_call
 from tests.user_input_stub import UserInputStub
 
 TRANSCRIPT_SYNTAX = EmojiBracketToolSyntax(TOOL_DECLARATIONS)
@@ -99,10 +100,12 @@ class SessionTestResult:
                     current_agent = event.agent_id
                     result += "[" + str(current_agent) + "]\n"
                 result += "user: " + event.input_text + "\n"
-            elif isinstance(event, ToolResultEvent):
-                result += "user: " + str(event.result) + "\n"
             elif isinstance(event, AssistantRespondedEvent):
-                result += "assistant: " + event.response + "\n"
+                result += ("assistant: " + event.response).rstrip() + "\n"
+            elif isinstance(event, ToolCalledEvent):
+                result += "tool_call: " + describe_call(event.call) + "\n"
+            elif isinstance(event, ToolResultEvent):
+                result += "tool_result: " + str(event.result) + "\n"
 
         return result
 

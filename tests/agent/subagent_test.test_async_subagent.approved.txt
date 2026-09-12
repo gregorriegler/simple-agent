@@ -25,11 +25,13 @@ Agent/Coding:         session_ended:
 [Agent]
 user: Create an async subagent that says hello
 assistant: 🛠️[subagent coding say hello --async]
-user: Subagent started
+tool_call: subagent coding say hello --async
+tool_result: Subagent started
 assistant: Subagent started
 [Agent/Coding]
 user: say hello
 assistant: hello
 🛠️[complete-task I successfully said hello]
-user: I successfully said hello
+tool_call: complete-task I successfully said hello
+tool_result: I successfully said hello
 

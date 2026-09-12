@@ -25,11 +25,13 @@ Agent:         session_ended:
 [Agent]
 user: Create a subagent that says hello, then say goodbye
 assistant: 🛠️[subagent coding say hello]
+tool_call: subagent coding say hello
 [Agent/Coding]
 user: say hello
 assistant: hello
 🛠️[complete-task I successfully said hello]
-user: I successfully said hello
-user: I successfully said hello
+tool_call: complete-task I successfully said hello
+tool_result: I successfully said hello
+tool_result: I successfully said hello
 assistant: goodbye
 

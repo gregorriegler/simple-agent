@@ -43,8 +43,10 @@ user: Store the greeting
 assistant: 🛠️[create-file data1.txt]
 Hello
 🛠️[/end]
-user: Created file: data1.txt with content
+tool_call: create-file data1.txt Hello
+tool_result: Created file: data1.txt with content
 assistant: 🛠️[cat data1.txt /]
+tool_call: cat data1.txt
 [Agent/Naming]
 user: diff --git a/data1.txt b/data1.txt
 +Hello
@@ -52,13 +54,16 @@ assistant: 🛠️[suggest]
 data1.txt says nothing about its content, call it greeting.txt
 🛠️[/end]
 🛠️[complete-task judged the new file /]
-user: Suggested: data1.txt says nothing about its content, call it greeting.txt
-user: judged the new file
-user: Hello
+tool_call: suggest data1.txt says nothing about its content, call it greeting.txt
+tool_result: Suggested: data1.txt says nothing about its content, call it greeting.txt
+tool_call: complete-task judged the new file
+tool_result: judged the new file
+tool_result: Hello
 [Agent]
 user: 💡 Suggestion from the naming observer:
 data1.txt says nothing about its content, call it greeting.txt
 assistant: I will rename it.
 🛠️[complete-task renamed the file /]
-user: renamed the file
+tool_call: complete-task renamed the file
+tool_result: renamed the file
 

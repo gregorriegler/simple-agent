@@ -20,8 +20,9 @@ Agent:         session_ended:
 # Messages:
 [Agent]
 user: show me my notes
-assistant: 
-user:      1	Hello world
+assistant:
+tool_call: cat 'my notes.md' with_line_numbers
+tool_result:      1	Hello world
 assistant: done
 user: what did it say?
 assistant: done again

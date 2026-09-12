@@ -21,7 +21,9 @@ user: Test message
 assistant: 🛠️[create-file greeting.txt]
 Hello
 🛠️[/end]
-user: Created file: greeting.txt with content
+tool_call: create-file greeting.txt Hello
+tool_result: Created file: greeting.txt with content
 assistant: 🛠️[complete-task summary /]
-user: summary
+tool_call: complete-task summary
+tool_result: summary
 

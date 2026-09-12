@@ -20,11 +20,13 @@ Agent:         session_ended:
 [Agent]
 user: Test message
 assistant: 🛠️[ls /tmp/test_path]
-user: .
+tool_call: ls /tmp/test_path
+tool_result: .
 ..
 file1.txt
 file2.py
 subdir
 assistant: 🛠️[complete-task summary]
-user: summary
+tool_call: complete-task summary
+tool_result: summary
 

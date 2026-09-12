@@ -16,5 +16,6 @@ Agent:         session_ended:
 user: Say Hello
 assistant: Hello!
 🛠️[complete-task I successfully said hello /]
-user: I successfully said hello
+tool_call: complete-task I successfully said hello
+tool_result: I successfully said hello
 

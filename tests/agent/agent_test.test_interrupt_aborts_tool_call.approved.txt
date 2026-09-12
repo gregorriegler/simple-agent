@@ -13,4 +13,5 @@ Agent:         session_ended:
 [Agent]
 user: Hello
 assistant: 🛠️[cat hello.txt /]
+tool_call: cat hello.txt
 

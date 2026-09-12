@@ -53,16 +53,20 @@ user: Store the greeting
 assistant: 🛠️[create-file data1.txt]
 Hello
 🛠️[/end]
-user: Created file: data1.txt with content
+tool_call: create-file data1.txt Hello
+tool_result: Created file: data1.txt with content
 assistant: 🛠️[create-file greeting.txt]
 Hello
 🛠️[/end]
-user: Created file: greeting.txt with content
+tool_call: create-file greeting.txt Hello
+tool_result: Created file: greeting.txt with content
 assistant: 🛠️[create-file tmp2.txt]
 Bye
 🛠️[/end]
-user: Created file: tmp2.txt with content
+tool_call: create-file tmp2.txt Bye
+tool_result: Created file: tmp2.txt with content
 assistant: 🛠️[cat greeting.txt /]
+tool_call: cat greeting.txt
 [Agent/Naming]
 user: diff --git a/tmp2.txt b/tmp2.txt
 +Bye
@@ -70,12 +74,15 @@ assistant: 🛠️[suggest]
 tmp2.txt says nothing about its content
 🛠️[/end]
 🛠️[complete-task judged tmp2.txt /]
-user: Suggested: tmp2.txt says nothing about its content
-user: judged tmp2.txt
-user: Hello
+tool_call: suggest tmp2.txt says nothing about its content
+tool_result: Suggested: tmp2.txt says nothing about its content
+tool_call: complete-task judged tmp2.txt
+tool_result: judged tmp2.txt
+tool_result: Hello
 [Agent]
 user: 💡 Suggestion from the naming observer:
 tmp2.txt says nothing about its content
 assistant: 🛠️[complete-task stored the greeting /]
-user: stored the greeting
+tool_call: complete-task stored the greeting
+tool_result: stored the greeting
 

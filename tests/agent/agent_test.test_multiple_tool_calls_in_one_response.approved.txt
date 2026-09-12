@@ -27,14 +27,17 @@ Agent:         session_ended:
 user: Test message
 assistant: I will list the files and then read one.
 🛠️[ls /tmp/test_path /]🛠️[cat /tmp/test_path/file2.py /]
-user: .
+tool_call: ls /tmp/test_path
+tool_result: .
 ..
 file1.txt
 file2.py
 subdir
-user: def hello():
+tool_call: cat /tmp/test_path/file2.py
+tool_result: def hello():
     print('Hello')
     return 42
 assistant: 🛠️[complete-task summary /]
-user: summary
+tool_call: complete-task summary
+tool_result: summary
 

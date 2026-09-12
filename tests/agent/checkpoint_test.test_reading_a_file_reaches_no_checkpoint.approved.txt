@@ -16,7 +16,9 @@ Agent:         session_ended:
 [Agent]
 user: Test message
 assistant: 🛠️[cat greeting.txt /]
-user: Hello
+tool_call: cat greeting.txt
+tool_result: Hello
 assistant: 🛠️[complete-task summary /]
-user: summary
+tool_call: complete-task summary
+tool_result: summary
 

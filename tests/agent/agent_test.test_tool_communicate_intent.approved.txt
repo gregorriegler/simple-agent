@@ -20,7 +20,9 @@ user: Test message
 assistant: 🛠️[communicate-intent]
 Extract the tool syntax parser
 🛠️[/end]
-user: Intent: Extract the tool syntax parser
+tool_call: communicate-intent Extract the tool syntax parser
+tool_result: Intent: Extract the tool syntax parser
 assistant: 🛠️[complete-task summary /]
-user: summary
+tool_call: complete-task summary
+tool_result: summary
 
