@@ -33,19 +33,14 @@ from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.application.session import Session
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from simple_agent.infrastructure.file_intent import FileIntent
-from simple_agent.tools.all_tools import TOOL_DECLARATIONS
-from tests.emoji_llm import EmojiToolCallsLLM, to_text_messages, to_wire_messages
-from tests.emoji_syntax import EmojiBracketToolSyntax
 from tests.event_spy import EventSpy
 from tests.in_memory_event_store import InMemoryEventStore
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
 from tests.tool_calls import complete_task
-from tests.transcript import describe_call
+from tests.transcript import describe_call, render_messages, transcript_line
 from tests.user_input_stub import UserInputStub
-
-TRANSCRIPT_SYNTAX = EmojiBracketToolSyntax(TOOL_DECLARATIONS)
 
 
 class CapturingLLM:
@@ -71,8 +66,10 @@ class CapturingLLM:
         if call_index >= len(self.captured_messages):
             return False
         return any(
-            m["role"] == role and content in m["content"]
-            for m in to_wire_messages(self.captured_messages[call_index])
+            message_role == role and content in text
+            for message_role, text in map(
+                transcript_line, self.captured_messages[call_index]
+            )
         )
 
 
@@ -81,10 +78,8 @@ class SessionTestResult:
         self.events = event_spy
 
     def current_messages(self, agent_id: AgentId) -> str:
-        messages = events_to_messages(self.events.get_all_events(), agent_id)
-        return "\n".join(
-            f"{msg['role']}: {msg['content']}"
-            for msg in to_text_messages(messages, TRANSCRIPT_SYNTAX)
+        return render_messages(
+            events_to_messages(self.events.get_all_events(), agent_id)
         )
 
     def all_messages(self) -> str:
@@ -338,8 +333,7 @@ class TestLLMProvider:
         self._observer_llm = observer_llm
 
     def get(self, model_name: str | None = None, tools: list | None = None):
-        llm = self._observer_llm if model_name == OBSERVER_MODEL else self._agent_llm
-        return EmojiToolCallsLLM(llm, tools or [])
+        return self._observer_llm if model_name == OBSERVER_MODEL else self._agent_llm
 
     def get_available_models(self) -> list[str]:
         return [self._agent_llm.model]

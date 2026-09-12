@@ -8,18 +8,11 @@ from simple_agent.application.events import ToolCalledEvent
 from simple_agent.infrastructure.file_event_store import FileEventStore
 from simple_agent.infrastructure.gemini.gemini_client import GeminiLLM
 from simple_agent.infrastructure.model_config import ModelConfig
-from tests.emoji_llm import to_text_messages
-from tests.session_test_bed import TRANSCRIPT_SYNTAX, CapturingLLM, SessionTestBed
+from tests.session_test_bed import CapturingLLM, SessionTestBed
 from tests.test_helpers import all_scrubbers, create_temp_file
+from tests.transcript import render_messages
 
 pytestmark = pytest.mark.asyncio
-
-
-class TextModel(CapturingLLM):
-    """Captures what an emoji-protocol adapter would send, after flattening."""
-
-    async def call_async(self, messages):
-        return await super().call_async(to_text_messages(messages, TRANSCRIPT_SYNTAX))
 
 
 class ScriptedGemini:
@@ -28,7 +21,7 @@ class ScriptedGemini:
     def __init__(self, interactions: list[dict]):
         self._interactions = list(interactions)
         self.requests: list[dict] = []
-        self.text_model = TextModel()
+        self.other_model = CapturingLLM()
 
     def transport(self) -> httpx.MockTransport:
         def handler(request):
@@ -38,8 +31,8 @@ class ScriptedGemini:
         return httpx.MockTransport(handler)
 
     def get(self, model_name=None, tools=None):
-        if model_name == "text":
-            return self.text_model
+        if model_name == "other":
+            return self.other_model
         config = ModelConfig(
             name="gemini",
             model="test-model",
@@ -51,7 +44,7 @@ class ScriptedGemini:
         return GeminiLLM(config, tools=tools, transport=self.transport())
 
     def get_available_models(self):
-        return ["gemini", "text"]
+        return ["gemini", "other"]
 
     def as_approval_string(self) -> str:
         gemini_requests = "\n".join(
@@ -59,12 +52,11 @@ class ScriptedGemini:
             + json.dumps(request["input"], indent=2)
             for index, request in enumerate(self.requests)
         )
-        text_requests = "\n".join(
-            f"# Text model request {index + 1}\n"
-            + "\n".join(f"{m['role']}: {m['content']}" for m in messages)
-            for index, messages in enumerate(self.text_model.captured_messages)
+        other_requests = "\n".join(
+            f"# Other model request {index + 1}\n" + render_messages(messages)
+            for index, messages in enumerate(self.other_model.captured_messages)
         )
-        return "\n".join(part for part in (gemini_requests, text_requests) if part)
+        return "\n".join(part for part in (gemini_requests, other_requests) if part)
 
 
 def completed(*steps: dict) -> dict:
@@ -172,7 +164,7 @@ async def test_interrupted_native_call_still_gets_a_result(tmp_path, monkeypatch
     )
 
 
-async def test_switching_to_a_text_model_keeps_the_native_call(tmp_path, monkeypatch):
+async def test_switching_to_another_model_keeps_the_native_call(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     create_temp_file(tmp_path, "my notes.md", "Hello world")
     gemini = ScriptedGemini(
@@ -186,12 +178,12 @@ async def test_switching_to_a_text_model_keeps_the_native_call(tmp_path, monkeyp
             completed(text("done")),
         ]
     )
-    gemini.text_model.set_responses(["done again"])
+    gemini.other_model.set_responses(["done again"])
 
     result = (
         await SessionTestBed()
         .with_llm_provider(gemini)
-        .with_user_inputs("show me my notes", "/model text", "what did it say?", "\n")
+        .with_user_inputs("show me my notes", "/model other", "what did it say?", "\n")
         .run()
     )
 

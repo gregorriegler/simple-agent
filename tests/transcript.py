@@ -1,10 +1,50 @@
-"""How a tool call reads in a test transcript: one line of command text."""
+"""How calls and messages read in a test transcript."""
 
+from simple_agent.application.llm import (
+    AssistantMessage,
+    ChatMessage,
+    ChatMessages,
+    SystemMessage,
+    ToolResultMessage,
+    UserMessage,
+)
 from simple_agent.application.tool_library import ToolCall, call_body, call_header
 from simple_agent.tools.all_tools import TOOL_DECLARATIONS
 
 
 def describe_call(call: ToolCall) -> str:
+    """The call as one line of command text."""
     header = call_header(call, TOOL_DECLARATIONS)
     body = call_body(call, TOOL_DECLARATIONS)
     return " ".join(part for part in (header, body) if part)
+
+
+def transcript_line(message: ChatMessage) -> tuple[str, str]:
+    """A message as its role and text; an assistant turn lists its calls."""
+    return message.render(_AS_TRANSCRIPT)
+
+
+def render_messages(messages: ChatMessages) -> str:
+    lines = []
+    for message in messages:
+        role, text = transcript_line(message)
+        lines.extend(line.rstrip() for line in f"{role}: {text}".split("\n"))
+    return "\n".join(lines)
+
+
+class _AsTranscript:
+    def system(self, message: SystemMessage) -> tuple[str, str]:
+        return "system", message.content
+
+    def user(self, message: UserMessage) -> tuple[str, str]:
+        return "user", message.content
+
+    def assistant(self, message: AssistantMessage) -> tuple[str, str]:
+        calls = "".join(f"\ntool_call: {describe_call(c)}" for c in message.tool_calls)
+        return "assistant", message.content + calls
+
+    def tool_result(self, message: ToolResultMessage) -> tuple[str, str]:
+        return "tool_result", message.content
+
+
+_AS_TRANSCRIPT = _AsTranscript()
