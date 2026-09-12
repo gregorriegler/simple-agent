@@ -23,7 +23,27 @@ class Input:
     async def read_async(self) -> str:
         if not self.inbox.is_empty():
             return self.inbox.take()
-        return await self.user_input.read_async()
+        inbox = asyncio.ensure_future(self.inbox.wait())
+        keyboard = asyncio.ensure_future(self._read_keyboard())
+        try:
+            await asyncio.wait({inbox, keyboard}, return_when=asyncio.FIRST_COMPLETED)
+        finally:
+            inbox.cancel()
+            if not keyboard.done():
+                keyboard.cancel()
+            await asyncio.gather(inbox, keyboard, return_exceptions=True)
+        if not keyboard.cancelled():
+            typed = keyboard.result()
+            if isinstance(typed, BaseException):
+                raise typed
+            return typed
+        return self.inbox.take()
+
+    async def _read_keyboard(self) -> str | BaseException:
+        try:
+            return await self.user_input.read_async()
+        except (EOFError, KeyboardInterrupt) as interrupt:
+            return interrupt
 
     async def wait_for_message(self, timeout: float) -> bool:
         """Block until a message is waiting or the timeout passes."""

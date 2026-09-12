@@ -20,10 +20,10 @@ Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::5 complete-task summary="stored the greeting"
 Agent:           tool_result: Agent::tool_call::5 stored the greeting
 Agent: user_prompt_requested: 
-Agent:        agent_finished: 
-Agent:         session_ended: 
 Agent/Naming:         agent_started: Naming stub-model naming
 Agent/Naming: user_prompt_requested: 
+Agent:        agent_finished: 
+Agent:         session_ended: 
 Agent/Naming:         user_prompted: Intent: Give the file a telling name
 
 diff --git a/greeting.txt b/greeting.txt

@@ -309,7 +309,9 @@ class SessionTestBed:
             tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
             if not tasks:
                 break
-            await asyncio.gather(*tasks)
+            for outcome in await asyncio.gather(*tasks, return_exceptions=True):
+                if isinstance(outcome, Exception):
+                    raise outcome
 
         return SessionTestResult(event_spy)
 
