@@ -130,14 +130,6 @@ def test_renders_a_lone_positional_argument_as_written():
     )
 
 
-def test_renders_the_body_value_and_nothing_without_a_body_argument():
-    with_body = ToolArguments(body=ToolArgument(name="content", description=""))
-    without = ToolArguments(header=[ToolArgument(name="command", description="")])
-
-    assert with_body.render_body({"content": "line1\nline2"}) == "line1\nline2"
-    assert without.render_body({"command": "ls"}) == ""
-
-
 def test_a_windows_path_with_a_space_survives_rendering():
     arguments = ToolArguments(
         header=[

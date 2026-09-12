@@ -1,3 +1,4 @@
+import json
 import shlex
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -196,10 +197,13 @@ class ToolArguments:
             return shlex.quote(value)
         return value
 
-    def render_body(self, named: dict[str, Any]) -> str:
-        if self._body is None:
-            return ""
-        return str(named.get(self._body.name, ""))
+
+def describe_call(call: ToolCall) -> str:
+    """The call on one line: its name, then each named argument as JSON."""
+    arguments = (
+        f"{name}={json.dumps(value)}" for name, value in call.named_arguments.items()
+    )
+    return " ".join((call.name, *arguments))
 
 
 def call_header(call: ToolCall, declarations: ToolDeclarations) -> str:
@@ -213,11 +217,6 @@ def call_header(call: ToolCall, declarations: ToolDeclarations) -> str:
     else:
         text = tool.arguments.render_header(call.named_arguments)
     return " ".join(part for part in (call.name, text) if part)
-
-
-def call_body(call: ToolCall, declarations: ToolDeclarations) -> str:
-    tool = declarations.get(call.name)
-    return "" if tool is None else tool.arguments.render_body(call.named_arguments)
 
 
 class Tool(Protocol):

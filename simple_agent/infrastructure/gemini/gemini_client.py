@@ -107,7 +107,7 @@ class GeminiLLM(LLM):
         return request
 
     def _convert_messages(self, messages: ChatMessages) -> tuple[str, list[dict]]:
-        unsigned_as_text = UnsignedTurnsAsText(self._declarations)
+        unsigned_as_text = UnsignedTurnsAsText()
         history = [message.render(unsigned_as_text) for message in messages]
 
         steps = InteractionSteps()
