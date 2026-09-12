@@ -14,6 +14,7 @@ from simple_agent.application.events import (
     ToolResultEvent,
     UserPromptedEvent,
 )
+from simple_agent.application.on_complete import OnComplete
 from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import SingleToolResult
 
@@ -87,7 +88,7 @@ class TestEventSerializer:
             agent_name="Coding",
             model="claude-sonnet-4-20250514",
             agent_type=AgentType("coding"),
-            unattended=True,
+            on_complete=OnComplete.CLOSE,
         )
 
         result = EventSerializer.to_dict(event)
@@ -98,7 +99,7 @@ class TestEventSerializer:
             "agent_name": "Coding",
             "model": "claude-sonnet-4-20250514",
             "agent_type": "coding",
-            "unattended": True,
+            "on_complete": "close",
         }
 
     def test_deserialize_agent_started_event(self):
@@ -108,7 +109,7 @@ class TestEventSerializer:
             "agent_name": "Coding",
             "model": "claude-sonnet-4-20250514",
             "agent_type": "coding",
-            "unattended": True,
+            "on_complete": "close",
         }
 
         result = EventSerializer.from_dict(data)
@@ -117,9 +118,9 @@ class TestEventSerializer:
         assert result.agent_id == AgentId("Agent/Coding")
         assert result.agent_name == "Coding"
         assert result.model == "claude-sonnet-4-20250514"
-        assert result.unattended is True
+        assert result.on_complete is OnComplete.CLOSE
 
-    def test_deserialize_agent_started_event_without_unattended_defaults_to_attended(
+    def test_deserialize_agent_started_event_without_on_complete_defaults_to_human_review(
         self,
     ):
         data = {
@@ -133,7 +134,7 @@ class TestEventSerializer:
         result = EventSerializer.from_dict(data)
 
         assert isinstance(result, AgentStartedEvent)
-        assert result.unattended is False
+        assert result.on_complete is OnComplete.HUMAN_REVIEW
 
     def test_serialize_agent_finished_event(self):
         event = AgentFinishedEvent(agent_id=AgentId("Agent/Coding"))

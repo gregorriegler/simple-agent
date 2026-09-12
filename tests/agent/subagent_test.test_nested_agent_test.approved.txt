@@ -1,14 +1,14 @@
 # Events
 Agent:       session_started: False
-Agent:         agent_started: Agent stub-model agent False
+Agent:         agent_started: Agent stub-model agent human_review
 Agent:         user_prompted: Create a subagent that creates another subagent
 Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::1 subagent agenttype="orchestrator" task_description="create another subagent"
-Agent/Orchestrator:         agent_started: Orchestrator stub-model orchestrator False
+Agent/Orchestrator:         agent_started: Orchestrator stub-model orchestrator human_review
 Agent/Orchestrator:         user_prompted: create another subagent
 Agent/Orchestrator:   assistant_responded:  stub-model 0.0%
 Agent/Orchestrator:           tool_called: Agent/Orchestrator::tool_call::1 subagent agenttype="coding" task_description="say nested hello"
-Agent/Orchestrator/Coding:         agent_started: Coding stub-model coding False
+Agent/Orchestrator/Coding:         agent_started: Coding stub-model coding human_review
 Agent/Orchestrator/Coding:         user_prompted: say nested hello
 Agent/Orchestrator/Coding:   assistant_responded: nested hello stub-model 0.0%
 Agent/Orchestrator/Coding:        assistant_said: nested hello

@@ -13,6 +13,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
+from simple_agent.application.on_complete import OnComplete
 from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.textual.textual_app import TextualApp
@@ -454,7 +455,9 @@ async def test_a_background_subagent_tab_does_not_steal_the_active_tab(
         await pilot.pause()
         event_bus.publish(AgentStartedEvent(root_id, "Agent", "dummy-model"))
         event_bus.publish(
-            AgentStartedEvent(sub_id, "Helper", "dummy-model", unattended=True)
+            AgentStartedEvent(
+                sub_id, "Helper", "dummy-model", on_complete=OnComplete.CLOSE
+            )
         )
         from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
 

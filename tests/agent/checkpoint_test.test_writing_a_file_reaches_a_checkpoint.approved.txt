@@ -1,6 +1,6 @@
 # Events
 Agent:       session_started: False
-Agent:         agent_started: Agent stub-model agent False
+Agent:         agent_started: Agent stub-model agent human_review
 Agent:         user_prompted: Test message
 Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::1 create-file filename="greeting.txt" content="Hello"

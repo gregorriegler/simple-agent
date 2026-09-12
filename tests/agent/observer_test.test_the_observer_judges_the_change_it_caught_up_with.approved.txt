@@ -1,6 +1,6 @@
 # Events
 Agent:       session_started: False
-Agent:         agent_started: Agent stub-model agent False
+Agent:         agent_started: Agent stub-model agent human_review
 Agent:         user_prompted: Store the greeting
 Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::1 create-file filename="data1.txt" content="Hello"
@@ -16,7 +16,7 @@ Agent:           tool_result: Agent::tool_call::3 Created file: tmp2.txt with co
 Agent:    checkpoint_reached: 
 Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::4 cat filename="greeting.txt"
-Agent/Naming:         agent_started: Naming stub-model naming False
+Agent/Naming:         agent_started: Naming stub-model naming human_review
 Agent/Naming: user_prompt_requested: 
 Agent/Naming:         user_prompted: diff --git a/tmp2.txt b/tmp2.txt
 +Bye

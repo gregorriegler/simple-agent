@@ -24,6 +24,7 @@ from simple_agent.application.events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
+from simple_agent.application.on_complete import OnComplete
 from simple_agent.application.tool_library import ToolDeclarations, call_header
 from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 
@@ -177,13 +178,11 @@ class AgentTabs(TabbedContent):
         if workspace and workspace.smart_input:
             workspace.smart_input.focus()
 
-    def _is_attended_subagent(
-        self, agent_id: AgentId, event: AgentStartedEvent
-    ) -> bool:
+    def _awaits_human_review(self, agent_id: AgentId, event: AgentStartedEvent) -> bool:
         return (
             not self._replaying
             and agent_id != self._root_agent_id
-            and not event.unattended
+            and event.on_complete is OnComplete.HUMAN_REVIEW
             and self.has_agent_tab(agent_id)
         )
 
@@ -193,7 +192,7 @@ class AgentTabs(TabbedContent):
             return
         if isinstance(event, AgentStartedEvent):
             self._ensure_agent_tab_exists(agent_id, event.agent_name, event.model)
-            if self._is_attended_subagent(agent_id, event):
+            if self._awaits_human_review(agent_id, event):
                 self.activate_tab(agent_id)
         elif isinstance(event, SessionClearedEvent):
             workspace = self._agent_workspaces.get(str(agent_id))

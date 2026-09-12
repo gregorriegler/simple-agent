@@ -1,13 +1,13 @@
 # Events
 Agent:       session_started: True
-Agent:         agent_started: Agent test-model agent False
+Agent:         agent_started: Agent test-model agent human_review
 Agent:         user_prompted: show me my notes
 Agent:   assistant_responded:  test-model 0.0%
 Agent:           tool_called: Agent::tool_call::1 cat filename="my notes.md" with_line_numbers=true
 Agent:           tool_result: Agent::tool_call::1      1	Hello world
 Agent:   assistant_responded: done test-model 0.0%
 Agent:        agent_finished: 
-Agent:         agent_started: Agent test-model agent False
+Agent:         agent_started: Agent test-model agent human_review
 Agent:         user_prompted: what did it say?
 Agent:   assistant_responded: done again test-model 0.0%
 Agent:        assistant_said: done again
