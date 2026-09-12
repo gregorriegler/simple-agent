@@ -64,7 +64,12 @@ class AgentFactory:
             context = self.history_of(agent_id)
 
             subagent = self.create_agent(
-                agent_id, definition, task_description, context, agent_type
+                agent_id,
+                definition,
+                task_description,
+                context,
+                agent_type,
+                unattended=is_async,
             )
             if is_async:
                 self._agent_task_manager.start_task(agent_id, subagent.start())
@@ -94,6 +99,7 @@ class AgentFactory:
         messages: Messages,
         agent_type: AgentType | None = None,
         user_input: Input | None = None,
+        unattended: bool = False,
     ) -> Agent:
         brain = self._build_brain(agent_id, definition)
         messages.seed_system_prompt(brain.system_prompt)
@@ -108,6 +114,7 @@ class AgentFactory:
             agent_type=agent_type,
             available_agents=self._agent_library.list_agent_types(),
             brain_factory=self,
+            unattended=unattended,
         )
 
     def build_brain(self, agent_id: AgentId, agent_type: AgentType) -> Brain:

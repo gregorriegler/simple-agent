@@ -16,7 +16,6 @@ Agent/Coding:   assistant_responded: hello stub-model 0.0%
 Agent/Coding:        assistant_said: hello
 Agent/Coding:           tool_called: Agent/Coding::tool_call::1 complete-task summary="I successfully said hello"
 Agent/Coding:           tool_result: Agent/Coding::tool_call::1 I successfully said hello
-Agent/Coding: user_prompt_requested: 
 Agent/Coding:        agent_finished: 
 Agent/Coding:         session_ended: 
 

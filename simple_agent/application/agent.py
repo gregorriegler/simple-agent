@@ -54,8 +54,10 @@ class Agent(SlashCommandVisitor):
         agent_type: AgentType | None = None,
         available_agents: list[str] | None = None,
         brain_factory: BrainFactory | None = None,
+        unattended: bool = False,
     ):
         self.agent_id = agent_id
+        self.unattended = unattended
         self.brain = brain
         self.agent_type = agent_type
         self.llm_provider = llm_provider
@@ -109,6 +111,8 @@ class Agent(SlashCommandVisitor):
                     if not prompt:
                         break
                     tool_result = await self.run_tool_loop()
+                    if self.unattended and not tool_result.do_continue():
+                        break
                 except asyncio.CancelledError:
                     # ESC pressed - interrupt current operation but continue session
                     self.event_bus.publish(SessionInterruptedEvent(self.agent_id))
