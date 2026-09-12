@@ -33,9 +33,7 @@ async def test_continuing_session_replays_finished_subagent_start_event(tmp_path
     )
     event_store.persist(UserPromptedEvent(agent_id=parent_id, input_text="Start sub"))
     event_store.persist(
-        AssistantRespondedEvent(
-            agent_id=parent_id, response="🛠️[subagent coding Do it /]"
-        )
+        AssistantRespondedEvent(agent_id=parent_id, response="Starting subagent")
     )
 
     # Subagent

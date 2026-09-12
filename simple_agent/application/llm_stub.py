@@ -19,7 +19,7 @@ class StubLLM:
     def __init__(
         self,
         responses: Sequence[StubResponse],
-        default: str = "",
+        default: StubResponse = "",
         model: str = "stub-model",
     ):
         self._responses = responses
@@ -46,7 +46,9 @@ class StubLLM:
         )
 
 
-def create_llm_stub(responses: Sequence[StubResponse], *, default: str = "") -> LLM:
+def create_llm_stub(
+    responses: Sequence[StubResponse], *, default: StubResponse = ""
+) -> LLM:
     return StubLLM(responses, default)
 
 

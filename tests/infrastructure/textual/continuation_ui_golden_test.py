@@ -75,7 +75,7 @@ async def test_continuation_ui_shows_same_content_after_restore(tmp_path):
         ),
         AssistantRespondedEvent(
             agent_id=agent_id,
-            response="Starting subagent\n🛠️[subagent coding Say hello /]",
+            response="Starting subagent",
             model="stub-model",
             token_usage_display="0.0%",
         ),
@@ -158,7 +158,7 @@ async def test_continuation_tool_result_is_last_event(tmp_path):
         UserPromptedEvent(agent_id=agent_id, input_text="run bash sleep 5"),
         AssistantRespondedEvent(
             agent_id=agent_id,
-            response="🛠️[bash sleep 5 /]",
+            response="",
             model="stub-model",
             token_usage_display="0.4%",
         ),
