@@ -14,9 +14,8 @@ def to_messages_api(messages: ChatMessages) -> list[dict]:
     Renders a conversation into Messages API messages: an assistant turn
     carries its calls as 'tool_use' blocks and the results of one turn
     answer them together in a single user message of 'tool_result'
-    blocks. A call made without an id, under the emoji syntax or by
-    another adapter, is replayed under a synthetic one, matched to its
-    result by order.
+    blocks. A call made without an id, by a stub or by another adapter,
+    is replayed under a synthetic one, matched to its result by order.
     """
     renderer = _MessagesApiMessages()
     rendered: list[dict] = []
