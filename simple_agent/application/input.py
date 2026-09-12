@@ -3,8 +3,6 @@ import asyncio
 from .inbox import Inbox
 from .user_input import UserInput
 
-POLL_INTERVAL = 0.05
-
 
 class Input:
     def __init__(self, user_input: UserInput, inbox: Inbox | None = None):
@@ -48,12 +46,16 @@ class Input:
     async def wait_for_message(self, timeout: float) -> bool:
         """Block until a message is waiting or the timeout passes."""
         deadline = asyncio.get_running_loop().time() + timeout
-        while True:
-            if not self.inbox.is_empty() or self.user_input.has_pending():
+        try:
+            message = await asyncio.wait_for(self.read_async(), timeout)
+            if message:
+                self.inbox.put(message)
                 return True
-            if asyncio.get_running_loop().time() >= deadline:
-                return False
-            await asyncio.sleep(POLL_INTERVAL)
+            remaining = deadline - asyncio.get_running_loop().time()
+            await asyncio.wait_for(self.inbox.wait(), max(remaining, 0))
+            return True
+        except TimeoutError:
+            return False
 
     def escape_requested(self) -> bool:
         return self.user_input.escape_requested()

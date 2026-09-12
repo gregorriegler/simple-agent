@@ -14,8 +14,7 @@ async def test_a_message_reaches_only_the_agent_it_was_sent_to():
 
     router.submit_input(CHILD, "hello child")
 
-    assert router.for_agent(PARENT).has_pending() is False
-    assert router.for_agent(CHILD).has_pending() is True
+    assert router.for_agent(PARENT).drain() == []
     assert await router.for_agent(CHILD).read_async() == "hello child"
 
 

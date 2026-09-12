@@ -10,10 +10,6 @@ class UserInput(Protocol):
         """Messages already waiting, without blocking for new ones."""
         return []
 
-    def has_pending(self) -> bool:
-        """Whether a message is waiting, without taking it."""
-        return False
-
     def for_agent(self, agent_id: AgentId) -> "UserInput":
         """The channel this agent reads from; by default all agents share one."""
         return self
