@@ -1,5 +1,5 @@
 Command:
-communicate-intent Extract the tool syntax parser
+communicate-intent intent="Extract the tool syntax parser"
 
 Result:
 Intent: Extract the tool syntax parser

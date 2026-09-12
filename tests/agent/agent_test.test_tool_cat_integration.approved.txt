@@ -3,11 +3,11 @@ Agent:       session_started: False
 Agent:         agent_started: Agent stub-model agent
 Agent:         user_prompted: Test message
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 cat /tmp/test_path/integration_test.txt
+Agent:           tool_called: Agent::tool_call::1 cat filename="/tmp/test_path/integration_test.txt"
 Agent:           tool_result: Agent::tool_call::1 Integration test content
 Line 2
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 complete-task summary
+Agent:           tool_called: Agent::tool_call::2 complete-task summary="summary"
 Agent:           tool_result: Agent::tool_call::2 summary
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
@@ -17,10 +17,10 @@ Agent:         session_ended:
 [Agent]
 user: Test message
 assistant:
-tool_call: cat /tmp/test_path/integration_test.txt
+  cat filename="/tmp/test_path/integration_test.txt"
 tool_result: Integration test content
 Line 2
 assistant:
-tool_call: complete-task summary
+  complete-task summary="summary"
 tool_result: summary
 

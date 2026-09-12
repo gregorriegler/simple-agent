@@ -1,5 +1,5 @@
 Command:
-cat /tmp/test_path/test.txt 1-2 with_line_numbers
+cat filename="/tmp/test_path/test.txt" line_range="1-2" with_line_numbers=true
 
 Result:
      1	Hello world

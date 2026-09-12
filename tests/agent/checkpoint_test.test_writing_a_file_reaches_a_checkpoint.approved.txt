@@ -3,11 +3,11 @@ Agent:       session_started: False
 Agent:         agent_started: Agent stub-model agent
 Agent:         user_prompted: Test message
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 create-file greeting.txt Hello
+Agent:           tool_called: Agent::tool_call::1 create-file filename="greeting.txt" content="Hello"
 Agent:           tool_result: Agent::tool_call::1 Created file: greeting.txt with content
 Agent:    checkpoint_reached: 
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 complete-task summary
+Agent:           tool_called: Agent::tool_call::2 complete-task summary="summary"
 Agent:           tool_result: Agent::tool_call::2 summary
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
@@ -17,9 +17,9 @@ Agent:         session_ended:
 [Agent]
 user: Test message
 assistant:
-tool_call: create-file greeting.txt Hello
+  create-file filename="greeting.txt" content="Hello"
 tool_result: Created file: greeting.txt with content
 assistant:
-tool_call: complete-task summary
+  complete-task summary="summary"
 tool_result: summary
 

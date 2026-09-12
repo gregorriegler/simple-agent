@@ -248,8 +248,10 @@ stub out bare, a tool test executes a `ToolCall` through
 words only, as production writes them now.
 
 Transcripts render from the structure: an `assistant:` line carries the
-words, each call is a `tool_call:` line and each result a `tool_result:`
-line, in the session transcript and in what a captured model received.
+words, each call is indented under it as its name and named arguments
+(`cat filename="my notes.md" with_line_numbers=true`), and each result is
+a `tool_result:` line, in the session transcript and in what a captured
+model received.
 The Gemini switch scenario now switches to another native model, which
 receives the call as structured history.
 
@@ -258,6 +260,6 @@ and the emoji parsing tests; the emoji text example left in
 `replace-file-content`. What stays: `call_header` and `call_body` in
 `ToolArguments`, because production still renders a call as one line of
 command text for the UI tab title and for Gemini's replay of unsigned
-turns; the transcripts use the same rendering. One legacy-log test keeps
+turns; the transcripts show the named dict instead. One legacy-log test keeps
 an emoji string in an old `assistant_responded` event to show that such
 text is replayed as text.

@@ -1,7 +1,5 @@
 Command:
-replace-file-content test.py single     old_code = 1
-@@@
-    new_code = 42
+replace-file-content filename="test.py" replace_mode="single" content="    old_code = 1\n@@@\n    new_code = 42"
 
 Result:
 Successfully replaced content in test.py

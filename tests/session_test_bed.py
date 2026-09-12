@@ -94,7 +94,7 @@ class SessionTestResult:
             elif isinstance(event, AssistantRespondedEvent):
                 result += ("assistant: " + event.response).rstrip() + "\n"
             elif isinstance(event, ToolCalledEvent):
-                result += "tool_call: " + describe_call(event.call) + "\n"
+                result += "  " + describe_call(event.call) + "\n"
             elif isinstance(event, ToolResultEvent):
                 result += "tool_result: " + str(event.result) + "\n"
 

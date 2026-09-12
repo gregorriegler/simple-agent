@@ -1,7 +1,5 @@
 Command:
-write-todos - [ ] Item 1
-- [ ] **Work in progress**
-- [x] Completed
+write-todos content="- [ ] Item 1\n- [ ] **Work in progress**\n- [x] Completed"
 
 Result:
 Updated TODOS

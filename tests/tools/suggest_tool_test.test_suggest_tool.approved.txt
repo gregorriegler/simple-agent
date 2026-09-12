@@ -1,5 +1,5 @@
 Command:
-suggest data1.txt says nothing about its content
+suggest suggestion="data1.txt says nothing about its content"
 
 Result:
 Suggested: data1.txt says nothing about its content

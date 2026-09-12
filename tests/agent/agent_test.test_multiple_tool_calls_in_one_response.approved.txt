@@ -4,18 +4,18 @@ Agent:         agent_started: Agent stub-model agent
 Agent:         user_prompted: Test message
 Agent:   assistant_responded: I will list the files and then read one. stub-model 0.0%
 Agent:        assistant_said: I will list the files and then read one.
-Agent:           tool_called: Agent::tool_call::1 ls /tmp/test_path
+Agent:           tool_called: Agent::tool_call::1 ls path="/tmp/test_path"
 Agent:           tool_result: Agent::tool_call::1 .
 ..
 file1.txt
 file2.py
 subdir
-Agent:           tool_called: Agent::tool_call::2 cat /tmp/test_path/file2.py
+Agent:           tool_called: Agent::tool_call::2 cat filename="/tmp/test_path/file2.py"
 Agent:           tool_result: Agent::tool_call::2 def hello():
     print('Hello')
     return 42
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::3 complete-task summary
+Agent:           tool_called: Agent::tool_call::3 complete-task summary="summary"
 Agent:           tool_result: Agent::tool_call::3 summary
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
@@ -25,17 +25,17 @@ Agent:         session_ended:
 [Agent]
 user: Test message
 assistant: I will list the files and then read one.
-tool_call: ls /tmp/test_path
+  ls path="/tmp/test_path"
 tool_result: .
 ..
 file1.txt
 file2.py
 subdir
-tool_call: cat /tmp/test_path/file2.py
+  cat filename="/tmp/test_path/file2.py"
 tool_result: def hello():
     print('Hello')
     return 42
 assistant:
-tool_call: complete-task summary
+  complete-task summary="summary"
 tool_result: summary
 

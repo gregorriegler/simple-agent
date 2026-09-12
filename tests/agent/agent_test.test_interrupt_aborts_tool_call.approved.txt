@@ -3,7 +3,7 @@ Agent:       session_started: False
 Agent:         agent_started: Agent stub-model agent
 Agent:         user_prompted: Hello
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 cat hello.txt
+Agent:           tool_called: Agent::tool_call::1 cat filename="hello.txt"
 Agent:        tool_cancelled: Agent::tool_call::1
 Agent:   session_interrupted: 
 Agent:        agent_finished: 
@@ -13,5 +13,5 @@ Agent:         session_ended:
 [Agent]
 user: Hello
 assistant:
-tool_call: cat hello.txt
+  cat filename="hello.txt"
 

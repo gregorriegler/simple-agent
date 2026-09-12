@@ -1,5 +1,5 @@
 Command:
-cat /tmp/test_path/test.txt 10-5
+cat filename="/tmp/test_path/test.txt" line_range="10-5"
 
 Result:
 STDERR: Start line (10) cannot be greater than end line (5)

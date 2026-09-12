@@ -3,10 +3,10 @@ Agent:       session_started: False
 Agent:         agent_started: Agent stub-model agent
 Agent:         user_prompted: Test message
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 create-file greeting.txt Hello again
+Agent:           tool_called: Agent::tool_call::1 create-file filename="greeting.txt" content="Hello again"
 Agent:           tool_result: Agent::tool_call::1 Error creating file 'greeting.txt': File already exists
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 complete-task summary
+Agent:           tool_called: Agent::tool_call::2 complete-task summary="summary"
 Agent:           tool_result: Agent::tool_call::2 summary
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
@@ -16,9 +16,9 @@ Agent:         session_ended:
 [Agent]
 user: Test message
 assistant:
-tool_call: create-file greeting.txt Hello again
+  create-file filename="greeting.txt" content="Hello again"
 tool_result: Error creating file 'greeting.txt': File already exists
 assistant:
-tool_call: complete-task summary
+  complete-task summary="summary"
 tool_result: summary
 

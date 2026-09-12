@@ -1,5 +1,5 @@
 Command:
-cat /tmp/test_path/special-file_name.txt
+cat filename="/tmp/test_path/special-file_name.txt"
 
 Result:
 Content with special chars: !@#$%^&*()

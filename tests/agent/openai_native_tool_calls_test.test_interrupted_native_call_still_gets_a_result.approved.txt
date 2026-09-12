@@ -3,7 +3,7 @@ Agent:       session_started: False
 Agent:         agent_started: Agent test-model agent
 Agent:         user_prompted: run it
 Agent:   assistant_responded:  test-model 0.0%
-Agent:           tool_called: Agent::tool_call::1 bash sleep 5
+Agent:           tool_called: Agent::tool_call::1 bash command="sleep 5"
 Agent:        tool_cancelled: Agent::tool_call::1
 Agent:   session_interrupted: 
 Agent: user_prompt_requested: 
@@ -18,7 +18,7 @@ Agent:         session_ended:
 [Agent]
 user: run it
 assistant:
-tool_call: bash sleep 5
+  bash command="sleep 5"
 user: and now?
 assistant: ok
 

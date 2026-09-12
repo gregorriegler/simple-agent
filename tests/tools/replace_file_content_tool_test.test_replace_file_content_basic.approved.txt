@@ -1,7 +1,5 @@
 Command:
-replace-file-content test.txt single hello
-@@@
-goodbye
+replace-file-content filename="test.txt" replace_mode="single" content="hello\n@@@\ngoodbye"
 
 Result:
 Successfully replaced content in test.txt
