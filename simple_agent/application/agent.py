@@ -39,7 +39,9 @@ logger = get_logger(__name__)
 
 
 class BrainFactory(Protocol):
-    def build_brain(self, agent_id: AgentId, agent_type: AgentType) -> Brain: ...
+    def build_brain(
+        self, agent_id: AgentId, agent_type: AgentType, agent_input: Input
+    ) -> Brain: ...
 
 
 class Agent(SlashCommandVisitor):
@@ -181,7 +183,7 @@ class Agent(SlashCommandVisitor):
             return
         try:
             brain = self.brain_factory.build_brain(
-                self.agent_id, AgentType(command.agent_name)
+                self.agent_id, AgentType(command.agent_name), self.user_input
             )
             self.update_brain(brain)
         except Exception as e:

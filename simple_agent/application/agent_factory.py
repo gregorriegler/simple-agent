@@ -1,3 +1,5 @@
+import asyncio
+
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
@@ -55,7 +57,9 @@ class AgentFactory:
             inp.stack(initial_message)
         return inp
 
-    def create_spawner(self, parent_agent_id: AgentId) -> SubagentSpawner:
+    def create_spawner(
+        self, parent_agent_id: AgentId, parent_input: Input
+    ) -> SubagentSpawner:
         async def spawn(agent_type, task_description, is_async=False):
             definition = self._agent_library.read_agent_definition(agent_type)
             agent_id = parent_agent_id.create_subagent_id(
@@ -72,12 +76,23 @@ class AgentFactory:
                 unattended=is_async,
             )
             if is_async:
-                self._agent_task_manager.start_task(agent_id, subagent.start())
+                task = self._agent_task_manager.start_task(agent_id, subagent.start())
+                task.add_done_callback(
+                    lambda done: self._report_completion(parent_input, agent_id, done)
+                )
                 return SingleToolResult("Subagent started")
             else:
                 return await subagent.start()
 
         return spawn
+
+    @staticmethod
+    def _report_completion(
+        parent_input: Input, agent_id: AgentId, done: asyncio.Task
+    ) -> None:
+        if done.cancelled() or done.exception() is not None:
+            return
+        parent_input.stack(f"Subagent {agent_id} completed: {done.result()}")
 
     def history_of(self, agent_id: AgentId) -> Messages:
         events = self._event_store.load_events(agent_id)
@@ -101,14 +116,15 @@ class AgentFactory:
         user_input: Input | None = None,
         unattended: bool = False,
     ) -> Agent:
-        brain = self._build_brain(agent_id, definition)
+        agent_input = user_input or self.create_input(initial_message)
+        brain = self._build_brain(agent_id, definition, agent_input)
         messages.seed_system_prompt(brain.system_prompt)
 
         return Agent(
             agent_id=agent_id,
             brain=brain,
             llm_provider=self._llm_provider,
-            user_input=user_input or self.create_input(initial_message),
+            user_input=agent_input,
             event_bus=self._event_bus,
             context=messages,
             agent_type=agent_type,
@@ -117,13 +133,17 @@ class AgentFactory:
             unattended=unattended,
         )
 
-    def build_brain(self, agent_id: AgentId, agent_type: AgentType) -> Brain:
+    def build_brain(
+        self, agent_id: AgentId, agent_type: AgentType, agent_input: Input
+    ) -> Brain:
         definition = self._agent_library.read_agent_definition(agent_type)
-        return self._build_brain(agent_id, definition)
+        return self._build_brain(agent_id, definition, agent_input)
 
-    def _build_brain(self, agent_id: AgentId, definition: AgentDefinition) -> Brain:
+    def _build_brain(
+        self, agent_id: AgentId, definition: AgentDefinition, agent_input: Input
+    ) -> Brain:
         tool_context = ToolContext(definition.tool_keys(), agent_id)
-        spawner = self.create_spawner(agent_id)
+        spawner = self.create_spawner(agent_id, agent_input)
         tools = self._tool_library_factory.create(
             tool_context, spawner, AgentTypes(self._agent_library.list_agent_types())
         )
