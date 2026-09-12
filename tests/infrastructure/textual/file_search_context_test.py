@@ -5,6 +5,7 @@ from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.events import AgentStartedEvent, UserPromptedEvent
 from simple_agent.infrastructure.textual.textual_app import TextualApp
 from simple_agent.infrastructure.textual.textual_messages import DomainEventMessage
+from simple_agent.tools.all_tools import TOOL_DECLARATIONS
 
 
 class StubUserInput:
@@ -32,7 +33,10 @@ async def test_submit_includes_referenced_file_content(tmp_path):
 
     user_input = StubUserInput()
     app = TextualApp(
-        user_input, AgentId("Agent"), agent_task_manager=AgentTaskManager()
+        user_input,
+        AgentId("Agent"),
+        agent_task_manager=AgentTaskManager(),
+        declarations=TOOL_DECLARATIONS,
     )
 
     async with app.run_test() as pilot:
@@ -70,7 +74,10 @@ async def test_submit_ignores_removed_file_references(tmp_path):
 
     user_input = StubUserInput()
     app = TextualApp(
-        user_input, AgentId("Agent"), agent_task_manager=AgentTaskManager()
+        user_input,
+        AgentId("Agent"),
+        agent_task_manager=AgentTaskManager(),
+        declarations=TOOL_DECLARATIONS,
     )
 
     async with app.run_test() as pilot:
@@ -103,7 +110,10 @@ async def test_submit_ignores_corrupted_marker(tmp_path):
 
     user_input = StubUserInput()
     app = TextualApp(
-        user_input, AgentId("Agent"), agent_task_manager=AgentTaskManager()
+        user_input,
+        AgentId("Agent"),
+        agent_task_manager=AgentTaskManager(),
+        declarations=TOOL_DECLARATIONS,
     )
 
     async with app.run_test() as pilot:
@@ -137,7 +147,10 @@ async def test_submit_ignores_corrupted_marker(tmp_path):
 async def test_user_prompted_event_display_compaction():
     user_input = StubUserInput()
     app = TextualApp(
-        user_input, AgentId("Agent"), agent_task_manager=AgentTaskManager()
+        user_input,
+        AgentId("Agent"),
+        agent_task_manager=AgentTaskManager(),
+        declarations=TOOL_DECLARATIONS,
     )
 
     async with app.run_test() as pilot:

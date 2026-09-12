@@ -36,6 +36,7 @@ from simple_agent.infrastructure.textual.smart_input.autocomplete.slash_commands
     SlashCommandProvider,
 )
 from simple_agent.infrastructure.textual.textual_app import TextualApp
+from simple_agent.tools.all_tools import TOOL_DECLARATIONS
 
 
 class StubUserInput:
@@ -57,7 +58,9 @@ class StubUserInput:
 
 @pytest.fixture
 def app(agent_task_manager):
-    return TextualApp(StubUserInput(), AgentId("Agent"), agent_task_manager)
+    return TextualApp(
+        StubUserInput(), AgentId("Agent"), agent_task_manager, TOOL_DECLARATIONS
+    )
 
 
 @pytest.mark.asyncio
@@ -74,7 +77,9 @@ async def test_slash_command_registry_available_in_textarea(agent_task_manager):
     textarea = SmartInput(provider=provider)
 
     # Mount to trigger popup creation
-    app = TextualApp(StubUserInput(), AgentId("Agent"), agent_task_manager)
+    app = TextualApp(
+        StubUserInput(), AgentId("Agent"), agent_task_manager, TOOL_DECLARATIONS
+    )
     async with app.run_test() as pilot:
         await pilot.pause()
         await app.mount(textarea)
@@ -176,6 +181,7 @@ async def test_textual_app_registers_agent_slash_command(agent_task_manager):
         StubUserInput(),
         AgentId("Agent"),
         agent_task_manager,
+        declarations=TOOL_DECLARATIONS,
         available_agents=["developer"],
     )
 
@@ -273,7 +279,9 @@ def test_calculate_autocomplete_position_edge_cases():
 @pytest.mark.asyncio
 async def test_submit_hides_autocomplete_popup(agent_task_manager):
     user_input = StubUserInput()
-    app = TextualApp(user_input, AgentId("Agent"), agent_task_manager)
+    app = TextualApp(
+        user_input, AgentId("Agent"), agent_task_manager, TOOL_DECLARATIONS
+    )
 
     async with app.run_test() as pilot:
         # We need to find the input in the active workspace
@@ -299,7 +307,9 @@ async def test_submit_hides_autocomplete_popup(agent_task_manager):
 @pytest.mark.asyncio
 async def test_autocomplete_popup_keeps_initial_x_position(agent_task_manager):
     user_input = StubUserInput()
-    app = TextualApp(user_input, AgentId("Agent"), agent_task_manager)
+    app = TextualApp(
+        user_input, AgentId("Agent"), agent_task_manager, TOOL_DECLARATIONS
+    )
 
     async with app.run_test() as pilot:
         from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
@@ -330,7 +340,9 @@ async def test_autocomplete_popup_keeps_initial_x_position(agent_task_manager):
 @pytest.mark.asyncio
 async def test_enter_key_selects_autocomplete_when_visible(agent_task_manager):
     user_input = StubUserInput()
-    app = TextualApp(user_input, AgentId("Agent"), agent_task_manager)
+    app = TextualApp(
+        user_input, AgentId("Agent"), agent_task_manager, TOOL_DECLARATIONS
+    )
 
     async with app.run_test() as pilot:
         from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
@@ -358,7 +370,9 @@ async def test_enter_key_selects_autocomplete_when_visible(agent_task_manager):
 @pytest.mark.asyncio
 async def test_enter_key_submits_when_autocomplete_not_visible(agent_task_manager):
     user_input = StubUserInput()
-    app = TextualApp(user_input, AgentId("Agent"), agent_task_manager)
+    app = TextualApp(
+        user_input, AgentId("Agent"), agent_task_manager, TOOL_DECLARATIONS
+    )
 
     async with app.run_test() as pilot:
         from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
@@ -480,7 +494,9 @@ async def test_submittable_text_area_file_search():
     # Subclass TextualApp to inject dependencies
     class TestApp(TextualApp):
         def __init__(self, user_input, agent_id, agent_task_manager, **kwargs):
-            super().__init__(user_input, agent_id, agent_task_manager, **kwargs)
+            super().__init__(
+                user_input, agent_id, agent_task_manager, TOOL_DECLARATIONS, **kwargs
+            )
             self.mock_searcher = AsyncMock()
             self.mock_searcher.search.return_value = ["my_file.py", "other_file.txt"]
 
@@ -498,7 +514,9 @@ async def test_submittable_text_area_file_search():
                         )
                     ]
                 )
-                yield AgentTabs(provider, self._root_agent_id, id="tabs")
+                yield AgentTabs(
+                    provider, self._root_agent_id, TOOL_DECLARATIONS, id="tabs"
+                )
 
     test_app = TestApp(StubUserInput(), AgentId("Agent"), agent_task_manager)
 
@@ -725,7 +743,9 @@ async def test_model_command_integration():
 @pytest.mark.asyncio
 async def test_popup_mounted_at_app_level(agent_task_manager):
     user_input = StubUserInput()
-    app = TextualApp(user_input, AgentId("Agent"), agent_task_manager)
+    app = TextualApp(
+        user_input, AgentId("Agent"), agent_task_manager, TOOL_DECLARATIONS
+    )
 
     async with app.run_test():
         from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs

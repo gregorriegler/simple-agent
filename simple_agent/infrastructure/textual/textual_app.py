@@ -224,9 +224,9 @@ class TextualApp(App):
         user_input,
         root_agent_id: AgentId,
         agent_task_manager: AgentTaskManager,
+        declarations: ToolDeclarations,
         available_models: list[str] | None = None,
         available_agents: list[str] | None = None,
-        declarations: ToolDeclarations | None = None,
     ):
         super().__init__()
         self.user_input = user_input
@@ -278,7 +278,7 @@ class TextualApp(App):
             yield AgentTabs(
                 self._suggestion_provider,
                 self._root_agent_id,
-                declarations=self._declarations,
+                self._declarations,
                 id="tabs",
             )
 

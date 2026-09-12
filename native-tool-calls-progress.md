@@ -147,11 +147,8 @@ step its own commit, tests green:
   as the wrapper. Only `EmojiToolCall.bind(tool)` binds, positional text to
   typed names, and it never takes `None`
 
-Known smells left in place: `AgentTabs` falls back to a syntax without
-declarations when none is passed (UI tests build the app by hand);
-`library.execute_tool_call(invocation)` stays as the executor's seam because
-the test bed injects Ctrl+C there; integer and number types are declared but
-not coerced, since no tool declares them.
+Known smell left in place: `library.execute_tool_call(invocation)` stays as
+the executor's seam because the test bed injects Ctrl+C there.
 
 ## Next steps
 
@@ -263,3 +260,18 @@ command text for the UI tab title and for Gemini's replay of unsigned
 turns; the transcripts show the named dict instead. One legacy-log test keeps
 an emoji string in an old `assistant_responded` event to show that such
 text is replayed as text.
+
+## Leftovers closed
+
+- Integer and number arguments are coerced to `int` and `float` like flags
+  are to `bool`; a value that is no number stays text. No tool declares
+  them yet, but a native adapter no longer promises a type it does not
+  deliver
+- Gemini replays an unsigned turn as the call's name and named arguments
+  (`Called bash command="ls"`, `Result of bash command="ls":`), the same
+  line the test transcripts use, through `describe_call`. It needs no
+  declarations for that; `call_body` and `render_body` are gone
+- The UI tab title still reads as command text through `call_header`, but
+  the declarations are now a required argument of `TextualApp` and
+  `AgentTabs`; the silent empty fallback is gone and every test passes
+  the real `TOOL_DECLARATIONS`

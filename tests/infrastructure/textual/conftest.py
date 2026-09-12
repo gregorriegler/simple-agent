@@ -12,6 +12,7 @@ from simple_agent.infrastructure.file_system_agent_state_cleanup import (
 )
 from simple_agent.infrastructure.subscribe_events import subscribe_events
 from simple_agent.infrastructure.textual.textual_app import TextualApp
+from simple_agent.tools.all_tools import TOOL_DECLARATIONS
 
 
 class FakeSessionStorage:
@@ -63,7 +64,10 @@ def textual_harness():
     session_storage = FakeSessionStorage()
     user_input = FakeUserInput()
     app = TextualApp(
-        user_input, AgentId("Agent"), agent_task_manager=AgentTaskManager()
+        user_input,
+        AgentId("Agent"),
+        agent_task_manager=AgentTaskManager(),
+        declarations=TOOL_DECLARATIONS,
     )
 
     subscribe_events(event_bus, FakeEventLogger(), FakeAgentStateCleanup(), app)
