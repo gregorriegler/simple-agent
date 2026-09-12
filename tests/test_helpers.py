@@ -40,7 +40,7 @@ def create_all_tools_for_test(tool_keys: list[str] | None = None):
     agent_id = AgentId("Agent")
     tool_context = ToolContext(tool_keys or [], agent_id)
 
-    spawner = agent_factory.create_spawner(agent_id)
+    spawner = agent_factory.create_spawner(agent_id, agent_factory.create_input())
 
     return AllTools(
         tool_context=tool_context,

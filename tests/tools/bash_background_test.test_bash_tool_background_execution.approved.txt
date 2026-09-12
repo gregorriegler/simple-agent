@@ -1,5 +1,5 @@
 Command:
-bash command="sleep 1 &"
+bash command="sleep 0.1" --background=true
 
 Result:
 ✅ Process started in background with PID: [PID]

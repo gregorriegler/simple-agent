@@ -96,4 +96,4 @@ assistant: ok
   }
 ]
 # Request 1 declared tool names
-write-todos, ls, cat, create-file, replace-file-content, complete-task, communicate-intent, bash, subagent
+write-todos, ls, cat, create-file, replace-file-content, complete-task, communicate-intent, bash, wait, subagent

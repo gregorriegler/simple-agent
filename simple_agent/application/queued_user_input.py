@@ -26,6 +26,9 @@ class QueuedUserInput(UserInput):
             except Empty:
                 return pending
 
+    def has_pending(self) -> bool:
+        return not self.input_queue.empty()
+
     def submit_input(self, message: str):
         self.escape_flag = False
         self.input_queue.put(message)

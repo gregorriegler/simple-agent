@@ -18,8 +18,11 @@ def ls(path: str = "") -> ToolCall:
     return ToolCall("ls", {"path": path} if path else {})
 
 
-def bash(command: str) -> ToolCall:
-    return ToolCall("bash", {"command": command})
+def bash(command: str, background: bool = False) -> ToolCall:
+    arguments: dict = {"command": command}
+    if background:
+        arguments["--background"] = True
+    return ToolCall("bash", arguments)
 
 
 def create_file(filename: str, content: str = "") -> ToolCall:
@@ -36,7 +39,7 @@ def replace_file_content(filename: str, content: str, mode: str = "single") -> T
 def subagent(agenttype: str, task: str, background: bool = False) -> ToolCall:
     arguments: dict = {"agenttype": agenttype, "task_description": task}
     if background:
-        arguments["--async"] = True
+        arguments["--background"] = True
     return ToolCall("subagent", arguments)
 
 
@@ -54,3 +57,7 @@ def write_todos(content: str) -> ToolCall:
 
 def complete_task(summary: str) -> ToolCall:
     return ToolCall("complete-task", {"summary": summary})
+
+
+def wait(timeout: float | None = None) -> ToolCall:
+    return ToolCall("wait", {"timeout": timeout} if timeout is not None else {})
