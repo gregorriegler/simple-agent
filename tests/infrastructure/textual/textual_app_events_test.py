@@ -418,19 +418,34 @@ async def test_live_tool_calls_after_replay_build_collapsibles(textual_harness):
         assert not _tool_log(app, agent_id).query(CollapsedToolEntry)
 
 
+ROOT_ID = AgentId("Agent")
+
+
+async def _root_agent_spawns(pilot, event_bus, app, subagent_name, on_complete):
+    from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+
+    sub_id = ROOT_ID.create_subagent_id(subagent_name, AgentIdSuffixer())
+    event_bus.publish(AgentStartedEvent(ROOT_ID, "Agent", "dummy-model"))
+    event_bus.publish(
+        AgentStartedEvent(sub_id, subagent_name, "dummy-model", on_complete=on_complete)
+    )
+    tabs = app.query_one(AgentTabs)
+    await eventually(
+        pilot, lambda: tabs.has_agent_tab(sub_id), f"the {subagent_name} tab to exist"
+    )
+    return tabs, sub_id
+
+
 @pytest.mark.asyncio
 async def test_a_sync_subagent_tab_becomes_active_when_it_starts(textual_harness):
     event_bus, _, _, app = textual_harness
-    root_id = AgentId("Agent")
-    sub_id = root_id.create_subagent_id("Helper", AgentIdSuffixer())
 
     async with app.run_test() as pilot:
         await pilot.pause()
-        event_bus.publish(AgentStartedEvent(root_id, "Agent", "dummy-model"))
-        event_bus.publish(AgentStartedEvent(sub_id, "Helper", "dummy-model"))
-        from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+        tabs, sub_id = await _root_agent_spawns(
+            pilot, event_bus, app, "Helper", OnComplete.HUMAN_REVIEW
+        )
 
-        tabs = app.query_one(AgentTabs)
         await eventually(
             pilot,
             lambda: tabs.active_workspace.agent_id == sub_id,
@@ -448,21 +463,24 @@ async def test_a_background_subagent_tab_does_not_steal_the_active_tab(
     textual_harness,
 ):
     event_bus, _, _, app = textual_harness
-    root_id = AgentId("Agent")
-    sub_id = root_id.create_subagent_id("Helper", AgentIdSuffixer())
 
     async with app.run_test() as pilot:
         await pilot.pause()
-        event_bus.publish(AgentStartedEvent(root_id, "Agent", "dummy-model"))
-        event_bus.publish(
-            AgentStartedEvent(
-                sub_id, "Helper", "dummy-model", on_complete=OnComplete.CLOSE
-            )
+        tabs, _ = await _root_agent_spawns(
+            pilot, event_bus, app, "Helper", OnComplete.CLOSE
         )
-        from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
 
-        tabs = app.query_one(AgentTabs)
-        await eventually(
-            pilot, lambda: tabs.has_agent_tab(sub_id), "the subagent tab to exist"
+        assert tabs.active_workspace.agent_id == ROOT_ID
+
+
+@pytest.mark.asyncio
+async def test_an_observer_tab_does_not_steal_the_active_tab(textual_harness):
+    event_bus, _, _, app = textual_harness
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        tabs, _ = await _root_agent_spawns(
+            pilot, event_bus, app, "Naming", OnComplete.STOP_AND_WAIT
         )
-        assert tabs.active_workspace.agent_id == root_id
+
+        assert tabs.active_workspace.agent_id == ROOT_ID

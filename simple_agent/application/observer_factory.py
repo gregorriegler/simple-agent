@@ -7,6 +7,7 @@ from .llm import Messages
 from .observer_definition import ObserverDefinition
 from .observer_input import ObserverInput
 from .observer_library import ObserverLibrary
+from .on_complete import OnComplete
 
 
 class SpawnedObserver:
@@ -66,6 +67,7 @@ class ObserverFactory:
             context,
             agent_type,
             user_input=Input(observer_input),
+            on_complete=OnComplete.STOP_AND_WAIT,
         )
         self._agent_task_manager.start_task(observer_id, observer.start())
         return SpawnedObserver(observer_id, observer_input)
