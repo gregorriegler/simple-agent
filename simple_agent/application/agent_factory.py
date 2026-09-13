@@ -72,13 +72,15 @@ class AgentFactory:
                 definition.agent_name(), self._agent_suffixer
             )
             context = self.history_of(agent_id)
+            inbox = self.create_inbox(agent_id, task_description)
 
             subagent = self.create_agent(
                 agent_id,
                 definition,
-                task_description,
+                None,
                 context,
                 agent_type,
+                inbox=inbox,
                 on_complete=OnComplete.CLOSE if background else OnComplete.HUMAN_REVIEW,
             )
             task = self._agent_task_manager.start_task(agent_id, subagent.start())
@@ -87,9 +89,20 @@ class AgentFactory:
                     lambda done: self._report_completion(parent_inbox, agent_id, done)
                 )
                 return SingleToolResult("Subagent started")
-            return await task
+            try:
+                return await asyncio.shield(task)
+            except asyncio.CancelledError:
+                await self._end(task, inbox)
+                raise
 
         return spawn
+
+    @staticmethod
+    async def _end(task: asyncio.Task, inbox: Inbox) -> None:
+        """The parent was interrupted: its subagent stops and is not asked for more."""
+        inbox.close()
+        task.cancel()
+        await asyncio.gather(task, return_exceptions=True)
 
     @staticmethod
     def _report_completion(
