@@ -31,3 +31,11 @@ async def test_subagent_reads_native_named_arguments():
     await SubagentTool(spawn, AgentTypes.empty()).execute(call)
 
     assert spawn.calls == [("coding", "say hello world", True)]
+
+
+def test_the_agenttype_argument_lists_the_available_agent_types():
+    tool = SubagentTool(SpawnSpy(), AgentTypes(["software-engineer", "question"]))
+
+    assert tool.arguments["agenttype"].description == (
+        "Type of agent to create. Available types: 'software-engineer', 'question'"
+    )

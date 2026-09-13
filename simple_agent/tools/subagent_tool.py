@@ -7,16 +7,14 @@ from ..application.agent_type import AgentType
 from .base_tool import BaseTool
 
 
-class SubagentTool(BaseTool):
-    name = "subagent"
-    description = "Creates a new subagent that will handle a specific task/todo and report back the result."
-    arguments = ToolArguments(
+def _arguments(agenttype_description: str) -> ToolArguments:
+    return ToolArguments(
         header=[
             ToolArgument(
                 name="agenttype",
                 type="string",
                 required=True,
-                description="Type of agent to create. {{AGENT_TYPES}}",
+                description=agenttype_description,
             ),
             ToolArgument(
                 name="task_description",
@@ -32,6 +30,12 @@ class SubagentTool(BaseTool):
             ),
         ]
     )
+
+
+class SubagentTool(BaseTool):
+    name = "subagent"
+    description = "Creates a new subagent that will handle a specific task/todo and report back the result."
+    arguments = _arguments("Type of agent to create.")
     examples = [
         {
             "reasoning": "Let's say you want to delegate a coding task to a subagent. Send the following:",
@@ -48,7 +52,14 @@ class SubagentTool(BaseTool):
     def __init__(self, spawn_subagent: SubagentSpawner, agent_types: AgentTypes):
         super().__init__()
         self._spawn_subagent = spawn_subagent
-        self._agent_types = agent_types
+        self.arguments = _arguments(self._agenttype_description(agent_types))
+
+    @staticmethod
+    def _agenttype_description(agent_types: AgentTypes) -> str:
+        if not agent_types:
+            return "Type of agent to create."
+        types_str = ", ".join(f"'{t}'" for t in agent_types)
+        return f"Type of agent to create. Available types: {types_str}"
 
     async def execute(self, call):
         named = call.named_arguments
@@ -74,9 +85,3 @@ class SubagentTool(BaseTool):
             return SingleToolResult(
                 f"STDERR: subagent error: {str(e)}", status=ToolResultStatus.FAILURE
             )
-
-    def get_template_variables(self) -> dict:
-        if not self._agent_types:  # Empty AgentTypes
-            return {}
-        types_str = ", ".join(f"'{t}'" for t in self._agent_types)
-        return {"AGENT_TYPES": f"Available types: {types_str}"}
