@@ -14,7 +14,9 @@ class GitChangeReporter(ChangeReporter):
         return "".join(diff for diff in diffs if diff)
 
     def _new_files(self) -> list[str]:
-        return self._git("ls-files", "--others", "--exclude-standard").splitlines()
+        return self._git(
+            "ls-files", "--others", "--exclude-standard", "--exclude=.*"
+        ).splitlines()
 
     def _diff_of_new_file(self, path: str) -> str:
         return self._git("--no-pager", "diff", "--no-index", "--", "/dev/null", path)

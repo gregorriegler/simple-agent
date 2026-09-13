@@ -40,6 +40,15 @@ def test_diffs_changed_and_new_files_together(repository):
     verify_diff(repository)
 
 
+def test_ignores_new_hidden_files_and_directories(repository):
+    session = repository / ".simple-agent" / "sessions" / "1"
+    session.mkdir(parents=True)
+    (session / "events.jsonl").write_text('{"type": "AgentStartedEvent"}\n')
+    (repository / ".envrc").write_text("export SECRET=1\n")
+
+    assert GitChangeReporter(repository).diff() == ""
+
+
 def test_no_diff_outside_a_repository(tmp_path):
     (tmp_path / "greeting.txt").write_text("Hello\n")
 
