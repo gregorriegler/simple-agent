@@ -140,6 +140,12 @@ class SessionTestBed:
         self._subagent_observers: list[str] = []
         self._diffs = ["a production diff"]
         self._observer_llm = create_llm_stub([], default=complete_task("nothing"))
+        self._typed_to: dict[str, list[str]] = {}
+
+    def typing_to(self, agent_id: str, *messages: str) -> "SessionTestBed":
+        """Type on the given observer's tab once it asks for a prompt."""
+        self._typed_to[agent_id] = list(messages)
+        return self
 
     def with_llm_responses(self, responses: list[str]) -> "SessionTestBed":
         self._llm = create_llm_stub(responses)
@@ -224,10 +230,16 @@ class SessionTestBed:
 
     async def run(self) -> SessionTestResult:
         event_bus = SimpleEventBus()
-        user_input = UserInputStub(
-            inputs=self._user_inputs,
-            escapes=self._escape_hits,
-            typed_while_working=self._typed_while_working,
+        user_input = UserInputsStub(
+            UserInputStub(
+                inputs=self._user_inputs,
+                escapes=self._escape_hits,
+                typed_while_working=self._typed_while_working,
+            ),
+            observer_names=[
+                name.capitalize() for name in self._observers + self._subagent_observers
+            ],
+            typed_to=self._typed_to,
         )
 
         event_spy = EventSpy()
@@ -301,17 +313,23 @@ class SessionTestBed:
                 ChangeReporterStub(self._diffs),
                 agent_task_manager,
                 FileIntents(),
+                user_input,
             ),
             on_replay_complete=subscribe_persistence,
         )
 
         if self._cancel_on is not None:
             cancel_tab = self._cancel_tab
-            event_bus.subscribe(
-                self._cancel_on,
-                lambda event: event.agent_id == cancel_tab
-                and agent_task_manager.cancel_task(cancel_tab),
-            )
+            pressed = False
+
+            def press_escape_once(event):
+                nonlocal pressed
+                if pressed or event.agent_id != cancel_tab:
+                    return
+                pressed = True
+                agent_task_manager.cancel_task(cancel_tab)
+
+            event_bus.subscribe(self._cancel_on, press_escape_once)
 
         agent_task_manager.start_task(
             root_agent_id,
@@ -331,6 +349,36 @@ class SessionTestBed:
                     raise outcome
 
         return SessionTestResult(event_spy)
+
+
+class UserInputsStub:
+    """The agent and its subagents share the scripted keyboard; an observer's tab stays silent unless the test types to it."""
+
+    def __init__(
+        self,
+        shared: UserInputStub,
+        observer_names: list[str],
+        typed_to: dict[str, list[str]],
+    ):
+        self._shared = shared
+        self._observer_names = observer_names
+        self._typed_to = typed_to
+
+    def for_agent(self, agent_id: AgentId):
+        if agent_id.raw.rsplit("/", 1)[-1] in self._observer_names:
+            return SilentUserInputStub(self._typed_to.get(agent_id.raw, []))
+        return self._shared
+
+    def close(self) -> None:
+        pass
+
+
+class SilentUserInputStub(UserInputStub):
+    async def read_async(self) -> str:
+        if self._inputs:
+            return await super().read_async()
+        await asyncio.Future()
+        return ""
 
 
 class ChangeReporterStub:

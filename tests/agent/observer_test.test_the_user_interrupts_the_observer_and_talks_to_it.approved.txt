@@ -1,0 +1,65 @@
+# Events
+Agent:       session_started: False
+Agent:         agent_started: Agent stub-model agent human_review
+Agent:         user_prompted: Store the greeting
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::1 create-file filename="data1.txt" content="Hello"
+Agent:           tool_result: Agent::tool_call::1 Created file: data1.txt with content
+Agent:    checkpoint_reached: 
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::2 wait
+Agent/Naming:         agent_started: Naming stub-model naming stop_and_wait
+Agent/Naming: user_prompt_requested: 
+Agent/Naming:         user_prompted: diff --git a/data1.txt b/data1.txt
++Hello
+Agent/Naming:   assistant_responded:  stub-model 0.0%
+Agent/Naming:           tool_called: Agent/Naming::tool_call::1 cat filename="data1.txt"
+Agent/Naming:        tool_cancelled: Agent/Naming::tool_call::1
+Agent/Naming:   session_interrupted: 
+Agent/Naming: user_prompt_requested: 
+Agent/Naming:         user_prompted: Don't bother reading it, suggest greeting.txt
+Agent/Naming:   assistant_responded:  stub-model 0.0%
+Agent/Naming:           tool_called: Agent/Naming::tool_call::2 suggest suggestion="call it greeting.txt"
+Agent/Naming:           tool_result: Agent/Naming::tool_call::2 Suggested: call it greeting.txt
+Agent/Naming:           tool_called: Agent/Naming::tool_call::3 complete-task answer="passed on the user's wish"
+Agent/Naming:           tool_result: Agent/Naming::tool_call::3 passed on the user's wish
+Agent/Naming: user_prompt_requested: 
+Agent:           tool_result: Agent::tool_call::2 A message arrived.
+Agent:         user_prompted: 💡 Suggestion from the naming observer:
+call it greeting.txt
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::3 complete-task answer="stored the greeting"
+Agent:           tool_result: Agent::tool_call::3 stored the greeting
+Agent: user_prompt_requested: 
+Agent:        agent_finished: 
+Agent:         session_ended: 
+Agent/Naming:        agent_finished: 
+Agent/Naming:         session_ended: 
+
+# Messages:
+[Agent]
+user: Store the greeting
+assistant:
+  create-file filename="data1.txt" content="Hello"
+tool_result: Created file: data1.txt with content
+assistant:
+  wait
+[Agent/Naming]
+user: diff --git a/data1.txt b/data1.txt
++Hello
+assistant:
+  cat filename="data1.txt"
+user: Don't bother reading it, suggest greeting.txt
+assistant:
+  suggest suggestion="call it greeting.txt"
+tool_result: Suggested: call it greeting.txt
+  complete-task answer="passed on the user's wish"
+tool_result: passed on the user's wish
+tool_result: A message arrived.
+[Agent]
+user: 💡 Suggestion from the naming observer:
+call it greeting.txt
+assistant:
+  complete-task answer="stored the greeting"
+tool_result: stored the greeting
+

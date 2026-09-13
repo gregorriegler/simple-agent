@@ -10,6 +10,7 @@ from .intent import Intents
 from .observer_factory import ObserverAgentFactory, ObserverFactory
 from .observer_library import ObserverLibrary
 from .observers import Observers
+from .user_input import UserInputs
 
 
 class Observation:
@@ -20,12 +21,14 @@ class Observation:
         change_reporter: ChangeReporter,
         agent_task_manager: AgentTaskManager,
         intents: Intents,
+        user_input: UserInputs,
     ):
         self._event_bus = event_bus
         self._observer_library = observer_library
         self._change_reporter = change_reporter
         self._agent_task_manager = agent_task_manager
         self._intents = intents
+        self._user_input = user_input
         self._observers: dict[AgentId, Observers] = {}
         event_bus.subscribe(AgentFinishedEvent, self._forget)
 
@@ -51,6 +54,7 @@ class Observation:
                 agent_factory,
                 self._observer_library,
                 self._agent_task_manager,
+                self._user_input,
                 agent_id,
             ),
             agent_input,

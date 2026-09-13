@@ -7,6 +7,7 @@ from simple_agent.application.events import AgentFinishedEvent
 from simple_agent.application.input import Input
 from simple_agent.application.llm import Messages
 from simple_agent.application.observation import Observation
+from simple_agent.application.routed_user_input import RoutedUserInput
 from simple_agent.application.user_input import DummyUserInput
 from tests.application.observers_test import ChangeReporterStub, IntentsStub
 from tests.session_test_bed import ObserverLibraryStub
@@ -51,6 +52,7 @@ async def test_a_finished_agents_observers_cannot_be_resumed():
         ChangeReporterStub(),
         AgentTaskManager(),
         IntentsStub(),
+        RoutedUserInput(),
     )
     observation.watch(AGENT, observed_by(["naming"]), Input(DummyUserInput()), factory)
 

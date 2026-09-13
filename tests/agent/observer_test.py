@@ -1,6 +1,7 @@
 import pytest
 from approvaltests import verify
 
+from simple_agent.application.events import ToolCalledEvent
 from simple_agent.application.llm_stub import says
 from tests.session_test_bed import SessionTestBed
 from tests.tool_calls import (
@@ -10,6 +11,7 @@ from tests.tool_calls import (
     create_file,
     subagent,
     suggest,
+    wait,
 )
 
 pytestmark = pytest.mark.asyncio
@@ -41,6 +43,37 @@ async def test_the_agent_receives_a_suggestion_about_a_bad_name(tmp_path, monkey
                 ),
                 complete_task("judged the new file"),
             )
+        ]
+    )
+
+    result = await session.run()
+
+    verify(result.as_approval_string())
+
+
+async def test_the_user_interrupts_the_observer_and_talks_to_it(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    session = SessionTestBed()
+    session.observed_by(["naming"], BAD_NAME)
+    session.with_user_inputs("Store the greeting", "\n", "\n")
+    session.cancelling_when(ToolCalledEvent, on_tab="Agent/Naming")
+    session.typing_to("Agent/Naming", "Don't bother reading it, suggest greeting.txt")
+    session.with_llm_responses(
+        [
+            create_file("data1.txt", "Hello"),
+            wait(),
+            complete_task("stored the greeting"),
+        ]
+    )
+    session.with_observer_responses(
+        [
+            cat("data1.txt"),
+            says(
+                "",
+                suggest("call it greeting.txt"),
+                complete_task("passed on the user's wish"),
+            ),
         ]
     )
 

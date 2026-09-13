@@ -11,6 +11,7 @@ from .observer_definition import ObserverDefinition
 from .observer_input import ObserverInput
 from .observer_library import ObserverLibrary
 from .on_complete import OnComplete
+from .user_input import UserInputs
 
 
 class ObserverAgentFactory(Protocol):
@@ -46,11 +47,13 @@ class ObserverFactory:
         agent_factory: ObserverAgentFactory,
         observer_library: ObserverLibrary,
         agent_task_manager: AgentTaskManager,
+        user_input: UserInputs,
         observed_agent_id: AgentId,
     ):
         self._agent_factory = agent_factory
         self._observer_library = observer_library
         self._agent_task_manager = agent_task_manager
+        self._user_input = user_input
         self._observed_agent_id = observed_agent_id
         self._suffixer = AgentIdSuffixer()
 
@@ -77,7 +80,7 @@ class ObserverFactory:
         context: Messages,
         agent_type: AgentType,
     ) -> SpawnedObserver:
-        observer_input = ObserverInput()
+        observer_input = ObserverInput(self._user_input.for_agent(observer_id))
         observer = self._agent_factory.create_agent(
             observer_id,
             definition,

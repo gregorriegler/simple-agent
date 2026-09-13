@@ -147,6 +147,7 @@ async def _run_main(
             GitChangeReporter(Path(cwd)),
             agent_task_manager,
             intents,
+            user_input,
         ),
     )
     textual_app = TextualApp(
