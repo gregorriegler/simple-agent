@@ -1,7 +1,7 @@
 import pytest
 from approvaltests import Options, verify
 
-from simple_agent.application.events import ErrorEvent
+from simple_agent.application.events import ErrorEvent, UserPromptedEvent
 from simple_agent.application.llm_stub import says
 from tests.session_test_bed import SessionTestBed
 from tests.test_helpers import (
@@ -151,3 +151,14 @@ async def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
 
 def keyboard_interrupt(_):
     raise KeyboardInterrupt()
+
+
+async def test_a_huge_user_message_is_truncated():
+    huge = "x" * 100_000
+
+    result = await SessionTestBed().with_user_inputs(huge, "\n").run()
+
+    prompted = result.events.get_events(UserPromptedEvent)
+    assert len(prompted[0].input_text) < 40_000
+    assert "truncated" in prompted[0].input_text
+    assert "truncated" in result.all_messages()

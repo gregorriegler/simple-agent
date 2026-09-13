@@ -35,6 +35,7 @@ from .slash_commands import (
 )
 from .tool_results import SingleToolResult, ToolResult, ToolResultStatus
 from .tools_executor import ToolsExecutor
+from .truncation import truncate
 
 logger = get_logger(__name__)
 
@@ -143,9 +144,14 @@ class Agent(SlashCommandVisitor):
             prompt = await self.user_input.read_async()
 
         if prompt:
-            self.context.user_says(prompt)
-            self.event_bus.publish(UserPromptedEvent(self.agent_id, prompt))
+            prompt = self._user_says(prompt)
         return prompt
+
+    def _user_says(self, message: str) -> str:
+        message = truncate(message)
+        self.context.user_says(message)
+        self.event_bus.publish(UserPromptedEvent(self.agent_id, message))
+        return message
 
     def _is_slash_command(self, prompt: str) -> bool:
         """Check if the prompt is a registered slash command."""
@@ -196,8 +202,7 @@ class Agent(SlashCommandVisitor):
 
     def _append_pending_user_messages(self) -> None:
         for message in self.user_input.drain():
-            self.context.user_says(message)
-            self.event_bus.publish(UserPromptedEvent(self.agent_id, message))
+            self._user_says(message)
 
     async def run_tool_loop(self):
         try:
