@@ -7,7 +7,7 @@ from simple_agent.infrastructure.user_configuration import (
 )
 
 
-def test_defaults_to_orchestrator():
+def test_defaults_to_software_engineer():
     user_config = UserConfiguration({})
     assert get_starting_agent(user_config) == AgentType(DEFAULT_STARTING_AGENT_TYPE)
 

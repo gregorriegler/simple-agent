@@ -1,6 +1,6 @@
 ---
-name: Coding
-tools: communicate_intent, write_todos, bash, ls, cat, create_file, edit_file, replace_file_content, complete_task
+name: Software Engineer
+tools: communicate_intent, write_todos, bash, ls, cat, create_file, edit_file, replace_file_content, subagent, wait, complete_task
 observers: [naming]
 ---
 

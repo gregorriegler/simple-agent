@@ -152,7 +152,7 @@ To change which agent starts first, set it via the `[agents]` section:
 
 ```toml
 [agents]
-start = "orchestrator"
+start = "software-engineer"
 ```
 
 ### Observers

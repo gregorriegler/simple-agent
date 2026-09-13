@@ -65,12 +65,15 @@ def _create_default_stub_llm() -> LLM:
                 "Starting task",
                 ToolCall(
                     "subagent",
-                    {"agenttype": "orchestrator", "task_description": task},
+                    {"agenttype": "software-engineer", "task_description": task},
                 ),
             ),
             says(
-                "Subagent1 handling the orchestrator task",
-                ToolCall("subagent", {"agenttype": "coding", "task_description": task}),
+                "Subagent1 handling the delegated task",
+                ToolCall(
+                    "subagent",
+                    {"agenttype": "software-engineer", "task_description": task},
+                ),
             ),
             says(
                 "Subagent2 updating todos",

@@ -14,12 +14,8 @@ from simple_agent.infrastructure.agent_library import (
 from tests.test_helpers import DummyProjectTree
 
 
-def test_generate_orchestrator_agent_system_prompt(tool_library):
-    verify_system_prompt("orchestrator", tool_library)
-
-
-def test_generate_coding_system_prompt(tool_library):
-    verify_system_prompt("coding", tool_library)
+def test_generate_software_engineer_system_prompt(tool_library):
+    verify_system_prompt("software-engineer", tool_library)
 
 
 def verify_system_prompt(agent_type, tool_library):

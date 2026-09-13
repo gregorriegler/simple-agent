@@ -31,7 +31,7 @@ def test_print_system_prompt_command_outputs_prompt(capsys, tmp_path):
     result = print_system_prompt_command(user_config, str(tmp_path), args)
 
     assert result is None
-    assert "You are an orchestrator" in capsys.readouterr().out
+    assert "You are a Software Engineer" in capsys.readouterr().out
 
 
 def test_main_handles_configuration_error_gracefully(capsys):

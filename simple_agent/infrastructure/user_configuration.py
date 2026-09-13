@@ -9,7 +9,7 @@ from simple_agent.application.session import SessionArgs
 from simple_agent.infrastructure.env_file import load_env_files
 from simple_agent.infrastructure.model_config import ModelsRegistry
 
-DEFAULT_STARTING_AGENT_TYPE = "orchestrator"
+DEFAULT_STARTING_AGENT_TYPE = "software-engineer"
 APP_DIR = str(Path(__file__).resolve().parents[2])
 
 

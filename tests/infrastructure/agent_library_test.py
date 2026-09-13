@@ -32,18 +32,10 @@ def test_falls_back_to_builtin_when_no_filesystem_agents(tmp_path):
     user_config = UserConfiguration({}, str(tmp_path))
 
     agents = create_agent_library(user_config)
-    definition = agents.read_agent_definition(AgentType("coding"))
+    definition = agents.read_agent_definition(AgentType("software-engineer"))
     prompt = definition.prompt()
-    assert prompt.agent_name == "Coding"
+    assert prompt.agent_name == "Software Engineer"
     assert len(definition.tool_keys()) > 0
-
-
-def test_load_agent_prompt_handles_missing_custom_definition_by_using_builtin(tmp_path):
-    user_config = UserConfiguration({}, str(tmp_path))
-
-    agents = create_agent_library(user_config)
-    prompt = agents.read_agent_definition(AgentType("orchestrator")).prompt()
-    assert prompt.agent_name == "Orchestrator"
 
 
 def test_load_agent_prompt_prefers_filesystem_directory(tmp_path):
@@ -104,9 +96,9 @@ def test_builtin_agent_library_reads_from_fallback_path():
     library = BuiltinAgentLibrary()
     library.package = "missing_package"
 
-    definition = library.read_agent_definition(AgentType("coding"))
+    definition = library.read_agent_definition(AgentType("software-engineer"))
 
-    assert definition.agent_name() == "Coding"
+    assert definition.agent_name() == "Software Engineer"
 
 
 def test_builtin_agent_library_discovers_agents_from_fallback():
@@ -115,4 +107,4 @@ def test_builtin_agent_library_discovers_agents_from_fallback():
 
     agent_types = library.list_agent_types()
 
-    assert "coding" in agent_types
+    assert "software-engineer" in agent_types
