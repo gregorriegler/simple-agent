@@ -70,14 +70,18 @@ async def test_tool_log_failure_retains_tool_emoji_with_error_border():
 @pytest.mark.asyncio
 async def test_tool_log_cancelled_retains_tool_emoji_with_cancelled_border():
     app = ToolLogApp()
-    async with app.run_test():
+    async with app.run_test() as pilot:
         tool_log = app.query_one("#tool-log", ToolLog)
         tool_log.add_tool_call("call-1", "🛠️ bash sleep 10")
 
         tool_log.add_tool_cancelled("call-1")
+        await pilot.pause()
 
         assert tool_log._collapsibles[-1].title == "💲 bash sleep 10 (Cancelled)"
         assert tool_log._collapsibles[-1].has_class("tool-status-cancelled")
+        body = tool_log._collapsibles[-1].query_one(".tool-result")
+        assert body.has_class("tool-result-cancelled")
+        assert not body.has_class("tool-result-error")
 
 
 @pytest.mark.asyncio

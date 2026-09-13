@@ -136,7 +136,7 @@ class ToolResultMarkdown(Markdown):
 def _result_body(result: ToolResult) -> Widget:
     message = result.display_body or result.message or "No output"
     language = result.display_language or "python"
-    status_class = "tool-result-success" if result.success else "tool-result-error"
+    status_class = _result_class_for(result)
 
     if language == "diff":
         body = Static(
@@ -163,9 +163,17 @@ def _result_body(result: ToolResult) -> Widget:
 
 
 def _status_class_for(result: ToolResult) -> str:
+    return f"tool-status-{_outcome(result)}"
+
+
+def _result_class_for(result: ToolResult) -> str:
+    return f"tool-result-{_outcome(result)}"
+
+
+def _outcome(result: ToolResult) -> str:
     if result.cancelled:
-        return "tool-status-cancelled"
-    return "tool-status-success" if result.success else "tool-status-error"
+        return "cancelled"
+    return "success" if result.success else "error"
 
 
 def _focus_title_of(collapsible: ToolCollapsible) -> None:
@@ -302,16 +310,11 @@ class ToolLog(VerticalScroll):
             return
 
         message = result.display_body or result.message or "No output"
-        classes = (
-            "tool-result tool-result-success"
-            if result.success
-            else "tool-result tool-result-error"
-        )
         text_area.load_text(message)
         text_area.language = language
         text_area.remove_class("tool-call")
-        for css_class in classes.split():
-            text_area.add_class(css_class)
+        text_area.add_class("tool-result")
+        text_area.add_class(_result_class_for(result))
 
         text_area.styles.height = min((len(message.splitlines()) or 1) + 2, 30)
 
@@ -477,7 +480,7 @@ class ToolLog(VerticalScroll):
         text_area.load_text("Cancelled")
         text_area.remove_class("tool-call")
         text_area.add_class("tool-result")
-        text_area.add_class("tool-result-error")
+        text_area.add_class("tool-result-cancelled")
         text_area.styles.height = 3
 
         call_collapsible.remove_class(

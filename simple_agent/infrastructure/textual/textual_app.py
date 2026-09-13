@@ -112,6 +112,10 @@ class TextualApp(App):
         border: round $success;
     }
 
+    .tool-result-cancelled {
+        border: round $warning;
+    }
+
     LoadingIndicator {
         border: round $primary;
         background: transparent;

@@ -502,7 +502,7 @@ Active Tab: tab-Agent
                   Collapsible id='None' classes='tool-status-cancelled' title='🛠️ long_running() (Cancelled)' collapsed=False
                     CollapsibleTitle id='None' classes='' content='▼ 🛠️ long_running() (Cancelled)'
                     Contents id='None' classes=''
-                      TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
+                      TextArea id='None' classes='tool-result tool-result-cancelled' text='Cancelled'
               SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
@@ -570,7 +570,7 @@ Active Tab: tab-Agent
                   Collapsible id='None' classes='tool-status-cancelled' title='🛠️ long_running() (Cancelled)' collapsed=False
                     CollapsibleTitle id='None' classes='' content='▼ 🛠️ long_running() (Cancelled)'
                     Contents id='None' classes=''
-                      TextArea id='None' classes='tool-result tool-result-error' text='Cancelled'
+                      TextArea id='None' classes='tool-result tool-result-cancelled' text='Cancelled'
               SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
