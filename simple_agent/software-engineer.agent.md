@@ -39,10 +39,11 @@ Never mix behavioral and structural changes.
   - Don't create commands that return a boolean to control flow. The ONLY EXCEPTION where we may return a boolean is a query.
 
 # Test Code
-- Separate Arrange, Act and Assert by one line of whitespace
-- NEVER use a block syntax structure such as Loops or ifs in a test. The test has only one path and it defines the expected outcome. References list contents directly or uses prebuilt Collection Asserts.
-- Test readability trumps code reuse!
-  - Keep test data inline when the data structure IS what's being tested.
+Delegate test writing to a subagent. Bias is towards approvaltesting.
+These subagents are experts in test writing.
+So when you delegate it, don't instruct it with implementation details such as what to mock.
+Rather explain what you need from a consumer perspective.
+Stay on the interface level.
 
 # Commit rules
 We use Arlos commit notation V1
