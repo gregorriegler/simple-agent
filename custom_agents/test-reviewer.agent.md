@@ -33,6 +33,9 @@ You are language-agnostic. Discover the tech stack, test frameworks, and convent
 ### Behavior over implementation
 Tests assert on observable outcomes (return values, state changes, side effects visible to the caller), never on internal method calls, private state, or execution order. A test should not break when you refactor internals — sensitive to behavior changes, insensitive to structural changes.
 
+### Meaningful logic over trivial mappings
+Only write tests where meaningful logic transforms data into user-observable content, never for trivial one-to-one mappings or declarative UI wiring. Testing a one-to-one mapping is only acceptable if the tested result contains both one-to-one mappings AND meaningful logic transformations.
+
 ### Page objects for UI tests
 Wrap DOM interactions in a page object or helper that speaks in domain actions, not selectors. Tests read like behavior; selectors live in one place.
 
@@ -120,6 +123,7 @@ Flag these when found. Reference by key in output.
 
 **Assertions**
 - **SMELL-missing-assert** — Test contains no assertions or verifications. A test must verify an observable outcome to provide value.
+- **SMELL-trivial-mapping** — Test only asserts on trivial one-to-one mappings or declarative UI wiring. It is only acceptable if the tested result contains both one-to-one mappings AND meaningful logic transformations.
 - **SMELL-tautology** — Test outcome is predetermined by its own setup, independent of production code. Litmus test: would this test still pass if all production code were deleted? Common forms: mock returns X then assert X with no real code in between, `assertTrue(true)`, `assertNotNull(new Object())`, verifying framework behavior instead of application behavior.
 - **SMELL-spy-on-internals** — Assertions on internal method calls, private state, or execution order. Assert on observable outcomes only.
 - **SMELL-over-specified-verify** — Verify with exact call counts (`times(1)`), call ordering (`InOrder`), or `verifyNoMoreInteractions`. A behavior-preserving refactoring should not break the test. Simple `verify(mock).method()` for side effects is fine.

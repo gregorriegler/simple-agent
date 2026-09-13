@@ -23,6 +23,9 @@ Don't treat a failing test as a defect.
 ### Behavior over implementation
 The approved file shows observable outcomes (return values, state changes, side effects visible to the caller), never internal method calls, private state, or execution order. A printer that reaches inside pins the implementation, and the approved file then changes on every refactoring — sensitive to behavior changes, insensitive to structural changes.
 
+### Meaningful logic over trivial mappings
+Only write tests where meaningful logic transforms data into user-observable content, never for trivial one-to-one mappings or declarative UI wiring. Testing a one-to-one mapping is only acceptable if the tested result contains both one-to-one mappings AND meaningful logic transformations.
+
 ### The approved file is the specification
 It is the document a reader consults to learn what the system does. It tells a story in chronological order: what was before, what happened (the action), and what came of it. An approved file that dumps a final state, with no trace of the action that produced it, is not a specification.
 
@@ -119,6 +122,7 @@ Flag these when found. Reference by key in your suggestion.
 **Does it exercise anything**
 - **SMELL-missing-verify** — Test never hands an outcome to the verify function. A test must verify an observable outcome to provide value.
 - **SMELL-tautology** — The approved output is predetermined by the test's own setup, independent of production code. Litmus test: would this test still pass if all production code were deleted? Approval tests fail this quietly — the fakes and canned responses produce the output, and the system under test only forwards it. This is the finding worth reporting over any other.
+- **SMELL-trivial-mapping** — Test only covers trivial one-to-one mappings or declarative UI wiring. It is only acceptable if the tested result contains both one-to-one mappings AND meaningful logic transformations.
 
 **Isolation & determinism**
 - **SMELL-shared-state** — Shared mutable state between tests (class/module-level variables mutated without reset).
