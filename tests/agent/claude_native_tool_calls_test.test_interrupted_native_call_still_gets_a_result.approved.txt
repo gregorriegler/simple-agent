@@ -72,7 +72,7 @@ assistant: ok
 [
   {
     "name": "cat",
-    "description": "Display file contents with line numbers",
+    "description": "Display the whole file. Use line_range only for files too large to read in one call.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -82,7 +82,7 @@ assistant: ok
         },
         "line_range": {
           "type": "string",
-          "description": "Optional line range in format 'start-end' (e.g., '1-10')"
+          "description": "Only for very large files: 'start-end' (e.g., '200-400')"
         },
         "with_line_numbers": {
           "type": "boolean",

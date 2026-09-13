@@ -5,7 +5,10 @@ from .base_tool import BaseTool
 
 class CatTool(BaseTool):
     name = "cat"
-    description = "Display file contents with line numbers"
+    description = (
+        "Display the whole file. "
+        "Use line_range only for files too large to read in one call."
+    )
     arguments = ToolArguments(
         header=[
             ToolArgument(
@@ -18,7 +21,7 @@ class CatTool(BaseTool):
                 name="line_range",
                 type="string",
                 required=False,
-                description="Optional line range in format 'start-end' (e.g., '1-10')",
+                description="Only for very large files: 'start-end' (e.g., '200-400')",
             ),
             ToolArgument(
                 name="with_line_numbers",
@@ -34,7 +37,7 @@ class CatTool(BaseTool):
             "filename": "myfile.txt",
             "result": "     1\tLine 1 of file\n     2\tLine 2 of file",
         },
-        {"filename": "script.py", "line_range": "1-20"},
+        {"filename": "huge_dataset.csv", "line_range": "200-400"},
         {"filename": "script.py", "with_line_numbers": True},
     ]
 
