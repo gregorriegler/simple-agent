@@ -13,13 +13,13 @@ def test_put_message_makes_inbox_non_empty():
     assert not inbox.is_empty()
 
 
-def test_take_returns_newest_message_first():
+def test_take_returns_messages_in_the_order_they_arrived():
     inbox = Inbox()
     inbox.put("first")
     inbox.put("second")
 
-    assert inbox.take() == "second"
     assert inbox.take() == "first"
+    assert inbox.take() == "second"
     assert inbox.is_empty()
 
 

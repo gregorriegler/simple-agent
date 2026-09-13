@@ -13,7 +13,7 @@ class Inbox:
         self._arrived.set()
 
     def take(self) -> str:
-        message = self._messages.pop()
+        message = self._messages.pop(0)
         if not self._messages:
             self._arrived.clear()
         return message

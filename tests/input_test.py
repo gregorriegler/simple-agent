@@ -49,16 +49,16 @@ async def test_input_returns_stacked_message_before_display():
     assert user_input_port.calls == 0
 
 
-async def test_multiple_stacked_messages_returned_in_lifo_order():
+async def test_multiple_stacked_messages_returned_in_fifo_order():
     user_input_port = UserInputStub("user input")
     feed = Input(user_input_port)
     feed.stack("first")
     feed.stack("second")
     feed.stack("third")
 
-    assert await feed.read_async() == "third"
-    assert await feed.read_async() == "second"
     assert await feed.read_async() == "first"
+    assert await feed.read_async() == "second"
+    assert await feed.read_async() == "third"
     assert user_input_port.calls == 0
 
 
@@ -81,10 +81,10 @@ async def test_mixing_stacked_and_user_input_reads():
     feed.stack("stacked1")
     feed.stack("stacked2")
 
-    assert await feed.read_async() == "stacked2"
+    assert await feed.read_async() == "stacked1"
     assert user_input_port.calls == 0
 
-    assert await feed.read_async() == "stacked1"
+    assert await feed.read_async() == "stacked2"
     assert user_input_port.calls == 0
 
     assert await feed.read_async() == "user input"
