@@ -32,6 +32,10 @@ def _arguments(agenttype_description: str) -> ToolArguments:
     )
 
 
+def _task_and_result(task_description: str, result: str) -> str:
+    return f"## Task\n\n{task_description}\n\n## Result\n\n{result}"
+
+
 class SubagentTool(BaseTool):
     name = "subagent"
     description = "Creates a new subagent that will handle a specific task/todo and report back the result."
@@ -80,7 +84,12 @@ class SubagentTool(BaseTool):
             status = (
                 ToolResultStatus.SUCCESS if result.success else ToolResultStatus.FAILURE
             )
-            return SingleToolResult(str(result), status=status)
+            return SingleToolResult(
+                str(result),
+                status=status,
+                display_body=_task_and_result(task_description, str(result)),
+                display_language="markdown",
+            )
         except Exception as e:
             return SingleToolResult(
                 f"STDERR: subagent error: {str(e)}", status=ToolResultStatus.FAILURE

@@ -38,6 +38,8 @@ async def test_complete_task_reports_the_named_answer():
     )
 
     assert result.message == "all done"
+    assert result.display_language == "markdown"
+    assert result.display_body == "## Answer\n\nall done"
 
 
 async def test_suggest_reads_the_named_suggestion():

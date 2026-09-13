@@ -32,6 +32,25 @@ async def test_subagent_reads_native_named_arguments():
     assert spawn.calls == [("coding", "say hello world", True)]
 
 
+@pytest.mark.asyncio
+async def test_subagent_displays_the_task_alongside_the_answer_as_markdown():
+    call = ToolCall(
+        name="subagent",
+        named_arguments={
+            "agenttype": "coding",
+            "task_description": "say hello world\n\nthen say goodbye",
+        },
+    )
+
+    result = await SubagentTool(SpawnSpy(), AgentTypes.empty()).execute(call)
+
+    assert result.message == "spawned"
+    assert result.display_language == "markdown"
+    assert result.display_body == (
+        "## Task\n\nsay hello world\n\nthen say goodbye\n\n## Result\n\nspawned"
+    )
+
+
 def test_the_agenttype_argument_lists_the_available_agent_types():
     tool = SubagentTool(SpawnSpy(), AgentTypes(["software-engineer", "question"]))
 

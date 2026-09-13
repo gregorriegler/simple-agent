@@ -9,7 +9,7 @@ from textual.binding import Binding
 from textual.containers import VerticalScroll
 from textual.css.query import NoMatches
 from textual.widget import Widget
-from textual.widgets import Collapsible, Static, TextArea
+from textual.widgets import Collapsible, Markdown, Static, TextArea
 from textual.widgets._collapsible import CollapsibleTitle
 
 from simple_agent.application.tool_results import ToolResult
@@ -119,10 +119,24 @@ class ToolCollapsible(Collapsible):
             self._update_indented_title()
 
 
-def _result_body(result: ToolResult) -> Static | TextArea:
+class ToolResultMarkdown(Markdown):
+    DEFAULT_CSS = """
+    ToolResultMarkdown MarkdownHeader {
+        margin: 1 0;
+    }
+    ToolResultMarkdown MarkdownHeader:first-child {
+        margin: 0 0 1 0;
+    }
+    ToolResultMarkdown MarkdownBlock:last-child {
+        margin-bottom: 0;
+    }
+    """
+
+
+def _result_body(result: ToolResult) -> Widget:
     message = result.display_body or result.message or "No output"
     language = result.display_language or "python"
-    height = min((len(message.splitlines()) or 1) + 2, 30)
+    status_class = "tool-result-success" if result.success else "tool-result-error"
 
     if language == "diff":
         body = Static(
@@ -130,11 +144,21 @@ def _result_body(result: ToolResult) -> Static | TextArea:
                 message, "diff", theme="ansi_dark", line_numbers=False, word_wrap=True
             )
         )
-    else:
-        body = TextArea(message, read_only=True, language=language, show_cursor=False)
-    body.styles.height = height
+        body.styles.height = min((len(message.splitlines()) or 1) + 2, 30)
+        body.add_class("tool-result")
+        body.add_class(status_class)
+        return body
+
+    if language == "markdown":
+        body = ToolResultMarkdown(message)
+        body.add_class("tool-result")
+        body.add_class(status_class)
+        return body
+
+    body = TextArea(message, read_only=True, language=language, show_cursor=False)
+    body.styles.height = min((len(message.splitlines()) or 1) + 2, 30)
     body.add_class("tool-result")
-    body.add_class("tool-result-success" if result.success else "tool-result-error")
+    body.add_class(status_class)
     return body
 
 
@@ -259,15 +283,37 @@ class ToolLog(VerticalScroll):
     def _swap_body(
         self, collapsible: ToolCollapsible, old: Widget, new: Widget
     ) -> None:
-        """
-        Replace a call's body once the collapsible is mounted; a result that
-        lands before then, on a log not yet on screen, waits for its mount.
-        """
         old.remove()
         try:
             collapsible.query_one(Collapsible.Contents).mount(new)
         except NoMatches:
             collapsible.mount(new)
+
+    def _set_result_body(
+        self, collapsible: ToolCollapsible, text_area: TextArea, result: ToolResult
+    ) -> None:
+        language = result.display_language or "python"
+        if language in ("diff", "markdown"):
+            new_widget = _result_body(result)
+            if collapsible.is_mounted:
+                self._swap_body(collapsible, text_area, new_widget)
+                return
+            collapsible.call_later(self._swap_body, collapsible, text_area, new_widget)
+            return
+
+        message = result.display_body or result.message or "No output"
+        classes = (
+            "tool-result tool-result-success"
+            if result.success
+            else "tool-result tool-result-error"
+        )
+        text_area.load_text(message)
+        text_area.language = language
+        text_area.remove_class("tool-call")
+        for css_class in classes.split():
+            text_area.add_class(css_class)
+
+        text_area.styles.height = min((len(message.splitlines()) or 1) + 2, 30)
 
     def _degrade_old_entries(self) -> None:
         excess = len(self._collapsibles) - LIVE_ENTRY_WINDOW
@@ -385,43 +431,8 @@ class ToolLog(VerticalScroll):
         orig_message, text_area, call_collapsible = self._pending_tool_calls.pop(
             call_id
         )
-        message = result.display_body or result.message or "No output"
-        language = result.display_language or "python"
-        classes = (
-            "tool-result tool-result-success"
-            if result.success
-            else "tool-result tool-result-error"
-        )
-
         text_area.loading = False
-
-        if language == "diff":
-            diff_widget = Static(
-                Syntax(
-                    message,
-                    "diff",
-                    theme="ansi_dark",
-                    line_numbers=False,
-                    word_wrap=True,
-                )
-            )
-            for cls in classes.split():
-                diff_widget.add_class(cls)
-            height = min((len(message.splitlines()) or 1) + 2, 30)
-            diff_widget.styles.height = height
-            if call_collapsible.is_mounted:
-                self._swap_body(call_collapsible, text_area, diff_widget)
-            else:
-                call_collapsible.call_later(
-                    self._swap_body, call_collapsible, text_area, diff_widget
-                )
-        else:
-            text_area.load_text(message)
-            text_area.language = language
-            text_area.remove_class("tool-call")
-            for cls in classes.split():
-                text_area.add_class(cls)
-            text_area.styles.height = min((len(message.splitlines()) or 1) + 2, 30)
+        self._set_result_body(call_collapsible, text_area, result)
 
         status_class = (
             "tool-status-cancelled"

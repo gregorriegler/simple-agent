@@ -1,6 +1,6 @@
 import pytest
 from textual.app import App, ComposeResult
-from textual.widgets import TextArea
+from textual.widgets import Markdown, TextArea
 
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
 from simple_agent.infrastructure.textual.widgets.tool_log import (
@@ -380,3 +380,98 @@ async def test_a_diff_result_arriving_before_the_log_is_mounted_lands_in_its_cal
             is not None,
             "the diff to be mounted inside the call's collapsible",
         )
+
+
+@pytest.mark.asyncio
+async def test_a_markdown_result_renders_as_markdown_widget():
+    app = ToolLogApp()
+    async with app.run_test() as pilot:
+        tool_log = app.query_one("#tool-log", ToolLog)
+        tool_log.add_tool_call("call-1", "🛠️ complete-task answer=done")
+        tool_log.add_tool_result(
+            "call-1",
+            SingleToolResult(
+                message="# Finished\nAll done.",
+                status=ToolResultStatus.SUCCESS,
+                display_language="markdown",
+            ),
+        )
+
+        await eventually(
+            pilot,
+            lambda: tool_log.query_one("ToolCollapsible Contents Markdown.tool-result")
+            is not None,
+            "the markdown widget to be mounted inside the call's collapsible",
+        )
+
+
+@pytest.mark.asyncio
+async def test_a_degraded_markdown_entry_upgrades_to_markdown_widget():
+    app = ToolLogApp()
+    async with app.run_test() as pilot:
+        tool_log = app.query_one("#tool-log", ToolLog)
+        tool_log.add_tool_call("call-0", "🛠️ complete-task answer=done")
+        tool_log.add_tool_result(
+            "call-0",
+            SingleToolResult(
+                message="# Done",
+                status=ToolResultStatus.SUCCESS,
+                display_language="markdown",
+            ),
+        )
+
+        for i in range(1, LIVE_ENTRY_WINDOW + 1):
+            tool_log.add_tool_call(f"call-{i}", f"🛠️ bash echo {i}")
+            tool_log.add_tool_result(
+                f"call-{i}",
+                SingleToolResult(message=str(i), status=ToolResultStatus.SUCCESS),
+            )
+
+        await eventually(
+            pilot,
+            lambda: len(tool_log.children) == LIVE_ENTRY_WINDOW + 1
+            and isinstance(tool_log.children[0], CollapsedToolEntry),
+            "the oldest entry to degrade",
+        )
+
+        oldest = tool_log.children[0]
+        upgraded = oldest.upgrade()
+        await eventually(
+            pilot,
+            lambda: upgraded.query(Markdown),
+            "the upgraded entry to build its markdown body",
+        )
+
+        assert upgraded.query_one(Markdown) is not None
+
+
+@pytest.mark.asyncio
+async def test_a_markdown_result_starts_flush_with_its_first_heading():
+    app = ToolLogApp()
+    async with app.run_test() as pilot:
+        tool_log = app.query_one("#tool-log", ToolLog)
+        tool_log.add_tool_call("call-1", "🛠️ subagent agenttype=coding")
+        tool_log.add_tool_result(
+            "call-1",
+            SingleToolResult(
+                message="done",
+                status=ToolResultStatus.SUCCESS,
+                display_body="## Task\n\nsay hi\n\n## Result\n\ndone",
+                display_language="markdown",
+            ),
+        )
+
+        await eventually(
+            pilot,
+            lambda: len(tool_log.query("MarkdownBlock")) == 4
+            and all(block.region.height for block in tool_log.query("MarkdownBlock")),
+            "all four blocks to be laid out",
+        )
+
+        markdown = tool_log.query_one(Markdown)
+        rows = [
+            block.region.y - markdown.content_region.y
+            for block in markdown.query("MarkdownBlock")
+        ]
+        assert rows == [0, 2, 4, 6]
+        assert markdown.content_region.height == 7

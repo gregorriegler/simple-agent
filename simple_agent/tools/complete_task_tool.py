@@ -38,4 +38,9 @@ class CompleteTaskTool(BaseTool):
                 completes=True,
             )
         answer = args.strip()
-        return SingleToolResult(answer, completes=True, display_language="markdown")
+        return SingleToolResult(
+            answer,
+            completes=True,
+            display_body=f"## Answer\n\n{answer}",
+            display_language="markdown",
+        )
