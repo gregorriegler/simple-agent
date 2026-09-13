@@ -68,19 +68,19 @@ async def test_golden_master_agent_stub(monkeypatch, tmp_path):
             console.print(app.screen._compositor)
             return normalize(console.export_text())
 
-        # Wait briefly for the main content to appear.
-        max_wait_seconds = 0.5
-        poll_interval = 0.02
+        max_wait_seconds = 5
+        poll_interval = 0.05
         start_time = time.monotonic()
 
+        content = ""
         while time.monotonic() - start_time < max_wait_seconds:
             await app._pilot.pause(poll_interval)
-            content = get_screen_content()
-
-            if "complete-task" in content:
+            settled = get_screen_content()
+            if "complete-task" in settled and settled == content:
                 break
+            content = settled
 
-        captured.append(get_screen_content())
+        captured.append(content)
         app.user_input.submit_input(agent_id, "")
 
     await main_async(on_user_prompt_requested=on_user_prompt_requested)

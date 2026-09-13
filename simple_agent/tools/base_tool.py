@@ -1,5 +1,4 @@
 import asyncio
-import subprocess
 import time
 
 from simple_agent.application.tool_library import Tool, ToolArguments, ToolCall
@@ -18,49 +17,51 @@ class BaseTool(Tool):
         raise NotImplementedError("Subclasses must implement execute()")
 
     @staticmethod
-    def run_command(command, args=None, cwd=None):
-        try:
-            command_line = [command]
-            if args:
-                if isinstance(args, str):
-                    args = [args]
-                command_line += args
+    async def run_command_async(command, args=None, cwd=None):
+        command_line = [command]
+        if args:
+            if isinstance(args, str):
+                args = [args]
+            command_line += args
 
-            start_time = time.time()
-            result = subprocess.run(
-                command_line,
-                stdin=subprocess.DEVNULL,
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                timeout=TIMEOUT,
+        start_time = time.time()
+        try:
+            process = await asyncio.create_subprocess_exec(
+                *command_line,
+                stdin=asyncio.subprocess.DEVNULL,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
                 cwd=cwd,
             )
-            elapsed_time = time.time() - start_time
+        except Exception as e:
+            return {"output": f"Error: {str(e)}", "success": False, "elapsed_time": 0.0}
 
-            output = result.stdout.rstrip("\n")
-            if result.stderr:
-                if output:
-                    output += "\n"
-                output += f"STDERR: {result.stderr}"
-            return {
-                "output": output,
-                "success": result.returncode == 0,
-                "elapsed_time": elapsed_time,
-            }
-        except subprocess.TimeoutExpired:
+        try:
+            stdout, stderr = await asyncio.wait_for(process.communicate(), TIMEOUT)
+        except TimeoutError:
+            process.kill()
+            await process.wait()
             return {
                 "output": "Command timed out (" + str(TIMEOUT) + "s limit)",
                 "success": False,
                 "elapsed_time": TIMEOUT,
             }
-        except Exception as e:
-            return {"output": f"Error: {str(e)}", "success": False, "elapsed_time": 0.0}
+        except asyncio.CancelledError:
+            process.kill()
+            await process.wait()
+            raise
 
-    @staticmethod
-    async def run_command_async(command, args=None, cwd=None):
-        return await asyncio.to_thread(BaseTool.run_command, command, args, cwd)
+        output = stdout.decode("utf-8", errors="replace").rstrip("\n")
+        error_output = stderr.decode("utf-8", errors="replace")
+        if error_output:
+            if output:
+                output += "\n"
+            output += f"STDERR: {error_output}"
+        return {
+            "output": output,
+            "success": process.returncode == 0,
+            "elapsed_time": time.time() - start_time,
+        }
 
     def get_template_variables(self) -> dict[str, str]:
         """Return variables to substitute in documentation templates.
