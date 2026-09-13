@@ -4,6 +4,7 @@ from .agent_task_manager import AgentTaskManager
 from .agent_type import AgentType
 from .change_reporter import ChangeReporter
 from .event_bus import EventBus
+from .events import AgentFinishedEvent
 from .input import Input
 from .intent import Intents
 from .observer_factory import ObserverAgentFactory, ObserverFactory
@@ -26,6 +27,10 @@ class Observation:
         self._agent_task_manager = agent_task_manager
         self._intents = intents
         self._observers: dict[AgentId, Observers] = {}
+        event_bus.subscribe(AgentFinishedEvent, self._forget)
+
+    def _forget(self, event: AgentFinishedEvent) -> None:
+        self._observers.pop(event.agent_id, None)
 
     def watch(
         self,
