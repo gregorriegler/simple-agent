@@ -248,3 +248,9 @@ async def test_clicking_an_entry_moves_the_focus_onto_it():
             lambda: app.focused is not None and app.focused in opened.walk_children(),
             "the focus to land on the clicked collapsible",
         )
+
+
+def test_communicate_intent_gets_a_speaking_head_emoji():
+    assert title_of("communicate-intent Ship the feature so that users can log in") == (
+        "🗣️ communicate-intent Ship the feature so that users can log in"
+    )

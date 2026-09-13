@@ -26,11 +26,12 @@ TOOL_EMOJIS = {
     "subagent": "🤖",
     "complete-task": "🏁",
     "write-todos": "📋",
+    "communicate-intent": "🗣️",
 }
 DEFAULT_TOOL_EMOJI = "🛠️"
 COLLAPSED_SYMBOL = "▶"
 LIVE_ENTRY_WINDOW = 10
-THOUGHT_EMOJI = "🧠"
+THOUGHT_EMOJI = "💭"
 _STATUS_EMOJIS = ("🛠️", "🛠", "✅", "❌", "🚫")
 _TITLE_EMOJIS = _STATUS_EMOJIS + tuple(TOOL_EMOJIS.values()) + (THOUGHT_EMOJI,)
 

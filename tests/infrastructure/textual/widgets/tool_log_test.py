@@ -266,7 +266,7 @@ async def test_replayed_thoughts_keep_their_place_between_tool_calls():
             child.title if isinstance(child, ToolCollapsible) else child._entry_title
             for child in tool_log.children
         ]
-        assert titles == ["💲 bash echo first", "🧠 thought", "💲 bash echo second"]
+        assert titles == ["💲 bash echo first", "💭 thought", "💲 bash echo second"]
 
 
 @pytest.mark.asyncio
