@@ -1,10 +1,9 @@
 from typing import Protocol
 
-
-class Intent(Protocol):
-    def read(self) -> str: ...
+from .agent_id import AgentId
 
 
-class NoIntent(Intent):
-    def read(self) -> str:
-        return ""
+class Intents(Protocol):
+    def read(self, agent_id: AgentId) -> str: ...
+
+    def write(self, agent_id: AgentId, intent: str) -> None: ...

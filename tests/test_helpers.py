@@ -17,6 +17,7 @@ from simple_agent.application.system_prompt import AgentPrompt
 from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_library_factory import ToolContext
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
+from simple_agent.infrastructure.file_intents import FileIntents
 from simple_agent.tools.all_tools import AllTools, AllToolsFactory
 from tests.transcript import describe_call
 from tests.user_input_stub import UserInputStub
@@ -24,7 +25,7 @@ from tests.user_input_stub import UserInputStub
 
 def create_all_tools_for_test(tool_keys: list[str] | None = None):
     event_bus = SimpleEventBus()
-    tool_library_factory = AllToolsFactory()
+    tool_library_factory = AllToolsFactory(FileIntents())
     agent_library = BuiltinAgentLibrary()
     agent_factory = AgentFactory(
         event_bus=event_bus,
@@ -48,6 +49,7 @@ def create_all_tools_for_test(tool_keys: list[str] | None = None):
         tool_context=tool_context,
         spawner=spawner,
         agent_types=AgentTypes(agent_library.list_agent_types()),
+        intents=FileIntents(),
     )
 
 

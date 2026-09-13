@@ -11,7 +11,7 @@ from .events import (
     ToolCalledEvent,
 )
 from .input import Input
-from .intent import Intent
+from .intent import Intents
 
 SUGGEST_TOOL = "suggest"
 
@@ -41,14 +41,14 @@ class Observers:
         change_reporter: ChangeReporter,
         create_observer: ObserverSpawner,
         agent_input: Input,
-        intent: Intent,
+        intents: Intents,
     ):
         self._agent_id = agent_id
         self._names = names
         self._change_reporter = change_reporter
         self._create_observer = create_observer
         self._agent_input = agent_input
-        self._intent = intent
+        self._intents = intents
         self._observers: dict[str, Observer] = {}
         event_bus.subscribe(CheckpointReachedEvent, self._observe)
         event_bus.subscribe(AgentFinishedEvent, self._close)
@@ -82,7 +82,7 @@ class Observers:
         self._observers.clear()
 
     def _packet(self, diff: str) -> str:
-        intent = self._intent.read()
+        intent = self._intents.read(self._agent_id)
         if not intent:
             return diff
         return f"Intent: {intent}\n\n{diff}"

@@ -9,6 +9,7 @@ from simple_agent.application.tool_library_factory import (
 )
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.infrastructure.agent_library import BuiltinAgentLibrary
+from simple_agent.infrastructure.file_intents import FileIntents
 from simple_agent.tools import AllTools
 from simple_agent.tools.all_tools import AllToolsFactory
 from tests.test_helpers import DummyProjectTree
@@ -49,7 +50,7 @@ class ToolLibraryStub(AllTools):
             agent_types if agent_types is not None else AgentTypes.empty()
         )
         if actual_tool_context is None:
-            tool_library_factory = AllToolsFactory()
+            tool_library_factory = AllToolsFactory(FileIntents())
             agent_factory = AgentFactory(
                 event_bus=actual_event_bus,
                 tool_library_factory=tool_library_factory,
@@ -78,6 +79,7 @@ class ToolLibraryStub(AllTools):
             tool_context=actual_tool_context,
             spawner=actual_spawner,
             agent_types=actual_agent_types,
+            intents=FileIntents(),
         )
         self.interrupts = interrupts or []
         self.counter = 0

@@ -1,5 +1,3 @@
-from collections.abc import Callable
-
 from .agent_definition import AgentDefinition
 from .agent_id import AgentId
 from .agent_task_manager import AgentTaskManager
@@ -7,12 +5,10 @@ from .agent_type import AgentType
 from .change_reporter import ChangeReporter
 from .event_bus import EventBus
 from .input import Input
-from .intent import Intent, NoIntent
+from .intent import Intents
 from .observer_factory import ObserverAgentFactory, ObserverFactory
 from .observer_library import ObserverLibrary
 from .observers import Observers
-
-IntentFactory = Callable[[AgentId], Intent]
 
 
 class Observation:
@@ -22,13 +18,13 @@ class Observation:
         observer_library: ObserverLibrary,
         change_reporter: ChangeReporter,
         agent_task_manager: AgentTaskManager,
-        intent_factory: IntentFactory | None = None,
+        intents: Intents,
     ):
         self._event_bus = event_bus
         self._observer_library = observer_library
         self._change_reporter = change_reporter
         self._agent_task_manager = agent_task_manager
-        self._intent_factory = intent_factory or (lambda _: NoIntent())
+        self._intents = intents
         self._observers: dict[AgentId, Observers] = {}
 
     def watch(
@@ -53,7 +49,7 @@ class Observation:
                 agent_id,
             ),
             agent_input,
-            self._intent_factory(agent_id),
+            self._intents,
         )
 
     def resume(self, agent_id: AgentId, agent_type: AgentType) -> bool:

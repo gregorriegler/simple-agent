@@ -19,7 +19,7 @@ from simple_agent.application.session import Session, SessionArgs
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.infrastructure.event_logger import EventLogger
 from simple_agent.infrastructure.file_event_store import FileEventStore
-from simple_agent.infrastructure.file_intent import FileIntent
+from simple_agent.infrastructure.file_intents import FileIntents
 from simple_agent.infrastructure.file_session_storage import FileSessionStorage
 from simple_agent.infrastructure.file_system_agent_state_cleanup import (
     FileSystemAgentStateCleanup,
@@ -111,7 +111,8 @@ async def _run_main(
     event_logger = EventLogger()
     event_bus = SimpleEventBus()
 
-    tool_library_factory = AllToolsFactory()
+    intents = FileIntents()
+    tool_library_factory = AllToolsFactory(intents)
 
     if llm_provider is None:
         if args.stub_llm:
@@ -144,7 +145,7 @@ async def _run_main(
             create_observer_library(user_config),
             GitChangeReporter(Path(cwd)),
             agent_task_manager,
-            FileIntent,
+            intents,
         ),
     )
     textual_app = TextualApp(

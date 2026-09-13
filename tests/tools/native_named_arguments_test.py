@@ -1,6 +1,8 @@
 import pytest
 
+from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_library import ToolCall
+from simple_agent.infrastructure.file_intents import FileIntents
 from simple_agent.tools.bash_tool import BashTool
 from simple_agent.tools.communicate_intent_tool import CommunicateIntentTool
 from simple_agent.tools.complete_task_tool import CompleteTaskTool
@@ -44,13 +46,13 @@ async def test_suggest_reads_the_named_suggestion():
 
 
 async def test_communicate_intent_writes_the_named_intent(tmp_path):
-    intent_file = tmp_path / "intent.md"
+    agent_id = AgentId("Agent", root=tmp_path)
 
-    await CommunicateIntentTool(str(intent_file)).execute(
+    await CommunicateIntentTool(FileIntents(), agent_id).execute(
         native_call("communicate-intent", intent="extract the parser")
     )
 
-    assert "extract the parser" in intent_file.read_text()
+    assert "extract the parser" in agent_id.intent_filename().read_text()
 
 
 async def test_write_todos_writes_the_named_content(tmp_path):

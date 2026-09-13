@@ -33,7 +33,7 @@ from simple_agent.application.observation import Observation
 from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.application.session import Session
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
-from simple_agent.infrastructure.file_intent import FileIntent
+from simple_agent.infrastructure.file_intents import FileIntents
 from tests.event_spy import EventSpy
 from tests.in_memory_event_store import InMemoryEventStore
 from tests.system_prompt_generator_test import GroundRulesStub
@@ -298,7 +298,7 @@ class SessionTestBed:
                 ObserverLibraryStub(),
                 ChangeReporterStub(self._diffs),
                 agent_task_manager,
-                FileIntent,
+                FileIntents(),
             ),
             on_replay_complete=subscribe_persistence,
         )

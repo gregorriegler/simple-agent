@@ -15,13 +15,14 @@ async def test_write_todos_creates_markdown_file(tmp_path):
     from simple_agent.application.agent_types import AgentTypes
     from simple_agent.application.tool_library_factory import ToolContext
     from simple_agent.application.tool_results import SingleToolResult
+    from simple_agent.infrastructure.file_intents import FileIntents
     from simple_agent.tools.all_tools import AllToolsFactory
 
     agent_id = AgentId("Agent", root=tmp_path)
 
     tool_context = ToolContext(tool_keys=[], agent_id=agent_id)
 
-    factory = AllToolsFactory()
+    factory = AllToolsFactory(FileIntents())
 
     async def dummy_spawner(agent_type, task_description):
         return SingleToolResult(message="")

@@ -1,5 +1,5 @@
-from pathlib import Path
-
+from simple_agent.application.agent_id import AgentId
+from simple_agent.application.intent import Intents
 from simple_agent.application.tool_library import ToolArgument, ToolArguments
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
 
@@ -32,9 +32,10 @@ class CommunicateIntentTool(BaseTool):
         }
     ]
 
-    def __init__(self, filename: str):
+    def __init__(self, intents: Intents, agent_id: AgentId):
         super().__init__()
-        self.filename = filename
+        self._intents = intents
+        self._agent_id = agent_id
 
     async def execute(self, call):
         body = str(call.named_arguments.get("intent", ""))
@@ -44,5 +45,5 @@ class CommunicateIntentTool(BaseTool):
             )
 
         intent = body.strip()
-        Path(self.filename).write_text(intent, encoding="utf-8")
+        self._intents.write(self._agent_id, intent)
         return SingleToolResult(f"Intent: {intent}")

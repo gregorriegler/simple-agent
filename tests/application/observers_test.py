@@ -55,16 +55,19 @@ class ObserverFactoryStub:
         return observer
 
 
-class IntentStub:
+class IntentsStub:
     def __init__(self, intent=""):
         self._intent = intent
 
-    def read(self) -> str:
+    def read(self, agent_id: AgentId) -> str:
         return self._intent
+
+    def write(self, agent_id: AgentId, intent: str) -> None:
+        self._intent = intent
 
 
 def observers_of(
-    event_bus, names, change_reporter, factory, agent_input=None, intent=None
+    event_bus, names, change_reporter, factory, agent_input=None, intents=None
 ):
     return Observers(
         event_bus,
@@ -73,7 +76,7 @@ def observers_of(
         change_reporter,
         factory,
         agent_input or Input(DummyUserInput()),
-        intent or IntentStub(),
+        intents or IntentsStub(),
     )
 
 
@@ -208,7 +211,7 @@ def test_an_observer_learns_what_the_agent_is_trying_to_do():
         ["naming"],
         ChangeReporterStub(DIFF),
         factory,
-        intent=IntentStub("Store the greeting"),
+        intents=IntentsStub("Store the greeting"),
     )
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
