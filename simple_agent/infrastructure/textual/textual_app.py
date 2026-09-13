@@ -172,7 +172,7 @@ class TextualApp(App):
     CollapsedToolEntry.thought {
         border-left: outer $success;
         text-style: not italic;
-        color: $block-cursor-blurred-foreground;
+        color: $text-muted;
     }
 
     ToolCollapsible.tool-status-running > CollapsibleTitle,
@@ -202,6 +202,7 @@ class TextualApp(App):
 
     ToolCollapsible.thought > CollapsibleTitle {
         text-style: not italic;
+        color: $text-muted;
     }
 
     #user-input {
