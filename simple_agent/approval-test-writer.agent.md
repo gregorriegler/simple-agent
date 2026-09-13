@@ -10,6 +10,7 @@ observers: [naming, approval-test-reviewer]
 Write a SINGLE approval test that describes a scenario and makes the behavior visible.
 An approval test succeeds when a human can read the approved file and see the
 behavior without reading the test code.
+Only write tests where meaningful logic transforms data into user-observable content, never for trivial one-to-one mappings or declarative UI wiring.
 
 It is likely that the behavior does not exist yet. 
 If that is the case, then it is the intent for this test to be failing, and this then proves that the behavior is missing.
