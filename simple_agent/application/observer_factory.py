@@ -1,4 +1,5 @@
-from .agent_factory import AgentFactory
+from typing import TYPE_CHECKING
+
 from .agent_id import AgentId, AgentIdSuffixer
 from .agent_task_manager import AgentTaskManager
 from .agent_type import AgentType
@@ -8,6 +9,9 @@ from .observer_definition import ObserverDefinition
 from .observer_input import ObserverInput
 from .observer_library import ObserverLibrary
 from .on_complete import OnComplete
+
+if TYPE_CHECKING:
+    from .agent_factory import AgentFactory
 
 
 class SpawnedObserver:
@@ -25,7 +29,7 @@ class SpawnedObserver:
 class ObserverFactory:
     def __init__(
         self,
-        agent_factory: AgentFactory,
+        agent_factory: "AgentFactory",
         observer_library: ObserverLibrary,
         agent_task_manager: AgentTaskManager,
         observed_agent_id: AgentId,

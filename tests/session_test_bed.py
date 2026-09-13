@@ -135,6 +135,7 @@ class SessionTestBed:
         self._custom_event_subscriptions = []
         self._cancel_on = None
         self._observers: list[str] = []
+        self._subagent_observers: list[str] = []
         self._diffs = ["a production diff"]
         self._observer_llm = create_llm_stub([], default=complete_task("nothing"))
 
@@ -191,6 +192,13 @@ class SessionTestBed:
 
     def observed_by(self, observers: list[str], *diffs: str) -> "SessionTestBed":
         self._observers = observers
+        self._diffs = list(diffs) or self._diffs
+        return self
+
+    def with_subagent_observed_by(
+        self, observers: list[str], *diffs: str
+    ) -> "SessionTestBed":
+        self._subagent_observers = observers
         self._diffs = list(diffs) or self._diffs
         return self
 
@@ -259,7 +267,7 @@ class SessionTestBed:
             ):
                 event_bus.subscribe(event_type, self._event_store.persist)
 
-        agent_library = TestAgentLibrary(self._observers)
+        agent_library = TestAgentLibrary(self._observers, self._subagent_observers)
 
         tool_library_factory = ToolLibraryFactoryStub(
             self._llm,
@@ -286,7 +294,7 @@ class SessionTestBed:
             agent_task_manager=agent_task_manager,
             observer_library=TestObserverLibrary(),
             change_reporter=ChangeReporterStub(self._diffs),
-            intent=FileIntent(root_agent_id),
+            intent_factory=FileIntent,
             on_replay_complete=subscribe_persistence,
         )
 
@@ -356,7 +364,11 @@ class TestObserverLibrary:
 
 
 class TestAgentLibrary:
-    def __init__(self, observers: list[str] | None = None):
+    def __init__(
+        self,
+        observers: list[str] | None = None,
+        coding_observers: list[str] | None = None,
+    ):
         self._definitions = {
             "agent": AgentDefinition(
                 AgentType("agent"),
@@ -368,8 +380,9 @@ observers: {observers or []}
             ),
             "coding": AgentDefinition(
                 AgentType("coding"),
-                """---
+                f"""---
 name: Coding
+observers: {coding_observers or []}
 ---""",
                 GroundRulesStub("Test system prompt"),
             ),

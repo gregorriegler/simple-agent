@@ -8,6 +8,7 @@ from tests.tool_calls import (
     communicate_intent,
     complete_task,
     create_file,
+    subagent,
     suggest,
 )
 
@@ -70,6 +71,36 @@ async def test_the_observer_judges_the_change_it_caught_up_with(tmp_path, monkey
                 suggest("tmp2.txt says nothing about its content"),
                 complete_task("judged tmp2.txt"),
             ),
+        ]
+    )
+
+    result = await session.run()
+
+    verify(result.as_approval_string())
+
+
+async def test_a_subagent_is_watched_by_its_own_observers(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    session = SessionTestBed()
+    session.with_subagent_observed_by(["naming"], BAD_NAME)
+    session.with_user_inputs("Store the greeting", "\n")
+    session.with_llm_responses(
+        [
+            subagent("coding", "store the greeting"),
+            create_file("data1.txt", "Hello"),
+            cat("data1.txt"),
+            says("I will rename it.", complete_task("renamed the file")),
+            complete_task("stored the greeting"),
+        ]
+    )
+    session.with_observer_responses(
+        [
+            says(
+                "",
+                suggest("data1.txt says nothing about its content"),
+                complete_task("judged the new file"),
+            )
         ]
     )
 

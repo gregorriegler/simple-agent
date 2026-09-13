@@ -2,7 +2,7 @@ import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from simple_agent.application.agent_factory import AgentFactory
+from simple_agent.application.agent_factory import AgentFactory, IntentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_task_manager import AgentTaskManager
@@ -16,12 +16,8 @@ from simple_agent.application.events_to_messages import (
     events_to_messages,
 )
 from simple_agent.application.history_replayer import HistoryReplayer
-from simple_agent.application.input import Input
-from simple_agent.application.intent import Intent, NoIntent
 from simple_agent.application.llm import LLMProvider, Messages
-from simple_agent.application.observer_factory import ObserverFactory
 from simple_agent.application.observer_library import ObserverLibrary
-from simple_agent.application.observers import Observers
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from simple_agent.application.user_input import UserInputs
@@ -53,7 +49,7 @@ class Session:
         on_replay_complete: Callable[[], None] | None = None,
         observer_library: ObserverLibrary | None = None,
         change_reporter: ChangeReporter | None = None,
-        intent: Intent | None = None,
+        intent_factory: IntentFactory | None = None,
     ):
         self._starting_agent_id = starting_agent_id
         self._event_bus = event_bus
@@ -67,37 +63,8 @@ class Session:
         self._on_replay_complete = on_replay_complete
         self._observer_library = observer_library
         self._change_reporter = change_reporter
-        self._intent = intent or NoIntent()
+        self._intent_factory = intent_factory
         self._checkpoint_detector = CheckpointDetector(event_bus)
-
-    def _observe(
-        self, agent_factory: AgentFactory, agent_definition, agent_input: Input
-    ) -> Observers | None:
-        if not self._observer_library or not self._change_reporter:
-            return None
-        names = agent_definition.observers()
-        if not names:
-            return None
-        return Observers(
-            self._event_bus,
-            self._starting_agent_id,
-            names,
-            self._change_reporter,
-            ObserverFactory(
-                agent_factory,
-                self._observer_library,
-                self._agent_task_manager,
-                self._starting_agent_id,
-            ),
-            agent_input,
-            self._intent,
-        )
-
-    @staticmethod
-    def _resumed_as_observer(observers: Observers | None, event) -> bool:
-        if not observers or not event.agent_type:
-            return False
-        return observers.resume(event.agent_id, event.agent_type)
 
     async def run_async(
         self,
@@ -112,6 +79,9 @@ class Session:
             self._project_tree,
             event_store=self._event_store,
             agent_task_manager=self._agent_task_manager,
+            observer_library=self._observer_library,
+            change_reporter=self._change_reporter,
+            intent_factory=self._intent_factory,
         )
 
         self._event_bus.publish(
@@ -145,10 +115,10 @@ class Session:
             user_input=agent_input,
         )
 
-        observers = self._observe(agent_factory, agent_definition, agent_input)
-
         for event in unfinished_subagents:
-            if self._resumed_as_observer(observers, event):
+            if event.agent_type and agent_factory.resume_observer(
+                event.agent_id, event.agent_type
+            ):
                 continue
             subagent = agent_factory.create_agent_from_history(
                 event.agent_id, event.agent_type

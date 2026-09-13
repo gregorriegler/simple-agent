@@ -138,7 +138,7 @@ async def _run_main(
         ),
         observer_library=create_observer_library(user_config),
         change_reporter=GitChangeReporter(Path(cwd)),
-        intent=FileIntent(starting_agent_id),
+        intent_factory=FileIntent,
     )
     textual_app = TextualApp(
         user_input,

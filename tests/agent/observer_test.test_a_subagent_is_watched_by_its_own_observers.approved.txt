@@ -1,0 +1,76 @@
+# Events
+Agent:       session_started: False
+Agent:         agent_started: Agent stub-model agent human_review
+Agent:         user_prompted: Store the greeting
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::1 subagent agenttype="coding" task_description="store the greeting"
+Agent/Coding:         agent_started: Coding stub-model coding human_review
+Agent/Coding:         user_prompted: store the greeting
+Agent/Coding:   assistant_responded:  stub-model 0.0%
+Agent/Coding:           tool_called: Agent/Coding::tool_call::1 create-file filename="data1.txt" content="Hello"
+Agent/Coding:           tool_result: Agent/Coding::tool_call::1 Created file: data1.txt with content
+Agent/Coding:    checkpoint_reached: 
+Agent/Coding:   assistant_responded:  stub-model 0.0%
+Agent/Coding:           tool_called: Agent/Coding::tool_call::2 cat filename="data1.txt"
+Agent/Coding/Naming:         agent_started: Naming stub-model naming stop_and_wait
+Agent/Coding/Naming: user_prompt_requested: 
+Agent/Coding/Naming:         user_prompted: diff --git a/data1.txt b/data1.txt
++Hello
+Agent/Coding/Naming:   assistant_responded:  stub-model 0.0%
+Agent/Coding/Naming:           tool_called: Agent/Coding/Naming::tool_call::1 suggest suggestion="data1.txt says nothing about its content"
+Agent/Coding/Naming:           tool_result: Agent/Coding/Naming::tool_call::1 Suggested: data1.txt says nothing about its content
+Agent/Coding/Naming:           tool_called: Agent/Coding/Naming::tool_call::2 complete-task summary="judged the new file"
+Agent/Coding/Naming:           tool_result: Agent/Coding/Naming::tool_call::2 judged the new file
+Agent/Coding/Naming: user_prompt_requested: 
+Agent/Coding:           tool_result: Agent/Coding::tool_call::2 Hello
+Agent/Coding:         user_prompted: 💡 Suggestion from the naming observer:
+data1.txt says nothing about its content
+Agent/Coding:   assistant_responded: I will rename it. stub-model 0.0%
+Agent/Coding:        assistant_said: I will rename it.
+Agent/Coding:           tool_called: Agent/Coding::tool_call::3 complete-task summary="renamed the file"
+Agent/Coding:           tool_result: Agent/Coding::tool_call::3 renamed the file
+Agent/Coding: user_prompt_requested: 
+Agent/Coding:        agent_finished: 
+Agent/Coding:         session_ended: 
+Agent:           tool_result: Agent::tool_call::1 renamed the file
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::2 complete-task summary="stored the greeting"
+Agent:           tool_result: Agent::tool_call::2 stored the greeting
+Agent: user_prompt_requested: 
+Agent/Coding/Naming:        agent_finished: 
+Agent/Coding/Naming:         session_ended: 
+Agent:        agent_finished: 
+Agent:         session_ended: 
+
+# Messages:
+[Agent]
+user: Store the greeting
+assistant:
+  subagent agenttype="coding" task_description="store the greeting"
+[Agent/Coding]
+user: store the greeting
+assistant:
+  create-file filename="data1.txt" content="Hello"
+tool_result: Created file: data1.txt with content
+assistant:
+  cat filename="data1.txt"
+[Agent/Coding/Naming]
+user: diff --git a/data1.txt b/data1.txt
++Hello
+assistant:
+  suggest suggestion="data1.txt says nothing about its content"
+tool_result: Suggested: data1.txt says nothing about its content
+  complete-task summary="judged the new file"
+tool_result: judged the new file
+tool_result: Hello
+[Agent/Coding]
+user: 💡 Suggestion from the naming observer:
+data1.txt says nothing about its content
+assistant: I will rename it.
+  complete-task summary="renamed the file"
+tool_result: renamed the file
+tool_result: renamed the file
+assistant:
+  complete-task summary="stored the greeting"
+tool_result: stored the greeting
+
