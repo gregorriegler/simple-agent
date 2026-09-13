@@ -1,0 +1,37 @@
+# Events
+Agent:       session_started: False
+Agent:         agent_started: Agent stub-model agent human_review
+Agent:         user_prompted: Create a subagent that reads hello
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::1 subagent agenttype="coding" task_description="read hello"
+Agent/Coding:         agent_started: Coding stub-model coding human_review
+Agent/Coding:         user_prompted: read hello
+Agent/Coding:   assistant_responded:  stub-model 0.0%
+Agent/Coding:           tool_called: Agent/Coding::tool_call::1 cat filename="hello.txt"
+Agent/Coding:        tool_cancelled: Agent/Coding::tool_call::1
+Agent/Coding:   session_interrupted: 
+Agent/Coding: user_prompt_requested: 
+Agent/Coding:        agent_finished: 
+Agent/Coding:         session_ended: 
+Agent:           tool_result: Agent::tool_call::1 
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::2 complete-task answer="The subagent was interrupted"
+Agent:           tool_result: Agent::tool_call::2 The subagent was interrupted
+Agent: user_prompt_requested: 
+Agent:        agent_finished: 
+Agent:         session_ended: 
+
+# Messages:
+[Agent]
+user: Create a subagent that reads hello
+assistant:
+  subagent agenttype="coding" task_description="read hello"
+[Agent/Coding]
+user: read hello
+assistant:
+  cat filename="hello.txt"
+tool_result: 
+assistant:
+  complete-task answer="The subagent was interrupted"
+tool_result: The subagent was interrupted
+

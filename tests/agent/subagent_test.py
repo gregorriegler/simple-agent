@@ -1,9 +1,10 @@
 import pytest
 from approvaltests import verify
 
+from simple_agent.application.events import ToolCalledEvent
 from simple_agent.application.llm_stub import says
 from tests.session_test_bed import SessionTestBed
-from tests.tool_calls import complete_task, subagent
+from tests.tool_calls import cat, complete_task, subagent
 
 pytestmark = pytest.mark.asyncio
 
@@ -51,6 +52,24 @@ async def test_background_subagent():
             says("hello", complete_task("I successfully said hello")),
         ],
     )
+
+
+async def test_escape_on_a_subagent_tab_interrupts_only_that_subagent():
+    result = (
+        await SessionTestBed()
+        .with_llm_responses(
+            [
+                subagent("coding", "read hello"),
+                cat("hello.txt"),
+                complete_task("The subagent was interrupted"),
+            ]
+        )
+        .with_user_inputs("Create a subagent that reads hello", "\n", "\n")
+        .cancelling_when(ToolCalledEvent, on_tab="Agent/Coding")
+        .run()
+    )
+
+    verify(result.as_approval_string())
 
 
 async def verify_chat(inputs, answers):

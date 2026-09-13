@@ -81,14 +81,13 @@ class AgentFactory:
                 agent_type,
                 on_complete=OnComplete.CLOSE if background else OnComplete.HUMAN_REVIEW,
             )
+            task = self._agent_task_manager.start_task(agent_id, subagent.start())
             if background:
-                task = self._agent_task_manager.start_task(agent_id, subagent.start())
                 task.add_done_callback(
                     lambda done: self._report_completion(parent_input, agent_id, done)
                 )
                 return SingleToolResult("Subagent started")
-            else:
-                return await subagent.start()
+            return await task
 
         return spawn
 

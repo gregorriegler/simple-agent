@@ -135,6 +135,7 @@ class SessionTestBed:
         self._event_store: EventStore | None = None
         self._custom_event_subscriptions = []
         self._cancel_on = None
+        self._cancel_tab = AgentId("Agent")
         self._observers: list[str] = []
         self._subagent_observers: list[str] = []
         self._diffs = ["a production diff"]
@@ -211,9 +212,10 @@ class SessionTestBed:
         self._continue_session = True
         return self
 
-    def cancelling_when(self, event_type) -> "SessionTestBed":
-        """Press ESC as soon as the given event is published."""
+    def cancelling_when(self, event_type, on_tab: str = "Agent") -> "SessionTestBed":
+        """Press ESC on the given agent's tab as soon as it publishes the event."""
         self._cancel_on = event_type
+        self._cancel_tab = AgentId(on_tab)
         return self
 
     def on_event(self, event_type, handler) -> "SessionTestBed":
@@ -304,9 +306,11 @@ class SessionTestBed:
         )
 
         if self._cancel_on is not None:
+            cancel_tab = self._cancel_tab
             event_bus.subscribe(
                 self._cancel_on,
-                lambda _: agent_task_manager.cancel_task(root_agent_id),
+                lambda event: event.agent_id == cancel_tab
+                and agent_task_manager.cancel_task(cancel_tab),
             )
 
         agent_task_manager.start_task(
