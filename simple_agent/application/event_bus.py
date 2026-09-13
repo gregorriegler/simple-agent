@@ -9,6 +9,10 @@ T = TypeVar("T", bound=AgentEvent)
 class EventBus(Protocol):
     def subscribe(self, event_type: type[T], handler: Callable[[T], None]) -> None: ...
 
+    def unsubscribe(
+        self, event_type: type[T], handler: Callable[[T], None]
+    ) -> None: ...
+
     def publish(self, event: AgentEvent) -> None: ...
 
 
@@ -21,8 +25,10 @@ class SimpleEventBus(EventBus):
             self._handlers[event_type] = []
         self._handlers[event_type].append(handler)
 
+    def unsubscribe(self, event_type: type[T], handler: Callable[[T], None]) -> None:
+        self._handlers.get(event_type, []).remove(handler)
+
     def publish(self, event: AgentEvent) -> None:
         event_type = type(event)
-        if event_type in self._handlers:
-            for handler in self._handlers[event_type]:
-                handler(event)
+        for handler in list(self._handlers.get(event_type, [])):
+            handler(event)

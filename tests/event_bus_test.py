@@ -75,6 +75,31 @@ class TestSimpleEventBus:
 
         assert len(event_bus._handlers) == 0
 
+    def test_an_unsubscribed_handler_is_no_longer_called(self):
+        event_bus = SimpleEventBus()
+        received = []
+        event_bus.subscribe(AssistantSaidEvent, received.append)
+
+        event_bus.unsubscribe(AssistantSaidEvent, received.append)
+        event_bus.publish(AssistantSaidEvent(AgentId("agent"), "message"))
+
+        assert received == []
+
+    def test_a_handler_may_unsubscribe_itself_while_being_called(self):
+        event_bus = SimpleEventBus()
+        received = []
+
+        def once(event):
+            received.append(event)
+            event_bus.unsubscribe(AssistantSaidEvent, once)
+
+        event_bus.subscribe(AssistantSaidEvent, once)
+        event_bus.subscribe(AssistantSaidEvent, received.append)
+
+        event_bus.publish(AssistantSaidEvent(AgentId("agent"), "message"))
+
+        assert len(received) == 2
+
     def test_publish_passes_event_data_to_handlers(self):
         event_bus = SimpleEventBus()
         received_data = []
