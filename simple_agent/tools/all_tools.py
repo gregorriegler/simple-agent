@@ -1,6 +1,7 @@
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.intent import Intents
 from simple_agent.application.subagent_spawner import SubagentSpawner
+from simple_agent.application.todos import Todos
 from simple_agent.application.tool_library import (
     AssistantTurn,
     Tool,
@@ -52,11 +53,13 @@ class AllTools(ToolLibrary):
         spawner: SubagentSpawner,
         agent_types: AgentTypes,
         intents: Intents,
+        todos: Todos,
     ):
         self.tool_context = tool_context
         self._spawner = spawner
         self._agent_types = agent_types
         self._intents = intents
+        self._todos = todos
         self.tool_keys = tool_context.tool_keys if tool_context.tool_keys else []
 
         static_tools = self._create_static_tools()
@@ -67,7 +70,7 @@ class AllTools(ToolLibrary):
     def _create_static_tools(self):
         tool_map = {
             "write_todos": lambda: WriteTodosTool(
-                str(self.tool_context.agent_id.todo_filename())
+                self._todos, self.tool_context.agent_id
             ),
             "ls": lambda: LsTool(),
             "cat": lambda: CatTool(),
@@ -116,8 +119,9 @@ class AllTools(ToolLibrary):
 
 
 class AllToolsFactory(ToolLibraryFactory):
-    def __init__(self, intents: Intents):
+    def __init__(self, intents: Intents, todos: Todos):
         self._intents = intents
+        self._todos = todos
 
     def create(
         self,
@@ -125,4 +129,4 @@ class AllToolsFactory(ToolLibraryFactory):
         spawner: SubagentSpawner,
         agent_types: AgentTypes,
     ) -> ToolLibrary:
-        return AllTools(tool_context, spawner, agent_types, self._intents)
+        return AllTools(tool_context, spawner, agent_types, self._intents, self._todos)

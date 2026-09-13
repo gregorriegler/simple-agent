@@ -1,18 +1,25 @@
-from pathlib import Path
-
 from textual.containers import VerticalScroll
 from textual.css.query import NoMatches
 from textual.widgets import Markdown
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.intent import Intents
+from simple_agent.application.todos import Todos
 
 
 class TodoView(VerticalScroll):
-    def __init__(self, agent_id: AgentId, intents: Intents, markdown_id: str, **kwargs):
+    def __init__(
+        self,
+        agent_id: AgentId,
+        intents: Intents,
+        todos: Todos,
+        markdown_id: str,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self.agent_id = agent_id
         self.intents = intents
+        self.todos = todos
         self.markdown_id = markdown_id
         self.content = ""
         self.load_content()
@@ -22,15 +29,10 @@ class TodoView(VerticalScroll):
 
     def load_content(self) -> str:
         intent = self.intents.read(self.agent_id)
-        todos = self._read(self.agent_id.todo_filename())
+        todos = self.todos.read(self.agent_id)
         sections = [f"**Intent:** {intent}" if intent else "", todos]
         self.content = "\n\n".join(section for section in sections if section)
         return self.content
-
-    def _read(self, path: Path) -> str:
-        if not path.exists():
-            return ""
-        return path.read_text(encoding="utf-8").strip()
 
     def refresh_content(self) -> None:
         content = self.load_content()

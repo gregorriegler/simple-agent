@@ -17,6 +17,7 @@ from simple_agent.application.events import (
 from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.application.routed_user_input import RoutedUserInput
 from simple_agent.infrastructure.file_intents import FileIntents
+from simple_agent.infrastructure.file_todos import FileTodos
 from simple_agent.tools.all_tools import AllToolsFactory
 from tests.session_test_bed import AgentLibraryStub, SessionTestBed
 from tests.test_helpers import DummyProjectTree
@@ -172,7 +173,7 @@ async def test_background_subagent_that_ends_with_text_does_not_take_the_parents
 def _factory(llm_provider, user_input=None, event_bus=None) -> AgentFactory:
     return AgentFactory(
         event_bus=event_bus or SimpleEventBus(),
-        tool_library_factory=AllToolsFactory(FileIntents()),
+        tool_library_factory=AllToolsFactory(FileIntents(), FileTodos()),
         agent_library=AgentLibraryStub(),
         user_input=user_input or UserInputStub(),
         llm_provider=llm_provider,

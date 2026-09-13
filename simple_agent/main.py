@@ -24,6 +24,7 @@ from simple_agent.infrastructure.file_session_storage import FileSessionStorage
 from simple_agent.infrastructure.file_system_agent_state_cleanup import (
     FileSystemAgentStateCleanup,
 )
+from simple_agent.infrastructure.file_todos import FileTodos
 from simple_agent.infrastructure.git_change_reporter import GitChangeReporter
 from simple_agent.infrastructure.llm import RemoteLLMProvider
 from simple_agent.infrastructure.non_interactive_user_input import (
@@ -112,7 +113,7 @@ async def _run_main(
     event_bus = SimpleEventBus()
 
     intents = FileIntents()
-    tool_library_factory = AllToolsFactory(intents)
+    tool_library_factory = AllToolsFactory(intents, FileTodos())
 
     if llm_provider is None:
         if args.stub_llm:

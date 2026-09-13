@@ -1,5 +1,5 @@
-from pathlib import Path
-
+from simple_agent.application.agent_id import AgentId
+from simple_agent.application.todos import Todos
 from simple_agent.application.tool_library import ToolArgument, ToolArguments
 from simple_agent.application.tool_results import SingleToolResult, ToolResultStatus
 
@@ -30,9 +30,10 @@ class WriteTodosTool(BaseTool):
         },
     ]
 
-    def __init__(self, filename: str):
+    def __init__(self, todos: Todos, agent_id: AgentId):
         super().__init__()
-        self.filename = filename
+        self._todos = todos
+        self._agent_id = agent_id
 
     async def execute(self, call):
         body = str(call.named_arguments.get("content", ""))
@@ -41,8 +42,5 @@ class WriteTodosTool(BaseTool):
                 "No todo content provided", status=ToolResultStatus.FAILURE
             )
 
-        content = body
-
-        path = Path(self.filename)
-        path.write_text(content, encoding="utf-8")
+        self._todos.write(self._agent_id, body)
         return SingleToolResult("Updated TODOS")

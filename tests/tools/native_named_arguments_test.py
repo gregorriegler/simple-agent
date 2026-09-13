@@ -3,6 +3,7 @@ import pytest
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_library import ToolCall
 from simple_agent.infrastructure.file_intents import FileIntents
+from simple_agent.infrastructure.file_todos import FileTodos
 from simple_agent.tools.bash_tool import BashTool
 from simple_agent.tools.communicate_intent_tool import CommunicateIntentTool
 from simple_agent.tools.complete_task_tool import CompleteTaskTool
@@ -56,10 +57,10 @@ async def test_communicate_intent_writes_the_named_intent(tmp_path):
 
 
 async def test_write_todos_writes_the_named_content(tmp_path):
-    todo_file = tmp_path / "todos.md"
+    agent_id = AgentId("Agent", root=tmp_path)
 
-    await WriteTodosTool(str(todo_file)).execute(
+    await WriteTodosTool(FileTodos(), agent_id).execute(
         native_call("write-todos", content="- [ ] one")
     )
 
-    assert "- [ ] one" in todo_file.read_text()
+    assert "- [ ] one" in agent_id.todo_filename().read_text()
