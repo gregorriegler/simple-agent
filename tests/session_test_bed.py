@@ -268,7 +268,7 @@ class SessionTestBed:
             ):
                 event_bus.subscribe(event_type, self._event_store.persist)
 
-        agent_library = TestAgentLibrary(self._observers, self._subagent_observers)
+        agent_library = AgentLibraryStub(self._observers, self._subagent_observers)
 
         tool_library_factory = ToolLibraryFactoryStub(
             self._llm,
@@ -289,13 +289,13 @@ class SessionTestBed:
             agent_library=agent_library,
             user_input=user_input,
             llm_provider=self._llm_provider
-            or TestLLMProvider(self._llm, self._observer_llm),
+            or LLMProviderStub(self._llm, self._observer_llm),
             project_tree=DummyProjectTree(),
             event_store=event_store,
             agent_task_manager=agent_task_manager,
             observation=Observation(
                 event_bus,
-                TestObserverLibrary(),
+                ObserverLibraryStub(),
                 ChangeReporterStub(self._diffs),
                 agent_task_manager,
                 FileIntent,
@@ -342,7 +342,7 @@ class ChangeReporterStub:
 OBSERVER_MODEL = "observer-model"
 
 
-class TestLLMProvider:
+class LLMProviderStub:
     def __init__(self, agent_llm, observer_llm):
         self._agent_llm = agent_llm
         self._observer_llm = observer_llm
@@ -354,7 +354,7 @@ class TestLLMProvider:
         return [self._agent_llm.model]
 
 
-class TestObserverLibrary:
+class ObserverLibraryStub:
     def read_observer_definition(self, name: str) -> ObserverDefinition:
         return ObserverDefinition(
             AgentType(name),
@@ -368,7 +368,7 @@ class TestObserverLibrary:
         )
 
 
-class TestAgentLibrary:
+class AgentLibraryStub:
     def __init__(
         self,
         observers: list[str] | None = None,

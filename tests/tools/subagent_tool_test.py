@@ -5,8 +5,6 @@ from simple_agent.application.tool_library import ToolCall
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.tools.subagent_tool import SubagentTool
 
-pytestmark = pytest.mark.asyncio
-
 
 class SpawnSpy:
     def __init__(self):
@@ -17,6 +15,7 @@ class SpawnSpy:
         return SingleToolResult("spawned")
 
 
+@pytest.mark.asyncio
 async def test_subagent_reads_native_named_arguments():
     spawn = SpawnSpy()
     call = ToolCall(
