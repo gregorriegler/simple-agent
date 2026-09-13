@@ -1,5 +1,4 @@
 import asyncio
-from collections.abc import Callable
 
 from simple_agent.application.agent import Agent
 from simple_agent.application.agent_definition import AgentDefinition
@@ -9,18 +8,14 @@ from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.brain import Brain
-from simple_agent.application.change_reporter import ChangeReporter
 from simple_agent.application.event_bus import EventBus
 from simple_agent.application.event_store import EventStore
 from simple_agent.application.events_to_messages import (
     events_to_messages,
 )
 from simple_agent.application.input import Input
-from simple_agent.application.intent import Intent, NoIntent
 from simple_agent.application.llm import LLMProvider, Messages
-from simple_agent.application.observer_factory import ObserverFactory
-from simple_agent.application.observer_library import ObserverLibrary
-from simple_agent.application.observers import Observers
+from simple_agent.application.observation import Observation
 from simple_agent.application.on_complete import OnComplete
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.subagent_spawner import SubagentSpawner
@@ -30,8 +25,6 @@ from simple_agent.application.tool_library_factory import (
 )
 from simple_agent.application.tool_results import SingleToolResult
 from simple_agent.application.user_input import UserInputs
-
-IntentFactory = Callable[[AgentId], Intent]
 
 
 class AgentFactory:
@@ -45,9 +38,7 @@ class AgentFactory:
         project_tree: ProjectTree,
         event_store: EventStore,
         agent_task_manager: AgentTaskManager,
-        observer_library: ObserverLibrary | None = None,
-        change_reporter: ChangeReporter | None = None,
-        intent_factory: IntentFactory | None = None,
+        observation: Observation | None = None,
     ):
         self._event_bus = event_bus
         self._tool_library_factory = tool_library_factory
@@ -58,10 +49,7 @@ class AgentFactory:
         self._project_tree = project_tree
         self._event_store = event_store
         self._agent_task_manager = agent_task_manager
-        self._observer_library = observer_library
-        self._change_reporter = change_reporter
-        self._intent_factory = intent_factory or (lambda _: NoIntent())
-        self._observers: dict[AgentId, Observers] = {}
+        self._observation = observation
 
     @property
     def event_bus(self) -> EventBus:
@@ -126,10 +114,6 @@ class AgentFactory:
 
         return self.create_agent(agent_id, definition, None, context, agent_type)
 
-    def resume_observer(self, agent_id: AgentId, agent_type: AgentType) -> bool:
-        observers = self._observers.get(agent_id.parent())
-        return bool(observers) and observers.resume(agent_id, agent_type)
-
     def create_agent(
         self,
         agent_id: AgentId,
@@ -143,7 +127,8 @@ class AgentFactory:
         agent_input = user_input or self.create_input(agent_id, initial_message)
         brain = self._build_brain(agent_id, definition, agent_input)
         messages.seed_system_prompt(brain.system_prompt)
-        self._observe(agent_id, definition, agent_input)
+        if self._observation:
+            self._observation.watch(agent_id, definition, agent_input, self)
 
         return Agent(
             agent_id=agent_id,
@@ -156,26 +141,6 @@ class AgentFactory:
             available_agents=self._agent_library.list_agent_types(),
             brain_factory=self,
             on_complete=on_complete,
-        )
-
-    def _observe(
-        self, agent_id: AgentId, definition: AgentDefinition, agent_input: Input
-    ) -> None:
-        if not self._observer_library or not self._change_reporter:
-            return
-        names = definition.observers()
-        if not names:
-            return
-        self._observers[agent_id] = Observers(
-            self._event_bus,
-            agent_id,
-            names,
-            self._change_reporter,
-            ObserverFactory(
-                self, self._observer_library, self._agent_task_manager, agent_id
-            ),
-            agent_input,
-            self._intent_factory(agent_id),
         )
 
     def build_brain(

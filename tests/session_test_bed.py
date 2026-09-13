@@ -29,6 +29,7 @@ from simple_agent.application.events import (
 from simple_agent.application.events_to_messages import events_to_messages
 from simple_agent.application.llm import ChatMessages, LLMResponse
 from simple_agent.application.llm_stub import StubLLM, StubResponse, create_llm_stub
+from simple_agent.application.observation import Observation
 from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.application.session import Session
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
@@ -292,9 +293,13 @@ class SessionTestBed:
             project_tree=DummyProjectTree(),
             event_store=event_store,
             agent_task_manager=agent_task_manager,
-            observer_library=TestObserverLibrary(),
-            change_reporter=ChangeReporterStub(self._diffs),
-            intent_factory=FileIntent,
+            observation=Observation(
+                event_bus,
+                TestObserverLibrary(),
+                ChangeReporterStub(self._diffs),
+                agent_task_manager,
+                FileIntent,
+            ),
             on_replay_complete=subscribe_persistence,
         )
 

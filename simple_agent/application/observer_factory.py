@@ -1,5 +1,7 @@
-from typing import TYPE_CHECKING
+from typing import Protocol
 
+from .agent import Agent
+from .agent_definition import AgentDefinition
 from .agent_id import AgentId, AgentIdSuffixer
 from .agent_task_manager import AgentTaskManager
 from .agent_type import AgentType
@@ -10,8 +12,20 @@ from .observer_input import ObserverInput
 from .observer_library import ObserverLibrary
 from .on_complete import OnComplete
 
-if TYPE_CHECKING:
-    from .agent_factory import AgentFactory
+
+class ObserverAgentFactory(Protocol):
+    def create_agent(
+        self,
+        agent_id: AgentId,
+        definition: AgentDefinition,
+        initial_message: str | None,
+        messages: Messages,
+        agent_type: AgentType | None = None,
+        user_input: Input | None = None,
+        on_complete: OnComplete = OnComplete.HUMAN_REVIEW,
+    ) -> Agent: ...
+
+    def history_of(self, agent_id: AgentId) -> Messages: ...
 
 
 class SpawnedObserver:
@@ -29,7 +43,7 @@ class SpawnedObserver:
 class ObserverFactory:
     def __init__(
         self,
-        agent_factory: "AgentFactory",
+        agent_factory: ObserverAgentFactory,
         observer_library: ObserverLibrary,
         agent_task_manager: AgentTaskManager,
         observed_agent_id: AgentId,

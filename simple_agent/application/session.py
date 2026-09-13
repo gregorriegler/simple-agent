@@ -2,11 +2,10 @@ import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from simple_agent.application.agent_factory import AgentFactory, IntentFactory
+from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_task_manager import AgentTaskManager
-from simple_agent.application.change_reporter import ChangeReporter
 from simple_agent.application.checkpoint_detector import CheckpointDetector
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import EventBus
@@ -17,7 +16,7 @@ from simple_agent.application.events_to_messages import (
 )
 from simple_agent.application.history_replayer import HistoryReplayer
 from simple_agent.application.llm import LLMProvider, Messages
-from simple_agent.application.observer_library import ObserverLibrary
+from simple_agent.application.observation import Observation
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
 from simple_agent.application.user_input import UserInputs
@@ -47,9 +46,7 @@ class Session:
         event_store: EventStore,
         agent_task_manager: AgentTaskManager,
         on_replay_complete: Callable[[], None] | None = None,
-        observer_library: ObserverLibrary | None = None,
-        change_reporter: ChangeReporter | None = None,
-        intent_factory: IntentFactory | None = None,
+        observation: Observation | None = None,
     ):
         self._starting_agent_id = starting_agent_id
         self._event_bus = event_bus
@@ -61,10 +58,13 @@ class Session:
         self._event_store = event_store
         self._agent_task_manager = agent_task_manager
         self._on_replay_complete = on_replay_complete
-        self._observer_library = observer_library
-        self._change_reporter = change_reporter
-        self._intent_factory = intent_factory
+        self._observation = observation
         self._checkpoint_detector = CheckpointDetector(event_bus)
+
+    def _resumed_as_observer(self, event) -> bool:
+        if not self._observation or not event.agent_type:
+            return False
+        return self._observation.resume(event.agent_id, event.agent_type)
 
     async def run_async(
         self,
@@ -79,9 +79,7 @@ class Session:
             self._project_tree,
             event_store=self._event_store,
             agent_task_manager=self._agent_task_manager,
-            observer_library=self._observer_library,
-            change_reporter=self._change_reporter,
-            intent_factory=self._intent_factory,
+            observation=self._observation,
         )
 
         self._event_bus.publish(
@@ -116,9 +114,7 @@ class Session:
         )
 
         for event in unfinished_subagents:
-            if event.agent_type and agent_factory.resume_observer(
-                event.agent_id, event.agent_type
-            ):
+            if self._resumed_as_observer(event):
                 continue
             subagent = agent_factory.create_agent_from_history(
                 event.agent_id, event.agent_type

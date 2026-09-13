@@ -13,6 +13,7 @@ from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import UserPromptRequestedEvent
 from simple_agent.application.llm_stub import StubLLMProvider
+from simple_agent.application.observation import Observation
 from simple_agent.application.routed_user_input import RoutedUserInput
 from simple_agent.application.session import Session, SessionArgs
 from simple_agent.infrastructure.agent_library import create_agent_library
@@ -136,9 +137,13 @@ async def _run_main(
             textual_app.end_replay(),
             subscribe_persistence(event_bus, event_store, session_storage),
         ),
-        observer_library=create_observer_library(user_config),
-        change_reporter=GitChangeReporter(Path(cwd)),
-        intent_factory=FileIntent,
+        observation=Observation(
+            event_bus,
+            create_observer_library(user_config),
+            GitChangeReporter(Path(cwd)),
+            agent_task_manager,
+            FileIntent,
+        ),
     )
     textual_app = TextualApp(
         user_input,
