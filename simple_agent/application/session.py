@@ -16,11 +16,11 @@ from simple_agent.application.events_to_messages import (
     events_to_messages,
 )
 from simple_agent.application.history_replayer import HistoryReplayer
+from simple_agent.application.inboxes import Inboxes
 from simple_agent.application.llm import LLMProvider, Messages
 from simple_agent.application.observation import Observation
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.tool_library_factory import ToolLibraryFactory
-from simple_agent.application.user_input import UserInputs
 
 
 @dataclass
@@ -41,7 +41,7 @@ class Session:
         event_bus: EventBus,
         tool_library_factory: ToolLibraryFactory,
         agent_library: AgentLibrary,
-        user_input: UserInputs,
+        inboxes: Inboxes,
         llm_provider: LLMProvider,
         project_tree: ProjectTree,
         event_store: EventStore,
@@ -53,7 +53,7 @@ class Session:
         self._event_bus = event_bus
         self._tool_library_factory = tool_library_factory
         self._agent_library = agent_library
-        self._user_input = user_input
+        self._inboxes = inboxes
         self._llm_provider = llm_provider
         self._project_tree = project_tree
         self._event_store = event_store
@@ -75,7 +75,7 @@ class Session:
             self._event_bus,
             self._tool_library_factory,
             self._agent_library,
-            self._user_input,
+            self._inboxes,
             self._llm_provider,
             self._project_tree,
             event_store=self._event_store,
@@ -102,7 +102,7 @@ class Session:
             self._on_replay_complete()
 
         agent_definition = self._agent_library._starting_agent_definition()
-        agent_input = agent_factory.create_input(
+        agent_inbox = agent_factory.create_inbox(
             self._starting_agent_id, args.start_message
         )
         agent = agent_factory.create_agent(
@@ -111,7 +111,7 @@ class Session:
             None,
             context,
             agent_definition.agent_type,
-            user_input=agent_input,
+            inbox=agent_inbox,
         )
 
         for event in unfinished_subagents:

@@ -2,6 +2,7 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.event_bus import SimpleEventBus
+from simple_agent.application.inboxes import AgentInboxes
 from simple_agent.application.subagent_spawner import SubagentSpawner
 from simple_agent.application.tool_library_factory import (
     ToolContext,
@@ -14,7 +15,6 @@ from simple_agent.infrastructure.file_todos import FileTodos
 from simple_agent.tools import AllTools
 from simple_agent.tools.all_tools import AllToolsFactory
 from tests.test_helpers import DummyProjectTree
-from tests.user_input_stub import UserInputStub
 
 
 class FixedLLMProvider:
@@ -34,8 +34,6 @@ class ToolLibraryStub(AllTools):
     def __init__(
         self,
         llm,
-        inputs=None,
-        escapes=None,
         interrupts=None,
         event_bus=None,
         tool_context: ToolContext | None = None,
@@ -56,7 +54,7 @@ class ToolLibraryStub(AllTools):
                 event_bus=actual_event_bus,
                 tool_library_factory=tool_library_factory,
                 agent_library=agent_library or BuiltinAgentLibrary(),
-                user_input=UserInputStub(inputs=inputs, escapes=escapes),
+                inboxes=AgentInboxes(),
                 llm_provider=FixedLLMProvider(llm),
                 project_tree=DummyProjectTree(),
             )
@@ -64,7 +62,7 @@ class ToolLibraryStub(AllTools):
             agent_id = AgentId("Agent")
             actual_tool_context = ToolContext(tool_keys or [], agent_id)
             actual_spawner = agent_factory.create_spawner(
-                agent_id, agent_factory.create_input(agent_id)
+                agent_id, agent_factory.create_inbox(agent_id)
             )
             actual_agent_types = AgentTypes(agent_library.list_agent_types())
 
@@ -103,16 +101,12 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
     def __init__(
         self,
         llm,
-        inputs=None,
-        escapes=None,
         interrupts=None,
         event_bus=None,
         all_displays=None,
         agent_library=None,
     ):
         self._llm = llm
-        self._inputs = inputs
-        self._escapes = escapes
         self._interrupts = interrupts
         self._event_bus = event_bus
         self._all_displays = all_displays
@@ -126,8 +120,6 @@ class ToolLibraryFactoryStub(ToolLibraryFactory):
     ) -> AllTools:
         return ToolLibraryStub(
             self._llm,
-            inputs=self._inputs,
-            escapes=self._escapes,
             interrupts=self._interrupts,
             event_bus=self._event_bus,
             tool_context=tool_context,

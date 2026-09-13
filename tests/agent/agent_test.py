@@ -116,7 +116,7 @@ async def test_chat_with_task_completion():
 
 async def test_interrupt_reads_follow_up_message():
     await verify_chat(
-        ["Hello", "Follow-up message", "\n"], ["Assistant response"], [], [True, False]
+        ["Hello", "Follow-up message", "\n"], ["Assistant response"], [True, False]
     )
 
 
@@ -124,12 +124,11 @@ async def test_interrupt_aborts_tool_call():
     await verify_chat(
         ["Hello", "Follow-up message", "\n"],
         [cat("hello.txt"), complete_task("summary")],
-        [],
         [True, False],
     )
 
 
-async def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
+async def verify_chat(inputs, answers, ctrl_c_hits=None):
     message, *remaining_inputs = inputs
 
     test_bed = (
@@ -138,8 +137,6 @@ async def verify_chat(inputs, answers, escape_hits=None, ctrl_c_hits=None):
         .with_user_inputs(message, *remaining_inputs)
     )
 
-    if escape_hits:
-        test_bed.with_escape_hits(escape_hits)
     if ctrl_c_hits:
         test_bed.with_ctrl_c_hits(ctrl_c_hits)
 

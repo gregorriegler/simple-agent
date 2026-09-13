@@ -1,5 +1,5 @@
+from ..application.inbox import Inbox
 from ..application.tool_library import ToolArgument, ToolArguments
-from ..application.tool_library_factory import Inbox
 from ..application.tool_results import SingleToolResult
 from .base_tool import BaseTool
 

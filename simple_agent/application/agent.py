@@ -23,7 +23,7 @@ from .events import (
     UserPromptedEvent,
     UserPromptRequestedEvent,
 )
-from .input import Input
+from .inbox import Inbox
 from .llm import LLMProvider, Messages
 from .on_complete import OnComplete
 from .slash_command_registry import CommandParseError, SlashCommandRegistry
@@ -42,7 +42,7 @@ logger = get_logger(__name__)
 
 class BrainFactory(Protocol):
     def build_brain(
-        self, agent_id: AgentId, agent_type: AgentType, agent_input: Input
+        self, agent_id: AgentId, agent_type: AgentType, inbox: Inbox
     ) -> Brain: ...
 
 
@@ -52,7 +52,7 @@ class Agent(SlashCommandVisitor):
         agent_id: AgentId,
         brain: Brain,
         llm_provider: LLMProvider,
-        user_input: Input,
+        inbox: Inbox,
         event_bus: EventBus,
         context: Messages,
         agent_type: AgentType | None = None,
@@ -65,7 +65,7 @@ class Agent(SlashCommandVisitor):
         self.brain = brain
         self.agent_type = agent_type
         self.llm_provider = llm_provider
-        self.user_input = user_input
+        self.inbox = inbox
         self.event_bus = event_bus
         self.context: Messages = context
         self.tools_executor = self._tools_executor(brain)
@@ -134,14 +134,14 @@ class Agent(SlashCommandVisitor):
         return self.on_complete is OnComplete.CLOSE and not tool_result.do_continue()
 
     async def user_prompts(self):
-        if not self.user_input.has_stacked_messages():
+        if self.inbox.is_empty():
             self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
-        prompt = await self.user_input.read_async()
+        prompt = await self.inbox.read_async()
 
         while prompt and self._is_slash_command(prompt):
             await self._handle_slash_command(prompt)
             self.event_bus.publish(UserPromptRequestedEvent(self.agent_id))
-            prompt = await self.user_input.read_async()
+            prompt = await self.inbox.read_async()
 
         if prompt:
             prompt = self._user_says(prompt)
@@ -194,14 +194,14 @@ class Agent(SlashCommandVisitor):
             return
         try:
             brain = self.brain_factory.build_brain(
-                self.agent_id, AgentType(command.agent_name), self.user_input
+                self.agent_id, AgentType(command.agent_name), self.inbox
             )
             self.update_brain(brain)
         except Exception as e:
             self.event_bus.publish(ErrorEvent(self.agent_id, str(e)))
 
     def _append_pending_user_messages(self) -> None:
-        for message in self.user_input.drain():
+        for message in self.inbox.drain():
             self._user_says(message)
 
     async def run_tool_loop(self):

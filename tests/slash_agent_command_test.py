@@ -11,6 +11,7 @@ from simple_agent.application.brain import Brain
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.event_store import NoOpEventStore
 from simple_agent.application.events import AssistantRespondedEvent
+from simple_agent.application.inbox import Inbox
 from simple_agent.application.llm import Messages
 from simple_agent.application.session import Session
 from simple_agent.application.slash_command_registry import (
@@ -24,10 +25,10 @@ from tests.application.model_switching_test import (
     MockLLMProvider,
 )
 from tests.event_spy import EventSpy
+from tests.inboxes_stub import ScriptedInboxes
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
-from tests.user_input_stub import UserInputStub
 
 pytestmark = pytest.mark.asyncio
 
@@ -82,7 +83,7 @@ async def test_agent_command_switches_to_requested_agent_brain():
             tools=initial_tools,
         ),
         llm_provider=llm_provider,
-        user_input=UserInputStub([], []),
+        inbox=Inbox(),
         event_bus=SimpleEventBus(),
         context=Messages(),
         brain_factory=brain_factory,
@@ -100,9 +101,8 @@ async def test_agent_command_switches_model_for_follow_up_prompt():
     event_spy = EventSpy()
     event_bus.subscribe(AssistantRespondedEvent, event_spy.record_event)
     llm_provider = MockLLMProvider()
-    user_input = UserInputStub(
-        inputs=["Hello", "/agent developer", "Do verify"],
-        escapes=[False, False, False],
+    inboxes = ScriptedInboxes(
+        event_bus, inputs=["Hello", "/agent developer", "Do verify"]
     )
     agent_library = SwitchingAgentLibrary()
 
@@ -111,14 +111,12 @@ async def test_agent_command_switches_model_for_follow_up_prompt():
         event_bus=event_bus,
         tool_library_factory=ToolLibraryFactoryStub(
             llm_provider.get("default-model"),
-            inputs=[],
-            escapes=[],
             interrupts=[],
             event_bus=event_bus,
             agent_library=agent_library,
         ),
         agent_library=agent_library,
-        user_input=user_input,
+        inboxes=inboxes,
         llm_provider=llm_provider,
         project_tree=DummyProjectTree(),
         event_store=NoOpEventStore(),

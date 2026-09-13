@@ -8,14 +8,13 @@ from simple_agent.application.agent import Agent
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.brain import Brain
 from simple_agent.application.event_bus import SimpleEventBus
-from simple_agent.application.input import Input
+from simple_agent.application.inbox import Inbox
 from simple_agent.application.llm import Messages
 from simple_agent.application.tool_library import (
     Tool,
     ToolInvocation,
 )
 from simple_agent.application.tool_results import SingleToolResult
-from simple_agent.application.user_input import DummyUserInput
 
 
 class SlowLLM:
@@ -32,11 +31,11 @@ def _make_response(content: str):
     return Mock(content=content, model="test-model", usage=Mock(total_tokens=10))
 
 
-def _make_input_with_message(message: str) -> Input:
-    user_input = DummyUserInput()
-    feed = Input(user_input)
-    feed.stack(message)
-    return feed
+def _make_inbox_with_message(message: str) -> Inbox:
+    inbox = Inbox()
+    inbox.put(message)
+    inbox.close()
+    return inbox
 
 
 class EmptyToolLibrary:
@@ -65,7 +64,7 @@ async def test_cancel_interrupts_during_llm_call():
             tools=EmptyToolLibrary(),
         ),
         llm_provider=llm_provider,
-        user_input=_make_input_with_message("Hello"),
+        inbox=_make_inbox_with_message("Hello"),
         event_bus=event_bus,
         context=Messages(system_prompt="system prompt"),
     )
@@ -144,7 +143,7 @@ async def test_cancel_interrupts_during_tool_execution():
             tools=tool_library,
         ),
         llm_provider=llm_provider,
-        user_input=_make_input_with_message("call the slow tool"),
+        inbox=_make_inbox_with_message("call the slow tool"),
         event_bus=event_bus,
         context=Messages(system_prompt="system prompt"),
     )

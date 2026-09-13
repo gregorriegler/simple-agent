@@ -17,7 +17,6 @@ Agent:    checkpoint_reached:
 Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::4 cat filename="greeting.txt"
 Agent/Naming:         agent_started: Naming stub-model naming stop_and_wait
-Agent/Naming: user_prompt_requested: 
 Agent/Naming:         user_prompted: diff --git a/tmp2.txt b/tmp2.txt
 +Bye
 Agent/Naming:   assistant_responded:  stub-model 0.0%

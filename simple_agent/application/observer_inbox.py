@@ -12,8 +12,11 @@ class ObserverInbox(Inbox):
         self._packet = packet
         self._refresh()
 
+    def is_empty(self) -> bool:
+        return super().is_empty() and self._packet is None
+
     def take(self) -> str:
-        if not self.is_empty() or self._packet is None:
+        if not super().is_empty() or self._packet is None:
             return super().take()
         packet, self._packet = self._packet, None
         self._refresh()

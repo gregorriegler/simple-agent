@@ -66,3 +66,26 @@ async def test_waiting_returns_once_a_message_arrives():
     inbox.put("hello")
 
     await asyncio.wait_for(waiting, timeout=1)
+
+
+async def test_reading_returns_a_message_put_while_waiting():
+    inbox = Inbox()
+    reading = asyncio.create_task(inbox.read_async())
+    await asyncio.sleep(0)
+
+    inbox.put("from a subagent")
+
+    assert await asyncio.wait_for(reading, timeout=1) == "from a subagent"
+
+
+async def test_a_message_arriving_as_the_read_is_cancelled_is_kept_for_the_next_read():
+    inbox = Inbox()
+    reading = asyncio.create_task(inbox.read_async())
+    await asyncio.sleep(0)
+
+    inbox.put("typed")
+    reading.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await reading
+
+    assert inbox.drain() == ["typed"]

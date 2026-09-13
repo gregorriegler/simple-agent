@@ -62,5 +62,5 @@ async def test_a_packet_is_a_prompt_and_not_drained_mid_work():
     inbox.put("typed")
 
     assert inbox.drain() == ["typed"]
-    assert inbox.is_empty()
+    assert not inbox.is_empty()
     assert inbox.take() == "a packet"

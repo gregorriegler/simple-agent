@@ -9,6 +9,7 @@ class Inbox:
     def __init__(self):
         self._messages: list[str] = []
         self._arrived = asyncio.Event()
+        self._message_arrived = asyncio.Event()
         self._closed = False
 
     def put(self, message: str) -> None:
@@ -33,6 +34,18 @@ class Inbox:
         """Block until a message is waiting or the inbox is closed."""
         await self._arrived.wait()
 
+    async def read_async(self) -> str:
+        await self.wait()
+        return self.take()
+
+    async def wait_for_message(self, timeout: float) -> bool:
+        """Block until a message is waiting or the timeout passes; closing is not a message."""
+        try:
+            await asyncio.wait_for(self._message_arrived.wait(), timeout)
+            return True
+        except TimeoutError:
+            return False
+
     def close(self) -> None:
         """No more messages will come; whoever waits gets an empty prompt after the rest."""
         self._closed = True
@@ -46,3 +59,7 @@ class Inbox:
             self._arrived.set()
         else:
             self._arrived.clear()
+        if self.is_empty():
+            self._message_arrived.clear()
+        else:
+            self._message_arrived.set()

@@ -36,12 +36,12 @@ from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from simple_agent.infrastructure.file_intents import FileIntents
 from tests.event_spy import EventSpy
 from tests.in_memory_event_store import InMemoryEventStore
+from tests.inboxes_stub import ScriptedInboxes
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
 from tests.tool_calls import complete_task
 from tests.transcript import describe_call, render_messages, transcript_line
-from tests.user_input_stub import UserInputStub
 
 
 class CapturingLLM:
@@ -128,7 +128,6 @@ class SessionTestBed:
         self._llm_provider = None
         self._user_inputs = ["\n"]
         self._start_message = "test message"
-        self._escape_hits = None
         self._typed_while_working = None
         self._ctrl_c_hits = None
         self._continue_session = False
@@ -182,10 +181,6 @@ class SessionTestBed:
         self._typed_while_working = messages
         return self
 
-    def with_escape_hits(self, hits: list[bool]) -> "SessionTestBed":
-        self._escape_hits = hits
-        return self
-
     def with_ctrl_c_hits(self, hits: list[bool]) -> "SessionTestBed":
         self._ctrl_c_hits = hits
         return self
@@ -230,13 +225,11 @@ class SessionTestBed:
 
     async def run(self) -> SessionTestResult:
         event_bus = SimpleEventBus()
-        user_input = UserInputsStub(
-            UserInputStub(
-                inputs=self._user_inputs,
-                escapes=self._escape_hits,
-                typed_while_working=self._typed_while_working,
-            ),
-            observer_names=[
+        inboxes = ScriptedInboxes(
+            event_bus,
+            inputs=self._user_inputs,
+            typed_while_working=self._typed_while_working,
+            silent=[
                 name.capitalize() for name in self._observers + self._subagent_observers
             ],
             typed_to=self._typed_to,
@@ -286,8 +279,6 @@ class SessionTestBed:
 
         tool_library_factory = ToolLibraryFactoryStub(
             self._llm,
-            inputs=self._user_inputs,
-            escapes=self._escape_hits,
             interrupts=[self._ctrl_c_hits],
             event_bus=event_bus,
             agent_library=agent_library,
@@ -301,7 +292,7 @@ class SessionTestBed:
             event_bus=event_bus,
             tool_library_factory=tool_library_factory,
             agent_library=agent_library,
-            user_input=user_input,
+            inboxes=inboxes,
             llm_provider=self._llm_provider
             or LLMProviderStub(self._llm, self._observer_llm),
             project_tree=DummyProjectTree(),
@@ -313,7 +304,7 @@ class SessionTestBed:
                 ChangeReporterStub(self._diffs),
                 agent_task_manager,
                 FileIntents(),
-                user_input,
+                inboxes,
             ),
             on_replay_complete=subscribe_persistence,
         )
@@ -349,36 +340,6 @@ class SessionTestBed:
                     raise outcome
 
         return SessionTestResult(event_spy)
-
-
-class UserInputsStub:
-    """The agent and its subagents share the scripted keyboard; an observer's tab stays silent unless the test types to it."""
-
-    def __init__(
-        self,
-        shared: UserInputStub,
-        observer_names: list[str],
-        typed_to: dict[str, list[str]],
-    ):
-        self._shared = shared
-        self._observer_names = observer_names
-        self._typed_to = typed_to
-
-    def for_agent(self, agent_id: AgentId):
-        if agent_id.raw.rsplit("/", 1)[-1] in self._observer_names:
-            return SilentUserInputStub(self._typed_to.get(agent_id.raw, []))
-        return self._shared
-
-    def close(self) -> None:
-        pass
-
-
-class SilentUserInputStub(UserInputStub):
-    async def read_async(self) -> str:
-        if self._inputs:
-            return await super().read_async()
-        await asyncio.Future()
-        return ""
 
 
 class ChangeReporterStub:

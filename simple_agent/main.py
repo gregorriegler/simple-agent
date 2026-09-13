@@ -12,9 +12,9 @@ from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import UserPromptRequestedEvent
+from simple_agent.application.inboxes import AgentInboxes
 from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.observation import Observation
-from simple_agent.application.routed_user_input import RoutedUserInput
 from simple_agent.application.session import Session, SessionArgs
 from simple_agent.infrastructure.agent_library import create_agent_library
 from simple_agent.infrastructure.event_logger import EventLogger
@@ -27,9 +27,7 @@ from simple_agent.infrastructure.file_system_agent_state_cleanup import (
 from simple_agent.infrastructure.file_todos import FileTodos
 from simple_agent.infrastructure.git_change_reporter import GitChangeReporter
 from simple_agent.infrastructure.llm import RemoteLLMProvider
-from simple_agent.infrastructure.non_interactive_user_input import (
-    NonInteractiveUserInput,
-)
+from simple_agent.infrastructure.non_interactive_inboxes import NonInteractiveInboxes
 from simple_agent.infrastructure.observer_library import create_observer_library
 from simple_agent.infrastructure.project_tree import FileSystemProjectTree
 from simple_agent.infrastructure.subscribe_events import (
@@ -88,9 +86,9 @@ async def _run_main(
         return print_system_prompt_command(user_config, cwd, args)
 
     if args.non_interactive:
-        user_input = NonInteractiveUserInput()
+        inboxes = NonInteractiveInboxes()
     else:
-        user_input = RoutedUserInput()
+        inboxes = AgentInboxes()
 
     agent_library = create_agent_library(user_config, args)
 
@@ -135,7 +133,7 @@ async def _run_main(
         event_bus=event_bus,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        user_input=user_input,
+        inboxes=inboxes,
         llm_provider=llm_provider,
         project_tree=project_tree,
         event_store=event_store,
@@ -147,11 +145,11 @@ async def _run_main(
             GitChangeReporter(Path(cwd)),
             agent_task_manager,
             intents,
-            user_input,
+            inboxes,
         ),
     )
     textual_app = TextualApp(
-        user_input,
+        inboxes,
         starting_agent_id,
         agent_task_manager=agent_task_manager,
         available_models=llm_provider.get_available_models(),

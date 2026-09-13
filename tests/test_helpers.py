@@ -10,6 +10,7 @@ from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_types import AgentTypes
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.event_store import NoOpEventStore
+from simple_agent.application.inboxes import AgentInboxes
 from simple_agent.application.llm_stub import StubLLMProvider
 from simple_agent.application.project_tree import ProjectTree
 from simple_agent.application.session import SessionArgs
@@ -21,7 +22,6 @@ from simple_agent.infrastructure.file_intents import FileIntents
 from simple_agent.infrastructure.file_todos import FileTodos
 from simple_agent.tools.all_tools import AllTools, AllToolsFactory
 from tests.transcript import describe_call
-from tests.user_input_stub import UserInputStub
 
 
 def create_all_tools_for_test(tool_keys: list[str] | None = None):
@@ -32,7 +32,7 @@ def create_all_tools_for_test(tool_keys: list[str] | None = None):
         event_bus=event_bus,
         tool_library_factory=tool_library_factory,
         agent_library=agent_library,
-        user_input=UserInputStub(),
+        inboxes=AgentInboxes(),
         llm_provider=StubLLMProvider.dummy(),
         project_tree=DummyProjectTree(),
         event_store=NoOpEventStore(),
@@ -43,7 +43,7 @@ def create_all_tools_for_test(tool_keys: list[str] | None = None):
     tool_context = ToolContext(tool_keys or [], agent_id)
 
     spawner = agent_factory.create_spawner(
-        agent_id, agent_factory.create_input(agent_id)
+        agent_id, agent_factory.create_inbox(agent_id)
     )
 
     return AllTools(

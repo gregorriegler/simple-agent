@@ -15,10 +15,10 @@ from simple_agent.application.llm import (
     UserMessage,
 )
 from simple_agent.application.session import Session
+from tests.inboxes_stub import ScriptedInboxes
 from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
-from tests.user_input_stub import UserInputStub
 
 
 class MockLLM(LLM):
@@ -81,9 +81,8 @@ async def test_model_switching_uses_new_llm_instance():
     llm_provider = MockLLMProvider()
 
     # User inputs: initial message, command, subsequent message
-    user_input = UserInputStub(
-        inputs=["Hello", "/model specialized-gpt", "Do verify"],
-        escapes=[False, False, False],
+    inboxes = ScriptedInboxes(
+        event_bus, inputs=["Hello", "/model specialized-gpt", "Do verify"]
     )
 
     starting_agent_id = AgentId("Agent")
@@ -92,13 +91,11 @@ async def test_model_switching_uses_new_llm_instance():
         event_bus=event_bus,
         tool_library_factory=ToolLibraryFactoryStub(
             llm_provider.get("default"),
-            inputs=[],
-            escapes=[],
             interrupts=[],
             event_bus=event_bus,
         ),
         agent_library=FakeAgentLibrary(),
-        user_input=user_input,
+        inboxes=inboxes,
         llm_provider=llm_provider,
         project_tree=DummyProjectTree(),
         agent_task_manager=AgentTaskManager(),

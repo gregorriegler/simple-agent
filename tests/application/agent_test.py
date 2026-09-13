@@ -5,9 +5,8 @@ from simple_agent.application.agent_id import AgentId
 from simple_agent.application.brain import Brain
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AgentChangedEvent, ModelChangedEvent
-from simple_agent.application.input import Input
+from simple_agent.application.inbox import Inbox
 from simple_agent.application.llm import Messages, SystemMessage, UserMessage
-from simple_agent.application.user_input import DummyUserInput
 from tests.agent.agent_interrupts_immediately_test import EmptyToolLibrary
 from tests.application.model_switching_test import MockLLMProvider
 from tests.event_spy import EventSpy
@@ -35,7 +34,7 @@ async def test_agent_runtime_switch_updates_brain_configuration():
             provider, "Old Agent", "old system prompt", old_tools, "default-model"
         ),
         llm_provider=provider,
-        user_input=Input(DummyUserInput()),
+        inbox=Inbox(),
         event_bus=SimpleEventBus(),
         context=context,
     )
@@ -72,7 +71,7 @@ async def test_agent_runtime_switch_publishes_agent_changed_event():
             provider, "Old Agent", "old system prompt", old_tools, "default-model"
         ),
         llm_provider=provider,
-        user_input=Input(DummyUserInput()),
+        inbox=Inbox(),
         event_bus=event_bus,
         context=Messages(system_prompt="old system prompt"),
     )
@@ -107,7 +106,7 @@ async def test_agent_runtime_switch_publishes_model_changed_before_agent_changed
             "default-model",
         ),
         llm_provider=provider,
-        user_input=Input(DummyUserInput()),
+        inbox=Inbox(),
         event_bus=event_bus,
         context=Messages(system_prompt="old system prompt"),
     )

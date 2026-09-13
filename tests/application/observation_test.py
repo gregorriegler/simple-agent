@@ -4,11 +4,10 @@ from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.events import AgentFinishedEvent
-from simple_agent.application.input import Input
+from simple_agent.application.inbox import Inbox
+from simple_agent.application.inboxes import AgentInboxes
 from simple_agent.application.llm import Messages
 from simple_agent.application.observation import Observation
-from simple_agent.application.routed_user_input import RoutedUserInput
-from simple_agent.application.user_input import DummyUserInput
 from tests.application.observers_test import ChangeReporterStub, IntentsStub
 from tests.session_test_bed import ObserverLibraryStub
 from tests.system_prompt_generator_test import GroundRulesStub
@@ -52,9 +51,9 @@ async def test_a_finished_agents_observers_cannot_be_resumed():
         ChangeReporterStub(),
         AgentTaskManager(),
         IntentsStub(),
-        RoutedUserInput(),
+        AgentInboxes(),
     )
-    observation.watch(AGENT, observed_by(["naming"]), Input(DummyUserInput()), factory)
+    observation.watch(AGENT, observed_by(["naming"]), Inbox(), factory)
 
     event_bus.publish(AgentFinishedEvent(AGENT))
     resumed = observation.resume(AgentId("Agent/Naming"), AgentType("naming"))

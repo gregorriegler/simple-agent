@@ -13,7 +13,6 @@ Agent/Coding:    checkpoint_reached:
 Agent/Coding:   assistant_responded:  stub-model 0.0%
 Agent/Coding:           tool_called: Agent/Coding::tool_call::2 cat filename="data1.txt"
 Agent/Coding/Naming:         agent_started: Naming stub-model naming stop_and_wait
-Agent/Coding/Naming: user_prompt_requested: 
 Agent/Coding/Naming:         user_prompted: diff --git a/data1.txt b/data1.txt
 +Hello
 Agent/Coding/Naming:   assistant_responded:  stub-model 0.0%
@@ -32,13 +31,13 @@ Agent/Coding:           tool_result: Agent/Coding::tool_call::3 renamed the file
 Agent/Coding: user_prompt_requested: 
 Agent/Coding:        agent_finished: 
 Agent/Coding:         session_ended: 
+Agent/Coding/Naming:        agent_finished: 
+Agent/Coding/Naming:         session_ended: 
 Agent:           tool_result: Agent::tool_call::1 renamed the file
 Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::2 complete-task answer="stored the greeting"
 Agent:           tool_result: Agent::tool_call::2 stored the greeting
 Agent: user_prompt_requested: 
-Agent/Coding/Naming:        agent_finished: 
-Agent/Coding/Naming:         session_ended: 
 Agent:        agent_finished: 
 Agent:         session_ended: 
 

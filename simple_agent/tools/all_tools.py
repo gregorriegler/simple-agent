@@ -81,7 +81,7 @@ class AllTools(ToolLibrary):
                 self._intents, self.tool_context.agent_id
             ),
             "suggest": lambda: SuggestTool(),
-            "bash": lambda: BashTool(self.tool_context.inbox.stack),
+            "bash": lambda: BashTool(self.tool_context.inbox.put),
             "wait": lambda: WaitTool(self.tool_context.inbox),
             "subagent": lambda: SubagentTool(self._spawner, self._agent_types),
         }

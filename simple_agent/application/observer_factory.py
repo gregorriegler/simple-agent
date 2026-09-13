@@ -5,13 +5,13 @@ from .agent_definition import AgentDefinition
 from .agent_id import AgentId, AgentIdSuffixer
 from .agent_task_manager import AgentTaskManager
 from .agent_type import AgentType
-from .input import Input
+from .inbox import Inbox
+from .inboxes import Inboxes
 from .llm import Messages
 from .observer_definition import ObserverDefinition
-from .observer_input import ObserverInput
+from .observer_inbox import ObserverInbox
 from .observer_library import ObserverLibrary
 from .on_complete import OnComplete
-from .user_input import UserInputs
 
 
 class ObserverAgentFactory(Protocol):
@@ -22,7 +22,7 @@ class ObserverAgentFactory(Protocol):
         initial_message: str | None,
         messages: Messages,
         agent_type: AgentType | None = None,
-        user_input: Input | None = None,
+        inbox: Inbox | None = None,
         on_complete: OnComplete = OnComplete.HUMAN_REVIEW,
     ) -> Agent: ...
 
@@ -30,15 +30,15 @@ class ObserverAgentFactory(Protocol):
 
 
 class SpawnedObserver:
-    def __init__(self, agent_id: AgentId, observer_input: ObserverInput):
+    def __init__(self, agent_id: AgentId, inbox: ObserverInbox):
         self.agent_id = agent_id
-        self._input = observer_input
+        self._inbox = inbox
 
     def observe(self, packet: str) -> None:
-        self._input.submit(packet)
+        self._inbox.observe(packet)
 
     def close(self) -> None:
-        self._input.close()
+        self._inbox.close()
 
 
 class ObserverFactory:
@@ -47,13 +47,13 @@ class ObserverFactory:
         agent_factory: ObserverAgentFactory,
         observer_library: ObserverLibrary,
         agent_task_manager: AgentTaskManager,
-        user_input: UserInputs,
+        inboxes: Inboxes,
         observed_agent_id: AgentId,
     ):
         self._agent_factory = agent_factory
         self._observer_library = observer_library
         self._agent_task_manager = agent_task_manager
-        self._user_input = user_input
+        self._inboxes = inboxes
         self._observed_agent_id = observed_agent_id
         self._suffixer = AgentIdSuffixer()
 
@@ -80,15 +80,15 @@ class ObserverFactory:
         context: Messages,
         agent_type: AgentType,
     ) -> SpawnedObserver:
-        observer_input = ObserverInput(self._user_input.for_agent(observer_id))
+        inbox = self._inboxes.assign(observer_id, ObserverInbox())
         observer = self._agent_factory.create_agent(
             observer_id,
             definition,
             None,
             context,
             agent_type,
-            user_input=Input(observer_input),
+            inbox=inbox,
             on_complete=OnComplete.STOP_AND_WAIT,
         )
         self._agent_task_manager.start_task(observer_id, observer.start())
-        return SpawnedObserver(observer_id, observer_input)
+        return SpawnedObserver(observer_id, inbox)

@@ -10,7 +10,7 @@ from .events import (
     SessionClearedEvent,
     ToolCalledEvent,
 )
-from .input import Input
+from .inbox import Inbox
 from .intent import Intents
 
 SUGGEST_TOOL = "suggest"
@@ -40,14 +40,14 @@ class Observers:
         names: list[str],
         change_reporter: ChangeReporter,
         create_observer: ObserverSpawner,
-        agent_input: Input,
+        inbox: Inbox,
         intents: Intents,
     ):
         self._agent_id = agent_id
         self._names = names
         self._change_reporter = change_reporter
         self._create_observer = create_observer
-        self._agent_input = agent_input
+        self._inbox = inbox
         self._intents = intents
         self._observers: dict[str, Observer] = {}
         self._event_bus = event_bus
@@ -71,7 +71,7 @@ class Observers:
             return
         for name, observer in self._observers.items():
             if observer.agent_id == event.agent_id:
-                self._agent_input.stack(
+                self._inbox.put(
                     f"💡 Suggestion from the {name} observer:\n{str(event.call.named_arguments.get('suggestion', '')).strip()}"
                 )
 

@@ -7,10 +7,9 @@ from simple_agent.application.events import (
     SessionClearedEvent,
     ToolCalledEvent,
 )
-from simple_agent.application.input import Input
+from simple_agent.application.inbox import Inbox
 from simple_agent.application.observers import Observers
 from simple_agent.application.tool_library import ToolCall
-from simple_agent.application.user_input import DummyUserInput
 
 AGENT = AgentId("Agent")
 DIFF = "diff --git a/greeting.txt b/greeting.txt"
@@ -75,7 +74,7 @@ def observers_of(
         names,
         change_reporter,
         factory,
-        agent_input or Input(DummyUserInput()),
+        agent_input or Inbox(),
         intents or IntentsStub(),
     )
 
@@ -186,7 +185,7 @@ def suggest(text):
 def test_what_an_observer_found_reaches_the_agent():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
-    agent_input = Input(DummyUserInput())
+    agent_input = Inbox()
     observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory, agent_input)
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
@@ -205,7 +204,7 @@ def test_what_an_observer_found_reaches_the_agent():
 def test_an_observation_without_a_suggestion_does_not_disturb_the_agent():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
-    agent_input = Input(DummyUserInput())
+    agent_input = Inbox()
     observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory, agent_input)
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
@@ -261,7 +260,7 @@ def test_a_resumed_observer_is_closed_when_the_session_is_cleared():
 def test_what_a_resumed_observer_found_reaches_the_agent():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
-    agent_input = Input(DummyUserInput())
+    agent_input = Inbox()
     observers = observers_of(
         event_bus, ["naming"], ChangeReporterStub(DIFF), factory, agent_input
     )
