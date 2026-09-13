@@ -17,7 +17,7 @@ Agent:           tool_called: Agent::tool_call::4 create-file filename="greeting
 Agent:           tool_result: Agent::tool_call::4 Created file: greeting.txt with content
 Agent:    checkpoint_reached: 
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::5 complete-task summary="stored the greeting"
+Agent:           tool_called: Agent::tool_call::5 complete-task answer="stored the greeting"
 Agent:           tool_result: Agent::tool_call::5 stored the greeting
 Agent: user_prompt_requested: 
 Agent/Naming:         agent_started: Naming stub-model naming stop_and_wait
@@ -29,7 +29,7 @@ Agent/Naming:         user_prompted: Intent: Give the file a telling name
 diff --git a/greeting.txt b/greeting.txt
 +Hello
 Agent/Naming:   assistant_responded:  stub-model 0.0%
-Agent/Naming:           tool_called: Agent/Naming::tool_call::1 complete-task summary="judged greeting.txt"
+Agent/Naming:           tool_called: Agent/Naming::tool_call::1 complete-task answer="judged greeting.txt"
 Agent/Naming:           tool_result: Agent/Naming::tool_call::1 judged greeting.txt
 Agent/Naming: user_prompt_requested: 
 Agent/Naming:        agent_finished: 
@@ -51,7 +51,7 @@ assistant:
   create-file filename="greeting.txt" content="Hello"
 tool_result: Created file: greeting.txt with content
 assistant:
-  complete-task summary="stored the greeting"
+  complete-task answer="stored the greeting"
 tool_result: stored the greeting
 [Agent/Naming]
 user: Intent: Give the file a telling name
@@ -59,6 +59,6 @@ user: Intent: Give the file a telling name
 diff --git a/greeting.txt b/greeting.txt
 +Hello
 assistant:
-  complete-task summary="judged greeting.txt"
+  complete-task answer="judged greeting.txt"
 tool_result: judged greeting.txt
 

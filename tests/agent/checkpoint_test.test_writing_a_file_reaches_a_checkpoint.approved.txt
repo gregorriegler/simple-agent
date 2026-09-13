@@ -7,7 +7,7 @@ Agent:           tool_called: Agent::tool_call::1 create-file filename="greeting
 Agent:           tool_result: Agent::tool_call::1 Created file: greeting.txt with content
 Agent:    checkpoint_reached: 
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 complete-task summary="summary"
+Agent:           tool_called: Agent::tool_call::2 complete-task answer="summary"
 Agent:           tool_result: Agent::tool_call::2 summary
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
@@ -20,6 +20,6 @@ assistant:
   create-file filename="greeting.txt" content="Hello"
 tool_result: Created file: greeting.txt with content
 assistant:
-  complete-task summary="summary"
+  complete-task answer="summary"
 tool_result: summary
 

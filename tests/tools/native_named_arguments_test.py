@@ -32,9 +32,9 @@ async def test_ls_lists_the_named_path(tmp_path):
     assert "a.txt" in result.message
 
 
-async def test_complete_task_reports_the_named_summary():
+async def test_complete_task_reports_the_named_answer():
     result = await CompleteTaskTool().execute(
-        native_call("complete-task", summary="all done")
+        native_call("complete-task", answer="all done")
     )
 
     assert result.message == "all done"

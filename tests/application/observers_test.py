@@ -214,7 +214,7 @@ def test_an_observation_without_a_suggestion_does_not_disturb_the_agent():
         ToolCalledEvent(
             observer.agent_id,
             "call-1",
-            ToolCall("complete-task", {"summary": "looks fine"}),
+            ToolCall("complete-task", {"answer": "looks fine"}),
         )
     )
 

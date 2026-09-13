@@ -22,9 +22,9 @@ def test_a_call_without_arguments_is_just_its_name():
 def test_an_assistant_turn_lists_its_calls_indented_under_its_words():
     messages = [
         UserMessage("hi"),
-        AssistantMessage("Hello!", [ToolCall("complete-task", {"summary": "done"})]),
+        AssistantMessage("Hello!", [ToolCall("complete-task", {"answer": "done"})]),
     ]
 
     assert render_messages(messages) == (
-        'user: hi\nassistant: Hello!\n  complete-task summary="done"'
+        'user: hi\nassistant: Hello!\n  complete-task answer="done"'
     )

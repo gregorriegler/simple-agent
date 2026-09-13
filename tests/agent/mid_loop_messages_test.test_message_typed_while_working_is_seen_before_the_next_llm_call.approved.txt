@@ -7,7 +7,7 @@ Agent:           tool_called: Agent::tool_call::1 cat filename="/tmp/test_path/t
 Agent:           tool_result: Agent::tool_call::1 Hello world
 Agent:         user_prompted: actually, stop
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 complete-task summary="summary"
+Agent:           tool_called: Agent::tool_call::2 complete-task answer="summary"
 Agent:           tool_result: Agent::tool_call::2 summary
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
@@ -21,6 +21,6 @@ assistant:
 tool_result: Hello world
 user: actually, stop
 assistant:
-  complete-task summary="summary"
+  complete-task answer="summary"
 tool_result: summary
 

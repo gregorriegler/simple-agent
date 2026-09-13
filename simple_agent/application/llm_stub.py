@@ -116,19 +116,19 @@ def _create_default_stub_llm() -> LLM:
             says(
                 "",
                 ToolCall(
-                    "complete-task", {"summary": "Subagent2 completed successfully"}
+                    "complete-task", {"answer": "Subagent2 completed successfully"}
                 ),
             ),
             says(
                 "",
                 ToolCall(
-                    "complete-task", {"summary": "Subagent1 completed successfully"}
+                    "complete-task", {"answer": "Subagent1 completed successfully"}
                 ),
             ),
             says(
                 "",
                 ToolCall(
-                    "complete-task", {"summary": "Main task completed successfully"}
+                    "complete-task", {"answer": "Main task completed successfully"}
                 ),
             ),
         ]

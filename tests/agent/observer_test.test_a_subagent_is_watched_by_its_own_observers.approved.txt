@@ -19,7 +19,7 @@ Agent/Coding/Naming:         user_prompted: diff --git a/data1.txt b/data1.txt
 Agent/Coding/Naming:   assistant_responded:  stub-model 0.0%
 Agent/Coding/Naming:           tool_called: Agent/Coding/Naming::tool_call::1 suggest suggestion="data1.txt says nothing about its content"
 Agent/Coding/Naming:           tool_result: Agent/Coding/Naming::tool_call::1 Suggested: data1.txt says nothing about its content
-Agent/Coding/Naming:           tool_called: Agent/Coding/Naming::tool_call::2 complete-task summary="judged the new file"
+Agent/Coding/Naming:           tool_called: Agent/Coding/Naming::tool_call::2 complete-task answer="judged the new file"
 Agent/Coding/Naming:           tool_result: Agent/Coding/Naming::tool_call::2 judged the new file
 Agent/Coding/Naming: user_prompt_requested: 
 Agent/Coding:           tool_result: Agent/Coding::tool_call::2 Hello
@@ -27,14 +27,14 @@ Agent/Coding:         user_prompted: 💡 Suggestion from the naming observer:
 data1.txt says nothing about its content
 Agent/Coding:   assistant_responded: I will rename it. stub-model 0.0%
 Agent/Coding:        assistant_said: I will rename it.
-Agent/Coding:           tool_called: Agent/Coding::tool_call::3 complete-task summary="renamed the file"
+Agent/Coding:           tool_called: Agent/Coding::tool_call::3 complete-task answer="renamed the file"
 Agent/Coding:           tool_result: Agent/Coding::tool_call::3 renamed the file
 Agent/Coding: user_prompt_requested: 
 Agent/Coding:        agent_finished: 
 Agent/Coding:         session_ended: 
 Agent:           tool_result: Agent::tool_call::1 renamed the file
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 complete-task summary="stored the greeting"
+Agent:           tool_called: Agent::tool_call::2 complete-task answer="stored the greeting"
 Agent:           tool_result: Agent::tool_call::2 stored the greeting
 Agent: user_prompt_requested: 
 Agent/Coding/Naming:        agent_finished: 
@@ -60,17 +60,17 @@ user: diff --git a/data1.txt b/data1.txt
 assistant:
   suggest suggestion="data1.txt says nothing about its content"
 tool_result: Suggested: data1.txt says nothing about its content
-  complete-task summary="judged the new file"
+  complete-task answer="judged the new file"
 tool_result: judged the new file
 tool_result: Hello
 [Agent/Coding]
 user: 💡 Suggestion from the naming observer:
 data1.txt says nothing about its content
 assistant: I will rename it.
-  complete-task summary="renamed the file"
+  complete-task answer="renamed the file"
 tool_result: renamed the file
 tool_result: renamed the file
 assistant:
-  complete-task summary="stored the greeting"
+  complete-task answer="stored the greeting"
 tool_result: stored the greeting
 

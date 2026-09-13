@@ -79,7 +79,7 @@ Nondeterminism is scrubbed, never printed.
   visible marker such as `[DATE]`.
 - Scrub only what actually varies. A scrubber that swallows behavior hides bugs.
 
-# Task Completion
-1. Report the scenario you covered, what the approved file shows, and whether the
-   test fails because nothing is approved yet or because the behavior is missing.
-2. Use the `complete-task` tool with your summary.
+# Finishing
+Call `complete-task` with your report: the scenario you covered, what the approved
+file shows, and whether the test fails because nothing is approved yet or because
+the behavior is missing. It is your only way to reply.

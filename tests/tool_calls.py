@@ -55,8 +55,8 @@ def write_todos(content: str) -> ToolCall:
     return ToolCall("write-todos", {"content": content})
 
 
-def complete_task(summary: str) -> ToolCall:
-    return ToolCall("complete-task", {"summary": summary})
+def complete_task(answer: str) -> ToolCall:
+    return ToolCall("complete-task", {"answer": answer})
 
 
 def wait(timeout: float | None = None) -> ToolCall:

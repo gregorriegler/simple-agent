@@ -10,7 +10,7 @@ Agent:           tool_called: Agent::tool_call::2 create-file filename="data1.tx
 Agent:           tool_result: Agent::tool_call::2 Created file: data1.txt with content
 Agent:    checkpoint_reached: 
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::3 complete-task summary="stored the greeting"
+Agent:           tool_called: Agent::tool_call::3 complete-task answer="stored the greeting"
 Agent:           tool_result: Agent::tool_call::3 stored the greeting
 Agent: user_prompt_requested: 
 Agent/Naming:         agent_started: Naming stub-model naming stop_and_wait
@@ -22,7 +22,7 @@ Agent/Naming:         user_prompted: Intent: Store the greeting in a file
 diff --git a/data1.txt b/data1.txt
 +Hello
 Agent/Naming:   assistant_responded:  stub-model 0.0%
-Agent/Naming:           tool_called: Agent/Naming::tool_call::1 complete-task summary="judged the new file"
+Agent/Naming:           tool_called: Agent/Naming::tool_call::1 complete-task answer="judged the new file"
 Agent/Naming:           tool_result: Agent/Naming::tool_call::1 judged the new file
 Agent/Naming: user_prompt_requested: 
 Agent/Naming:        agent_finished: 
@@ -38,7 +38,7 @@ assistant:
   create-file filename="data1.txt" content="Hello"
 tool_result: Created file: data1.txt with content
 assistant:
-  complete-task summary="stored the greeting"
+  complete-task answer="stored the greeting"
 tool_result: stored the greeting
 [Agent/Naming]
 user: Intent: Store the greeting in a file
@@ -46,6 +46,6 @@ user: Intent: Store the greeting in a file
 diff --git a/data1.txt b/data1.txt
 +Hello
 assistant:
-  complete-task summary="judged the new file"
+  complete-task answer="judged the new file"
 tool_result: judged the new file
 

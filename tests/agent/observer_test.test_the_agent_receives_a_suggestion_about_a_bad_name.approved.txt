@@ -15,7 +15,7 @@ Agent/Naming:         user_prompted: diff --git a/data1.txt b/data1.txt
 Agent/Naming:   assistant_responded:  stub-model 0.0%
 Agent/Naming:           tool_called: Agent/Naming::tool_call::1 suggest suggestion="data1.txt says nothing about its content, call it greeting.txt"
 Agent/Naming:           tool_result: Agent/Naming::tool_call::1 Suggested: data1.txt says nothing about its content, call it greeting.txt
-Agent/Naming:           tool_called: Agent/Naming::tool_call::2 complete-task summary="judged the new file"
+Agent/Naming:           tool_called: Agent/Naming::tool_call::2 complete-task answer="judged the new file"
 Agent/Naming:           tool_result: Agent/Naming::tool_call::2 judged the new file
 Agent/Naming: user_prompt_requested: 
 Agent:           tool_result: Agent::tool_call::2 Hello
@@ -23,7 +23,7 @@ Agent:         user_prompted: 💡 Suggestion from the naming observer:
 data1.txt says nothing about its content, call it greeting.txt
 Agent:   assistant_responded: I will rename it. stub-model 0.0%
 Agent:        assistant_said: I will rename it.
-Agent:           tool_called: Agent::tool_call::3 complete-task summary="renamed the file"
+Agent:           tool_called: Agent::tool_call::3 complete-task answer="renamed the file"
 Agent:           tool_result: Agent::tool_call::3 renamed the file
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
@@ -45,13 +45,13 @@ user: diff --git a/data1.txt b/data1.txt
 assistant:
   suggest suggestion="data1.txt says nothing about its content, call it greeting.txt"
 tool_result: Suggested: data1.txt says nothing about its content, call it greeting.txt
-  complete-task summary="judged the new file"
+  complete-task answer="judged the new file"
 tool_result: judged the new file
 tool_result: Hello
 [Agent]
 user: 💡 Suggestion from the naming observer:
 data1.txt says nothing about its content, call it greeting.txt
 assistant: I will rename it.
-  complete-task summary="renamed the file"
+  complete-task answer="renamed the file"
 tool_result: renamed the file
 

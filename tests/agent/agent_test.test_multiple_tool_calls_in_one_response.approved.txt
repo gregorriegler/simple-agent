@@ -15,7 +15,7 @@ Agent:           tool_result: Agent::tool_call::2 def hello():
     print('Hello')
     return 42
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::3 complete-task summary="summary"
+Agent:           tool_called: Agent::tool_call::3 complete-task answer="summary"
 Agent:           tool_result: Agent::tool_call::3 summary
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
@@ -36,6 +36,6 @@ tool_result: def hello():
     print('Hello')
     return 42
 assistant:
-  complete-task summary="summary"
+  complete-task answer="summary"
 tool_result: summary
 

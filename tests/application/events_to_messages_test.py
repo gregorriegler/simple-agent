@@ -181,7 +181,7 @@ class TestEventsToMessages:
         self,
     ):
         agent_id = AgentId("Agent")
-        call = ToolCall("complete-task", {"summary": "done"})
+        call = ToolCall("complete-task", {"answer": "done"})
         events = [
             AssistantThoughtEvent(agent_id=agent_id, thought="wrapping up"),
             AssistantRespondedEvent(agent_id=agent_id, response="All green."),

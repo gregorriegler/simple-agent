@@ -5,29 +5,37 @@ from .base_tool import BaseTool
 
 class CompleteTaskTool(BaseTool):
     name = "complete-task"
-    description = "Signal task completion with a summary of what was accomplished"
+    description = (
+        "Deliver your final answer to the user and end your turn. "
+        "The answer is shown to the user verbatim. Write it as if replying directly: "
+        "the result, what you did, and anything they need to know."
+    )
     arguments = ToolArguments(
         header=[
             ToolArgument(
-                name="summary",
+                name="answer",
                 type="string",
                 required=True,
-                description="Final summary of what was accomplished",
+                description="Your complete final answer, shown to the user as-is",
             )
         ]
     )
     examples = [
-        {"summary": "Successfully created the user registration system"},
-        {"summary": "Fixed the bug in the payment processing module"},
+        {
+            "answer": "Created the user registration system. Sign-up now validates emails."
+        },
+        {
+            "answer": "Fixed the rounding bug in payment processing; totals match the invoice."
+        },
     ]
 
     async def execute(self, call):
-        args = str(call.named_arguments.get("summary", ""))
+        args = str(call.named_arguments.get("answer", ""))
         if not args or not args.strip():
             return SingleToolResult(
-                "STDERR: complete-task: missing summary",
+                "STDERR: complete-task: missing answer",
                 status=ToolResultStatus.FAILURE,
                 completes=True,
             )
-        summary = args.strip()
-        return SingleToolResult(summary, completes=True)
+        answer = args.strip()
+        return SingleToolResult(answer, completes=True)

@@ -6,7 +6,7 @@ Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::1 communicate-intent intent="Extract the tool syntax parser"
 Agent:           tool_result: Agent::tool_call::1 Intent: Extract the tool syntax parser
 Agent:   assistant_responded:  stub-model 0.0%
-Agent:           tool_called: Agent::tool_call::2 complete-task summary="summary"
+Agent:           tool_called: Agent::tool_call::2 complete-task answer="summary"
 Agent:           tool_result: Agent::tool_call::2 summary
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
@@ -19,6 +19,6 @@ assistant:
   communicate-intent intent="Extract the tool syntax parser"
 tool_result: Intent: Extract the tool syntax parser
 assistant:
-  complete-task summary="summary"
+  complete-task answer="summary"
 tool_result: summary
 

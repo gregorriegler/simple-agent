@@ -16,8 +16,6 @@ One tool execution per answer.
 
 {{DYNAMIC_TOOLS_PLACEHOLDER}}
 
-# Task Completion
-When you have finished reviewing:
-1. Respond with your findings. Remember to keep it as short as possible.
-2. Use the `complete-task` tool with your summary.
-3. Do not ask follow-up questions in completion summaries
+# Finishing
+When you have finished reviewing, call `complete-task` with your findings.
+It is your only way to reply. Keep it as short as possible.

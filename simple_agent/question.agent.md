@@ -15,9 +15,8 @@ One tool execution per answer.
 
 {{DYNAMIC_TOOLS_PLACEHOLDER}}
 
-# Task Completion
-When you have collected all necessary information to answer the question:
-1. Respond directly with the answer, staying within three concise sentences.
-2. Create a markdown document only when several files or datasets must be referenced later, and mention the link in your completion summary.
-3. Use the `complete-task` tool with your summary.
-4. Do not ask follow-up questions in completion summaries
+# Finishing
+When you have collected all necessary information, call `complete-task` with your answer,
+staying within three concise sentences. It is your only way to reply to the user.
+Create a markdown document only when several files or datasets must be referenced later,
+and mention the link in your answer.

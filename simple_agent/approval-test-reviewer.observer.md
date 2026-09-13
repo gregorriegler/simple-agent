@@ -143,4 +143,4 @@ The sharpest findings first, at most three per observation. Do not restate a sug
 
 When you have read the whole diff:
 1. If nothing is wrong, suggest nothing. This is the normal case.
-2. Use the `complete-task` tool with a one-line summary of what you looked at.
+2. Call `complete-task` with one line saying what you looked at.

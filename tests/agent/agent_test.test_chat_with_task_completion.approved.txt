@@ -4,7 +4,7 @@ Agent:         agent_started: Agent stub-model agent human_review
 Agent:         user_prompted: Say Hello
 Agent:   assistant_responded: Hello! stub-model 0.0%
 Agent:        assistant_said: Hello!
-Agent:           tool_called: Agent::tool_call::1 complete-task summary="I successfully said hello"
+Agent:           tool_called: Agent::tool_call::1 complete-task answer="I successfully said hello"
 Agent:           tool_result: Agent::tool_call::1 I successfully said hello
 Agent: user_prompt_requested: 
 Agent:        agent_finished: 
@@ -14,6 +14,6 @@ Agent:         session_ended:
 [Agent]
 user: Say Hello
 assistant: Hello!
-  complete-task summary="I successfully said hello"
+  complete-task answer="I successfully said hello"
 tool_result: I successfully said hello
 
