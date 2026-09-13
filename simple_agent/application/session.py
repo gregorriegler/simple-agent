@@ -6,6 +6,7 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_task_manager import AgentTaskManager
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.checkpoint_detector import CheckpointDetector
 from simple_agent.application.display_type import DisplayType
 from simple_agent.application.event_bus import EventBus
@@ -61,10 +62,10 @@ class Session:
         self._observation = observation
         self._checkpoint_detector = CheckpointDetector(event_bus)
 
-    def _resumed_as_observer(self, event) -> bool:
-        if not self._observation or not event.agent_type:
+    def _resumed_as_observer(self, agent_id: AgentId, agent_type: AgentType) -> bool:
+        if not self._observation:
             return False
-        return self._observation.resume(event.agent_id, event.agent_type)
+        return self._observation.resume(agent_id, agent_type)
 
     async def run_async(
         self,
@@ -114,7 +115,9 @@ class Session:
         )
 
         for event in unfinished_subagents:
-            if self._resumed_as_observer(event):
+            if event.agent_id is None or event.agent_type is None:
+                continue
+            if self._resumed_as_observer(event.agent_id, event.agent_type):
                 continue
             subagent = agent_factory.create_agent_from_history(
                 event.agent_id, event.agent_type
