@@ -227,8 +227,6 @@ class Tool(Protocol):
 
     async def execute(self, call: ToolCall) -> ToolResult: ...
 
-    def get_template_variables(self) -> dict[str, str]: ...
-
 
 class ToolLibrary(Protocol):
     tools: list[Tool]

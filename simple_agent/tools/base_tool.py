@@ -62,11 +62,3 @@ class BaseTool(Tool):
             "success": process.returncode == 0,
             "elapsed_time": time.time() - start_time,
         }
-
-    def get_template_variables(self) -> dict[str, str]:
-        """Return variables to substitute in documentation templates.
-
-        Override this method to provide runtime values for template placeholders
-        like {{VARIABLE_NAME}} in tool descriptions or arguments.
-        """
-        return {}
