@@ -50,8 +50,9 @@ class Observers:
         self._agent_input = agent_input
         self._intents = intents
         self._observers: dict[str, Observer] = {}
+        self._event_bus = event_bus
         event_bus.subscribe(CheckpointReachedEvent, self._observe)
-        event_bus.subscribe(AgentFinishedEvent, self._close)
+        event_bus.subscribe(AgentFinishedEvent, self._finish)
         event_bus.subscribe(SessionClearedEvent, self._close)
         event_bus.subscribe(ToolCalledEvent, self._deliver)
 
@@ -80,6 +81,15 @@ class Observers:
         for observer in self._observers.values():
             observer.close()
         self._observers.clear()
+
+    def _finish(self, event: AgentFinishedEvent) -> None:
+        if event.agent_id != self._agent_id:
+            return
+        self._close(event)
+        self._event_bus.unsubscribe(CheckpointReachedEvent, self._observe)
+        self._event_bus.unsubscribe(AgentFinishedEvent, self._finish)
+        self._event_bus.unsubscribe(SessionClearedEvent, self._close)
+        self._event_bus.unsubscribe(ToolCalledEvent, self._deliver)
 
     def _packet(self, diff: str) -> str:
         intent = self._intents.read(self._agent_id)

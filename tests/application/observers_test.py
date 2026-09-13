@@ -135,6 +135,24 @@ def test_observers_are_closed_when_the_agent_finishes():
     assert factory.created[0].closed
 
 
+def test_a_finished_agent_is_no_longer_observed():
+    event_bus = SimpleEventBus()
+    factory = ObserverFactoryStub()
+    observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF, DIFF), factory)
+
+    event_bus.publish(CheckpointReachedEvent(AGENT))
+    event_bus.publish(AgentFinishedEvent(AGENT))
+    event_bus.publish(CheckpointReachedEvent(AGENT))
+
+    assert len(factory.created) == 1
+    assert event_bus._handlers == {
+        CheckpointReachedEvent: [],
+        AgentFinishedEvent: [],
+        SessionClearedEvent: [],
+        ToolCalledEvent: [],
+    }
+
+
 def test_observers_are_closed_when_the_session_is_cleared():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
