@@ -4,6 +4,8 @@ from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
     AgentEvent,
     AssistantRespondedEvent,
+    AssistantSaidEvent,
+    AssistantThoughtEvent,
     SessionClearedEvent,
     ToolCalledEvent,
     ToolCancelledEvent,
@@ -41,6 +43,8 @@ def events_to_messages(events: Sequence[AgentEvent], agent_id: AgentId) -> Messa
             if event.call is not None:
                 turn.calls.append(event.call)
                 calls_by_id[event.call_id] = event.call
+            continue
+        if isinstance(event, (AssistantSaidEvent, AssistantThoughtEvent)):
             continue
 
         turn.flush(messages)

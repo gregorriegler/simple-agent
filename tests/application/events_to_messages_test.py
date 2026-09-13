@@ -3,6 +3,8 @@ from simple_agent.application.events import (
     AgentFinishedEvent,
     AgentStartedEvent,
     AssistantRespondedEvent,
+    AssistantSaidEvent,
+    AssistantThoughtEvent,
     SessionClearedEvent,
     ToolCalledEvent,
     ToolCancelledEvent,
@@ -173,6 +175,28 @@ class TestEventsToMessages:
             AssistantMessage("", [call]),
             ToolResultMessage(call, "Hello world"),
             AssistantMessage("done"),
+        ]
+
+    def test_an_answer_and_its_call_stay_one_turn_despite_thought_and_said_events(
+        self,
+    ):
+        agent_id = AgentId("Agent")
+        call = ToolCall("complete-task", {"summary": "done"})
+        events = [
+            AssistantThoughtEvent(agent_id=agent_id, thought="wrapping up"),
+            AssistantRespondedEvent(agent_id=agent_id, response="All green."),
+            AssistantSaidEvent(agent_id=agent_id, message="All green."),
+            ToolCalledEvent(agent_id=agent_id, call_id="call-1", call=call),
+            ToolResultEvent(
+                agent_id=agent_id, call_id="call-1", result=SingleToolResult("done")
+            ),
+        ]
+
+        messages = events_to_messages(events, agent_id)
+
+        assert messages.to_list() == [
+            AssistantMessage("All green.", [call]),
+            ToolResultMessage(call, "done"),
         ]
 
     def test_groups_parallel_calls_into_one_assistant_turn(self):
