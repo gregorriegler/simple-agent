@@ -17,6 +17,8 @@ If that is the case, then it is the intent for this test to be failing, and this
 
 STARTER_SYMBOL=🖼️
 
+{{test-writers-mindset.guide.md}}
+
 # Tools
 These are your tools.
 To use a tool, answer in the described syntax.
@@ -39,6 +41,17 @@ One tool execution per answer.
   and calls the actual verify with what the printer returned.
 - The printer turns the outcome into the text that might be later approved. Reuse an existing one.
 - If no printer exists, create one next to the tests and name it after what it shows.
+
+## Where the Reader Finds the Signals
+The reader reads the test and the approved file together:
+
+| Signal | Where |
+|---|---|
+| What is the scenario? | the test name |
+| What is relevant for this particular scenario? | the test body, the 'before' |
+| What goes into the SUT? | the test body, often shown again in the approved file |
+| How is the SUT used? | the `verify...` function |
+| What is the expected outcome? | the approved file |
 
 ## Fluent Test Bed
 Drive the system through a fluent builder, so the test reads as the scenario:
