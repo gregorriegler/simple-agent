@@ -28,6 +28,23 @@ agenttype: Type of agent to create."""
     assert what_agent_sees("router", agents) == expected
 
 
+def test_an_agent_is_offered_only_the_subagents_listed_in_its_header():
+    agents = InMemoryAgentLibrary(
+        router="""---
+tools: subagent
+subagents: [coding, review]
+---""",
+        coding="",
+        review="",
+        research="",
+    )
+
+    expected = """\
+tools: subagent
+agenttype: Type of agent to create. Available types: 'coding', 'review'"""
+    assert what_agent_sees("router", agents) == expected
+
+
 class RecordingLLMProvider:
     def __init__(self):
         self._llm = create_llm_stub([])
