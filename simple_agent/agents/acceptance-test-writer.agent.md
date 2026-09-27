@@ -1,6 +1,7 @@
 ---
 name: Acceptance Test Writer
 tools: communicate_intent, write_todos, bash, ls, cat, create_file, replace_file_content, complete_task
+observers: [naming]
 ---
 
 {{AGENTS.MD}}
