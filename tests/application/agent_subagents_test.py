@@ -51,6 +51,23 @@ def test_an_agent_is_offered_only_the_subagents_listed_in_its_header():
     """)
 
 
+def test_an_agent_without_a_subagents_list_is_offered_every_agent():
+    agents = InMemoryAgentLibrary(
+        router=dedent("""\
+            ---
+            tools: subagent
+            ---
+        """),
+        coding="",
+        review="",
+    )
+
+    assert what_agent_sees("router", agents) == dedent("""\
+        tools: subagent
+        agenttype: Type of agent to create. Available types: 'router', 'coding', 'review'
+    """)
+
+
 class RecordingLLMProvider:
     def __init__(self):
         self._llm = create_llm_stub([])
