@@ -34,6 +34,12 @@ class AgentDefinition:
         metadata, _ = self._load()
         return self._read_names(metadata.get("observers"))
 
+    def subagents(self, available: list[str]) -> list[str]:
+        metadata, _ = self._load()
+        if "subagents" not in metadata:
+            return available
+        return self._read_names(metadata.get("subagents"))
+
     def model(self) -> str | None:
         metadata, _ = self._load()
         model_value = metadata.get("model")

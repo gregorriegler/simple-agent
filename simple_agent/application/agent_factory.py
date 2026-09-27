@@ -166,8 +166,9 @@ class AgentFactory:
     ) -> Brain:
         tool_context = ToolContext(definition.tool_keys(), agent_id, inbox)
         spawner = self.create_spawner(agent_id, inbox)
+        subagents = definition.subagents(self._agent_library.list_agent_types())
         tools = self._tool_library_factory.create(
-            tool_context, spawner, AgentTypes(self._agent_library.list_agent_types())
+            tool_context, spawner, AgentTypes(subagents)
         )
         system_prompt = definition.prompt().render(self._project_tree)
         return Brain(
