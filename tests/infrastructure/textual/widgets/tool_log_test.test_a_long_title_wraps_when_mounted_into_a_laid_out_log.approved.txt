@@ -1,0 +1,2 @@
+▼ 💲 bash sleep 3 && echo 'this is a very long command with lots of
+     arguments and options that will wrap to multiple lines'

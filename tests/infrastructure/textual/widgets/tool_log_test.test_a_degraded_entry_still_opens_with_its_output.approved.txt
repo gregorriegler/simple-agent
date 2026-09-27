@@ -1,0 +1,13 @@
+▼ 💲 bash echo 0 · success
+    output 0
+▶ 💲 bash echo 1 · success
+▶ 💲 bash echo 2 · success
+▶ 💲 bash echo 3 · success
+▶ 💲 bash echo 4 · success
+▶ 💲 bash echo 5 · success
+▶ 💲 bash echo 6 · success
+▶ 💲 bash echo 7 · success
+▶ 💲 bash echo 8 · success
+▶ 💲 bash echo 9 · success
+▼ 💲 bash echo 10 · success
+    output 10

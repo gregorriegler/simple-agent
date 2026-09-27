@@ -1,0 +1,8 @@
+▶ 💲 bash some args · running
+▶ 📄 cat some args · running
+▶ 📁 ls some args · running
+▶ 📝 create-file some args · running
+▶ 📝 replace-file-content some args · running
+▶ 🤖 subagent some args · running
+▶ 🏁 complete-task some args · running
+▼ 🛠️ search_files some args · running

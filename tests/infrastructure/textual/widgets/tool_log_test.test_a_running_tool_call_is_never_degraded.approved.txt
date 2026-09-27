@@ -1,0 +1,15 @@
+▶ 💲 bash sleep 300 · running
+▶ 💲 bash echo 0 · success · cheap
+▶ 💲 bash echo 1 · success · cheap
+▶ 💲 bash echo 2 · success · cheap
+▶ 💲 bash echo 3 · success
+▶ 💲 bash echo 4 · success
+▶ 💲 bash echo 5 · success
+▶ 💲 bash echo 6 · success
+▶ 💲 bash echo 7 · success
+▶ 💲 bash echo 8 · success
+▶ 💲 bash echo 9 · success
+▶ 💲 bash echo 10 · success
+▶ 💲 bash echo 11 · success
+▼ 💲 bash echo 12 · success
+    ok
