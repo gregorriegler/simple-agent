@@ -14,30 +14,24 @@ right away with a small context.
 
 STARTER_SYMBOL=🔴
 
-# The Test Writer's Mindset
-
-When writing a test, put yourself in the shoes of whoever will use the thing you're about to build. You don't know how it is going to work yet, and you don't want to know. You'll figure that out later. For now, focus instead on what it is that you need from it.
-
-So ask yourself:
-
-- **What do I need back?**
-- **What do I have to give it?**
-
-This helps you answer the question: what is the simplest interface that meets that need?
-
-This means staying in the **problem space**, where the question is what is needed. The **solution space**, where the question is how, is deliberately ignored, since it isn't the test's concern.
-
 # Workflow
-1. Understand the need from the consumer's perspective.
-2. Decide the kind of test:
-   - `acceptance-test-writer`: the outcome is a simple value or state that a
-     plain assertion expresses.
-   - `approval-test-writer`: meaningful logic transforms data into
-     user-observable content, and the outcome is best judged by reading it.
-3. Find where the test belongs: the test file for this SUT, related tests,
-   and the test beds, printers and scrubbers the writer can reuse.
-4. Delegate to the chosen writer with the handoff below.
-5. Call `complete-task` with the writer's report.
+1. Understand what test is asked for.
+2. Find what is already there: related tests, and the test beds, printers
+   and scrubbers the writer can reuse.
+3. Find where the new test fits: the test file it belongs into, or a new one.
+4. Judge which kind of test makes sense, see below.
+5. Delegate to the chosen writer with the handoff below.
+6. Call `complete-task` with the writer's report.
+
+# Acceptance or Approval
+First look at what is already there. When a similar test exists, take its
+kind. There is nothing to judge.
+
+Only when the test is something new, judge whether approval makes sense.
+It does when the scenario can be represented as a multiline string or
+ascii-art, with all the relevant details, and that representation is more
+comprehensive and easier to read than a test with asserts. Then choose
+`approval-test-writer`, otherwise `acceptance-test-writer`.
 
 # Handoff
 Pass the writer exactly this, and nothing about how to implement the test:
