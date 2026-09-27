@@ -1,4 +1,5 @@
 import json
+from dataclasses import replace
 from types import SimpleNamespace
 
 import httpx
@@ -114,7 +115,7 @@ async def test_gemini_chat_converts_messages_to_interaction_steps():
         "store": False,
         "generation_config": {
             "thinking_summaries": "auto",
-            "thinking_level": "high",
+            "thinking_level": "low",
             "tool_choice": "none",
         },
         "system_instruction": "You are a helpful assistant",
@@ -172,7 +173,7 @@ async def test_gemini_chat_forbids_native_function_calls():
 
     assert captured["body"]["generation_config"] == {
         "thinking_summaries": "auto",
-        "thinking_level": "high",
+        "thinking_level": "low",
         "tool_choice": "none",
     }
 
@@ -521,7 +522,7 @@ async def test_gemini_declares_tools_natively_when_provided():
     ]
     assert captured["body"]["generation_config"] == {
         "thinking_summaries": "auto",
-        "thinking_level": "high",
+        "thinking_level": "low",
     }
 
 
@@ -760,8 +761,21 @@ async def test_gemini_asks_for_thought_summaries():
 
     assert captured["body"]["generation_config"] == {
         "thinking_summaries": "auto",
-        "thinking_level": "high",
+        "thinking_level": "low",
     }
+
+
+@pytest.mark.asyncio
+async def test_gemini_thinks_at_the_configured_level():
+    captured: dict = {}
+    chat = GeminiLLM(
+        replace(build_config(), thinking_level="high"),
+        transport=responding_with(interaction("hi"), captured),
+    )
+
+    await chat.call_async([UserMessage("Hello")])
+
+    assert captured["body"]["generation_config"]["thinking_level"] == "high"
 
 
 @pytest.mark.asyncio

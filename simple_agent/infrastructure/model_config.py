@@ -11,6 +11,7 @@ class ModelConfig:
     api_key: str
     base_url: str | None = None
     request_timeout: int = 60
+    thinking_level: str | None = None
 
     @staticmethod
     def from_dict(name: str, config: Mapping[str, Any]) -> "ModelConfig":

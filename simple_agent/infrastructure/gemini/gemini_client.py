@@ -95,7 +95,7 @@ class GeminiLLM(LLM):
             "store": False,
             "generation_config": {
                 "thinking_summaries": "auto",
-                "thinking_level": "high",
+                "thinking_level": self._config.thinking_level or "low",
             },
         }
         if self._tools:
