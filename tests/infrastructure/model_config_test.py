@@ -1,3 +1,5 @@
+from dataclasses import replace
+
 import pytest
 
 from simple_agent.infrastructure.model_config import ModelConfig, ModelsRegistry
@@ -46,6 +48,17 @@ def test_get_returns_requested_model_when_it_exists():
 
     assert result == openai_model
     assert result.name == "openai"
+
+
+def test_get_reads_the_thinking_level_after_a_colon():
+    gemini_model = ModelConfig(
+        name="gemini", model="gemini-3-pro", adapter="gemini", api_key="test-key"
+    )
+    registry = ModelsRegistry(models={"gemini": gemini_model}, default="gemini")
+
+    result = registry.get("gemini:high")
+
+    assert result == replace(gemini_model, thinking_level="high")
 
 
 def test_model_config_from_dict_requires_model_field():

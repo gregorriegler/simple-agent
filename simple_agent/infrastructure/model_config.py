@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 
@@ -80,10 +80,11 @@ class ModelsRegistry:
         self.default = default
 
     def get(self, name: str | None) -> ModelConfig:
-        key = name or self.default
-        if key not in self.models:
-            return self.models[self.default]
-        return self.models[key]
+        key, _, thinking_level = (name or self.default).partition(":")
+        config = self.models.get(key, self.models[self.default])
+        if thinking_level:
+            return replace(config, thinking_level=thinking_level)
+        return config
 
     @staticmethod
     def from_config(config: Mapping[str, Any]) -> "ModelsRegistry":
