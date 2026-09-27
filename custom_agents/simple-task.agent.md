@@ -26,7 +26,7 @@ STARTER_SYMBOL=✅
 5. Re-run `./test.sh` and verify it passes.
 6. Ask the user to commit; do not commit yourself.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Task Completion
 Report what changed, the test status before/after, and remind the user to commit.

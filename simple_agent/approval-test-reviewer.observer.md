@@ -3,7 +3,7 @@ name: Approval Test Reviewer
 tools: [ls, cat]
 ---
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Approval Test Reviewer
 

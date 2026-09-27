@@ -6,7 +6,7 @@ tools:
   - complete_task
 ---
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Test Reviewer
 

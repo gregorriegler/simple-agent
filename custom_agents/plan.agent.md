@@ -12,7 +12,7 @@ tools:
 model: gemini-3-pro
 ---
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 STARTER_SYMBOL=📝
 

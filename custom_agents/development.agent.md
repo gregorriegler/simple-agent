@@ -33,7 +33,7 @@ STARTER_SYMBOL=🔄
 - 🟢 Make it pass: delegate to the 'make-it-pass' agent.
 - 🧹 Refactor: delegate to the 'refactor' agent, specifying which files are in scope.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Task Completion
 Summarize progress, note the current scenario and phase, and delegate via `subagent` when the loop returns to 🔴 for the next example.

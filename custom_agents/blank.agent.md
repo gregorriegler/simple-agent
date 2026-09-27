@@ -12,6 +12,6 @@ tools:
 model: gemini-3.8-flash 
 ---
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 {{AGENTS.MD}}

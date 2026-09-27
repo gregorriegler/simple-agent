@@ -23,4 +23,4 @@ Assess test quality by introducing safe mutations and ensuring every mutation is
 # Task Completion
 Summarize the mutants found and how they were killed before marking the task complete.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}

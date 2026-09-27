@@ -12,7 +12,7 @@ tools:
 
 {{AGENTS.MD}}
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Role
 You are an expert in incremental development, vertical slicing, and "Walking Skeletons".

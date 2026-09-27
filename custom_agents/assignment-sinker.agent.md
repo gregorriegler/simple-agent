@@ -12,7 +12,7 @@ tools:
 model: gemini-3-flash-preview
 ---
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 {{AGENTS.MD}}
 

@@ -25,7 +25,7 @@ STARTER_SYMBOL=🤔
 5. Remove all temporary logging.
 6. Commit the fix with a message that starts with `f `.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Task Completion
 Report what failed, the confirmed root cause, and how you fixed it before using `complete_task`.

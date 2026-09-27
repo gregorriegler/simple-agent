@@ -9,4 +9,4 @@ When you have successfully completed the user's task:
 3. Never put your answer inside the complete-task summary, it is not shown as your answer
 4. Do not ask follow-up questions in completion summaries
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}

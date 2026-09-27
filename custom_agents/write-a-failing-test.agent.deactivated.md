@@ -33,7 +33,7 @@ Stop immediately if the repository is dirty or tests are failing unexpectedly, a
 10. Commit with `t <message>`, unless the test already passed—then still commit the approval fix if needed.
 11. If a failing test now exists, end with "Added a failing Test".
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Task Completion
 Report which example was covered and the observed failure mode before finishing.

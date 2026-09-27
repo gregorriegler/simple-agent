@@ -26,7 +26,7 @@ STARTER_SYMBOL=🧹
 6. Commit the change with a message starting with `r ` (e.g., `r extract class ...`).
 7. Repeat until the plan is complete.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Task Completion
 Report which tasks were executed and whether new items remain in the plan before marking the task complete.

@@ -31,7 +31,7 @@ STARTER_SYMBOL=🧹
 2. Decide how to decompose the improvement into multiple safe, test-passing steps.
 3. Write the steps into `refactoring-plan.md` as checkbox items in execution order.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Task Completion
 Report back the refactoring steps by referencing the `refactoring-plan.md` file

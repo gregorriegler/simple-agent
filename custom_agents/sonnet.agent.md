@@ -12,6 +12,6 @@ tools:
 model: claude-sonnet
 ---
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 {{AGENTS.MD}}

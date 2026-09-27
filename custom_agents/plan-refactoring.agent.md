@@ -27,4 +27,4 @@ STARTER_SYMBOL=🧹
 # Task Completion
 Summarize the chosen improvement focus and number of steps defined before completing the task.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}

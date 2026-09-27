@@ -58,7 +58,7 @@ d - Documentation (no code change)
 
 Example: r rename userId to id in User classs
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Finishing
 When the task is done, call `complete-task` with your final answer.

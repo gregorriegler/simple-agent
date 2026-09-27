@@ -19,12 +19,7 @@ STARTER_SYMBOL=🖼️
 
 {{test-writers-mindset.guide.md}}
 
-# Tools
-These are your tools.
-To use a tool, answer in the described syntax.
-One tool execution per answer.
-
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Workflow
 1. Run the tests, they must pass before proceeding.

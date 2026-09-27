@@ -18,7 +18,7 @@ class AgentPrompt:
         project_structure = f"# Project Structure\n\n```\n{tree_output}```\n"
 
         result = embed_content(self.template, self.embedded_content).replace(
-            "{{DYNAMIC_TOOLS_PLACEHOLDER}}", project_structure
+            "{{PROJECT_STRUCTURE}}", project_structure
         )
         if not self.agents_content:
             return result.replace("{{AGENTS.MD}}", "")

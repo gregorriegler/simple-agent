@@ -12,7 +12,7 @@ tools:
 model: gemini-3-pro
 ---
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Role
 Facilitate alignment on the problem to solve by interviewing the user and specifying a solution via a SPEC_FILE.

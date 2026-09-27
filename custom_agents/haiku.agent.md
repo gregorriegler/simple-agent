@@ -12,6 +12,6 @@ tools:
 model: claude-haiku
 ---
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 {{AGENTS.MD}}

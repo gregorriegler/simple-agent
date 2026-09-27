@@ -14,7 +14,7 @@ model: gemini-2-5-flash
 
 {{AGENTS.MD}}
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Role
 Identify dead code candidates and hand them over one by one to a subagent that should analyze it whether it can be removed, and then remove it.

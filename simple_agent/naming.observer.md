@@ -11,7 +11,7 @@ reads as an honest story.
 You receive the agent's stated intent and the current diff. You may read
 neighbouring files with your tools to learn how a concept is already named.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # What an honest name is
 - A name states what the thing actually does, all of it. A function that does

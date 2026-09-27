@@ -30,4 +30,4 @@ STARTER_SYMBOL=📝
 8. Commit with a message prefixed `d refined ...`.
 9. Delegate to the 'development' agent.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}

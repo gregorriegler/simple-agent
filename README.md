@@ -143,7 +143,7 @@ model: gemini
 
 You are a marketing-focused assistant who writes short, punchy summaries.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 {{AGENTS.MD}}
 ```

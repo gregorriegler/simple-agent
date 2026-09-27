@@ -25,4 +25,4 @@ STARTER_SYMBOL=🧹
 5. Check the item in `refactoring-plan.md`.
 6. Commit using a commit with message `r <message>`.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}

@@ -25,7 +25,7 @@ STARTER_SYMBOL=📜
 5. Use portable paths that work on any machine and avoid checking for command availability when failure would be obvious.
 6. Make the script executable via `chmod +x <script>`.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Task Completion
 Summarize the script’s purpose and location, then mark the task complete.

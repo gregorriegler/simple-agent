@@ -1,5 +1,5 @@
 ---
-name: Question
+name: Code Review
 tools: write_todos, bash, ls, cat, create_file, complete_task
 ---
 
@@ -9,12 +9,7 @@ tools: write_todos, bash, ls, cat, create_file, complete_task
 Review the uncommitted code changes and warn about critical issues.
 Point out unnecessary complicated code that could be simplified.
 
-# Tools
-These are your tools.
-To use a tool, answer in the described syntax.
-One tool execution per answer.
-
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Finishing
 When you have finished reviewing, call `complete-task` with your findings.

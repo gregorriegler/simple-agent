@@ -31,7 +31,7 @@ STARTER_SYMBOL=🧹
 3. Spawn a 'decompose-refactoring' subagent to decompose that improvement into small atomic steps; capture the plan.
 4. For each planned step, spawn an 'implement-refactor' subagent that executes the change. Tell it which step to focus on, it has access to `refactoring-plan.md`.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Task Completion
 Once all steps are executed and tests pass, summarize the improvements plus any remaining follow-ups, then mark the task complete.

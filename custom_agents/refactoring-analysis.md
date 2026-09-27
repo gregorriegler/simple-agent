@@ -26,7 +26,7 @@ STARTER_SYMBOL=🧹
 - Skip interfaces for stable dependencies.
 - Test readability trumps reuse; avoid complex control flow inside tests.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Task Completion
 Complete this task by explaining the thing you found.

@@ -3,7 +3,7 @@ name: Test Reviewer
 tools: [ls, cat]
 ---
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Test Reviewer
 

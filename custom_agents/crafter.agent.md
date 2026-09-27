@@ -12,7 +12,7 @@ tools:
 model: gemini-2-5-pro
 ---
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 {{AGENTS.MD}}
 

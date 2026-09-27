@@ -25,7 +25,7 @@ STARTER_SYMBOL=✨
 5. Run `./test.sh` to ensure everything still passes.
 6. Commit with `r preparatory: <message>`.
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Task Completion
 Summarize the improvement made, confirm the target test remains disabled, and pass back to the caller for re-enabling.

@@ -42,7 +42,7 @@ But if something matters for the scenario, it stays in the test. A reader should
 | Indentation | A flat read from top to bottom, telling the story |
 | Assertions on internal state or intermediate steps | A test name that states the scenario |
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Finishing
 Call `complete-task` with your report. It is your only way to reply.

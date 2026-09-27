@@ -34,7 +34,7 @@ Stop immediately if unexpected failures appear and spawn a 'debug' subagent.
 9. Commit with a message starting with `f ` (e.g., `f calculate totals`).
 10. Complete the task with the sentence "Made the test pass."
 
-{{DYNAMIC_TOOLS_PLACEHOLDER}}
+{{PROJECT_STRUCTURE}}
 
 # Task Completion
 State which example was implemented and confirm the suite is green, then use `complete_task`.
