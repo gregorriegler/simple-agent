@@ -39,6 +39,12 @@ Never mix behavioral and structural changes.
 - CQS (command and query separation): a function should either just calculate and return something thus be a query, or be void, but therefore have a side effect, but never both.
   - Don't create commands that return a boolean to control flow. The ONLY EXCEPTION where we may return a boolean is a query.
 
+# Test List
+Drive behavior from a test list: the scenarios it has to handle.
+When there is none yet, create one, starting with the simplest ones, the happy paths.
+Then pick the tests from that list, one at a time.
+It is a living list: add scenarios as you discover them and cross them off when done.
+
 # Test Code
 Delegate test writing to a subagent.
 These subagents are experts in test writing.
