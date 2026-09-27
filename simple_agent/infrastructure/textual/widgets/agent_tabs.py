@@ -133,6 +133,9 @@ class AgentTabs(TabbedContent):
 
     def remove_subagent_tab(self, agent_id: AgentId) -> None:
         tab_id, _, tool_results_id = self.panel_ids_for(agent_id)
+        parent = agent_id.parent()
+        if self.active == tab_id and parent and self.has_agent_tab(parent):
+            self.activate_tab(parent)
         self.remove_pane(tab_id)
         panel_ids = self._agent_panel_ids.pop(agent_id, None)
         if panel_ids:
