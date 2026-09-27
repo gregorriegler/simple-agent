@@ -1,3 +1,4 @@
+from rich.cells import cell_len
 from textual.app import App, ComposeResult
 from textual.widget import Widget
 from textual.widgets import Collapsible, Markdown, TextArea
@@ -9,6 +10,19 @@ from simple_agent.infrastructure.textual.widgets.tool_log import (
     ToolLog,
 )
 from tests.infrastructure.textual.test_utils import eventually
+
+
+def _fills_its_width(title: Widget) -> bool:
+    width = title.size.width - 2
+    lines = title.render().plain.splitlines()
+    return (
+        width > 0
+        and len(lines) > 1
+        and all(
+            cell_len(line) + 1 + cell_len(next_line.split()[0]) > width
+            for line, next_line in zip(lines, lines[1:], strict=False)
+        )
+    )
 
 
 class ToolLogApp(App):
@@ -89,8 +103,8 @@ class ToolLogUi:
         title = self._entry(command)._title
         await eventually(
             self._pilot,
-            lambda: "\n" in title.render().plain,
-            f"{command} to wrap",
+            lambda: _fills_its_width(title),
+            f"{command} to wrap at its width",
         )
         return "\n".join(line.rstrip() for line in title.render().plain.splitlines())
 
