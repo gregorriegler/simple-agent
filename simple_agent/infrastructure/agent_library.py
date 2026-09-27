@@ -22,7 +22,9 @@ from simple_agent.infrastructure.file_system_embedded_content import (
 )
 from simple_agent.infrastructure.user_configuration import UserConfiguration
 
-BUILTIN_AGENT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BUILTIN_AGENT_DIRECTORY = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "agents"
+)
 
 
 class FileSystemAgentLibrary(AgentLibrary):
@@ -78,7 +80,7 @@ class BuiltinAgentLibrary:
         ground_rules: GroundRules | None = None,
         starting_agent_type: AgentType | None = None,
     ):
-        self.package = "simple_agent"
+        self.package = "simple_agent.agents"
         if ground_rules is not None:
             self.ground_rules: GroundRules = ground_rules
         else:
@@ -103,8 +105,7 @@ class BuiltinAgentLibrary:
                 agent_type, content, self.ground_rules, self.embedded_content
             )
         except (FileNotFoundError, ModuleNotFoundError):
-            package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            path = os.path.join(package_root, filename)
+            path = os.path.join(BUILTIN_AGENT_DIRECTORY, filename)
             with open(path, encoding="utf-8") as handle:
                 content = handle.read()
                 return AgentDefinition(
@@ -131,8 +132,7 @@ class BuiltinAgentLibrary:
         if names:
             return sorted(agent_type_from_filename(name) for name in names)
 
-        package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        pattern = os.path.join(package_root, "*.agent.md")
+        pattern = os.path.join(BUILTIN_AGENT_DIRECTORY, "*.agent.md")
         names = [os.path.basename(path) for path in glob.glob(pattern)]
         return sorted(agent_type_from_filename(name) for name in names)
 

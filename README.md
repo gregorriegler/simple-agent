@@ -122,7 +122,7 @@ api_key = "${GOOGLE_API_KEY}"
 
 ### Custom agent definitions
 
-Agent definition files (`*.agent.md`) are discovered from the built-in `simple_agent` package and from `.simple-agent/agents` in your project directory. 
+Agent definition files (`*.agent.md`) are discovered from the built-in `simple_agent/agents` folder and from `.simple-agent/agents` in your project directory. 
 To point the agent at a different directory, add this to `.simple-agent.toml`:
 ```
 [agents]
