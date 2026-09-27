@@ -35,7 +35,7 @@ Never mix behavioral and structural changes.
   - Don't create commands that return a boolean to control flow. The ONLY EXCEPTION where we may return a boolean is a query.
 
 # Test Code
-Delegate test writing to a subagent. Bias is towards approvaltesting.
+Delegate test writing to a subagent.
 These subagents are experts in test writing.
 So when you delegate it, don't instruct it with implementation details such as what to mock.
 Rather explain what you need from a consumer perspective.
