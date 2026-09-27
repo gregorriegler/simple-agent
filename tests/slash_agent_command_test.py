@@ -18,9 +18,9 @@ from simple_agent.application.slash_command_registry import (
 )
 from simple_agent.application.slash_commands import AgentCommand
 from simple_agent.application.tool_results import SingleToolResult
-from tests.agent_libraries import SwitchingAgentLibrary
 from tests.application.model_switching_test import MockLLMProvider
 from tests.event_spy import EventSpy
+from tests.in_memory_agent_library import InMemoryAgentLibrary
 from tests.inboxes_stub import ScriptedInboxes
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
@@ -89,7 +89,15 @@ async def test_agent_command_switches_model_for_follow_up_prompt():
     inboxes = ScriptedInboxes(
         event_bus, inputs=["Hello", "/agent developer", "Do verify"]
     )
-    agent_library = SwitchingAgentLibrary()
+    agent_library = InMemoryAgentLibrary(
+        agent="""---
+name: Agent
+---""",
+        developer="""---
+name: Developer
+model: new-model
+---""",
+    )
 
     session = Session(
         AgentId("Agent"),

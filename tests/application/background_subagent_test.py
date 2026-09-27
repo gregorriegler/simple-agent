@@ -19,7 +19,7 @@ from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.infrastructure.file_intents import FileIntents
 from simple_agent.infrastructure.file_todos import FileTodos
 from simple_agent.tools.all_tools import AllToolsFactory
-from tests.agent_libraries import AgentLibraryStub
+from tests.in_memory_agent_library import InMemoryAgentLibrary
 from tests.session_test_bed import SessionTestBed
 from tests.test_helpers import DummyProjectTree
 from tests.test_tool_library import FixedLLMProvider
@@ -174,7 +174,14 @@ def _factory(llm_provider, inboxes=None, event_bus=None) -> AgentFactory:
     return AgentFactory(
         event_bus=event_bus or SimpleEventBus(),
         tool_library_factory=AllToolsFactory(FileIntents(), FileTodos()),
-        agent_library=AgentLibraryStub(),
+        agent_library=InMemoryAgentLibrary(
+            agent="""---
+name: Agent
+---""",
+            coding="""---
+name: Coding
+---""",
+        ),
         inboxes=inboxes or AgentInboxes(),
         llm_provider=llm_provider,
         project_tree=DummyProjectTree(),

@@ -33,8 +33,8 @@ from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.application.session import Session
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from simple_agent.infrastructure.file_intents import FileIntents
-from tests.agent_libraries import AgentLibraryStub
 from tests.event_spy import EventSpy
+from tests.in_memory_agent_library import InMemoryAgentLibrary
 from tests.in_memory_event_store import InMemoryEventStore
 from tests.inboxes_stub import ScriptedInboxes
 from tests.system_prompt_generator_test import GroundRulesStub
@@ -275,7 +275,19 @@ class SessionTestBed:
             ):
                 event_bus.subscribe(event_type, self._event_store.persist)
 
-        agent_library = AgentLibraryStub(self._observers, self._subagent_observers)
+        agent_library = InMemoryAgentLibrary(
+            agent=f"""---
+name: Agent
+observers: {self._observers or []}
+---""",
+            coding=f"""---
+name: Coding
+observers: {self._subagent_observers or []}
+---""",
+            orchestrator="""---
+name: Orchestrator
+---""",
+        )
 
         tool_library_factory = ToolLibraryFactoryStub(
             self._llm,

@@ -13,7 +13,7 @@ from simple_agent.application.llm import (
     UserMessage,
 )
 from simple_agent.application.session import Session
-from tests.agent_libraries import FakeAgentLibrary
+from tests.in_memory_agent_library import InMemoryAgentLibrary
 from tests.inboxes_stub import ScriptedInboxes
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
@@ -71,7 +71,11 @@ async def test_model_switching_uses_new_llm_instance():
             interrupts=[],
             event_bus=event_bus,
         ),
-        agent_library=FakeAgentLibrary(),
+        agent_library=InMemoryAgentLibrary(
+            agent="""---
+name: Agent
+---"""
+        ),
         inboxes=inboxes,
         llm_provider=llm_provider,
         project_tree=DummyProjectTree(),
