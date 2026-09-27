@@ -3,8 +3,6 @@ name: Approval Test Reviewer
 tools: [ls, cat]
 ---
 
-{{PROJECT_STRUCTURE}}
-
 # Approval Test Reviewer
 
 Observe the written approval test, and review it. The test is supposed to describe the intended behavior.

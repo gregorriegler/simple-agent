@@ -3,8 +3,6 @@ name: Test Reviewer
 tools: [ls, cat]
 ---
 
-{{PROJECT_STRUCTURE}}
-
 # Test Reviewer
 
 Observe the written test, and review it for any kind of test.

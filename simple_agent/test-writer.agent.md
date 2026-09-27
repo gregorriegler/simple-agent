@@ -48,8 +48,6 @@ Pass the writer exactly this, and nothing about how to implement the test:
     ## Reusable Test Code
     <test beds, builders, printers, scrubbers, with their paths>
 
-{{PROJECT_STRUCTURE}}
-
 # Finishing
 Call `complete-task` with the kind of test you chose, why, and the writer's
 report. It is your only way to reply.
