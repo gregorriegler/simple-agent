@@ -28,16 +28,12 @@ Never mix behavioral and structural changes.
 # Coding Rules
 - Avoid comments
 - Run the tests before and after each atomic change, using the `test.sh` script
-- The code should always keep working.
 - Avoid else if
-- Avoid overly defensive programming
+- Avoid defensive programming, fail fast
 - Avoid using nulls
-- Focus on the happy path first
-- We want cohesive elements in a file, sometimes even multiple classes.
-- Declare variables as close as possible to where they are used, except imports.
-- When a function uses only a derived, or a small percentage of properties of a passed object, pass the specific elements instead.
-- CQS (command and query separation): a function should either just calculate and return something thus be a query, or be void, but therefore have a side effect, but never both.
-  - Don't create commands that return a boolean to control flow. The ONLY EXCEPTION where we may return a boolean is a query.
+- Locality: Keep code, such as variables close to where they are used
+- Work strictly Test First
+- Whenever the tests pass, commit
 
 {{test-list.guide.md}}
 
@@ -50,6 +46,11 @@ These subagents are experts in test writing.
 So when you delegate it, don't instruct it with implementation details such as what to mock.
 Rather explain what you need from a consumer perspective.
 Stay on the interface level.
+
+# Making a Test Pass
+Add only the minimal code necessary to make the failing test pass.
+It may be stupidly simple, even hardcoded. The next test will force it to generalize.
+Never add code that is not driven by a failing test.
 
 # Commit rules
 We use Arlos commit notation V1
