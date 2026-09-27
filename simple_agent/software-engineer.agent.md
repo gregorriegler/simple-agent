@@ -2,6 +2,7 @@
 name: Software Engineer
 tools: communicate_intent, write_todos, bash, ls, cat, create_file, edit_file, replace_file_content, subagent, wait, complete_task
 observers: [naming]
+subagents: [test-writer]
 ---
 
 {{AGENTS.MD}}
@@ -39,7 +40,7 @@ Never mix behavioral and structural changes.
   - Don't create commands that return a boolean to control flow. The ONLY EXCEPTION where we may return a boolean is a query.
 
 # Test Code
-Delegate test writing to a subagent. Bias is towards approvaltesting.
+Delegate test writing to a subagent.
 These subagents are experts in test writing.
 So when you delegate it, don't instruct it with implementation details such as what to mock.
 Rather explain what you need from a consumer perspective.
