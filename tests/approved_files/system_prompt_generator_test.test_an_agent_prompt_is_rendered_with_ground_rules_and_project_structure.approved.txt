@@ -1,0 +1,16 @@
+# Test AGENTS.md content
+This is a stub for testing.
+
+# Role
+You write code.
+
+# Project Structure
+
+```
+./
+|-- simple_agent/
+|   |-- application/
+|   `-- infrastructure/
+`-- tests/
+```
+

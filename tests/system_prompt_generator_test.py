@@ -8,22 +8,29 @@ from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.ground_rules import GroundRules
 from simple_agent.application.system_prompt import AgentPrompt
-from simple_agent.infrastructure.agent_library import (
-    BuiltinAgentLibrary,
-    FileSystemAgentLibrary,
-)
+from simple_agent.infrastructure.agent_library import FileSystemAgentLibrary
 from tests.test_helpers import DummyProjectTree, EmbeddedContentStub
 
 
-def test_generate_software_engineer_system_prompt(tool_library):
-    verify_system_prompt("software-engineer", tool_library)
+def test_an_agent_prompt_is_rendered_with_ground_rules_and_project_structure(
+    tmp_path: Path,
+):
+    write_file(
+        tmp_path / "coder.agent.md",
+        """\
+        ---
+        name: Coder
+        ---
+        {{AGENTS.MD}}
 
+        # Role
+        You write code.
 
-def verify_system_prompt(agent_type, tool_library):
-    agent_library = BuiltinAgentLibrary(GroundRulesStub())
-    prompt = agent_library.read_agent_definition(AgentType(agent_type)).prompt()
-    system_prompt = prompt.render(DummyProjectTree())
-    verify(system_prompt)
+        {{PROJECT_STRUCTURE}}
+        """,
+    )
+
+    verify(system_prompt_of("coder", tmp_path, GroundRulesStub()))
 
 
 @pytest.mark.parametrize(
@@ -120,9 +127,11 @@ def test_an_agent_prompt_embeds_a_markdown_file_next_to_it(tmp_path: Path):
     """)
 
 
-def system_prompt_of(agent_type: str, directory: Path) -> str:
+def system_prompt_of(
+    agent_type: str, directory: Path, ground_rules: GroundRules | None = None
+) -> str:
     library = FileSystemAgentLibrary(str(directory))
-    library.ground_rules = GroundRulesStub("")
+    library.ground_rules = ground_rules or GroundRulesStub("")
     definition = library.read_agent_definition(AgentType(agent_type))
     return definition.prompt().render(DummyProjectTree())
 
