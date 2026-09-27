@@ -62,6 +62,12 @@ async def test_each_tool_gets_its_emoji(ui):
     verify(await ui.outline())
 
 
+async def test_a_result_without_its_call_is_recovered(ui):
+    ui.succeed("never called", "Done")
+
+    verify(await ui.outline())
+
+
 async def test_a_result_title_replaces_the_call_title(ui):
     ui.call("search_files query=test")
     ui.finish("search_files query=test", SingleToolResult(display_title="Results"))

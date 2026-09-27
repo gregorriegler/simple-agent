@@ -53,3 +53,14 @@ async def test_action_quit_cancels_session_task():
 
         assert cancelled.is_set()
         assert user_input.closed
+
+
+async def test_shutdown_exits_a_running_app():
+    app = TextualApp(
+        StubUserInput(), AgentId("Agent"), AgentTaskManager(), TOOL_DECLARATIONS
+    )
+
+    async with app.run_test():
+        app.shutdown()
+
+    assert app.return_code == 0
