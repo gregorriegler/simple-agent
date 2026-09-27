@@ -1,9 +1,7 @@
 import pytest
 
-from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
-from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.event_store import NoOpEventStore
 from simple_agent.application.llm import (
@@ -15,8 +13,8 @@ from simple_agent.application.llm import (
     UserMessage,
 )
 from simple_agent.application.session import Session
+from tests.agent_libraries import FakeAgentLibrary
 from tests.inboxes_stub import ScriptedInboxes
-from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
 
@@ -51,27 +49,6 @@ class MockLLMProvider(LLMProvider):
 
     def get_available_models(self) -> list[str]:
         return list(self.llms.keys())
-
-
-class FakeAgentLibrary:
-    def __init__(self):
-        self._definitions = {
-            "agent": AgentDefinition(
-                AgentType("agent"), "---\nname: Agent\n---", GroundRulesStub("Prompt")
-            ),
-        }
-
-    def list_agent_types(self):
-        return list(self._definitions.keys())
-
-    def read_agent_definition(self, agent_type):
-        return self._definitions[agent_type.raw]
-
-    def starting_agent_id(self):
-        return AgentId("Agent")
-
-    def _starting_agent_definition(self):
-        return self._definitions["agent"]
 
 
 @pytest.mark.asyncio

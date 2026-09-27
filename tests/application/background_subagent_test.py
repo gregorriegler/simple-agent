@@ -19,7 +19,8 @@ from simple_agent.application.llm_stub import create_llm_stub
 from simple_agent.infrastructure.file_intents import FileIntents
 from simple_agent.infrastructure.file_todos import FileTodos
 from simple_agent.tools.all_tools import AllToolsFactory
-from tests.session_test_bed import AgentLibraryStub, SessionTestBed
+from tests.agent_libraries import AgentLibraryStub
+from tests.session_test_bed import SessionTestBed
 from tests.test_helpers import DummyProjectTree
 from tests.test_tool_library import FixedLLMProvider
 from tests.tool_calls import bash, complete_task, subagent, wait

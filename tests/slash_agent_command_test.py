@@ -3,10 +3,8 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 
 from simple_agent.application.agent import Agent
-from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
-from simple_agent.application.agent_type import AgentType
 from simple_agent.application.brain import Brain
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.event_store import NoOpEventStore
@@ -20,27 +18,14 @@ from simple_agent.application.slash_command_registry import (
 )
 from simple_agent.application.slash_commands import AgentCommand
 from simple_agent.application.tool_results import SingleToolResult
-from tests.application.model_switching_test import (
-    FakeAgentLibrary,
-    MockLLMProvider,
-)
+from tests.agent_libraries import SwitchingAgentLibrary
+from tests.application.model_switching_test import MockLLMProvider
 from tests.event_spy import EventSpy
 from tests.inboxes_stub import ScriptedInboxes
-from tests.system_prompt_generator_test import GroundRulesStub
 from tests.test_helpers import DummyProjectTree, create_session_args
 from tests.test_tool_library import ToolLibraryFactoryStub
 
 pytestmark = pytest.mark.asyncio
-
-
-class SwitchingAgentLibrary(FakeAgentLibrary):
-    def __init__(self):
-        super().__init__()
-        self._definitions["developer"] = AgentDefinition(
-            AgentType("developer"),
-            """---\nname: Developer\nmodel: new-model\n---""",
-            GroundRulesStub("Prompt"),
-        )
 
 
 async def test_slash_agent_command_parses_agent_name():

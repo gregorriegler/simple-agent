@@ -1,7 +1,6 @@
 import asyncio
 from collections.abc import Sequence
 
-from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_type import AgentType
@@ -34,6 +33,7 @@ from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.application.session import Session
 from simple_agent.infrastructure.claude.claude_client import ClaudeClientError
 from simple_agent.infrastructure.file_intents import FileIntents
+from tests.agent_libraries import AgentLibraryStub
 from tests.event_spy import EventSpy
 from tests.in_memory_event_store import InMemoryEventStore
 from tests.inboxes_stub import ScriptedInboxes
@@ -379,53 +379,3 @@ class ObserverLibraryStub:
             f"Watch the {name}.",
             GroundRulesStub("Test system prompt"),
         )
-
-
-class AgentLibraryStub:
-    def __init__(
-        self,
-        observers: list[str] | None = None,
-        coding_observers: list[str] | None = None,
-    ):
-        self._definitions = {
-            "agent": AgentDefinition(
-                AgentType("agent"),
-                f"""---
-name: Agent
-observers: {observers or []}
----""",
-                GroundRulesStub("Test system prompt"),
-            ),
-            "coding": AgentDefinition(
-                AgentType("coding"),
-                f"""---
-name: Coding
-observers: {coding_observers or []}
----""",
-                GroundRulesStub("Test system prompt"),
-            ),
-            "orchestrator": AgentDefinition(
-                AgentType("orchestrator"),
-                """---
-name: Orchestrator
----""",
-                GroundRulesStub("Test system prompt"),
-            ),
-        }
-
-    def list_agent_types(self) -> list[str]:
-        return list(self._definitions.keys())
-
-    def read_agent_definition(self, agent_type: AgentType) -> AgentDefinition:
-        try:
-            return self._definitions[agent_type.raw]
-        except KeyError as error:
-            raise FileNotFoundError(
-                f"Agent definition '{agent_type.raw}' not found"
-            ) from error
-
-    def starting_agent_id(self) -> AgentId:
-        return AgentId(self._starting_agent_definition().agent_name())
-
-    def _starting_agent_definition(self) -> AgentDefinition:
-        return self._definitions["agent"]
