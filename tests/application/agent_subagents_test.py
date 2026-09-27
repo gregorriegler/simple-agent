@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
@@ -15,34 +17,38 @@ from tests.test_helpers import DummyProjectTree
 
 def test_an_agent_with_an_empty_subagents_list_is_offered_no_subagents():
     agents = InMemoryAgentLibrary(
-        router="""---
-tools: subagent
-subagents: []
----""",
+        router=dedent("""\
+            ---
+            tools: subagent
+            subagents: []
+            ---
+        """),
         coding="",
     )
 
-    expected = """\
-tools: subagent
-agenttype: Type of agent to create."""
-    assert what_agent_sees("router", agents) == expected
+    assert what_agent_sees("router", agents) == dedent("""\
+        tools: subagent
+        agenttype: Type of agent to create.
+    """)
 
 
 def test_an_agent_is_offered_only_the_subagents_listed_in_its_header():
     agents = InMemoryAgentLibrary(
-        router="""---
-tools: subagent
-subagents: [coding, review]
----""",
+        router=dedent("""\
+            ---
+            tools: subagent
+            subagents: [coding, review]
+            ---
+        """),
         coding="",
         review="",
         research="",
     )
 
-    expected = """\
-tools: subagent
-agenttype: Type of agent to create. Available types: 'coding', 'review'"""
-    assert what_agent_sees("router", agents) == expected
+    assert what_agent_sees("router", agents) == dedent("""\
+        tools: subagent
+        agenttype: Type of agent to create. Available types: 'coding', 'review'
+    """)
 
 
 class RecordingLLMProvider:
@@ -83,4 +89,4 @@ def print_view(tools: list) -> str:
         for argument in tool.arguments.header
         if argument.name == "agenttype"
     ]
-    return f"tools: {tool_names}\nagenttype: {''.join(agenttype)}"
+    return f"tools: {tool_names}\nagenttype: {''.join(agenttype)}\n"
