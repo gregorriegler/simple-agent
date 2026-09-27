@@ -38,7 +38,11 @@ from tests.in_memory_agent_library import InMemoryAgentLibrary
 from tests.in_memory_event_store import InMemoryEventStore
 from tests.inboxes_stub import ScriptedInboxes
 from tests.system_prompt_generator_test import GroundRulesStub
-from tests.test_helpers import DummyProjectTree, create_session_args
+from tests.test_helpers import (
+    DummyProjectTree,
+    EmbeddedContentStub,
+    create_session_args,
+)
 from tests.test_tool_library import ToolLibraryFactoryStub
 from tests.tool_calls import complete_task
 from tests.transcript import describe_call, render_messages, transcript_line
@@ -390,4 +394,5 @@ class ObserverLibraryStub:
             f"---\n"
             f"Watch the {name}.",
             GroundRulesStub("Test system prompt"),
+            EmbeddedContentStub(),
         )

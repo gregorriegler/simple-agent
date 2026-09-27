@@ -4,6 +4,7 @@ from typing import Any
 import yaml
 
 from simple_agent.application.agent_type import AgentType
+from simple_agent.application.embedded_content import EmbeddedContent
 from simple_agent.application.ground_rules import GroundRules
 from simple_agent.application.system_prompt import AgentPrompt
 
@@ -11,10 +12,17 @@ logger = logging.getLogger(__name__)
 
 
 class AgentDefinition:
-    def __init__(self, agent_type: AgentType, content: str, ground_rules: GroundRules):
+    def __init__(
+        self,
+        agent_type: AgentType,
+        content: str,
+        ground_rules: GroundRules,
+        embedded_content: EmbeddedContent,
+    ):
         self._agent_type = agent_type
         self._content = content
         self.ground_rules = ground_rules
+        self.embedded_content = embedded_content
         self._metadata: dict[str, Any] | None = None
         self._template: str = ""
         self._prompt: AgentPrompt | None = None
@@ -54,7 +62,7 @@ class AgentDefinition:
         metadata, template = self._load()
         name = metadata.get("name", str(self._agent_type).capitalize())
         ground_rules = self.ground_rules.read()
-        return AgentPrompt(name, template, ground_rules)
+        return AgentPrompt(name, template, ground_rules, self.embedded_content)
 
     def _load(self) -> tuple[dict[str, Any], str]:
         if self._metadata is None:

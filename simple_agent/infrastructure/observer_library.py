@@ -6,6 +6,9 @@ from simple_agent.application.ground_rules import GroundRules
 from simple_agent.application.observer_definition import ObserverDefinition
 from simple_agent.infrastructure.agent_library import agent_definitions_directory
 from simple_agent.infrastructure.agents_md_ground_rules import AgentsMdGroundRules
+from simple_agent.infrastructure.file_system_embedded_content import (
+    FileSystemEmbeddedContent,
+)
 from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 OBSERVER_SUFFIX = ".observer.md"
@@ -15,6 +18,7 @@ class FileSystemObserverLibrary:
     def __init__(self, directory: str, ground_rules: GroundRules | None = None):
         self._directory = directory
         self._ground_rules = ground_rules or AgentsMdGroundRules()
+        self._embedded_content = FileSystemEmbeddedContent(directory)
 
     def list_observers(self) -> list[str]:
         if not os.path.isdir(self._directory):
@@ -36,7 +40,9 @@ class FileSystemObserverLibrary:
             raise FileNotFoundError(
                 f"Observer '{name}' not found in {self._directory}"
             ) from error
-        return ObserverDefinition(AgentType(name), content, self._ground_rules)
+        return ObserverDefinition(
+            AgentType(name), content, self._ground_rules, self._embedded_content
+        )
 
 
 def create_observer_library(

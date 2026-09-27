@@ -1,4 +1,5 @@
 from pathlib import Path
+from textwrap import dedent
 
 import pytest
 from approvaltests import verify
@@ -11,7 +12,7 @@ from simple_agent.infrastructure.agent_library import (
     BuiltinAgentLibrary,
     FileSystemAgentLibrary,
 )
-from tests.test_helpers import DummyProjectTree
+from tests.test_helpers import DummyProjectTree, EmbeddedContentStub
 
 
 def test_generate_software_engineer_system_prompt(tool_library):
@@ -84,12 +85,50 @@ def test_extract_tool_keys_from_prompt(
 
 def test_render_removes_placeholder_when_no_agents_content():
     prompt = AgentPrompt(
-        agent_name="Test", template="Header\n{{AGENTS.MD}}\nFooter", agents_content=""
+        agent_name="Test",
+        template="Header\n{{AGENTS.MD}}\nFooter",
+        agents_content="",
+        embedded_content=EmbeddedContentStub(),
     )
 
     result = prompt.render(DummyProjectTree())
 
     assert result == "Header\n\nFooter"
+
+
+def test_an_agent_prompt_embeds_a_markdown_file_next_to_it(tmp_path: Path):
+    write_file(
+        tmp_path / "writer.agent.md",
+        """\
+        ---
+        name: Writer
+        ---
+        # Mindset
+        {{mindset.md}}
+        """,
+    )
+    write_file(
+        tmp_path / "mindset.md",
+        """\
+        Think as the consumer.
+        """,
+    )
+
+    assert system_prompt_of("writer", tmp_path) == dedent("""\
+        # Mindset
+        Think as the consumer.
+    """)
+
+
+def system_prompt_of(agent_type: str, directory: Path) -> str:
+    library = FileSystemAgentLibrary(str(directory))
+    library.ground_rules = GroundRulesStub("")
+    definition = library.read_agent_definition(AgentType(agent_type))
+    return definition.prompt().render(DummyProjectTree())
+
+
+def write_file(path: Path, content: str) -> None:
+    path.write_text(dedent(content), encoding="utf-8")
 
 
 def extract_tool_keys(agent_type: AgentType, agent_library: AgentLibrary) -> list[str]:

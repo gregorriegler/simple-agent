@@ -8,6 +8,7 @@ from simple_agent.application.agent_factory import AgentFactory
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_task_manager import AgentTaskManager
 from simple_agent.application.agent_types import AgentTypes
+from simple_agent.application.embedded_content import EmbeddedContent
 from simple_agent.application.event_bus import SimpleEventBus
 from simple_agent.application.event_store import NoOpEventStore
 from simple_agent.application.inboxes import AgentInboxes
@@ -204,7 +205,12 @@ def create_session_args(
 
 
 def create_test_prompt(agent_name: str = "Agent") -> AgentPrompt:
-    return AgentPrompt(agent_name, "Test system prompt", "")
+    return AgentPrompt(agent_name, "Test system prompt", "", EmbeddedContentStub())
+
+
+class EmbeddedContentStub(EmbeddedContent):
+    def read(self, name: str) -> str:
+        raise FileNotFoundError(f"Embedded content '{name}' not found")
 
 
 class DummyProjectTree(ProjectTree):

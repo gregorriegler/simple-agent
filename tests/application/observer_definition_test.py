@@ -1,11 +1,14 @@
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.observer_definition import ObserverDefinition
 from tests.system_prompt_generator_test import GroundRulesStub
+from tests.test_helpers import EmbeddedContentStub
 
 
 def observer_with_tools(tools):
     content = f"---\nname: Naming\ntools: {tools}\n---\nWatch the names.\n"
-    return ObserverDefinition(AgentType("naming"), content, GroundRulesStub())
+    return ObserverDefinition(
+        AgentType("naming"), content, GroundRulesStub(), EmbeddedContentStub()
+    )
 
 
 def test_read_only_tools_are_kept():

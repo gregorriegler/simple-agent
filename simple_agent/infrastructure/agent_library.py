@@ -8,6 +8,7 @@ from simple_agent.application.agent_definition import AgentDefinition
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_type import AgentType
+from simple_agent.application.embedded_content import EmbeddedContent
 from simple_agent.application.ground_rules import GroundRules
 from simple_agent.application.session import SessionArgs
 from simple_agent.infrastructure.agent_file_conventions import (
@@ -16,6 +17,9 @@ from simple_agent.infrastructure.agent_file_conventions import (
 )
 from simple_agent.infrastructure.agents_md_ground_rules import AgentsMdGroundRules
 from simple_agent.infrastructure.configuration import get_starting_agent
+from simple_agent.infrastructure.file_system_embedded_content import (
+    FileSystemEmbeddedContent,
+)
 from simple_agent.infrastructure.user_configuration import UserConfiguration
 
 BUILTIN_AGENT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,6 +29,7 @@ class FileSystemAgentLibrary(AgentLibrary):
     def __init__(self, directory: str, starting_agent_type: AgentType | None = None):
         self.directory = directory
         self.ground_rules: GroundRules = AgentsMdGroundRules()
+        self.embedded_content: EmbeddedContent = FileSystemEmbeddedContent(directory)
         self._starting_agent_type = starting_agent_type
 
     def list_agent_types(self) -> list[str]:
@@ -44,7 +49,12 @@ class FileSystemAgentLibrary(AgentLibrary):
         try:
             with open(path, encoding="utf-8") as handle:
                 content = handle.read()
-                return AgentDefinition(agent_type, content, self.ground_rules)
+                return AgentDefinition(
+                    agent_type,
+                    content,
+                    self.ground_rules,
+                    self.embedded_content,
+                )
         except FileNotFoundError as error:
             raise FileNotFoundError(
                 f"Agent definition '{agent_type.raw}' not found in {self.directory}"
@@ -73,6 +83,9 @@ class BuiltinAgentLibrary:
             self.ground_rules: GroundRules = ground_rules
         else:
             self.ground_rules = AgentsMdGroundRules()
+        self.embedded_content: EmbeddedContent = FileSystemEmbeddedContent(
+            BUILTIN_AGENT_DIRECTORY
+        )
         self._starting_agent_type = starting_agent_type
 
     def list_agent_types(self) -> list[str]:
@@ -86,13 +99,17 @@ class BuiltinAgentLibrary:
                 .joinpath(filename)
                 .read_text(encoding="utf-8")
             )
-            return AgentDefinition(agent_type, content, self.ground_rules)
+            return AgentDefinition(
+                agent_type, content, self.ground_rules, self.embedded_content
+            )
         except (FileNotFoundError, ModuleNotFoundError):
             package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             path = os.path.join(package_root, filename)
             with open(path, encoding="utf-8") as handle:
                 content = handle.read()
-                return AgentDefinition(agent_type, content, self.ground_rules)
+                return AgentDefinition(
+                    agent_type, content, self.ground_rules, self.embedded_content
+                )
 
     def starting_agent_id(self) -> AgentId:
         return AgentId(self._starting_agent_definition().agent_name())

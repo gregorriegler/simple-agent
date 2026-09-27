@@ -11,6 +11,7 @@ from simple_agent.application.observation import Observation
 from tests.application.observers_test import ChangeReporterStub, IntentsStub
 from tests.session_test_bed import ObserverLibraryStub
 from tests.system_prompt_generator_test import GroundRulesStub
+from tests.test_helpers import EmbeddedContentStub
 
 AGENT = AgentId("Agent")
 
@@ -39,6 +40,7 @@ def observed_by(observers: list[str]) -> AgentDefinition:
         AgentType("agent"),
         f"---\nname: Agent\nobservers: {observers}\n---",
         GroundRulesStub("Test system prompt"),
+        EmbeddedContentStub(),
     )
 
 

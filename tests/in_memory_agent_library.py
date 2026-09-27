@@ -3,6 +3,7 @@ from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_library import AgentLibrary
 from simple_agent.application.agent_type import AgentType
 from tests.system_prompt_generator_test import GroundRulesStub
+from tests.test_helpers import EmbeddedContentStub
 
 
 class InMemoryAgentLibrary(AgentLibrary):
@@ -20,7 +21,10 @@ class InMemoryAgentLibrary(AgentLibrary):
                 f"Agent definition '{agent_type.raw}' not found"
             ) from error
         return AgentDefinition(
-            agent_type, content, GroundRulesStub("Test system prompt")
+            agent_type,
+            content,
+            GroundRulesStub("Test system prompt"),
+            EmbeddedContentStub(),
         )
 
     def starting_agent_id(self) -> AgentId:
