@@ -1,4 +1,5 @@
 import pytest
+from approvaltests import verify
 from textual.app import App, ComposeResult
 from textual.widgets import Markdown, TextArea
 
@@ -22,6 +23,48 @@ class ToolLogApp(App):
 
     def compose(self) -> ComposeResult:
         yield ToolLog(id="tool-log")
+
+
+class ToolLogUi:
+    def __init__(self, tool_log: ToolLog, pilot):
+        self._tool_log = tool_log
+        self._pilot = pilot
+
+    def call(self, name: str) -> None:
+        self._tool_log.add_tool_call(name, name)
+
+    async def click(self, name: str) -> None:
+        await eventually(
+            self._pilot,
+            lambda: self._collapsible(name)._title.region.height,
+            f"{name} to be laid out",
+        )
+        await self._pilot.click(self._collapsible(name)._title)
+
+    def outline(self) -> str:
+        return "\n".join(
+            f"{'▶' if c.collapsed else '▼'} {c.title}"
+            for c in self._tool_log._collapsibles
+        )
+
+    def _collapsible(self, name: str) -> ToolCollapsible:
+        return next(c for c in self._tool_log._collapsibles if c.title.endswith(name))
+
+
+@pytest.fixture
+async def ui():
+    app = ToolLogApp()
+    async with app.run_test() as pilot:
+        yield ToolLogUi(app.query_one(ToolLog), pilot)
+
+
+async def test_a_new_tool_call_keeps_a_collapsible_the_user_opened(ui):
+    ui.call("first")
+    ui.call("second")
+    await ui.click("first")
+    ui.call("third")
+
+    verify(ui.outline())
 
 
 @pytest.mark.asyncio

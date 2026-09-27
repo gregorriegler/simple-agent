@@ -78,6 +78,18 @@ def _indented_title(raw_label: str, symbol: str, width: int, console) -> Text:
 
 
 class ToolCollapsible(Collapsible):
+    opened_by_user = False
+
+    def _on_collapsible_title_toggle(self, event: CollapsibleTitle.Toggle) -> None:
+        event.stop()
+        event.prevent_default()
+        self.collapsed = not self.collapsed
+        self.opened_by_user = not self.collapsed
+
+    def collapse_unless_opened_by_user(self) -> None:
+        if not self.opened_by_user:
+            self.collapsed = True
+
     def _update_indented_title(self) -> None:
         title_widget = self._title
         symbol = (
@@ -344,7 +356,7 @@ class ToolLog(VerticalScroll):
             return
 
         for collapsible in self._collapsibles:
-            collapsible.collapsed = True
+            collapsible.collapse_unless_opened_by_user()
 
         text_area = TextArea(
             "",
@@ -378,7 +390,7 @@ class ToolLog(VerticalScroll):
 
     def add_thought(self, thought: str) -> None:
         for collapsible in self._collapsibles:
-            collapsible.collapsed = True
+            collapsible.collapse_unless_opened_by_user()
 
         collapsible = ToolCollapsible(
             Static(Text(thought), classes="thought"),
