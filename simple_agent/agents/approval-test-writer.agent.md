@@ -40,13 +40,13 @@ STARTER_SYMBOL=🖼️
 ## Where the Reader Finds the Signals
 The reader reads the test and the approved file together:
 
-| Signal | Where |
-|---|---|
-| What is the scenario? | the test name |
-| What is relevant for this particular scenario? | the test body, the 'before' |
-| What goes into the SUT? | the test body, often shown again in the approved file |
-| How is the SUT used? | the `verify...` function |
-| What is the expected outcome? | the approved file |
+| Signal | Acceptance | Approval |
+|---|---|---|
+| What is the scenario? | the test name | the test name |
+| What is relevant for this particular scenario? | the test body, the arrange | the test body, the 'before' |
+| What goes into the SUT? | the test body, the arguments of the call | the test body, often shown again in the approved file |
+| How is the SUT used? | the test body, called as a consumer would | the `verify...` function |
+| What is the expected outcome? | the assert, comparing `expected` and `actual` | the approved file |
 
 ## Fluent Test Bed
 Drive the system through a fluent builder, so the test reads as the scenario:
