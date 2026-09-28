@@ -121,14 +121,36 @@ An approval test succeeds when a human can read the approved file and see the
 behavior without reading the test code.
 Only write approval tests where meaningful logic transforms data into user-observable content, never for trivial one-to-one mappings or declarative UI wiring.
 
-## Test Style
-- One scenario per test. The name tells the story.
-- No flow control, no arrange/act/assert comments; no asserts.
-- The test body builds the 'before' and passes it to a named `verify...` function.
-- The `verify...` function performs the action, hands the outcome to the printer,
-  and calls the actual verify with what the printer returned.
-- The printer turns the outcome into the text that might be later approved. Reuse an existing one.
-- If no printer exists, create one next to the tests and name it after what it shows.
+## Test Shape
+The test body builds the 'before', then a single empty line, then a single
+call to a named `verify...` function.
+There are no other empty lines, no comments and no asserts.
+
+    def test_agent_answers_the_question_of_everything():
+        session = AgentSession() \
+            .asking("What is the answer to life, the universe and everything?") \
+            .with_llm_responses(["42"])
+
+        verify_agent(session)
+
+When the 'before' is a simple value, inline it into the verify call.
+Then the test is just that call.
+
+    def test_blinker_turns_horizontal():
+        verify_next_generation(".#.\n.#.\n.#.")
+
+The `verify...` function performs the action, hands the outcome to the printer,
+and verifies what the printer returned.
+
+    def verify_agent(session):
+        actual = session.run()
+
+        verify(print_conversation(actual))
+
+## Printer
+The printer turns the outcome into the text that might be later approved.
+Reuse an existing one. If none exists, create one next to the tests and name
+it after what it shows.
 
 ## Good Approved Files
 The approved file becomes a specification.
