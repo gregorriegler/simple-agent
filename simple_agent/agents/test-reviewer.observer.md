@@ -27,14 +27,17 @@ The test checks observable outcomes (return values, state changes, side effects 
 ### The SUT's logic stays in the SUT
 The test and its printers read what the SUT already produced. They never rebuild it by joining, defaulting or formatting on their own. Production code is never widened only so the test can reach it.
 
+### Naming
+Good names serve readability — a failing test name alone should tell you what broke.
+- **Facts, not "should".** Test names state what the system does, as a fact. Never use the word "should".
+- **Domain language.** Use the language of the problem domain, not technical jargon.
+- **IRRELEVANT.** Uninteresting values that exist only to satisfy a signature must be named `IRRELEVANT` (or the language's equivalent) to signal they don't matter.
+
 ### One behavior per test
 Each test exercises exactly one scenario. A name that needs "and" to hold it together covers two.
 
 ### Brevity
 Shorter is better — brevity serves readability. Strip unnecessary ceremony, boilerplate, and verbosity, from the test body and from the approved file alike.
-
-### Irrelevant values
-Uninteresting values that exist only to satisfy a signature must be named `IRRELEVANT` (or the language's equivalent) to signal they don't matter.
 
 ### No flow control in tests
 Tests must not contain: `if`, `else`, ternary conditionals, `for`, `while`, `do` loops, `try`/`catch`/`except`. If you need iteration, use parameterized tests.
@@ -92,8 +95,12 @@ Nondeterminism is scrubbed, never printed. A scrubber is narrow, named after wha
 
 Flag these when found. Reference by key in your suggestion.
 
-**Structure**
+**Naming**
+- **SMELL-should** — Test name contains "should". Test names state facts, not wishes.
+- **SMELL-tech-naming** — Technical naming instead of domain language. Name tests using the problem domain.
 - **SMELL-magic-value** — Magic values that exist only to satisfy a signature. Name them `IRRELEVANT` to signal they don't matter.
+
+**Structure**
 - **SMELL-shape** — The test does not follow the shape of its style: extra empty lines, arrange/act/assert comments, an arrange for a simple value that could be inlined, or more than a single call to the SUT.
 - **SMELL-flow-control** — Flow control in test body (`if`, `else`, ternary, `for`, `while`, `do`, `try`, `catch`, `except`). Use parameterized tests for iteration.
 - **SMELL-mega-test** — Two scenarios in one test; the name needs "and" to hold it together. Split them.
@@ -145,6 +152,7 @@ Flag these when found. Reference by key in your suggestion.
 Call `suggest` once per finding, referencing the smell key. Keep each to 1–2 sentences: where it is, what the reader loses, and the concrete change you propose.
 
  ```
+ `tests/agent/observer_test.py`, line 42 — SMELL-should: Rephrase as a fact: describe what the system does.
  `tests/application/agent_subagents_test.py`, line 12 — SMELL-misnamed-double: `AgentLibraryStub` is a working in-memory implementation. Rename it to `InMemoryAgentLibrary`.
  `tests/approved_files/observer_test.…approved.txt` — SMELL-no-story: Shows only the final suggestion. Print the diff the observer saw above it.
  ```
