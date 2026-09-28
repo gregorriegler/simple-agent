@@ -89,6 +89,33 @@ Drive the system through a fluent builder, so the test reads as the scenario:
 - Real collaborators for in-memory application objects, fakes for slow
   infrastructure. Avoid mocks and monkeypatching.
 
+# Acceptance Tests
+
+## Test Shape
+Arrange, act and assert, in that order, split by a single empty line.
+There are no other empty lines, and no arrange/act/assert comments.
+
+    def test_expired_coupon_is_rejected():
+        cart = Cart([Book(price=20)])
+        coupon = Coupon(expires=YESTERDAY)
+
+        actual = checkout.apply(cart, coupon)
+
+        assert actual == Rejected("expired")
+
+When the input is a simple value, inline it into the call.
+Then there is no arrange, and the test is just act and assert.
+
+    def test_coupon_expired_yesterday_is_rejected():
+        actual = checkout.apply(Coupon(expires=YESTERDAY))
+
+        assert actual == Rejected("expired")
+
+When the whole scenario reads well on a single line, merge all three.
+
+    def test_empty_cart_costs_nothing():
+        assert Cart([]).total() == 0
+
 # Approval Tests
 An approval test succeeds when a human can read the approved file and see the
 behavior without reading the test code.
