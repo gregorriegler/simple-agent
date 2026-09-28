@@ -74,20 +74,9 @@ But if something matters for the scenario, it stays in the test. A reader should
 | How is the SUT used? | the test body, a single call to the SUT | the `verify...` function |
 | What is the expected outcome? | the assert, comparing `expected` and `actual` | the approved file |
 
-## Fluent Test Bed
-Drive the system through a fluent builder, so the test reads as the scenario:
-
-    def test_agent_answers_the_question_of_everything():
-        session = AgentSession() \
-            .asking("What is the answer to life, the universe and everything?") \
-            .with_llm_responses(["42"])
-
-        verify_agent(session)
-
-- Reuse the existing test bed. Extend it with a new `with_...` method rather
-  than assembling collaborators inline in the test.
-- Real collaborators for in-memory application objects, fakes for slow
-  infrastructure. Avoid mocks and monkeypatching.
+## Collaborators
+Real collaborators for in-memory application objects, fakes for slow
+infrastructure. Avoid mocks and monkeypatching.
 
 # Acceptance Tests
 
@@ -146,6 +135,12 @@ and verifies what the printer returned.
         actual = session.run()
 
         verify(print_conversation(actual))
+
+## Fluent Test Bed
+Drive the system through a fluent builder, like `AgentSession` above, so the
+test reads as the scenario.
+Reuse the existing test bed. Extend it with a new `with_...` method rather
+than assembling collaborators inline in the test.
 
 ## Printer
 The printer turns the outcome into the text that might be later approved.
