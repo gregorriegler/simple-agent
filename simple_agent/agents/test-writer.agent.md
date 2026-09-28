@@ -97,63 +97,13 @@ Drive the system through a fluent builder, so the test reads as the scenario:
 - Real collaborators for in-memory application objects, fakes for slow
   infrastructure. Avoid mocks and monkeypatching.
 
-# Acceptance Tests
-
-## Test Shape
-Arrange, act and assert, in that order, split by a single empty line.
-There are no other empty lines, and no arrange/act/assert comments.
-
-    def test_expired_coupon_is_rejected():
-        cart = Cart([Book(price=20)])
-        coupon = Coupon(expires=YESTERDAY)
-
-        actual = checkout.apply(cart, coupon)
-
-        assert actual == Rejected("expired")
-
-When the input is a simple value, inline it into the call.
-Then there is no arrange, and the test is just act and assert.
-
-    def test_unknown_coupon_code_gives_no_discount():
-        actual = discount_for("UNKNOWN")
-
-        assert actual == 0
-
-When the whole scenario reads well on a single line, merge all three.
-
-    def test_empty_cart_costs_nothing():
-        assert total([]) == 0
+# Test Shapes
+{{test-shapes.guide.md}}
 
 # Approval Tests
 An approval test succeeds when a human can read the approved file and see the
 behavior without reading the test code.
 Only write approval tests where meaningful logic transforms data into user-observable content, never for trivial one-to-one mappings or declarative UI wiring.
-
-## Test Shape
-The test body builds the 'before', then a single empty line, then a single
-call to a named `verify...` function.
-There are no other empty lines, no comments and no asserts.
-
-    def test_agent_answers_the_question_of_everything():
-        session = AgentSession() \
-            .asking("What is the answer to life, the universe and everything?") \
-            .with_llm_responses(["42"])
-
-        verify_agent(session)
-
-When the 'before' is a simple value, inline it into the verify call.
-Then the test is just that call.
-
-    def test_blinker_turns_horizontal():
-        verify_next_generation(".#.\n.#.\n.#.")
-
-The `verify...` function performs the action, hands the outcome to the printer,
-and verifies what the printer returned.
-
-    def verify_agent(session):
-        actual = session.run()
-
-        verify(print_conversation(actual))
 
 ## Printer
 The printer turns the outcome into the text that might be later approved.
