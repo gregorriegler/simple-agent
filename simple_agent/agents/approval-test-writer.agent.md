@@ -44,7 +44,7 @@ The reader reads the test and the approved file together:
 |---|---|---|
 | What is the scenario? | the test name | the test name |
 | What is relevant for this particular scenario? | the test body, the arrange | the test body, the 'before' |
-| What goes into the SUT? | the test body, the arguments of the call | the test body, often shown again in the approved file |
+| What goes into the SUT? | the arrange, or inlined in the call when it is a simple value, leaving no arrange | the test body, often shown again in the approved file |
 | How is the SUT used? | the test body, a single call to the SUT | the `verify...` function |
 | What is the expected outcome? | the assert, comparing `expected` and `actual` | the approved file |
 
