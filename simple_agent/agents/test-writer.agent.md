@@ -69,8 +69,8 @@ But if something matters for the scenario, it stays in the test. A reader should
 | Signal | Acceptance | Approval |
 |---|---|---|
 | What is the scenario? | the test name | the test name |
-| What is relevant for this particular scenario? | the values in the test body, arranged or inlined in the call | the test body, the 'before' |
-| What goes into the SUT? | the arrange, or inlined in the call when it is a simple value, leaving no arrange | the test body, often shown again in the approved file |
+| What is relevant for this particular scenario? | the values that make this scenario | the same, in the 'before' |
+| What goes into the SUT? | the arrange | the 'before' |
 | How is the SUT used? | the test body, a single call to the SUT | the `verify...` function |
 | What is the expected outcome? | the assert, comparing `expected` and `actual` | the approved file |
 
