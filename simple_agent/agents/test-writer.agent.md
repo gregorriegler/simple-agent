@@ -106,15 +106,15 @@ There are no other empty lines, and no arrange/act/assert comments.
 When the input is a simple value, inline it into the call.
 Then there is no arrange, and the test is just act and assert.
 
-    def test_coupon_expired_yesterday_is_rejected():
-        actual = checkout.apply(Coupon(expires=YESTERDAY))
+    def test_unknown_coupon_code_gives_no_discount():
+        actual = discount_for("UNKNOWN")
 
-        assert actual == Rejected("expired")
+        assert actual == 0
 
 When the whole scenario reads well on a single line, merge all three.
 
     def test_empty_cart_costs_nothing():
-        assert Cart([]).total() == 0
+        assert total([]) == 0
 
 # Approval Tests
 An approval test succeeds when a human can read the approved file and see the
