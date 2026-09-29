@@ -49,6 +49,7 @@ class GeminiLLM(LLM):
         return self._config.model
 
     async def call_async(self, messages: ChatMessages) -> LLMResponse:
+        request = self._build_request(messages)
         response = await post_with_retry(
             self._interactions_url(),
             headers={
@@ -56,10 +57,11 @@ class GeminiLLM(LLM):
                 "x-goog-api-key": self._config.api_key,
                 "Api-Revision": API_REVISION,
             },
-            json=self._build_request(messages),
+            json=request,
             timeout=self._config.request_timeout,
             error_class=self.error_class,
             transport=self._transport,
+            hint_malformed_tool_call=lambda message: self._with_hint(request, message),
         )
 
         interaction = response.json()
@@ -105,6 +107,14 @@ class GeminiLLM(LLM):
         if system_instruction:
             request["system_instruction"] = system_instruction
         return request
+
+    def _with_hint(self, request: dict, error_message: str) -> dict:
+        hint = (
+            f"Your previous tool call could not be parsed: {error_message}\n"
+            "Call the tool again with valid JSON arguments."
+        )
+        step = {"type": "user_input", "content": [{"type": "text", "text": hint}]}
+        return {**request, "input": [*request["input"], step]}
 
     def _convert_messages(self, messages: ChatMessages) -> tuple[str, list[dict]]:
         unsigned_as_text = UnsignedTurnsAsText()

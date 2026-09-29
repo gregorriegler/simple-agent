@@ -1,0 +1,53 @@
+[
+  {
+    "type": "user_input",
+    "content": [
+      {
+        "type": "text",
+        "text": "hello"
+      }
+    ]
+  }
+]
+
+[
+  {
+    "type": "user_input",
+    "content": [
+      {
+        "type": "text",
+        "text": "hello"
+      }
+    ]
+  },
+  {
+    "type": "user_input",
+    "content": [
+      {
+        "type": "text",
+        "text": "Your previous tool call could not be parsed: Model generated invalid JSON syntax. Please retry the request.\nCall the tool again with valid JSON arguments."
+      }
+    ]
+  }
+]
+
+[
+  {
+    "type": "user_input",
+    "content": [
+      {
+        "type": "text",
+        "text": "hello"
+      }
+    ]
+  },
+  {
+    "type": "user_input",
+    "content": [
+      {
+        "type": "text",
+        "text": "Your previous tool call could not be parsed: Model generated invalid JSON syntax. Please retry the request.\nCall the tool again with valid JSON arguments."
+      }
+    ]
+  }
+]

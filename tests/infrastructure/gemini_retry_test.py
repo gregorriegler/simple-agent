@@ -1,7 +1,9 @@
+import json
 from unittest.mock import patch
 
 import httpx
 import pytest
+from approvaltests import verify
 
 from simple_agent.application.llm import UserMessage
 from simple_agent.infrastructure.gemini.gemini_client import (
@@ -91,6 +93,22 @@ async def test_gemini_retries_a_malformed_tool_call():
         result = await client.call_async([UserMessage("hello")])
 
     assert result.answer == "success"
+
+
+@pytest.mark.asyncio
+async def test_gemini_retries_a_malformed_tool_call_with_the_error_as_a_hint():
+    inputs = []
+    responses = [httpx.Response(400, json=MALFORMED_TOOL_CALL)] * 2
+
+    def handler(request):
+        inputs.append(json.loads(request.content)["input"])
+        return responses.pop(0) if responses else httpx.Response(200, json=SUCCESS)
+
+    client = GeminiLLM(build_config(), transport=httpx.MockTransport(handler))
+    with patch("asyncio.sleep", return_value=None):
+        await client.call_async([UserMessage("hello")])
+
+    verify("\n\n".join(json.dumps(i, indent=2) for i in inputs))
 
 
 async def delays_before_success(*failures: httpx.Response) -> list[float]:

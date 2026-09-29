@@ -1,4 +1,5 @@
 import asyncio
+from collections.abc import Callable
 
 import httpx
 
@@ -17,17 +18,22 @@ async def post_with_retry(
     transport: httpx.AsyncBaseTransport | None = None,
     max_retries: int = 5,
     retry_delay: float = 2,
+    hint_malformed_tool_call: Callable[[str], dict] | None = None,
 ) -> httpx.Response:
+    request = json
     for attempt in range(max_retries + 1):
         try:
             async with LoggingAsyncClient(
                 timeout=timeout, transport=transport
             ) as client:
-                response = await client.post(url, headers=headers, json=json)
+                response = await client.post(url, headers=headers, json=request)
             response.raise_for_status()
             return response
         except (httpx.RequestError, httpx.HTTPStatusError) as error:
             if attempt < max_retries and _is_transient(error):
+                message = _malformed_tool_call_message(error)
+                if message is not None and hint_malformed_tool_call:
+                    request = hint_malformed_tool_call(message)
                 await asyncio.sleep(_retry_after(error) or retry_delay)
                 continue
 
@@ -45,7 +51,16 @@ def _is_transient(error: Exception) -> bool:
         return False
     if error.response.status_code == 500:
         return True
-    return _api_error_code(error.response) == "malformed_tool_call"
+    return _malformed_tool_call_message(error) is not None
+
+
+def _malformed_tool_call_message(error: Exception) -> str | None:
+    if not isinstance(error, httpx.HTTPStatusError):
+        return None
+    api_error = _api_error(error.response)
+    if api_error.get("code") != "malformed_tool_call":
+        return None
+    return str(api_error.get("message") or "")
 
 
 def _retry_after(error: Exception) -> float | None:
@@ -58,13 +73,13 @@ def _retry_after(error: Exception) -> float | None:
     return min(seconds, MAX_RETRY_AFTER)
 
 
-def _api_error_code(response: httpx.Response) -> str | None:
+def _api_error(response: httpx.Response) -> dict:
     try:
         body = response.json()
     except ValueError:
-        return None
+        return {}
     api_error = body.get("error") if isinstance(body, dict) else None
-    return api_error.get("code") if isinstance(api_error, dict) else None
+    return api_error if isinstance(api_error, dict) else {}
 
 
 def _response_details(error: Exception) -> str:
