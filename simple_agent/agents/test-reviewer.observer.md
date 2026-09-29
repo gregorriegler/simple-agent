@@ -27,6 +27,19 @@ The test checks observable outcomes (return values, state changes, side effects 
 ### The SUT's logic stays in the SUT
 The test and its printers read what the SUT already produced. They never rebuild it by joining, defaulting or formatting on their own. Production code is never widened only so the test can reach it.
 
+### Check the whole outcome
+Compare the whole outcome in a single check, not a hand-picked subset of its fields. Cherry-picking silently ignores fields, so new or broken fields go undetected. In an approval test, the printer shows the entire outcome.
+
+ ```
+ # Bad
+ assert len(receipt.discounts) == 1
+ assert receipt.discounts[0].description == "3 for 2"
+ assert receipt.discounts[0].amount == 0.99
+
+ # Good
+ assert receipt.discounts == [Discount(description="3 for 2", amount=0.99)]
+ ```
+
 ### Naming
 Good names serve readability — a failing test name alone should tell you what broke.
 - **Facts, not "should".** Test names state what the system does, as a fact. Never use the word "should".
@@ -85,9 +98,6 @@ Every piece of information that matters to the behavior is represented, with the
 
 Propose the picture concretely. Do not merely ask for one.
 
-### The approved file shows the whole outcome
-The printer shows the entire outcome, not a hand-picked subset of fields. Cherry-picking silently ignores fields, so new or broken fields go undetected.
-
 ### Scrubbing
 Nondeterminism is scrubbed, never printed. A scrubber is narrow, named after what it hides, and replaces with a visible marker such as `[DATE]`. Scrub only what actually varies — a scrubber that swallows behavior hides bugs. A value the test could control needs a seam (an injected clock, a seeded generator), not a scrubber; scrubbing it away hides behavior that mattered.
 
@@ -123,6 +133,7 @@ Flag these when found. Reference by key in your suggestion.
 
 **Does it exercise anything**
 - **SMELL-missing-check** — Test never asserts or verifies an observable outcome. A test must check an outcome to provide value.
+- **SMELL-cherry-pick** — The test checks a hand-picked subset of the outcome, field by field in asserts or in the printer. New or broken fields go undetected. Compare the whole outcome in a single check.
 - **SMELL-tautology** — The expected outcome is predetermined by the test's own setup, independent of production code. Litmus test: would this test still pass if all production code were deleted? Approval tests fail this quietly — the fakes and canned responses produce the output, and the system under test only forwards it. This is the finding worth reporting over any other.
 
 **Isolation & determinism**
@@ -137,7 +148,6 @@ Flag these when found. Reference by key in your suggestion.
 - **SMELL-direct-assert** — Test asserts on fields instead of handing the outcome to a printer and verifying it. It has stopped being an approval test.
 - **SMELL-trivial-mapping** — Test only covers trivial one-to-one mappings or declarative UI wiring. It is only acceptable if the tested result contains both one-to-one mappings AND meaningful logic transformations.
 - **SMELL-no-story** — Approved file shows a final state with no trace of the action that produced it. Show before, action, and result in chronological order.
-- **SMELL-cherry-pick** — Printer shows a hand-picked subset of the outcome. New or broken fields go undetected.
 - **SMELL-noisy-output** — Framing, headers, boilerplate, or fields nobody reads bury the behavior. Name the lines to cut.
 - **SMELL-prose-over-picture** — Outcome has a shape that a 2d representation would show at a glance. Propose the picture.
 - **SMELL-print-internals** — Approved file shows private state, call counts, or execution order. Print what a caller could see.
