@@ -70,6 +70,47 @@ async def test_gemini_retries_on_timeout():
     assert call_count == 2
 
 
+MALFORMED_TOOL_CALL = {
+    "error": {
+        "message": "Model generated invalid JSON syntax. Please retry the request.",
+        "code": "malformed_tool_call",
+    }
+}
+
+
+@pytest.mark.asyncio
+async def test_gemini_retries_a_malformed_tool_call():
+    responses = [httpx.Response(400, json=MALFORMED_TOOL_CALL)]
+
+    def handler(request):
+        return responses.pop(0) if responses else httpx.Response(200, json=SUCCESS)
+
+    client = GeminiLLM(build_config(), transport=httpx.MockTransport(handler))
+
+    with patch("asyncio.sleep", return_value=None):
+        result = await client.call_async([UserMessage("hello")])
+
+    assert result.answer == "success"
+
+
+@pytest.mark.asyncio
+async def test_gemini_does_not_retry_other_bad_requests():
+    call_count = 0
+
+    def handler(request):
+        nonlocal call_count
+        call_count += 1
+        return httpx.Response(400, json={"error": {"code": "invalid_argument"}})
+
+    client = GeminiLLM(build_config(), transport=httpx.MockTransport(handler))
+
+    with patch("asyncio.sleep", return_value=None):
+        with pytest.raises(GeminiClientError):
+            await client.call_async([UserMessage("hello")])
+
+    assert call_count == 1
+
+
 @pytest.mark.asyncio
 async def test_gemini_eventually_fails_after_5_retries():
     call_count = 0

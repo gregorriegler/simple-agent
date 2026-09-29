@@ -25,15 +25,7 @@ async def post_with_retry(
             response.raise_for_status()
             return response
         except (httpx.RequestError, httpx.HTTPStatusError) as error:
-            should_retry = attempt < max_retries and (
-                isinstance(error, httpx.TimeoutException)
-                or (
-                    isinstance(error, httpx.HTTPStatusError)
-                    and error.response.status_code == 500
-                )
-            )
-
-            if should_retry:
+            if attempt < max_retries and _is_transient(error):
                 await asyncio.sleep(retry_delay)
                 continue
 
@@ -42,6 +34,25 @@ async def post_with_retry(
             ) from error
 
     raise error_class("API request failed: no response")
+
+
+def _is_transient(error: Exception) -> bool:
+    if isinstance(error, httpx.TimeoutException):
+        return True
+    if not isinstance(error, httpx.HTTPStatusError):
+        return False
+    if error.response.status_code == 500:
+        return True
+    return _api_error_code(error.response) == "malformed_tool_call"
+
+
+def _api_error_code(response: httpx.Response) -> str | None:
+    try:
+        body = response.json()
+    except ValueError:
+        return None
+    api_error = body.get("error") if isinstance(body, dict) else None
+    return api_error.get("code") if isinstance(api_error, dict) else None
 
 
 def _response_details(error: Exception) -> str:
