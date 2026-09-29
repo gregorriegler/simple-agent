@@ -93,6 +93,30 @@ async def test_gemini_retries_a_malformed_tool_call():
     assert result.answer == "success"
 
 
+async def delays_before_success(*failures: httpx.Response) -> list[float]:
+    responses = list(failures)
+
+    def handler(request):
+        return responses.pop(0) if responses else httpx.Response(200, json=SUCCESS)
+
+    client = GeminiLLM(build_config(), transport=httpx.MockTransport(handler))
+    with patch("asyncio.sleep", return_value=None) as sleep:
+        await client.call_async([UserMessage("hello")])
+    return [call.args[0] for call in sleep.call_args_list]
+
+
+@pytest.mark.asyncio
+async def test_gemini_waits_as_long_as_retry_after_asks():
+    delays = await delays_before_success(
+        httpx.Response(500, headers={"Retry-After": "7"}),
+        httpx.Response(500),
+        httpx.Response(500, headers={"Retry-After": "3600"}),
+        httpx.Response(500, headers={"Retry-After": "soon"}),
+    )
+
+    assert delays == [7, 2, 60, 2]
+
+
 @pytest.mark.asyncio
 async def test_gemini_does_not_retry_other_bad_requests():
     call_count = 0

@@ -4,6 +4,8 @@ import httpx
 
 from simple_agent.infrastructure.logging_http_client import LoggingAsyncClient
 
+MAX_RETRY_AFTER = 60
+
 
 async def post_with_retry(
     url: str,
@@ -26,7 +28,7 @@ async def post_with_retry(
             return response
         except (httpx.RequestError, httpx.HTTPStatusError) as error:
             if attempt < max_retries and _is_transient(error):
-                await asyncio.sleep(retry_delay)
+                await asyncio.sleep(_retry_after(error) or retry_delay)
                 continue
 
             raise error_class(
@@ -44,6 +46,16 @@ def _is_transient(error: Exception) -> bool:
     if error.response.status_code == 500:
         return True
     return _api_error_code(error.response) == "malformed_tool_call"
+
+
+def _retry_after(error: Exception) -> float | None:
+    if not isinstance(error, httpx.HTTPStatusError):
+        return None
+    try:
+        seconds = float(error.response.headers.get("Retry-After", ""))
+    except ValueError:
+        return None
+    return min(seconds, MAX_RETRY_AFTER)
 
 
 def _api_error_code(response: httpx.Response) -> str | None:
