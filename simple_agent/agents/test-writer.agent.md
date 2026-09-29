@@ -85,6 +85,11 @@ But if something matters for the scenario, it stays in the test. A reader should
 | How is the SUT used? | the test body, a single call to the SUT | the `verify...` function |
 | What is the expected outcome? | the assert | the approved file |
 
+## The Whole Outcome
+Compare the whole outcome in a single assert, not a hand-picked subset of its fields:
+
+    assert receipt.discounts == [Discount(description="3 for 2", amount=0.99)]
+
 ## Fluent Test Bed
 Drive the system through a fluent builder, so the test reads as the scenario:
 
