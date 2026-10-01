@@ -8,6 +8,7 @@ from simple_agent.infrastructure.textual.widgets.tool_log import (
     ToolLog,
 )
 from tests.infrastructure.textual.test_utils import eventually
+from tests.infrastructure.textual.widgets.tool_log_ui import ToolLogUi
 
 
 async def test_a_new_tool_call_keeps_a_collapsible_the_user_opened(ui):
@@ -213,3 +214,33 @@ async def test_a_markdown_result_starts_flush_with_its_first_heading(ui):
 
     assert rows == [0, 2, 4, 6]
     assert height == 7
+
+
+async def test_messages_are_interleaved_with_tool_calls(ui):
+    ui.prompt("read the readme")
+    ui.run("cat README.md")
+    ui.answer("It describes the agent.")
+
+    verify(await ui.outline())
+
+
+async def test_replayed_messages_keep_their_place_between_tool_calls(ui):
+    ui.begin_replay()
+    ui.prompt("read the readme")
+    ui.run("cat README.md")
+    ui.answer("It describes the agent.")
+    ui.end_replay()
+
+    verify(await ui.outline())
+
+
+async def test_messages_arriving_before_the_log_is_mounted_keep_their_place():
+    async with App().run_test() as pilot:
+        tool_log = ToolLog()
+        tool_log.add_user_message("read the readme")
+        tool_log.add_tool_call("call-1", "cat README.md")
+        tool_log.add_assistant_message("It describes the agent.", "Agent")
+        await pilot.app.mount(tool_log)
+        await pilot.pause()
+
+        verify(await ToolLogUi(tool_log, pilot).outline())

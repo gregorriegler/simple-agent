@@ -64,6 +64,12 @@ class ToolLogUi:
     def think(self, thought: str) -> None:
         self._tool_log.add_thought(thought)
 
+    def prompt(self, message: str) -> None:
+        self._tool_log.add_user_message(message)
+
+    def answer(self, message: str) -> None:
+        self._tool_log.add_assistant_message(message, "Agent")
+
     def begin_replay(self) -> None:
         self._tool_log.begin_replay()
 
@@ -89,8 +95,10 @@ class ToolLogUi:
             self._pilot,
             lambda: all(
                 entry.query(Collapsible.Contents)
-                for entry in self._entries()
                 if isinstance(entry, ToolCollapsible)
+                else entry.source
+                for entry in self._entries()
+                if isinstance(entry, (ToolCollapsible, Markdown))
             ),
             "every entry to be composed",
         )
@@ -143,6 +151,8 @@ class ToolLogUi:
 
 
 def _outline(entry: Widget) -> str:
+    if isinstance(entry, Markdown):
+        return entry.source
     if isinstance(entry, CollapsedToolEntry):
         return f"▶ {_title(entry)}{_status(entry)} · cheap"
     symbol = "▶" if entry.collapsed else "▼"

@@ -142,13 +142,13 @@ Active Tab: tab-SubAgent
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-SubAgent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='**SubAgent:** Hello from SubAgent'...
-                      MarkdownParagraph id='None' classes='level-0' content='SubAgent: Hello from SubAgent'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-SubAgent-secondary' classes='left-panel-bottom'
                     Markdown id='log-SubAgent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-SubAgent' classes=''
+                  Markdown id='None' classes='message' source='**SubAgent:** Hello from SubAgent'...
+                    MarkdownParagraph id='None' classes='level-0' content='SubAgent: Hello from SubAgent'
               SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
@@ -156,10 +156,10 @@ Active Tab: tab-SubAgent
 --- Step: SubAgent Spoke (ASCII UI) ---
  Agent  SubAgent [gpt-4: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  SubAgent: Hello from SubAgent
+                     ▌
 
-   SubAgent:
-   Hello from
-   SubAgent
+
 
 
 
@@ -248,13 +248,13 @@ Active Tab: tab-Agent
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
+                    MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
               SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
@@ -262,10 +262,10 @@ Active Tab: tab-Agent
 --- Step: Error Event (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  ❌ Error: Something went wrong
+                     ▌
 
-   ❌ Error:
-   Something went
-   wrong
+
 
 
 
@@ -302,15 +302,15 @@ Active Tab: tab-Agent
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
-                    Markdown id='None' classes='' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
+                    MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
+                  Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
+                    MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
               SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
@@ -318,14 +318,14 @@ Active Tab: tab-Agent
 --- Step: Session Interrupted (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  ❌ Error: Something went wrong
+                     ▌
+                     ▌  [Session interrupted by user]
+                     ▌
 
-   ❌ Error:
-   Something went
-   wrong
 
-   [Session
-   interrupted by
-   user]
+
+
 
 
 
@@ -358,15 +358,15 @@ Active Tab: tab-Agent
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
-                    Markdown id='None' classes='' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
+                    MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
+                  Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
+                    MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Collapsible id='None' classes='tool-status-running' title='🛠️ write_todos()' collapsed=False
                     CollapsibleTitle id='None' classes='' content='▼ 🛠️ write_todos()'
                     Contents id='None' classes=''
@@ -378,14 +378,14 @@ Active Tab: tab-Agent
 --- Step: Tool Call (Suppressed) (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  ❌ Error: Something went wrong
+                     ▌
+                     ▌  [Session interrupted by user]
+                     ▌
                      ▌ ▼ 🛠️ write_todos()
-   ❌ Error:         ▌╭────────────────────────────────────────────────────────╮
-   Something went    ▌│                       ● ● ● ● ●                        │
-   wrong             ▌╰────────────────────────────────────────────────────────╯
-
-   [Session
-   interrupted by
-   user]
+                     ▌╭────────────────────────────────────────────────────────╮
+                     ▌│                       ● ● ● ● ●                        │
+                     ▌╰────────────────────────────────────────────────────────╯
 
 
 
@@ -418,15 +418,15 @@ Active Tab: tab-Agent
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
-                    Markdown id='None' classes='' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
+                    MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
+                  Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
+                    MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
                     CollapsibleTitle id='None' classes='' content='▶ 🛠️ write_todos()'
                     Contents id='None' classes=''
@@ -442,19 +442,19 @@ Active Tab: tab-Agent
 --- Step: Tool Result (Diff) (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  ❌ Error: Something went wrong
+                     ▌
+                     ▌  [Session interrupted by user]
+                     ▌
                      ▌ ▶ 🛠️ write_todos()
-   ❌ Error:         ▌ ▼ 🛠️ apply_diff()
-   Something went    ▌╭────────────────────────────────────────────────────────╮
-   wrong             ▌│<<<<<<< SEARCH                                          │
+                     ▌ ▼ 🛠️ apply_diff()
+                     ▌╭────────────────────────────────────────────────────────╮
+                     ▌│<<<<<<< SEARCH                                          │
                      ▌│old line                                                │
-   [Session          ▌│=======                                                 │
-   interrupted by    ▌│new line                                                │
-   user]             ▌│>>>>>>> REPLACE                                         │
+                     ▌│=======                                                 │
+                     ▌│new line                                                │
+                     ▌│>>>>>>> REPLACE                                         │
                      ▌╰────────────────────────────────────────────────────────╯
-
-
-
-
 
 
 
@@ -482,15 +482,15 @@ Active Tab: tab-Agent
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
-                    Markdown id='None' classes='' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
+                    MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
+                  Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
+                    MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
                     CollapsibleTitle id='None' classes='' content='▶ 🛠️ write_todos()'
                     Contents id='None' classes=''
@@ -510,16 +510,16 @@ Active Tab: tab-Agent
 --- Step: Tool Cancelled (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  ❌ Error: Something went wrong
+                     ▌
+                     ▌  [Session interrupted by user]
+                     ▌
                      ▌ ▶ 🛠️ write_todos()
-   ❌ Error:         ▌ ▶ 🛠️ apply_diff()
-   Something went    ▌ ▼ 🛠️ long_running() (Cancelled)
-   wrong             ▌╭────────────────────────────────────────────────────────╮
+                     ▌ ▶ 🛠️ apply_diff()
+                     ▌ ▼ 🛠️ long_running() (Cancelled)
+                     ▌╭────────────────────────────────────────────────────────╮
                      ▌│ Cancelled                                              │
-   [Session          ▌╰────────────────────────────────────────────────────────╯
-   interrupted by
-   user]
-
-
+                     ▌╰────────────────────────────────────────────────────────╯
 
 
 
@@ -550,15 +550,15 @@ Active Tab: tab-Agent
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
-                    Markdown id='None' classes='' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
+                    MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
+                  Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
+                    MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
                   Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
                     CollapsibleTitle id='None' classes='' content='▶ 🛠️ write_todos()'
                     Contents id='None' classes=''
@@ -578,16 +578,16 @@ Active Tab: tab-Agent
 --- Step: File Context Submitted (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  ❌ Error: Something went wrong
+                     ▌
+                     ▌  [Session interrupted by user]
+                     ▌
                      ▌ ▶ 🛠️ write_todos()
-   ❌ Error:         ▌ ▶ 🛠️ apply_diff()
-   Something went    ▌ ▼ 🛠️ long_running() (Cancelled)
-   wrong             ▌╭────────────────────────────────────────────────────────╮
+                     ▌ ▶ 🛠️ apply_diff()
+                     ▌ ▼ 🛠️ long_running() (Cancelled)
+                     ▌╭────────────────────────────────────────────────────────╮
                      ▌│ Cancelled                                              │
-   [Session          ▌╰────────────────────────────────────────────────────────╯
-   interrupted by
-   user]
-
-
+                     ▌╰────────────────────────────────────────────────────────╯
 
 
 

@@ -265,14 +265,14 @@ class ToolLog(VerticalScroll):
         self._deferred_loading: set[str] = set()
         self._replaying = False
         self._replayed_calls: dict[str, str] = {}
-        self._replayed_widgets: list[Widget] = []
+        self._unmounted_widgets: list[Widget] = []
 
     def begin_replay(self) -> None:
         self._replaying = True
 
     def end_replay(self) -> None:
         self._replaying = False
-        self._mount_replayed_widgets()
+        self._mount_pending_widgets()
         unfinished = self._replayed_calls
         self._replayed_calls = {}
         for call_id, message in unfinished.items():
@@ -286,14 +286,14 @@ class ToolLog(VerticalScroll):
         title = _format_tool_title(
             result.display_title or title, _tool_emoji_for(message)
         )
-        self._replayed_widgets.append(CollapsedToolEntry.of_result(title, result))
+        self._unmounted_widgets.append(CollapsedToolEntry.of_result(title, result))
 
     def _materialise_replayed_call(self, call_id: str) -> None:
         message = self._replayed_calls.pop(call_id, None)
         if message is None:
             return
 
-        self._mount_replayed_widgets()
+        self._mount_pending_widgets()
         self._replaying = False
         try:
             self.add_tool_call(call_id, message)
@@ -340,9 +340,14 @@ class ToolLog(VerticalScroll):
             collapsible.remove()
             self._collapsibles.remove(collapsible)
 
-    def _mount_replayed_widgets(self) -> None:
-        orphans = [e for e in self._replayed_widgets if e.parent is None]
-        if orphans and self.is_mounted:
+    def _mount_pending_widgets(self) -> None:
+        if self.is_mounted:
+            self._mount_orphans()
+
+    def _mount_orphans(self) -> None:
+        orphans = [e for e in self._unmounted_widgets if e.parent is None]
+        self._unmounted_widgets = []
+        if orphans:
             self.mount(*orphans)
             self.scroll_end(animate=False)
 
@@ -382,6 +387,8 @@ class ToolLog(VerticalScroll):
             self.mount(collapsible)
             self.scroll_end(animate=False)
             self._degrade_old_entries()
+        else:
+            self._unmounted_widgets.append(collapsible)
 
         # Defer showing the loading spinner to the next frame.
         # If add_tool_result arrives before then, no spinner is ever shown.
@@ -403,13 +410,42 @@ class ToolLog(VerticalScroll):
         )
         self._collapsibles.append(collapsible)
 
-        if self._replaying:
-            self._replayed_widgets.append(collapsible)
+        if self._replaying or not self.is_mounted:
+            self._unmounted_widgets.append(collapsible)
             return
 
-        if self.is_mounted:
-            self.mount(collapsible)
-            self.scroll_end(animate=False)
+        self.mount(collapsible)
+        self.scroll_end(animate=False)
+
+    def write(self, message: str) -> None:
+        markdown = Markdown(message.rstrip(), classes="message")
+        if self._replaying or not self.is_mounted:
+            self._unmounted_widgets.append(markdown)
+            return
+        self.mount(markdown)
+        self.scroll_end(animate=False)
+
+    def add_user_message(self, text: str) -> None:
+        display_text = text
+        pattern = r'<file_context path="([^"]+)">.*?</file_context>'
+        matches = list(re.finditer(pattern, display_text, flags=re.DOTALL))
+
+        if matches:
+            core_text = re.sub(pattern, "", display_text, flags=re.DOTALL).strip()
+            attachments = []
+            for match in matches:
+                path = match.group(1)
+                marker = f"[📦{path}]"
+                if marker not in core_text:
+                    attachments.append(marker)
+            display_text = core_text
+            if attachments:
+                display_text += "\n" + "\n".join(attachments)
+
+        self.write(f"**User:** {display_text}")
+
+    def add_assistant_message(self, message: str, agent_name: str) -> None:
+        self.write(f"**{agent_name}:** {message}")
 
     def _show_loading(self, call_id: str) -> None:
         if call_id not in self._deferred_loading:
@@ -423,10 +459,7 @@ class ToolLog(VerticalScroll):
         self._deferred_loading.discard(call_id)
 
     def on_mount(self) -> None:
-        self._mount_replayed_widgets()
-        for collapsible in self._collapsibles:
-            if collapsible.parent is None:
-                self.mount(collapsible)
+        self._mount_orphans()
         self.scroll_end(animate=False)
 
     def add_tool_result(self, call_id: str, result: ToolResult) -> None:
@@ -517,4 +550,4 @@ class ToolLog(VerticalScroll):
         self._suppressed_tool_calls.clear()
         self._collapsibles.clear()
         self._replayed_calls.clear()
-        self._replayed_widgets.clear()
+        self._unmounted_widgets.clear()

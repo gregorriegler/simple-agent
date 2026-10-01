@@ -10,7 +10,7 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.on_complete import OnComplete
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
-from simple_agent.infrastructure.textual.widgets.chat_log import ChatLog
+from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 from simple_agent.tools.all_tools import TOOL_DECLARATIONS
 
 ROOT = "Agent"
@@ -64,5 +64,7 @@ class AgentTabsUi:
 
 def _outline(pane: TabPane, active: str) -> str:
     focus = ">" if pane.id == active else " "
-    messages = [f"    {m.source}" for m in pane.query_one(ChatLog).query(Markdown)]
+    messages = [
+        f"    {m.source}" for m in pane.query_one(ToolLog).query_children(Markdown)
+    ]
     return "\n".join([f"{focus} {pane.id}", *messages])

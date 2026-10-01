@@ -171,15 +171,15 @@ async def test_user_prompted_event_display_compaction():
         app.on_domain_event_message(DomainEventMessage(event))
         await pilot.pause()
 
-        # Verify side effect on ChatLog
-        # We need to find the chat log for this agent
-        _, log_id, _ = app.panel_ids_for(agent_id)
-        chat_log = app.query_one(f"#{log_id}-scroll")
+        # Verify side effect on ToolLog
+        # We need to find the tool log for this agent
+        _, _, tool_results_id = app.panel_ids_for(agent_id)
+        tool_log = app.query_one(f"#{tool_results_id}")
 
         # Get the last markdown widget added
         from textual.widgets import Markdown
 
-        markdowns = list(chat_log.query(Markdown))
+        markdowns = list(tool_log.query_children(Markdown))
         assert len(markdowns) > 0
 
         # Inspect the source text of the last message

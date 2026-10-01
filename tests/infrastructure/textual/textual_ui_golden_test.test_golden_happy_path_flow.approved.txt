@@ -15,22 +15,22 @@ Active Tab: tab-Agent
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='Starting new session'...
+                    MarkdownParagraph id='None' classes='level-0' content='Starting new session'
               SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
 
 --- Step: Session Started (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  Starting new session
+                     ▌
 
-   Starting new
-   session
 
 
 
@@ -68,27 +68,27 @@ Active Tab: tab-Agent
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
-                    Markdown id='None' classes='' source='\nWaiting for user input...'...
-                      MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='Starting new session'...
+                    MarkdownParagraph id='None' classes='level-0' content='Starting new session'
+                  Markdown id='None' classes='message' source='\nWaiting for user input...'...
+                    MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
               SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
 
 --- Step: User Prompt Requested (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  Starting new session
+                     ▌
+                     ▌  Waiting for user input...
+                     ▌
 
-   Starting new
-   session
 
-   Waiting for
-   user input...
 
 
 
@@ -123,27 +123,27 @@ Active Tab: tab-Agent
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
-                    Markdown id='None' classes='' source='\nWaiting for user input...'...
-                      MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='Starting new session'...
+                    MarkdownParagraph id='None' classes='level-0' content='Starting new session'
+                  Markdown id='None' classes='message' source='\nWaiting for user input...'...
+                    MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
               SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
 
 --- Step: User Input Submitted (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  Starting new session
+                     ▌
+                     ▌  Waiting for user input...
+                     ▌
 
-   Starting new
-   session
 
-   Waiting for
-   user input...
 
 
 
@@ -178,36 +178,36 @@ Active Tab: tab-Agent
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
-                    Markdown id='None' classes='' source='\nWaiting for user input...'...
-                      MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
-                    Markdown id='None' classes='' source='**User:** Hello'...
-                      MarkdownParagraph id='None' classes='level-0' content='User: Hello'
-                    Markdown id='None' classes='' source='**Agent:** Hi there!'...
-                      MarkdownParagraph id='None' classes='level-0' content='Agent: Hi there!'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='Starting new session'...
+                    MarkdownParagraph id='None' classes='level-0' content='Starting new session'
+                  Markdown id='None' classes='message' source='\nWaiting for user input...'...
+                    MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
+                  Markdown id='None' classes='message' source='**User:** Hello'...
+                    MarkdownParagraph id='None' classes='level-0' content='User: Hello'
+                  Markdown id='None' classes='message' source='**Agent:** Hi there!'...
+                    MarkdownParagraph id='None' classes='level-0' content='Agent: Hi there!'
               SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
 
 --- Step: Assistant Reply (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  Starting new session
+                     ▌
+                     ▌  Waiting for user input...
+                     ▌
+                     ▌  User: Hello
+                     ▌
+                     ▌  Agent: Hi there!
+                     ▌
 
-   Starting new
-   session
 
-   Waiting for
-   user input...
 
-   User: Hello
-
-   Agent: Hi
-   there!
 
 
 
@@ -237,19 +237,19 @@ Active Tab: tab-Agent
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
-                    Markdown id='None' classes='' source='\nWaiting for user input...'...
-                      MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
-                    Markdown id='None' classes='' source='**User:** Hello'...
-                      MarkdownParagraph id='None' classes='level-0' content='User: Hello'
-                    Markdown id='None' classes='' source='**Agent:** Hi there!'...
-                      MarkdownParagraph id='None' classes='level-0' content='Agent: Hi there!'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='Starting new session'...
+                    MarkdownParagraph id='None' classes='level-0' content='Starting new session'
+                  Markdown id='None' classes='message' source='\nWaiting for user input...'...
+                    MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
+                  Markdown id='None' classes='message' source='**User:** Hello'...
+                    MarkdownParagraph id='None' classes='level-0' content='User: Hello'
+                  Markdown id='None' classes='message' source='**Agent:** Hi there!'...
+                    MarkdownParagraph id='None' classes='level-0' content='Agent: Hi there!'
                   Collapsible id='None' classes='tool-status-running' title="🛠️ search_files(query='test')" collapsed=False
                     CollapsibleTitle id='None' classes='' content="▼ 🛠️ search_files(query='test')"
                     Contents id='None' classes=''
@@ -260,18 +260,18 @@ Active Tab: tab-Agent
 --- Step: Tool Called (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  Starting new session
+                     ▌
+                     ▌  Waiting for user input...
+                     ▌
+                     ▌  User: Hello
+                     ▌
+                     ▌  Agent: Hi there!
+                     ▌
                      ▌ ▼ 🛠️ search_files(query='test')
-   Starting new      ▌╭────────────────────────────────────────────────────────╮
-   session           ▌│                       ● ● ● ● ●                        │
+                     ▌╭────────────────────────────────────────────────────────╮
+                     ▌│                       ● ● ● ● ●                        │
                      ▌╰────────────────────────────────────────────────────────╯
-   Waiting for
-   user input...
-
-   User: Hello
-
-   Agent: Hi
-   there!
-
 
 
 
@@ -300,19 +300,19 @@ Active Tab: tab-Agent
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
-                    Markdown id='None' classes='' source='\nWaiting for user input...'...
-                      MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
-                    Markdown id='None' classes='' source='**User:** Hello'...
-                      MarkdownParagraph id='None' classes='level-0' content='User: Hello'
-                    Markdown id='None' classes='' source='**Agent:** Hi there!'...
-                      MarkdownParagraph id='None' classes='level-0' content='Agent: Hi there!'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='Starting new session'...
+                    MarkdownParagraph id='None' classes='level-0' content='Starting new session'
+                  Markdown id='None' classes='message' source='\nWaiting for user input...'...
+                    MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
+                  Markdown id='None' classes='message' source='**User:** Hello'...
+                    MarkdownParagraph id='None' classes='level-0' content='User: Hello'
+                  Markdown id='None' classes='message' source='**Agent:** Hi there!'...
+                    MarkdownParagraph id='None' classes='level-0' content='Agent: Hi there!'
                   Collapsible id='None' classes='tool-status-success' title='🛠️ Search Results' collapsed=False
                     CollapsibleTitle id='None' classes='' content='▼ 🛠️ Search Results'
                     Contents id='None' classes=''
@@ -323,18 +323,18 @@ Active Tab: tab-Agent
 --- Step: Tool Result (ASCII UI) ---
  Agent
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  Starting new session
+                     ▌
+                     ▌  Waiting for user input...
+                     ▌
+                     ▌  User: Hello
+                     ▌
+                     ▌  Agent: Hi there!
+                     ▌
                      ▌ ▼ 🛠️ Search Results
-   Starting new      ▌╭────────────────────────────────────────────────────────╮
-   session           ▌│ Found 1 file.                                          │
+                     ▌╭────────────────────────────────────────────────────────╮
+                     ▌│ Found 1 file.                                          │
                      ▌╰────────────────────────────────────────────────────────╯
-   Waiting for
-   user input...
-
-   User: Hello
-
-   Agent: Hi
-   there!
-
 
 
 

@@ -1,22 +1,22 @@
  Software Engineer [stub-model: 0.0%]  Software Engineer [stub-model: 0.0%]  Sof
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     ▌ ▶ 💲 bash echo hello world                               
-   User: Run         ▌ ▶ 📝 create-file newfile.txt                             
-   bash echo         ▌ ▶ 📝 replace-file-content newfile.txt single             
-                     ▌ ▶ 💲 bash rm newfile.txt                                 
-                     ▌ ▼ 🏁 complete-task Subagent2 completed successfully      
-                     ▌╭────────────────────────────────────────────────────────╮
-                     ▌│  Subagent2 completed successfully                      │
-                     ▌│                                                        │
-                     ▌╰────────────────────────────────────────────────────────╯
+                       User: Run bash echo hello world and then complete        
                                                                                 
+                       Software Engineer: Subagent2 updating todos              
                                                                                 
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
+                       Software Engineer: Subagent2 running the bash command    
+    • [x]                                                                       
+      Feature        ▌ ▶ 💲 bash echo hello world                               
+      exploratio     ▌ ▶ 📝 create-file newfile.txt                             
+      n              ▌ ▶ 📝 replace-file-content newfile.txt single             
+    • [ ]            ▌ ▶ 💲 bash rm newfile.txt                                 
+      Implementi     ▌ ▼ 🏁 complete-task Subagent2 completed successfully      
+      ng tool        ▌╭──────────────────────────────────────────────────────╮  
+    • [ ]            ▌│  Answer                                              │  
+      Initial        ▌│                                                      │  
+      setup          ▌│  Subagent2 completed successfully                    │  
+                     ▌╰──────────────────────────────────────────────────────╯  
+                       Waiting for user input...                              ▇▇
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
 │                                                                              │

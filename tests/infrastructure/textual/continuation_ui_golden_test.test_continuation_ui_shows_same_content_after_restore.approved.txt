@@ -1,9 +1,9 @@
 --- UI STATE FROM DIRECT EVENT REPLAY ---
  Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  User: Say hello
+                     ▌
 
-   User: Say
-   hello
 
 
 
@@ -40,15 +40,15 @@ Active Tab: tab-Agent-Coding
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
-                    Markdown id='None' classes='' source='**User:** Start the process'...
-                      MarkdownParagraph id='None' classes='level-0' content='User: Start the process'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='Starting new session'...
+                    MarkdownParagraph id='None' classes='level-0' content='Starting new session'
+                  Markdown id='None' classes='message' source='**User:** Start the process'...
+                    MarkdownParagraph id='None' classes='level-0' content='User: Start the process'
                   Collapsible id='None' classes='tool-status-success' title='🛠️ Reading test.txt' collapsed=False
                     CollapsibleTitle id='None' classes='' content='▼ 🛠️ Reading test.txt'
                     Contents id='None' classes=''
@@ -59,13 +59,13 @@ Active Tab: tab-Agent-Coding
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-Coding-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='**User:** Say hello'...
-                      MarkdownParagraph id='None' classes='level-0' content='User: Say hello'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-Coding-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-Coding-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent-Coding' classes=''
+                  Markdown id='None' classes='message' source='**User:** Say hello'...
+                    MarkdownParagraph id='None' classes='level-0' content='User: Say hello'
               SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
@@ -73,9 +73,9 @@ Active Tab: tab-Agent-Coding
 --- UI STATE FROM EVENT STORE CONTINUATION ---
  Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     ▌  User: Say hello
+                     ▌
 
-   User: Say
-   hello
 
 
 
@@ -112,15 +112,15 @@ Active Tab: tab-Agent-Coding
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='Starting new session'...
-                      MarkdownParagraph id='None' classes='level-0' content='Starting new session'
-                    Markdown id='None' classes='' source='**User:** Start the process'...
-                      MarkdownParagraph id='None' classes='level-0' content='User: Start the process'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent' classes=''
+                  Markdown id='None' classes='message' source='Starting new session'...
+                    MarkdownParagraph id='None' classes='level-0' content='Starting new session'
+                  Markdown id='None' classes='message' source='**User:** Start the process'...
+                    MarkdownParagraph id='None' classes='level-0' content='User: Start the process'
                   Collapsible id='None' classes='tool-status-success' title='🛠️ Reading test.txt' collapsed=False
                     CollapsibleTitle id='None' classes='' content='▼ 🛠️ Reading test.txt'
                     Contents id='None' classes=''
@@ -131,13 +131,13 @@ Active Tab: tab-Agent-Coding
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
                   VerticalScroll id='log-Agent-Coding-scroll' classes='left-panel-top'
-                    Markdown id='None' classes='' source='**User:** Say hello'...
-                      MarkdownParagraph id='None' classes='level-0' content='User: Say hello'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-Coding-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-Coding-todos' classes='' source=''...
                 Splitter id='None' classes=''
                 VerticalScroll id='tool-results-Agent-Coding' classes=''
+                  Markdown id='None' classes='message' source='**User:** Say hello'...
+                    MarkdownParagraph id='None' classes='level-0' content='User: Say hello'
               SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''

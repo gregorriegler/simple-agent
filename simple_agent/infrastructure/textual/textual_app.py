@@ -209,6 +209,10 @@ class TextualApp(App):
         color: $text-muted;
     }
 
+    Markdown.message {
+        border-left: outer $primary;
+    }
+
     #user-input {
         height: 5;
         min-height: 3;

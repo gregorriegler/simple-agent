@@ -83,13 +83,13 @@ class AgentWorkspace(Vertical):
         self.refresh_todos()
 
     def write_message(self, message: str) -> None:
-        self.chat_log.write(message)
+        self.tool_log.write(message)
 
     def add_user_message(self, message: str) -> None:
-        self.chat_log.add_user_message(message)
+        self.tool_log.add_user_message(message)
 
     def add_assistant_message(self, message: str, agent_name: str) -> None:
-        self.chat_log.add_assistant_message(message, agent_name)
+        self.tool_log.add_assistant_message(message, agent_name)
 
     def clear(self) -> None:
         self.chat_log.remove_children()

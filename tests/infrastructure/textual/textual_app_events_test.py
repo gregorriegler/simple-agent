@@ -1,5 +1,4 @@
 import pytest
-from textual.containers import VerticalScroll
 from textual.widgets import Collapsible, Markdown, TextArea
 
 from simple_agent.application.agent_id import AgentId, AgentIdSuffixer
@@ -27,9 +26,7 @@ from tests.infrastructure.textual.test_utils import eventually
 
 
 def _last_markdown_text(app: TextualApp, agent_id: AgentId) -> str:
-    _, log_id, _ = app.panel_ids_for(agent_id)
-    scroll = app.query_one(f"#{log_id}-scroll", VerticalScroll)
-    markdowns = list(scroll.query(Markdown))
+    markdowns = list(_tool_log(app, agent_id).query_children(Markdown))
     return markdowns[-1]._markdown
 
 
