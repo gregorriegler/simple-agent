@@ -119,9 +119,9 @@ class AgentTabs(TabbedContent):
         self._agent_names[agent_id] = agent_name
 
         new_tab = TabPane(escape(tab_title), id=tab_id)
-        new_tab.compose_add_child(
-            self.create_agent_container(log_id, tool_results_id, agent_id)
-        )
+        workspace = self.create_agent_container(log_id, tool_results_id, agent_id)
+        workspace.show_title(tab_title)
+        new_tab.compose_add_child(workspace)
 
         self.add_pane(new_tab)
         self._show_agents_in_trees()
@@ -164,6 +164,9 @@ class AgentTabs(TabbedContent):
             self.remove_subagent_tab(agent_id)
 
     def update_tab_title(self, agent_id: AgentId, title: str) -> None:
+        workspace = self._agent_workspaces.get(str(agent_id))
+        if workspace:
+            workspace.show_title(title)
         tab_id, _, _ = self.panel_ids_for(agent_id)
         try:
             tab = self.get_tab(tab_id)

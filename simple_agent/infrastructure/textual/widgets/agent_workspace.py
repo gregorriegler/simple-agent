@@ -1,4 +1,6 @@
+from rich.markup import escape
 from textual.containers import Vertical
+from textual.widgets import Static
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.tool_results import ToolResult
@@ -46,17 +48,21 @@ class AgentWorkspace(Vertical):
         )
         self.left_panel.set_bottom_visibility(self.todo_view.has_content)
 
+        self.header = Static(classes="agent-header")
         self.tool_log = ToolLog(id=tool_results_id)
+        self.right_panel = Vertical(self.header, self.tool_log)
 
-        # Split view contains the main content (chat + tools)
         self.split_view = ResizableHorizontal(
-            self.left_panel, self.tool_log, id="split-view"
+            self.left_panel, self.right_panel, id="split-view"
         )
 
         # Smart input for this specific agent
         self.smart_input = SmartInput(provider=suggestion_provider, id="user-input")
 
         super().__init__(self.split_view, self.smart_input, **kwargs)
+
+    def show_title(self, title: str) -> None:
+        self.header.update(escape(title))
 
     def begin_replay(self) -> None:
         self.tool_log.begin_replay()
