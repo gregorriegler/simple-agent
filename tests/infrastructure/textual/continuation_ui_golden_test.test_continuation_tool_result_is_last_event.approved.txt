@@ -1,5 +1,5 @@
 --- UI STATE FROM DIRECT EVENT REPLAY ---
-Agent                 Agent [stub-model: 0.4%]
+● Agent               Agent [stub-model: 0.4%]
                      ▌  User: run bash sleep 5
                      ▌
                      ▌ ▼ 💲 bash sleep 5
@@ -50,7 +50,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- UI STATE FROM EVENT STORE CONTINUATION ---
-Agent                 Agent [stub-model: 0.4%]
+● Agent               Agent [stub-model: 0.4%]
                      ▌  User: run bash sleep 5
                      ▌
                      ▌ ▼ 💲 bash sleep 5

@@ -1,4 +1,4 @@
-> Agent
-    Coder
-      Naming
-    Reviewer
+> [grey50]●[/grey50] Agent
+    [grey50]●[/grey50] Coder
+      [grey50]●[/grey50] Naming
+    [grey50]●[/grey50] Reviewer

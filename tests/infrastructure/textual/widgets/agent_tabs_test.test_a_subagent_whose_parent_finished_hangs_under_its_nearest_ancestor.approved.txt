@@ -1,2 +1,2 @@
-> Agent
-    Naming
+> [grey50]●[/grey50] Agent
+    [grey50]●[/grey50] Naming

@@ -18,7 +18,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: Initial State (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
 
 
 
@@ -76,8 +76,8 @@ Active Tab: tab-SubAgent
     AutocompletePopup id='None' classes=''
 
 --- Step: SubAgent Started (ASCII UI) ---
-Agent                 SubAgent [gpt-4: 0.0%]
-SubAgent
+● Agent               SubAgent [gpt-4: 0.0%]
+● SubAgent
 
 
 
@@ -136,8 +136,8 @@ Active Tab: tab-SubAgent
     AutocompletePopup id='None' classes=''
 
 --- Step: SubAgent Spoke (ASCII UI) ---
-Agent                 SubAgent [gpt-4: 0.0%]
-SubAgent             ▌  SubAgent: Hello from SubAgent
+● Agent               SubAgent [gpt-4: 0.0%]
+● SubAgent           ▌  SubAgent: Hello from SubAgent
                      ▌
 
 
@@ -182,7 +182,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: SubAgent Ended (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
 
 
 
@@ -230,7 +230,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: Error Event (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
                      ▌  ❌ Error: Something went wrong
                      ▌
 
@@ -280,7 +280,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: Session Interrupted (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
                      ▌  ❌ Error: Something went wrong
                      ▌
                      ▌  [Session interrupted by user]
@@ -334,7 +334,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: Tool Call (Suppressed) (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
                      ▌  ❌ Error: Something went wrong
                      ▌
                      ▌  [Session interrupted by user]
@@ -392,7 +392,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: Tool Result (Diff) (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
                      ▌  ❌ Error: Something went wrong
                      ▌
                      ▌  [Session interrupted by user]
@@ -454,7 +454,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: Tool Cancelled (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
                      ▌  ❌ Error: Something went wrong
                      ▌
                      ▌  [Session interrupted by user]
@@ -516,7 +516,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: File Context Submitted (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
                      ▌  ❌ Error: Something went wrong
                      ▌
                      ▌  [Session interrupted by user]

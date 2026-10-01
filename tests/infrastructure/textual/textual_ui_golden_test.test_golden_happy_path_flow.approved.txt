@@ -20,7 +20,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: Session Started (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
                      ▌  Starting new session
                      ▌
 
@@ -69,7 +69,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: User Prompt Requested (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
                      ▌  Starting new session
                      ▌
                      ▌  Waiting for user input...
@@ -118,7 +118,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: User Input Submitted (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
                      ▌  Starting new session
                      ▌
                      ▌  Waiting for user input...
@@ -171,7 +171,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: Assistant Reply (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
                      ▌  Starting new session
                      ▌
                      ▌  Waiting for user input...
@@ -228,7 +228,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: Tool Called (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
                      ▌  Starting new session
                      ▌
                      ▌  Waiting for user input...
@@ -285,7 +285,7 @@ Active Tab: tab-Agent
     AutocompletePopup id='None' classes=''
 
 --- Step: Tool Result (ASCII UI) ---
-Agent                 Agent
+● Agent               Agent
                      ▌  Starting new session
                      ▌
                      ▌  Waiting for user input...

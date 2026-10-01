@@ -8,6 +8,8 @@ from simple_agent.application.events import (
     AgentStartedEvent,
     AssistantSaidEvent,
     SessionClearedEvent,
+    UserPromptedEvent,
+    UserPromptRequestedEvent,
 )
 from simple_agent.application.on_complete import OnComplete
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
@@ -30,9 +32,15 @@ class AgentTabsUi:
         self._pilot = pilot
 
     async def start(self, agent: str) -> None:
+        await self._start(agent, OnComplete.CLOSE)
+
+    async def start_observer(self, agent: str) -> None:
+        await self._start(agent, OnComplete.STOP_AND_WAIT)
+
+    async def _start(self, agent: str, on_complete: OnComplete) -> None:
         name = agent.rsplit("/", 1)[-1]
         self._tabs.handle_event(
-            AgentStartedEvent(AgentId(agent), name, on_complete=OnComplete.CLOSE)
+            AgentStartedEvent(AgentId(agent), name, on_complete=on_complete)
         )
         await self._pilot.pause()
 
@@ -56,6 +64,14 @@ class AgentTabsUi:
 
     async def say(self, agent: str, message: str) -> None:
         self._tabs.handle_event(AssistantSaidEvent(AgentId(agent), message))
+        await self._pilot.pause()
+
+    async def request_input(self, agent: str) -> None:
+        self._tabs.handle_event(UserPromptRequestedEvent(AgentId(agent)))
+        await self._pilot.pause()
+
+    async def prompt(self, agent: str, text: str) -> None:
+        self._tabs.handle_event(UserPromptedEvent(AgentId(agent), text))
         await self._pilot.pause()
 
     async def clear(self, agent: str) -> None:
@@ -102,7 +118,7 @@ def _outline(pane: AgentWorkspace, active: str) -> str:
 
 def _tree_lines(node, cursor, depth: int) -> list[str]:
     highlight = ">" if node is cursor else " "
-    lines = [f"{highlight} {'  ' * depth}{node.label.plain}"] if depth >= 0 else []
+    lines = [f"{highlight} {'  ' * depth}{node.label.markup}"] if depth >= 0 else []
     for child in node.children:
         lines += _tree_lines(child, cursor, depth + 1)
     return lines

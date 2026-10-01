@@ -1,10 +1,18 @@
 from dataclasses import dataclass
+from enum import Enum
 
+from rich.text import Text
 from textual.message import Message
 from textual.widgets import Tree
 from textual.widgets.tree import TreeNode
 
 from simple_agent.application.agent_id import AgentId
+
+
+class Lifecycle(Enum):
+    RUNNING = ("●", "grey50")
+    WAITING = ("●", "dark_orange")
+    IDLE = ("○", "grey35")
 
 
 class AgentTree(Tree[AgentId]):
@@ -18,12 +26,19 @@ class AgentTree(Tree[AgentId]):
         self.auto_expand = False
         self._current = current
 
-    def show_agents(self, names: dict[AgentId, str]) -> None:
+    def show_agents(
+        self,
+        names: dict[AgentId, str],
+        lifecycles: dict[AgentId, Lifecycle] | None = None,
+    ) -> None:
+        lifecycles = lifecycles or {}
         self.clear()
         nodes = {}
         for agent_id, name in names.items():
             parent = nodes.get(_nearest_ancestor(agent_id, names), self.root)
-            nodes[agent_id] = parent.add(name, data=agent_id, expand=True)
+            lifecycle = lifecycles.get(agent_id, Lifecycle.RUNNING)
+            label = Text.assemble(lifecycle.value, " ", name)
+            nodes[agent_id] = parent.add(label, data=agent_id, expand=True)
         for node in nodes.values():
             node.allow_expand = bool(node.children)
         self._highlight_current()

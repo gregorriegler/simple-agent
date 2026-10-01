@@ -108,3 +108,28 @@ async def test_each_tree_keeps_highlighting_its_own_agent_after_switching(tabs):
     await tabs.select("Agent")
 
     verify(tabs.trees())
+
+
+async def test_an_agent_waiting_for_input_is_marked_orange(tabs):
+    await tabs.start("Agent/Coder")
+
+    await tabs.request_input("Agent/Coder")
+
+    verify(tabs.tree("Agent"))
+
+
+async def test_a_prompted_agent_is_marked_running_again(tabs):
+    await tabs.start("Agent/Coder")
+    await tabs.request_input("Agent/Coder")
+
+    await tabs.prompt("Agent/Coder", "go on")
+
+    verify(tabs.tree("Agent"))
+
+
+async def test_an_observer_waiting_for_packets_is_marked_idle(tabs):
+    await tabs.start_observer("Agent/Reviewer")
+
+    await tabs.request_input("Agent/Reviewer")
+
+    verify(tabs.tree("Agent"))

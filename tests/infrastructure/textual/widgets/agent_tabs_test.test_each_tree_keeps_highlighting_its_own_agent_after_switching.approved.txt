@@ -1,6 +1,6 @@
 tab-Agent
-> Agent
-    Coder
+> [grey50]●[/grey50] Agent
+    [grey50]●[/grey50] Coder
 tab-Agent-Coder
-  Agent
->   Coder
+  [grey50]●[/grey50] Agent
+>   [grey50]●[/grey50] Coder

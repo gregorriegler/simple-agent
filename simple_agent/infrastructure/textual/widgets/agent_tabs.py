@@ -25,7 +25,7 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.on_complete import OnComplete
 from simple_agent.application.tool_library import ToolDeclarations, call_header
-from simple_agent.infrastructure.textual.widgets.agent_tree import AgentTree
+from simple_agent.infrastructure.textual.widgets.agent_tree import AgentTree, Lifecycle
 from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 
 logger = logging.getLogger(__name__)
@@ -54,6 +54,8 @@ class AgentTabs(ContentSwitcher):
         self._tool_results_to_agent: dict[str, AgentId] = {}
         self._agent_models: dict[AgentId, str] = {}
         self._agent_token_display: dict[AgentId, str] = {}
+        self._agent_lifecycles: dict[AgentId, Lifecycle] = {}
+        self._agents_fed_by_others: set[AgentId] = set()
         self._replaying = False
 
     def on_mount(self) -> None:
@@ -136,6 +138,8 @@ class AgentTabs(ContentSwitcher):
         if panel_ids:
             self._tool_results_to_agent.pop(tool_results_id, None)
         self._agent_names.pop(agent_id, None)
+        self._agent_lifecycles.pop(agent_id, None)
+        self._agents_fed_by_others.discard(agent_id)
         self._agent_workspaces.pop(str(agent_id), None)
         self._show_agents_in_trees()
 
@@ -145,7 +149,17 @@ class AgentTabs(ContentSwitcher):
             for agent_id in self._agent_panel_ids
         }
         for workspace in self._agent_workspaces.values():
-            workspace.agent_tree.show_agents(names)
+            workspace.agent_tree.show_agents(names, self._agent_lifecycles)
+
+    def _mark(self, agent_id: AgentId, lifecycle: Lifecycle) -> None:
+        self._agent_lifecycles[agent_id] = lifecycle
+        self._show_agents_in_trees()
+
+    def _mark_awaiting_input(self, agent_id: AgentId) -> None:
+        if agent_id in self._agents_fed_by_others:
+            self._mark(agent_id, Lifecycle.IDLE)
+        else:
+            self._mark(agent_id, Lifecycle.WAITING)
 
     def on_agent_tree_agent_selected(self, event: AgentTree.AgentSelected) -> None:
         self.activate_tab(event.agent_id)
@@ -195,6 +209,8 @@ class AgentTabs(ContentSwitcher):
         if agent_id is None:
             return
         if isinstance(event, AgentStartedEvent):
+            if event.on_complete is OnComplete.STOP_AND_WAIT:
+                self._agents_fed_by_others.add(agent_id)
             self._ensure_agent_tab_exists(agent_id, event.agent_name, event.model)
             if self._awaits_human_review(agent_id, event):
                 self.activate_tab(agent_id)
@@ -208,6 +224,7 @@ class AgentTabs(ContentSwitcher):
                 )
             self._reset_agent_token_usage(agent_id)
         elif isinstance(event, UserPromptedEvent):
+            self._mark(agent_id, Lifecycle.RUNNING)
             workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
                 workspace.add_user_message(event.input_text)
@@ -283,6 +300,7 @@ class AgentTabs(ContentSwitcher):
             if agent_id != self._root_agent_id:
                 self._close_tab(agent_id)
         elif isinstance(event, UserPromptRequestedEvent):
+            self._mark_awaiting_input(agent_id)
             workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
                 workspace.write_message("\nWaiting for user input...")
