@@ -139,6 +139,8 @@ class SessionTestBed:
         self._custom_event_subscriptions = []
         self._cancel_on = None
         self._cancel_tab = AgentId("Agent")
+        self._quit_on = None
+        self._quit_tab = AgentId("Agent")
         self._observers: list[str] = []
         self._subagent_observers: list[str] = []
         self._diffs = ["a production diff"]
@@ -223,6 +225,12 @@ class SessionTestBed:
         self._cancel_tab = AgentId(on_tab)
         return self
 
+    def quitting_when(self, event_type, on_tab: str = "Agent") -> "SessionTestBed":
+        """Press Ctrl+C as soon as the given agent publishes the event."""
+        self._quit_on = event_type
+        self._quit_tab = AgentId(on_tab)
+        return self
+
     def on_event(self, event_type, handler) -> "SessionTestBed":
         self._custom_event_subscriptions.append((event_type, handler))
         return self
@@ -279,6 +287,14 @@ class SessionTestBed:
             ):
                 event_bus.subscribe(event_type, self._event_store.persist)
 
+        key_presses = []
+
+        def after_replay():
+            """Keys are pressed on what happens now, not on the replayed history."""
+            subscribe_persistence()
+            for event_type, press in key_presses:
+                event_bus.subscribe(event_type, press)
+
         agent_library = InMemoryAgentLibrary(
             agent=f"""---
 name: Agent
@@ -322,7 +338,7 @@ name: Orchestrator
                 FileIntents(),
                 inboxes,
             ),
-            on_replay_complete=subscribe_persistence,
+            on_replay_complete=after_replay,
         )
 
         if self._cancel_on is not None:
@@ -336,7 +352,18 @@ name: Orchestrator
                 pressed = True
                 agent_task_manager.cancel_task(cancel_tab)
 
-            event_bus.subscribe(self._cancel_on, press_escape_once)
+            key_presses.append((self._cancel_on, press_escape_once))
+
+        if self._quit_on is not None:
+            quit_tab = self._quit_tab
+
+            def press_ctrl_c(event):
+                if event.agent_id != quit_tab:
+                    return
+                inboxes.close()
+                agent_task_manager.cancel_all_tasks()
+
+            key_presses.append((self._quit_on, press_ctrl_c))
 
         agent_task_manager.start_task(
             root_agent_id,

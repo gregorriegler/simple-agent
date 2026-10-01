@@ -5,11 +5,14 @@ from simple_agent.application.events import (
     AgentFinishedEvent,
     AgentStartedEvent,
     AssistantRespondedEvent,
+    SessionInterruptedEvent,
+    ToolCalledEvent,
     UserPromptedEvent,
+    UserPromptRequestedEvent,
 )
 from simple_agent.infrastructure.file_event_store import FileEventStore
 from tests.session_test_bed import CapturingLLM, SessionTestBed
-from tests.tool_calls import complete_task, subagent
+from tests.tool_calls import cat, complete_task, subagent
 
 
 @pytest.mark.asyncio
@@ -88,3 +91,54 @@ async def test_continued_session_restores_subagent_messages(tmp_path):
 
     assert capturing_llm.call_contained(1, "user", "Do something")
     assert capturing_llm.call_contained(1, "assistant", "Subagent previous work")
+
+
+@pytest.mark.asyncio
+async def test_a_subagent_running_when_the_user_quits_is_resumed(tmp_path):
+    event_store = FileEventStore(tmp_path)
+    await (
+        SessionTestBed()
+        .with_event_store(event_store)
+        .with_llm_responses([subagent("coding", "read hello"), cat("hello.txt")])
+        .with_user_inputs("Create a subagent that reads hello")
+        .quitting_when(ToolCalledEvent, on_tab="Agent/Coding")
+        .run()
+    )
+
+    asking = []
+    await (
+        SessionTestBed()
+        .with_event_store(event_store)
+        .continuing_session()
+        .on_event(UserPromptRequestedEvent, lambda e: asking.append(e.agent_id))
+        .run()
+    )
+
+    assert AgentId("Agent/Coding") in asking
+
+
+@pytest.mark.asyncio
+async def test_escape_interrupts_a_resumed_subagent(tmp_path):
+    event_store = FileEventStore(tmp_path)
+    await (
+        SessionTestBed()
+        .with_event_store(event_store)
+        .with_llm_responses([subagent("coding", "read hello"), cat("hello.txt")])
+        .with_user_inputs("Create a subagent that reads hello")
+        .quitting_when(ToolCalledEvent, on_tab="Agent/Coding")
+        .run()
+    )
+
+    interrupted = []
+    await (
+        SessionTestBed()
+        .with_event_store(event_store)
+        .continuing_session()
+        .with_llm_responses(["Root is done", cat("hello.txt")])
+        .typing_to("Agent/Coding", "Read it again", "")
+        .cancelling_when(ToolCalledEvent, on_tab="Agent/Coding")
+        .on_event(SessionInterruptedEvent, lambda e: interrupted.append(e.agent_id))
+        .run()
+    )
+
+    assert interrupted == [AgentId("Agent/Coding")]

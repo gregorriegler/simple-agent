@@ -1,4 +1,3 @@
-import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass
 
@@ -122,6 +121,6 @@ class Session:
             subagent = agent_factory.create_agent_from_history(
                 event.agent_id, event.agent_type
             )
-            asyncio.create_task(subagent.start())
+            self._agent_task_manager.start_task(event.agent_id, subagent.start())
 
         await agent.start()

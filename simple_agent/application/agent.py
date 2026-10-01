@@ -127,7 +127,8 @@ class Agent(SlashCommandVisitor):
         except (EOFError, KeyboardInterrupt):
             return SingleToolResult()
         finally:
-            self.event_bus.publish(AgentFinishedEvent(self.agent_id))
+            if not self.inbox.is_shut_down():
+                self.event_bus.publish(AgentFinishedEvent(self.agent_id))
             self.event_bus.publish(SessionEndedEvent(self.agent_id))
 
     def _closes_on(self, tool_result: ToolResult) -> bool:

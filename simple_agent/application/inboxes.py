@@ -29,7 +29,7 @@ class AgentInboxes:
 
     def assign(self, agent_id: AgentId, inbox: Inbox) -> Inbox:
         if self._closed:
-            inbox.close()
+            inbox.shut_down()
         self._inboxes[agent_id] = inbox
         return inbox
 
@@ -39,4 +39,4 @@ class AgentInboxes:
     def close(self) -> None:
         self._closed = True
         for inbox in self._inboxes.values():
-            inbox.close()
+            inbox.shut_down()

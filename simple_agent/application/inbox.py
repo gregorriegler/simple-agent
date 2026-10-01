@@ -11,6 +11,7 @@ class Inbox:
         self._arrived = asyncio.Event()
         self._message_arrived = asyncio.Event()
         self._closed = False
+        self._shut_down = False
 
     def put(self, message: str) -> None:
         self._messages.append(message)
@@ -50,6 +51,14 @@ class Inbox:
         """No more messages will come; whoever waits gets an empty prompt after the rest."""
         self._closed = True
         self._refresh()
+
+    def shut_down(self) -> None:
+        """The session is quitting: the agent stops, but its work is not done."""
+        self._shut_down = True
+        self.close()
+
+    def is_shut_down(self) -> bool:
+        return self._shut_down
 
     def _has_something(self) -> bool:
         return bool(self._messages) or self._closed
