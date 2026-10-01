@@ -2,34 +2,26 @@
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
-      TabbedContent id='tabs' classes=''
-        ContentTabs id='None' classes=''
-          Container id='tabs-scroll' classes=''
-            Vertical id='tabs-list-bar' classes=''
-              Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
-              Underline id='None' classes=''
-        ContentSwitcher id='None' classes=''
-          TabPane id='tab-Agent' classes=''
-            ResizableHorizontal id='tab-content' classes=''
-              ResizableHorizontal id='split-view' classes=''
-                ResizableVertical id='left-panel' classes=''
-                  AgentTree id='None' classes='left-panel-top'
-                  Splitter id='None' classes='horizontal'
-                  VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                    Markdown id='log-Agent-todos' classes='' source=''...
-                Splitter id='None' classes=''
-                Vertical id='None' classes=''
-                  Static id='None' classes='agent-header'
-                  VerticalScroll id='tool-results-Agent' classes=''
-              SmartInput id='user-input' classes='' text=''
+      AgentTabs id='tabs' classes=''
+        ResizableHorizontal id='tab-Agent' classes=''
+          ResizableHorizontal id='split-view' classes=''
+            ResizableVertical id='left-panel' classes=''
+              AgentTree id='None' classes='left-panel-top'
+              Splitter id='None' classes='horizontal'
+              VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                Markdown id='log-Agent-todos' classes='' source=''...
+            Splitter id='None' classes=''
+            Vertical id='None' classes=''
+              Static id='None' classes='agent-header'
+              VerticalScroll id='tool-results-Agent' classes=''
+          SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
 
 --- Step: Initial State (ASCII UI) ---
- Agent
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     Agent
- Agent
+Agent                 Agent
+
+
+
 
 
 
@@ -55,50 +47,40 @@ Active Tab: tab-Agent
 Tabs: ['tab-Agent', 'tab-SubAgent']
 Active Tab: tab-SubAgent
     Vertical id='None' classes=''
-      TabbedContent id='tabs' classes=''
-        ContentTabs id='None' classes=''
-          Container id='tabs-scroll' classes=''
-            Vertical id='tabs-list-bar' classes=''
-              Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='' content='Agent'
-                ContentTab id='--content-tab-tab-SubAgent' classes='-active' content='SubAgent [gpt-4: 0.0%]'
-              Underline id='None' classes=''
-        ContentSwitcher id='None' classes=''
-          TabPane id='tab-Agent' classes=''
-            ResizableHorizontal id='tab-content' classes=''
-              ResizableHorizontal id='split-view' classes=''
-                ResizableVertical id='left-panel' classes=''
-                  AgentTree id='None' classes='left-panel-top'
-                  Splitter id='None' classes='horizontal'
-                  VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                    Markdown id='log-Agent-todos' classes='' source=''...
-                Splitter id='None' classes=''
-                Vertical id='None' classes=''
-                  Static id='None' classes='agent-header'
-                  VerticalScroll id='tool-results-Agent' classes=''
-              SmartInput id='user-input' classes='' text=''
-          TabPane id='tab-SubAgent' classes=''
-            ResizableHorizontal id='tab-content' classes=''
-              ResizableHorizontal id='split-view' classes=''
-                ResizableVertical id='left-panel' classes=''
-                  AgentTree id='None' classes='left-panel-top'
-                  Splitter id='None' classes='horizontal'
-                  VerticalScroll id='log-SubAgent-secondary' classes='left-panel-bottom'
-                    Markdown id='log-SubAgent-todos' classes='' source=''...
-                Splitter id='None' classes=''
-                Vertical id='None' classes=''
-                  Static id='None' classes='agent-header'
-                  VerticalScroll id='tool-results-SubAgent' classes=''
-              SmartInput id='user-input' classes='' text=''
+      AgentTabs id='tabs' classes=''
+        ResizableHorizontal id='tab-Agent' classes=''
+          ResizableHorizontal id='split-view' classes=''
+            ResizableVertical id='left-panel' classes=''
+              AgentTree id='None' classes='left-panel-top'
+              Splitter id='None' classes='horizontal'
+              VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                Markdown id='log-Agent-todos' classes='' source=''...
+            Splitter id='None' classes=''
+            Vertical id='None' classes=''
+              Static id='None' classes='agent-header'
+              VerticalScroll id='tool-results-Agent' classes=''
+          SmartInput id='user-input' classes='' text=''
+        ResizableHorizontal id='tab-SubAgent' classes=''
+          ResizableHorizontal id='split-view' classes=''
+            ResizableVertical id='left-panel' classes=''
+              AgentTree id='None' classes='left-panel-top'
+              Splitter id='None' classes='horizontal'
+              VerticalScroll id='log-SubAgent-secondary' classes='left-panel-bottom'
+                Markdown id='log-SubAgent-todos' classes='' source=''...
+            Splitter id='None' classes=''
+            Vertical id='None' classes=''
+              Static id='None' classes='agent-header'
+              VerticalScroll id='tool-results-SubAgent' classes=''
+          SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
 
 --- Step: SubAgent Started (ASCII UI) ---
- Agent  SubAgent [gpt-4: 0.0%]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     SubAgent [gpt-4: 0.0%]
- Agent
- SubAgent
+Agent                 SubAgent [gpt-4: 0.0%]
+SubAgent
+
+
+
 
 
 
@@ -123,52 +105,42 @@ Active Tab: tab-SubAgent
 Tabs: ['tab-Agent', 'tab-SubAgent']
 Active Tab: tab-SubAgent
     Vertical id='None' classes=''
-      TabbedContent id='tabs' classes=''
-        ContentTabs id='None' classes=''
-          Container id='tabs-scroll' classes=''
-            Vertical id='tabs-list-bar' classes=''
-              Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='' content='Agent'
-                ContentTab id='--content-tab-tab-SubAgent' classes='-active' content='SubAgent [gpt-4: 0.0%]'
-              Underline id='None' classes=''
-        ContentSwitcher id='None' classes=''
-          TabPane id='tab-Agent' classes=''
-            ResizableHorizontal id='tab-content' classes=''
-              ResizableHorizontal id='split-view' classes=''
-                ResizableVertical id='left-panel' classes=''
-                  AgentTree id='None' classes='left-panel-top'
-                  Splitter id='None' classes='horizontal'
-                  VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                    Markdown id='log-Agent-todos' classes='' source=''...
-                Splitter id='None' classes=''
-                Vertical id='None' classes=''
-                  Static id='None' classes='agent-header'
-                  VerticalScroll id='tool-results-Agent' classes=''
-              SmartInput id='user-input' classes='' text=''
-          TabPane id='tab-SubAgent' classes=''
-            ResizableHorizontal id='tab-content' classes=''
-              ResizableHorizontal id='split-view' classes=''
-                ResizableVertical id='left-panel' classes=''
-                  AgentTree id='None' classes='left-panel-top'
-                  Splitter id='None' classes='horizontal'
-                  VerticalScroll id='log-SubAgent-secondary' classes='left-panel-bottom'
-                    Markdown id='log-SubAgent-todos' classes='' source=''...
-                Splitter id='None' classes=''
-                Vertical id='None' classes=''
-                  Static id='None' classes='agent-header'
-                  VerticalScroll id='tool-results-SubAgent' classes=''
-                    Markdown id='None' classes='message' source='**SubAgent:** Hello from SubAgent'...
-                      MarkdownParagraph id='None' classes='level-0' content='SubAgent: Hello from SubAgent'
-              SmartInput id='user-input' classes='' text=''
+      AgentTabs id='tabs' classes=''
+        ResizableHorizontal id='tab-Agent' classes=''
+          ResizableHorizontal id='split-view' classes=''
+            ResizableVertical id='left-panel' classes=''
+              AgentTree id='None' classes='left-panel-top'
+              Splitter id='None' classes='horizontal'
+              VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                Markdown id='log-Agent-todos' classes='' source=''...
+            Splitter id='None' classes=''
+            Vertical id='None' classes=''
+              Static id='None' classes='agent-header'
+              VerticalScroll id='tool-results-Agent' classes=''
+          SmartInput id='user-input' classes='' text=''
+        ResizableHorizontal id='tab-SubAgent' classes=''
+          ResizableHorizontal id='split-view' classes=''
+            ResizableVertical id='left-panel' classes=''
+              AgentTree id='None' classes='left-panel-top'
+              Splitter id='None' classes='horizontal'
+              VerticalScroll id='log-SubAgent-secondary' classes='left-panel-bottom'
+                Markdown id='log-SubAgent-todos' classes='' source=''...
+            Splitter id='None' classes=''
+            Vertical id='None' classes=''
+              Static id='None' classes='agent-header'
+              VerticalScroll id='tool-results-SubAgent' classes=''
+                Markdown id='None' classes='message' source='**SubAgent:** Hello from SubAgent'...
+                  MarkdownParagraph id='None' classes='level-0' content='SubAgent: Hello from SubAgent'
+          SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
 
 --- Step: SubAgent Spoke (ASCII UI) ---
- Agent  SubAgent [gpt-4: 0.0%]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     SubAgent [gpt-4: 0.0%]
- Agent               ▌  SubAgent: Hello from SubAgent
- SubAgent            ▌
+Agent                 SubAgent [gpt-4: 0.0%]
+SubAgent             ▌  SubAgent: Hello from SubAgent
+                     ▌
+
+
 
 
 
@@ -193,35 +165,27 @@ Active Tab: tab-SubAgent
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
-      TabbedContent id='tabs' classes=''
-        ContentTabs id='None' classes=''
-          Container id='tabs-scroll' classes=''
-            Vertical id='tabs-list-bar' classes=''
-              Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
-              Underline id='None' classes=''
-        ContentSwitcher id='None' classes=''
-          TabPane id='tab-Agent' classes=''
-            ResizableHorizontal id='tab-content' classes=''
-              ResizableHorizontal id='split-view' classes=''
-                ResizableVertical id='left-panel' classes=''
-                  AgentTree id='None' classes='left-panel-top'
-                  Splitter id='None' classes='horizontal'
-                  VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                    Markdown id='log-Agent-todos' classes='' source=''...
-                Splitter id='None' classes=''
-                Vertical id='None' classes=''
-                  Static id='None' classes='agent-header'
-                  VerticalScroll id='tool-results-Agent' classes=''
-              SmartInput id='user-input' classes='' text=''
+      AgentTabs id='tabs' classes=''
+        ResizableHorizontal id='tab-Agent' classes=''
+          ResizableHorizontal id='split-view' classes=''
+            ResizableVertical id='left-panel' classes=''
+              AgentTree id='None' classes='left-panel-top'
+              Splitter id='None' classes='horizontal'
+              VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                Markdown id='log-Agent-todos' classes='' source=''...
+            Splitter id='None' classes=''
+            Vertical id='None' classes=''
+              Static id='None' classes='agent-header'
+              VerticalScroll id='tool-results-Agent' classes=''
+          SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
 
 --- Step: SubAgent Ended (ASCII UI) ---
- Agent
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     Agent
- Agent
+Agent                 Agent
+
+
+
 
 
 
@@ -247,38 +211,30 @@ Active Tab: tab-Agent
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
-      TabbedContent id='tabs' classes=''
-        ContentTabs id='None' classes=''
-          Container id='tabs-scroll' classes=''
-            Vertical id='tabs-list-bar' classes=''
-              Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
-              Underline id='None' classes=''
-        ContentSwitcher id='None' classes=''
-          TabPane id='tab-Agent' classes=''
-            ResizableHorizontal id='tab-content' classes=''
-              ResizableHorizontal id='split-view' classes=''
-                ResizableVertical id='left-panel' classes=''
-                  AgentTree id='None' classes='left-panel-top'
-                  Splitter id='None' classes='horizontal'
-                  VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                    Markdown id='log-Agent-todos' classes='' source=''...
-                Splitter id='None' classes=''
-                Vertical id='None' classes=''
-                  Static id='None' classes='agent-header'
-                  VerticalScroll id='tool-results-Agent' classes=''
-                    Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
-              SmartInput id='user-input' classes='' text=''
+      AgentTabs id='tabs' classes=''
+        ResizableHorizontal id='tab-Agent' classes=''
+          ResizableHorizontal id='split-view' classes=''
+            ResizableVertical id='left-panel' classes=''
+              AgentTree id='None' classes='left-panel-top'
+              Splitter id='None' classes='horizontal'
+              VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                Markdown id='log-Agent-todos' classes='' source=''...
+            Splitter id='None' classes=''
+            Vertical id='None' classes=''
+              Static id='None' classes='agent-header'
+              VerticalScroll id='tool-results-Agent' classes=''
+                Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
+                  MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
+          SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
 
 --- Step: Error Event (ASCII UI) ---
- Agent
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     Agent
- Agent               ▌  ❌ Error: Something went wrong
+Agent                 Agent
+                     ▌  ❌ Error: Something went wrong
                      ▌
+
+
 
 
 
@@ -303,42 +259,34 @@ Active Tab: tab-Agent
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
-      TabbedContent id='tabs' classes=''
-        ContentTabs id='None' classes=''
-          Container id='tabs-scroll' classes=''
-            Vertical id='tabs-list-bar' classes=''
-              Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
-              Underline id='None' classes=''
-        ContentSwitcher id='None' classes=''
-          TabPane id='tab-Agent' classes=''
-            ResizableHorizontal id='tab-content' classes=''
-              ResizableHorizontal id='split-view' classes=''
-                ResizableVertical id='left-panel' classes=''
-                  AgentTree id='None' classes='left-panel-top'
-                  Splitter id='None' classes='horizontal'
-                  VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                    Markdown id='log-Agent-todos' classes='' source=''...
-                Splitter id='None' classes=''
-                Vertical id='None' classes=''
-                  Static id='None' classes='agent-header'
-                  VerticalScroll id='tool-results-Agent' classes=''
-                    Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
-                    Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
-              SmartInput id='user-input' classes='' text=''
+      AgentTabs id='tabs' classes=''
+        ResizableHorizontal id='tab-Agent' classes=''
+          ResizableHorizontal id='split-view' classes=''
+            ResizableVertical id='left-panel' classes=''
+              AgentTree id='None' classes='left-panel-top'
+              Splitter id='None' classes='horizontal'
+              VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                Markdown id='log-Agent-todos' classes='' source=''...
+            Splitter id='None' classes=''
+            Vertical id='None' classes=''
+              Static id='None' classes='agent-header'
+              VerticalScroll id='tool-results-Agent' classes=''
+                Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
+                  MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
+                Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
+                  MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
+          SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
 
 --- Step: Session Interrupted (ASCII UI) ---
- Agent
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     Agent
- Agent               ▌  ❌ Error: Something went wrong
+Agent                 Agent
+                     ▌  ❌ Error: Something went wrong
                      ▌
                      ▌  [Session interrupted by user]
                      ▌
+
+
 
 
 
@@ -361,43 +309,33 @@ Active Tab: tab-Agent
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
-      TabbedContent id='tabs' classes=''
-        ContentTabs id='None' classes=''
-          Container id='tabs-scroll' classes=''
-            Vertical id='tabs-list-bar' classes=''
-              Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
-              Underline id='None' classes=''
-        ContentSwitcher id='None' classes=''
-          TabPane id='tab-Agent' classes=''
-            ResizableHorizontal id='tab-content' classes=''
-              ResizableHorizontal id='split-view' classes=''
-                ResizableVertical id='left-panel' classes=''
-                  AgentTree id='None' classes='left-panel-top'
-                  Splitter id='None' classes='horizontal'
-                  VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                    Markdown id='log-Agent-todos' classes='' source=''...
-                Splitter id='None' classes=''
-                Vertical id='None' classes=''
-                  Static id='None' classes='agent-header'
-                  VerticalScroll id='tool-results-Agent' classes=''
-                    Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
-                    Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
-                    Collapsible id='None' classes='tool-status-running' title='🛠️ write_todos()' collapsed=False
-                      CollapsibleTitle id='None' classes='' content='▼ 🛠️ write_todos()'
-                      Contents id='None' classes=''
-                        TextArea id='None' classes='tool-call' text=''
-              SmartInput id='user-input' classes='' text=''
+      AgentTabs id='tabs' classes=''
+        ResizableHorizontal id='tab-Agent' classes=''
+          ResizableHorizontal id='split-view' classes=''
+            ResizableVertical id='left-panel' classes=''
+              AgentTree id='None' classes='left-panel-top'
+              Splitter id='None' classes='horizontal'
+              VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                Markdown id='log-Agent-todos' classes='' source=''...
+            Splitter id='None' classes=''
+            Vertical id='None' classes=''
+              Static id='None' classes='agent-header'
+              VerticalScroll id='tool-results-Agent' classes=''
+                Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
+                  MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
+                Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
+                  MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
+                Collapsible id='None' classes='tool-status-running' title='🛠️ write_todos()' collapsed=False
+                  CollapsibleTitle id='None' classes='' content='▼ 🛠️ write_todos()'
+                  Contents id='None' classes=''
+                    TextArea id='None' classes='tool-call' text=''
+          SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
 
 --- Step: Tool Call (Suppressed) (ASCII UI) ---
- Agent
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     Agent
- Agent               ▌  ❌ Error: Something went wrong
+Agent                 Agent
+                     ▌  ❌ Error: Something went wrong
                      ▌
                      ▌  [Session interrupted by user]
                      ▌
@@ -405,6 +343,8 @@ Active Tab: tab-Agent
                      ▌╭────────────────────────────────────────────────────────╮
                      ▌│                       ● ● ● ● ●                        │
                      ▌╰────────────────────────────────────────────────────────╯
+
+
 
 
 
@@ -423,47 +363,37 @@ Active Tab: tab-Agent
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
-      TabbedContent id='tabs' classes=''
-        ContentTabs id='None' classes=''
-          Container id='tabs-scroll' classes=''
-            Vertical id='tabs-list-bar' classes=''
-              Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
-              Underline id='None' classes=''
-        ContentSwitcher id='None' classes=''
-          TabPane id='tab-Agent' classes=''
-            ResizableHorizontal id='tab-content' classes=''
-              ResizableHorizontal id='split-view' classes=''
-                ResizableVertical id='left-panel' classes=''
-                  AgentTree id='None' classes='left-panel-top'
-                  Splitter id='None' classes='horizontal'
-                  VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                    Markdown id='log-Agent-todos' classes='' source=''...
-                Splitter id='None' classes=''
-                Vertical id='None' classes=''
-                  Static id='None' classes='agent-header'
-                  VerticalScroll id='tool-results-Agent' classes=''
-                    Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
-                    Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
-                    Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
-                      CollapsibleTitle id='None' classes='' content='▶ 🛠️ write_todos()'
-                      Contents id='None' classes=''
-                        TextArea id='None' classes='tool-call' text=''
-                    Collapsible id='None' classes='tool-status-success' title='🛠️ apply_diff()' collapsed=False
-                      CollapsibleTitle id='None' classes='' content='▼ 🛠️ apply_diff()'
-                      Contents id='None' classes=''
-                        Static id='None' classes='tool-result tool-result-success'
-              SmartInput id='user-input' classes='' text=''
+      AgentTabs id='tabs' classes=''
+        ResizableHorizontal id='tab-Agent' classes=''
+          ResizableHorizontal id='split-view' classes=''
+            ResizableVertical id='left-panel' classes=''
+              AgentTree id='None' classes='left-panel-top'
+              Splitter id='None' classes='horizontal'
+              VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                Markdown id='log-Agent-todos' classes='' source=''...
+            Splitter id='None' classes=''
+            Vertical id='None' classes=''
+              Static id='None' classes='agent-header'
+              VerticalScroll id='tool-results-Agent' classes=''
+                Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
+                  MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
+                Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
+                  MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
+                Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
+                  CollapsibleTitle id='None' classes='' content='▶ 🛠️ write_todos()'
+                  Contents id='None' classes=''
+                    TextArea id='None' classes='tool-call' text=''
+                Collapsible id='None' classes='tool-status-success' title='🛠️ apply_diff()' collapsed=False
+                  CollapsibleTitle id='None' classes='' content='▼ 🛠️ apply_diff()'
+                  Contents id='None' classes=''
+                    Static id='None' classes='tool-result tool-result-success'
+          SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
 
 --- Step: Tool Result (Diff) (ASCII UI) ---
- Agent
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     Agent
- Agent               ▌  ❌ Error: Something went wrong
+Agent                 Agent
+                     ▌  ❌ Error: Something went wrong
                      ▌
                      ▌  [Session interrupted by user]
                      ▌
@@ -479,6 +409,8 @@ Active Tab: tab-Agent
 
 
 
+
+
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                                                                              │
 │                                                                              │
@@ -489,51 +421,41 @@ Active Tab: tab-Agent
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
-      TabbedContent id='tabs' classes=''
-        ContentTabs id='None' classes=''
-          Container id='tabs-scroll' classes=''
-            Vertical id='tabs-list-bar' classes=''
-              Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
-              Underline id='None' classes=''
-        ContentSwitcher id='None' classes=''
-          TabPane id='tab-Agent' classes=''
-            ResizableHorizontal id='tab-content' classes=''
-              ResizableHorizontal id='split-view' classes=''
-                ResizableVertical id='left-panel' classes=''
-                  AgentTree id='None' classes='left-panel-top'
-                  Splitter id='None' classes='horizontal'
-                  VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                    Markdown id='log-Agent-todos' classes='' source=''...
-                Splitter id='None' classes=''
-                Vertical id='None' classes=''
-                  Static id='None' classes='agent-header'
-                  VerticalScroll id='tool-results-Agent' classes=''
-                    Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
-                    Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
-                    Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
-                      CollapsibleTitle id='None' classes='' content='▶ 🛠️ write_todos()'
-                      Contents id='None' classes=''
-                        TextArea id='None' classes='tool-call' text=''
-                    Collapsible id='None' classes='-collapsed tool-status-success' title='🛠️ apply_diff()' collapsed=True
-                      CollapsibleTitle id='None' classes='' content='▶ 🛠️ apply_diff()'
-                      Contents id='None' classes=''
-                        Static id='None' classes='tool-result tool-result-success'
-                    Collapsible id='None' classes='tool-status-cancelled' title='🛠️ long_running() (Cancelled)' collapsed=False
-                      CollapsibleTitle id='None' classes='' content='▼ 🛠️ long_running() (Cancelled)'
-                      Contents id='None' classes=''
-                        TextArea id='None' classes='tool-result tool-result-cancelled' text='Cancelled'
-              SmartInput id='user-input' classes='' text=''
+      AgentTabs id='tabs' classes=''
+        ResizableHorizontal id='tab-Agent' classes=''
+          ResizableHorizontal id='split-view' classes=''
+            ResizableVertical id='left-panel' classes=''
+              AgentTree id='None' classes='left-panel-top'
+              Splitter id='None' classes='horizontal'
+              VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                Markdown id='log-Agent-todos' classes='' source=''...
+            Splitter id='None' classes=''
+            Vertical id='None' classes=''
+              Static id='None' classes='agent-header'
+              VerticalScroll id='tool-results-Agent' classes=''
+                Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
+                  MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
+                Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
+                  MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
+                Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
+                  CollapsibleTitle id='None' classes='' content='▶ 🛠️ write_todos()'
+                  Contents id='None' classes=''
+                    TextArea id='None' classes='tool-call' text=''
+                Collapsible id='None' classes='-collapsed tool-status-success' title='🛠️ apply_diff()' collapsed=True
+                  CollapsibleTitle id='None' classes='' content='▶ 🛠️ apply_diff()'
+                  Contents id='None' classes=''
+                    Static id='None' classes='tool-result tool-result-success'
+                Collapsible id='None' classes='tool-status-cancelled' title='🛠️ long_running() (Cancelled)' collapsed=False
+                  CollapsibleTitle id='None' classes='' content='▼ 🛠️ long_running() (Cancelled)'
+                  Contents id='None' classes=''
+                    TextArea id='None' classes='tool-result tool-result-cancelled' text='Cancelled'
+          SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
 
 --- Step: Tool Cancelled (ASCII UI) ---
- Agent
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     Agent
- Agent               ▌  ❌ Error: Something went wrong
+Agent                 Agent
+                     ▌  ❌ Error: Something went wrong
                      ▌
                      ▌  [Session interrupted by user]
                      ▌
@@ -543,6 +465,8 @@ Active Tab: tab-Agent
                      ▌╭────────────────────────────────────────────────────────╮
                      ▌│ Cancelled                                              │
                      ▌╰────────────────────────────────────────────────────────╯
+
+
 
 
 
@@ -559,51 +483,41 @@ Active Tab: tab-Agent
 Tabs: ['tab-Agent']
 Active Tab: tab-Agent
     Vertical id='None' classes=''
-      TabbedContent id='tabs' classes=''
-        ContentTabs id='None' classes=''
-          Container id='tabs-scroll' classes=''
-            Vertical id='tabs-list-bar' classes=''
-              Horizontal id='tabs-list' classes=''
-                ContentTab id='--content-tab-tab-Agent' classes='-active' content='Agent'
-              Underline id='None' classes=''
-        ContentSwitcher id='None' classes=''
-          TabPane id='tab-Agent' classes=''
-            ResizableHorizontal id='tab-content' classes=''
-              ResizableHorizontal id='split-view' classes=''
-                ResizableVertical id='left-panel' classes=''
-                  AgentTree id='None' classes='left-panel-top'
-                  Splitter id='None' classes='horizontal'
-                  VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
-                    Markdown id='log-Agent-todos' classes='' source=''...
-                Splitter id='None' classes=''
-                Vertical id='None' classes=''
-                  Static id='None' classes='agent-header'
-                  VerticalScroll id='tool-results-Agent' classes=''
-                    Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
-                      MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
-                    Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
-                      MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
-                    Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
-                      CollapsibleTitle id='None' classes='' content='▶ 🛠️ write_todos()'
-                      Contents id='None' classes=''
-                        TextArea id='None' classes='tool-call' text=''
-                    Collapsible id='None' classes='-collapsed tool-status-success' title='🛠️ apply_diff()' collapsed=True
-                      CollapsibleTitle id='None' classes='' content='▶ 🛠️ apply_diff()'
-                      Contents id='None' classes=''
-                        Static id='None' classes='tool-result tool-result-success'
-                    Collapsible id='None' classes='tool-status-cancelled' title='🛠️ long_running() (Cancelled)' collapsed=False
-                      CollapsibleTitle id='None' classes='' content='▼ 🛠️ long_running() (Cancelled)'
-                      Contents id='None' classes=''
-                        TextArea id='None' classes='tool-result tool-result-cancelled' text='Cancelled'
-              SmartInput id='user-input' classes='' text=''
+      AgentTabs id='tabs' classes=''
+        ResizableHorizontal id='tab-Agent' classes=''
+          ResizableHorizontal id='split-view' classes=''
+            ResizableVertical id='left-panel' classes=''
+              AgentTree id='None' classes='left-panel-top'
+              Splitter id='None' classes='horizontal'
+              VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
+                Markdown id='log-Agent-todos' classes='' source=''...
+            Splitter id='None' classes=''
+            Vertical id='None' classes=''
+              Static id='None' classes='agent-header'
+              VerticalScroll id='tool-results-Agent' classes=''
+                Markdown id='None' classes='message' source='\n**❌ Error: Something went wrong**'...
+                  MarkdownParagraph id='None' classes='level-0' content='❌ Error: Something went wrong'
+                Markdown id='None' classes='message' source='\n[Session interrupted by user]'...
+                  MarkdownParagraph id='None' classes='level-0' content='[Session interrupted by user]'
+                Collapsible id='None' classes='-collapsed tool-status-running' title='🛠️ write_todos()' collapsed=True
+                  CollapsibleTitle id='None' classes='' content='▶ 🛠️ write_todos()'
+                  Contents id='None' classes=''
+                    TextArea id='None' classes='tool-call' text=''
+                Collapsible id='None' classes='-collapsed tool-status-success' title='🛠️ apply_diff()' collapsed=True
+                  CollapsibleTitle id='None' classes='' content='▶ 🛠️ apply_diff()'
+                  Contents id='None' classes=''
+                    Static id='None' classes='tool-result tool-result-success'
+                Collapsible id='None' classes='tool-status-cancelled' title='🛠️ long_running() (Cancelled)' collapsed=False
+                  CollapsibleTitle id='None' classes='' content='▼ 🛠️ long_running() (Cancelled)'
+                  Contents id='None' classes=''
+                    TextArea id='None' classes='tool-result tool-result-cancelled' text='Cancelled'
+          SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
     AutocompletePopup id='None' classes=''
 
 --- Step: File Context Submitted (ASCII UI) ---
- Agent
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     Agent
- Agent               ▌  ❌ Error: Something went wrong
+Agent                 Agent
+                     ▌  ❌ Error: Something went wrong
                      ▌
                      ▌  [Session interrupted by user]
                      ▌
@@ -613,6 +527,8 @@ Active Tab: tab-Agent
                      ▌╭────────────────────────────────────────────────────────╮
                      ▌│ Cancelled                                              │
                      ▌╰────────────────────────────────────────────────────────╯
+
+
 
 
 

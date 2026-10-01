@@ -302,14 +302,7 @@ async def test_agent_started_creates_tab_with_model_in_title(textual_harness):
         event_bus.publish(AgentStartedEvent(agent_id, "MyAgent", "test-model"))
         await pilot.pause()
 
-        tabs = app.query_one("#tabs")
-        tab_id, _, _ = app.panel_ids_for(agent_id)
-        tab = tabs.get_tab(tab_id)
-
-        # When model is set without token info, it should default to 0.0% if it was not set previously.
-        # But our implementation might show "MyAgent [test-model]" if token usage is empty string.
-        # Since I am updating the implementation to respect the test expectation:
-        assert str(tab.label) == "MyAgent [test-model]"
+        assert _title(app, agent_id) == "MyAgent [test-model]"
 
 
 @pytest.mark.asyncio
@@ -331,10 +324,12 @@ async def test_agent_changed_event_updates_tab_title(textual_harness):
         )
         await pilot.pause()
 
-        tabs = app.query_one("#tabs")
-        tab_id, _, _ = app.panel_ids_for(agent_id)
-        tab = tabs.get_tab(tab_id)
-        assert str(tab.label) == "Developer [test-model]"
+        assert _title(app, agent_id) == "Developer [test-model]"
+
+
+def _title(app, agent_id: AgentId) -> str:
+    tab_id, _, _ = app.panel_ids_for(agent_id)
+    return str(app.query_one(f"#{tab_id}").header.render())
 
 
 @pytest.mark.asyncio

@@ -1,5 +1,5 @@
 from textual.app import App, ComposeResult
-from textual.widgets import Markdown, TabPane
+from textual.widgets import Markdown
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
@@ -12,6 +12,7 @@ from simple_agent.application.events import (
 from simple_agent.application.on_complete import OnComplete
 from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
 from simple_agent.infrastructure.textual.widgets.agent_tree import AgentTree
+from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 from simple_agent.tools.all_tools import TOOL_DECLARATIONS
 
@@ -71,25 +72,27 @@ class AgentTabsUi:
 
     def outline(self) -> str:
         return "\n".join(
-            _outline(pane, self._tabs.active) for pane in self._tabs.query(TabPane)
+            _outline(pane, self._tabs.current)
+            for pane in self._tabs.query_children(AgentWorkspace)
         )
 
     def trees(self) -> str:
         return "\n".join(
-            f"{pane.id}\n{_tree(pane)}" for pane in self._tabs.query(TabPane)
+            f"{pane.id}\n{_tree(pane)}"
+            for pane in self._tabs.query_children(AgentWorkspace)
         )
 
     def tree(self, agent: str) -> str:
         tab_id, _, _ = self._tabs.panel_ids_for(AgentId(agent))
-        return _tree(self._tabs.get_pane(tab_id))
+        return _tree(self._tabs.get_child_by_id(tab_id))
 
 
-def _tree(pane: TabPane) -> str:
+def _tree(pane: AgentWorkspace) -> str:
     tree = pane.query_one(AgentTree)
     return "\n".join(_tree_lines(tree.root, tree.cursor_node, depth=-1))
 
 
-def _outline(pane: TabPane, active: str) -> str:
+def _outline(pane: AgentWorkspace, active: str) -> str:
     focus = ">" if pane.id == active else " "
     messages = [
         f"    {m.source}" for m in pane.query_one(ToolLog).query_children(Markdown)

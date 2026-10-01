@@ -56,11 +56,11 @@ class TextualApp(App):
     ]
 
     CSS = """
-    TabbedContent {
+    AgentTabs {
         height: 1fr;
     }
 
-    #tab-content {
+    AgentWorkspace {
         height: 1fr;
     }
 
@@ -70,7 +70,13 @@ class TextualApp(App):
 
     #left-panel {
         width: 25%;
-        padding: 1;
+    }
+
+    .agent-header {
+        background: $primary;
+        color: $text;
+        text-style: bold;
+        padding: 0 1;
     }
 
     .left-panel-top,

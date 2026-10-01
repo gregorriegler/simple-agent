@@ -1,8 +1,7 @@
 import logging
 
-from rich.markup import escape
 from textual.css.query import NoMatches
-from textual.widgets import TabbedContent, TabPane
+from textual.widgets import ContentSwitcher
 
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.events import (
@@ -32,7 +31,7 @@ from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWor
 logger = logging.getLogger(__name__)
 
 
-class AgentTabs(TabbedContent):
+class AgentTabs(ContentSwitcher):
     """
     Manages the tabs for different agents/sub-agents.
     Each tab contains an AgentWorkspace.
@@ -45,7 +44,7 @@ class AgentTabs(TabbedContent):
         declarations: ToolDeclarations,
         **kwargs,
     ):
-        super().__init__(**kwargs)
+        super().__init__(initial=self.panel_ids_for(root_agent_id)[0], **kwargs)
         self._suggestion_provider = suggestion_provider
         self._declarations = declarations
         self._root_agent_id = root_agent_id
@@ -72,15 +71,8 @@ class AgentTabs(TabbedContent):
 
     @property
     def active_workspace(self) -> AgentWorkspace | None:
-        """Returns the AgentWorkspace of the currently active tab."""
-        # Find active tab pane
         try:
-            active_pane_id = self.active
-            if not active_pane_id:
-                return None
-            active_pane = self.get_pane(active_pane_id)
-            # The workspace is the first child of the pane
-            return active_pane.query_one(AgentWorkspace)
+            return self.visible_content
         except NoMatches:
             return None
 
@@ -92,13 +84,13 @@ class AgentTabs(TabbedContent):
         tool_results_id = f"tool-results-{sanitized}"
         return tab_id, log_id, tool_results_id
 
-    def create_agent_container(self, log_id, tool_results_id, agent_id):
+    def create_agent_container(self, tab_id, log_id, tool_results_id, agent_id):
         workspace = AgentWorkspace(
             suggestion_provider=self._suggestion_provider,
             agent_id=agent_id,
             log_id=log_id,
             tool_results_id=tool_results_id,
-            id="tab-content",
+            id=tab_id,
         )
 
         if self._replaying:
@@ -118,27 +110,28 @@ class AgentTabs(TabbedContent):
         agent_name = tab_title.split(" [")[0] if " [" in tab_title else tab_title
         self._agent_names[agent_id] = agent_name
 
-        new_tab = TabPane(escape(tab_title), id=tab_id)
-        workspace = self.create_agent_container(log_id, tool_results_id, agent_id)
+        workspace = self.create_agent_container(
+            tab_id, log_id, tool_results_id, agent_id
+        )
         workspace.show_title(tab_title)
-        new_tab.compose_add_child(workspace)
-
-        self.add_pane(new_tab)
+        workspace.display = False
+        self.mount(workspace)
         self._show_agents_in_trees()
 
-        # When adding the first tab or explicit switch logic, ensure we track it
-        # Note: TabbedContent auto-activates the first tab added if none are active.
-        if not self.active:
-            self.active = tab_id
+        if not self.current:
+            self.current = tab_id
 
         return log_id, tool_results_id
 
     def remove_subagent_tab(self, agent_id: AgentId) -> None:
         tab_id, _, tool_results_id = self.panel_ids_for(agent_id)
         parent = agent_id.parent()
-        if self.active == tab_id and parent and self.has_agent_tab(parent):
-            self.activate_tab(parent)
-        self.remove_pane(tab_id)
+        if self.current == tab_id:
+            if parent and self.has_agent_tab(parent):
+                self.activate_tab(parent)
+            else:
+                self.activate_tab(self._root_agent_id)
+        self.get_child_by_id(tab_id).remove()
         panel_ids = self._agent_panel_ids.pop(agent_id, None)
         if panel_ids:
             self._tool_results_to_agent.pop(tool_results_id, None)
@@ -167,30 +160,21 @@ class AgentTabs(TabbedContent):
         workspace = self._agent_workspaces.get(str(agent_id))
         if workspace:
             workspace.show_title(title)
-        tab_id, _, _ = self.panel_ids_for(agent_id)
-        try:
-            tab = self.get_tab(tab_id)
-            if tab:
-                tab.label = escape(title)
-        except (NoMatches, Exception):
-            pass
 
     def switch_tab(self, direction: int) -> None:
-        tab_panes = list(self.query(TabPane))
-        if len(tab_panes) <= 1:
+        workspaces = list(self.query_children(AgentWorkspace))
+        if len(workspaces) <= 1:
             return
         current_index = next(
-            (i for i, pane in enumerate(tab_panes) if pane.id == self.active), 0
+            (i for i, w in enumerate(workspaces) if w.id == self.current), 0
         )
-        new_index = (current_index + direction) % len(tab_panes)
-        new_tab_id = tab_panes[new_index].id
-        if new_tab_id:
-            self.active = new_tab_id
-            self._focus_active_input()
+        new_index = (current_index + direction) % len(workspaces)
+        self.current = workspaces[new_index].id
+        self._focus_active_input()
 
     def activate_tab(self, agent_id: AgentId) -> None:
         tab_id, _, _ = self.panel_ids_for(agent_id)
-        self.active = tab_id
+        self.current = tab_id
         self.call_after_refresh(self._focus_active_input)
 
     def _focus_active_input(self) -> None:

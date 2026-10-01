@@ -3,9 +3,11 @@ from collections.abc import Callable
 from time import monotonic
 
 from rich.console import Console
-from textual.widgets import Collapsible, Markdown, Static, TabbedContent, TextArea
+from textual.widgets import Collapsible, Markdown, Static, TextArea
 
 from simple_agent.infrastructure.textual.textual_app import TextualApp
+from simple_agent.infrastructure.textual.widgets.agent_tabs import AgentTabs
+from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 
 
 class MockUserInput:
@@ -63,9 +65,9 @@ def dump_ui_state(app: TextualApp) -> str:
     lines = []
 
     # Dump Tabs
-    tabs = app.query("TabPane")
+    tabs = app.query(AgentWorkspace)
     lines.append(f"Tabs: {[t.id for t in tabs]}")
-    lines.append(f"Active Tab: {app.query_one(TabbedContent).active}")
+    lines.append(f"Active Tab: {app.query_one(AgentTabs).current}")
 
     # Dump Visible Widgets in Main Content
     for widget in app.screen.walk_children():
@@ -76,8 +78,6 @@ def dump_ui_state(app: TextualApp) -> str:
         # Alias refactored widgets back to their base classes for golden master stability
         if class_name == "AgentWorkspace":
             class_name = "ResizableHorizontal"
-        elif class_name == "AgentTabs":
-            class_name = "TabbedContent"
         elif class_name in ("TodoView", "ToolLog"):
             class_name = "VerticalScroll"
         elif class_name == "ToolCollapsible":
