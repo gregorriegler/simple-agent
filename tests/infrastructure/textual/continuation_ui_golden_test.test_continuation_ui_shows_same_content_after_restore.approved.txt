@@ -2,8 +2,8 @@
  Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▌  User: Say hello
-                     ▌
-
+ ▼ Agent             ▌
+ └── Coding
 
 
 
@@ -39,7 +39,7 @@ Active Tab: tab-Agent-Coding
             ResizableHorizontal id='tab-content' classes=''
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
-                  Vertical id='None' classes='left-panel-top'
+                  AgentTree id='None' classes='left-panel-top'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -58,7 +58,7 @@ Active Tab: tab-Agent-Coding
             ResizableHorizontal id='tab-content' classes=''
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
-                  Vertical id='None' classes='left-panel-top'
+                  AgentTree id='None' classes='left-panel-top'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-Coding-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-Coding-todos' classes='' source=''...
@@ -74,8 +74,8 @@ Active Tab: tab-Agent-Coding
  Agent [stub-model: 0.0%]  Coding [stub-model: 0.0%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▌  User: Say hello
-                     ▌
-
+ ▼ Agent             ▌
+ └── Coding
 
 
 
@@ -111,7 +111,7 @@ Active Tab: tab-Agent-Coding
             ResizableHorizontal id='tab-content' classes=''
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
-                  Vertical id='None' classes='left-panel-top'
+                  AgentTree id='None' classes='left-panel-top'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -130,7 +130,7 @@ Active Tab: tab-Agent-Coding
             ResizableHorizontal id='tab-content' classes=''
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
-                  Vertical id='None' classes='left-panel-top'
+                  AgentTree id='None' classes='left-panel-top'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-Coding-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-Coding-todos' classes='' source=''...

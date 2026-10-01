@@ -48,3 +48,63 @@ async def test_closing_a_focused_subagent_returns_to_its_parent(tabs):
     await tabs.finish("Agent/Coder")
 
     verify(tabs.outline())
+
+
+async def test_subagents_are_shown_under_their_parent(tabs):
+    await tabs.start("Agent/Coder")
+    await tabs.start("Agent/Coder/Naming")
+    await tabs.start("Agent/Reviewer")
+
+    verify(tabs.tree("Agent"))
+
+
+async def test_every_workspace_shows_the_same_tree_highlighting_its_own_agent(tabs):
+    await tabs.start("Agent/Coder")
+    await tabs.start("Agent/Reviewer")
+
+    verify(tabs.tree("Agent/Coder"))
+
+
+async def test_selecting_an_agent_in_the_tree_activates_its_tab(tabs):
+    await tabs.start("Agent/Coder")
+
+    await tabs.select("Agent/Coder")
+
+    verify(tabs.outline())
+
+
+async def test_a_finished_subagent_leaves_the_tree(tabs):
+    await tabs.start("Agent/Coder")
+    await tabs.start("Agent/Reviewer")
+
+    await tabs.finish("Agent/Coder")
+
+    verify(tabs.tree("Agent"))
+
+
+async def test_a_subagent_whose_parent_finished_hangs_under_its_nearest_ancestor(
+    tabs,
+):
+    await tabs.start("Agent/Coder")
+    await tabs.start("Agent/Coder/Naming")
+
+    await tabs.finish("Agent/Coder")
+
+    verify(tabs.tree("Agent"))
+
+
+async def test_a_renamed_agent_is_renamed_in_the_tree(tabs):
+    await tabs.start("Agent/Coder")
+
+    await tabs.rename("Agent/Coder", "Refactorer")
+
+    verify(tabs.tree("Agent"))
+
+
+async def test_each_tree_keeps_highlighting_its_own_agent_after_switching(tabs):
+    await tabs.start("Agent/Coder")
+    await tabs.select("Agent/Coder")
+
+    await tabs.select("Agent")
+
+    verify(tabs.trees())

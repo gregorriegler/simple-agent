@@ -9,6 +9,7 @@ from simple_agent.infrastructure.textual.resizable_container import (
     ResizableVertical,
 )
 from simple_agent.infrastructure.textual.smart_input import SmartInput
+from simple_agent.infrastructure.textual.widgets.agent_tree import AgentTree
 from simple_agent.infrastructure.textual.widgets.todo_view import TodoView
 from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 
@@ -16,7 +17,7 @@ from simple_agent.infrastructure.textual.widgets.tool_log import ToolLog
 class AgentWorkspace(Vertical):
     """
     A compound widget that displays the 3-pane layout for an agent:
-    - Left Panel: Todo list (bottom)
+    - Left Panel: Agent tree (top) and Todo list (bottom)
     - Right Panel: Timeline of messages and tool calls
     - Bottom Panel: Smart Input (User Input)
     """
@@ -30,7 +31,7 @@ class AgentWorkspace(Vertical):
         **kwargs,
     ):
         self.agent_id = agent_id
-        self.left_panel_top = Vertical(classes="left-panel-top")
+        self.agent_tree = AgentTree(agent_id, classes="left-panel-top")
         self.todo_view = TodoView(
             agent_id,
             FileIntents(),
@@ -41,7 +42,7 @@ class AgentWorkspace(Vertical):
         )
 
         self.left_panel = ResizableVertical(
-            self.left_panel_top, self.todo_view, id="left-panel"
+            self.agent_tree, self.todo_view, id="left-panel"
         )
         self.left_panel.set_bottom_visibility(self.todo_view.has_content)
 

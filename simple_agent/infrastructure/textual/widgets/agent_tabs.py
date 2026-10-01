@@ -26,6 +26,7 @@ from simple_agent.application.events import (
 )
 from simple_agent.application.on_complete import OnComplete
 from simple_agent.application.tool_library import ToolDeclarations, call_header
+from simple_agent.infrastructure.textual.widgets.agent_tree import AgentTree
 from simple_agent.infrastructure.textual.widgets.agent_workspace import AgentWorkspace
 
 logger = logging.getLogger(__name__)
@@ -123,6 +124,7 @@ class AgentTabs(TabbedContent):
         )
 
         self.add_pane(new_tab)
+        self._show_agents_in_trees()
 
         # When adding the first tab or explicit switch logic, ensure we track it
         # Note: TabbedContent auto-activates the first tab added if none are active.
@@ -142,6 +144,18 @@ class AgentTabs(TabbedContent):
             self._tool_results_to_agent.pop(tool_results_id, None)
         self._agent_names.pop(agent_id, None)
         self._agent_workspaces.pop(str(agent_id), None)
+        self._show_agents_in_trees()
+
+    def _show_agents_in_trees(self) -> None:
+        names = {
+            agent_id: self._agent_names.get(agent_id, str(agent_id))
+            for agent_id in self._agent_panel_ids
+        }
+        for workspace in self._agent_workspaces.values():
+            workspace.agent_tree.show_agents(names)
+
+    def on_agent_tree_agent_selected(self, event: AgentTree.AgentSelected) -> None:
+        self.activate_tab(event.agent_id)
 
     def _close_tab(self, agent_id: AgentId) -> None:
         if not self.app.is_running:
@@ -303,6 +317,7 @@ class AgentTabs(TabbedContent):
             self.update_tab_title(agent_id, title)
         elif isinstance(event, AgentChangedEvent):
             self._agent_names[agent_id] = event.new_name
+            self._show_agents_in_trees()
             model = self._agent_models.get(agent_id, "")
             token_display = self._agent_token_display.get(agent_id, "")
             title = self._tab_title_for(agent_id, model, token_display)
@@ -318,6 +333,7 @@ class AgentTabs(TabbedContent):
         if model is not None:
             self._agent_models[agent_id] = model
         if self.has_agent_tab(agent_id):
+            self._show_agents_in_trees()
             if model:
                 token_display = self._agent_token_display.get(agent_id, "")
                 title = self._tab_title_for(agent_id, model, token_display)

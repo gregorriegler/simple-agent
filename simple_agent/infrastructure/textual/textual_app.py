@@ -209,6 +209,10 @@ class TextualApp(App):
         color: $text-muted;
     }
 
+    AgentTree:focus {
+        background-tint: transparent;
+    }
+
     Markdown.message {
         border-left: outer $primary;
     }

@@ -2,7 +2,7 @@
  Agent [stub-model: 0.4%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▌  User: run bash sleep 5
-                     ▌
+ Agent               ▌
                      ▌ ▼ 💲 bash sleep 5
                      ▌╭────────────────────────────────────────────────────────╮
                      ▌│ Exit code 0 (5.017s elapsed)                           │
@@ -38,7 +38,7 @@ Active Tab: tab-Agent
             ResizableHorizontal id='tab-content' classes=''
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
-                  Vertical id='None' classes='left-panel-top'
+                  AgentTree id='None' classes='left-panel-top'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -59,7 +59,7 @@ Active Tab: tab-Agent
  Agent [stub-model: 0.4%]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                      ▌  User: run bash sleep 5
-                     ▌
+ Agent               ▌
                      ▌ ▼ 💲 bash sleep 5
                      ▌╭────────────────────────────────────────────────────────╮
                      ▌│ Exit code 0 (5.017s elapsed)                           │
@@ -95,7 +95,7 @@ Active Tab: tab-Agent
             ResizableHorizontal id='tab-content' classes=''
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
-                  Vertical id='None' classes='left-panel-top'
+                  AgentTree id='None' classes='left-panel-top'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
