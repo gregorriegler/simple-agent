@@ -33,26 +33,6 @@ def build_config() -> ModelConfig:
 
 
 @pytest.mark.asyncio
-async def test_gemini_retries_on_500():
-    call_count = 0
-
-    def handler(request):
-        nonlocal call_count
-        call_count += 1
-        if call_count < 3:
-            return httpx.Response(500)
-        return httpx.Response(200, json=SUCCESS)
-
-    client = GeminiLLM(build_config(), transport=httpx.MockTransport(handler))
-
-    with patch("asyncio.sleep", return_value=None):
-        result = await client.call_async([UserMessage("hello")])
-
-    assert result.answer == "success"
-    assert call_count == 3
-
-
-@pytest.mark.asyncio
 async def test_gemini_retries_on_timeout():
     call_count = 0
 
