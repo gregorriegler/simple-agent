@@ -6,6 +6,7 @@ import httpx
 from simple_agent.infrastructure.logging_http_client import LoggingAsyncClient
 
 MAX_RETRY_AFTER = 60
+TRANSIENT_STATUSES = {500, 502, 503, 504}
 
 
 async def post_with_retry(
@@ -49,7 +50,7 @@ def _is_transient(error: Exception) -> bool:
         return True
     if not isinstance(error, httpx.HTTPStatusError):
         return False
-    if error.response.status_code == 500:
+    if error.response.status_code in TRANSIENT_STATUSES:
         return True
     return _malformed_tool_call_message(error) is not None
 

@@ -80,8 +80,9 @@ async def test_client_wraps_http_status_error(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("llm_class,error_class,adapter,success_json", CLIENTS)
-async def test_client_retries_transient_500(
-    llm_class, error_class, adapter, success_json
+@pytest.mark.parametrize("status", [500, 502, 503, 504])
+async def test_client_retries_transient_server_errors(
+    llm_class, error_class, adapter, success_json, status
 ):
     post_count = 0
 
@@ -89,7 +90,7 @@ async def test_client_retries_transient_500(
         nonlocal post_count
         post_count += 1
         if post_count < 3:
-            return httpx.Response(500)
+            return httpx.Response(status)
         return httpx.Response(200, json=success_json)
 
     transport = httpx.MockTransport(handler)
