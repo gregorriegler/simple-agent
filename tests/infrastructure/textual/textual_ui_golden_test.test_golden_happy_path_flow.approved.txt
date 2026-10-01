@@ -14,7 +14,7 @@ Active Tab: tab-Agent
             ResizableHorizontal id='tab-content' classes=''
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
-                  VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Vertical id='None' classes='left-panel-top'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -67,7 +67,7 @@ Active Tab: tab-Agent
             ResizableHorizontal id='tab-content' classes=''
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
-                  VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Vertical id='None' classes='left-panel-top'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -122,7 +122,7 @@ Active Tab: tab-Agent
             ResizableHorizontal id='tab-content' classes=''
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
-                  VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Vertical id='None' classes='left-panel-top'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -177,7 +177,7 @@ Active Tab: tab-Agent
             ResizableHorizontal id='tab-content' classes=''
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
-                  VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Vertical id='None' classes='left-panel-top'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -236,7 +236,7 @@ Active Tab: tab-Agent
             ResizableHorizontal id='tab-content' classes=''
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
-                  VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Vertical id='None' classes='left-panel-top'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...
@@ -299,7 +299,7 @@ Active Tab: tab-Agent
             ResizableHorizontal id='tab-content' classes=''
               ResizableHorizontal id='split-view' classes=''
                 ResizableVertical id='left-panel' classes=''
-                  VerticalScroll id='log-Agent-scroll' classes='left-panel-top'
+                  Vertical id='None' classes='left-panel-top'
                   Splitter id='None' classes='horizontal'
                   VerticalScroll id='log-Agent-secondary' classes='left-panel-bottom'
                     Markdown id='log-Agent-todos' classes='' source=''...

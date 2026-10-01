@@ -78,7 +78,7 @@ def dump_ui_state(app: TextualApp) -> str:
             class_name = "ResizableHorizontal"
         elif class_name == "AgentTabs":
             class_name = "TabbedContent"
-        elif class_name in ("TodoView", "ChatLog", "ToolLog"):
+        elif class_name in ("TodoView", "ToolLog"):
             class_name = "VerticalScroll"
         elif class_name == "ToolCollapsible":
             class_name = "Collapsible"
