@@ -92,10 +92,12 @@ class Observers:
         self._event_bus.unsubscribe(ToolCalledEvent, self._deliver)
 
     def _packet(self, diff: str) -> str:
+        diff = diff.rstrip("\n")
+        fenced = f"```diff\n{diff}\n```"
         intent = self._intents.read(self._agent_id)
         if not intent:
-            return diff
-        return f"Intent: {intent}\n\n{diff}"
+            return fenced
+        return f"Intent: {intent}\n\n{fenced}"
 
     def resume(self, agent_id: AgentId, agent_type: AgentType) -> bool:
         name = agent_type.raw

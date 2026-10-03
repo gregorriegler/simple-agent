@@ -16,8 +16,10 @@ Agent: user_prompt_requested:
 Agent/Naming:         agent_started: Naming stub-model naming stop_and_wait
 Agent/Naming:         user_prompted: Intent: Store the greeting in a file
 
+```diff
 diff --git a/data1.txt b/data1.txt
 +Hello
+```
 Agent/Naming:   assistant_responded:  stub-model 0.0%
 Agent/Naming:           tool_called: Agent/Naming::tool_call::1 complete-task answer="judged the new file"
 Agent/Naming:           tool_result: Agent/Naming::tool_call::1 judged the new file
@@ -42,8 +44,10 @@ tool_result: stored the greeting
 [Agent/Naming]
 user: Intent: Store the greeting in a file
 
+```diff
 diff --git a/data1.txt b/data1.txt
 +Hello
+```
 assistant:
   complete-task answer="judged the new file"
 tool_result: judged the new file

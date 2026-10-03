@@ -23,8 +23,10 @@ Agent: user_prompt_requested:
 Agent/Naming:         agent_started: Naming stub-model naming stop_and_wait
 Agent/Naming:         user_prompted: Intent: Give the file a telling name
 
+```diff
 diff --git a/greeting.txt b/greeting.txt
 +Hello
+```
 Agent/Naming:   assistant_responded:  stub-model 0.0%
 Agent/Naming:           tool_called: Agent/Naming::tool_call::1 complete-task answer="judged greeting.txt"
 Agent/Naming:           tool_result: Agent/Naming::tool_call::1 judged greeting.txt
@@ -55,8 +57,10 @@ tool_result: stored the greeting
 [Agent/Naming]
 user: Intent: Give the file a telling name
 
+```diff
 diff --git a/greeting.txt b/greeting.txt
 +Hello
+```
 assistant:
   complete-task answer="judged greeting.txt"
 tool_result: judged greeting.txt

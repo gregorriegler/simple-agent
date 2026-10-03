@@ -13,8 +13,10 @@ Agent/Coding:    checkpoint_reached:
 Agent/Coding:   assistant_responded:  stub-model 0.0%
 Agent/Coding:           tool_called: Agent/Coding::tool_call::2 cat filename="data1.txt"
 Agent/Coding/Naming:         agent_started: Naming stub-model naming stop_and_wait
-Agent/Coding/Naming:         user_prompted: diff --git a/data1.txt b/data1.txt
+Agent/Coding/Naming:         user_prompted: ```diff
+diff --git a/data1.txt b/data1.txt
 +Hello
+```
 Agent/Coding/Naming:   assistant_responded:  stub-model 0.0%
 Agent/Coding/Naming:           tool_called: Agent/Coding/Naming::tool_call::1 suggest suggestion="data1.txt says nothing about its content"
 Agent/Coding/Naming:           tool_result: Agent/Coding/Naming::tool_call::1 Suggested: data1.txt says nothing about its content
@@ -54,8 +56,10 @@ tool_result: Created file: data1.txt with content
 assistant:
   cat filename="data1.txt"
 [Agent/Coding/Naming]
-user: diff --git a/data1.txt b/data1.txt
+user: ```diff
+diff --git a/data1.txt b/data1.txt
 +Hello
+```
 assistant:
   suggest suggestion="data1.txt says nothing about its content"
 tool_result: Suggested: data1.txt says nothing about its content

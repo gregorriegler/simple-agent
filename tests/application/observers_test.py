@@ -13,6 +13,7 @@ from simple_agent.application.tool_library import ToolCall
 
 AGENT = AgentId("Agent")
 DIFF = "diff --git a/greeting.txt b/greeting.txt"
+FENCED_DIFF = f"```diff\n{DIFF}\n```"
 
 
 class ChangeReporterStub:
@@ -87,7 +88,7 @@ def test_every_observer_of_the_agent_sees_the_diff():
     event_bus.publish(CheckpointReachedEvent(AGENT))
 
     assert [observer.name for observer in factory.created] == ["naming", "errors"]
-    assert all(observer.observed == [DIFF] for observer in factory.created)
+    assert all(observer.observed == [FENCED_DIFF] for observer in factory.created)
 
 
 def test_observers_stay_with_the_agent_and_are_fed_again():
@@ -100,7 +101,7 @@ def test_observers_stay_with_the_agent_and_are_fed_again():
     event_bus.publish(CheckpointReachedEvent(AGENT))
 
     assert len(factory.created) == 1
-    assert factory.created[0].observed == [DIFF, "a later diff"]
+    assert factory.created[0].observed == [FENCED_DIFF, "```diff\na later diff\n```"]
 
 
 def test_nothing_to_observe_without_changes():
@@ -233,7 +234,9 @@ def test_an_observer_learns_what_the_agent_is_trying_to_do():
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
 
-    assert factory.created[0].observed == [f"Intent: Store the greeting\n\n{DIFF}"]
+    assert factory.created[0].observed == [
+        f"Intent: Store the greeting\n\n{FENCED_DIFF}"
+    ]
 
 
 def test_an_observer_sees_the_diff_alone_when_no_intent_was_communicated():
@@ -243,7 +246,7 @@ def test_an_observer_sees_the_diff_alone_when_no_intent_was_communicated():
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
 
-    assert factory.created[0].observed == [DIFF]
+    assert factory.created[0].observed == [FENCED_DIFF]
 
 
 def test_a_resumed_observer_is_closed_when_the_session_is_cleared():
@@ -287,7 +290,7 @@ def test_a_resumed_observer_is_fed_the_next_diff_instead_of_a_second_one():
     event_bus.publish(CheckpointReachedEvent(AGENT))
 
     assert len(factory.created) == 1
-    assert factory.created[0].observed == [DIFF]
+    assert factory.created[0].observed == [FENCED_DIFF]
 
 
 def test_an_agent_that_this_agent_does_not_observe_with_is_not_resumed():

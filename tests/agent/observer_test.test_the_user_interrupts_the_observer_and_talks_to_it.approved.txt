@@ -9,8 +9,10 @@ Agent:    checkpoint_reached:
 Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::2 wait
 Agent/Naming:         agent_started: Naming stub-model naming stop_and_wait
-Agent/Naming:         user_prompted: diff --git a/data1.txt b/data1.txt
+Agent/Naming:         user_prompted: ```diff
+diff --git a/data1.txt b/data1.txt
 +Hello
+```
 Agent/Naming:   assistant_responded:  stub-model 0.0%
 Agent/Naming:           tool_called: Agent/Naming::tool_call::1 cat filename="data1.txt"
 Agent/Naming:        tool_cancelled: Agent/Naming::tool_call::1
@@ -44,8 +46,10 @@ tool_result: Created file: data1.txt with content
 assistant:
   wait
 [Agent/Naming]
-user: diff --git a/data1.txt b/data1.txt
+user: ```diff
+diff --git a/data1.txt b/data1.txt
 +Hello
+```
 assistant:
   cat filename="data1.txt"
 user: Don't bother reading it, suggest greeting.txt

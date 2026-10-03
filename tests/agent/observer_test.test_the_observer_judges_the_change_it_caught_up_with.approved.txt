@@ -17,8 +17,10 @@ Agent:    checkpoint_reached:
 Agent:   assistant_responded:  stub-model 0.0%
 Agent:           tool_called: Agent::tool_call::4 cat filename="greeting.txt"
 Agent/Naming:         agent_started: Naming stub-model naming stop_and_wait
-Agent/Naming:         user_prompted: diff --git a/tmp2.txt b/tmp2.txt
+Agent/Naming:         user_prompted: ```diff
+diff --git a/tmp2.txt b/tmp2.txt
 +Bye
+```
 Agent/Naming:   assistant_responded:  stub-model 0.0%
 Agent/Naming:           tool_called: Agent/Naming::tool_call::1 suggest suggestion="tmp2.txt says nothing about its content"
 Agent/Naming:           tool_result: Agent/Naming::tool_call::1 Suggested: tmp2.txt says nothing about its content
@@ -52,8 +54,10 @@ tool_result: Created file: tmp2.txt with content
 assistant:
   cat filename="greeting.txt"
 [Agent/Naming]
-user: diff --git a/tmp2.txt b/tmp2.txt
+user: ```diff
+diff --git a/tmp2.txt b/tmp2.txt
 +Bye
+```
 assistant:
   suggest suggestion="tmp2.txt says nothing about its content"
 tool_result: Suggested: tmp2.txt says nothing about its content
