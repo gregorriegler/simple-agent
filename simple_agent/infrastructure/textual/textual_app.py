@@ -84,6 +84,10 @@ class TextualApp(App):
         min-height: 0;
     }
 
+    .left-panel-top {
+        padding: 1 1 0 1;
+    }
+
     .left-panel-bottom {
         background: $surface-darken-1;
         overflow-y: auto;

@@ -1,7 +1,7 @@
 --- UI STATE FROM DIRECT EVENT REPLAY ---
-▼ ● Agent             Coding [stub-model: 0.0%]
-└── ● Coding         ▌  User: Say hello
-                     ▌
+                      Coding [stub-model: 0.0%]
+ ▼ ● Agent           ▌  User: Say hello
+ └── ● Coding        ▌
 
 
 
@@ -65,9 +65,9 @@ Active Tab: tab-Agent-Coding
     AutocompletePopup id='None' classes=''
 
 --- UI STATE FROM EVENT STORE CONTINUATION ---
-▼ ● Agent             Coding [stub-model: 0.0%]
-└── ● Coding         ▌  User: Say hello
-                     ▌
+                      Coding [stub-model: 0.0%]
+ ▼ ● Agent           ▌  User: Say hello
+ └── ● Coding        ▌
 
 
 
