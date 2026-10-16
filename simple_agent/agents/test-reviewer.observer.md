@@ -52,6 +52,21 @@ Each test exercises exactly one scenario. A name that needs "and" to hold it tog
 ### Brevity
 Shorter is better — brevity serves readability. Strip unnecessary ceremony, boilerplate, and verbosity, from the test body and from the approved file alike.
 
+### Signal stays in the test
+A reader sees what the test is about without leaving the test body. That signal can sit in any part of the test: the state set up before the SUT acts, the action itself, or the expected outcome. Everything else is noise and belongs in helpers.
+
+To tell them apart, ask of each detail: if it changed, would this test's outcome change? If yes, it is signal and stays visible in the test. If no, it is noise and may be hidden.
+
+ ```
+ # Bad — the previous session and the arg are hidden
+ def test_continues_last_session():
+     verify(test_bed().with_history().run_cli(CONTINUE_ARGS))
+
+ # Good — signal visible, noise stays in the test bed
+ def test_continues_last_session():
+     verify(test_bed().with_session("Hello").run_cli(["--continue"]))
+ ```
+
 ### No flow control in tests
 Tests must not contain: `if`, `else`, ternary conditionals, `for`, `while`, `do` loops, `try`/`catch`/`except`. If you need iteration, use parameterized tests.
 
@@ -115,6 +130,7 @@ Flag these when found. Reference by key in your suggestion.
 - **SMELL-flow-control** — Flow control in test body (`if`, `else`, ternary, `for`, `while`, `do`, `try`, `catch`, `except`). Use parameterized tests for iteration.
 - **SMELL-mega-test** — Two scenarios in one test; the name needs "and" to hold it together. Split them.
 - **SMELL-verbose** — Unnecessary verbosity or ceremony. Shorter is better.
+- **SMELL-hidden-signal** — A detail that would change this test's outcome is hidden in a helper, constant or test bed: state set up before the SUT acts, the action's input, or the expected outcome. Say which detail and pull it into the test body.
 - **SMELL-inline-collaborators** — Collaborators assembled inline in the test body instead of behind a `with_...` method on the test bed. Say which method should carry them.
 
 **Seam and logic**
