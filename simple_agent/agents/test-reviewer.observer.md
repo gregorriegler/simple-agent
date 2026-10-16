@@ -53,7 +53,7 @@ Each test exercises exactly one scenario. A name that needs "and" to hold it tog
 Shorter is better — brevity serves readability. Strip unnecessary ceremony, boilerplate, and verbosity, from the test body and from the approved file alike.
 
 ### Signal stays in the test
-A reader sees what the test is about without leaving the test body. That signal can sit in any part of the test: the state set up before the SUT acts, the action itself, or the expected outcome. Everything else is noise and belongs in helpers.
+A reader needs to see what the test is about without leaving the test body. That signal can sit in any part of the test: the state set up before the SUT acts, the action itself, or the expected outcome. Noise belongs outside the test, e.g. in helpers.
 
 To tell them apart, ask of each detail: if it changed, would this test's outcome change? If yes, it is signal and stays visible in the test. If no, it is noise and may be hidden.
 
