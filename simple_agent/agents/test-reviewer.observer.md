@@ -52,6 +52,19 @@ Each test exercises exactly one scenario. A name that needs "and" to hold it tog
 ### Brevity
 Shorter is better — brevity serves readability. Strip unnecessary ceremony, boilerplate, and verbosity, from the test body and from the approved file alike.
 
+### Signal stays in the test
+What the test is about is visible in the test body: the input that drives the behavior and the outcome it expects. A reader sees it without scrolling to a helper or a constant. Helpers and constants hide noise, never signal. Telling the two apart takes judgement: ask what a reader needs to understand why this outcome follows from this input.
+
+ ```
+ # Bad — the args under test are hidden
+ def test_continues_last_session():
+     verify(run_cli(CONTINUE_ARGS))
+
+ # Good
+ def test_continues_last_session():
+     verify(run_cli(["--continue"]))
+ ```
+
 ### No flow control in tests
 Tests must not contain: `if`, `else`, ternary conditionals, `for`, `while`, `do` loops, `try`/`catch`/`except`. If you need iteration, use parameterized tests.
 
@@ -115,6 +128,7 @@ Flag these when found. Reference by key in your suggestion.
 - **SMELL-flow-control** — Flow control in test body (`if`, `else`, ternary, `for`, `while`, `do`, `try`, `catch`, `except`). Use parameterized tests for iteration.
 - **SMELL-mega-test** — Two scenarios in one test; the name needs "and" to hold it together. Split them.
 - **SMELL-verbose** — Unnecessary verbosity or ceremony. Shorter is better.
+- **SMELL-hidden-signal** — A detail the test is about (the input that drives the behavior, or the expected outcome) is hidden in a helper or constant. Inline it into the test body.
 - **SMELL-inline-collaborators** — Collaborators assembled inline in the test body instead of behind a `with_...` method on the test bed. Say which method should carry them.
 
 **Seam and logic**
