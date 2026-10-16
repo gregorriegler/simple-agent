@@ -53,16 +53,18 @@ Each test exercises exactly one scenario. A name that needs "and" to hold it tog
 Shorter is better — brevity serves readability. Strip unnecessary ceremony, boilerplate, and verbosity, from the test body and from the approved file alike.
 
 ### Signal stays in the test
-What the test is about is visible in the test body: the input that drives the behavior and the outcome it expects. A reader sees it without scrolling to a helper or a constant. Helpers and constants hide noise, never signal. Telling the two apart takes judgement: ask what a reader needs to understand why this outcome follows from this input.
+A reader sees what the test is about without leaving the test body. That signal can sit in any part of the test: the state set up before the SUT acts, the action itself, or the expected outcome. Everything else is noise and belongs in helpers, constants or the test bed.
+
+To tell them apart, ask of each detail: if it changed, would this test's outcome change? If yes, it is signal and stays visible in the test. If no, it is noise and may be hidden.
 
  ```
- # Bad — the args under test are hidden
+ # Bad — the previous session and the arg are hidden
  def test_continues_last_session():
-     verify(run_cli(CONTINUE_ARGS))
+     verify(test_bed().with_history().run_cli(CONTINUE_ARGS))
 
- # Good
+ # Good — signal visible, noise stays in the test bed
  def test_continues_last_session():
-     verify(run_cli(["--continue"]))
+     verify(test_bed().with_session("Hello").run_cli(["--continue"]))
  ```
 
 ### No flow control in tests
@@ -128,7 +130,7 @@ Flag these when found. Reference by key in your suggestion.
 - **SMELL-flow-control** — Flow control in test body (`if`, `else`, ternary, `for`, `while`, `do`, `try`, `catch`, `except`). Use parameterized tests for iteration.
 - **SMELL-mega-test** — Two scenarios in one test; the name needs "and" to hold it together. Split them.
 - **SMELL-verbose** — Unnecessary verbosity or ceremony. Shorter is better.
-- **SMELL-hidden-signal** — A detail the test is about (the input that drives the behavior, or the expected outcome) is hidden in a helper or constant. Inline it into the test body.
+- **SMELL-hidden-signal** — A detail that would change this test's outcome is hidden in a helper, constant or test bed: state set up before the SUT acts, the action's input, or the expected outcome. Say which detail and pull it into the test body.
 - **SMELL-inline-collaborators** — Collaborators assembled inline in the test body instead of behind a `with_...` method on the test bed. Say which method should carry them.
 
 **Seam and logic**
