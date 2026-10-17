@@ -37,10 +37,10 @@ This means staying in the **problem space**, where the question is what is neede
 # Choosing the Style
 When a similar test exists, take its style. There is nothing to judge.
 
-Only when the test is something new, judge whether approval makes sense.
-It does when the scenario can be represented as a multiline string or
-ascii-art, with all the relevant details, and that representation is more
-comprehensive and easier to read than a test with asserts.
+Only when the test is something new, judge whether approval makes sense:
+- when the domain is spatial, visual, or board-based (e.g. grids, games, documents, diagrams), where an ASCII rendering captures the scene better than inspecting coordinates or fields.
+- when recording the interesting events in chronological order tells a clear story of what happened (e.g. a chat log, workflow history, or event timeline).
+- when the scenario is best represented as a multiline string that is more comprehensive and easier to read than a test with asserts.
 Otherwise write an acceptance test.
 
 # How a Test Should Read
