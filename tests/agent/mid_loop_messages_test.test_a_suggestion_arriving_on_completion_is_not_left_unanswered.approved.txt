@@ -1,0 +1,26 @@
+# Events
+Agent:       session_started: False
+Agent:         agent_started: Agent stub-model agent human_review
+Agent:         user_prompted: Write the test
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::1 complete-task answer="done"
+Agent:           tool_result: Agent::tool_call::1 done
+Agent:         user_prompted: 💡 rename the test
+Agent:   assistant_responded:  stub-model 0.0%
+Agent:           tool_called: Agent::tool_call::2 complete-task answer="applied it"
+Agent:           tool_result: Agent::tool_call::2 applied it
+Agent: user_prompt_requested: 
+Agent:        agent_finished: 
+Agent:         session_ended: 
+
+# Messages:
+[Agent]
+user: Write the test
+assistant:
+  complete-task answer="done"
+tool_result: done
+user: 💡 rename the test
+assistant:
+  complete-task answer="applied it"
+tool_result: applied it
+

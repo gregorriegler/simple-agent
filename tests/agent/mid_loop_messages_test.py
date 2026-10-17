@@ -22,3 +22,17 @@ async def test_message_typed_while_working_is_seen_before_the_next_llm_call(tmp_
     verify(
         result.as_approval_string(), options=Options().with_scrubber(all_scrubbers())
     )
+
+
+async def test_a_suggestion_arriving_on_completion_is_not_left_unanswered():
+    result = (
+        await SessionTestBed()
+        .with_llm_responses([complete_task("done"), complete_task("applied it")])
+        .with_user_inputs("Write the test", "\n")
+        .with_messages_typed_while_working(["💡 rename the test"])
+        .run()
+    )
+
+    verify(
+        result.as_approval_string(), options=Options().with_scrubber(all_scrubbers())
+    )

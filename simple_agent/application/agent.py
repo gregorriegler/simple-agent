@@ -242,7 +242,8 @@ class Agent(SlashCommandVisitor):
                 tool_result = await self.tools_executor.execute_tool_calls(
                     turn.invocations
                 )
-                self._append_pending_user_messages()
+                if tool_result.do_continue():
+                    self._append_pending_user_messages()
 
             return tool_result
         except asyncio.CancelledError:
