@@ -9,19 +9,21 @@ It is shared by everyone working on the project and lives with the code.
 A markdown checklist, one scenario per line, grouped by the problem it solves:
 
 ```markdown
-## Cart total
-- [x] an empty cart has a total of zero
-- [x] a cart with one item totals the price of that item
-- [ ] a cart with many items totals the sum of their prices
-
-## Discount codes
-- [ ] a cart without a discount code keeps its total
-- [ ] a discount code reduces the total
-- [ ] an unknown discount code is rejected
+## Cart pricing
+- [x] calculates price of an empty cart
+- [x] calculates price of a cart with a single item
+- [ ] calculates price of a cart with multiple items
 ```
 
-- Describe what the code has to do, not how it does it.
+- Describe what the code does, not how it does it.
+- Focus on actions and observable transformations, not empty containers or internal state.
+- Keep the list focused on the current problem; add new problems only when you reach them.
 - Cross a scenario off with `- [x]` once its test passes.
+
+## Where to Start: Behavior Over Structure
+
+- **Start with core domain behavior**: Focus on the simplest action that produces an observable outcome. Do not begin with scaffolding, empty containers, board dimensions, or passive data structures. Data structures emerge to support behavior, not before it.
+- **Start with a thin slice**: Do not pre-plan an exhaustive list of all problems and edge cases upfront. Start with the simplest slice of actual behavior, make it pass, and expand the test list incrementally as you learn.
 
 ## One Problem at a Time
 
@@ -36,11 +38,11 @@ This decides the order of the TEST_LIST_FILE and where new scenarios go:
 ## ZOMBIES
 
 Use ZOMBIES to decide which scenarios a problem needs and how to sort them:
-- **Z**ero: nothing, empty, none
-- **O**ne: a single item
+- **Z**ero: nothing, empty, none (e.g. no action taken, neutral state)
+- **O**ne: a single item or single step
 - **M**any: more than one
 - **B**oundary behaviors: the edges where behavior changes
-- **I**nterface definition: what you give it and what you get back
+- **I**nterface definition: express through verbs and actions, not state inspection or passive getters
 - **E**xceptional behavior: errors and invalid input
 - **S**imple scenarios, simple solutions: start with the simplest
 
