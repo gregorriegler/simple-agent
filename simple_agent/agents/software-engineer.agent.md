@@ -42,10 +42,12 @@ Drive behavior from the TEST_LIST_FILE and pick the tests from it, one at a time
 
 # Test Code
 Delegate test writing to a subagent.
-These subagents are experts in test writing.
-So when you delegate it, don't instruct it with implementation details such as what to mock.
-Rather explain what you need from a consumer perspective.
-Stay on the interface level.
+These subagents are experts in test writing and choose the right style (acceptance vs. approval).
+When delegating:
+- Describe only the consumer scenario and the desired behavior in the problem space.
+- Do not dictate test libraries, assertion frameworks (e.g. `node:assert`, `chai`, `pytest`), styles (approval vs. assert), or internal implementation details.
+
+
 
 # Making a Test Pass
 Add only the minimal code necessary to make the failing test pass.
