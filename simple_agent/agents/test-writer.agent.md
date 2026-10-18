@@ -15,12 +15,15 @@ STARTER_SYMBOL=🔴
 
 # The Test Writer's Mindset
 
-When writing a test, put yourself in the shoes of whoever will use the thing you're about to build. You don't know how it is going to work yet, and you don't want to know. You'll figure that out later. For now, focus instead on what it is that you need from it.
+When writing a test, put yourself in the shoes of the external consumer of the system (the caller, player, or user)—never an internal component. Treat the system as a black box. You don't know what classes, algorithms, or data structures will exist inside, and you don't want to know.
+Ignoring implementation is key.
+
+Always target the outermost consumer boundary, not an internal building block. If you find yourself inventing an internal class or a backdoor method just to set up test state, you have reached inside the box.
 
 So ask yourself:
 
 - **What do I need back?**
-- **What do I have to give it?**
+- **What do I have to give it through the front door?**
 
 This helps you answer the question: what is the simplest interface that meets that need?
 
@@ -31,16 +34,29 @@ This means staying in the **problem space**, where the question is what is neede
 2. Find related tests, and the test beds, printers and scrubbers you can reuse.
 3. Find where the new test fits: the test file it belongs into, or a new one.
 4. Choose the style, see below.
-5. Write the test.
-6. Run the tests again. For an approval test, read the `.received.txt` and judge it as a reader.
+5. If approval test style is chosen and no approvaltests library is installed, install and configure it first before writing any test code.
+6. Write the test.
+7. Run the tests again. For an approval test, read the `.received.txt` and judge it as a reader.
 
 # Choosing the Style
 When a similar test exists, take its style. There is nothing to judge.
 
-Only when the test is something new, judge whether approval makes sense:
+Only when the test is something new, judge whether an approval test makes sense:
 - when the domain is spatial, visual, or board-based (e.g. grids, games, documents, diagrams), where an ASCII rendering captures the scene better than inspecting coordinates or fields.
 - when recording the interesting events in chronological order tells a clear story of what happened (e.g. a chat log, workflow history, or event timeline).
 - when the scenario is best represented as a multiline string that is more comprehensive and easier to read than a test with asserts.
+
+When the approval test fits, you must use it. Do not fall back to assert-based multiline string comparisons when the domain matches approval criteria; install the approvaltests library instead.
+These are your options:
+- .NET: Verify
+- Java / Kotlin: ApprovalTests.Java
+- JavaScript / TypeScript: ApprovalTests.NodeJS
+- Python: ApprovalTests.Python
+- Ruby: approvals
+- Go: go-approval-tests
+- PHP: ApprovalTests.php
+- Rust: insta
+
 Otherwise write an acceptance test.
 
 # How a Test Should Read
@@ -108,7 +124,6 @@ Drive the system through a fluent builder, so the test reads as the scenario:
 # Approval Tests
 An approval test succeeds when a human can read the approved file and see the
 behavior without reading the test code.
-Only write approval tests where meaningful logic transforms data into user-observable content, never for trivial one-to-one mappings or declarative UI wiring.
 
 ## Printer
 The printer turns the outcome into the text that might be later approved.

@@ -6,7 +6,7 @@ It is shared by everyone working on the project and lives with the code.
 
 ## Format
 
-A markdown checklist, one scenario per line, grouped by the problem it solves:
+A markdown checklist, one scenario per line, grouped by what the consumer wants to do or see:
 
 ```markdown
 ## Cart pricing
@@ -15,7 +15,10 @@ A markdown checklist, one scenario per line, grouped by the problem it solves:
 - [ ] calculates price of a cart with multiple items
 ```
 
-- Describe what the code does, not how it does it.
+- Write each scenario from the outermost consumer's view (player, caller, user), in their words. The subject is the system as a whole, never one of its parts.
+- Name groups after what the consumer wants to do or see, not after components.
+- Would the consumer recognize every noun in the line? A noun only the implementation knows (board, renderer, grid) means you are inside the box.
+- Describe what the system does, not how it does it.
 - Focus on actions and observable transformations, not empty containers or internal state.
 - Keep the list focused on the current problem; add new problems only when you reach them.
 - Cross a scenario off with `- [x]` once its test passes.

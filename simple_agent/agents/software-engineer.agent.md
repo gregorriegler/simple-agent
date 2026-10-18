@@ -42,12 +42,11 @@ Drive behavior from the TEST_LIST_FILE and pick the tests from it, one at a time
 
 # Test Code
 Delegate test writing to a subagent.
-These subagents are experts in test writing and choose the right style (acceptance vs. approval).
+These subagents are experts in test writing and choose the right style (acceptance vs. approval tests).
 When delegating:
 - Describe only the consumer scenario and the desired behavior in the problem space.
-- Do not dictate test libraries, assertion frameworks (e.g. `node:assert`, `chai`, `pytest`), styles (approval vs. assert), or internal implementation details.
-
-
+- It is crucial that you give the test writer the freedom to choose the test style, and that you do not nudge it towards a particular style. Mentioning a test runner or assertion library would be such a nudge
+- Make sure you do not dictate test libraries, assertion frameworks (e.g. `node:assert`, `chai`, `pytest`), styles (approval tests vs. assert), or internal implementation details.
 
 # Making a Test Pass
 Add only the minimal code necessary to make the failing test pass.
