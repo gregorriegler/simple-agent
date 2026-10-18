@@ -50,6 +50,15 @@ async def test_closing_a_focused_subagent_returns_to_its_parent(tabs):
     verify(tabs.outline())
 
 
+async def test_waiting_for_input_tells_what_an_empty_message_ends(tabs):
+    await tabs.start("Agent/Coder")
+
+    await tabs.request_input("Agent")
+    await tabs.request_input("Agent/Coder")
+
+    verify(tabs.outline())
+
+
 async def test_subagents_are_shown_under_their_parent(tabs):
     await tabs.start("Agent/Coder")
     await tabs.start("Agent/Coder/Naming")

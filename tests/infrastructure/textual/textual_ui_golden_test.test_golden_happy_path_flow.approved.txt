@@ -63,8 +63,8 @@ Active Tab: tab-Agent
               VerticalScroll id='tool-results-Agent' classes=''
                 Markdown id='None' classes='message' source='Starting new session'...
                   MarkdownParagraph id='None' classes='level-0' content='Starting new session'
-                Markdown id='None' classes='message' source='\nWaiting for user input...'...
-                  MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
+                Markdown id='None' classes='message' source='\nWaiting for user input... (empty message to quit)'...
+                  MarkdownParagraph id='None' classes='level-0' content='Waiting for user input... (empty message to quit)'
           SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
 
@@ -72,7 +72,7 @@ Active Tab: tab-Agent
                       Agent
  ● Agent             ▌  Starting new session
                      ▌
-                     ▌  Waiting for user input...
+                     ▌  Waiting for user input... (empty message to quit)
                      ▌
 
 
@@ -112,8 +112,8 @@ Active Tab: tab-Agent
               VerticalScroll id='tool-results-Agent' classes=''
                 Markdown id='None' classes='message' source='Starting new session'...
                   MarkdownParagraph id='None' classes='level-0' content='Starting new session'
-                Markdown id='None' classes='message' source='\nWaiting for user input...'...
-                  MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
+                Markdown id='None' classes='message' source='\nWaiting for user input... (empty message to quit)'...
+                  MarkdownParagraph id='None' classes='level-0' content='Waiting for user input... (empty message to quit)'
           SmartInput id='user-input' classes='' text=''
     AutocompletePopup id='None' classes=''
 
@@ -121,7 +121,7 @@ Active Tab: tab-Agent
                       Agent
  ● Agent             ▌  Starting new session
                      ▌
-                     ▌  Waiting for user input...
+                     ▌  Waiting for user input... (empty message to quit)
                      ▌
 
 
@@ -161,8 +161,8 @@ Active Tab: tab-Agent
               VerticalScroll id='tool-results-Agent' classes=''
                 Markdown id='None' classes='message' source='Starting new session'...
                   MarkdownParagraph id='None' classes='level-0' content='Starting new session'
-                Markdown id='None' classes='message' source='\nWaiting for user input...'...
-                  MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
+                Markdown id='None' classes='message' source='\nWaiting for user input... (empty message to quit)'...
+                  MarkdownParagraph id='None' classes='level-0' content='Waiting for user input... (empty message to quit)'
                 Markdown id='None' classes='message' source='**User:** Hello'...
                   MarkdownParagraph id='None' classes='level-0' content='User: Hello'
                 Markdown id='None' classes='message' source='**Agent:** Hi there!'...
@@ -174,7 +174,7 @@ Active Tab: tab-Agent
                       Agent
  ● Agent             ▌  Starting new session
                      ▌
-                     ▌  Waiting for user input...
+                     ▌  Waiting for user input... (empty message to quit)
                      ▌
                      ▌  User: Hello
                      ▌
@@ -214,8 +214,8 @@ Active Tab: tab-Agent
               VerticalScroll id='tool-results-Agent' classes=''
                 Markdown id='None' classes='message' source='Starting new session'...
                   MarkdownParagraph id='None' classes='level-0' content='Starting new session'
-                Markdown id='None' classes='message' source='\nWaiting for user input...'...
-                  MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
+                Markdown id='None' classes='message' source='\nWaiting for user input... (empty message to quit)'...
+                  MarkdownParagraph id='None' classes='level-0' content='Waiting for user input... (empty message to quit)'
                 Markdown id='None' classes='message' source='**User:** Hello'...
                   MarkdownParagraph id='None' classes='level-0' content='User: Hello'
                 Markdown id='None' classes='message' source='**Agent:** Hi there!'...
@@ -231,7 +231,7 @@ Active Tab: tab-Agent
                       Agent
  ● Agent             ▌  Starting new session
                      ▌
-                     ▌  Waiting for user input...
+                     ▌  Waiting for user input... (empty message to quit)
                      ▌
                      ▌  User: Hello
                      ▌
@@ -271,8 +271,8 @@ Active Tab: tab-Agent
               VerticalScroll id='tool-results-Agent' classes=''
                 Markdown id='None' classes='message' source='Starting new session'...
                   MarkdownParagraph id='None' classes='level-0' content='Starting new session'
-                Markdown id='None' classes='message' source='\nWaiting for user input...'...
-                  MarkdownParagraph id='None' classes='level-0' content='Waiting for user input...'
+                Markdown id='None' classes='message' source='\nWaiting for user input... (empty message to quit)'...
+                  MarkdownParagraph id='None' classes='level-0' content='Waiting for user input... (empty message to quit)'
                 Markdown id='None' classes='message' source='**User:** Hello'...
                   MarkdownParagraph id='None' classes='level-0' content='User: Hello'
                 Markdown id='None' classes='message' source='**Agent:** Hi there!'...
@@ -288,7 +288,7 @@ Active Tab: tab-Agent
                       Agent
  ● Agent             ▌  Starting new session
                      ▌
-                     ▌  Waiting for user input...
+                     ▌  Waiting for user input... (empty message to quit)
                      ▌
                      ▌  User: Hello
                      ▌

@@ -303,7 +303,12 @@ class AgentTabs(ContentSwitcher):
             self._mark_awaiting_input(agent_id)
             workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:
-                workspace.write_message("\nWaiting for user input...")
+                ends = (
+                    "quit" if agent_id == self._root_agent_id else "end this subagent"
+                )
+                workspace.write_message(
+                    f"\nWaiting for user input... (empty message to {ends})"
+                )
         elif isinstance(event, ErrorEvent):
             workspace = self._agent_workspaces.get(str(agent_id))
             if workspace:

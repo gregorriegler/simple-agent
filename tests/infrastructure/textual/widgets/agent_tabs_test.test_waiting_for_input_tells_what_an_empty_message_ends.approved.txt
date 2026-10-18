@@ -1,0 +1,6 @@
+> tab-Agent
+    
+Waiting for user input... (empty message to quit)
+  tab-Agent-Coder
+    
+Waiting for user input... (empty message to end this subagent)

@@ -162,7 +162,10 @@ async def test_user_prompt_requested_message_is_logged(textual_harness):
         event_bus.publish(UserPromptRequestedEvent(agent_id))
         await pilot.pause()
 
-        assert _last_markdown_text(app, agent_id) == "\nWaiting for user input..."
+        assert (
+            _last_markdown_text(app, agent_id)
+            == "\nWaiting for user input... (empty message to quit)"
+        )
 
 
 @pytest.mark.asyncio
