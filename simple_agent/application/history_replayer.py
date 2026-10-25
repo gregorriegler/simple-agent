@@ -40,6 +40,7 @@ class HistoryReplayer:
             if isinstance(event, AgentFinishedEvent):
                 finished_agents.add(event.agent_id)
             elif isinstance(event, AgentStartedEvent):
+                finished_agents.discard(event.agent_id)
                 start_events[event.agent_id] = event
 
             if not has_granular and isinstance(event, ToolResultEvent):

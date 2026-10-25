@@ -1,6 +1,8 @@
 import pytest
+from approvaltests import verify
 
 from simple_agent.application.agent_id import AgentId
+from simple_agent.application.agent_type import AgentType
 from simple_agent.application.events import (
     AgentFinishedEvent,
     AgentStartedEvent,
@@ -115,6 +117,32 @@ async def test_a_subagent_running_when_the_user_quits_is_resumed(tmp_path):
     )
 
     assert AgentId("Agent/Coding") in asking
+
+
+@pytest.mark.asyncio
+async def test_a_subagent_started_again_after_it_finished_is_resumed(tmp_path):
+    event_store = FileEventStore(tmp_path)
+    event_store.persist(coding_subagent_started())
+    event_store.persist(AgentFinishedEvent(agent_id=CODING))
+    event_store.persist(coding_subagent_started())
+
+    result = (
+        await SessionTestBed().with_event_store(event_store).continuing_session().run()
+    )
+
+    verify(result.as_approval_string())
+
+
+CODING = AgentId("Agent/Coding")
+
+
+def coding_subagent_started():
+    return AgentStartedEvent(
+        agent_id=CODING,
+        agent_name="Coding",
+        model="test-model",
+        agent_type=AgentType("coding"),
+    )
 
 
 @pytest.mark.asyncio

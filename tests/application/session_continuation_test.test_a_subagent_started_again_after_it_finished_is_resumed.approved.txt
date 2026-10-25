@@ -1,0 +1,21 @@
+# Events
+Agent:       session_started: True
+Agent/Coding:         agent_started: Coding test-model coding human_review
+Agent/Coding:        agent_finished: 
+Agent/Coding:         agent_started: Coding test-model coding human_review
+Agent:         agent_started: Agent default-model agent human_review
+Agent:         user_prompted: test message
+Agent:   assistant_responded:   0.0%
+Agent: user_prompt_requested: 
+Agent/Coding:         agent_started: Coding default-model coding human_review
+Agent/Coding: user_prompt_requested: 
+Agent:        agent_finished: 
+Agent:         session_ended: 
+Agent/Coding:        agent_finished: 
+Agent/Coding:         session_ended: 
+
+# Messages:
+[Agent]
+user: test message
+assistant:
+
