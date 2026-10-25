@@ -98,7 +98,7 @@ But if something matters for the scenario, it stays in the test. A reader should
 | What is the scenario? | the test name | the test name |
 | What is relevant for this particular scenario? | the values that make this scenario | the same, in the 'before' |
 | What goes into the SUT? | the arrange | the 'before' |
-| How is the SUT used? | the test body, a single call to the SUT | the `verify...` function |
+| How is the SUT used? | the test body, a single call to the SUT | the test body or action passed to verify |
 | What is the expected outcome? | the assert | the approved file |
 
 ## The Whole Outcome
@@ -129,6 +129,11 @@ behavior without reading the test code.
 The printer turns the outcome into the text that might be later approved.
 Reuse an existing one. If none exists, create one next to the tests and name
 it after what it shows.
+Printers should format general transitions or domain state rather than specific verbs (e.g. `print_transition(before, action, after)` rather than `print_tick`, `print_move_left`).
+
+## Verify the Thing, Not the Action
+A test suite should generally have ONE verifier per entity (e.g. `verify_order`, `verify_document`, `verify_cart`), not one per test or action.
+Do not pollute the test body with test framework context (like test runner objects or directory paths); keep those encapsulated inside the verifier or test setup.
 
 ## Good Approved Files
 The approved file becomes a specification.

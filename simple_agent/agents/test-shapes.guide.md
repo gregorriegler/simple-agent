@@ -45,15 +45,42 @@ Then the test is just that call.
             .#.
         """)
 
-The `verify...` function performs the action, hands the outcome to the printer,
-and verifies what the printer returned. Name it after the action being performed, never after the scenario outcome:
+Verify the **thing**, never create one verifier per action:
 
-| Test Name (Scenario Outcome) | Bad (named after outcome) | Good (named after action) |
+| Test Name (Scenario Outcome) | Bad (one verifier per action) | Good (verify the thing) |
 |---|---|---|
-| `test_expired_card_declines_order` | `verify_expired_card_declines_order(cart)` | `verify_checkout(cart)` |
-| `test_duplicate_flag_shows_usage_error` | `verify_duplicate_flag_shows_error(cli)` | `verify_run(cli)` |
+| `test_expired_card_declines_order` | `verify_expired_card_declines_order(cart)` | `verify_cart(cart)` |
+| `test_duplicate_flag_shows_usage_error` | `verify_duplicate_flag_shows_error(cli)` | `verify_cli(cli)` |
+| `test_discount_applied_on_checkout` | `verify_checkout(cart)` | `verify_cart(cart, ...)` |
 
     def verify_agent(session):
         actual = session.run()
 
         verify(print_conversation(actual))
+
+### State Transitions and Storyboards
+When testing state transitions (e.g. before -> action -> after), capture both the before and after states to tell the whole story, but do not create a new `verify_<action>` helper for each action.
+
+Instead, let a single verifier or Storyboard capture the transition:
+
+    def test_archiving_an_active_project():
+        project = Project(name="Phoenix", status="active")
+
+        verify_project(project, lambda p: p.archive())
+
+The single `verify_project` captures before, executes the action, captures after, and verifies the printed transition.
+
+When multiple steps or chronological history matter, use a Storyboard:
+
+    def test_order_fulfillment_workflow():
+        story = StoryBoard()
+        order = Order(items=["Book"])
+        story.add_frame(order)
+
+        order.pay()
+        story.add_frame(order)
+
+        order.ship()
+        story.add_frame(order)
+
+        verify(story)
