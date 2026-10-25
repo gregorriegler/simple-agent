@@ -21,43 +21,43 @@ def repository(tmp_path):
     return tmp_path
 
 
-def test_diffs_a_changed_file(repository):
+async def test_diffs_a_changed_file(repository):
     (repository / "greeting.txt").write_text("Hello again\n")
 
-    verify_diff(repository)
+    await verify_diff(repository)
 
 
-def test_diffs_a_newly_created_file(repository):
+async def test_diffs_a_newly_created_file(repository):
     (repository / "fresh.txt").write_text("Brand new\n")
 
-    verify_diff(repository)
+    await verify_diff(repository)
 
 
-def test_diffs_changed_and_new_files_together(repository):
+async def test_diffs_changed_and_new_files_together(repository):
     (repository / "greeting.txt").write_text("Hello again\n")
     (repository / "fresh.txt").write_text("Brand new\n")
 
-    verify_diff(repository)
+    await verify_diff(repository)
 
 
-def test_ignores_new_hidden_files_and_directories(repository):
+async def test_ignores_new_hidden_files_and_directories(repository):
     session = repository / ".simple-agent" / "sessions" / "1"
     session.mkdir(parents=True)
     (session / "events.jsonl").write_text('{"type": "AgentStartedEvent"}\n')
     (repository / ".envrc").write_text("export SECRET=1\n")
 
-    assert GitChangeReporter(repository).diff() == ""
+    assert await GitChangeReporter(repository).diff() == ""
 
 
-def test_no_diff_outside_a_repository(tmp_path):
+async def test_no_diff_outside_a_repository(tmp_path):
     (tmp_path / "greeting.txt").write_text("Hello\n")
 
-    verify_diff(tmp_path)
+    await verify_diff(tmp_path)
 
 
-def verify_diff(working_directory):
+async def verify_diff(working_directory):
     verify(
-        GitChangeReporter(working_directory).diff(),
+        await GitChangeReporter(working_directory).diff(),
         options=Options().with_scrubber(create_blob_hash_scrubber()),
     )
 

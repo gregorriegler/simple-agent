@@ -1,3 +1,5 @@
+import asyncio
+
 from simple_agent.application.agent_id import AgentId
 from simple_agent.application.agent_type import AgentType
 from simple_agent.application.event_bus import SimpleEventBus
@@ -20,7 +22,7 @@ class ChangeReporterStub:
     def __init__(self, *diffs):
         self._diffs = list(diffs)
 
-    def diff(self) -> str:
+    async def diff(self) -> str:
         return self._diffs.pop(0) if self._diffs else ""
 
 
@@ -66,6 +68,10 @@ class IntentsStub:
         self._intent = intent
 
 
+async def settle():
+    await asyncio.sleep(0)
+
+
 def observers_of(
     event_bus, names, change_reporter, factory, agent_input=None, intents=None
 ):
@@ -80,41 +86,45 @@ def observers_of(
     )
 
 
-def test_every_observer_of_the_agent_sees_the_diff():
+async def test_every_observer_of_the_agent_sees_the_diff():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     observers_of(event_bus, ["naming", "errors"], ChangeReporterStub(DIFF), factory)
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
 
     assert [observer.name for observer in factory.created] == ["naming", "errors"]
     assert all(observer.observed == [FENCED_DIFF] for observer in factory.created)
 
 
-def test_observers_stay_with_the_agent_and_are_fed_again():
+async def test_observers_stay_with_the_agent_and_are_fed_again():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     reporter = ChangeReporterStub(DIFF, "a later diff")
     observers_of(event_bus, ["naming"], reporter, factory)
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
 
     assert len(factory.created) == 1
     assert factory.created[0].observed == [FENCED_DIFF, "```diff\na later diff\n```"]
 
 
-def test_nothing_to_observe_without_changes():
+async def test_nothing_to_observe_without_changes():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     observers_of(event_bus, ["naming"], ChangeReporterStub(""), factory)
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
 
     assert factory.created == []
 
 
-def test_another_agents_checkpoint_is_not_observed():
+async def test_another_agents_checkpoint_is_not_observed():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory)
@@ -124,25 +134,28 @@ def test_another_agents_checkpoint_is_not_observed():
     assert factory.created == []
 
 
-def test_observers_are_closed_when_the_agent_finishes():
+async def test_observers_are_closed_when_the_agent_finishes():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory)
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
     event_bus.publish(AgentFinishedEvent(AGENT))
 
     assert factory.created[0].closed
 
 
-def test_a_finished_agent_is_no_longer_observed():
+async def test_a_finished_agent_is_no_longer_observed():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF, DIFF), factory)
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
     event_bus.publish(AgentFinishedEvent(AGENT))
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
 
     assert len(factory.created) == 1
     assert event_bus._handlers == {
@@ -153,26 +166,29 @@ def test_a_finished_agent_is_no_longer_observed():
     }
 
 
-def test_observers_are_closed_when_the_session_is_cleared():
+async def test_observers_are_closed_when_the_session_is_cleared():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory)
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
     event_bus.publish(SessionClearedEvent(AGENT))
 
     assert factory.created[0].closed
 
 
-def test_observers_are_recreated_after_the_session_is_cleared():
+async def test_observers_are_recreated_after_the_session_is_cleared():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     reporter = ChangeReporterStub(DIFF, "a later diff")
     observers_of(event_bus, ["naming"], reporter, factory)
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
     event_bus.publish(SessionClearedEvent(AGENT))
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
 
     assert len(factory.created) == 2
     assert factory.created[0].closed
@@ -183,13 +199,14 @@ def suggest(text):
     return ToolCall("suggest", {"suggestion": text})
 
 
-def test_what_an_observer_found_reaches_the_agent():
+async def test_what_an_observer_found_reaches_the_agent():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     agent_input = Inbox()
     observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory, agent_input)
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
     observer = factory.created[0]
     event_bus.publish(
         ToolCalledEvent(
@@ -202,13 +219,14 @@ def test_what_an_observer_found_reaches_the_agent():
     ]
 
 
-def test_an_observation_without_a_suggestion_does_not_disturb_the_agent():
+async def test_an_observation_without_a_suggestion_does_not_disturb_the_agent():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     agent_input = Inbox()
     observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory, agent_input)
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
     observer = factory.created[0]
     event_bus.publish(
         ToolCalledEvent(
@@ -221,7 +239,7 @@ def test_an_observation_without_a_suggestion_does_not_disturb_the_agent():
     assert agent_input.drain() == []
 
 
-def test_an_observer_learns_what_the_agent_is_trying_to_do():
+async def test_an_observer_learns_what_the_agent_is_trying_to_do():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     observers_of(
@@ -233,23 +251,25 @@ def test_an_observer_learns_what_the_agent_is_trying_to_do():
     )
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
 
     assert factory.created[0].observed == [
         f"Intent: Store the greeting\n\n{FENCED_DIFF}"
     ]
 
 
-def test_an_observer_sees_the_diff_alone_when_no_intent_was_communicated():
+async def test_an_observer_sees_the_diff_alone_when_no_intent_was_communicated():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory)
 
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
 
     assert factory.created[0].observed == [FENCED_DIFF]
 
 
-def test_a_resumed_observer_is_closed_when_the_session_is_cleared():
+async def test_a_resumed_observer_is_closed_when_the_session_is_cleared():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     observers = observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory)
@@ -260,7 +280,7 @@ def test_a_resumed_observer_is_closed_when_the_session_is_cleared():
     assert factory.created[0].closed
 
 
-def test_what_a_resumed_observer_found_reaches_the_agent():
+async def test_what_a_resumed_observer_found_reaches_the_agent():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     agent_input = Inbox()
@@ -281,19 +301,20 @@ def test_what_a_resumed_observer_found_reaches_the_agent():
     ]
 
 
-def test_a_resumed_observer_is_fed_the_next_diff_instead_of_a_second_one():
+async def test_a_resumed_observer_is_fed_the_next_diff_instead_of_a_second_one():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     observers = observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory)
 
     observers.resume(AgentId("Agent/Naming"), AgentType("naming"))
     event_bus.publish(CheckpointReachedEvent(AGENT))
+    await settle()
 
     assert len(factory.created) == 1
     assert factory.created[0].observed == [FENCED_DIFF]
 
 
-def test_an_agent_that_this_agent_does_not_observe_with_is_not_resumed():
+async def test_an_agent_that_this_agent_does_not_observe_with_is_not_resumed():
     event_bus = SimpleEventBus()
     factory = ObserverFactoryStub()
     observers = observers_of(event_bus, ["naming"], ChangeReporterStub(DIFF), factory)

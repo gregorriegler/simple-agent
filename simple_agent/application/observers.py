@@ -1,3 +1,4 @@
+import asyncio
 from typing import Protocol
 
 from .agent_id import AgentId
@@ -50,6 +51,8 @@ class Observers:
         self._inbox = inbox
         self._intents = intents
         self._observers: dict[str, Observer] = {}
+        self._pending: set[asyncio.Task] = set()
+        self._diffing = asyncio.Lock()
         self._event_bus = event_bus
         event_bus.subscribe(CheckpointReachedEvent, self._observe)
         event_bus.subscribe(AgentFinishedEvent, self._finish)
@@ -59,7 +62,13 @@ class Observers:
     def _observe(self, event: CheckpointReachedEvent) -> None:
         if event.agent_id != self._agent_id:
             return
-        diff = self._change_reporter.diff()
+        task = asyncio.create_task(self._observe_changes())
+        self._pending.add(task)
+        task.add_done_callback(self._pending.discard)
+
+    async def _observe_changes(self) -> None:
+        async with self._diffing:
+            diff = await self._change_reporter.diff()
         if not diff:
             return
         packet = self._packet(diff)
@@ -85,6 +94,8 @@ class Observers:
     def _finish(self, event: AgentFinishedEvent) -> None:
         if event.agent_id != self._agent_id:
             return
+        for task in self._pending:
+            task.cancel()
         self._close(event)
         self._event_bus.unsubscribe(CheckpointReachedEvent, self._observe)
         self._event_bus.unsubscribe(AgentFinishedEvent, self._finish)

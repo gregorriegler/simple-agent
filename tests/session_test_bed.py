@@ -389,7 +389,7 @@ class ChangeReporterStub:
     def __init__(self, diffs: list[str]):
         self._diffs = list(diffs)
 
-    def diff(self) -> str:
+    async def diff(self) -> str:
         if len(self._diffs) > 1:
             return self._diffs.pop(0)
         return self._diffs[0]
