@@ -46,7 +46,12 @@ Then the test is just that call.
         """)
 
 The `verify...` function performs the action, hands the outcome to the printer,
-and verifies what the printer returned.
+and verifies what the printer returned. Name it after the action being performed, never after the scenario outcome:
+
+| Test Name (Scenario Outcome) | Bad (named after outcome) | Good (named after action) |
+|---|---|---|
+| `test_expired_card_declines_order` | `verify_expired_card_declines_order(cart)` | `verify_checkout(cart)` |
+| `test_duplicate_flag_shows_usage_error` | `verify_duplicate_flag_shows_error(cli)` | `verify_run(cli)` |
 
     def verify_agent(session):
         actual = session.run()
