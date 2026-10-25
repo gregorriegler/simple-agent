@@ -47,6 +47,8 @@ When delegating:
 - Describe only the consumer scenario and the desired behavior in the problem space.
 - It is crucial that you give the test writer the freedom to choose the test style, and that you do not nudge it towards a particular style. Mentioning a test runner or assertion library would be such a nudge
 - Make sure you do not dictate test libraries, assertion frameworks (e.g. `node:assert`, `chai`, `pytest`), styles (approval tests vs. assert), or internal implementation details.
+  - Bad: "Export a function `createCart()` with an `addItem({ sku, price })` method and verify `cart.total()` returns..."
+  - Good: "A shopper adds an item to an empty cart and sees the cart total update to the item's price."
 
 # Making a Test Pass
 Add only the minimal code necessary to make the failing test pass.
