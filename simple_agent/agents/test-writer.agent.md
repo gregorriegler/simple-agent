@@ -131,8 +131,9 @@ Reuse an existing one. If none exists, create one next to the tests and name
 it after what it shows.
 Printers should format general transitions or domain state rather than specific verbs (e.g. `print_transition(before, action, after)` rather than `print_tick`, `print_move_left`).
 
-## Verify the Thing, Not the Action
-A test suite should generally have ONE verifier per entity (e.g. `verify_order`, `verify_document`, `verify_cart`), not one per test or action.
+## Verify the Thing First
+Start with a verifier named after the thing the action produced (e.g. `verify_order`, `verify_document`, `verify_cart`). Never write one per test.
+A verifier named after the action (e.g. `verify_checkout`) comes later, as a refactoring, once tests keep repeating the same action before the verify. Do not start with it.
 Do not pollute the test body with test framework context (like test runner objects or directory paths); keep those encapsulated inside the verifier or test setup.
 
 ## Good Approved Files
