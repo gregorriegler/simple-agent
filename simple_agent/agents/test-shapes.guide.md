@@ -45,13 +45,23 @@ Then the test is just that call.
             .#.
         """)
 
-Verify the **thing**, never create one verifier per action:
+Name the verifier after the **thing** it verifies, or after the **action** that produces it.
+Never name it after one scenario's outcome:
 
-| Test Name (Scenario Outcome) | Bad (one verifier per action) | Good (verify the thing) |
+| Test Name (Scenario Outcome) | Bad (the scenario's outcome) | Good (the thing or the action) |
 |---|---|---|
-| `test_expired_card_declines_order` | `verify_expired_card_declines_order(cart)` | `verify_cart(cart)` |
+| `test_expired_card_declines_order` | `verify_expired_card_declines_order(cart)` | `verify_order(order)` or `verify_checkout(cart)` |
 | `test_duplicate_flag_shows_usage_error` | `verify_duplicate_flag_shows_error(cli)` | `verify_cli(cli)` |
-| `test_discount_applied_on_checkout` | `verify_checkout(cart)` | `verify_cart(cart, ...)` |
+| `test_discount_applied_on_checkout` | `verify_discount_applied(cart)` | `verify_order(order)` or `verify_checkout(cart)` |
+
+Start by verifying the thing the action produced.
+When the tests keep repeating the same action before the verify, extract both into a verifier named after that action.
+
+    order = checkout(cart)                    verify_checkout(cart)
+                                      ->
+    verify_order(order)
+
+The verifier runs the action and verifies the printed outcome:
 
     def verify_agent(session):
         actual = session.run()
@@ -59,9 +69,9 @@ Verify the **thing**, never create one verifier per action:
         verify(print_conversation(actual))
 
 ### State Transitions and Storyboards
-When testing state transitions (e.g. before -> action -> after), capture both the before and after states to tell the whole story, but do not create a new `verify_<action>` helper for each action.
+When testing state transitions (e.g. before -> action -> after), capture both the before and after states to tell the whole story.
 
-Instead, let a single verifier or Storyboard capture the transition:
+A single verifier or Storyboard can capture the transition:
 
     def test_archiving_an_active_project():
         project = Project(name="Phoenix", status="active")

@@ -213,7 +213,7 @@ Flag these when found. Reference by key in your suggestion.
 - **SMELL-ignored** — Test is annotated with `@Ignore`, `@Skip`, `@Disabled`, or equivalent. Either fix it or delete it.
 
 **Approval tests only**
-- **SMELL-premature-verify-function** — Naming a `verify...` function after a specific scenario outcome rather than the reusable domain action (e.g. `verify_piece_drops_on_tick` instead of `verify_tick`, or `verify_expired_card_declined` instead of `verify_checkout`). Name it after the action being performed.
+- **SMELL-premature-verify-function** — A `verify...` function is named after one scenario's outcome, such as `verify_piece_drops_on_tick` or `verify_expired_card_declined`. It fits a single test and cannot be reused. Name it after the thing it verifies (`verify_order`) or after the action that produces it (`verify_checkout`). Both are fine.
 - **SMELL-direct-assert** — Test asserts on fields instead of handing the outcome to a printer and verifying it. It has stopped being an approval test.
 - **SMELL-trivial-mapping** — Test only covers trivial one-to-one mappings or declarative UI wiring. It is only acceptable if the tested result contains both one-to-one mappings AND meaningful logic transformations.
 - **SMELL-no-story** — Approved file shows a final state with no trace of the action that produced it. Show before, action, and result in chronological order.
