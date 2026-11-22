@@ -57,10 +57,10 @@ A reader sees what the test is about without leaving the test body. That signal 
 
 To tell them apart, ask of each detail: if it changed, would this test's outcome change? If yes, it is signal and stays visible in the test. If no, it is noise and may be hidden.
 
-Hidden signal shows in two ways. In a test with an assert, the expected value becomes a Mystery Guest: a value the reader can see, but cannot trace to anything in the test. In an approval test nothing looks out of place, because the expected outcome is not in the body. The data is simply missing.
+A Mystery Guest is one kind of hidden signal: the cause is hidden but its effect is visible. A value sits in the test, and the reader cannot trace it to anything there. When the effect is hidden too, or lives in an approved file, nothing looks out of place. The data is simply missing. Both are fixed the same way: bring the signal into the test body.
 
  ```
- # Bad — where does 90 come from?
+ # Bad — Mystery Guest: where does 90 come from?
  def test_loyal_customer_gets_ten_percent_off():
      cart = a_cart()
 
@@ -68,13 +68,21 @@ Hidden signal shows in two ways. In a test with an assert, the expected value be
 
      assert actual == 90
 
- # Bad — passed in, but the name tells nothing
+ # Bad — Mystery Guest: passed in, but the name tells nothing
  def test_loyal_customer_gets_ten_percent_off():
      cart = a_cart(price=DEFAULT)
 
      actual = total(cart, a_loyal_customer())
 
      assert actual == 90
+
+ # Bad — hidden signal: the expected value is hidden too, the test shows no data at all
+ def test_loyal_customer_gets_ten_percent_off():
+     cart = a_cart()
+
+     actual = total(cart, a_loyal_customer())
+
+     assert actual == EXPECTED_TOTAL
 
  # Good — 100 goes in, 90 comes out, the customer's details stay in the helper
  def test_loyal_customer_gets_ten_percent_off():
@@ -84,7 +92,7 @@ Hidden signal shows in two ways. In a test with an assert, the expected value be
 
      assert actual == 90
 
- # Bad — an approval test: no guest to see, the arguments are simply missing
+ # Bad — hidden signal in an approval test: the arguments are simply missing
  def test_prints_an_order_of_two_books():
      verify_order_printer(ORDER_ARGS)
 
@@ -163,8 +171,8 @@ Flag these when found. Reference by key in your suggestion.
 - **SMELL-flow-control** — Flow control in test body (`if`, `else`, ternary, `for`, `while`, `do`, `try`, `catch`, `except`). Use parameterized tests for iteration.
 - **SMELL-mega-test** — Two scenarios in one test; the name needs "and" to hold it together. Split them.
 - **SMELL-verbose** — Unnecessary verbosity or ceremony. Shorter is better.
-- **SMELL-mystery-guest** — A value shows up in the test, usually in the expected outcome or the approved file, but nothing in the test body shows where it comes from. Its origin sits in a helper, a shared constant, a test bed default or a file, so the reader has to leave the test to connect cause and effect. Say which value is the guest and make its origin visible: pass it in as an argument, so the test body shows both where it enters and where it comes out. Helpers stay fine for setup that does not change the outcome.
-- **SMELL-hidden-signal** — The test body does not show the data its scenario is about: state set up before the SUT acts, or the action's input, sits in a helper, a constant or a test bed default, as in `verify_order_printer(ORDER_ARGS)`. No value looks out of place, the data is simply missing, so the reader cannot tell from the body what the scenario is. Typical for approval tests. When a visible value has no origin, use SMELL-mystery-guest instead. Say which detail is missing and pull it into the test body.
+- **SMELL-mystery-guest** — A value shows up in the test, usually in the expected outcome or the approved file, but nothing in the test body shows where it comes from. It is the kind of hidden signal where the effect is visible and its cause is not. Its origin sits in a helper, a shared constant, a test bed default or a file, so the reader has to leave the test to connect cause and effect. Say which value is the guest and make its origin visible: pass it in as an argument, so the test body shows both where it enters and where it comes out. Helpers stay fine for setup that does not change the outcome.
+- **SMELL-hidden-signal** — The test body does not show the data its scenario is about: state set up before the SUT acts, the action's input, or the expected outcome sits in a helper, a constant or a test bed default, as in `verify_order_printer(ORDER_ARGS)` or `assert actual == EXPECTED_TOTAL`. No value looks out of place, the data is simply missing, so the reader cannot tell from the body what the scenario is. Typical for approval tests, where the expected outcome is never in the body. When a visible value has no origin, it is the narrower SMELL-mystery-guest, so use that key instead. Say which detail is missing and pull it into the test body.
 - **SMELL-inline-collaborators** — Collaborators assembled inline in the test body instead of behind a `with_...` method on the test bed. Say which method should carry them.
 
 **Seam and logic**
