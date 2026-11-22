@@ -177,7 +177,7 @@ Flag these when found. Reference by key in your suggestion.
 - **SMELL-magic-value** — Magic values that exist only to satisfy a signature. Name them `IRRELEVANT` to signal they don't matter.
 
 **Structure**
-- **SMELL-shape** — The test does not follow the shape of its style: extra empty lines, arrange/act/assert comments, an arrange for a simple value that could be inlined, or more than a single call to the SUT.
+- **SMELL-shape** — The test does not follow the shape of its style: extra empty lines, arrange/act/assert comments, an arrange for a simple value that could be inlined, or more than a single call to the SUT. A Storyboard test is the exception: it may have one paragraph and one call to the SUT per step.
 - **SMELL-flow-control** — Flow control in test body (`if`, `else`, ternary, `for`, `while`, `do`, `try`, `catch`, `except`). Use parameterized tests for iteration.
 - **SMELL-mega-test** — Two scenarios in one test; the name needs "and" to hold it together. Split them.
 - **SMELL-verbose** — Unnecessary verbosity or ceremony. Shorter is better.

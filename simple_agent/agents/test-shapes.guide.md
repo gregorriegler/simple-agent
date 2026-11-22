@@ -80,7 +80,8 @@ A single verifier or Storyboard can capture the transition:
 
 The single `verify_project` captures before, executes the action, captures after, and verifies the printed transition.
 
-When multiple steps or chronological history matter, use a Storyboard:
+When multiple steps or chronological history matter, use a Storyboard.
+It is the one exception to the approval shape: each step is its own paragraph, a call to the SUT followed by a frame, and the test ends in a plain `verify(story)`.
 
     def test_order_fulfillment_workflow():
         story = StoryBoard()
