@@ -60,13 +60,29 @@ To tell them apart, ask of each detail: if it changed, would this test's outcome
 When signal is hidden, the outcome shows a Mystery Guest: a value the reader can see, but cannot trace to anything in the test.
 
  ```
- # Bad — the previous session and the arg are hidden
- def test_continues_last_session():
-     verify(test_bed().with_history().run_cli(CONTINUE_ARGS))
+ # Bad — where does 90 come from?
+ def test_loyal_customer_gets_ten_percent_off():
+     cart = a_cart()
 
- # Good — signal visible, noise stays in the test bed
- def test_continues_last_session():
-     verify(test_bed().with_session("Hello").run_cli(["--continue"]))
+     actual = total(cart, a_loyal_customer())
+
+     assert actual == 90
+
+ # Bad — passed in, but the name tells nothing
+ def test_loyal_customer_gets_ten_percent_off():
+     cart = a_cart(price=DEFAULT)
+
+     actual = total(cart, a_loyal_customer())
+
+     assert actual == 90
+
+ # Good — 100 goes in, 90 comes out, the customer's details stay in the helper
+ def test_loyal_customer_gets_ten_percent_off():
+     cart = a_cart(price=100)
+
+     actual = total(cart, a_loyal_customer())
+
+     assert actual == 90
  ```
 
 ### No flow control in tests
