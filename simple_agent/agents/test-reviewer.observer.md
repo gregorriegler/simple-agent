@@ -85,15 +85,15 @@ Hidden signal shows in two ways. In a test with an assert, the expected value be
      assert actual == 90
 
  # Bad — an approval test: no guest to see, the arguments are simply missing
- def test_orders_two_books():
-     verify_cli(ORDER_ARGS)
+ def test_prints_an_order_of_two_books():
+     verify_order_printer(ORDER_ARGS)
 
  # Good — the body shows what goes in
- def test_orders_two_books():
-     verify_cli(["order", "--book", "Dune", "--quantity", "2"])
+ def test_prints_an_order_of_two_books():
+     verify_order_printer(["--book", "Dune", "--quantity", "2"])
 
  # Its approved file shows what went in and what came out
- $ shop order --book Dune --quantity 2
+ $ order_printer --book Dune --quantity 2
 
  Order
    2 x Dune    20.00
@@ -164,7 +164,7 @@ Flag these when found. Reference by key in your suggestion.
 - **SMELL-mega-test** — Two scenarios in one test; the name needs "and" to hold it together. Split them.
 - **SMELL-verbose** — Unnecessary verbosity or ceremony. Shorter is better.
 - **SMELL-mystery-guest** — A value shows up in the test, usually in the expected outcome or the approved file, but nothing in the test body shows where it comes from. Its origin sits in a helper, a shared constant, a test bed default or a file, so the reader has to leave the test to connect cause and effect. Say which value is the guest and make its origin visible: pass it in as an argument, so the test body shows both where it enters and where it comes out. Helpers stay fine for setup that does not change the outcome.
-- **SMELL-hidden-signal** — The test body does not show the data its scenario is about: state set up before the SUT acts, or the action's input, sits in a helper, a constant or a test bed default, as in `verify_cli(ORDER_ARGS)`. No value looks out of place, the data is simply missing, so the reader cannot tell from the body what the scenario is. Typical for approval tests. When a visible value has no origin, use SMELL-mystery-guest instead. Say which detail is missing and pull it into the test body.
+- **SMELL-hidden-signal** — The test body does not show the data its scenario is about: state set up before the SUT acts, or the action's input, sits in a helper, a constant or a test bed default, as in `verify_order_printer(ORDER_ARGS)`. No value looks out of place, the data is simply missing, so the reader cannot tell from the body what the scenario is. Typical for approval tests. When a visible value has no origin, use SMELL-mystery-guest instead. Say which detail is missing and pull it into the test body.
 - **SMELL-inline-collaborators** — Collaborators assembled inline in the test body instead of behind a `with_...` method on the test bed. Say which method should carry them.
 
 **Seam and logic**
