@@ -57,7 +57,7 @@ A reader sees what the test is about without leaving the test body. That signal 
 
 To tell them apart, ask of each detail: if it changed, would this test's outcome change? If yes, it is signal and stays visible in the test. If no, it is noise and may be hidden.
 
-Signal hidden outside the test is a Mystery Guest: the reader has to leave the test to understand it.
+When signal is hidden, the outcome shows a Mystery Guest: a value the reader can see, but cannot trace to anything in the test.
 
  ```
  # Bad — the previous session and the arg are hidden
@@ -132,7 +132,7 @@ Flag these when found. Reference by key in your suggestion.
 - **SMELL-flow-control** — Flow control in test body (`if`, `else`, ternary, `for`, `while`, `do`, `try`, `catch`, `except`). Use parameterized tests for iteration.
 - **SMELL-mega-test** — Two scenarios in one test; the name needs "and" to hold it together. Split them.
 - **SMELL-verbose** — Unnecessary verbosity or ceremony. Shorter is better.
-- **SMELL-mystery-guest** — A value that decides this test's outcome lives outside the test body: in a helper, a shared constant, a test bed default or a file. The reader meets it in the expected outcome but cannot see where it comes from, so cause and effect are no longer in one place. It can be state set up before the SUT acts, the action's input, or the expected outcome. Name the value and pass it in as an argument, so it shows in the test body. Helpers stay fine for setup that does not change the outcome.
+- **SMELL-mystery-guest** — A value shows up in the test, usually in the expected outcome or the approved file, but nothing in the test body shows where it comes from. Its origin sits in a helper, a shared constant, a test bed default or a file, so the reader has to leave the test to connect cause and effect. Say which value is the guest and make its origin visible: pass it in as an argument, so the test body shows both where it enters and where it comes out. Helpers stay fine for setup that does not change the outcome.
 - **SMELL-inline-collaborators** — Collaborators assembled inline in the test body instead of behind a `with_...` method on the test bed. Say which method should carry them.
 
 **Seam and logic**
